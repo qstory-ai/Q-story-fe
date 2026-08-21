@@ -1,0 +1,272 @@
+[FALLBACK | A_OBSERVE_BIRD]
+[VISUAL | FB-A-OBSERVE-V01 | asset=HG-FB-ART-A-OBSERVE-BIRD-V1 | mode=bird-turns-toward-sweet-scent]
+
+[NARRATOR | FALLBACK]
+헨젤과 그레텔은 다가가지 않고 새를 조용히 지켜보았어요.
+새는 두 아이를 바라보다가 몸을 돌려 숲 안쪽으로 코끝을 들었어요.
+그쪽에서는 아주 희미한 단 냄새가 흘러왔지요.
+
+[GRETEL | DIALOGUE]
+“우리가 아니라 저 냄새가 나는 곳을 보고 있었나 봐.”
+
+[NARRATOR | FALLBACK]
+새는 가까운 가지로 날아가 남매가 따라오는지 기다렸어요.
+남매는 서로 손을 잡고 안전한 거리를 두어 따라갔어요.
+
+[SYSTEM | REJOIN:A | target=HG-F04-CANDY-HOUSE-REVEAL]
+
+[FALLBACK | A_SPEAK_TO_BIRD]
+[VISUAL | FB-A-SPEAK-V01 | asset=HG-FB-ART-A-SPEAK-TO-BIRD-V1 | mode=gretel-greets-bird]
+
+[GRETEL | DIALOGUE]
+“하얀 새야, 우리에게 알려주고 싶은 것이 있니?”
+
+[NARRATOR | FALLBACK]
+새는 달아나지 않고 짧게 두 번 울었어요.
+그리고 조금 앞의 가지로 날아가 남매를 기다렸지요.
+
+[HANSEL | DIALOGUE]
+“우리를 무서워하지는 않는 것 같아. 천천히 따라가 보자.”
+
+[NARRATOR | FALLBACK]
+새가 향한 쪽에서 단 냄새가 흘러왔어요.
+남매는 손을 잡고 새의 뒤를 따라갔어요.
+
+[TRACE | create_if_available=ALLY(white_bird)]
+[SYSTEM | REJOIN:A | target=HG-F04-CANDY-HOUSE-REVEAL]
+
+[FALLBACK | A_CHECK_SURROUNDINGS]
+[VISUAL | FB-A-CHECK-V01 | asset=HG-FB-ART-A-CHECK-SURROUNDINGS-V1 | mode=crumb-footprints-feather-highlight]
+
+[NARRATOR | FALLBACK]
+남매는 새를 따라가기 전에 나무 아래부터 살펴보았어요.
+땅에는 아주 작은 빵 부스러기와 여러 새의 발자국이 남아 있었어요.
+하얀 깃털 하나는 단 냄새가 흘러오는 방향을 가리키듯 나뭇잎에 걸려 있었지요.
+
+[HANSEL | DIALOGUE]
+“이 새 혼자 빵을 먹은 건 아닌 것 같아.
+그래도 어디에서 왔는지는 알 수 있겠어.”
+
+[NARRATOR | FALLBACK]
+남매는 냄새와 새가 향한 방향을 함께 확인하며 걸어갔어요.
+
+[SYSTEM | REJOIN:A | target=HG-F04-CANDY-HOUSE-REVEAL]
+
+[FALLBACK | A_TRY_OTHER_PATH]
+[VISUAL | FB-A-OTHER-PATH-V01 | asset=HG-FB-ART-A-TRY-OTHER-PATH-V1 | mode=fallen-tree-and-thorns]
+
+[NARRATOR | FALLBACK]
+남매는 새를 바로 따라가지 않고 반대쪽 길을 먼저 확인했어요.
+하지만 조금 가자 쓰러진 나무와 가시덤불이 길을 막고 있었어요.
+
+[GRETEL | DIALOGUE]
+“이쪽은 지나가기 어렵겠어. 그래도 직접 확인해보길 잘했어.”
+
+[NARRATOR | FALLBACK]
+하얀 새는 남매 위를 한 바퀴 돌고 가시가 없는 열린 길의 가지에 앉았어요.
+남매는 돌아와 그 열린 길을 따라갔어요.
+
+[SYSTEM | REJOIN:A | target=HG-F04-CANDY-HOUSE-REVEAL]
+
+[FALLBACK | B_ASK_OLD_WOMAN]
+[VISUAL | FB-B-ASK-V01 | asset=HG-FB-ART-B-ASK-OLD-WOMAN-V1 | mode=old-woman-grips-keyring]
+
+[HANSEL | DIALOGUE]
+“왜 숲 한가운데에서 혼자 살고 계세요?”
+
+[OLD_WOMAN | DIALOGUE]
+“오래전부터 길을 잃은 손님을 기다리며 살았단다.”
+
+[NARRATOR | FALLBACK]
+여인은 다정하게 웃었지만 언제부터, 왜 기다렸는지는 말하지 않았어요.
+그리고 대답하는 동안 허리춤의 열쇠고리를 손으로 꼭 잡았지요.
+
+[GRETEL | DIALOGUE]
+“친절한 말만으로는 아직 잘 모르겠어. 열쇠도 기억해두자.”
+
+[SYSTEM | REJOIN:B | target=HG-F05-ENTER-HOUSE]
+
+[FALLBACK | B_CHECK_KEYS]
+[VISUAL | FB-B-KEYS-V01 | asset=HG-FB-ART-B-CHECK-KEYS-V1 | mode=black-key-and-sugar-pattern-highlight]
+
+[NARRATOR | FALLBACK]
+그레텔은 여인의 얼굴이 아니라 손과 열쇠고리를 살펴보았어요.
+커다란 검은 열쇠가 흔들리자 현관 안쪽의 설탕 소용돌이 무늬에도
+검은 빛이 한 번 지나갔지요.
+
+[GRETEL | DIALOGUE]
+“헨젤, 저 열쇠와 벽 무늬가 같이 움직이는 것 같아.”
+
+[HANSEL | DIALOGUE]
+“무엇을 여는지는 모르지만 기억해두자.”
+
+[TRACE | create_if_available=KNOWLEDGE(key_pattern_link)]
+[SYSTEM | REJOIN:B | target=HG-F05-ENTER-HOUSE]
+
+[FALLBACK | B_CHECK_HOUSE]
+[VISUAL | FB-B-HOUSE-V01 | asset=HG-FB-ART-B-CHECK-HOUSE-V1 | mode=window-edge-and-door-frame-highlight]
+
+[NARRATOR | FALLBACK]
+남매는 들어가기 전에 창문과 문틀을 살펴보았어요.
+과자 벽은 부드러웠지만 설탕 창문 가장자리에는 가느다란 철선이 숨어 있었어요.
+
+[HANSEL | DIALOGUE]
+“평범한 과자집은 아닌 것 같아.”
+
+[OLD_WOMAN | DIALOGUE]
+“숲짐승이 망가뜨리지 못하게 튼튼하게 만든 것뿐이란다.”
+
+[NARRATOR | FALLBACK]
+설명은 가능했지만 확실한 답은 아니었어요.
+남매는 철선의 위치를 기억했어요.
+
+[SYSTEM | REJOIN:B | target=HG-F05-ENTER-HOUSE]
+
+[FALLBACK | B_STEP_BACK_MARK_EXIT]
+[VISUAL | FB-B-STEP-BACK-V01 | asset=HG-FB-ART-B-STEP-BACK-MARK-EXIT-V1 | mode=siblings-mark-tree-and-step-away]
+
+[NARRATOR | FALLBACK]
+남매는 나무에 화살표를 그리고 과자집에서 물러났어요.
+하지만 길을 따라가자 방금 표시한 나무가 다시 나타났어요.
+숲길이 과자집 주위를 둥글게 돌고 있었던 거예요.
+
+[HANSEL | DIALOGUE]
+“집에는 들어가지 말고 여기서 더 살펴보자.”
+
+[VISUAL | FB-B-STEP-BACK-V02 | asset=HG-FB-ART-B-STEP-BACK-MARK-EXIT-V2 | mode=outdoor-candy-bars-and-witch-reveal]
+
+[NARRATOR | FALLBACK]
+그 순간 여인의 표정이 차갑게 변했어요.
+여인은 검은 열쇠를 바깥벽의 설탕 무늬에 돌렸고,
+사탕 쇠창살이 땅에서 올라와 헨젤을 둘러쌌어요.
+
+[WITCH | DIALOGUE]
+“집에 들어오지 않아도 내 과자집 곁에서는 달아날 수 없단다.”
+
+[NARRATOR | FALLBACK]
+여인은 아이들을 속여 가두는 마녀였어요.
+그레텔은 쇠창살 밖으로 피했지만 헨젤을 두고 떠나지 않았어요.
+헨젤은 그레텔에게 열쇠의 움직임을 잘 보라고 말했어요.
+마녀가 헨젤의 음식을 부엌에서 만들라고 명령하자,
+그레텔은 헨젤을 혼자 두지 않으려고 문 가까운 부엌으로 들어갔어요.
+하지만 자신들이 표시한 나무의 위치를 잊지 않았지요.
+
+[TRACE | create_if_available=ROUTE_MARK(tree_arrow)]
+[SYSTEM | REJOIN:B | target=HG-F06-CAPTURED-STATE]
+
+[FALLBACK | B_MAKE_SIBLING_SIGNAL]
+[VISUAL | FB-B-SIGNAL-V01 | asset=HG-FB-ART-B-MAKE-SIBLING-SIGNAL-V1 | mode=siblings-whisper-before-entry]
+
+[NARRATOR | FALLBACK]
+남매는 여인에게 들리지 않게 서로 가까이 섰어요.
+
+[GRETEL | DIALOGUE]
+“이상한 일이 생기면 무엇이든 두 번 두드리자.”
+
+[HANSEL | DIALOGUE]
+“탁, 탁. 서로 괜찮은지 알려주는 신호로 하자.”
+
+[NARRATOR | FALLBACK]
+두 아이는 문, 그릇, 나무 어디에서든 쓸 수 있는 신호를 기억했어요.
+그리고 무슨 일이 생겨도 이 약속을 잊지 않기로 했어요.
+
+[TRACE | create=SIGNAL(two_taps)]
+[SYSTEM | REJOIN:B | target=HG-F05-ENTER-HOUSE]
+
+[FALLBACK | C_ASK_DEMONSTRATION]
+[VISUAL | FB-C-DEMO-V01 | asset=HG-FB-ART-C-ASK-DEMONSTRATION-V1 | mode=gretel-keeps-distance]
+
+[GRETEL | DIALOGUE]
+“저는 어떻게 확인하는지 모르겠어요.
+먼저 보여주시면 그대로 따라 할게요.”
+
+[NARRATOR | FALLBACK]
+그레텔은 오븐에서 멀리 떨어진 채 마녀의 손과 열쇠를 살펴보았어요.
+마녀는 답답하다는 듯 혀를 차며 앞으로 나섰지요.
+
+[SYSTEM | REJOIN:C | target=HG-F07-DEMONSTRATION]
+
+[FALLBACK | C_DISTRACT_AND_TAKE_KEYS]
+[VISUAL | FB-C-DISTRACT-V01 | asset=HG-FB-ART-C-DISTRACT-AND-TAKE-KEYS-V1 | mode=witch-moves-pot-and-gretel-takes-keys]
+
+[NARRATOR | FALLBACK]
+그레텔은 작업대 끝의 빈 냄비를 가리켰어요.
+“할머니, 저 냄비가 떨어질 것 같아요!”
+마녀는 열쇠고리를 작업대에 내려놓고 냄비를 안쪽으로 옮겼어요.
+
+[TRACE | create_if_available=DISTRACTION(loose_pot)]
+
+[NARRATOR | FALLBACK]
+마녀가 냄비 쪽을 보는 순간, 그레텔은 열쇠고리를 집었어요.
+작은 은색 열쇠로 헨젤의 쇠창살을 열고, 함께 설탕 소용돌이 무늬와 옆문으로 달렸지요.
+
+[HANSEL | DIALOGUE]
+“검은 열쇠를 마녀가 쓰던 방향과 반대로!”
+
+[VISUAL | FB-C-DISTRACT-V02 | asset=HG-ART-34-ESCAPE-CORRIDOR | mode=siblings-run-through-corridor-toward-storehouse-and-exit]
+
+[NARRATOR | FALLBACK]
+그레텔이 열쇠를 돌리자 남매 앞의 문은 열리고 마녀 앞에는 철문이 내려왔어요.
+두 아이는 손을 잡고 긴 복도를 따라 창고와 밖으로 나가는 문 앞까지 달렸어요.
+
+[SYSTEM | REJOIN:C | target=HG-F08-AFTER-BRANCH-ESCAPE]
+
+[FALLBACK | C_USE_SIGNAL]
+[VISUAL | FB-C-SIGNAL-V01 | asset=HG-FB-ART-C-USE-SIGNAL-V2 | mode=siblings-tap-twice-with-empty-hands]
+
+[NARRATOR | FALLBACK]
+그레텔은 오븐을 확인하는 법을 먼저 보여달라고 했어요.
+마녀가 두 손을 쓰려고 열쇠고리를 작업대에 내려놓았어요.
+그레텔은 과자집 문 앞에서 헨젤과 나눈 짧은 약속을 떠올렸어요.
+“위험할 때 탁, 탁 두 번 두드리면 함께 움직이자.”
+그레텔은 헨젤을 바라보며 작업대를 탁, 탁 두드렸어요.
+헨젤은 뜻을 알아채고 쇠창살을 두 번 두드린 뒤, 마녀를 불렀어요.
+마녀는 헨젤 쪽으로 돌아서서 쇠창살에 다가갔지요.
+
+[VISUAL | FB-C-SIGNAL-V02 | asset=HG-ART-34-ESCAPE-CORRIDOR | mode=siblings-run-through-corridor-toward-storehouse-and-exit]
+
+[NARRATOR | FALLBACK]
+그 사이 그레텔은 열쇠고리를 집어 헨젤을 풀어주었어요.
+남매는 함께 검은 열쇠를 반대로 돌렸고,
+마녀 앞에 사탕 철문이 내려오자 긴 복도를 따라 창고와 밖으로 나가는 문 앞까지 달렸어요.
+
+[TRACE | create_if_available=COORDINATION(two_taps)]
+[SYSTEM | REJOIN:C | target=HG-F08-AFTER-BRANCH-ESCAPE]
+
+[FALLBACK | C_CHECK_LOCK_FROM_DISTANCE]
+[VISUAL | FB-C-CHECK-V01 | asset=HG-FB-ART-C-CHECK-LOCK-FROM-DISTANCE-V1 | mode=long-paddle-near-sugar-pattern]
+
+[NARRATOR | FALLBACK]
+그레텔은 오븐에 다가가지 않고 긴 빵 주걱을 집었어요.
+주걱 끝을 설탕 소용돌이 무늬 가까이에 대자
+헨젤의 쇠창살과 부엌의 철문이 함께 작게 떨렸지요.
+
+[GRETEL | DIALOGUE]
+“저 무늬와 철문들이 이어져 있어.
+검은 열쇠가 움직이면 문도 움직일 거야.”
+
+[NARRATOR | FALLBACK]
+그레텔은 알아낸 사실을 숨기고 마녀에게 먼저 확인하는 법을 보여달라고 했어요.
+
+[SYSTEM | REJOIN:C | target=HG-F07-DEMONSTRATION]
+
+[FALLBACK | C_BLOCK_PURSUIT_SAFELY]
+[VISUAL | FB-C-BLOCK-V01 | asset=HG-FB-ART-C-BLOCK-PURSUIT-SAFELY-V1 | mode=gretel-unlocks-cage]
+
+[NARRATOR | FALLBACK]
+그레텔은 마녀를 다치게 하지 않고 따라오지 못하게 하기로 했어요.
+먼저 보여달라는 말에 마녀가 열쇠고리를 작업대에 내려놓자,
+그레텔은 재빨리 열쇠를 집었어요.
+열쇠고리를 잡자 먼저 작은 은색 열쇠로 헨젤의 문을 열었지요.
+
+[HANSEL | DIALOGUE]
+“우리를 가두던 큰 철문으로 길을 막자.”
+
+[VISUAL | FB-C-BLOCK-V02 | asset=HG-ART-34-ESCAPE-CORRIDOR | mode=siblings-run-through-corridor-toward-storehouse-and-exit]
+
+[NARRATOR | FALLBACK]
+남매는 검은 열쇠를 반대 방향으로 돌렸어요.
+두 아이 앞의 문은 열리고, 마녀 앞에는 사탕 철문이 내려왔어요.
+남매는 손을 잡고 긴 복도를 따라 창고와 밖으로 나가는 문 앞까지 달렸어요.
+
+[SYSTEM | REJOIN:C | target=HG-F08-AFTER-BRANCH-ESCAPE]

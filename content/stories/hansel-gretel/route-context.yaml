@@ -1,0 +1,62 @@
+schemaVersion: 1
+storyId: HG
+routePromptVersion: QSTORY_ROUTE_PROMPT_V6_COVERAGE
+routePolicyVersion: qstory-route-policy-v3-coverage
+responseTextNormalizationVersion: qstory-ko-response-normalizer-v2
+anchors:
+  HG-Q-A:
+    slot: A
+    sceneId: HG-F04
+    summary: 헨젤과 그레텔이 숲에서 길을 잃었고, 낮은 나뭇가지의 하얀 새가 두 아이를 바라보며 길을 알려줄 듯 움직인다.
+    primarySpeakerId: HG-SPK-GRETEL
+    allowedSpeakerIds: [HG-SPK-GRETEL]
+    sttKeywords: [헨젤, 그레텔, 하얀 새, 숲, 길, 냄새]
+    defaultFallbackFamilyId: A_OBSERVE_BIRD
+    defaultRejoinAt: HG-F04-CANDY-HOUSE-REVEAL
+    concernChoice:
+      familyIds: [A_OBSERVE_BIRD, A_SPEAK_TO_BIRD, A_CHECK_SURROUNDINGS]
+      responseText: 그렇게 걱정될 수 있어. 바로 따라가기 전에 안전하게 확인할 방법을 함께 골라 보자.
+    forbiddenKnowledge: [과자집 노파의 정체, 마녀의 계획, 최종 탈출 방법과 결말]
+    actionFamilies:
+      - { id: A_OBSERVE_BIRD, meaning: 안전한 거리에서 새의 행동을 관찰한다., acknowledgementText: '좋아, 우리 가까이 가지 말고 하얀 새를 조용히 지켜보자.', reportSummary: 남매는 거리를 둔 채 새의 시선과 단 냄새를 확인하고 손을 잡은 채 새를 따라갔어요., bridgeAudioId: BRIDGE-A_OBSERVE_BIRD, branchAssetId: HG-FB-ART-A-OBSERVE-BIRD-V1 }
+      - { id: A_SPEAK_TO_BIRD, meaning: 하얀 새에게 길을 아는지 말로 묻는다., acknowledgementText: '좋아, 내가 하얀 새에게 길을 아는지 다정하게 물어볼게.', reportSummary: 그레텔이 하얀 새에게 말을 걸자 새가 앞선 가지에서 기다렸고 남매는 천천히 따라갔어요., bridgeAudioId: BRIDGE-A_SPEAK_TO_BIRD, branchAssetId: HG-FB-ART-A-SPEAK-TO-BIRD-V1 }
+      - { id: A_CHECK_SURROUNDINGS, meaning: 새 주변의 발자국·냄새·나뭇가지 방향을 확인한다., acknowledgementText: '좋아, 새를 따라가기 전에 주변에 남은 단서부터 찾아보자.', reportSummary: 남매는 빵 부스러기·발자국·깃털과 단 냄새를 함께 확인한 뒤 걸어갈 방향을 정했어요., bridgeAudioId: BRIDGE-A_CHECK_SURROUNDINGS, branchAssetId: HG-FB-ART-A-CHECK-SURROUNDINGS-V1 }
+      - { id: A_TRY_OTHER_PATH, meaning: 새를 바로 따라가지 않고 반대쪽 길을 짧게 확인한다., acknowledgementText: '좋아, 새를 바로 따라가지 말고 다른 안전한 길도 살펴보자.', reportSummary: 반대쪽 길이 가시덤불과 쓰러진 나무로 막힌 것을 확인한 남매는 새가 알려 준 열린 길로 돌아왔어요., bridgeAudioId: BRIDGE-A_TRY_OTHER_PATH, branchAssetId: HG-FB-ART-A-TRY-OTHER-PATH-V1 }
+  HG-Q-B:
+    slot: B
+    sceneId: HG-F05
+    summary: 아이들이 과자집을 발견했고 노파가 문을 열었다. 문 주변에는 열쇠와 설탕 무늬 같은 수상한 단서가 있다.
+    primarySpeakerId: HG-SPK-GRETEL
+    allowedSpeakerIds: [HG-SPK-GRETEL]
+    sttKeywords: [헨젤, 그레텔, 할머니, 노파, 과자집, 열쇠, 자물쇠, 창문, 출구, 신호]
+    defaultFallbackFamilyId: B_CHECK_KEYS
+    defaultRejoinAt: HG-F05-ENTER-HOUSE
+    concernChoice:
+      familyIds: [B_ASK_OLD_WOMAN, B_CHECK_HOUSE, B_MAKE_SIBLING_SIGNAL]
+      responseText: 나도 조금 수상하게 느껴져. 바로 들어가기 전에 안전하게 확인할 방법을 함께 골라 보자.
+    forbiddenKnowledge: [노파가 마녀라는 사실, 헨젤이 갇히는 미래 사건, 최종 탈출 방법과 결말]
+    actionFamilies:
+      - { id: B_ASK_OLD_WOMAN, meaning: 노파에게 집과 열쇠에 관해 짧게 질문한다., acknowledgementText: '좋아, 내가 할머니에게 이 집과 열쇠에 관해 조심스럽게 물어볼게.', reportSummary: 노파는 질문에 얼버무리면서도 열쇠고리를 꼭 잡았고 남매는 그 수상한 단서를 기억했어요., bridgeAudioId: BRIDGE-B_ASK_OLD_WOMAN, branchAssetId: HG-FB-ART-B-ASK-OLD-WOMAN-V1 }
+      - { id: B_CHECK_KEYS, meaning: 문 주변의 열쇠와 자물쇠를 살핀다., acknowledgementText: '좋아, 할머니 손에 있는 열쇠고리부터 자세히 살펴보자.', reportSummary: 그레텔은 검은 열쇠와 설탕 무늬가 함께 반응하는 것을 발견해 헨젤에게 알려줬어요., bridgeAudioId: BRIDGE-B_CHECK_KEYS, branchAssetId: HG-FB-ART-B-CHECK-KEYS-V1 }
+      - { id: B_CHECK_HOUSE, meaning: 문턱 밖에서 집의 창문과 출구 단서를 확인한다., acknowledgementText: '좋아, 안으로 들어가기 전에 창문과 출구를 먼저 확인하자.', reportSummary: 남매는 문턱 밖에서 창문 가장자리의 철선을 발견하고 출구 단서를 기억했어요., bridgeAudioId: BRIDGE-B_CHECK_HOUSE, branchAssetId: HG-FB-ART-B-CHECK-HOUSE-V1 }
+      - { id: B_STEP_BACK_MARK_EXIT, meaning: 한 걸음 물러나 안전한 출구 위치를 표시한다., acknowledgementText: '좋아, 한 걸음 물러나서 돌아갈 길을 잊지 않게 표시하자.', reportSummary: 남매는 돌아갈 표시를 남겼지만 길이 과자집 주위를 도는 것을 알았고 마녀의 함정 속에서도 그 표시를 기억했어요., bridgeAudioId: BRIDGE-B_STEP_BACK_MARK_EXIT, branchAssetId: HG-FB-ART-B-STEP-BACK-MARK-EXIT-V1 }
+      - { id: B_MAKE_SIBLING_SIGNAL, meaning: 헨젤과 그레텔이 서로 알아볼 안전 신호를 정한다., acknowledgementText: '좋아, 무슨 일이 생기면 바로 알 수 있게 우리끼리 신호를 정하자.', reportSummary: 남매는 위험할 때 무엇이든 두 번 두드리는 비밀 신호를 정하고 함께 기억했어요., bridgeAudioId: BRIDGE-B_MAKE_SIBLING_SIGNAL, branchAssetId: HG-FB-ART-B-MAKE-SIBLING-SIGNAL-V1 }
+  HG-Q-C:
+    slot: C
+    sceneId: HG-F07
+    summary: 마녀가 자신은 화덕에서 멀리 서서 열쇠고리를 쥔 채 그레텔에게만 안을 보라고 한다. 명령의 의도는 아직 설명되지 않았다.
+    primarySpeakerId: HG-SPK-GRETEL
+    allowedSpeakerIds: [HG-SPK-GRETEL]
+    sttKeywords: [헨젤, 그레텔, 마녀, 오븐, 화덕, 열쇠고리, 쇠창살, 시범, 신호, 자물쇠]
+    defaultFallbackFamilyId: C_ASK_DEMONSTRATION
+    defaultRejoinAt: HG-F07-DEMONSTRATION
+    concernChoice:
+      familyIds: [C_ASK_DEMONSTRATION, C_USE_SIGNAL, C_CHECK_LOCK_FROM_DISTANCE]
+      responseText: 그 걱정이 맞아. 가까이 가지 말고 안전하게 움직일 방법을 함께 골라 보자.
+    forbiddenKnowledge: [구체적인 폭력 방법, 화덕을 이용해 상대를 해치는 묘사, 최종 결말의 선공개]
+    actionFamilies:
+      - { id: C_ASK_DEMONSTRATION, meaning: 그레텔이 모르는 척하며 먼저 시범을 보여 달라고 한다., acknowledgementText: '좋아, 내가 모르는 척하면서 마녀에게 먼저 보여 달라고 해볼게.', reportSummary: 그레텔은 화덕에서 멀리 서서 먼저 보여 달라고 했고 마녀가 열쇠를 든 채 앞으로 나서게 했어요., bridgeAudioId: BRIDGE-C_ASK_DEMONSTRATION, branchAssetId: HG-FB-ART-C-ASK-DEMONSTRATION-V1 }
+      - { id: C_DISTRACT_AND_TAKE_KEYS, meaning: 마녀의 주의를 안전하게 돌리고 열쇠를 확보한다., acknowledgementText: '좋아, 마녀의 시선을 다른 곳으로 돌리고 열쇠를 챙길 기회를 찾아보자.', reportSummary: 그레텔은 냄비로 마녀의 시선을 돌려 열쇠를 얻고 헨젤을 풀어 함께 복도로 빠져나갔어요., bridgeAudioId: BRIDGE-C_DISTRACT_AND_TAKE_KEYS, branchAssetId: HG-FB-ART-C-DISTRACT-AND-TAKE-KEYS-V1 }
+      - { id: C_USE_SIGNAL, meaning: 남매가 문 앞에서 나눈 두 번 두드리기 약속을 떠올려 움직일 순간을 맞춘다., acknowledgementText: '좋아, 문 앞에서 헨젤과 나눈 약속대로 두 번 두드리는 신호를 보낼게.', reportSummary: '그레텔은 과자집 문 앞에서 나눈 약속을 떠올리고, 헨젤과 빈손으로 탁, 탁 신호를 주고받아 마녀의 시선을 돌린 뒤 함께 탈출했어요.', bridgeAudioId: BRIDGE-C_USE_SIGNAL, branchAssetId: HG-FB-ART-C-USE-SIGNAL-V2, requiresPriorFamilyIds: [B_MAKE_SIBLING_SIGNAL] }
+      - { id: C_CHECK_LOCK_FROM_DISTANCE, meaning: 화덕에 다가가지 않고 열쇠와 잠금 상태를 확인한다., acknowledgementText: '좋아, 위험하게 다가가지 말고 멀리서 자물쇠 상태를 확인하자.', reportSummary: 그레텔은 긴 빵 주걱으로 잠금 무늬와 철문이 연결된 것을 알아내고 마녀에게 먼저 시범을 요청했어요., bridgeAudioId: BRIDGE-C_CHECK_LOCK_FROM_DISTANCE, branchAssetId: HG-FB-ART-C-CHECK-LOCK-FROM-DISTANCE-V1 }
+      - { id: C_BLOCK_PURSUIT_SAFELY, meaning: 문과 주변 물건을 이용해 안전하게 추격을 늦춘다., acknowledgementText: '좋아, 아무도 다치지 않게 문과 주변 물건으로 마녀를 늦춰보자.', reportSummary: 남매는 열쇠로 헨젤을 풀고 큰 철문을 내려 마녀의 추격을 늦춘 뒤 함께 달아났어요., bridgeAudioId: BRIDGE-C_BLOCK_PURSUIT_SAFELY, branchAssetId: HG-FB-ART-C-BLOCK-PURSUIT-SAFELY-V1 }

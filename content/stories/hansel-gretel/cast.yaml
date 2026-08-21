@@ -1,0 +1,55 @@
+schemaVersion: 1
+storyId: HG
+castVersion: hg-gemini-tts-cast-v2
+speakers:
+  NARRATOR:
+    speakerId: HG-SPK-NARRATOR
+    role: narrator
+    displayName: 이야기꾼 Q
+    voice: Sulafat
+    profile: A warm, steady adult woman who narrates a Korean picture book for children ages six to nine.
+    direction: Speak clearly and calmly. Keep suspense gentle and never exaggerate fear.
+  FATHER:
+    speakerId: HG-SPK-FATHER
+    role: character
+    displayName: 아버지
+    voice: Charon
+    profile: A tired middle-aged father whose worry, avoidance, regret, and responsibility remain distinct.
+    direction: Use a low, restrained delivery. In the ending, sound sincere and accountable rather than sentimental.
+  STEPMOTHER:
+    speakerId: HG-SPK-STEPMOTHER
+    role: character
+    displayName: 새어머니
+    voice: Kore
+    profile: A sharp, stubborn adult woman. She is intimidating but is not a monster or the witch.
+    direction: Speak briefly, firmly, and coldly. Do not use a supernatural or caricatured villain voice.
+  HANSEL:
+    speakerId: HG-SPK-HANSEL
+    role: character
+    displayName: 헨젤
+    voice: Puck
+    profile: A thoughtful young boy who is clever but still vulnerable and imperfect.
+    direction: Sound youthful and careful. Become slightly more confident only when explaining a plan.
+  GRETEL:
+    speakerId: HG-SPK-GRETEL
+    role: character
+    displayName: 그레텔
+    voice: Leda
+    profile: A perceptive young girl who speaks directly and kindly to the child listening.
+    direction: Sound youthful, curious, and warm in questions; calm and decisive during the escape.
+  OLD_WOMAN:
+    speakerId: HG-SPK-OLD_WOMAN
+    role: character
+    displayName: 노파
+    voice: Gacrux
+    samePersonKey: OLD_WOMAN_WITCH
+    profile: An elderly Korean woman with a mature, slightly breathy voice. She sounds grandmotherly, gentle, and faintly mysterious.
+    direction: Use an older woman’s slower cadence, soft breath, and clear articulation. Keep the invitation warm but subtly uncanny.
+  WITCH:
+    speakerId: HG-SPK-WITCH
+    role: character
+    displayName: 마녀
+    voice: Gacrux
+    samePersonKey: OLD_WOMAN_WITCH
+    profile: The exact same elderly Korean woman as OLD_WOMAN, with the same age and core vocal identity after her disguise is revealed.
+    direction: Preserve the same mature female voice. Remove all warmth and speak coldly, firmly, and impatiently without becoming a male voice.

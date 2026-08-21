@@ -1,0 +1,94 @@
+schemaVersion: 1
+storyId: HG
+audio:
+  minDurationSeconds: 0.35
+  minRmsDb: -42
+  # MP3 디코더의 단발성 inter-sample overshoot는 허용하되 반복 포화는 막는다.
+  maxPeakDb: 1
+  maxPeakSampleRatio: 0.002
+  maxSilenceRatio: 0.45
+families:
+  A_OBSERVE_BIRD:
+    slot: A
+    expectedRejoin: HG-F04-CANDY-HOUSE-REVEAL
+    expectedVisualCount: 1
+    requiredNarrativeTerms: [지켜보, 단 냄새, 따라]
+    forbiddenNarrativeTerms: [마녀, 열쇠, 탈출]
+  A_SPEAK_TO_BIRD:
+    slot: A
+    expectedRejoin: HG-F04-CANDY-HOUSE-REVEAL
+    expectedVisualCount: 1
+    requiredNarrativeTerms: [하얀 새, 알려주, 따라]
+    forbiddenNarrativeTerms: [마녀, 열쇠, 탈출]
+  A_CHECK_SURROUNDINGS:
+    slot: A
+    expectedRejoin: HG-F04-CANDY-HOUSE-REVEAL
+    expectedVisualCount: 1
+    requiredNarrativeTerms: [빵 부스러기, 발자국, 깃털]
+    forbiddenNarrativeTerms: [마녀, 열쇠, 탈출]
+  A_TRY_OTHER_PATH:
+    slot: A
+    expectedRejoin: HG-F04-CANDY-HOUSE-REVEAL
+    expectedVisualCount: 1
+    requiredNarrativeTerms: [반대쪽 길, 쓰러진 나무, 돌아]
+    forbiddenNarrativeTerms: [마녀, 열쇠, 탈출]
+  B_ASK_OLD_WOMAN:
+    slot: B
+    expectedRejoin: HG-F05-ENTER-HOUSE
+    expectedVisualCount: 1
+    requiredNarrativeTerms: [여인, 기다리, 열쇠고리]
+    forbiddenNarrativeTerms: [오븐, 탈출]
+  B_CHECK_KEYS:
+    slot: B
+    expectedRejoin: HG-F05-ENTER-HOUSE
+    expectedVisualCount: 1
+    requiredNarrativeTerms: [검은 열쇠, 설탕 소용돌이, 기억]
+    forbiddenNarrativeTerms: [오븐, 탈출]
+  B_CHECK_HOUSE:
+    slot: B
+    expectedRejoin: HG-F05-ENTER-HOUSE
+    expectedVisualCount: 1
+    requiredNarrativeTerms: [창문, 문틀, 철선]
+    forbiddenNarrativeTerms: [오븐, 탈출]
+  B_STEP_BACK_MARK_EXIT:
+    slot: B
+    expectedRejoin: HG-F06-CAPTURED-STATE
+    expectedVisualCount: 2
+    requiredNarrativeTerms: [화살표, 마녀, 헨젤]
+    forbiddenNarrativeTerms: [오븐, 창고, 집으로 돌아]
+  B_MAKE_SIBLING_SIGNAL:
+    slot: B
+    expectedRejoin: HG-F05-ENTER-HOUSE
+    expectedVisualCount: 1
+    requiredNarrativeTerms: [두 번 두드리, 신호, 약속]
+    forbiddenNarrativeTerms: [오븐, 탈출]
+  C_ASK_DEMONSTRATION:
+    slot: C
+    expectedRejoin: HG-F07-DEMONSTRATION
+    expectedVisualCount: 1
+    requiredNarrativeTerms: [먼저 보여, 멀리, 열쇠]
+    forbiddenNarrativeTerms: [다치게, 집으로 돌아]
+  C_DISTRACT_AND_TAKE_KEYS:
+    slot: C
+    expectedRejoin: HG-F08-AFTER-BRANCH-ESCAPE
+    expectedVisualCount: 2
+    requiredNarrativeTerms: [냄비, 열쇠고리, 복도]
+    forbiddenNarrativeTerms: [밀어, 화덕에 넣]
+  C_USE_SIGNAL:
+    slot: C
+    expectedRejoin: HG-F08-AFTER-BRANCH-ESCAPE
+    expectedVisualCount: 2
+    requiredNarrativeTerms: [탁, 탁, 열쇠고리, 복도]
+    forbiddenNarrativeTerms: [밀어, 화덕에 넣]
+  C_CHECK_LOCK_FROM_DISTANCE:
+    slot: C
+    expectedRejoin: HG-F07-DEMONSTRATION
+    expectedVisualCount: 1
+    requiredNarrativeTerms: [빵 주걱, 철문, 먼저 확인]
+    forbiddenNarrativeTerms: [다치게, 집으로 돌아]
+  C_BLOCK_PURSUIT_SAFELY:
+    slot: C
+    expectedRejoin: HG-F08-AFTER-BRANCH-ESCAPE
+    expectedVisualCount: 2
+    requiredNarrativeTerms: [다치게 하지 않고, 헨젤, 철문]
+    forbiddenNarrativeTerms: [밀어, 화덕에 넣]

@@ -1,0 +1,35 @@
+schemaVersion: 1
+storyId: HG
+storyTitle: 헨젤과 그레텔
+completedStory: 헨젤과 그레텔 한 편을 끝까지 완주했어요.
+defaultReportImageAssetId: HG-ART-18-HOME-PROMISE
+noQuestionCuriosityTopic: 이야기의 처음부터 결말까지 차분히 따라가기
+noQuestionFocusTopics: [이야기 완주, 기억에 남은 장면]
+defaultConversationTopic: 길을 잃거나 걱정될 때 도움을 요청하는 방법
+defaultFollowUpQuestion: 헨젤과 그레텔에게 한 가지 말을 해 줄 수 있다면 뭐라고 하고 싶어?
+defaultActivity:
+  title: 3분 함께하기
+  description: 종이에 숲길을 짧게 그리고, 길을 잃었을 때 도움을 받을 수 있는 장소나 사람을 함께 표시해 보세요.
+anchors:
+  HG-Q-A:
+    topic: 하얀 새의 행동과 길 찾기
+    focusTopic: 하얀 새의 행동
+    sceneTitle: 하얀 새를 만난 숲
+    reportImageAssetId: HG-ART-29-WHITE-BIRD-LEADS
+    followUpQuestion: 하얀 새의 행동과 숲의 단서 중에서 어떤 것이 네 방법을 고르는 데 가장 중요했어?
+  HG-Q-B:
+    topic: 낯선 친절과 집의 단서 살피기
+    focusTopic: 낯선 친절
+    sceneTitle: 과자집 문 앞
+    reportImageAssetId: HG-ART-10-OLD-WOMAN-DOOR
+    conversationTopic: 친절한 사람을 만났을 때도 안전을 확인하는 방법
+    followUpQuestion: 처음 만난 사람이 친절하게 다가오면 누구와 먼저 상의하면 좋을까?
+    activity:
+      title: 3분 함께하기
+      description: 집 안에서 “안전한 단서”와 “조심해야 할 단서”를 하나씩 찾아 서로 이유를 말해 보세요.
+  HG-Q-C:
+    topic: 수상한 명령 속에서 안전하게 행동하기
+    focusTopic: 수상한 명령
+    sceneTitle: 오븐 앞 탈출 장면
+    reportImageAssetId: HG-ART-43-WITCH-DEMONSTRATES-OVEN-V2
+    followUpQuestion: 그레텔이 안전하게 움직이려면 가장 먼저 확인하거나 준비해야 할 것은 뭐라고 생각했어?

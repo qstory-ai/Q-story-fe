@@ -41,7 +41,7 @@ export function ClassDashboardPage() {
             <Text style={styles.body}>학부모님께 이 코드를 알려주세요.</Text>
           </View>
         ) : null}
-        <ActionButton label="오늘 이야기 시작하기" onPress={() => navigate('/')} />
+        <ActionButton label="오늘 이야기 시작하기" onPress={() => navigate('/demo')} />
         <Pressable onPress={logout} accessibilityRole="button">
           <Text style={styles.logout}>로그아웃</Text>
         </Pressable>

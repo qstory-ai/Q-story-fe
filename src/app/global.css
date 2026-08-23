@@ -19,6 +19,19 @@ body,
   text-size-adjust: 100%;
 }
 
+/* Every screen's root is a SafeAreaView with `flex: 1`, which react-native-web emits as
+   `flex: 1 1 0%`. That collapses to zero in a plain block box, so without a flex container of
+   definite height here each screen sized to its content instead of the viewport - the page
+   background stopped mid-screen and `justifyContent: 'center'` had no space to center within.
+   `min-height: 100%` alone cannot supply that: it resolves against html's `auto` height.
+   dvh so mobile browser chrome collapsing does not leave a gap; vh first as the fallback. */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 body {
   overflow-x: hidden;
   font-family: var(--font-display);

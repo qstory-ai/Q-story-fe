@@ -27,7 +27,7 @@ export function ParentHomePage() {
       <View style={styles.content}>
         <Text style={styles.title}>안녕하세요, {state.user.displayName}님</Text>
         <Text style={styles.body}>아이와 함께 오늘의 이야기를 시작해 보세요.</Text>
-        <ActionButton label="이야기 시작하기" onPress={() => navigate('/')} />
+        <ActionButton label="이야기 시작하기" onPress={() => navigate('/demo')} />
         <Pressable onPress={logout} accessibilityRole="button">
           <Text style={styles.logout}>로그아웃</Text>
         </Pressable>

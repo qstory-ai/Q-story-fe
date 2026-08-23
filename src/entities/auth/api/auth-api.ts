@@ -52,8 +52,8 @@ type RequestOptions = {
 /**
  * The backend's failure envelope is {ok:false, failure:{code, stage, retryable, safeDetail}} -
  * safeDetail is written to be shown directly to a user, so form error messages surface it as-is
- * rather than a generic "HTTP 4xx" string (unlike story-registry.ts's fetch, whose failures are
- * never shown to a user directly).
+ * rather than a generic "HTTP 4xx" string. story-registry.ts's StoryLoadError does the same for
+ * the story load screen.
  */
 export class AuthApiError extends Error {
   constructor(

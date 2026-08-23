@@ -3,20 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, TextField } from '@/shared/ui';
-import { AuthApiError, login, useAuth, type UserSummary } from '@/entities/auth';
-
-function homePathFor(user: UserSummary): string {
-  switch (user.role) {
-    case 'DIRECTOR':
-      return '/director';
-    case 'CLASS_ACCOUNT':
-      return '/class';
-    case 'PARENT':
-      return '/parent';
-    default:
-      return '/';
-  }
-}
+import { AuthApiError, homePathFor, login, useAuth } from '@/entities/auth';
 
 /** Role-agnostic - loginId is an email for DIRECTOR/PARENT or a director-issued handle for CLASS_ACCOUNT. */
 export function LoginPage() {

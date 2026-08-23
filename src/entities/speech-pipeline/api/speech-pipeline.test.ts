@@ -9,6 +9,8 @@ import {
   type LocalRecordingArtifact,
 } from '@/entities/story-runtime';
 
+import { hanselGretelStoryPackage as storyPackage } from '@/entities/story/hansel-gretel/manifest';
+
 import { LocalSafeSpeechPipeline } from './local-safe-pipeline';
 import { HttpSpeechPipeline } from './http-speech-pipeline';
 
@@ -19,8 +21,8 @@ const recording: LocalRecordingArtifact = {
 };
 
 test('local pipeline returns a reviewed fallback without exposing provider keys', async () => {
-  const pipeline = new LocalSafeSpeechPipeline();
-  const result = await pipeline.process(
+  const pipeline = new LocalSafeSpeechPipeline(storyPackage);
+  const result = await pipeline.transcribe(
     {
       recording,
       storyId: storyId('HG'),
@@ -103,6 +105,7 @@ test('HTTP pipeline transcribes first and routes only after confirmation', async
   };
   const pipeline = new HttpSpeechPipeline(
     'https://api.q-story.test/',
+    storyPackage,
     fakeFetch as typeof fetch,
   );
   const transcription = await pipeline.transcribe(
@@ -153,11 +156,12 @@ test('HTTP pipeline transcribes first and routes only after confirmation', async
 test('HTTP transport failure uses the active anchor fallback', async () => {
   const pipeline = new HttpSpeechPipeline(
     'https://api.q-story.test',
+    storyPackage,
     (async () => {
       throw new Error('offline');
     }) as typeof fetch,
   );
-  const result = await pipeline.process(
+  const result = await pipeline.transcribe(
     {
       recording,
       storyId: storyId('HG'),
@@ -178,6 +182,7 @@ test('HTTP transport failure uses the active anchor fallback', async () => {
 test('HTTP pipeline identifies a device recording read failure before server upload', async () => {
   const pipeline = new HttpSpeechPipeline(
     'https://api.q-story.test',
+    storyPackage,
     (async () => {
       throw new TypeError('Failed to fetch local blob URL');
     }) as typeof fetch,
@@ -207,6 +212,7 @@ test('HTTP pipeline uploads captured web audio without re-reading its blob URL',
   const calls: { url: string; init?: RequestInit }[] = [];
   const pipeline = new HttpSpeechPipeline(
     '/api/qstory',
+    storyPackage,
     (async (input: string | URL | Request, init?: RequestInit) => {
       calls.push({ url: String(input), init });
       return new Response(
@@ -256,6 +262,7 @@ test('HTTP pipeline rejects oversized web audio before base64 expansion', async 
   let called = false;
   const pipeline = new HttpSpeechPipeline(
     '/api/qstory',
+    storyPackage,
     (async () => {
       called = true;
       return new Response();
@@ -311,6 +318,7 @@ test('HTTP pipeline binds receiver-sensitive browser fetch before calling it', a
   }) as typeof fetch;
   const pipeline = new HttpSpeechPipeline(
     'https://api.q-story.test',
+    storyPackage,
     receiverSensitiveFetch,
   );
 
@@ -336,6 +344,7 @@ test('HTTP text question bypasses recording upload and keeps the transcript', as
   const calls: { input: string; init?: RequestInit }[] = [];
   const pipeline = new HttpSpeechPipeline(
     'https://api.q-story.test',
+    storyPackage,
     (async (input: string | URL | Request, init?: RequestInit) => {
       calls.push({ input: String(input), init });
       return new Response(
@@ -397,6 +406,7 @@ test('HTTP pipeline retries once when a hosting layer replaces JSON with HTML', 
   let attempts = 0;
   const pipeline = new HttpSpeechPipeline(
     'https://api.q-story.test',
+    storyPackage,
     (async () => {
       attempts += 1;
       if (attempts === 1) {

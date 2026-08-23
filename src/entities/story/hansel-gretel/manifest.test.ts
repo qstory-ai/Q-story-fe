@@ -501,7 +501,7 @@ test('all versioned master illustrations and every fixed narration clip are pack
     'HG-ART-03': `${illustrationDirectory}hg-art-03-first-walk-pebbles.jpg`,
     'HG-ART-04': `${illustrationDirectory}hg-art-04-moonlit-return.jpg`,
     'HG-ART-05': `${illustrationDirectory}hg-art-05-locked-door-bread.jpg`,
-    'HG-ART-06': `${illustrationDirectory}hg-art-06-lost-forest.jpg`,
+    'HG-ART-06': `${illustrationDirectory}hg-art-06-lost-forest-walking-v2.png`,
     'HG-ART-07': `${illustrationDirectory}hg-art-07-white-bird.jpg`,
     'HG-ART-08': `${illustrationDirectory}hg-art-08-candy-house-reveal.jpg`,
     'HG-ART-09': `${illustrationDirectory}hg-art-09-candy-house-close.jpg`,

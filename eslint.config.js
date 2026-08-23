@@ -24,7 +24,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['scripts/**/*.mjs', 'api/**/*.mjs', 'vite.config.ts'],
+    files: ['scripts/**/*.mjs', 'api/**/*.mjs', 'container-server.mjs', 'vite.config.ts'],
     languageOptions: { globals: globals.node },
     rules: {
       '@typescript-eslint/no-unused-vars': [

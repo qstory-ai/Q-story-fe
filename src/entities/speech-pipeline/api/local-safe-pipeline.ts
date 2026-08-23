@@ -1,7 +1,7 @@
 import {
   type FallbackPlan,
 } from '@/entities/story-runtime';
-import { getStoryPackage } from '@/entities/story';
+import type { StoryRuntimePackage } from '@/entities/story';
 
 import type {
   SpeechPipeline,
@@ -13,14 +13,14 @@ import type {
 
 function defaultForInput(
   input: Pick<SpeechPipelineInput, 'storyId' | 'sceneId' | 'anchorId'>,
+  storyPackage: StoryRuntimePackage,
 ): FallbackPlan {
-  const storyPackage = getStoryPackage(input.storyId);
-  const anchor = storyPackage?.manifest.questionAnchors.find(
+  const anchor = storyPackage.manifest.questionAnchors.find(
     (candidate) =>
       candidate.id === input.anchorId && candidate.sceneId === input.sceneId,
   );
   const fallback = anchor
-    ? storyPackage?.manifest.fallbackFamilies.find(
+    ? storyPackage.manifest.fallbackFamilies.find(
         (candidate) => candidate.id === anchor.defaultFallbackFamilyId,
       )
     : null;
@@ -40,6 +40,8 @@ function defaultForInput(
 }
 
 export class LocalSafeSpeechPipeline implements SpeechPipeline {
+  constructor(private readonly storyPackage: StoryRuntimePackage) {}
+
   async transcribe(
     input: SpeechPipelineInput,
     signal: AbortSignal,
@@ -65,7 +67,7 @@ export class LocalSafeSpeechPipeline implements SpeechPipeline {
         safeDetail:
           'Provider-neutral boundary is active; server adapter is not configured.',
       },
-      fallback: defaultForInput(input),
+      fallback: defaultForInput(input, this.storyPackage),
     };
   }
 
@@ -82,34 +84,7 @@ export class LocalSafeSpeechPipeline implements SpeechPipeline {
         safeDetail:
           'Provider-neutral boundary is active; server adapter is not configured.',
       },
-      fallback: defaultForInput(input),
+      fallback: defaultForInput(input, this.storyPackage),
     };
-  }
-
-  async process(
-    input: SpeechPipelineInput,
-    signal: AbortSignal,
-  ): Promise<SpeechPipelineOutput> {
-    const transcription = await this.transcribe(input, signal);
-    if (!transcription.ok) {
-      return transcription;
-    }
-    return this.route(
-      {
-        transcript: transcription.speech.transcript,
-        storyId: input.storyId,
-        sceneId: input.sceneId,
-        anchorId: input.anchorId,
-        questionRound: input.questionRound,
-      },
-      signal,
-    );
-  }
-
-  async processText(
-    input: TextQuestionPipelineInput,
-    signal: AbortSignal,
-  ): Promise<SpeechPipelineOutput> {
-    return this.route(input, signal);
   }
 }

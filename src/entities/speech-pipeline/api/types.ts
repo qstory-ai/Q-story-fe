@@ -81,14 +81,4 @@ export interface SpeechPipeline {
     input: TextQuestionPipelineInput,
     signal: AbortSignal,
   ): Promise<SpeechPipelineOutput>;
-  /** Legacy composed path. New UI must call transcribe() then route(). */
-  process(
-    input: SpeechPipelineInput,
-    signal: AbortSignal,
-  ): Promise<SpeechPipelineOutput>;
-  /** Legacy alias for route(). */
-  processText(
-    input: TextQuestionPipelineInput,
-    signal: AbortSignal,
-  ): Promise<SpeechPipelineOutput>;
 }

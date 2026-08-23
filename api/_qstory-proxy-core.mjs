@@ -6,10 +6,33 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/narrations/stream', true],
   ['POST v1/beta-events', true],
   ['POST v1/voice-research', true],
+  ['POST v1/auth/signup/director', true],
+  ['POST v1/auth/login', true],
+  ['GET v1/auth/me', true],
+  ['POST v1/organizations', true],
+  ['POST v1/classes/join', true],
 ]);
+
+// Routes with a path segment (story/org/class id) that can't be listed as a literal above.
+const UUID_SEGMENT = '[0-9a-fA-F-]{36}';
+const DYNAMIC_ROUTES = [
+  { method: 'GET', pattern: /^v1\/stories\/[A-Za-z0-9_-]{1,64}\/content$/ },
+  { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/entitlement$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/classes$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/classes$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/invites$`) },
+];
+
+function isAllowedRoute(method, upstreamPath) {
+  if (ALLOWED_ROUTES.has(`${method} ${upstreamPath}`)) return true;
+  return DYNAMIC_ROUTES.some((route) => route.method === method && route.pattern.test(upstreamPath));
+}
 
 const FORWARDED_HEADERS = [
   'content-type',
+  'authorization',
   'x-qstory-story-id',
   'x-qstory-scene-id',
   'x-qstory-anchor-id',
@@ -22,10 +45,14 @@ const MAX_TRANSCRIPTION_BODY_BYTES = Math.ceil(MAX_RAW_AUDIO_BYTES / 3) * 4 + 4_
 const MAX_VOICE_RESEARCH_BODY_BYTES = 4 * 1024 * 1024;
 // Matches BetaEventController's own payload cap.
 const MAX_BETA_EVENT_BODY_BYTES = 8_192;
+// Auth/org/class bodies are small JSON structs (email/password/names), never audio-sized.
+const MAX_AUTH_BODY_BYTES = 8_192;
+const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes'];
 
 function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath === 'v1/voice-research') return MAX_VOICE_RESEARCH_BODY_BYTES;
   if (upstreamPath === 'v1/beta-events') return MAX_BETA_EVENT_BODY_BYTES;
+  if (AUTH_PATH_PREFIXES.some((prefix) => upstreamPath.startsWith(prefix))) return MAX_AUTH_BODY_BYTES;
   return MAX_TRANSCRIPTION_BODY_BYTES;
 }
 
@@ -60,6 +87,8 @@ function failureResponse(status, code, safeDetail) {
   );
 }
 
+const LOOPBACK_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1']);
+
 function normalizedUpstreamUrl(value) {
   const normalized = value?.trim().replace(/\/+$/, '');
   if (!normalized) {
@@ -67,7 +96,12 @@ function normalizedUpstreamUrl(value) {
   }
   try {
     const url = new URL(normalized);
-    return url.protocol === 'https:' ? url : null;
+    if (url.protocol === 'https:') {
+      return url;
+    }
+    // http is only ever safe to forward child voice data to on the local machine itself (e.g. a
+    // Docker container or `./gradlew bootRun` backend during local dev) - never over a real network.
+    return url.protocol === 'http:' && LOOPBACK_HOSTNAMES.has(url.hostname) ? url : null;
   } catch {
     return null;
   }
@@ -152,7 +186,7 @@ export function createQStoryProxy({
       .replace(/\/+$/, '');
     if (
       upstreamPath.includes('..') ||
-      !ALLOWED_ROUTES.has(`${request.method.toUpperCase()} ${upstreamPath}`)
+      !isAllowedRoute(request.method.toUpperCase(), upstreamPath)
     ) {
       return failureResponse(
         404,

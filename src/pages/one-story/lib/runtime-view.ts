@@ -1,7 +1,6 @@
 import type { FailureReason, StoryRuntimeState } from '@/entities/story-runtime';
 import { personalizeStoryText } from '@/entities/narration';
-
-import { storyManifest, storyPresentation, storyPackage, TOTAL_SCENES } from './constants';
+import type { StoryRuntimePackage } from '@/entities/story';
 
 export function formatDuration(durationMillis: number) {
   return `${Math.max(0, Math.ceil(durationMillis / 1000))}초`;
@@ -57,57 +56,59 @@ export function questionFailureCopy(failure: FailureReason) {
   };
 }
 
-export function getRuntimeClip(state: StoryRuntimeState) {
+export function getRuntimeClip(state: StoryRuntimeState, storyPackage: StoryRuntimePackage) {
   if (state.status !== 'playing-fixed') {
     return null;
   }
-  const group = storyManifest.audioGroups.find(
+  const group = storyPackage.manifest.audioGroups.find(
     (candidate) => candidate.id === state.audioGroupId,
   );
   return group?.clips[state.clipIndex] ?? null;
 }
 
-export function getSceneIndex(state: StoryRuntimeState) {
+export function getSceneIndex(state: StoryRuntimeState, storyPackage: StoryRuntimePackage) {
   if (!('sceneId' in state)) {
-    return state.status === 'complete' ? TOTAL_SCENES - 1 : 0;
+    return state.status === 'complete'
+      ? storyPackage.presentation.scenes.length - 1
+      : 0;
   }
   return Math.max(
     0,
-    storyManifest.scenes.findIndex(
+    storyPackage.manifest.scenes.findIndex(
       (scene) => scene.id === state.sceneId,
     ),
   );
 }
 
-export function getAnchorVisualId(state: StoryRuntimeState) {
+export function getAnchorVisualId(state: StoryRuntimeState, storyPackage: StoryRuntimePackage) {
   if (!('anchorId' in state) || !state.anchorId) {
     return null;
   }
-  const anchor = storyManifest.questionAnchors.find(
+  const anchor = storyPackage.manifest.questionAnchors.find(
     (candidate) => candidate.id === state.anchorId,
   );
   const group = anchor
-    ? storyManifest.audioGroups.find(
+    ? storyPackage.manifest.audioGroups.find(
         (candidate) => candidate.id === anchor.afterAudioGroupId,
       )
     : null;
   return group?.visualStateId ?? null;
 }
 
-export function getBranchFamily(state: StoryRuntimeState) {
+export function getBranchFamily(state: StoryRuntimeState, storyPackage: StoryRuntimePackage) {
   if (state.status !== 'playing-response') {
     return null;
   }
   if (state.plan.kind === 'fallback') {
-    return storyPresentation.fallbackByFamilyId[state.plan.familyId];
+    return storyPackage.presentation.fallbackByFamilyId[state.plan.familyId];
   }
   if (state.plan.kind === 'story-change') {
-    return storyPresentation.fallbackByFamilyId[
+    return storyPackage.presentation.fallbackByFamilyId[
       state.plan.fallbackFamilyId
     ];
   }
   if (state.plan.kind === 'route' && state.plan.actionFamilyId) {
-    return storyPresentation.fallbackByFamilyId[
+    return storyPackage.presentation.fallbackByFamilyId[
       state.plan.actionFamilyId
     ];
   }
@@ -118,10 +119,12 @@ export function getVisualAssetId({
   state,
   currentVisualId,
   branchVisualId,
+  storyPackage,
 }: {
   state: StoryRuntimeState;
   currentVisualId: string | null;
   branchVisualId: string | null;
+  storyPackage: StoryRuntimePackage;
 }) {
   if (branchVisualId && storyPackage.imageAssets[branchVisualId]) {
     return branchVisualId;
@@ -129,14 +132,14 @@ export function getVisualAssetId({
   const visualId =
     branchVisualId ??
     currentVisualId ??
-    getAnchorVisualId(state) ??
-    storyPresentation.scenes[getSceneIndex(state)]?.visuals[0]?.id;
-  const visual = storyManifest.visualStates.find(
+    getAnchorVisualId(state, storyPackage) ??
+    storyPackage.presentation.scenes[getSceneIndex(state, storyPackage)]?.visuals[0]?.id;
+  const visual = storyPackage.manifest.visualStates.find(
     (candidate) => candidate.id === visualId,
   );
   return (
     visual?.masterAssetId ??
-    storyPresentation.scenes[0].visuals[0].assetId
+    storyPackage.presentation.scenes[0].visuals[0].assetId
   );
 }
 
@@ -167,14 +170,18 @@ export function statusCopy(state: StoryRuntimeState) {
   }
 }
 
-export function questionPrompt(state: StoryRuntimeState, childName: string) {
+export function questionPrompt(
+  state: StoryRuntimeState,
+  childName: string,
+  storyPackage: StoryRuntimePackage,
+) {
   if (state.status === 'awaiting-clarification') {
     return personalizeStoryText(state.prompt, childName);
   }
   if (!('anchorId' in state) || !state.anchorId) {
     return '';
   }
-  const anchor = storyManifest.questionAnchors.find(
+  const anchor = storyPackage.manifest.questionAnchors.find(
     (candidate) => candidate.id === state.anchorId,
   );
   return personalizeStoryText(

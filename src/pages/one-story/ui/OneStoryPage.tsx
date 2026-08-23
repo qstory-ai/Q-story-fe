@@ -1,6 +1,7 @@
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
 import { SafeAreaView } from '@/shared/ui';
+import type { StoryRuntimePackage } from '@/entities/story';
 
 import { useOneStoryRuntime } from '../model';
 import { HomeMenuModal } from './modals/home-menu-modal';
@@ -10,8 +11,12 @@ import { SceneProgressBar } from './scene-progress-bar';
 import { styles } from './styles';
 import { TopBar } from './top-bar';
 
-export function OneStoryPage() {
-  const runtime = useOneStoryRuntime();
+export function OneStoryPage({
+  storyPackage,
+}: {
+  storyPackage: StoryRuntimePackage;
+}) {
+  const runtime = useOneStoryRuntime(storyPackage);
   const {
     isWide,
     isShort,

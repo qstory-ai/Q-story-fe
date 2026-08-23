@@ -3,6 +3,7 @@ storyId: HG
 slug: hansel-gretel
 title: 헨젤과 그레텔
 contentVersion: master-spec-v2.4-branch-integrity
+availability: BETA
 targetAge:
   min: 6
   max: 9

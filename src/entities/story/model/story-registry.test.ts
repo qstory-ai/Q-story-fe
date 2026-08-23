@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { getDefaultBetaStory, getStoryPackage } from './story-registry';
+import { hanselGretelStoryPackage } from '../hansel-gretel/manifest';
+import generatedContent from '../hansel-gretel/generated-story-content.json';
+import packageData from '../hansel-gretel/story-package.generated.json';
+import { loadStoryPackage, DEFAULT_BETA_STORY_ID } from './story-registry';
 import {
   fallbackFamilyId,
   rejoinAnchorId,
@@ -9,16 +12,61 @@ import {
   type RoutePlan,
 } from '@/entities/story-runtime';
 
-test('registry returns the current beta package and rejects unknown stories', () => {
-  const storyPackage = getDefaultBetaStory();
-  assert.equal(storyPackage.storyId, 'HG');
-  assert.equal(storyPackage.availability, 'BETA');
-  assert.equal(getStoryPackage(storyPackage.storyId), storyPackage);
-  assert.equal(getStoryPackage('NOT-REGISTERED'), null);
+test('DEFAULT_BETA_STORY_ID matches the currently-authored story', () => {
+  assert.equal(DEFAULT_BETA_STORY_ID, 'HG');
+});
+
+test('loadStoryPackage fetches the content endpoint, builds the runtime package, and caches it', async () => {
+  const requestedUrls: string[] = [];
+  const fetchImpl = (async (input: RequestInfo | URL) => {
+    requestedUrls.push(String(input));
+    return new Response(JSON.stringify({ generatedContent, packageData }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  }) as typeof fetch;
+
+  const storyId = 'HG-registry-test';
+  const first = await loadStoryPackage(storyId, {
+    baseUrl: 'https://api.q-story.test',
+    fetchImpl,
+  });
+  const second = await loadStoryPackage(storyId, {
+    baseUrl: 'https://api.q-story.test',
+    fetchImpl,
+  });
+
+  assert.equal(first.storyId, 'HG');
+  assert.equal(second, first, 'a cached load must not re-fetch');
+  assert.deepEqual(requestedUrls, [
+    `https://api.q-story.test/v1/stories/${storyId}/content`,
+  ]);
+});
+
+test('loadStoryPackage rejects on a non-ok response and does not poison the cache', async () => {
+  const storyId = 'HG-registry-error-test';
+  const failingFetch = (async () => new Response('server error', { status: 500 })) as typeof fetch;
+  await assert.rejects(() =>
+    loadStoryPackage(storyId, { baseUrl: 'https://api.q-story.test', fetchImpl: failingFetch }),
+  );
+
+  const succeedingFetch = (async () =>
+    new Response(JSON.stringify({ generatedContent, packageData }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    })) as typeof fetch;
+  const retried = await loadStoryPackage(storyId, {
+    baseUrl: 'https://api.q-story.test',
+    fetchImpl: succeedingFetch,
+  });
+  assert.equal(retried.storyId, 'HG');
 });
 
 test('runtime package owns manifest, fallback, assets, and report copy', () => {
-  const storyPackage = getDefaultBetaStory();
+  const storyPackage = hanselGretelStoryPackage;
+  assert.equal(storyPackage.storyId, 'HG');
+  assert.equal(storyPackage.availability, 'BETA');
+
   const anchor = storyPackage.manifest.questionAnchors[1];
   const fallback = storyPackage.manifest.fallbackFamilies.find(
     (family) => family.id === anchor.defaultFallbackFamilyId,
@@ -34,7 +82,7 @@ test('runtime package owns manifest, fallback, assets, and report copy', () => {
 });
 
 test('runtime repairs a stale server plan that offers a family without its prerequisite', () => {
-  const storyPackage = getDefaultBetaStory();
+  const storyPackage = hanselGretelStoryPackage;
   const plan: RoutePlan = {
     kind: 'route',
     route: 'THREE_PATHS',

@@ -3,12 +3,16 @@ import { Text, View } from 'react-native';
 import { ActionButton } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../../model';
-import { getSceneIndex } from '../../lib/runtime-view';
 import { styles } from '../styles';
 
 export function ResumeModal({ runtime }: { runtime: OneStoryRuntime }) {
-  const { runtimeState, resumeCandidate, resumeStory, dismissResumeAndRestart } =
-    runtime;
+  const {
+    runtimeState,
+    resumeCandidate,
+    resumeStory,
+    dismissResumeAndRestart,
+    getSceneIndex,
+  } = runtime;
 
   if (!(runtimeState.status === 'idle' && resumeCandidate)) {
     return null;

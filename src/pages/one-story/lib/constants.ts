@@ -1,13 +1,4 @@
-import { getDefaultBetaStory } from '@/entities/story';
-import { createConfiguredSpeechPipeline } from '@/entities/speech-pipeline';
-import { trackBetaEvent, type BetaEventName } from '@/entities/analytics';
 import { readEnv } from '@/shared/config';
-
-export const speechPipeline = createConfiguredSpeechPipeline();
-export const storyPackage = getDefaultBetaStory();
-export const storyManifest = storyPackage.manifest;
-export const storyPresentation = storyPackage.presentation;
-export const TOTAL_SCENES = storyPresentation.scenes.length;
 
 export const EXIT_REASONS = [
   '기다림이 길었어요',
@@ -39,13 +30,3 @@ export const RESPONSE_AUDIO_PREPARE_MS = 12_000;
 export const FIXED_AUDIO_FAILURE_RECOVERY_MS = 2_500;
 
 export const LANDING_URL = readEnv('VITE_QSTORY_LANDING_URL') || 'https://qstory.ai.kr';
-
-export function trackStoryEvent(
-  eventName: BetaEventName,
-  metadata: Record<string, string | number | boolean> = {},
-) {
-  return trackBetaEvent(eventName, {
-    story_version: storyManifest.contentVersion,
-    ...metadata,
-  });
-}

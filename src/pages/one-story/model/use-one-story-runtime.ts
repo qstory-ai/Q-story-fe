@@ -22,6 +22,8 @@ import {
   saveLocalStoryProgress,
   createVoiceResearchConsent,
   storeVoiceResearchSample,
+  trackBetaEvent,
+  type BetaEventName,
   type QuestionOutcome,
   type LocalStoryProgress,
   type VoiceResearchConsent,
@@ -33,7 +35,11 @@ import {
   audioReadyWithin,
   personalizeStoryText,
 } from '@/entities/narration';
-import type { TranscriptionSuccess } from '@/entities/speech-pipeline';
+import {
+  createConfiguredSpeechPipeline,
+  type TranscriptionSuccess,
+} from '@/entities/speech-pipeline';
+import type { StoryRuntimePackage } from '@/entities/story';
 import {
   useStoryNarration,
   preloadFixedNarration,
@@ -58,23 +64,38 @@ import {
   LANDING_URL,
   QUESTION_AUDIO_HEAD_START_MS,
   RESPONSE_AUDIO_PREPARE_MS,
-  TOTAL_SCENES,
-  speechPipeline,
-  storyManifest,
-  storyPackage,
-  storyPresentation,
-  trackStoryEvent,
 } from '../lib/constants';
 import {
   getBranchFamily,
   getRuntimeClip,
-  getSceneIndex,
+  getSceneIndex as getSceneIndexForPackage,
   getVisualAssetId,
   questionFailureCopy,
   questionPrompt,
 } from '../lib/runtime-view';
 
-export function useOneStoryRuntime() {
+export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
+  const storyManifest = storyPackage.manifest;
+  const storyPresentation = storyPackage.presentation;
+  const TOTAL_SCENES = storyPresentation.scenes.length;
+  const speechPipeline = useMemo(
+    () => createConfiguredSpeechPipeline(storyPackage),
+    [storyPackage],
+  );
+  const trackStoryEvent = useCallback(
+    (eventName: BetaEventName, metadata: Record<string, string | number | boolean> = {}) =>
+      trackBetaEvent(eventName, {
+        story_version: storyManifest.contentVersion,
+        ...metadata,
+      }),
+    [storyManifest.contentVersion],
+  );
+  const getSceneIndex = useCallback(
+    (state: Parameters<typeof getSceneIndexForPackage>[0]) =>
+      getSceneIndexForPackage(state, storyPackage),
+    [storyPackage],
+  );
+
   const { width, height } = useWindowDimensions();
   const isWide = width >= 900;
   const isShort = height < 720;
@@ -88,7 +109,7 @@ export function useOneStoryRuntime() {
   } = useStoryNarration(storyPackage.audioAssets);
   const initialState = useMemo(
     () => createInitialRuntimeState(storyManifest),
-    [],
+    [storyManifest],
   );
   const [runtimeState, setRuntimeState] =
     useState<StoryRuntimeState>(initialState);
@@ -155,7 +176,7 @@ export function useOneStoryRuntime() {
         branchAssetId: storyPackage.branchIllustrationAssetId,
         branchSummary: storyPackage.branchReportSummary,
       }),
-    [questionOutcomes, storyDurationSeconds],
+    [questionOutcomes, storyDurationSeconds, storyPackage],
   );
 
   const elapsedStorySeconds = useCallback(() => {
@@ -188,7 +209,7 @@ export function useOneStoryRuntime() {
     if (trackedScenesRef.current.has(runtimeState.sceneId)) return;
     trackedScenesRef.current.add(runtimeState.sceneId);
     void trackStoryEvent('scene_reached', { scene_id: runtimeState.sceneId });
-  }, [runtimeState]);
+  }, [runtimeState, trackStoryEvent]);
 
   useEffect(() => {
     if (runtimeState.status !== 'awaiting-question') return;
@@ -199,7 +220,7 @@ export function useOneStoryRuntime() {
       anchor_id: runtimeState.anchorId,
       scene_id: runtimeState.sceneId,
     });
-  }, [runtimeState]);
+  }, [runtimeState, trackStoryEvent]);
 
   useEffect(() => {
     if (runtimeState.status !== 'failed-recoverable') return;
@@ -222,7 +243,7 @@ export function useOneStoryRuntime() {
       transcript_corrected: transcriptCorrectedRef.current,
       switched_input: questionInputSwitchedRef.current,
     });
-  }, [runtimeState]);
+  }, [runtimeState, trackStoryEvent]);
 
   const openExternal = useCallback(async (url: string) => {
     window.location.assign(url);
@@ -279,9 +300,9 @@ export function useOneStoryRuntime() {
       setParentMessage(null);
     }
     return true;
-  }, []);
+  }, [storyManifest]);
 
-  const currentClip = getRuntimeClip(runtimeState);
+  const currentClip = getRuntimeClip(runtimeState, storyPackage);
   const currentPresentation = currentClip
     ? storyPresentation.utteranceByClipId[currentClip.id]
     : null;
@@ -311,7 +332,7 @@ export function useOneStoryRuntime() {
         ) ?? null)
       : null);
   const isQuestionInvitePlayback = questionInviteAnchor !== null;
-  const branch = getBranchFamily(runtimeState);
+  const branch = getBranchFamily(runtimeState, storyPackage);
   const isBranchPlaybackState =
     runtimeState.status === 'playing-response' && branch !== null;
   const isPlaybackDockState =
@@ -372,6 +393,7 @@ export function useOneStoryRuntime() {
     state: runtimeState,
     currentVisualId: currentPresentation?.visualId ?? null,
     branchVisualId: activeBranchVisualId ?? plannedBranchAssetId,
+    storyPackage,
   });
   const illustration = storyPackage.illustrationForAssetId(visualAssetId);
 
@@ -451,7 +473,7 @@ export function useOneStoryRuntime() {
           '낭독 음성은 재생하지 못했지만 글로 확인했어요. 잠시 뒤 이야기를 계속할게요.',
         );
         recoveryTimer = setTimeout(() => {
-          const latestClip = getRuntimeClip(runtimeRef.current);
+          const latestClip = getRuntimeClip(runtimeRef.current, storyPackage);
           if (
             !cancelled &&
             runtimeRef.current.status === 'playing-fixed' &&
@@ -477,6 +499,9 @@ export function useOneStoryRuntime() {
     runtimeState,
     speakNarration,
     spokenText,
+    storyManifest.storyId,
+    storyPackage,
+    trackStoryEvent,
   ]);
 
   useEffect(() => {
@@ -491,7 +516,13 @@ export function useOneStoryRuntime() {
         ),
       );
     preloadFixedNarration(audioIds, storyPackage.audioAssets);
-  }, [sceneIndex]);
+  }, [
+    sceneIndex,
+    TOTAL_SCENES,
+    storyManifest.audioGroups,
+    storyManifest.scenes,
+    storyPackage.audioAssets,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -521,7 +552,13 @@ export function useOneStoryRuntime() {
         changed_scene_count: parentReport.changedSceneCount,
       });
     }
-  }, [parentReport.changedSceneCount, questionOutcomes.length, runtimeState.status, storyDurationSeconds]);
+  }, [
+    parentReport.changedSceneCount,
+    questionOutcomes.length,
+    runtimeState.status,
+    storyDurationSeconds,
+    trackStoryEvent,
+  ]);
 
   const startStory = useCallback(() => {
     primeResponseAudio();
@@ -560,7 +597,15 @@ export function useOneStoryRuntime() {
     if (commitEvent({ type: 'START' })) {
       void trackStoryEvent('story_started', { resume: false });
     }
-  }, [childNameInput, commitEvent, recorder, voiceResearchConsentChecked]);
+  }, [
+    childNameInput,
+    commitEvent,
+    recorder,
+    voiceResearchConsentChecked,
+    storyManifest.questionAnchors,
+    storyManifest.storyId,
+    trackStoryEvent,
+  ]);
 
   const discardActiveQuestionAttempt = useCallback(async () => {
     processingAbortRef.current?.abort();
@@ -601,7 +646,7 @@ export function useOneStoryRuntime() {
     if (commitEvent({ type: 'CONTINUE_SELECTED' }) && skippedQuestion) {
       void trackStoryEvent('question_skipped', skippedQuestion);
     }
-  }, [commitEvent, discardActiveQuestionAttempt, stopNarration]);
+  }, [commitEvent, discardActiveQuestionAttempt, stopNarration, trackStoryEvent]);
 
   const beginQuestion = useCallback(
     async () => {
@@ -674,7 +719,7 @@ export function useOneStoryRuntime() {
         });
       }
     },
-    [commitEvent, discardActiveQuestionAttempt, recorder, stopNarration],
+    [commitEvent, discardActiveQuestionAttempt, recorder, stopNarration, trackStoryEvent],
   );
 
   const beginTypedQuestion = useCallback(async () => {
@@ -713,7 +758,7 @@ export function useOneStoryRuntime() {
         input_mode: 'text',
       });
     }
-  }, [commitEvent, discardActiveQuestionAttempt, stopNarration]);
+  }, [commitEvent, discardActiveQuestionAttempt, stopNarration, trackStoryEvent]);
 
   const processTypedQuestion = useCallback(async () => {
     const transcript = typedQuestion.trim().slice(0, 240);
@@ -813,7 +858,7 @@ export function useOneStoryRuntime() {
         processingAbortRef.current = null;
       }
     }
-  }, [commitEvent]);
+  }, [commitEvent, speechPipeline, storyManifest.storyId]);
 
   const finishQuestion = useCallback(async () => {
     const recording = await recorder.stopRecording();
@@ -1059,6 +1104,11 @@ export function useOneStoryRuntime() {
     pendingTranscription,
     questionOutcomes,
     rememberQuestionOutcome,
+    speechPipeline,
+    storyPackage,
+    storyManifest.questionAnchors,
+    storyManifest.storyId,
+    trackStoryEvent,
   ]);
 
   const retryAfterTranscript = useCallback(async () => {
@@ -1108,7 +1158,7 @@ export function useOneStoryRuntime() {
         });
       }
     },
-    [commitEvent, rememberQuestionOutcome, stopNarration],
+    [commitEvent, rememberQuestionOutcome, stopNarration, trackStoryEvent],
   );
 
   useEffect(() => {
@@ -1214,6 +1264,7 @@ export function useOneStoryRuntime() {
     pendingResponseAudio,
     runtimeState,
     speakNarration,
+    trackStoryEvent,
   ]);
 
   useEffect(() => {
@@ -1233,7 +1284,7 @@ export function useOneStoryRuntime() {
       return;
     }
     activeNarrationIdRef.current = responseId;
-    const responseBranch = getBranchFamily(responseState);
+    const responseBranch = getBranchFamily(responseState, storyPackage);
     const branchVisualAssetId =
       responseState.plan.kind === 'route'
         ? storyPackage.branchIllustrationAssetId(responseState.plan.actionFamilyId)
@@ -1426,6 +1477,8 @@ export function useOneStoryRuntime() {
     pendingResponseAudio,
     runtimeState,
     speakNarration,
+    storyPackage,
+    trackStoryEvent,
   ]);
 
   const replayCurrent = useCallback(async () => {
@@ -1494,7 +1547,13 @@ export function useOneStoryRuntime() {
         skip_reason: 'scene_advanced_before_invite',
       });
     }
-  }, [commitEvent, questionOutcomes, stopNarration]);
+  }, [
+    commitEvent,
+    questionOutcomes,
+    stopNarration,
+    storyManifest.questionAnchors,
+    trackStoryEvent,
+  ]);
 
   const restartStory = useCallback(async () => {
     processingAbortRef.current?.abort();
@@ -1532,7 +1591,7 @@ export function useOneStoryRuntime() {
     setExitReasonVisible(false);
     setResumeCandidate(null);
     clearLocalStoryProgress();
-  }, [recorder, stopNarration]);
+  }, [recorder, stopNarration, storyManifest]);
 
   const resumeStory = useCallback(async () => {
     if (!resumeCandidate) {
@@ -1555,7 +1614,7 @@ export function useOneStoryRuntime() {
     setResumeCandidate(null);
     activeNarrationIdRef.current = null;
     void trackStoryEvent('story_started', { resume: true });
-  }, [resumeCandidate, stopNarration]);
+  }, [resumeCandidate, stopNarration, trackStoryEvent]);
 
   const dismissResumeAndRestart = useCallback(() => {
     clearLocalStoryProgress();
@@ -1609,7 +1668,7 @@ export function useOneStoryRuntime() {
     async (reason: (typeof EXIT_REASONS)[number]) => {
       const latestState = runtimeRef.current;
       const diagnosticClipId =
-        getRuntimeClip(latestState)?.id ??
+        getRuntimeClip(latestState, storyPackage)?.id ??
         activeNarrationIdRef.current ??
         narrationState.captionRequestId;
       const diagnostics = buildExitDiagnostics({
@@ -1644,13 +1703,15 @@ export function useOneStoryRuntime() {
       narrationState.source,
       questionOutcomes,
       restartStory,
+      storyPackage,
+      trackStoryEvent,
     ],
   );
 
   const openParentReport = useCallback(() => {
     setParentReportVisible(true);
     void trackStoryEvent('parent_report_opened');
-  }, []);
+  }, [trackStoryEvent]);
 
   const closeParentReport = useCallback(() => {
     setParentReportVisible(false);
@@ -1659,7 +1720,7 @@ export function useOneStoryRuntime() {
   const openCompletionSurvey = useCallback(async () => {
     await trackStoryEvent('survey_opened');
     await openExternal(getCompletionSurveyUrl());
-  }, [openExternal]);
+  }, [openExternal, trackStoryEvent]);
 
   const meterPercent =
     typeof recorder.meteringDb === 'number'
@@ -1667,10 +1728,10 @@ export function useOneStoryRuntime() {
       : 8;
   const activeQuestionPrompt =
     runtimeState.status === 'awaiting-clarification'
-      ? questionPrompt(runtimeState, childName)
+      ? questionPrompt(runtimeState, childName, storyPackage)
       : activeQuestionAnchor
         ? personalizeStoryText(activeQuestionAnchor.prompt, childName)
-        : questionPrompt(runtimeState, childName);
+        : questionPrompt(runtimeState, childName, storyPackage);
   const activeQuestionOrdinal = activeQuestionAnchor
     ? storyManifest.questionAnchors.findIndex(
         (anchor) => anchor.id === activeQuestionAnchor.id,
@@ -1700,6 +1761,7 @@ export function useOneStoryRuntime() {
     isCompactPlayback,
     isPlaybackDockState,
     isParentReport,
+    storyPackage,
     // runtime + derived view state
     runtimeState,
     scene,

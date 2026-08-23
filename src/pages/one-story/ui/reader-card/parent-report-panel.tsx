@@ -1,13 +1,18 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
 import type { OneStoryRuntime } from '../../model';
-import { storyPackage } from '../../lib/constants';
 import { formatReportDuration } from '../../lib/runtime-view';
 import { styles } from '../styles';
 
 export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
-  const { isWide, parentReport, openCompletionSurvey, finishExperience, restartStory } =
-    runtime;
+  const {
+    isWide,
+    parentReport,
+    openCompletionSurvey,
+    finishExperience,
+    restartStory,
+    storyPackage,
+  } = runtime;
 
   return (
     <View style={styles.parentReportContent}>

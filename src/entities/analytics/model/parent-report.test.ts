@@ -11,10 +11,10 @@ import {
   buildParentReport,
   hasExperiencedStoryAgency,
 } from './parent-report';
-import { getDefaultBetaStory } from '@/entities/story';
+import { hanselGretelStoryPackage } from '@/entities/story/hansel-gretel/manifest';
 
-const reportCopy = getDefaultBetaStory().reportCopy;
-const storyPackage = getDefaultBetaStory();
+const storyPackage = hanselGretelStoryPackage;
+const reportCopy = storyPackage.reportCopy;
 
 test('parent report summarizes meaning without storing the transcript', () => {
   const report = buildParentReport(reportCopy,

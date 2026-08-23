@@ -4,7 +4,7 @@ import type {
   ResponsePlan,
   SpeechResult,
 } from '@/entities/story-runtime';
-import { getStoryPackage } from '@/entities/story';
+import type { StoryRuntimePackage } from '@/entities/story';
 
 import type {
   SpeechPipeline,
@@ -147,53 +147,54 @@ function transportErrorDetail(
     : `${fallback} (${name})`;
 }
 
-function transportFallback(
-  input: Pick<SpeechPipelineInput, 'storyId' | 'sceneId' | 'anchorId'>,
-  code: string,
-  safeDetail: string,
-): SpeechPipelineOutput {
-  const storyPackage = getStoryPackage(input.storyId);
-  const anchor = storyPackage?.manifest.questionAnchors.find(
-    (candidate) =>
-      candidate.id === input.anchorId && candidate.sceneId === input.sceneId,
-  );
-  const fallback = anchor
-    ? storyPackage?.manifest.fallbackFamilies.find(
-        (candidate) => candidate.id === anchor.defaultFallbackFamilyId,
-      )
-    : null;
-  if (!fallback) {
-    throw new Error(
-      `No package fallback for ${input.storyId}/${input.sceneId}/${input.anchorId}`,
-    );
-  }
-  return {
-    ok: false,
-    failure: {
-      code,
-      stage: 'upload',
-      retryable: true,
-      safeDetail,
-    },
-    fallback: {
-      kind: 'fallback',
-      familyId: fallback.id as FallbackPlan['familyId'],
-      text: '잠시 연결이 어려워서 준비된 안전 장면으로 계속할게.',
-      rejoinAt: fallback.rejoinAnchorId as FallbackPlan['rejoinAt'],
-    },
-  };
-}
-
 export class HttpSpeechPipeline implements SpeechPipeline {
   readonly baseUrl: string;
   readonly fetchImpl: typeof fetch;
+  readonly storyPackage: StoryRuntimePackage;
 
-  constructor(baseUrl: string, fetchImpl: typeof fetch = fetch) {
+  constructor(baseUrl: string, storyPackage: StoryRuntimePackage, fetchImpl: typeof fetch = fetch) {
     this.baseUrl = baseUrl.replace(/\/+$/, '');
+    this.storyPackage = storyPackage;
     // WebKit/Blink의 Window.fetch는 수신자(this)가 Window가 아니면
     // "Illegal invocation"을 던질 수 있다. 클래스 속성으로 보관해 호출해도
     // 항상 올바른 전역 수신자를 사용하도록 여기서 한 번 고정한다.
     this.fetchImpl = fetchImpl.bind(globalThis);
+  }
+
+  private transportFallback(
+    input: Pick<SpeechPipelineInput, 'storyId' | 'sceneId' | 'anchorId'>,
+    code: string,
+    safeDetail: string,
+  ): SpeechPipelineOutput {
+    const anchor = this.storyPackage.manifest.questionAnchors.find(
+      (candidate) =>
+        candidate.id === input.anchorId && candidate.sceneId === input.sceneId,
+    );
+    const fallback = anchor
+      ? this.storyPackage.manifest.fallbackFamilies.find(
+          (candidate) => candidate.id === anchor.defaultFallbackFamilyId,
+        )
+      : null;
+    if (!fallback) {
+      throw new Error(
+        `No package fallback for ${input.storyId}/${input.sceneId}/${input.anchorId}`,
+      );
+    }
+    return {
+      ok: false,
+      failure: {
+        code,
+        stage: 'upload',
+        retryable: true,
+        safeDetail,
+      },
+      fallback: {
+        kind: 'fallback',
+        familyId: fallback.id as FallbackPlan['familyId'],
+        text: '잠시 연결이 어려워서 준비된 안전 장면으로 계속할게.',
+        rejoinAt: fallback.rejoinAnchorId as FallbackPlan['rejoinAt'],
+      },
+    };
   }
 
   async transcribe(
@@ -209,7 +210,7 @@ export class HttpSpeechPipeline implements SpeechPipeline {
           signal,
         });
         if (!recordingResponse.ok) {
-          return transportFallback(
+          return this.transportFallback(
             input,
             'RECORDING_READ_FAILED',
             '기기에서 녹음 파일을 읽지 못했어요.',
@@ -220,7 +221,7 @@ export class HttpSpeechPipeline implements SpeechPipeline {
         if (signal.aborted) {
           throw error;
         }
-        return transportFallback(
+        return this.transportFallback(
           input,
           'RECORDING_READ_FAILED',
           '기기에서 녹음 파일을 읽지 못했어요.',
@@ -228,14 +229,14 @@ export class HttpSpeechPipeline implements SpeechPipeline {
       }
     }
     if (recording.size === 0) {
-      return transportFallback(
+      return this.transportFallback(
         input,
         'RECORDING_EMPTY',
         '기기에서 빈 녹음 파일이 만들어졌어요.',
       );
     }
     if (recording.size > MAX_AUDIO_UPLOAD_BYTES) {
-      return transportFallback(
+      return this.transportFallback(
         input,
         'RECORDING_TOO_LARGE',
         '녹음이 30초 한도를 넘었어요. 짧게 다시 말해 주세요.',
@@ -270,7 +271,7 @@ export class HttpSpeechPipeline implements SpeechPipeline {
         if (signal.aborted) {
           throw error;
         }
-        return transportFallback(
+        return this.transportFallback(
           input,
           'RECORDING_ENCODE_FAILED',
           '녹음 파일을 전송용으로 준비하지 못했어요.',
@@ -292,7 +293,7 @@ export class HttpSpeechPipeline implements SpeechPipeline {
           signal,
         );
       if (!payload) {
-        return transportFallback(
+        return this.transportFallback(
           input,
           status ? `TRANSCRIPTION_SERVER_HTTP_${status}` : 'TRANSCRIPTION_SERVER_UNREACHABLE',
           status
@@ -308,7 +309,7 @@ export class HttpSpeechPipeline implements SpeechPipeline {
       if (signal.aborted) {
         throw error;
       }
-      return transportFallback(
+      return this.transportFallback(
         input,
         'TRANSCRIPTION_SERVER_UNREACHABLE',
         '음성 인식 서버에 연결하지 못했어요.',
@@ -334,7 +335,7 @@ export class HttpSpeechPipeline implements SpeechPipeline {
           signal,
         );
       if (!payload) {
-        return transportFallback(
+        return this.transportFallback(
           input,
           status ? `ROUTE_SERVER_HTTP_${status}` : 'ROUTE_SERVER_UNREACHABLE',
           status
@@ -350,38 +351,11 @@ export class HttpSpeechPipeline implements SpeechPipeline {
       if (signal.aborted) {
         throw error;
       }
-      return transportFallback(
+      return this.transportFallback(
         input,
         'ROUTE_SERVER_UNREACHABLE',
         '질문 서버에 연결하지 못했어요.',
       );
     }
-  }
-
-  async process(
-    input: SpeechPipelineInput,
-    signal: AbortSignal,
-  ): Promise<SpeechPipelineOutput> {
-    const transcription = await this.transcribe(input, signal);
-    if (!transcription.ok) {
-      return transcription;
-    }
-    return this.route(
-      {
-        transcript: transcription.speech.transcript,
-        storyId: input.storyId,
-        sceneId: input.sceneId,
-        anchorId: input.anchorId,
-        questionRound: input.questionRound,
-      },
-      signal,
-    );
-  }
-
-  async processText(
-    input: TextQuestionPipelineInput,
-    signal: AbortSignal,
-  ): Promise<SpeechPipelineOutput> {
-    return this.route(input, signal);
   }
 }

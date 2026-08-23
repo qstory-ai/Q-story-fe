@@ -13,6 +13,10 @@
     {
       "source": "/api/qstory/:path*",
       "destination": "/api/qstory-proxy?path=:path*"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
     }
   ]
 }

@@ -55,8 +55,20 @@ export type GeneratedStoryContent = {
   fallbacks: GeneratedFallback[];
 };
 
+/** One asset row as the backend serves it - see StoryContentAssemblyService. */
+export type ServedStoryAsset = {
+  slug: string;
+  category: 'SCENE_ART' | 'BRANCH_ART' | 'NARRATION' | 'BRIDGE';
+  url: string;
+  integrity: string;
+  familyId?: string;
+  panel?: number;
+};
+
 export type StoryPackageData = {
   schemaVersion: 1;
+  /** Absent from packages built before assets were served with the content. */
+  assets?: ServedStoryAsset[];
   story: {
     storyId: string;
     slug: string;

@@ -146,7 +146,7 @@ test('runtime package owns manifest, fallback, assets, and report copy', () => {
 
   assert.equal(anchor.sceneId, 'HG-F05');
   assert.equal(fallback?.id, 'B_CHECK_KEYS');
-  assert.ok(storyPackage.illustrationForAssetId('HG-ART-10-OLD-WOMAN-DOOR'));
+  assert.ok(storyPackage.illustrationForAssetId('old-woman-door'));
   assert.equal(
     storyPackage.reportCopy.anchors[anchor.id]?.sceneTitle,
     '과자집 문 앞',

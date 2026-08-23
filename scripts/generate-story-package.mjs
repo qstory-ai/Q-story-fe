@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   generatedStoryContent,
+  loadPrompts,
   loadRegistry,
   loadStoryPackage,
 } from './lib/story-package.mjs';
@@ -15,6 +16,8 @@ const requestedStoryId = args[args.indexOf('--story') + 1]?.trim();
 const all = args.includes('--all');
 const check = args.includes('--check');
 const validateOnly = args.includes('--validate');
+// Recomputes every assets.json integrity hash from the files on disk instead of asserting them.
+const fix = args.includes('--fix');
 
 if (!requestedStoryId && !all) {
   throw new Error('Use --story <id> or --all.');
@@ -29,13 +32,22 @@ if (entries.length === 0) {
 }
 const sources = [];
 for (const entry of entries) {
-  sources.push(await loadStoryPackage(appDirectory, entry));
+  sources.push(await loadStoryPackage(appDirectory, entry, { rewriteIntegrity: fix }));
+}
+const prompts = await loadPrompts(appDirectory);
+// A story naming a policy nobody ships is the drift this move exists to stop, so it fails here.
+const promptVersions = new Set(prompts.map((prompt) => prompt.version));
+for (const source of sources) {
+  const named = source.routeContext.routePromptVersion;
+  if (!promptVersions.has(named)) {
+    throw new Error(`${source.story.storyId} names unknown routePromptVersion ${named}`);
+  }
 }
 
-if (validateOnly) {
+if (validateOnly || fix) {
   for (const source of sources) {
     console.log(
-      `Valid ${source.story.storyId}: ${source.scenes.length} scenes, ${source.scenes.flatMap((scene) => scene.visuals).length} visuals, ${source.fallbacks.length} fallbacks`,
+      `${fix ? 'Rehashed' : 'Valid'} ${source.story.storyId}: ${source.scenes.length} scenes, ${source.scenes.flatMap((scene) => scene.visuals).length} visuals, ${source.fallbacks.length} fallbacks`,
     );
   }
   process.exit(0);
@@ -49,7 +61,7 @@ function quote(value) {
   return JSON.stringify(value);
 }
 
-function packageData(source) {
+function packageData(source, prompts) {
   return {
     schemaVersion: 1,
     story: source.story,
@@ -58,6 +70,21 @@ function packageData(source) {
     reportCopy: source.reportCopy,
     release: source.release,
     evaluation: source.evaluation,
+    // Authoring metadata that used to live only as files: the QA contract was never even read, and
+    // the reference packs never reached the backend, so the DB could not describe how a story is
+    // meant to be checked or generated.
+    qaContract: source.qaContract,
+    references: source.references,
+    // One flat array, the same shape the backend serves back at /v1/stories/{id}/content. `file` is
+    // storage-relative and is what the DB row keeps; `url` is what a client fetches. Both are
+    // carried so the import and the app read the same list rather than two divergent ones.
+    assetRoot: source.assets.root,
+    assets: source.assets.assets.map((asset) => ({
+      ...asset,
+      url: publicAssetUrl(`${source.assets.root}${asset.file}`),
+    })),
+    // The route policy this story names, carried so the import writes policy and version together.
+    prompt: prompts.find((entry) => entry.version === source.routeContext.routePromptVersion),
     sourceDigest: source.digest,
   };
 }
@@ -77,8 +104,10 @@ function renderAppAssets(allSources) {
   ];
   for (const source of allSources) {
     lines.push(`  ${quote(source.story.storyId)}: {`);
-    for (const [assetId, path] of Object.entries(source.assets.imageAssets)) {
-      lines.push(`    ${quote(assetId)}: { uri: ${quote(publicAssetUrl(path))} },`);
+    for (const asset of source.assets.assets) {
+      if (asset.category !== 'SCENE_ART' && asset.category !== 'BRANCH_ART') continue;
+      const path = `${source.assets.root}${asset.file}`;
+      lines.push(`    ${quote(asset.slug)}: { uri: ${quote(publicAssetUrl(path))} },`);
     }
     lines.push('  },');
   }
@@ -89,8 +118,10 @@ function renderAppAssets(allSources) {
   );
   for (const source of allSources) {
     lines.push(`  ${quote(source.story.storyId)}: {`);
-    for (const [assetId, path] of Object.entries(source.assets.audioAssets)) {
-      lines.push(`    ${quote(assetId)}: { uri: ${quote(publicAssetUrl(path))} },`);
+    for (const asset of source.assets.assets) {
+      if (asset.category !== 'NARRATION' && asset.category !== 'BRIDGE') continue;
+      const path = `${source.assets.root}${asset.file}`;
+      lines.push(`    ${quote(asset.slug)}: { uri: ${quote(publicAssetUrl(path))} },`);
     }
     lines.push('  },');
   }
@@ -114,7 +145,7 @@ for (const source of sources) {
   );
   outputs.push(
     [join(directory, 'generated-story-content.json'), stableJson(generatedStoryContent(source))],
-    [join(directory, 'story-package.generated.json'), stableJson(packageData(source))],
+    [join(directory, 'story-package.generated.json'), stableJson(packageData(source, prompts))],
   );
 }
 outputs.push([

@@ -1,11 +1,33 @@
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { parse as parseYaml } from 'yaml';
 
 function fail(storyId, message) {
   throw new Error(`Story package ${storyId}: ${message}`);
+}
+
+/**
+ * assets.json is one list of records - {slug, category, file, integrity} - so a hash can never be
+ * orphaned from the asset it covers and the shared directory prefix is written once. Callers still
+ * need to look assets up by slug and by family, so those indexes are derived here rather than
+ * being a second thing to keep in sync in the file.
+ */
+export function indexAssets(storyId, assets) {
+  const bySlug = new Map(assets.assets.map((asset) => [asset.slug, asset]));
+  if (bySlug.size !== assets.assets.length) fail(storyId, 'duplicate asset slug');
+  return {
+    bySlug,
+    artSlugs: assets.assets
+      .filter((asset) => asset.category === 'SCENE_ART' || asset.category === 'BRANCH_ART')
+      .map((asset) => asset.slug),
+    branchArtByFamily: Object.fromEntries(
+      assets.assets
+        .filter((asset) => asset.category === 'BRANCH_ART' && asset.panel === 1)
+        .map((asset) => [asset.familyId, asset.slug]),
+    ),
+  };
 }
 
 function parseTag(line) {
@@ -244,15 +266,48 @@ export async function loadRegistry(appDirectory) {
   return registry;
 }
 
-export async function loadStoryPackage(appDirectory, entry) {
+/**
+ * Route policies, keyed by the version a story's route-context.yaml names. Loaded separately from
+ * stories because one policy can serve several stories - and because it is the text the backend
+ * used to hardcode, which is what let the policy and its version label drift apart.
+ */
+export async function loadPrompts(appDirectory) {
+  const registry = await loadRegistry(appDirectory);
+  const prompts = [];
+  for (const entry of registry.prompts ?? []) {
+    const parsed = parseYaml(
+      await readText(join(appDirectory, 'content', 'prompts', entry.file)),
+    );
+    if (parsed?.schemaVersion !== 1 || parsed.version !== entry.version) {
+      throw new Error(`Prompt ${entry.version}: registry and file disagree`);
+    }
+    for (const field of ['system', 'instruction']) {
+      if (!Array.isArray(parsed[field]) || parsed[field].length === 0) {
+        throw new Error(`Prompt ${entry.version}: ${field} must be a non-empty list`);
+      }
+      if (parsed[field].some((line) => typeof line !== 'string' || !line.trim())) {
+        throw new Error(`Prompt ${entry.version}: ${field} has an empty line`);
+      }
+    }
+    prompts.push({ version: parsed.version, system: parsed.system, instruction: parsed.instruction });
+  }
+  const versions = new Set(prompts.map((prompt) => prompt.version));
+  if (versions.size !== prompts.length) throw new Error('Duplicate prompt version in registry');
+  return prompts;
+}
+
+export async function loadStoryPackage(appDirectory, entry, { rewriteIntegrity = false } = {}) {
   const directory = join(appDirectory, 'content', 'stories', entry.slug);
-  return loadStoryPackageFromDirectory(directory, entry, { assetRoot: appDirectory });
+  return loadStoryPackageFromDirectory(directory, entry, {
+    assetRoot: appDirectory,
+    rewriteIntegrity,
+  });
 }
 
 export async function loadStoryPackageFromDirectory(
   directory,
   entry,
-  { assetRoot = null } = {},
+  { assetRoot = null, rewriteIntegrity = false } = {},
 ) {
   const names = [
     'story.yaml',
@@ -264,6 +319,7 @@ export async function loadStoryPackageFromDirectory(
     'evaluation.jsonl',
     'report-copy.yaml',
     'release.yaml',
+    'qa-contract.yaml',
     'references/packs.yaml',
   ];
   const values = await Promise.all(names.map((name) => readText(join(directory, name))));
@@ -272,30 +328,40 @@ export async function loadStoryPackageFromDirectory(
   const routeContext = parseYaml(byName['route-context.yaml']);
   const cast = parseYaml(byName['cast.yaml']);
   const assets = JSON.parse(byName['assets.json']);
+  if (assets?.schemaVersion !== 2) fail(entry.storyId, 'assets.json must be schemaVersion 2');
   const reportCopy = parseYaml(byName['report-copy.yaml']);
   const release = parseYaml(byName['release.yaml']);
+  const qaContract = parseYaml(byName['qa-contract.yaml']);
   const references = parseYaml(byName['references/packs.yaml']);
   if (story?.storyId !== entry.storyId || story?.slug !== entry.slug) {
     fail(entry.storyId, 'registry and story.yaml do not match');
   }
-  for (const [label, value] of Object.entries({ routeContext, cast, assets, reportCopy, release, references })) {
+  for (const [label, value] of Object.entries({ routeContext, cast, assets, reportCopy, release, qaContract, references })) {
     if (value?.storyId !== story.storyId) fail(story.storyId, `${label} storyId does not match`);
   }
   if (assetRoot) {
-    for (const [assetId, relativePath] of Object.entries({
-      ...assets.imageAssets,
-      ...assets.audioAssets,
-    })) {
+    // rewriteIntegrity: recompute rather than compare. Every hash in assets.json used to be
+    // maintained by hand - swapping one illustration meant computing a base64 sha256 yourself and
+    // pasting it in, with a failed build as the only feedback. `--fix` writes them instead.
+    for (const asset of assets.assets) {
       // This project serves static story assets from `public/` (Vite's
       // static root) instead of the `assets/` source tree assets.json
       // still declares paths against, so remap the prefix on disk lookup.
-      const onDiskPath = relativePath.replace(/^assets\//, 'public/');
+      const onDiskPath = `${assets.root}${asset.file}`.replace(/^assets\//, 'public/');
       const actual = `sha256-${createHash('sha256')
         .update(await readFile(join(assetRoot, onDiskPath)))
         .digest('base64')}`;
-      if (assets.integrity?.[assetId] !== actual) {
-        fail(story.storyId, `integrity mismatch for ${assetId}`);
+      if (rewriteIntegrity) {
+        asset.integrity = actual;
+      } else if (asset.integrity !== actual) {
+        fail(story.storyId, `integrity mismatch for ${asset.slug}`);
       }
+    }
+    if (rewriteIntegrity) {
+      await writeFile(
+        join(directory, 'assets.json'),
+        `${JSON.stringify(assets, null, 2)}\n`,
+      );
     }
   }
   const scenes = splitBlocks(byName['script.qstory'], 'SCENE').map((block) =>
@@ -316,6 +382,7 @@ export async function loadStoryPackageFromDirectory(
     assets,
     reportCopy,
     release,
+    qaContract,
     references,
     evaluation: JSON.parse(byName['evaluation.jsonl'].trim()),
     scenes,
@@ -326,7 +393,45 @@ export async function loadStoryPackageFromDirectory(
   return source;
 }
 
+/**
+ * qa-contract.yaml states, per action family, where it rejoins and how many pictures it shows.
+ * Nothing read the file until now - it was authored, committed, and never compared against the
+ * fallbacks it describes, so it could disagree with them indefinitely.
+ */
+function validateQaContract(source) {
+  const { storyId } = source.story;
+  const families = source.qaContract?.families ?? {};
+  const byId = new Map(source.fallbacks.map((family) => [family.id, family]));
+  for (const [familyId, expected] of Object.entries(families)) {
+    const family = byId.get(familyId);
+    if (!family) fail(storyId, `qa-contract names unknown family ${familyId}`);
+    if (expected.expectedRejoin !== family.rejoin?.target) {
+      fail(
+        storyId,
+        `qa-contract expects ${familyId} to rejoin at ${expected.expectedRejoin}, fallbacks say ${family.rejoin?.target}`,
+      );
+    }
+    if (expected.slot !== family.rejoin?.slot) {
+      fail(storyId, `qa-contract puts ${familyId} in slot ${expected.slot}, fallbacks say ${family.rejoin?.slot}`);
+    }
+    const visualCount = family.segments.filter((segment) => segment.kind === 'visual').length;
+    if (expected.expectedVisualCount !== visualCount) {
+      fail(
+        storyId,
+        `qa-contract expects ${familyId} to show ${expected.expectedVisualCount} visuals, fallbacks show ${visualCount}`,
+      );
+    }
+  }
+  const missing = [...byId.keys()].filter((familyId) => !(familyId in families));
+  if (missing.length > 0) fail(storyId, `qa-contract is missing families: ${missing.join(', ')}`);
+}
+
 export function validateStoryPackage(source) {
+  const { bySlug: assetBySlug, artSlugs, branchArtByFamily } = indexAssets(
+    source.story.storyId,
+    source.assets,
+  );
+  validateQaContract(source);
   const { story, scenes, fallbacks, routeContext, cast, assets, reportCopy, release, references } = source;
   const sceneIds = new Set(scenes.map((scene) => scene.id));
   if (sceneIds.size !== scenes.length || !sceneIds.has(story.entrySceneId) || !sceneIds.has(story.endingSceneId)) {
@@ -350,15 +455,27 @@ export function validateStoryPackage(source) {
     fail(story.storyId, 'fixed visual ids and assets must be one-to-one');
   }
   for (const visual of visuals) {
-    if (!assets.imageAssets[visual.assetId]) fail(story.storyId, `unregistered image ${visual.assetId}`);
+    if (!assetBySlug.has(visual.assetId)) fail(story.storyId, `unregistered image ${visual.assetId}`);
   }
-  const declaredAssets = { ...assets.imageAssets, ...assets.audioAssets };
-  if (Object.keys(assets.integrity ?? {}).length !== Object.keys(declaredAssets).length) {
-    fail(story.storyId, 'asset integrity records contain missing or orphan ids');
+  // The reverse of the check above: art that is declared, hashed, and shipped in public/ but that
+  // no scene or fallback ever draws. Seven such files (5.4MB) had accumulated unnoticed, because
+  // only the "referenced but undeclared" direction was ever checked.
+  const referencedImages = new Set([
+    ...visuals.map((visual) => visual.assetId),
+    ...Object.values(branchArtByFamily),
+    ...fallbacks.flatMap((family) =>
+      family.segments.filter((segment) => segment.kind === 'visual').map((segment) => segment.assetId),
+    ),
+  ]);
+  const unusedImages = artSlugs.filter((slug) => !referencedImages.has(slug));
+  if (unusedImages.length > 0) {
+    fail(story.storyId, `image assets declared but never shown: ${unusedImages.join(', ')}`);
   }
-  for (const assetId of Object.keys(declaredAssets)) {
-    if (!/^sha256-[A-Za-z0-9+/]+={0,2}$/.test(assets.integrity?.[assetId] ?? '')) {
-      fail(story.storyId, `missing integrity for ${assetId}`);
+  // No count reconciliation any more: integrity lives on the asset record, so a hash cannot be
+  // missing for a declared asset or left behind for a deleted one.
+  for (const asset of assets.assets) {
+    if (!/^sha256-[A-Za-z0-9+/]+={0,2}$/.test(asset.integrity ?? '')) {
+      fail(story.storyId, `missing integrity for ${asset.slug}`);
     }
   }
   const declaredRejoins = new Set(
@@ -391,7 +508,7 @@ export function validateStoryPackage(source) {
     if (segment.kind === 'utterance' && !speakerTags.has(segment.speaker)) {
       fail(story.storyId, `unknown speaker tag ${segment.speaker}`);
     }
-    if (segment.kind === 'visual' && !assets.imageAssets[segment.assetId]) {
+    if (segment.kind === 'visual' && !assetBySlug.has(segment.assetId)) {
       fail(story.storyId, `unregistered image ${segment.assetId}`);
     }
   }
@@ -419,7 +536,7 @@ export function validateStoryPackage(source) {
         fail(story.storyId, `${familyId} rejoins through the wrong slot`);
       }
       const family = anchor.actionFamilies.find((candidate) => candidate.id === familyId);
-      if (family.branchAssetId && assets.familyAssets?.[familyId] !== family.branchAssetId) {
+      if (family.branchAssetId && branchArtByFamily[familyId] !== family.branchAssetId) {
         fail(story.storyId, `${familyId} family asset is not registered`);
       }
     }

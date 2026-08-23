@@ -101,7 +101,7 @@ test('F06 explains and depicts the locked-cage twig trick in causal order', () =
     .filter(
       (segment) =>
         segment.kind === 'utterance' &&
-        segment.visualId === 'HG-F06-V02',
+        segment.visualId === 'HG-VIS-F06-02',
     )
     .map((segment) => segment.text);
   assert.deepEqual(twigNarration, [
@@ -264,8 +264,8 @@ test('A, B, and C branch visuals follow the narrated state change', () => {
   }
 
   assert.deepEqual(visualAssetIds('B_STEP_BACK_MARK_EXIT'), [
-    'HG-FB-ART-B-STEP-BACK-MARK-EXIT-V1',
-    'HG-FB-ART-B-STEP-BACK-MARK-EXIT-V2',
+    'b-step-back-mark-exit-01',
+    'b-step-back-mark-exit-02',
   ]);
   for (const familyId of [
     'C_DISTRACT_AND_TAKE_KEYS',
@@ -275,7 +275,7 @@ test('A, B, and C branch visuals follow the narrated state change', () => {
     const assets = visualAssetIds(familyId);
     assert.equal(assets.length, 2, `${familyId} needs action and escape beats`);
     assert.notEqual(assets[0], assets[1], `${familyId} repeats one illustration`);
-    assert.equal(assets[1], 'HG-ART-34-ESCAPE-CORRIDOR');
+    assert.equal(assets[1], 'escape-corridor');
   }
   assert.equal(fallbackById.C_USE_SIGNAL.requires, null);
   assert.equal(
@@ -387,47 +387,47 @@ test('all visual beats use registered assets and one-breath fixed captions', () 
       scene.visuals.map((visual) => visual.assetId),
     ),
     [
-      'HG-ART-01-HOME-TABLE',
-      'HG-ART-02-NIGHT-PLAN',
-      'HG-ART-19-PEBBLE-COLLECTION',
-      'HG-ART-03-FIRST-WALK-PEBBLES',
-      'HG-ART-20-FOREST-WAITING',
-      'HG-ART-04-MOONLIT-RETURN',
-      'HG-ART-21-FIRST-HOMECOMING',
-      'HG-ART-36-SECOND-NIGHT-PLAN',
-      'HG-ART-40-LOCKED-DOOR-NIGHT-V2',
-      'HG-ART-41-MORNING-BREAD-PLAN-V2',
-      'HG-ART-22-SECOND-WALK-BREADCRUMBS',
-      'HG-ART-27-BIRDS-EAT-BREADCRUMBS',
-      'HG-ART-06-LOST-FOREST',
-      'HG-ART-28-MORNING-SONG',
-      'HG-ART-07-WHITE-BIRD',
-      'HG-ART-29-WHITE-BIRD-LEADS',
-      'HG-ART-08-CANDY-HOUSE-REVEAL',
-      'HG-ART-09-CANDY-HOUSE-CLOSE',
-      'HG-ART-10-OLD-WOMAN-DOOR',
-      'HG-ART-30-BLACK-KEY-GLOW',
-      'HG-ART-23-CANDY-HOUSE-INTERIOR',
-      'HG-ART-11-WITCH-REVEAL',
-      'HG-ART-42-SHORT-TWIG-CHECK-V2',
-      'HG-ART-31-GRETEL-WATCHES-KEYS',
-      'HG-ART-32-WITCH-LOSES-PATIENCE',
-      'HG-ART-13-OVEN-COMMAND',
-      'HG-ART-33-WITCH-SETS-DOWN-KEYS-V2',
-      'HG-ART-43-WITCH-DEMONSTRATES-OVEN-V2',
-      'HG-ART-44-OVEN-SECURED-KEYS-V2',
-      'HG-ART-45-CAGE-UNLOCK-OVEN-SECURED-V2',
-      'HG-ART-46-BLACK-KEY-SIDE-DOOR-V2',
-      'HG-ART-34-ESCAPE-CORRIDOR',
-      'HG-ART-16-STOREHOUSE',
-      'HG-ART-37-PACKING-EVIDENCE',
-      'HG-ART-35-CANDY-HOUSE-EXIT',
-      'HG-ART-38-WATERWAY-OBSTACLE',
-      'HG-ART-17-WATER-RETURN',
-      'HG-ART-24-MARKED-RETURN-PATH',
-      'HG-ART-18-HOME-PROMISE',
-      'HG-ART-25-VILLAGE-RESTITUTION',
-      'HG-ART-26-WINDOW-EPILOGUE',
+      'home-table',
+      'night-plan',
+      'pebble-collection',
+      'first-walk-pebbles',
+      'forest-waiting',
+      'moonlit-return',
+      'first-homecoming',
+      'second-night-plan',
+      'locked-door-night',
+      'morning-bread-plan',
+      'second-walk-breadcrumbs',
+      'birds-eat-breadcrumbs',
+      'lost-forest',
+      'morning-song',
+      'white-bird',
+      'white-bird-leads',
+      'candy-house-reveal',
+      'candy-house-close',
+      'old-woman-door',
+      'black-key-glow',
+      'candy-house-interior',
+      'witch-reveal',
+      'short-twig-check',
+      'gretel-watches-keys',
+      'witch-loses-patience',
+      'oven-command',
+      'witch-sets-down-keys',
+      'witch-demonstrates-oven',
+      'oven-secured-keys',
+      'cage-unlock-oven-secured',
+      'black-key-side-door',
+      'escape-corridor',
+      'storehouse',
+      'packing-evidence',
+      'candy-house-exit',
+      'waterway-obstacle',
+      'water-return',
+      'marked-return-path',
+      'home-promise',
+      'village-restitution',
+      'window-epilogue',
     ],
   );
   for (const assetId of usedAssetIds) {
@@ -489,87 +489,50 @@ test('all visual beats use registered assets and one-breath fixed captions', () 
 });
 
 test('all versioned master illustrations and every fixed narration clip are packaged', () => {
-  const illustrationDirectory = fileURLToPath(
-    new URL('../../../../public/story/hansel-gretel/illustrations/', import.meta.url),
-  );
   const audioDirectory = fileURLToPath(
     new URL('../../../../public/story/hansel-gretel/audio/', import.meta.url),
   );
-  const assetFileById = {
-    'HG-ART-01': `${illustrationDirectory}hg-art-01-home-table.jpg`,
-    'HG-ART-02': `${illustrationDirectory}hg-art-02-night-plan.jpg`,
-    'HG-ART-03': `${illustrationDirectory}hg-art-03-first-walk-pebbles.jpg`,
-    'HG-ART-04': `${illustrationDirectory}hg-art-04-moonlit-return.jpg`,
-    'HG-ART-05': `${illustrationDirectory}hg-art-05-locked-door-bread.jpg`,
-    'HG-ART-06': `${illustrationDirectory}hg-art-06-lost-forest-walking-v2.png`,
-    'HG-ART-07': `${illustrationDirectory}hg-art-07-white-bird.jpg`,
-    'HG-ART-08': `${illustrationDirectory}hg-art-08-candy-house-reveal.jpg`,
-    'HG-ART-09': `${illustrationDirectory}hg-art-09-candy-house-close.jpg`,
-    'HG-ART-10': `${illustrationDirectory}hg-art-10-old-woman-door.jpg`,
-    'HG-ART-11': `${illustrationDirectory}hg-art-11-witch-reveal-v3.jpg`,
-    'HG-ART-12': `${illustrationDirectory}hg-art-12-cage-key-pattern.jpg`,
-    'HG-ART-13': `${illustrationDirectory}hg-art-13-oven-command.jpg`,
-    'HG-ART-14': `${illustrationDirectory}hg-art-14-key-escape.jpg`,
-    'HG-ART-15': `${illustrationDirectory}hg-art-15-reversed-lock.jpg`,
-    'HG-ART-16': `${illustrationDirectory}hg-art-16-storehouse.jpg`,
-    'HG-ART-17': `${illustrationDirectory}hg-art-17-water-crossing-v2.jpg`,
-    'HG-ART-18': `${illustrationDirectory}hg-art-18-home-apology-v2.jpg`,
-    'HG-ART-19': `${illustrationDirectory}hg-art-19-pebble-collection.jpg`,
-    'HG-ART-20': `${illustrationDirectory}hg-art-20-forest-waiting.jpg`,
-    'HG-ART-21': `${illustrationDirectory}hg-art-21-first-homecoming.jpg`,
-    'HG-ART-22': `${illustrationDirectory}hg-art-22-second-walk-breadcrumbs.jpg`,
-    'HG-ART-23': `${illustrationDirectory}hg-art-23-candy-house-interior.jpg`,
-    'HG-ART-24': `${illustrationDirectory}hg-art-24-marked-return-path.jpg`,
-    'HG-ART-25': `${illustrationDirectory}hg-art-25-village-restitution.jpg`,
-    'HG-ART-26': `${illustrationDirectory}hg-art-26-window-epilogue.jpg`,
-    'HG-ART-27': `${illustrationDirectory}hg-art-27-birds-eat-breadcrumbs.jpg`,
-    'HG-ART-28': `${illustrationDirectory}hg-art-28-morning-song.jpg`,
-    'HG-ART-29': `${illustrationDirectory}hg-art-29-white-bird-leads.jpg`,
-    'HG-ART-30': `${illustrationDirectory}hg-art-30-black-key-glow.jpg`,
-    'HG-ART-31': `${illustrationDirectory}hg-art-31-gretel-watches-keys.jpg`,
-    'HG-ART-32': `${illustrationDirectory}hg-art-32-witch-loses-patience.jpg`,
-    'HG-ART-33': `${illustrationDirectory}hg-art-33-witch-demonstrates-oven.jpg`,
-    'HG-ART-33-PREP': `${illustrationDirectory}hg-art-33-witch-sets-down-keys-v2.jpg`,
-    'HG-ART-34': `${illustrationDirectory}hg-art-34-escape-corridor.jpg`,
-    'HG-ART-35': `${illustrationDirectory}hg-art-35-candy-house-exit.jpg`,
-    'HG-ART-36': `${illustrationDirectory}hg-art-36-second-night-plan.jpg`,
-    'HG-ART-37': `${illustrationDirectory}hg-art-37-packing-evidence.jpg`,
-    'HG-ART-38': `${illustrationDirectory}hg-art-38-waterway-obstacle.jpg`,
-    'HG-ART-39': `${illustrationDirectory}hg-art-39-cage-unlock.jpg`,
-    'HG-ART-40': `${illustrationDirectory}hg-art-40-locked-door-night-v2.jpg`,
-    'HG-ART-41': `${illustrationDirectory}hg-art-41-morning-bread-plan-v2.jpg`,
-    'HG-ART-42': `${illustrationDirectory}hg-art-42-short-twig-check-v3.jpg`,
-    'HG-ART-43': `${illustrationDirectory}hg-art-43-witch-demonstrates-oven-v2.jpg`,
-    'HG-ART-44': `${illustrationDirectory}hg-art-44-oven-secured-keys-v2.jpg`,
-    'HG-ART-45': `${illustrationDirectory}hg-art-45-cage-unlock-oven-secured-v2.jpg`,
-    'HG-ART-46': `${illustrationDirectory}hg-art-46-black-key-side-door-v2.jpg`,
-  };
+  // Driven by assets.json instead of a second, hand-written copy of it. The previous version
+  // listed all 47 illustration paths by number, so every added, renamed, or retired asset had to
+  // be mirrored here by hand - and it went on asserting six files that nothing shows any more.
+  const packagedAssets = JSON.parse(
+    readFileSync(
+      fileURLToPath(
+        new URL(
+          '../../../../content/stories/hansel-gretel/assets.json',
+          import.meta.url,
+        ),
+      ),
+      'utf8',
+    ),
+  );
+  const appRoot = fileURLToPath(new URL('../../../../', import.meta.url));
+  const onDisk = (relativePath: string) =>
+    `${appRoot}${relativePath.replace(/^assets\//, 'public/')}`;
 
-  for (const [assetPrefix, filePath] of Object.entries(assetFileById)) {
-    assert.ok(existsSync(filePath), `${assetPrefix} image is missing`);
+  for (const asset of packagedAssets.assets) {
+    assert.ok(
+      existsSync(onDisk(`${packagedAssets.root}${asset.file}`)),
+      `${asset.slug} file is missing`,
+    );
   }
 
-  const branchImagePaths = branchInteractionEntries.map(
-    ({ familyId }) =>
-      `${illustrationDirectory}fb-${familyId.toLowerCase().replaceAll('_', '-')}-v1.webp`,
+  // Branch art is fetched mid-question on a phone, so it stays inside the mobile WebP size band.
+  const branchArt = packagedAssets.assets.filter(
+    (asset) => asset.category === 'BRANCH_ART' && asset.panel === 1,
   );
-  assert.equal(branchImagePaths.length, 14);
-  assert.ok(
-    branchImagePaths.every(
-      (filePath) =>
-        existsSync(filePath) &&
-        statSync(filePath).size > 100_000 &&
-        statSync(filePath).size < 800_000,
-    ),
-    'every branch needs a packaged, mobile-sized WebP illustration',
-  );
-  const stepBackRevealPath =
-    `${illustrationDirectory}fb-b-step-back-mark-exit-v2.webp`;
-  assert.ok(
-    existsSync(stepBackRevealPath) &&
-      statSync(stepBackRevealPath).size > 100_000 &&
-      statSync(stepBackRevealPath).size < 800_000,
-    'B step-back reveal needs its own packaged illustration',
+  assert.equal(branchArt.length, 14);
+  for (const asset of branchArt) {
+    const size = statSync(onDisk(`${packagedAssets.root}${asset.file}`)).size;
+    assert.ok(
+      size > 100_000 && size < 800_000,
+      `${asset.slug} is outside the mobile branch-illustration size band`,
+    );
+  }
+  const audioFileBySlug = new Map(
+    packagedAssets.assets
+      .filter((asset) => asset.category === 'NARRATION' || asset.category === 'BRIDGE')
+      .map((asset) => [asset.slug, `${packagedAssets.root}${asset.file}`]),
   );
 
   const narrationMetadata = JSON.parse(
@@ -609,17 +572,6 @@ test('all versioned master illustrations and every fixed narration clip are pack
   const metadataByClipId = new Map(
     narrationMetadata.clips.map((clip) => [clip.clipId, clip]),
   );
-  const packagedAssets = JSON.parse(
-    readFileSync(
-      fileURLToPath(
-        new URL(
-          '../../../../content/stories/hansel-gretel/assets.json',
-          import.meta.url,
-        ),
-      ),
-      'utf8',
-    ),
-  );
   const normalizedText = (text: string) =>
     text.replaceAll('\n', ' ').replace(/\s+/g, ' ').trim();
   for (const [clipId, utterance] of Object.entries(
@@ -639,7 +591,7 @@ test('all versioned master illustrations and every fixed narration clip are pack
       `${clipId} narration text does not match its runtime caption`,
     );
     assert.equal(
-      packagedAssets.audioAssets[clipId],
+      audioFileBySlug.get(clipId),
       `assets/story/hansel-gretel/audio/${metadataClip.fileName}`,
       `${clipId} points to a different narration file`,
     );
@@ -703,33 +655,33 @@ test('critical visual continuity prevents the reported F03 and F07-F08 contradic
     ),
   );
 
-  assert.equal(visualById['HG-F03-V01'].time, 'night');
-  assert.equal(visualById['HG-F03-V02'].time, 'next-morning');
-  assert.equal(visualById['HG-F03-V04'].time, 'night');
+  assert.equal(visualById['HG-VIS-F03-01'].time, 'night');
+  assert.equal(visualById['HG-VIS-F03-02'].time, 'next-morning');
+  assert.equal(visualById['HG-VIS-F03-04'].time, 'night');
   assert.equal(
-    visualById['HG-F03-V04'].requiredAction,
+    visualById['HG-VIS-F03-04'].requiredAction,
     'birds-eat-last-crumbs',
   );
-  assert.equal(visualById['HG-F03-V05'].time, 'next-day');
-  assert.equal(visualById['HG-F03-V06'].time, 'following-dawn');
+  assert.equal(visualById['HG-VIS-F03-05'].time, 'next-day');
+  assert.equal(visualById['HG-VIS-F03-06'].time, 'following-dawn');
   assert.equal(
-    visualById['HG-F07-V02A'].exitState,
-    visualById['HG-F07-V02'].entryState,
+    visualById['HG-VIS-F07-02A'].exitState,
+    visualById['HG-VIS-F07-02'].entryState,
   );
   assert.equal(
-    visualById['HG-F07-V05'].exitState,
+    visualById['HG-VIS-F07-05'].exitState,
     'side-door-open-siblings-safe',
   );
   assert.equal(
-    visualById['HG-F07-V06'].exitState,
-    visualById['HG-F08-V01'].entryState,
+    visualById['HG-VIS-F07-06'].exitState,
+    visualById['HG-VIS-F08-01'].entryState,
   );
   assert.equal(
-    visualById['HG-F08-V02'].exitState,
+    visualById['HG-VIS-F08-02'].exitState,
     'small-bag-packed',
   );
   assert.equal(
-    visualById['HG-F08-V03'].exitState,
+    visualById['HG-VIS-F08-03'].exitState,
     'siblings-outside-candy-house',
   );
 });

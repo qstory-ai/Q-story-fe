@@ -1,6 +1,6 @@
 [SCENE | HG-F01 | title=텅 빈 식탁과 밤의 계획]
 
-[VISUAL | HG-F01-V01 | asset=HG-ART-01-HOME-TABLE | mode=empty-table-family-wide | time=day | location=home-table | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=family-at-home-low-food | action=family-faces-last-piece-of-bread | exit=father-fears-hunger | exception=single-table-setup]
+[VISUAL | HG-VIS-F01-01 | asset=home-table | mode=empty-table-family-wide | time=day | location=home-table | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=family-at-home-low-food | action=family-faces-last-piece-of-bread | exit=father-fears-hunger | exception=single-table-setup]
 
 [NARRATOR | FIXED]
 아주 오래전, 커다란 숲 가장자리의 작은 집에
@@ -12,7 +12,7 @@
 [FATHER | DIALOGUE]
 “내일은 아이들에게 무엇을 먹여야 하지?”
 
-[VISUAL | HG-F01-V02 | asset=HG-ART-02-NIGHT-PLAN | mode=parents-whisper-children-listen | time=night | location=home-bedroom-wall | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=family-at-home-night | action=parents-plan-while-siblings-overhear | exit=siblings-promise-to-find-way-home | exception=same-night-family-dialogue]
+[VISUAL | HG-VIS-F01-02 | asset=night-plan | mode=parents-whisper-children-listen | time=night | location=home-bedroom-wall | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=family-at-home-night | action=parents-plan-while-siblings-overhear | exit=siblings-promise-to-find-way-home | exception=same-night-family-dialogue]
 
 [NARRATOR | FIXED]
 그날 밤, 새어머니가 아이들을 깊은 숲에 두고 오자고 말했어요.
@@ -31,17 +31,17 @@
 
 [SCENE | HG-F02 | title=조약돌이 알려준 첫 번째 길]
 
-[VISUAL | HG-F02-V01 | asset=HG-ART-19-PEBBLE-COLLECTION | mode=hansel-collects-white-pebbles-outside-home-at-night | time=night | location=outside-home | characters=HANSEL | entry=siblings-need-return-plan | action=hansel-collects-white-pebbles | exit=hansel-pocket-full-of-pebbles]
+[VISUAL | HG-VIS-F02-01 | asset=pebble-collection | mode=hansel-collects-white-pebbles-outside-home-at-night | time=night | location=outside-home | characters=HANSEL | entry=siblings-need-return-plan | action=hansel-collects-white-pebbles | exit=hansel-pocket-full-of-pebbles]
 
 [NARRATOR | FIXED]
 달이 뜨자 헨젤은 문밖의 하얀 조약돌을 주머니에 담았어요.
 
-[VISUAL | HG-F02-V02 | asset=HG-ART-03-FIRST-WALK-PEBBLES | mode=hansel-drops-pebbles-on-forest-path | time=morning | location=forest-path | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=next-morning-pebbles-ready | action=hansel-drops-pebbles-behind-family | exit=trail-marked]
+[VISUAL | HG-VIS-F02-02 | asset=first-walk-pebbles | mode=hansel-drops-pebbles-on-forest-path | time=morning | location=forest-path | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=next-morning-pebbles-ready | action=hansel-drops-pebbles-behind-family | exit=trail-marked]
 
 [NARRATOR | FIXED]
 다음 날 숲으로 걸어가며 돌을 하나씩 길에 떨어뜨렸지요.
 
-[VISUAL | HG-F02-V03 | asset=HG-ART-20-FOREST-WAITING | mode=siblings-wait-by-fire-as-adults-leave-with-branch-trick | time=afternoon-to-dusk | location=forest-clearing | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=family-reaches-clearing | action=adults-leave-branch-trick-siblings-wait | exit=night-no-adults | exception=same-clearing-abandonment]
+[VISUAL | HG-VIS-F02-03 | asset=forest-waiting | mode=siblings-wait-by-fire-as-adults-leave-with-branch-trick | time=afternoon-to-dusk | location=forest-clearing | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=family-reaches-clearing | action=adults-leave-branch-trick-siblings-wait | exit=night-no-adults | exception=same-clearing-abandonment]
 
 [NARRATOR | FIXED]
 어른들은 불을 피운 뒤 마른 가지를 나무에 매달았어요.
@@ -54,7 +54,7 @@
 [NARRATOR | FIXED]
 하지만 해가 져도 아무도 돌아오지 않았어요.
 
-[VISUAL | HG-F02-V04 | asset=HG-ART-04-MOONLIT-RETURN | mode=siblings-follow-shining-stones-home | time=night-to-dawn | location=moonlit-forest-path | characters=HANSEL,GRETEL | entry=night-stones-hidden-by-cloud | action=siblings-follow-shining-pebbles | exit=siblings-reach-home-at-dawn]
+[VISUAL | HG-VIS-F02-04 | asset=moonlit-return | mode=siblings-follow-shining-stones-home | time=night-to-dawn | location=moonlit-forest-path | characters=HANSEL,GRETEL | entry=night-stones-hidden-by-cloud | action=siblings-follow-shining-pebbles | exit=siblings-reach-home-at-dawn]
 
 [GRETEL | DIALOGUE]
 “이제 어느 쪽으로 가야 하지?”
@@ -66,13 +66,13 @@
 구름 뒤에서 달이 나오자 하얀 돌들이 하나씩 반짝였어요.
 남매는 손을 잡고 돌을 따라 걸어 새벽녘 집으로 돌아왔어요.
 
-[VISUAL | HG-F02-V05 | asset=HG-ART-21-FIRST-HOMECOMING | mode=father-embraces-returned-siblings-stepmother-watches-coldly | time=dawn | location=home-door | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=siblings-return-home | action=father-embraces-stepmother-watches | exit=family-reunited-without-repair]
+[VISUAL | HG-VIS-F02-05 | asset=first-homecoming | mode=father-embraces-returned-siblings-stepmother-watches-coldly | time=dawn | location=home-door | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=siblings-return-home | action=father-embraces-stepmother-watches | exit=family-reunited-without-repair]
 
 [NARRATOR | FIXED]
 아버지는 돌아온 아이들을 꼭 끌어안았어요.
 하지만 자신의 잘못을 바로잡겠다고 말하지 못했지요.
 
-[VISUAL | HG-F02-V06 | asset=HG-ART-36-SECOND-NIGHT-PLAN | mode=second-night-plan-stepmother-insists-father-yields | time=later-night | location=home-table | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=food-empty-again | action=stepmother-demands-deeper-forest-father-yields | exit=second-abandonment-decided]
+[VISUAL | HG-VIS-F02-06 | asset=second-night-plan | mode=second-night-plan-stepmother-insists-father-yields | time=later-night | location=home-table | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=food-empty-again | action=stepmother-demands-deeper-forest-father-yields | exit=second-abandonment-decided]
 
 [NARRATOR | FIXED]
 얼마 뒤 음식이 다시 떨어졌어요.
@@ -83,17 +83,17 @@
 
 [SCENE | HG-F03 | title=빵 부스러기가 사라진 숲]
 
-[VISUAL | HG-F03-V01 | asset=HG-ART-40-LOCKED-DOOR-NIGHT-V2 | mode=hansel-finds-locked-door-at-night | time=night | location=home-locked-door | characters=HANSEL,GRETEL | entry=second-abandonment-decided | action=hansel-tries-locked-door-and-cannot-collect-pebbles | exit=pebble-plan-blocked]
+[VISUAL | HG-VIS-F03-01 | asset=locked-door-night | mode=hansel-finds-locked-door-at-night | time=night | location=home-locked-door | characters=HANSEL,GRETEL | entry=second-abandonment-decided | action=hansel-tries-locked-door-and-cannot-collect-pebbles | exit=pebble-plan-blocked]
 
 [NARRATOR | FIXED]
 헨젤은 다시 조약돌을 주우려 했지만 이번에는 문이 잠겨 있었어요.
 
-[VISUAL | HG-F03-V02 | asset=HG-ART-41-MORNING-BREAD-PLAN-V2 | mode=hansel-saves-and-breaks-small-morning-bread | time=next-morning | location=home-table | characters=HANSEL,GRETEL | entry=pebble-plan-blocked | action=hansel-saves-small-bread-and-breaks-it-into-pouch | exit=breadcrumb-plan-ready]
+[VISUAL | HG-VIS-F03-02 | asset=morning-bread-plan | mode=hansel-saves-and-breaks-small-morning-bread | time=next-morning | location=home-table | characters=HANSEL,GRETEL | entry=pebble-plan-blocked | action=hansel-saves-small-bread-and-breaks-it-into-pouch | exit=breadcrumb-plan-ready]
 
 [NARRATOR | FIXED]
 그래서 다음 날 받은 작은 빵을 먹지 않고 잘게 부수었어요.
 
-[VISUAL | HG-F03-V03 | asset=HG-ART-22-SECOND-WALK-BREADCRUMBS | mode=hansel-drops-breadcrumbs-as-adults-disappear-into-deep-forest | time=day | location=deep-forest-path | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=breadcrumb-plan-ready | action=hansel-drops-crumbs-adults-leave | exit=siblings-left-deep-in-forest | exception=same-walk-abandonment]
+[VISUAL | HG-VIS-F03-03 | asset=second-walk-breadcrumbs | mode=hansel-drops-breadcrumbs-as-adults-disappear-into-deep-forest | time=day | location=deep-forest-path | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=breadcrumb-plan-ready | action=hansel-drops-crumbs-adults-leave | exit=siblings-left-deep-in-forest | exception=same-walk-abandonment]
 
 [NARRATOR | FIXED]
 헨젤은 깊은 숲으로 걸으며 빵 부스러기를 길에 떨어뜨렸어요.
@@ -108,18 +108,18 @@
 어른들은 남매를 전보다 깊은 숲에 남겨두었고,
 이번에도 돌아오지 않았어요.
 
-[VISUAL | HG-F03-V04 | asset=HG-ART-27-BIRDS-EAT-BREADCRUMBS | mode=moonlit-siblings-find-birds-eating-last-crumbs | time=night | location=deep-forest-trail | characters=HANSEL,GRETEL,BIRDS | entry=siblings-search-breadcrumb-trail | action=birds-eat-last-crumbs | exit=breadcrumb-trail-gone]
+[VISUAL | HG-VIS-F03-04 | asset=birds-eat-breadcrumbs | mode=moonlit-siblings-find-birds-eating-last-crumbs | time=night | location=deep-forest-trail | characters=HANSEL,GRETEL,BIRDS | entry=siblings-search-breadcrumb-trail | action=birds-eat-last-crumbs | exit=breadcrumb-trail-gone]
 
 [NARRATOR | FIXED]
 밤이 되자 남매는 빵 부스러기를 찾았어요.
 하지만 숲의 새들이 모두 먹어버려 작은 조각 하나 남지 않았지요.
 
-[VISUAL | HG-F03-V05 | asset=HG-ART-06-LOST-FOREST | mode=tired-siblings-circle-same-trees-in-daylight | time=next-day | location=repeating-forest | characters=HANSEL,GRETEL | entry=breadcrumb-trail-gone | action=siblings-circle-same-trees-and-rocks | exit=siblings-exhausted]
+[VISUAL | HG-VIS-F03-05 | asset=lost-forest | mode=tired-siblings-circle-same-trees-in-daylight | time=next-day | location=repeating-forest | characters=HANSEL,GRETEL | entry=breadcrumb-trail-gone | action=siblings-circle-same-trees-and-rocks | exit=siblings-exhausted]
 
 [NARRATOR | FIXED]
 남매는 다음 날 내내 같은 나무와 바위를 맴돌았어요.
 
-[VISUAL | HG-F03-V06 | asset=HG-ART-28-MORNING-SONG | mode=exhausted-siblings-rest-under-tree-at-dawn-hearing-song | time=following-dawn | location=under-large-forest-tree | characters=HANSEL,GRETEL | entry=siblings-exhausted | action=siblings-hear-clear-song-and-look-up | exit=song-source-nearby]
+[VISUAL | HG-VIS-F03-06 | asset=morning-song | mode=exhausted-siblings-rest-under-tree-at-dawn-hearing-song | time=following-dawn | location=under-large-forest-tree | characters=HANSEL,GRETEL | entry=siblings-exhausted | action=siblings-hear-clear-song-and-look-up | exit=song-source-nearby]
 
 [NARRATOR | FIXED]
 이튿날 아침, 지친 두 아이가 큰 나무 아래 앉았을 때
@@ -129,7 +129,7 @@
 
 [SCENE | HG-F04 | title=하얀 새와 첫 번째 질문]
 
-[VISUAL | HG-F04-V01 | asset=HG-ART-07-WHITE-BIRD | mode=bird-on-low-branch-looking-at-siblings | time=morning | location=forest-low-branch | characters=HANSEL,GRETEL,WHITE_BIRD | entry=song-source-nearby | action=white-bird-watches-and-waits | exit=bird-invites-curiosity | exception=question-invite-same-moment]
+[VISUAL | HG-VIS-F04-01 | asset=white-bird | mode=bird-on-low-branch-looking-at-siblings | time=morning | location=forest-low-branch | characters=HANSEL,GRETEL,WHITE_BIRD | entry=song-source-nearby | action=white-bird-watches-and-waits | exit=bird-invites-curiosity | exception=question-invite-same-moment]
 
 [NARRATOR | FIXED]
 낮은 가지에는 눈처럼 하얀 새 한 마리가 앉아 있었어요.
@@ -146,7 +146,7 @@
 아이의 말 질문, 글 질문 또는 건너뛰기 입력을 기다린다.
 라우팅 결과에 따라 짧은 응답, 장면 대체 또는 우회 장면을 재생한다.
 
-[VISUAL | HG-F04-V02 | asset=HG-ART-29-WHITE-BIRD-LEADS | mode=white-bird-flies-between-branches-siblings-follow-sweet-scent | time=morning | location=forest-between-branches | characters=HANSEL,GRETEL,WHITE_BIRD | entry=bird-invites-curiosity | action=bird-leads-siblings-toward-sweet-scent | exit=siblings-near-candy-house]
+[VISUAL | HG-VIS-F04-02 | asset=white-bird-leads | mode=white-bird-flies-between-branches-siblings-follow-sweet-scent | time=morning | location=forest-between-branches | characters=HANSEL,GRETEL,WHITE_BIRD | entry=bird-invites-curiosity | action=bird-leads-siblings-toward-sweet-scent | exit=siblings-near-candy-house]
 
 [NARRATOR | DEFAULT_RESUME:A0]
 남매가 잠시 지켜보자 하얀 새는 코끝을 들었어요.
@@ -155,7 +155,7 @@
 
 [SYSTEM | ANCHOR | id=HG-F04-CANDY-HOUSE-REVEAL]
 
-[VISUAL | HG-F04-V03 | asset=HG-ART-08-CANDY-HOUSE-REVEAL | mode=forest-opens-to-candy-house | time=late-morning | location=candy-house-clearing | characters=HANSEL,GRETEL,WHITE_BIRD | entry=siblings-near-candy-house | action=forest-opens-and-house-is-revealed | exit=candy-house-found]
+[VISUAL | HG-VIS-F04-03 | asset=candy-house-reveal | mode=forest-opens-to-candy-house | time=late-morning | location=candy-house-clearing | characters=HANSEL,GRETEL,WHITE_BIRD | entry=siblings-near-candy-house | action=forest-opens-and-house-is-revealed | exit=candy-house-found]
 
 [NARRATOR | FIXED]
 남매가 새를 따라가자 나무 사이로 집이 나타났어요.
@@ -169,7 +169,7 @@
 
 [SCENE | HG-F05 | title=과자집 문 앞의 두 번째 질문]
 
-[VISUAL | HG-F05-V01 | asset=HG-ART-09-CANDY-HOUSE-CLOSE | mode=siblings-observe-windows-door-and-crumbs | time=day | location=candy-house-exterior | characters=HANSEL,GRETEL | entry=candy-house-found | action=siblings-inspect-scratches-and-sugar-pattern | exit=suspicious-clues-seen]
+[VISUAL | HG-VIS-F05-01 | asset=candy-house-close | mode=siblings-observe-windows-door-and-crumbs | time=day | location=candy-house-exterior | characters=HANSEL,GRETEL | entry=candy-house-found | action=siblings-inspect-scratches-and-sugar-pattern | exit=suspicious-clues-seen]
 
 [NARRATOR | FIXED]
 남매는 집을 한 바퀴 천천히 살폈어요.
@@ -179,7 +179,7 @@
 [HANSEL | DIALOGUE]
 “먹을 수 있는 집이라면 왜 숲 한가운데 숨겨져 있을까?”
 
-[VISUAL | HG-F05-V02 | asset=HG-ART-10-OLD-WOMAN-DOOR | mode=old-woman-keyring-threshold | time=day | location=candy-house-threshold | characters=HANSEL,GRETEL,OLD_WOMAN | entry=suspicious-clues-seen | action=old-woman-invites-siblings-inside | exit=invitation-questioned | exception=question-invite-same-moment]
+[VISUAL | HG-VIS-F05-02 | asset=old-woman-door | mode=old-woman-keyring-threshold | time=day | location=candy-house-threshold | characters=HANSEL,GRETEL,OLD_WOMAN | entry=suspicious-clues-seen | action=old-woman-invites-siblings-inside | exit=invitation-questioned | exception=question-invite-same-moment]
 
 [NARRATOR | FIXED]
 그때 문이 열리고 지팡이를 짚은 노파가 나왔어요.
@@ -199,7 +199,7 @@
 아이의 말 질문, 글 질문 또는 건너뛰기 입력을 기다린다.
 라우팅 결과에 따라 짧은 응답, 조사 장면 대체 또는 우회 장면을 재생한다.
 
-[VISUAL | HG-F05-V03 | asset=HG-ART-30-BLACK-KEY-GLOW | mode=siblings-wait-on-threshold-black-key-activates-sugar-pattern | time=day | location=candy-house-threshold-close | characters=HANSEL,GRETEL,OLD_WOMAN | entry=invitation-questioned | action=black-key-activates-sugar-pattern | exit=black-key-clue-remembered]
+[VISUAL | HG-VIS-F05-03 | asset=black-key-glow | mode=siblings-wait-on-threshold-black-key-activates-sugar-pattern | time=day | location=candy-house-threshold-close | characters=HANSEL,GRETEL,OLD_WOMAN | entry=invitation-questioned | action=black-key-activates-sugar-pattern | exit=black-key-clue-remembered]
 
 [NARRATOR | DEFAULT_RESUME:B0]
 남매는 곧바로 들어가지 않았어요.
@@ -209,7 +209,7 @@
 
 [SYSTEM | ANCHOR | id=HG-F05-ENTER-HOUSE]
 
-[VISUAL | HG-F05-V04 | asset=HG-ART-23-CANDY-HOUSE-INTERIOR | mode=siblings-eat-warm-bread-while-two-beds-wait-inside | time=evening | location=candy-house-dining-bedroom | characters=HANSEL,GRETEL,OLD_WOMAN | entry=black-key-clue-remembered | action=siblings-enter-eat-and-sleep-together | exit=siblings-asleep-inside]
+[VISUAL | HG-VIS-F05-04 | asset=candy-house-interior | mode=siblings-eat-warm-bread-while-two-beds-wait-inside | time=evening | location=candy-house-dining-bedroom | characters=HANSEL,GRETEL,OLD_WOMAN | entry=black-key-clue-remembered | action=siblings-enter-eat-and-sleep-together | exit=siblings-asleep-inside]
 
 [NARRATOR | FIXED]
 남매는 이상한 점을 꼭 기억했어요.
@@ -221,7 +221,7 @@
 
 [SCENE | HG-F06 | title=드러난 마녀와 열쇠의 규칙]
 
-[VISUAL | HG-F06-V01 | asset=HG-ART-11-WITCH-REVEAL | mode=hansel-visibly-inside-locked-cage-witch-and-gretel-outside | time=next-morning | location=candy-house-cage-room | characters=HANSEL,GRETEL,WITCH | entry=siblings-asleep-inside | action=witch-reveals-self-and-locks-hansel-fully-inside-cage | exit=hansel-locked-gretel-forced | exception=same-reveal-capture]
+[VISUAL | HG-VIS-F06-01 | asset=witch-reveal | mode=hansel-visibly-inside-locked-cage-witch-and-gretel-outside | time=next-morning | location=candy-house-cage-room | characters=HANSEL,GRETEL,WITCH | entry=siblings-asleep-inside | action=witch-reveals-self-and-locks-hansel-fully-inside-cage | exit=hansel-locked-gretel-forced | exception=same-reveal-capture]
 
 [NARRATOR | FIXED]
 다음 날 아침, 노파의 친절한 얼굴은 사라졌어요.
@@ -236,7 +236,7 @@
 
 [SYSTEM | ANCHOR | id=HG-F06-CAPTURED-STATE]
 
-[VISUAL | HG-F06-V02 | asset=HG-ART-42-SHORT-TWIG-CHECK-V2 | mode=near-sighted-witch-checks-short-bark-twig-while-hansels-hand-stays-hidden | time=following-mornings | location=candy-house-cage-room | characters=HANSEL,GRETEL,WITCH | entry=hansel-inside-locked-tall-cage | action=hansel-keeps-hand-hidden-and-extends-only-one-short-bark-twig-from-sleeve | exit=plausible-twig-trick-buys-days]
+[VISUAL | HG-VIS-F06-02 | asset=short-twig-check | mode=near-sighted-witch-checks-short-bark-twig-while-hansels-hand-stays-hidden | time=following-mornings | location=candy-house-cage-room | characters=HANSEL,GRETEL,WITCH | entry=hansel-inside-locked-tall-cage | action=hansel-keeps-hand-hidden-and-extends-only-one-short-bark-twig-from-sleeve | exit=plausible-twig-trick-buys-days]
 
 [NARRATOR | FIXED]
 마녀는 헨젤이 살이 올랐는지 확인하려고 했어요.
@@ -244,7 +244,7 @@
 헨젤은 손을 소매에 숨기고, 짧은 나뭇가지를 대신 내밀었어요.
 마녀는 굵기만 만져 보고 손가락이라고 착각했지요.
 
-[VISUAL | HG-F06-V03 | asset=HG-ART-31-GRETEL-WATCHES-KEYS | mode=gretel-observes-silver-cage-key-and-black-house-key | time=day | location=candy-house-cage-room | characters=HANSEL,GRETEL,WITCH | entry=plausible-twig-trick-buys-days | action=gretel-observes-silver-and-black-key-rules | exit=key-rules-learned]
+[VISUAL | HG-VIS-F06-03 | asset=gretel-watches-keys | mode=gretel-observes-silver-cage-key-and-black-house-key | time=day | location=candy-house-cage-room | characters=HANSEL,GRETEL,WITCH | entry=plausible-twig-trick-buys-days | action=gretel-observes-silver-and-black-key-rules | exit=key-rules-learned]
 
 [NARRATOR | FIXED]
 그동안 그레텔은 작은 은색 열쇠가 쇠창살을 열고,
@@ -253,7 +253,7 @@
 [HANSEL | DIALOGUE]
 “내 걱정만 하지 말고, 마녀가 열쇠를 어떻게 쓰는지 기억해.”
 
-[VISUAL | HG-F06-V04 | asset=HG-ART-32-WITCH-LOSES-PATIENCE | mode=witch-shouts-near-cage-gretel-realizes-urgency | time=later-day | location=candy-house-cage-room | characters=HANSEL,GRETEL,WITCH | entry=key-rules-learned-days-passed | action=witch-loses-patience-and-shouts | exit=escape-urgent]
+[VISUAL | HG-VIS-F06-04 | asset=witch-loses-patience | mode=witch-shouts-near-cage-gretel-realizes-urgency | time=later-day | location=candy-house-cage-room | characters=HANSEL,GRETEL,WITCH | entry=key-rules-learned-days-passed | action=witch-loses-patience-and-shouts | exit=escape-urgent]
 
 [NARRATOR | FIXED]
 하지만 며칠이 지나자 마녀는 더 기다리지 않겠다고 소리쳤어요.
@@ -263,7 +263,7 @@
 
 [SCENE | HG-F07 | title=수상한 명령과 함께 만든 탈출]
 
-[VISUAL | HG-F07-V01 | asset=HG-ART-13-OVEN-COMMAND | mode=witch-orders-gretel-keeps-distance-hansel-in-tall-iron-cage | time=next-day | location=candy-house-kitchen-and-cage-room | characters=HANSEL,GRETEL,WITCH | entry=escape-urgent | action=witch-orders-gretel-toward-open-oven-while-hansel-remains-locked | exit=gretel-asks-for-demonstration | exception=question-invite-same-moment]
+[VISUAL | HG-VIS-F07-01 | asset=oven-command | mode=witch-orders-gretel-keeps-distance-hansel-in-tall-iron-cage | time=next-day | location=candy-house-kitchen-and-cage-room | characters=HANSEL,GRETEL,WITCH | entry=escape-urgent | action=witch-orders-gretel-toward-open-oven-while-hansel-remains-locked | exit=gretel-asks-for-demonstration | exception=question-invite-same-moment]
 
 [NARRATOR | FIXED]
 다음 날 마녀는 오븐 문을 열었어요.
@@ -280,7 +280,7 @@
 아이의 말 질문, 글 질문 또는 건너뛰기 입력을 기다린다.
 라우팅 결과에 따라 짧은 응답, 안전한 제안 반영, 조사 우회 또는 해결 장면 대체를 재생한다.
 
-[VISUAL | HG-F07-V02A | asset=HG-ART-33-WITCH-SETS-DOWN-KEYS-V2 | mode=witch-stands-outside-open-oven-and-sets-keyring-on-worktable | time=day | location=candy-house-kitchen-and-cage-room | characters=HANSEL,GRETEL,WITCH | entry=gretel-asks-for-demonstration | action=witch-sets-keyring-on-worktable-while-standing-fully-outside-oven | exit=keys-left-on-worktable | exception=same-demonstration-setup]
+[VISUAL | HG-VIS-F07-02A | asset=witch-sets-down-keys | mode=witch-stands-outside-open-oven-and-sets-keyring-on-worktable | time=day | location=candy-house-kitchen-and-cage-room | characters=HANSEL,GRETEL,WITCH | entry=gretel-asks-for-demonstration | action=witch-sets-keyring-on-worktable-while-standing-fully-outside-oven | exit=keys-left-on-worktable | exception=same-demonstration-setup]
 
 [NARRATOR | DEFAULT_RESUME:C0]
 그레텔은 서둘러 다가가지 않고 모르는 척했어요.
@@ -294,22 +294,22 @@
 [NARRATOR | FIXED]
 마녀는 열쇠고리를 작업대에 내려놓았어요.
 
-[VISUAL | HG-F07-V02 | asset=HG-ART-43-WITCH-DEMONSTRATES-OVEN-V2 | mode=witch-upper-body-clearly-inside-open-oven-keys-left-on-worktable | time=day | location=candy-house-kitchen | characters=GRETEL,WITCH | entry=keys-left-on-worktable | action=witch-places-upper-body-inside-oven-to-demonstrate | exit=oven-demonstration-vulnerable]
+[VISUAL | HG-VIS-F07-02 | asset=witch-demonstrates-oven | mode=witch-upper-body-clearly-inside-open-oven-keys-left-on-worktable | time=day | location=candy-house-kitchen | characters=GRETEL,WITCH | entry=keys-left-on-worktable | action=witch-places-upper-body-inside-oven-to-demonstrate | exit=oven-demonstration-vulnerable]
 
 [NARRATOR | FIXED]
 그리고 몸을 깊이 숙여 오븐 안을 들여다보았어요.
 
-[VISUAL | HG-F07-V03 | asset=HG-ART-44-OVEN-SECURED-KEYS-V2 | mode=oven-door-closed-and-latched-gretel-takes-unattended-keys | time=day | location=candy-house-kitchen | characters=GRETEL | entry=oven-demonstration-vulnerable | action=gretel-closes-and-latches-oven-then-takes-keyring | exit=oven-secured-keys-held]
+[VISUAL | HG-VIS-F07-03 | asset=oven-secured-keys | mode=oven-door-closed-and-latched-gretel-takes-unattended-keys | time=day | location=candy-house-kitchen | characters=GRETEL | entry=oven-demonstration-vulnerable | action=gretel-closes-and-latches-oven-then-takes-keyring | exit=oven-secured-keys-held]
 
 [NARRATOR | FIXED]
 그레텔은 무거운 문을 닫고 걸쇠를 건 뒤 열쇠고리를 집었어요.
 
-[VISUAL | HG-F07-V04 | asset=HG-ART-45-CAGE-UNLOCK-OVEN-SECURED-V2 | mode=gretel-unlocks-tall-iron-cage-while-oven-remains-closed | time=day | location=candy-house-cage-room | characters=HANSEL,GRETEL | entry=oven-secured-keys-held | action=gretel-opens-tall-iron-cage-with-silver-key | exit=hansel-free-siblings-hold-keys]
+[VISUAL | HG-VIS-F07-04 | asset=cage-unlock-oven-secured | mode=gretel-unlocks-tall-iron-cage-while-oven-remains-closed | time=day | location=candy-house-cage-room | characters=HANSEL,GRETEL | entry=oven-secured-keys-held | action=gretel-opens-tall-iron-cage-with-silver-key | exit=hansel-free-siblings-hold-keys]
 
 [NARRATOR | FIXED]
 며칠 동안 보아둔 은색 열쇠로 쇠창살을 열자 헨젤이 뛰어나왔어요.
 
-[VISUAL | HG-F07-V05 | asset=HG-ART-46-BLACK-KEY-SIDE-DOOR-V2 | mode=reunited-siblings-use-black-key-to-open-side-door | time=day | location=candy-house-side-door | characters=HANSEL,GRETEL | entry=hansel-free-siblings-hold-keys | action=gretel-opens-heavy-side-door-with-black-key | exit=side-door-open-siblings-safe | exception=same-side-door-unlock]
+[VISUAL | HG-VIS-F07-05 | asset=black-key-side-door | mode=reunited-siblings-use-black-key-to-open-side-door | time=day | location=candy-house-side-door | characters=HANSEL,GRETEL | entry=hansel-free-siblings-hold-keys | action=gretel-opens-heavy-side-door-with-black-key | exit=side-door-open-siblings-safe | exception=same-side-door-unlock]
 
 [HANSEL | DIALOGUE]
 “검은 열쇠가 옆문을 여는 열쇠야!”
@@ -324,7 +324,7 @@
 [GRETEL | DIALOGUE]
 “이번에는 둘이 같이 나가는 거야.”
 
-[VISUAL | HG-F07-V06 | asset=HG-ART-34-ESCAPE-CORRIDOR | mode=siblings-run-down-interior-corridor-toward-marked-storehouse-and-exit | time=day | location=candy-house-corridor | characters=HANSEL,GRETEL | entry=side-door-open-siblings-safe | action=siblings-run-to-storehouse-and-exit-doors | exit=storehouse-and-exit-found]
+[VISUAL | HG-VIS-F07-06 | asset=escape-corridor | mode=siblings-run-down-interior-corridor-toward-marked-storehouse-and-exit | time=day | location=candy-house-corridor | characters=HANSEL,GRETEL | entry=side-door-open-siblings-safe | action=siblings-run-to-storehouse-and-exit-doors | exit=storehouse-and-exit-found]
 
 [NARRATOR | FIXED]
 오븐 문이 잠겨 마녀는 남매를 뒤쫓을 수 없었어요.
@@ -335,7 +335,7 @@
 
 [SCENE | HG-F08 | title=집으로 가져갈 증거]
 
-[VISUAL | HG-F08-V01 | asset=HG-ART-16-STOREHOUSE | mode=food-belongings-ledger-keyring | time=day | location=candy-house-storehouse | characters=HANSEL,GRETEL | entry=storehouse-and-exit-found | action=siblings-discover-food-belongings-ledger-and-keys | exit=evidence-options-seen]
+[VISUAL | HG-VIS-F08-01 | asset=storehouse | mode=food-belongings-ledger-keyring | time=day | location=candy-house-storehouse | characters=HANSEL,GRETEL | entry=storehouse-and-exit-found | action=siblings-discover-food-belongings-ledger-and-keys | exit=evidence-options-seen]
 
 [SYSTEM | ANCHOR | id=HG-F08-AFTER-BRANCH-ESCAPE]
 
@@ -345,7 +345,7 @@
 안에는 빵과 물병이 있었어요.
 이름표가 달린 꾸러미와 마녀의 장부도 있었어요.
 
-[VISUAL | HG-F08-V02 | asset=HG-ART-37-PACKING-EVIDENCE | mode=siblings-pack-only-food-water-ledger-and-keys-into-small-bag | time=day | location=candy-house-storehouse | characters=HANSEL,GRETEL | entry=evidence-options-seen | action=siblings-select-and-pack-needed-items | exit=small-bag-packed]
+[VISUAL | HG-VIS-F08-02 | asset=packing-evidence | mode=siblings-pack-only-food-water-ledger-and-keys-into-small-bag | time=day | location=candy-house-storehouse | characters=HANSEL,GRETEL | entry=evidence-options-seen | action=siblings-select-and-pack-needed-items | exit=small-bag-packed]
 
 [HANSEL | DIALOGUE]
 “집까지 갈 음식과 마녀가 한 일을 알릴 증거가 필요해.”
@@ -357,7 +357,7 @@
 [NARRATOR | FIXED]
 남매는 필요한 것만 가방에 넣었어요.
 
-[VISUAL | HG-F08-V03 | asset=HG-ART-35-CANDY-HOUSE-EXIT | mode=siblings-leave-candy-house-with-small-bag-at-dawn | time=day | location=candy-house-exterior | characters=HANSEL,GRETEL | entry=small-bag-packed-at-exit | action=siblings-leave-candy-house-together | exit=siblings-outside-candy-house]
+[VISUAL | HG-VIS-F08-03 | asset=candy-house-exit | mode=siblings-leave-candy-house-with-small-bag-at-dawn | time=day | location=candy-house-exterior | characters=HANSEL,GRETEL | entry=small-bag-packed-at-exit | action=siblings-leave-candy-house-together | exit=siblings-outside-candy-house]
 
 [NARRATOR | FIXED]
 남매는 작은 가방을 메고 마침내 과자집 밖으로 나왔어요.
@@ -366,14 +366,14 @@
 
 [SCENE | HG-F09 | title=물길을 건너 찾은 집의 흔적]
 
-[VISUAL | HG-F09-V01 | asset=HG-ART-38-WATERWAY-OBSTACLE | mode=siblings-reach-wide-waterway-white-bird-calls-duck | time=day | location=wide-waterway-near-bank | characters=HANSEL,GRETEL,WHITE_BIRD,WHITE_DUCK | entry=siblings-away-from-candy-house | action=siblings-find-no-bridge-and-duck-approaches | exit=duck-waits-at-bank]
+[VISUAL | HG-VIS-F09-01 | asset=waterway-obstacle | mode=siblings-reach-wide-waterway-white-bird-calls-duck | time=day | location=wide-waterway-near-bank | characters=HANSEL,GRETEL,WHITE_BIRD,WHITE_DUCK | entry=siblings-away-from-candy-house | action=siblings-find-no-bridge-and-duck-approaches | exit=duck-waits-at-bank]
 
 [NARRATOR | FIXED]
 남매는 과자집에서 멀어져 다른 길로 걷다가 넓은 물길을 만났어요.
 그곳에는 다리도 배도 없었어요.
 그때 하얀 새의 노래를 듣고 흰 오리 한 마리가 다가왔어요.
 
-[VISUAL | HG-F09-V02 | asset=HG-ART-17-WATER-RETURN | mode=white-duck-carries-one-sibling-across-water | time=day | location=wide-waterway | characters=HANSEL,GRETEL,WHITE_DUCK | entry=duck-waits-at-bank | action=duck-carries-siblings-one-at-a-time | exit=siblings-across-water]
+[VISUAL | HG-VIS-F09-02 | asset=water-return | mode=white-duck-carries-one-sibling-across-water | time=day | location=wide-waterway | characters=HANSEL,GRETEL,WHITE_DUCK | entry=duck-waits-at-bank | action=duck-carries-siblings-one-at-a-time | exit=siblings-across-water]
 
 [GRETEL | DIALOGUE]
 “우리를 한 명씩 건너편으로 데려다줄 수 있니?
@@ -382,7 +382,7 @@
 [NARRATOR | FIXED]
 오리는 그레텔과 헨젤을 한 명씩 태워 건너편으로 데려다주었어요.
 
-[VISUAL | HG-F09-V03 | asset=HG-ART-24-MARKED-RETURN-PATH | mode=siblings-follow-axe-marks-and-white-cloth-toward-home-smoke | time=late-day | location=marked-forest-path | characters=HANSEL,GRETEL | entry=siblings-across-water | action=siblings-follow-axe-marks-and-white-cloth | exit=home-seen-in-evening-light]
+[VISUAL | HG-VIS-F09-03 | asset=marked-return-path | mode=siblings-follow-axe-marks-and-white-cloth-toward-home-smoke | time=late-day | location=marked-forest-path | characters=HANSEL,GRETEL | entry=siblings-across-water | action=siblings-follow-axe-marks-and-white-cloth | exit=home-seen-in-evening-light]
 
 [NARRATOR | FIXED]
 물길 너머에는 새로 난 도끼 자국이 있었어요.
@@ -398,7 +398,7 @@
 
 [SCENE | HG-F10 | title=돌아온 집과 다시 쌓는 약속]
 
-[VISUAL | HG-F10-V01 | asset=HG-ART-18-HOME-PROMISE | mode=father-kneels-and-apologizes-to-returned-siblings | time=evening | location=home-front | characters=HANSEL,GRETEL,FATHER | entry=siblings-reach-home | action=father-kneels-and-accepts-responsibility | exit=apology-heard-trust-not-yet-restored | exception=dialogue-resolution-same-moment]
+[VISUAL | HG-VIS-F10-01 | asset=home-promise | mode=father-kneels-and-apologizes-to-returned-siblings | time=evening | location=home-front | characters=HANSEL,GRETEL,FATHER | entry=siblings-reach-home | action=father-kneels-and-accepts-responsibility | exit=apology-heard-trust-not-yet-restored | exception=dialogue-resolution-same-moment]
 
 [NARRATOR | FIXED]
 집 앞에는 낡은 가방을 멘 아버지가 서 있었어요.
@@ -418,7 +418,7 @@
 “당장 용서해 달라고 하지는 않으마.”
 “약속을 지키며 다시 믿을 수 있게 하마.”
 
-[VISUAL | HG-F10-V02 | asset=HG-ART-25-VILLAGE-RESTITUTION | mode=villagers-return-labeled-bundles-while-family-shares-ledger | time=later-days | location=village-and-candy-house | characters=HANSEL,GRETEL,FATHER,VILLAGERS | entry=ledger-shared-village-mobilizes | action=villagers-return-belongings-and-secure-house | exit=belongings-returned-witch-contained]
+[VISUAL | HG-VIS-F10-02 | asset=village-restitution | mode=villagers-return-labeled-bundles-while-family-shares-ledger | time=later-days | location=village-and-candy-house | characters=HANSEL,GRETEL,FATHER,VILLAGERS | entry=ledger-shared-village-mobilizes | action=villagers-return-belongings-and-secure-house | exit=belongings-returned-witch-contained]
 
 [NARRATOR | FIXED]
 새어머니는 집을 떠난 뒤 돌아오지 않았어요.
@@ -426,7 +426,7 @@
 빼앗긴 물건을 주인에게 돌려주었어요.
 마녀가 다시 아이들에게 다가오지 못하게 했지요.
 
-[VISUAL | HG-F10-V03 | asset=HG-ART-26-WINDOW-EPILOGUE | mode=family-talks-near-window-with-white-pebble-and-feather | time=later-evening | location=home-window | characters=HANSEL,GRETEL,FATHER | entry=family-rebuilding-trust | action=family-talks-beside-pebble-and-feather | exit=story-complete | exception=epilogue-same-setting]
+[VISUAL | HG-VIS-F10-03 | asset=window-epilogue | mode=family-talks-near-window-with-white-pebble-and-feather | time=later-evening | location=home-window | characters=HANSEL,GRETEL,FATHER | entry=family-rebuilding-trust | action=family-talks-beside-pebble-and-feather | exit=story-complete | exception=epilogue-same-setting]
 
 [NARRATOR | FIXED]
 아버지는 날마다 남매를 지키겠다는 약속을 행동으로 보여주었어요.

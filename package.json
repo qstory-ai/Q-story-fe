@@ -12,6 +12,7 @@
     "test": "tsx --test \"src/**/*.test.ts\"",
     "content:generate": "node scripts/generate-story-package.mjs --all",
     "content:validate": "node scripts/generate-story-package.mjs --all --validate",
+    "content:fix": "node scripts/generate-story-package.mjs --all --fix",
     "content:check": "node scripts/generate-story-package.mjs --all --check",
     "content:import": "node scripts/import-story-to-backend.mjs --all"
   },

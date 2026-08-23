@@ -23,7 +23,7 @@ test('종료 진단은 현재 분기와 음성 clip을 비식별 메타데이터
     buildExitDiagnostics({
       state,
       questionOutcomes: [],
-      clipId: 'FB-C_USE_SIGNAL-CLIP-004',
+      clipId: 'c-use-signal-004',
       narration: {
         isSpeaking: true,
         isPaused: false,
@@ -37,7 +37,7 @@ test('종료 진단은 현재 분기와 음성 clip을 비식별 메타데이터
       scene_id: 'HG-F07',
       anchor_id: 'HG-Q-C',
       family_id: 'C_USE_SIGNAL',
-      clip_id: 'FB-C_USE_SIGNAL-CLIP-004',
+      clip_id: 'c-use-signal-004',
     },
   );
 });

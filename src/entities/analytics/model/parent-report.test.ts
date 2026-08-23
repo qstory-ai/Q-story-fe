@@ -36,7 +36,7 @@ test('parent report summarizes meaning without storing the transcript', () => {
   assert.equal(report.questionRecords.length, 1);
   assert.equal(
     report.questionRecords[0].imageRef.assetId,
-    'HG-ART-29-WHITE-BIRD-LEADS',
+    'white-bird-leads',
   );
   assert.equal(report.questionRecords[0].imageRef.kind, 'FIXED_STORY_ASSET');
   assert.match(report.questionRecords[0].questionTypeLabel, /행동/);
@@ -91,7 +91,7 @@ test('selected path becomes the changed moment', () => {
   );
   assert.equal(
     report.questionRecords[0].imageRef.assetId,
-    'HG-FB-ART-B-STEP-BACK-MARK-EXIT-V1',
+    'b-step-back-mark-exit-01',
   );
   assert.match(
     report.questionRecords[0].storyDevelopmentSummary,

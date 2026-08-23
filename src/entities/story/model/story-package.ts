@@ -152,23 +152,39 @@ export function buildStoryRuntimePackage({
     return speakerId(cast.speakerId);
   }
 
+  // Scene ids are already story-qualified ("HG-F01"); family ids are not ("A_OBSERVE_BIRD").
+  // Strip the prefix so the derived id carries exactly one copy of it.
+  const localId = (value: string) =>
+    value.startsWith(`${packageData.story.storyId}-`)
+      ? value.slice(packageData.story.storyId.length + 1)
+      : value;
+
   function addUtteranceGroup({
     scene,
     segment,
     segmentIndex,
-    prefix,
+    stem,
+    positionKey,
   }: {
     scene: GeneratedStoryScene;
     segment: Extract<GeneratedStorySegment, { kind: 'utterance' }>;
     segmentIndex: number;
-    prefix: string;
+    stem: string;
+    // Distinct from `stem`: fallback utterances are attached to the scene they rejoin into, so
+    // keying their position by that scene's id would collide with the scene's own utterances.
+    positionKey: string;
   }) {
     const visualId = segment.visualId ?? scene.visuals[0]?.id;
     if (!visualId) throw new Error(`${scene.id} utterance has no visual.`);
     const serial = String(segmentIndex + 1).padStart(3, '0');
-    const group = `${prefix}-AG-${serial}`;
-    const clip = `${prefix}-CLIP-${serial}`;
-    const audioAsset = `${prefix}-AUDIO-${serial}`;
+    // These ids are derived, never authored - assets.json has to spell them the same way, so the
+    // shape lives here alone. `stem` is a scene id with the story prefix already stripped ("F01")
+    // or a fallback family id ("A_OBSERVE_BIRD"); slugified it becomes the narration asset's slug
+    // in assets.json, which is what makes an audio id greppable back to the thing it narrates.
+    const slug = `${stem.toLowerCase().replaceAll('_', '-')}-${serial}`;
+    const group = `ag-${slug}`;
+    const clip = slug;
+    const audioAsset = `src-${slug}`;
     addAsset(audioAsset, 'audio', `tts://${clip}`);
     audioGroups.push({
       id: audioGroupId(group),
@@ -184,7 +200,7 @@ export function buildStoryRuntimePackage({
         },
       ],
     });
-    groupByPosition.set(`${prefix}:${segmentIndex}`, group);
+    groupByPosition.set(`${positionKey}:${segmentIndex}`, group);
     utteranceByClipId[clip] = {
       ...segment,
       sceneId: scene.id,
@@ -209,7 +225,7 @@ export function buildStoryRuntimePackage({
     scene.segments.forEach((segment, segmentIndex) => {
       if (segment.kind === 'utterance') {
         fixedGroupIds.push(
-          addUtteranceGroup({ scene, segment, segmentIndex, prefix: scene.id }),
+          addUtteranceGroup({ scene, segment, segmentIndex, stem: localId(scene.id), positionKey: scene.id }),
         );
       }
       if (segment.kind === 'anchor') {
@@ -273,7 +289,7 @@ export function buildStoryRuntimePackage({
     });
     const groups = fallback.segments.flatMap((segment, segmentIndex) =>
       segment.kind === 'utterance'
-        ? [addUtteranceGroup({ scene: sourceScene, segment, segmentIndex, prefix: `FB-${fallback.id}` })]
+        ? [addUtteranceGroup({ scene: sourceScene, segment, segmentIndex, stem: fallback.id, positionKey: `FB-${fallback.id}` })]
         : [],
     );
     if (!groups[0]) throw new Error(`${fallback.id} has no utterance`);

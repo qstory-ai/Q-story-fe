@@ -93,14 +93,30 @@ async function fetchStoryPackage(
     generatedContent: GeneratedStoryContent;
     packageData: StoryPackageData;
   };
-  // Asset maps are keyed by the content's own story id, not the (possibly aliased) request id -
-  // these are always the same in practice, but keeping the lookup honest costs nothing.
+  // Assets come with the content. They used to come from a map baked into this bundle at build
+  // time, which meant a re-recorded line or a swapped illustration could not reach a child without
+  // shipping a new frontend - the build-time maps are kept only as the offline fallback below.
   const contentStoryId = body.packageData.story.storyId;
+  const served = body.packageData.assets;
+  const imageAssets = served
+    ? Object.fromEntries(
+        served
+          .filter((asset) => asset.category === 'SCENE_ART' || asset.category === 'BRANCH_ART')
+          .map((asset) => [asset.slug, { uri: asset.url }]),
+      )
+    : STORY_IMAGE_ASSETS_BY_ID[contentStoryId] ?? {};
+  const audioAssets = served
+    ? Object.fromEntries(
+        served
+          .filter((asset) => asset.category === 'NARRATION' || asset.category === 'BRIDGE')
+          .map((asset) => [asset.slug, { uri: asset.url }]),
+      )
+    : STORY_AUDIO_ASSETS_BY_ID[contentStoryId] ?? {};
   return buildStoryRuntimePackage({
     generatedContent: body.generatedContent,
     packageData: body.packageData,
-    imageAssets: STORY_IMAGE_ASSETS_BY_ID[contentStoryId] ?? {},
-    audioAssets: STORY_AUDIO_ASSETS_BY_ID[contentStoryId] ?? {},
+    imageAssets,
+    audioAssets,
   });
 }
 

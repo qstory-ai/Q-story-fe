@@ -11,6 +11,15 @@ import { loadRegistry } from './lib/story-package.mjs';
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const appDirectory = dirname(scriptDirectory);
+
+// The two variables below are declared in fe/.env, but nothing here used to read that file, so
+// every run needed them exported by hand first. Real environment variables still win - loadEnvFile
+// does not overwrite what is already set, which keeps CI and deploy targets in charge.
+try {
+  process.loadEnvFile(join(appDirectory, '.env'));
+} catch {
+  // No .env (CI, a deploy job): the explicit checks below report anything actually missing.
+}
 const args = process.argv.slice(2);
 const requestedStoryId = args[args.indexOf('--story') + 1]?.trim();
 const all = args.includes('--all');

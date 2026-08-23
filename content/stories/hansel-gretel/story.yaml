@@ -1,0 +1,25 @@
+schemaVersion: 1
+storyId: HG
+slug: hansel-gretel
+title: 헨젤과 그레텔
+contentVersion: master-spec-v2.4-branch-integrity
+availability: BETA
+targetAge:
+  min: 6
+  max: 9
+entrySceneId: HG-F01
+endingSceneId: HG-F10
+immutableEvents:
+  - 식량 부족과 어른의 잘못된 결정
+  - 조약돌을 따라 첫 번째 귀환
+  - 빵 부스러기 길의 실패
+  - 하얀 새와 과자집 발견
+  - 마녀의 정체와 감금
+  - 열쇠 규칙을 이용한 남매의 협력 탈출
+  - 증거를 가져와 집으로 귀환
+  - 아버지의 책임 인정과 신뢰 회복
+forbiddenElements:
+  - 폭력과 화덕 상해의 구체적 묘사
+  - 외모·나이·장애를 악함의 근거로 표현
+  - 질문 지점 이전의 반전·결말 선공개
+  - 아버지의 두려움을 책임 면제 사유로 표현

@@ -1,0 +1,11 @@
+schemaVersion: 1
+storyId: HG
+availability: BETA
+approvals:
+  automated: true
+  editorial: true
+  safety: true
+  visual: true
+  audio: true
+  device: false
+notes: 실기기 10회 행렬과 동화 2·3편 dry run 전이므로 CAP-16은 IMPLEMENTING을 유지한다.

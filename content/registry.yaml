@@ -1,0 +1,6 @@
+schemaVersion: 1
+defaultBetaStoryId: HG
+stories:
+  - storyId: HG
+    slug: hansel-gretel
+    availability: BETA

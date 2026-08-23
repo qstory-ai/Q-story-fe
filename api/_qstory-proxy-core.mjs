@@ -87,7 +87,11 @@ function failureResponse(status, code, safeDetail) {
   );
 }
 
-const LOOPBACK_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1']);
+// Hostnames that can only ever resolve to something on the same physical machine as this proxy -
+// loopback, plus the docker-compose service name the backend container is reachable at
+// (docker-compose.yml at the repo root names it "backend"; container-to-container traffic on that
+// bridge network never leaves the host, same trust boundary as literal loopback).
+const LOOPBACK_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1', 'backend']);
 
 function normalizedUpstreamUrl(value) {
   const normalized = value?.trim().replace(/\/+$/, '');

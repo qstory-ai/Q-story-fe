@@ -4,32 +4,10 @@ import { fileURLToPath } from 'node:url';
 
 import {
   generatedStoryContent,
+  loadPrompts,
   loadRegistry,
   loadStoryPackage,
 } from './lib/story-package.mjs';
-
-// 내레이션 클립은 앱 번들에 함께 넣는 대신 Supabase Storage에 호스팅한다(scripts/upload-audio-to-supabase.mjs 참고).
-// 업로드 스크립트가 사용하는 것과 동일한 백엔드 .env를 읽어서, 설정을 한 곳에서만 관리하면 되도록 한다.
-// 값이 없으면(예: 아직 오디오가 마이그레이션되지 않은 스토리) 로컬 번들 경로로 폴백하므로,
-// 이 설정 없이 실행해도 안전하다.
-async function readSupabaseAudioConfig(repoRoot) {
-  try {
-    const envText = await readFile(join(repoRoot, 'be', 'q-story-backend', '.env'), 'utf8');
-    const env = Object.fromEntries(
-      envText
-        .split('\n')
-        .filter((line) => line.includes('=') && !line.trim().startsWith('#'))
-        .map((line) => {
-          const idx = line.indexOf('=');
-          return [line.slice(0, idx).trim(), line.slice(idx + 1).trim()];
-        }),
-    );
-    if (!env.SUPABASE_URL) return null;
-    return { url: env.SUPABASE_URL, bucket: env.SUPABASE_STORY_AUDIO_BUCKET || 'qstory-story-audio' };
-  } catch {
-    return null;
-  }
-}
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const appDirectory = dirname(scriptDirectory);
@@ -38,6 +16,8 @@ const requestedStoryId = args[args.indexOf('--story') + 1]?.trim();
 const all = args.includes('--all');
 const check = args.includes('--check');
 const validateOnly = args.includes('--validate');
+// Recomputes every assets.json integrity hash from the files on disk instead of asserting them.
+const fix = args.includes('--fix');
 
 if (!requestedStoryId && !all) {
   throw new Error('Use --story <id> or --all.');
@@ -52,13 +32,22 @@ if (entries.length === 0) {
 }
 const sources = [];
 for (const entry of entries) {
-  sources.push(await loadStoryPackage(appDirectory, entry));
+  sources.push(await loadStoryPackage(appDirectory, entry, { rewriteIntegrity: fix }));
+}
+const prompts = await loadPrompts(appDirectory);
+// A story naming a policy nobody ships is the drift this move exists to stop, so it fails here.
+const promptVersions = new Set(prompts.map((prompt) => prompt.version));
+for (const source of sources) {
+  const named = source.routeContext.routePromptVersion;
+  if (!promptVersions.has(named)) {
+    throw new Error(`${source.story.storyId} names unknown routePromptVersion ${named}`);
+  }
 }
 
-if (validateOnly) {
+if (validateOnly || fix) {
   for (const source of sources) {
     console.log(
-      `Valid ${source.story.storyId}: ${source.scenes.length} scenes, ${source.scenes.flatMap((scene) => scene.visuals).length} visuals, ${source.fallbacks.length} fallbacks`,
+      `${fix ? 'Rehashed' : 'Valid'} ${source.story.storyId}: ${source.scenes.length} scenes, ${source.scenes.flatMap((scene) => scene.visuals).length} visuals, ${source.fallbacks.length} fallbacks`,
     );
   }
   process.exit(0);
@@ -72,60 +61,41 @@ function quote(value) {
   return JSON.stringify(value);
 }
 
-// 이미지(SCENE_ART/BRANCH_ART)만 DB import 대상이다 - 오디오(NARRATION/BRIDGE)는 이미 별도의
-// 정적 번들 + Supabase 프리로드 경로가 잘 동작하고 있어서 이번 마이그레이션 범위 밖이다. slug는
-// assetId 그대로 쓴다 - illustrationForAssetId()가 이미 assetId로 조회하므로, slug를 assetId와
-// 같게 두면 조회 쪽 코드를 하나도 건드리지 않아도 된다.
-function imageAssetsPayload(source) {
-  const { storyId, slug: storySlug } = source.story;
-  const assetRoot = `assets/story/${storySlug}/`;
-  const familyIdByAssetId = Object.fromEntries(
-    Object.entries(source.assets.familyAssets ?? {}).map(([familyId, assetId]) => [assetId, familyId]),
-  );
-  return Object.entries(source.assets.imageAssets).map(([assetId, relativePath]) => {
-    const isBranchArt = assetId.startsWith(`${storyId}-FB-`);
-    const entry = {
-      slug: assetId,
-      category: isBranchArt ? 'BRANCH_ART' : 'SCENE_ART',
-      file: relativePath.startsWith(assetRoot) ? relativePath.slice(assetRoot.length) : relativePath,
-      integrity: source.assets.integrity[assetId],
-    };
-    const familyId = isBranchArt ? familyIdByAssetId[assetId] : undefined;
-    if (familyId) {
-      entry.familyId = familyId;
-    }
-    return entry;
-  });
-}
-
-function packageData(source) {
+function packageData(source, prompts) {
   return {
     schemaVersion: 1,
     story: source.story,
     routeContext: source.routeContext,
     cast: source.cast,
-    assets: imageAssetsPayload(source),
     reportCopy: source.reportCopy,
     release: source.release,
     evaluation: source.evaluation,
+    // Authoring metadata that used to live only as files: the QA contract was never even read, and
+    // the reference packs never reached the backend, so the DB could not describe how a story is
+    // meant to be checked or generated.
+    qaContract: source.qaContract,
+    references: source.references,
+    // One flat array, the same shape the backend serves back at /v1/stories/{id}/content. `file` is
+    // storage-relative and is what the DB row keeps; `url` is what a client fetches. Both are
+    // carried so the import and the app read the same list rather than two divergent ones.
+    assetRoot: source.assets.root,
+    assets: source.assets.assets.map((asset) => ({
+      ...asset,
+      url: publicAssetUrl(`${source.assets.root}${asset.file}`),
+    })),
+    // The route policy this story names, carried so the import writes policy and version together.
+    prompt: prompts.find((entry) => entry.version === source.routeContext.routePromptVersion),
     sourceDigest: source.digest,
   };
 }
 
-// 에셋은 `public/`에서 배포되며, Vite는 이를 사이트 루트에서 서빙한다 — 따라서
-// `assets/story/...`로 등록된 에셋은 `/story/...`에서 가져오게 된다.
+// Assets ship from `public/`, which Vite serves at the site root — so an
+// asset registered at `assets/story/...` is fetched from `/story/...`.
 function publicAssetUrl(relativePath) {
   return `/${relativePath.replace(/^assets\//, '')}`;
 }
 
-// 객체 키 규칙: <storySlug>/audio/<filename> — scripts/upload-audio-to-supabase.mjs가
-// 실제로 각 클립을 업로드한 경로와 동일하다.
-function supabaseAudioUrl(supabaseConfig, storySlug, relativePath) {
-  const filename = relativePath.split('/').pop();
-  return `${supabaseConfig.url.replace(/\/+$/, '')}/storage/v1/object/public/${supabaseConfig.bucket}/${storySlug}/audio/${filename}`;
-}
-
-function renderAppAssets(allSources, supabaseConfig) {
+function renderAppAssets(allSources) {
   const lines = [
     '// Generated by scripts/generate-story-package.mjs. Do not edit manually.',
     "import type { AudioSource, ImageSource } from './media-source';",
@@ -134,8 +104,10 @@ function renderAppAssets(allSources, supabaseConfig) {
   ];
   for (const source of allSources) {
     lines.push(`  ${quote(source.story.storyId)}: {`);
-    for (const [assetId, path] of Object.entries(source.assets.imageAssets)) {
-      lines.push(`    ${quote(assetId)}: { uri: ${quote(publicAssetUrl(path))} },`);
+    for (const asset of source.assets.assets) {
+      if (asset.category !== 'SCENE_ART' && asset.category !== 'BRANCH_ART') continue;
+      const path = `${source.assets.root}${asset.file}`;
+      lines.push(`    ${quote(asset.slug)}: { uri: ${quote(publicAssetUrl(path))} },`);
     }
     lines.push('  },');
   }
@@ -146,11 +118,10 @@ function renderAppAssets(allSources, supabaseConfig) {
   );
   for (const source of allSources) {
     lines.push(`  ${quote(source.story.storyId)}: {`);
-    for (const [assetId, path] of Object.entries(source.assets.audioAssets)) {
-      const uri = supabaseConfig
-        ? supabaseAudioUrl(supabaseConfig, source.story.slug, path)
-        : publicAssetUrl(path);
-      lines.push(`    ${quote(assetId)}: { uri: ${quote(uri)} },`);
+    for (const asset of source.assets.assets) {
+      if (asset.category !== 'NARRATION' && asset.category !== 'BRIDGE') continue;
+      const path = `${source.assets.root}${asset.file}`;
+      lines.push(`    ${quote(asset.slug)}: { uri: ${quote(publicAssetUrl(path))} },`);
     }
     lines.push('  },');
   }
@@ -174,14 +145,12 @@ for (const source of sources) {
   );
   outputs.push(
     [join(directory, 'generated-story-content.json'), stableJson(generatedStoryContent(source))],
-    [join(directory, 'story-package.generated.json'), stableJson(packageData(source))],
+    [join(directory, 'story-package.generated.json'), stableJson(packageData(source, prompts))],
   );
 }
-const repoRoot = dirname(dirname(appDirectory));
-const supabaseConfig = await readSupabaseAudioConfig(repoRoot);
 outputs.push([
   join(appDirectory, 'src', 'entities', 'story', 'model', 'story-assets.generated.ts'),
-  renderAppAssets(allSources, supabaseConfig),
+  renderAppAssets(allSources),
 ]);
 
 let stale = false;

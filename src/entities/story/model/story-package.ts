@@ -152,27 +152,40 @@ export function buildStoryRuntimePackage({
     return speakerId(cast.speakerId);
   }
 
+  // Scene ids are already story-qualified ("HG-F01"); family ids are not ("A_OBSERVE_BIRD").
+  // Strip the prefix so the derived id carries exactly one copy of it.
+  const localId = (value: string) =>
+    value.startsWith(`${packageData.story.storyId}-`)
+      ? value.slice(packageData.story.storyId.length + 1)
+      : value;
+
   function addUtteranceGroup({
     scene,
     segment,
     segmentIndex,
-    prefix,
+    stem,
+    positionKey,
   }: {
     scene: GeneratedStoryScene;
     segment: Extract<GeneratedStorySegment, { kind: 'utterance' }>;
     segmentIndex: number;
-    prefix: string;
+    stem: string;
+    // Distinct from `stem`: fallback utterances are attached to the scene they rejoin into, so
+    // keying their position by that scene's id would collide with the scene's own utterances.
+    positionKey: string;
   }) {
     const visualId = segment.visualId ?? scene.visuals[0]?.id;
     if (!visualId) throw new Error(`${scene.id} utterance has no visual.`);
     const serial = String(segmentIndex + 1).padStart(3, '0');
-    const group = `${prefix}-AG-${serial}`;
-    const clip = `${prefix}-CLIP-${serial}`;
-    const audioAsset = `${prefix}-AUDIO-${serial}`;
-    // 버그: 예전에는 항상 tts:// 온디바이스 음성 플레이스홀더를 그대로 기록하고 audioAssets
-    // 맵을 전혀 참조하지 않아서, 사전 녹음된 클립(로컬 mp3 파일 202개)이 전부 조용히
-    // 실제 내레이션 오디오 대신 온디바이스 음성 합성으로 대체되고 있었다.
-    addAsset(audioAsset, 'audio', audioAssets[clip]?.uri ?? `tts://${clip}`);
+    // These ids are derived, never authored - assets.json has to spell them the same way, so the
+    // shape lives here alone. `stem` is a scene id with the story prefix already stripped ("F01")
+    // or a fallback family id ("A_OBSERVE_BIRD"); slugified it becomes the narration asset's slug
+    // in assets.json, which is what makes an audio id greppable back to the thing it narrates.
+    const slug = `${stem.toLowerCase().replaceAll('_', '-')}-${serial}`;
+    const group = `ag-${slug}`;
+    const clip = slug;
+    const audioAsset = `src-${slug}`;
+    addAsset(audioAsset, 'audio', `tts://${clip}`);
     audioGroups.push({
       id: audioGroupId(group),
       sceneId: sceneId(scene.id),
@@ -187,7 +200,7 @@ export function buildStoryRuntimePackage({
         },
       ],
     });
-    groupByPosition.set(`${prefix}:${segmentIndex}`, group);
+    groupByPosition.set(`${positionKey}:${segmentIndex}`, group);
     utteranceByClipId[clip] = {
       ...segment,
       sceneId: scene.id,
@@ -212,7 +225,7 @@ export function buildStoryRuntimePackage({
     scene.segments.forEach((segment, segmentIndex) => {
       if (segment.kind === 'utterance') {
         fixedGroupIds.push(
-          addUtteranceGroup({ scene, segment, segmentIndex, prefix: scene.id }),
+          addUtteranceGroup({ scene, segment, segmentIndex, stem: localId(scene.id), positionKey: scene.id }),
         );
       }
       if (segment.kind === 'anchor') {
@@ -276,7 +289,7 @@ export function buildStoryRuntimePackage({
     });
     const groups = fallback.segments.flatMap((segment, segmentIndex) =>
       segment.kind === 'utterance'
-        ? [addUtteranceGroup({ scene: sourceScene, segment, segmentIndex, prefix: `FB-${fallback.id}` })]
+        ? [addUtteranceGroup({ scene: sourceScene, segment, segmentIndex, stem: fallback.id, positionKey: `FB-${fallback.id}` })]
         : [],
     );
     if (!groups[0]) throw new Error(`${fallback.id} has no utterance`);
@@ -383,24 +396,6 @@ export function buildStoryRuntimePackage({
   };
   const fallbackImage = imageAssets[Object.keys(imageAssets)[0]];
   if (!fallbackImage) throw new Error(`${packageData.story.storyId} has no image assets`);
-  /**
-   * 백엔드가 내려주는 장면 visual의 assetId(예: "night-plan")는 짧은 소문자 슬러그인데,
-   * 프론트가 생성한 imageAssets 레지스트리(content/stories/<storyId>/assets.json에서 만들어짐,
-   * scripts/generate-story-package.mjs 참고)는 "HG-ART-02-NIGHT-PLAN"처럼 번호와 접두어가
-   * 붙은 대문자 키를 쓴다 - 두 콘텐츠 파이프라인이 서로 다른 이름 규칙으로 만들어져서,
-   * 직접 인덱싱(imageAssets[id])은 첫 장면(우연히 폴백과 같은 그림) 말고는 전부 실패하고
-   * 조용히 폴백 이미지로 떨어져, 장면이 바뀌어도 삽화가 안 바뀌는 것처럼 보였다.
-   * 정확히 일치하는 키가 없으면, 영숫자만 남긴 정규화된 문자열이 슬러그로 끝나는 키를 찾는다.
-   */
-  const normalizeForAssetMatch = (value: string) => value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-  const normalizedImageAssetEntries = Object.entries(imageAssets).map(
-    ([key, value]) => [normalizeForAssetMatch(key), value] as const,
-  );
-  const findIllustration = (id: string): ImageSource | undefined => {
-    if (imageAssets[id]) return imageAssets[id];
-    const needle = normalizeForAssetMatch(id);
-    return normalizedImageAssetEntries.find(([key]) => key.endsWith(needle))?.[1];
-  };
   const familyById = new Map(fallbackFamilies.map((family) => [family.id, family]));
   const narratorSpeakerId =
     Object.values(castByTag).find((speaker) => speaker.role === 'narrator')
@@ -417,7 +412,7 @@ export function buildStoryRuntimePackage({
     reportCopy: packageData.reportCopy,
     imageAssets,
     audioAssets,
-    illustrationForAssetId: (id) => findIllustration(id) ?? fallbackImage,
+    illustrationForAssetId: (id) => imageAssets[id] ?? fallbackImage,
     branchIllustrationAssetId: (familyIdValue) =>
       familyIdValue
         ? ((familyById.get(fallbackFamilyId(familyIdValue))?.branchAssetId as string | undefined) ?? null)
@@ -466,7 +461,6 @@ export function buildStoryRuntimePackage({
             familyId: option.actionFamilyId,
             label: option.label,
             meaning: option.meaning,
-            branchLine: option.branchLine,
           }));
         for (const family of eligibleFamilies) {
           if (
@@ -479,7 +473,6 @@ export function buildStoryRuntimePackage({
             familyId: fallbackFamilyId(family.id),
             label: family.meaning.replace(/[.!?。]$/u, ''),
             meaning: family.meaning,
-            branchLine: family.meaning,
           });
         }
         if (repairedFamilies.length < 3) return plan;
@@ -491,7 +484,6 @@ export function buildStoryRuntimePackage({
             label: family.label,
             meaning: family.meaning,
             actionFamilyId: fallbackFamilyId(family.familyId),
-            branchLine: family.branchLine,
           }));
         const fallbackIsEligible =
           plan.fallbackFamilyId !== null &&

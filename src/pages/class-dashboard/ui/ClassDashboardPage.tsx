@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AccountLinkRow, ActionButton, SafeAreaView } from '@/shared/ui';
+import { ActionButton, SafeAreaView } from '@/shared/ui';
 import { AuthApiError, fetchClass, useAuth, type ClassResponse } from '@/entities/auth';
 
-/** 이 단계에서는 의도적으로 최소한으로 구성함 - 교사가 오늘의 참여 코드를 찾아 이야기를 시작할 수 있을 정도로만. */
+/** Minimal by design for this phase - just enough for a teacher to find today's join code and start the story. */
 export function ClassDashboardPage() {
   const navigate = useNavigate();
   const { state, logout } = useAuth();
@@ -41,8 +41,10 @@ export function ClassDashboardPage() {
             <Text style={styles.body}>학부모님께 이 코드를 알려주세요.</Text>
           </View>
         ) : null}
-        <ActionButton label="오늘 이야기 시작하기" onPress={() => navigate('/home')} />
-        <AccountLinkRow onMyPage={() => navigate('/mypage')} onLogout={logout} />
+        <ActionButton label="오늘 이야기 시작하기" onPress={() => navigate('/demo')} />
+        <Pressable onPress={logout} accessibilityRole="button">
+          <Text style={styles.logout}>로그아웃</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -64,7 +66,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: '900',
     color: '#43225F',
     textAlign: 'center',
   },
@@ -79,12 +81,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: '700',
     color: '#503267',
   },
   code: {
     fontSize: 28,
-    fontWeight: '700',
+    fontWeight: '900',
     color: '#43225F',
     letterSpacing: 2,
   },
@@ -96,5 +98,11 @@ const styles = StyleSheet.create({
   error: {
     fontSize: 13,
     color: '#E46647',
+  },
+  logout: {
+    fontSize: 13,
+    color: '#9C87AC',
+    textAlign: 'center',
+    fontWeight: '700',
   },
 });

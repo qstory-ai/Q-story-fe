@@ -49,9 +49,9 @@ const STYLE_PACK: VisualReferencePack = {
   kind: 'style',
   label: '헨젤과 그레텔 공통 그림책 화풍',
   canonicalAssetIds: [
-    'HG-ART-01-HOME-TABLE',
-    'HG-ART-07-WHITE-BIRD',
-    'HG-ART-13-OVEN-COMMAND',
+    'home-table',
+    'white-bird',
+    'oven-command',
   ],
   immutableFacts: [
     '가로 16:10 아동 그림책 삽화',
@@ -70,9 +70,9 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     kind: 'character',
     label: '헨젤',
     canonicalAssetIds: [
-      'HG-ART-03-FIRST-WALK-PEBBLES',
-      'HG-ART-42-SHORT-TWIG-CHECK-V2',
-      'HG-ART-45-CAGE-UNLOCK-OVEN-SECURED-V2',
+      'first-walk-pebbles',
+      'short-twig-check',
+      'cage-unlock-oven-secured',
     ],
     immutableFacts: [
       '그레텔보다 약간 큰 어린 남자아이',
@@ -86,9 +86,9 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     kind: 'character',
     label: '그레텔',
     canonicalAssetIds: [
-      'HG-ART-07-WHITE-BIRD',
-      'HG-ART-31-GRETEL-WATCHES-KEYS',
-      'HG-ART-45-CAGE-UNLOCK-OVEN-SECURED-V2',
+      'white-bird',
+      'gretel-watches-keys',
+      'cage-unlock-oven-secured',
     ],
     immutableFacts: [
       '헨젤보다 약간 작은 어린 여자아이',
@@ -102,8 +102,8 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     kind: 'character',
     label: '아버지',
     canonicalAssetIds: [
-      'HG-ART-01-HOME-TABLE',
-      'HG-ART-18-HOME-PROMISE',
+      'home-table',
+      'home-promise',
     ],
     immutableFacts: [
       '갈색 머리와 수염이 있는 지친 중년 나무꾼',
@@ -117,8 +117,8 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     kind: 'character',
     label: '새어머니',
     canonicalAssetIds: [
-      'HG-ART-02-NIGHT-PLAN',
-      'HG-ART-36-SECOND-NIGHT-PLAN',
+      'night-plan',
+      'second-night-plan',
     ],
     immutableFacts: [
       '검은 갈색 머리를 단정히 올린 성인 여성',
@@ -132,9 +132,9 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     kind: 'character',
     label: '노파·마녀',
     canonicalAssetIds: [
-      'HG-ART-10-OLD-WOMAN-DOOR',
-      'HG-ART-11-WITCH-REVEAL',
-      'HG-ART-13-OVEN-COMMAND',
+      'old-woman-door',
+      'witch-reveal',
+      'oven-command',
     ],
     immutableFacts: [
       '회색 머리를 뒤로 올린 동일한 노년 여성',
@@ -148,9 +148,9 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     kind: 'character',
     label: '노파·마녀',
     canonicalAssetIds: [
-      'HG-ART-10-OLD-WOMAN-DOOR',
-      'HG-ART-11-WITCH-REVEAL',
-      'HG-ART-13-OVEN-COMMAND',
+      'old-woman-door',
+      'witch-reveal',
+      'oven-command',
     ],
     immutableFacts: [
       '회색 머리를 뒤로 올린 동일한 노년 여성',
@@ -164,8 +164,8 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     kind: 'character',
     label: '하얀 새',
     canonicalAssetIds: [
-      'HG-ART-07-WHITE-BIRD',
-      'HG-ART-29-WHITE-BIRD-LEADS',
+      'white-bird',
+      'white-bird-leads',
     ],
     immutableFacts: [
       '작고 눈처럼 흰 새',
@@ -178,8 +178,8 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     kind: 'character',
     label: '흰 오리',
     canonicalAssetIds: [
-      'HG-ART-38-WATERWAY-OBSTACLE',
-      'HG-ART-17-WATER-RETURN',
+      'waterway-obstacle',
+      'water-return',
     ],
     immutableFacts: [
       '아이 한 명씩만 태울 수 있는 현실적인 크기의 흰 오리',
@@ -191,7 +191,7 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     version: '1.0.0',
     kind: 'character',
     label: '빵 부스러기를 먹는 작은 새들',
-    canonicalAssetIds: ['HG-ART-27-BIRDS-EAT-BREADCRUMBS'],
+    canonicalAssetIds: ['birds-eat-breadcrumbs'],
     immutableFacts: ['숲의 작은 새들이며 하얀 새와 혼동되지 않음'],
   },
   VILLAGERS: {
@@ -199,7 +199,7 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     version: '1.0.0',
     kind: 'character',
     label: '마을 사람들',
-    canonicalAssetIds: ['HG-ART-25-VILLAGE-RESTITUTION'],
+    canonicalAssetIds: ['village-restitution'],
     immutableFacts: ['현대 복장이 아닌 이야기 시대의 평범한 마을 사람들'],
   },
 };
@@ -211,9 +211,9 @@ const LOCATION_PACKS: Record<string, VisualReferencePack> = {
     kind: 'location',
     label: '남매의 집',
     canonicalAssetIds: [
-      'HG-ART-01-HOME-TABLE',
-      'HG-ART-02-NIGHT-PLAN',
-      'HG-ART-21-FIRST-HOMECOMING',
+      'home-table',
+      'night-plan',
+      'first-homecoming',
     ],
     immutableFacts: [
       '가난하지만 현실적인 숲 가장자리 나무집',
@@ -226,9 +226,9 @@ const LOCATION_PACKS: Record<string, VisualReferencePack> = {
     kind: 'location',
     label: '큰 숲',
     canonicalAssetIds: [
-      'HG-ART-03-FIRST-WALK-PEBBLES',
-      'HG-ART-06-LOST-FOREST',
-      'HG-ART-07-WHITE-BIRD',
+      'first-walk-pebbles',
+      'lost-forest',
+      'white-bird',
     ],
     immutableFacts: [
       '높은 침엽수와 굵은 줄기, 흙길과 바위가 반복되는 유럽풍 숲',
@@ -241,9 +241,9 @@ const LOCATION_PACKS: Record<string, VisualReferencePack> = {
     kind: 'location',
     label: '과자집 외부',
     canonicalAssetIds: [
-      'HG-ART-08-CANDY-HOUSE-REVEAL',
-      'HG-ART-09-CANDY-HOUSE-CLOSE',
-      'HG-ART-10-OLD-WOMAN-DOOR',
+      'candy-house-reveal',
+      'candy-house-close',
+      'old-woman-door',
     ],
     immutableFacts: [
       '보라·갈색 사탕과 빵으로 지어진 동일한 집 외관',
@@ -256,9 +256,9 @@ const LOCATION_PACKS: Record<string, VisualReferencePack> = {
     kind: 'location',
     label: '과자집 내부',
     canonicalAssetIds: [
-      'HG-ART-23-CANDY-HOUSE-INTERIOR',
-      'HG-ART-42-SHORT-TWIG-CHECK-V2',
-      'HG-ART-13-OVEN-COMMAND',
+      'candy-house-interior',
+      'short-twig-check',
+      'oven-command',
     ],
     immutableFacts: [
       '보라·갈색 사탕 질감의 동일한 내부 공간',
@@ -271,8 +271,8 @@ const LOCATION_PACKS: Record<string, VisualReferencePack> = {
     kind: 'location',
     label: '넓은 물길',
     canonicalAssetIds: [
-      'HG-ART-38-WATERWAY-OBSTACLE',
-      'HG-ART-17-WATER-RETURN',
+      'waterway-obstacle',
+      'water-return',
     ],
     immutableFacts: ['다리와 배가 없는 같은 폭의 물길과 양쪽 숲 둑'],
   },
@@ -281,7 +281,7 @@ const LOCATION_PACKS: Record<string, VisualReferencePack> = {
     version: '1.0.0',
     kind: 'location',
     label: '마을',
-    canonicalAssetIds: ['HG-ART-25-VILLAGE-RESTITUTION'],
+    canonicalAssetIds: ['village-restitution'],
     immutableFacts: ['남매의 집과 같은 시대·재료의 작은 숲 마을'],
   },
 };
@@ -293,9 +293,9 @@ const PROP_PACKS: Record<string, VisualReferencePack> = {
     kind: 'prop',
     label: '하얀 조약돌',
     canonicalAssetIds: [
-      'HG-ART-19-PEBBLE-COLLECTION',
-      'HG-ART-03-FIRST-WALK-PEBBLES',
-      'HG-ART-04-MOONLIT-RETURN',
+      'pebble-collection',
+      'first-walk-pebbles',
+      'moonlit-return',
     ],
     immutableFacts: ['작고 둥근 하얀 돌이며 달빛에서만 은은히 반짝임'],
   },
@@ -305,9 +305,9 @@ const PROP_PACKS: Record<string, VisualReferencePack> = {
     kind: 'prop',
     label: '빵과 빵 부스러기',
     canonicalAssetIds: [
-      'HG-ART-41-MORNING-BREAD-PLAN-V2',
-      'HG-ART-22-SECOND-WALK-BREADCRUMBS',
-      'HG-ART-27-BIRDS-EAT-BREADCRUMBS',
+      'morning-bread-plan',
+      'second-walk-breadcrumbs',
+      'birds-eat-breadcrumbs',
     ],
     immutableFacts: ['같은 갈색 빵에서 떼어낸 작은 부스러기'],
   },
@@ -317,9 +317,9 @@ const PROP_PACKS: Record<string, VisualReferencePack> = {
     kind: 'prop',
     label: '검은 열쇠·은색 열쇠',
     canonicalAssetIds: [
-      'HG-ART-30-BLACK-KEY-GLOW',
-      'HG-ART-31-GRETEL-WATCHES-KEYS',
-      'HG-ART-44-OVEN-SECURED-KEYS-V2',
+      'black-key-glow',
+      'gretel-watches-keys',
+      'oven-secured-keys',
     ],
     immutableFacts: [
       '검은 열쇠와 은색 열쇠를 색·크기·용도로 구분',
@@ -332,9 +332,9 @@ const PROP_PACKS: Record<string, VisualReferencePack> = {
     kind: 'prop',
     label: '높은 검은 쇠창살 감옥',
     canonicalAssetIds: [
-      'HG-ART-42-SHORT-TWIG-CHECK-V2',
-      'HG-ART-13-OVEN-COMMAND',
-      'HG-ART-45-CAGE-UNLOCK-OVEN-SECURED-V2',
+      'short-twig-check',
+      'oven-command',
+      'cage-unlock-oven-secured',
     ],
     immutableFacts: [
       '헨젤의 머리보다 훨씬 높은 검은 철제 창살과 분명한 잠금장치',
@@ -347,9 +347,9 @@ const PROP_PACKS: Record<string, VisualReferencePack> = {
     kind: 'prop',
     label: '과자집 오븐',
     canonicalAssetIds: [
-      'HG-ART-13-OVEN-COMMAND',
-      'HG-ART-43-WITCH-DEMONSTRATES-OVEN-V2',
-      'HG-ART-44-OVEN-SECURED-KEYS-V2',
+      'oven-command',
+      'witch-demonstrates-oven',
+      'oven-secured-keys',
     ],
     immutableFacts: [
       '성인 한 명이 몸을 숙여 들어갈 수 있는 같은 크기의 벽난로형 오븐',
@@ -361,7 +361,7 @@ const PROP_PACKS: Record<string, VisualReferencePack> = {
     version: '1.0.0',
     kind: 'prop',
     label: '귀환 표시',
-    canonicalAssetIds: ['HG-ART-24-MARKED-RETURN-PATH'],
+    canonicalAssetIds: ['marked-return-path'],
     immutableFacts: ['나무의 도끼 자국과 하얀 천 표시를 동일하게 유지'],
   },
 };

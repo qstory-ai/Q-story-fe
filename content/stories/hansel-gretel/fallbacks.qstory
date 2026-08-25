@@ -1,5 +1,5 @@
 [FALLBACK | A_OBSERVE_BIRD]
-[VISUAL | FB-A-OBSERVE-V01 | asset=HG-FB-ART-A-OBSERVE-BIRD-V1 | mode=bird-turns-toward-sweet-scent]
+[VISUAL | HG-VIS-A_OBSERVE_BIRD-01 | asset=a-observe-bird-01 | mode=bird-turns-toward-sweet-scent]
 
 [NARRATOR | FALLBACK]
 헨젤과 그레텔은 다가가지 않고 새를 조용히 지켜보았어요.
@@ -16,7 +16,7 @@
 [SYSTEM | REJOIN:A | target=HG-F04-CANDY-HOUSE-REVEAL]
 
 [FALLBACK | A_SPEAK_TO_BIRD]
-[VISUAL | FB-A-SPEAK-V01 | asset=HG-FB-ART-A-SPEAK-TO-BIRD-V1 | mode=gretel-greets-bird]
+[VISUAL | HG-VIS-A_SPEAK_TO_BIRD-01 | asset=a-speak-to-bird-01 | mode=gretel-greets-bird]
 
 [GRETEL | DIALOGUE]
 “하얀 새야, 우리에게 알려주고 싶은 것이 있니?”
@@ -36,7 +36,7 @@
 [SYSTEM | REJOIN:A | target=HG-F04-CANDY-HOUSE-REVEAL]
 
 [FALLBACK | A_CHECK_SURROUNDINGS]
-[VISUAL | FB-A-CHECK-V01 | asset=HG-FB-ART-A-CHECK-SURROUNDINGS-V1 | mode=crumb-footprints-feather-highlight]
+[VISUAL | HG-VIS-A_CHECK_SURROUNDINGS-01 | asset=a-check-surroundings-01 | mode=crumb-footprints-feather-highlight]
 
 [NARRATOR | FALLBACK]
 남매는 새를 따라가기 전에 나무 아래부터 살펴보았어요.
@@ -53,7 +53,7 @@
 [SYSTEM | REJOIN:A | target=HG-F04-CANDY-HOUSE-REVEAL]
 
 [FALLBACK | A_TRY_OTHER_PATH]
-[VISUAL | FB-A-OTHER-PATH-V01 | asset=HG-FB-ART-A-TRY-OTHER-PATH-V1 | mode=fallen-tree-and-thorns]
+[VISUAL | HG-VIS-A_TRY_OTHER_PATH-01 | asset=a-try-other-path-01 | mode=fallen-tree-and-thorns]
 
 [NARRATOR | FALLBACK]
 남매는 새를 바로 따라가지 않고 반대쪽 길을 먼저 확인했어요.
@@ -69,7 +69,7 @@
 [SYSTEM | REJOIN:A | target=HG-F04-CANDY-HOUSE-REVEAL]
 
 [FALLBACK | B_ASK_OLD_WOMAN]
-[VISUAL | FB-B-ASK-V01 | asset=HG-FB-ART-B-ASK-OLD-WOMAN-V1 | mode=old-woman-grips-keyring]
+[VISUAL | HG-VIS-B_ASK_OLD_WOMAN-01 | asset=b-ask-old-woman-01 | mode=old-woman-grips-keyring]
 
 [HANSEL | DIALOGUE]
 “왜 숲 한가운데에서 혼자 살고 계세요?”
@@ -87,7 +87,7 @@
 [SYSTEM | REJOIN:B | target=HG-F05-ENTER-HOUSE]
 
 [FALLBACK | B_CHECK_KEYS]
-[VISUAL | FB-B-KEYS-V01 | asset=HG-FB-ART-B-CHECK-KEYS-V1 | mode=black-key-and-sugar-pattern-highlight]
+[VISUAL | HG-VIS-B_CHECK_KEYS-01 | asset=b-check-keys-01 | mode=black-key-and-sugar-pattern-highlight]
 
 [NARRATOR | FALLBACK]
 그레텔은 여인의 얼굴이 아니라 손과 열쇠고리를 살펴보았어요.
@@ -104,7 +104,7 @@
 [SYSTEM | REJOIN:B | target=HG-F05-ENTER-HOUSE]
 
 [FALLBACK | B_CHECK_HOUSE]
-[VISUAL | FB-B-HOUSE-V01 | asset=HG-FB-ART-B-CHECK-HOUSE-V1 | mode=window-edge-and-door-frame-highlight]
+[VISUAL | HG-VIS-B_CHECK_HOUSE-01 | asset=b-check-house-01 | mode=window-edge-and-door-frame-highlight]
 
 [NARRATOR | FALLBACK]
 남매는 들어가기 전에 창문과 문틀을 살펴보았어요.
@@ -123,7 +123,7 @@
 [SYSTEM | REJOIN:B | target=HG-F05-ENTER-HOUSE]
 
 [FALLBACK | B_STEP_BACK_MARK_EXIT]
-[VISUAL | FB-B-STEP-BACK-V01 | asset=HG-FB-ART-B-STEP-BACK-MARK-EXIT-V1 | mode=siblings-mark-tree-and-step-away]
+[VISUAL | HG-VIS-B_STEP_BACK_MARK_EXIT-01 | asset=b-step-back-mark-exit-01 | mode=siblings-mark-tree-and-step-away]
 
 [NARRATOR | FALLBACK]
 남매는 나무에 화살표를 그리고 과자집에서 물러났어요.
@@ -133,7 +133,7 @@
 [HANSEL | DIALOGUE]
 “집에는 들어가지 말고 여기서 더 살펴보자.”
 
-[VISUAL | FB-B-STEP-BACK-V02 | asset=HG-FB-ART-B-STEP-BACK-MARK-EXIT-V2 | mode=outdoor-candy-bars-and-witch-reveal]
+[VISUAL | HG-VIS-B_STEP_BACK_MARK_EXIT-02 | asset=b-step-back-mark-exit-02 | mode=outdoor-candy-bars-and-witch-reveal]
 
 [NARRATOR | FALLBACK]
 그 순간 여인의 표정이 차갑게 변했어요.
@@ -155,7 +155,7 @@
 [SYSTEM | REJOIN:B | target=HG-F06-CAPTURED-STATE]
 
 [FALLBACK | B_MAKE_SIBLING_SIGNAL]
-[VISUAL | FB-B-SIGNAL-V01 | asset=HG-FB-ART-B-MAKE-SIBLING-SIGNAL-V1 | mode=siblings-whisper-before-entry]
+[VISUAL | HG-VIS-B_MAKE_SIBLING_SIGNAL-01 | asset=b-make-sibling-signal-01 | mode=siblings-whisper-before-entry]
 
 [NARRATOR | FALLBACK]
 남매는 여인에게 들리지 않게 서로 가까이 섰어요.
@@ -174,7 +174,7 @@
 [SYSTEM | REJOIN:B | target=HG-F05-ENTER-HOUSE]
 
 [FALLBACK | C_ASK_DEMONSTRATION]
-[VISUAL | FB-C-DEMO-V01 | asset=HG-FB-ART-C-ASK-DEMONSTRATION-V1 | mode=gretel-keeps-distance]
+[VISUAL | HG-VIS-C_ASK_DEMONSTRATION-01 | asset=c-ask-demonstration-01 | mode=gretel-keeps-distance]
 
 [GRETEL | DIALOGUE]
 “저는 어떻게 확인하는지 모르겠어요.
@@ -187,7 +187,7 @@
 [SYSTEM | REJOIN:C | target=HG-F07-DEMONSTRATION]
 
 [FALLBACK | C_DISTRACT_AND_TAKE_KEYS]
-[VISUAL | FB-C-DISTRACT-V01 | asset=HG-FB-ART-C-DISTRACT-AND-TAKE-KEYS-V1 | mode=witch-moves-pot-and-gretel-takes-keys]
+[VISUAL | HG-VIS-C_DISTRACT_AND_TAKE_KEYS-01 | asset=c-distract-and-take-keys-01 | mode=witch-moves-pot-and-gretel-takes-keys]
 
 [NARRATOR | FALLBACK]
 그레텔은 작업대 끝의 빈 냄비를 가리켰어요.
@@ -203,7 +203,7 @@
 [HANSEL | DIALOGUE]
 “검은 열쇠를 마녀가 쓰던 방향과 반대로!”
 
-[VISUAL | FB-C-DISTRACT-V02 | asset=HG-ART-34-ESCAPE-CORRIDOR | mode=siblings-run-through-corridor-toward-storehouse-and-exit]
+[VISUAL | HG-VIS-C_DISTRACT_AND_TAKE_KEYS-02 | asset=escape-corridor | mode=siblings-run-through-corridor-toward-storehouse-and-exit]
 
 [NARRATOR | FALLBACK]
 그레텔이 열쇠를 돌리자 남매 앞의 문은 열리고 마녀 앞에는 철문이 내려왔어요.
@@ -212,7 +212,7 @@
 [SYSTEM | REJOIN:C | target=HG-F08-AFTER-BRANCH-ESCAPE]
 
 [FALLBACK | C_USE_SIGNAL]
-[VISUAL | FB-C-SIGNAL-V01 | asset=HG-FB-ART-C-USE-SIGNAL-V2 | mode=siblings-tap-twice-with-empty-hands]
+[VISUAL | HG-VIS-C_USE_SIGNAL-01 | asset=c-use-signal-01 | mode=siblings-tap-twice-with-empty-hands]
 
 [NARRATOR | FALLBACK]
 그레텔은 오븐을 확인하는 법을 먼저 보여달라고 했어요.
@@ -223,7 +223,7 @@
 헨젤은 뜻을 알아채고 쇠창살을 두 번 두드린 뒤, 마녀를 불렀어요.
 마녀는 헨젤 쪽으로 돌아서서 쇠창살에 다가갔지요.
 
-[VISUAL | FB-C-SIGNAL-V02 | asset=HG-ART-34-ESCAPE-CORRIDOR | mode=siblings-run-through-corridor-toward-storehouse-and-exit]
+[VISUAL | HG-VIS-C_USE_SIGNAL-02 | asset=escape-corridor | mode=siblings-run-through-corridor-toward-storehouse-and-exit]
 
 [NARRATOR | FALLBACK]
 그 사이 그레텔은 열쇠고리를 집어 헨젤을 풀어주었어요.
@@ -234,7 +234,7 @@
 [SYSTEM | REJOIN:C | target=HG-F08-AFTER-BRANCH-ESCAPE]
 
 [FALLBACK | C_CHECK_LOCK_FROM_DISTANCE]
-[VISUAL | FB-C-CHECK-V01 | asset=HG-FB-ART-C-CHECK-LOCK-FROM-DISTANCE-V1 | mode=long-paddle-near-sugar-pattern]
+[VISUAL | HG-VIS-C_CHECK_LOCK_FROM_DISTANCE-01 | asset=c-check-lock-from-distance-01 | mode=long-paddle-near-sugar-pattern]
 
 [NARRATOR | FALLBACK]
 그레텔은 오븐에 다가가지 않고 긴 빵 주걱을 집었어요.
@@ -251,7 +251,7 @@
 [SYSTEM | REJOIN:C | target=HG-F07-DEMONSTRATION]
 
 [FALLBACK | C_BLOCK_PURSUIT_SAFELY]
-[VISUAL | FB-C-BLOCK-V01 | asset=HG-FB-ART-C-BLOCK-PURSUIT-SAFELY-V1 | mode=gretel-unlocks-cage]
+[VISUAL | HG-VIS-C_BLOCK_PURSUIT_SAFELY-01 | asset=c-block-pursuit-safely-01 | mode=gretel-unlocks-cage]
 
 [NARRATOR | FALLBACK]
 그레텔은 마녀를 다치게 하지 않고 따라오지 못하게 하기로 했어요.
@@ -262,7 +262,7 @@
 [HANSEL | DIALOGUE]
 “우리를 가두던 큰 철문으로 길을 막자.”
 
-[VISUAL | FB-C-BLOCK-V02 | asset=HG-ART-34-ESCAPE-CORRIDOR | mode=siblings-run-through-corridor-toward-storehouse-and-exit]
+[VISUAL | HG-VIS-C_BLOCK_PURSUIT_SAFELY-02 | asset=escape-corridor | mode=siblings-run-through-corridor-toward-storehouse-and-exit]
 
 [NARRATOR | FALLBACK]
 남매는 검은 열쇠를 반대 방향으로 돌렸어요.

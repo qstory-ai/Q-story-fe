@@ -3,24 +3,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, TextField } from '@/shared/ui';
-import { AuthApiError, login, useAuth, type UserSummary } from '@/entities/auth';
+import { AuthApiError, homePathFor, login, useAuth } from '@/entities/auth';
 
-export function homePathFor(user: UserSummary): string {
-  switch (user.role) {
-    case 'DIRECTOR':
-      return '/organization';
-    case 'CLASS_ACCOUNT':
-      return '/home';
-    case 'PARENT':
-      return '/home';
-    case 'STAFF':
-      return '/staff';
-    default:
-      return '/';
-  }
-}
-
-/** 역할과 무관함 - loginId는 DIRECTOR/PARENT의 경우 이메일이고, CLASS_ACCOUNT의 경우 원장이 발급한 핸들이다. */
+/** Role-agnostic - loginId is an email for DIRECTOR/PARENT or a director-issued handle for CLASS_ACCOUNT. */
 export function LoginPage() {
   const navigate = useNavigate();
   const { setSession } = useAuth();
@@ -63,16 +48,15 @@ export function LoginPage() {
           errorText={error ?? undefined}
         />
         <ActionButton
-          label="로그인"
-          loading={submitting}
+          label={submitting ? '로그인 중…' : '로그인'}
           onPress={onSubmit}
-          disabled={!loginId.trim() || !password}
+          disabled={submitting || !loginId.trim() || !password}
         />
         <View style={styles.links}>
-          <Pressable onPress={() => navigate('/signup?role=organization')} accessibilityRole="link">
-            <Text style={styles.link}>기관 및 단체를 운영하시나요? 등록하기</Text>
+          <Pressable onPress={() => navigate('/director')} accessibilityRole="link">
+            <Text style={styles.link}>원장이신가요? 유치원 등록하기</Text>
           </Pressable>
-          <Pressable onPress={() => navigate('/signup?role=parent')} accessibilityRole="link">
+          <Pressable onPress={() => navigate('/join')} accessibilityRole="link">
             <Text style={styles.link}>학부모이신가요? 반 코드로 가입하기</Text>
           </Pressable>
         </View>
@@ -97,7 +81,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: '900',
     color: '#43225F',
     textAlign: 'center',
     marginBottom: 8,
@@ -110,7 +94,7 @@ const styles = StyleSheet.create({
   link: {
     color: '#7A4FA0',
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: '700',
     textDecorationLine: 'none',
   },
 });

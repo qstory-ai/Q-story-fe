@@ -64,11 +64,11 @@ test('each sequential brief carries the immediately previous approved asset', ()
 });
 
 test('F07 escape images preserve the oven-first sequence and shared props', () => {
-  const command = visualGenerationBriefForId('HG-F07-V01');
-  const preparation = visualGenerationBriefForId('HG-F07-V02A');
-  const demonstration = visualGenerationBriefForId('HG-F07-V02');
-  const securedOven = visualGenerationBriefForId('HG-F07-V03');
-  const unlock = visualGenerationBriefForId('HG-F07-V04');
+  const command = visualGenerationBriefForId('HG-VIS-F07-01');
+  const preparation = visualGenerationBriefForId('HG-VIS-F07-02A');
+  const demonstration = visualGenerationBriefForId('HG-VIS-F07-02');
+  const securedOven = visualGenerationBriefForId('HG-VIS-F07-03');
+  const unlock = visualGenerationBriefForId('HG-VIS-F07-04');
 
   for (const brief of [
     command,
@@ -84,7 +84,7 @@ test('F07 escape images preserve the oven-first sequence and shared props', () =
   assert.ok(command?.propPackIds.includes('HG-PROP-OVEN-V1'));
   assert.equal(
     preparation?.targetAssetId,
-    'HG-ART-33-WITCH-SETS-DOWN-KEYS-V2',
+    'witch-sets-down-keys',
   );
   assert.equal(preparation?.requiredFacts.exitState, 'keys-left-on-worktable');
   assert.equal(demonstration?.requiredFacts.entryState, 'keys-left-on-worktable');
@@ -99,16 +99,16 @@ test('F07 escape images preserve the oven-first sequence and shared props', () =
   assert.ok(unlock?.propPackIds.includes('HG-PROP-KEY-SET-V1'));
   assert.ok(unlock?.propPackIds.includes('HG-PROP-IRON-CAGE-V1'));
   assert.ok(
-    unlock?.referenceAssetIds.includes('HG-ART-42-SHORT-TWIG-CHECK-V2'),
+    unlock?.referenceAssetIds.includes('short-twig-check'),
   );
   assert.ok(
     unlock?.referenceAssetIds.includes(
-      'HG-ART-44-OVEN-SECURED-KEYS-V2',
+      'oven-secured-keys',
     ),
   );
   assert.ok(
     unlock?.referenceAssetIds.includes(
-      'HG-ART-45-CAGE-UNLOCK-OVEN-SECURED-V2',
+      'cage-unlock-oven-secured',
     ),
   );
 });

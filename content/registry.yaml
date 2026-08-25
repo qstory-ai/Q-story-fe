@@ -1,5 +1,10 @@
 schemaVersion: 1
 defaultBetaStoryId: HG
+# Route policies live beside the stories rather than in backend code; a story names one of these
+# in its route-context.yaml routePromptVersion.
+prompts:
+  - version: QSTORY_ROUTE_PROMPT_V6_COVERAGE
+    file: qstory-route-prompt-v6-coverage.yaml
 stories:
   - storyId: HG
     slug: hansel-gretel

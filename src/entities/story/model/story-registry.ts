@@ -7,28 +7,43 @@ import {
   STORY_IMAGE_ASSETS_BY_ID,
 } from './story-assets.generated';
 
-const IMAGE_CATEGORIES = new Set(['SCENE_ART', 'BRANCH_ART']);
+export const DEFAULT_BETA_STORY_ID = 'HG';
 
 /**
- * DB가 콘텐츠와 함께 내려준 asset 목록(packageData.assets)에서 이미지만 골라 매핑한다 - 프론트
- * 빌드에 정적으로 번들된 STORY_IMAGE_ASSETS_BY_ID를 재배포 없이 갱신할 수 있게 하는 게 이
- * 필드의 존재 이유다(StoryContentAssemblyService.java 참고). 응답에 assets가 비어 있으면(아직
- * import되지 않은 스토리 등) 정적 번들로 폴백한다 - 삽화가 통째로 안 뜨는 것보다는 안전하다.
+ * The backend's failure envelope is {ok:false, failure:{code, stage, retryable, safeDetail}} - the
+ * same shape auth-api.ts's AuthApiError surfaces. safeDetail is written for a child to read, so the
+ * load screen shows it as-is instead of guessing "check your connection", which hides the real
+ * cause (e.g. STORY_NOT_REGISTERED when the story was never imported into the backend's DB).
  */
-function imageAssetsFromPackageData(
-  packageData: StoryPackageData,
-  fallback: Readonly<Record<string, { uri: string }>>,
-) {
-  const imageAssets = (packageData.assets ?? [])
-    .filter((asset) => IMAGE_CATEGORIES.has(asset.category))
-    .reduce<Record<string, { uri: string }>>((byAssetId, asset) => {
-      byAssetId[asset.slug] = { uri: asset.url };
-      return byAssetId;
-    }, {});
-  return Object.keys(imageAssets).length > 0 ? imageAssets : fallback;
+export class StoryLoadError extends Error {
+  constructor(
+    message: string,
+    public readonly code?: string,
+    public readonly status?: number,
+    public readonly retryable: boolean = false,
+  ) {
+    super(message);
+    this.name = 'StoryLoadError';
+  }
 }
 
-export const DEFAULT_BETA_STORY_ID = 'HG';
+export type StoryLoadFailure = {
+  message: string;
+  code?: string;
+  retryable: boolean;
+};
+
+/**
+ * Maps anything loadStoryPackage() can reject with onto the copy the load screen shows. A thrown
+ * fetch (offline, DNS, CORS) never reaches the backend and carries no envelope - that, and only
+ * that, is the case where "check your connection" is the honest message.
+ */
+export function describeStoryLoadFailure(error: unknown): StoryLoadFailure {
+  if (error instanceof StoryLoadError) {
+    return { message: error.message, code: error.code, retryable: error.retryable };
+  }
+  return { message: '인터넷 연결을 확인한 뒤 다시 시도해 주세요.', retryable: true };
+}
 
 type LoadStoryPackageOptions = {
   baseUrl?: string;
@@ -38,10 +53,10 @@ type LoadStoryPackageOptions = {
 const packageCache = new Map<string, Promise<StoryRuntimePackage>>();
 
 /**
- * 백엔드(GET /v1/stories/{storyId}/content - StoryContentAssemblyService 참고)에서 스토리의
- * 전체 내러티브 콘텐츠를 가져와서, 빌드 파이프라인이 빌드 타임에 실행하던 것과 동일한
- * buildStoryRuntimePackage()로 컴파일한다. 세션이 유지되는 동안 storyId별로 캐시된다 - 스토리를
- * 진행 중인 아이에게 콘텐츠가 도중에 바뀌는 일이 절대 있어서는 안 되기 때문이다.
+ * Fetches a story's full narrative content from the backend (GET /v1/stories/{storyId}/content -
+ * see StoryContentAssemblyService) and compiles it with the same buildStoryRuntimePackage() the
+ * build pipeline used to run at build time. Cached per storyId for the lifetime of the session -
+ * a child mid-story should never see content change under them.
  */
 export function loadStoryPackage(
   storyId: string,
@@ -52,7 +67,7 @@ export function loadStoryPackage(
     return cached;
   }
   const promise = fetchStoryPackage(storyId, options).catch((error: unknown) => {
-    // 실패한 로드는 캐시하지 않는다 - 다음 호출(예: 재시도 버튼)에서 새로 시도할 수 있게 한다.
+    // A failed load isn't cached - the next call (e.g. a retry button) gets a fresh attempt.
     packageCache.delete(storyId);
     throw error;
   });
@@ -65,27 +80,43 @@ async function fetchStoryPackage(
   { baseUrl = speechApiUrl, fetchImpl = fetch }: LoadStoryPackageOptions,
 ): Promise<StoryRuntimePackage> {
   if (!baseUrl) {
-    throw new Error('VITE_QSTORY_API_URL is not configured - cannot load story content.');
+    throw new StoryLoadError(
+      '이야기 서버 주소가 설정되지 않았어요. (VITE_QSTORY_API_URL)',
+      'API_URL_NOT_CONFIGURED',
+    );
   }
   const response = await fetchImpl.call(globalThis, `${baseUrl}/v1/stories/${storyId}/content`);
   if (!response.ok) {
-    throw new Error(`Failed to load story "${storyId}": HTTP ${response.status}`);
+    throw await storyLoadErrorFrom(response);
   }
   const body = (await response.json()) as {
     generatedContent: GeneratedStoryContent;
     packageData: StoryPackageData;
   };
-  // 에셋 맵은 (별칭일 수도 있는) 요청 id가 아니라 콘텐츠 자신의 story id를 키로 사용한다 -
-  // 실제로는 항상 둘이 같지만, 조회 로직을 정직하게 유지해서 손해 볼 것은 없다.
+  // Assets come with the content. They used to come from a map baked into this bundle at build
+  // time, which meant a re-recorded line or a swapped illustration could not reach a child without
+  // shipping a new frontend - the build-time maps are kept only as the offline fallback below.
   const contentStoryId = body.packageData.story.storyId;
+  const served = body.packageData.assets;
+  const imageAssets = served
+    ? Object.fromEntries(
+        served
+          .filter((asset) => asset.category === 'SCENE_ART' || asset.category === 'BRANCH_ART')
+          .map((asset) => [asset.slug, { uri: asset.url }]),
+      )
+    : STORY_IMAGE_ASSETS_BY_ID[contentStoryId] ?? {};
+  const audioAssets = served
+    ? Object.fromEntries(
+        served
+          .filter((asset) => asset.category === 'NARRATION' || asset.category === 'BRIDGE')
+          .map((asset) => [asset.slug, { uri: asset.url }]),
+      )
+    : STORY_AUDIO_ASSETS_BY_ID[contentStoryId] ?? {};
   return buildStoryRuntimePackage({
     generatedContent: body.generatedContent,
     packageData: body.packageData,
-    imageAssets: imageAssetsFromPackageData(
-      body.packageData,
-      STORY_IMAGE_ASSETS_BY_ID[contentStoryId] ?? {},
-    ),
-    audioAssets: STORY_AUDIO_ASSETS_BY_ID[contentStoryId] ?? {},
+    imageAssets,
+    audioAssets,
   });
 }
 
@@ -94,9 +125,33 @@ export async function getDefaultBetaStory(
 ): Promise<StoryRuntimePackage> {
   const story = await loadStoryPackage(DEFAULT_BETA_STORY_ID, options);
   if (!['BETA', 'PUBLISHED'].includes(story.availability)) {
-    throw new Error('Default beta story is unavailable.');
+    throw new StoryLoadError('아직 공개되지 않은 이야기예요.', 'STORY_NOT_AVAILABLE');
   }
   return story;
+}
+
+async function storyLoadErrorFrom(response: Response): Promise<StoryLoadError> {
+  let code: string | undefined;
+  let safeDetail: string | undefined;
+  let retryable: boolean | undefined;
+  try {
+    const body = (await response.json()) as {
+      failure?: { code?: string; safeDetail?: string; retryable?: boolean };
+    };
+    code = body.failure?.code;
+    safeDetail = body.failure?.safeDetail;
+    retryable = body.failure?.retryable;
+  } catch {
+    // 실패 응답이 JSON이 아니면 (프록시/게이트웨이 오류 등) 아래 기본값으로 대체한다.
+  }
+  return new StoryLoadError(
+    safeDetail ?? `이야기를 불러오지 못했어요. (HTTP ${response.status})`,
+    code,
+    response.status,
+    // 봉투가 retryable을 주지 않으면 5xx만 재시도 가치가 있다고 본다 - 404
+    // STORY_NOT_REGISTERED처럼 데이터가 없어서 나는 4xx는 다시 눌러도 같은 결과다.
+    retryable ?? response.status >= 500,
+  );
 }
 
 export type { StoryRuntimePackage } from './story-package';

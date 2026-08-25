@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
-import { AuthApiError, fetchClass, useAuth, type ClassResponse } from '@/entities/auth';
+import { ActionButton, AppNavShell, storybookTheme } from '@/shared/ui';
+import { AuthApiError, dashboardNavItems, fetchClass, useAuth, type ClassResponse } from '@/entities/auth';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { formatReportDuration } from '@/pages/one-story';
 import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
@@ -43,7 +43,7 @@ function titleFor(storyId: string, stories: StoryCatalogEntry[]) {
  */
 export function ClassDashboardPage() {
   const navigate = useNavigate();
-  const { state, logout } = useAuth();
+  const { state } = useAuth();
   const { width } = useWindowDimensions();
   const isWide = width >= 640;
   const [classGroup, setClassGroup] = useState<ClassResponse | null>(null);
@@ -92,12 +92,14 @@ export function ClassDashboardPage() {
   const recentReady = recent.status === 'ready' ? recent : null;
   const completion = recentReady?.completion ?? null;
 
+  if (state.status !== 'authenticated') return null;
+
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.screen}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')}>
       <View style={styles.scroll}>
         <View style={[styles.card, isWide && styles.cardWide]}>
           <Text style={styles.eyebrow}>{timeOfDayGreeting()}</Text>
-          <Text style={styles.title}>{classGroup?.name ?? '우리 반'}</Text>
+          <Text style={styles.title} accessibilityRole="header">{classGroup?.name ?? '우리 반'}</Text>
           {error ? <Text style={styles.error}>{error}</Text> : null}
           {classGroup ? (
             <View style={styles.codeBox}>
@@ -132,17 +134,12 @@ export function ClassDashboardPage() {
             <Text style={styles.recentMeta}>첫 이야기를 끝까지 읽으면 여기에 기록이 남아요.</Text>
           </View>
         )}
-
-        <Pressable onPress={logout} accessibilityRole="button">
-          <Text style={styles.logout}>로그아웃</Text>
-        </Pressable>
       </View>
-    </SafeAreaView>
+    </AppNavShell>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: storybookTheme.color.background },
   scroll: {
     flex: 1,
     width: '100%',
@@ -154,19 +151,28 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
-    maxWidth: 640,
+    maxWidth: storybookTheme.layout.dashboardCardMaxWidth,
     alignSelf: 'center',
     alignItems: 'stretch',
     backgroundColor: storybookTheme.color.surfaceCard,
-    borderRadius: 28,
+    borderRadius: storybookTheme.radius.card,
     paddingHorizontal: 24,
     paddingVertical: 28,
     gap: 10,
   },
-  cardWide: { maxWidth: 760, paddingHorizontal: 40, paddingVertical: 36 },
-  eyebrow: { fontSize: 12, fontWeight: '700', color: storybookTheme.color.error, letterSpacing: 0.4 },
-  title: { fontSize: 22, fontWeight: '900', color: storybookTheme.color.onCardTitle },
-  error: { fontSize: 13, color: storybookTheme.color.error, marginTop: 2 },
+  cardWide: {
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
+    paddingHorizontal: 40,
+    paddingVertical: 36,
+  },
+  eyebrow: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.error,
+    letterSpacing: 0.4,
+  },
+  title: { fontSize: storybookTheme.type.lg, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onCardTitle },
+  error: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.error, marginTop: 2 },
   codeBox: {
     gap: 4,
     marginTop: 10,
@@ -175,32 +181,50 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.pillBackground,
     alignItems: 'center',
   },
-  codeLabel: { fontSize: 12, fontWeight: '700', color: storybookTheme.color.onCardMuted },
-  code: { fontSize: 28, fontWeight: '900', color: storybookTheme.color.onCardTitle, letterSpacing: 2 },
-  codeBody: { fontSize: 13, color: storybookTheme.color.onCardBody, textAlign: 'center' },
+  codeLabel: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.onCardMuted,
+  },
+  code: {
+    fontSize: storybookTheme.type.xl,
+    fontWeight: storybookTheme.type.weight.black,
+    color: storybookTheme.color.onCardTitle,
+    letterSpacing: 2,
+  },
+  codeBody: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardBody, textAlign: 'center' },
   cta: { alignSelf: 'stretch', gap: 8, marginTop: 14 },
   pressed: { opacity: 0.9 },
   recentCard: {
     width: '100%',
-    maxWidth: 640,
+    maxWidth: storybookTheme.layout.dashboardCardMaxWidth,
     alignSelf: 'center',
     gap: 4,
     backgroundColor: storybookTheme.color.panelOnDarkBackground,
-    borderRadius: 24,
+    borderRadius: storybookTheme.radius.card,
     borderWidth: 1,
     borderColor: storybookTheme.color.panelOnDarkBorder,
     paddingHorizontal: 20,
     paddingVertical: 18,
   },
-  recentCardWide: { maxWidth: 760 },
-  recentLabel: { fontSize: 12, fontWeight: '700', color: storybookTheme.color.gold, letterSpacing: 0.3 },
-  recentTitle: { fontSize: 17, fontWeight: '900', color: storybookTheme.color.onDark, marginTop: 2 },
-  recentMeta: { fontSize: 13, color: storybookTheme.color.linkOnDark },
-  recentLink: { fontSize: 13, fontWeight: '700', color: storybookTheme.color.gold, marginTop: 6 },
-  logout: {
-    fontSize: 13,
-    color: storybookTheme.color.onDarkMuted,
-    textAlign: 'center',
-    fontWeight: '700',
+  recentCardWide: { maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth },
+  recentLabel: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.gold,
+    letterSpacing: 0.3,
+  },
+  recentTitle: {
+    fontSize: storybookTheme.type.md,
+    fontWeight: storybookTheme.type.weight.black,
+    color: storybookTheme.color.onDark,
+    marginTop: 2,
+  },
+  recentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.linkOnDark },
+  recentLink: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.gold,
+    marginTop: 6,
   },
 });

@@ -41,7 +41,7 @@ function RequestStep() {
     return (
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
         <View style={styles.content}>
-          <Text style={styles.title}>비밀번호 재설정</Text>
+          <Text style={styles.title} accessibilityRole="header">비밀번호 재설정</Text>
           <Text style={styles.body}>
             입력하신 아이디로 등록된 계정이 있다면, 재설정 방법을 안내해 드려요.
           </Text>
@@ -53,13 +53,13 @@ function RequestStep() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>비밀번호 재설정</Text>
-        <Text style={styles.body}>가입할 때 쓴 이메일을 입력해 주세요.</Text>
+        <Text style={styles.title} accessibilityRole="header">비밀번호 재설정</Text>
+        <Text style={styles.body}>가입할 때 쓴 아이디를 입력해 주세요.</Text>
         <TextField
           label="아이디"
           value={loginId}
           onChangeText={setLoginId}
-          placeholder="이메일"
+          placeholder="아이디"
           keyboardType="email-address"
         />
         <ActionButton
@@ -99,7 +99,7 @@ function ConfirmStep({ token }: { token: string }) {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>새 비밀번호 설정</Text>
+        <Text style={styles.title} accessibilityRole="header">새 비밀번호 설정</Text>
         <TextField
           label="새 비밀번호"
           value={newPassword}
@@ -133,14 +133,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    fontSize: 22,
+    fontSize: storybookTheme.type.lg,
     fontWeight: '700',
     color: storybookTheme.color.onLightHeading,
     textAlign: 'center',
     marginBottom: 8,
   },
   body: {
-    fontSize: 14,
+    fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onLightBody,
     textAlign: 'center',
   },

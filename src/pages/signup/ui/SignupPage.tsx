@@ -79,7 +79,7 @@ export function SignupPage() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>회원가입</Text>
+        <Text style={styles.title} accessibilityRole="header">회원가입</Text>
 
         <View style={styles.roleRow}>
           <Pressable
@@ -126,7 +126,7 @@ export function SignupPage() {
 
         {role !== null ? (
           <>
-            <TextField label="이메일" value={email} onChangeText={setEmail} keyboardType="email-address" />
+            <TextField label="아이디" value={email} onChangeText={setEmail} keyboardType="email-address" />
             <TextField label="비밀번호" value={password} onChangeText={setPassword} secureTextEntry />
             <TextField
               label="이름"
@@ -163,14 +163,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    fontSize: 22,
+    fontSize: storybookTheme.type.lg,
     fontWeight: '700',
     color: storybookTheme.color.onLightHeading,
     textAlign: 'center',
     marginBottom: 8,
   },
   body: {
-    fontSize: 14,
+    fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onLightBody,
   },
   roleRow: {
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     opacity: 0.56,
   },
   roleButtonText: {
-    fontSize: 14,
+    fontSize: storybookTheme.type.sm,
     fontWeight: '600',
     color: storybookTheme.color.onLightHeading,
   },

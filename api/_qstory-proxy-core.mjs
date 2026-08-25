@@ -10,7 +10,11 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/companion-chat/messages', true],
   ['POST v1/companion-chat/transcriptions/base64', true],
   ['POST v1/auth/signup/organization', true],
+  ['POST v1/auth/signup/parent', true],
+  ['POST v1/auth/signup/tutor', true],
   ['POST v1/auth/login', true],
+  ['POST v1/auth/oauth/google', true],
+  ['POST v1/auth/oauth/kakao', true],
   ['GET v1/auth/me', true],
   ['POST v1/auth/password-reset/request', true],
   ['POST v1/auth/password-reset/confirm', true],
@@ -21,11 +25,18 @@ const ALLOWED_ROUTES = new Map([
   ['GET v1/stories', true],
   ['POST v1/story-completions', true],
   ['GET v1/story-completions', true],
+  ['POST v1/tutor-students', true],
+  ['GET v1/tutor-students', true],
+  ['GET v1/tutor-schedules', true],
+  ['GET v1/parents/me/tutor-reports', true],
 ]);
 
 // Routes with a path segment (story/org/class/scene/segment id) that can't be listed as a literal above.
 const UUID_SEGMENT = '[0-9a-fA-F-]{36}';
 const STORY_ID_SEGMENT = '[A-Za-z0-9_-]{1,64}';
+// TutorInvite/ClassInvite raw tokens are Base64.getUrlEncoder().withoutPadding() of 24 random
+// bytes (ClassService.randomToken()/TutorStudentService.randomToken()) - URL-safe base64, not a UUID.
+const INVITE_TOKEN_SEGMENT = '[A-Za-z0-9_-]{16,64}';
 const DYNAMIC_ROUTES = [
   { method: 'GET', pattern: /^v1\/stories\/[A-Za-z0-9_-]{1,64}\/content$/ },
   { method: 'GET', pattern: new RegExp(`^v1/stories/${STORY_ID_SEGMENT}$`) },
@@ -36,6 +47,11 @@ const DYNAMIC_ROUTES = [
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/classes$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}$`) },
   { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/invites$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/schedule$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/invites$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/completions$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/tutor-invites/${INVITE_TOKEN_SEGMENT}$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/tutor-invites/${INVITE_TOKEN_SEGMENT}/accept$`) },
   // Staff CMS (story-admin-api.ts) - storyId/sceneId are content ids, segmentId is a UUID.
   { method: 'GET', pattern: new RegExp(`^v1/admin/stories/${STORY_ID_SEGMENT}/scenes$`) },
   { method: 'PATCH', pattern: new RegExp(`^v1/admin/stories/${STORY_ID_SEGMENT}/scenes/${STORY_ID_SEGMENT}$`) },
@@ -72,7 +88,7 @@ const MAX_AUTH_BODY_BYTES = 8_192;
 // Two optional free-text fields (topPriority/oneLineReview, 500 chars each server-side) plus
 // checkbox arrays and a contact field can add up past MAX_AUTH_BODY_BYTES in the worst case.
 const MAX_COMPLETION_SURVEY_BODY_BYTES = 16_384;
-const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes'];
+const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes', 'v1/tutor-students', 'v1/tutor-invites', 'v1/parents/'];
 
 function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath === 'v1/voice-research') return MAX_VOICE_RESEARCH_BODY_BYTES;

@@ -2,17 +2,20 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { SafeAreaView, storybookTheme } from '@/shared/ui';
-import { useAuth } from '@/entities/auth';
+import { AppNavShell, storybookTheme } from '@/shared/ui';
+import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { StoryLibraryGrid } from '@/features/story-library';
 import { formatReportDuration } from '@/pages/one-story';
 import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
+import { listParentTutorReports, type TutorReportSummary } from '@/entities/tutor';
 
 type RecentLoad =
   | { status: 'loading' }
   | { status: 'ready'; completion: StoryCompletionSummary | null; title: string | null }
   | { status: 'error' };
+
+type TutorReportsLoad = { status: 'loading' } | { status: 'ready'; reports: TutorReportSummary[] } | { status: 'error' };
 
 /** 실제 시계에 기대는 값이라 컴포넌트 밖에서 한 번만 계산하지 않고, 렌더마다 새로 읽는다. */
 function timeOfDayGreeting() {
@@ -46,10 +49,11 @@ function titleFor(storyId: string, stories: StoryCatalogEntry[]) {
  */
 export function ParentHomePage() {
   const navigate = useNavigate();
-  const { state, logout } = useAuth();
+  const { state } = useAuth();
   const { width } = useWindowDimensions();
   const isWide = width >= 640;
   const [recent, setRecent] = useState<RecentLoad>({ status: 'loading' });
+  const [tutorReports, setTutorReports] = useState<TutorReportsLoad>({ status: 'loading' });
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -81,21 +85,53 @@ export function ParentHomePage() {
     };
   }, [state]);
 
+  // 별도 effect로 둔다 - 이 카드가 실패해도 위 "최근에 함께 읽었어요" 카드는 그대로 동작해야 한다.
+  useEffect(() => {
+    if (state.status !== 'authenticated') return;
+    let cancelled = false;
+    listParentTutorReports(state.token)
+      .then((reports) => {
+        if (!cancelled) setTutorReports({ status: 'ready', reports });
+      })
+      .catch(() => {
+        if (!cancelled) setTutorReports({ status: 'error' });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [state]);
+
   if (state.status !== 'authenticated') return null;
 
   const recentReady = recent.status === 'ready' ? recent : null;
   const completion = recentReady?.completion ?? null;
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.screen}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')}>
       <View style={styles.scroll}>
         <View style={[styles.card, isWide && styles.cardWide]}>
           <Text style={styles.eyebrow}>{timeOfDayGreeting()}</Text>
-          <Text style={styles.title}>{state.user.displayName}님</Text>
+          <Text style={styles.title} accessibilityRole="header">{state.user.displayName}님</Text>
           <Text style={styles.body}>아이와 함께 오늘의 이야기를 시작해 보세요.</Text>
         </View>
 
         <StoryLibraryGrid />
+
+        {tutorReports.status === 'ready' && tutorReports.reports.length > 0 && (
+          <View style={[styles.recentCard, isWide && styles.recentCardWide]}>
+            <Text style={styles.recentLabel}>선생님에게 받은 기록</Text>
+            {/* /reports/:id는 완주 기록을 만든 계정(=선생님) 것만 조회할 수 있어서, 부모 쪽에서는
+                아직 상세 화면으로 연결하지 않는다 - 공유 리포트 상세 조회는 다음 단계로 미룬다. */}
+            {tutorReports.reports.map((report) => (
+              <View key={report.id} style={styles.tutorReportRow}>
+                <Text style={styles.recentTitle}>{report.tutorDisplayName} · {report.studentName}</Text>
+                <Text style={styles.recentMeta}>
+                  {formatCompletedAt(report.completedAt)} · {formatReportDuration(report.durationSeconds)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
 
         {completion && (
           <Pressable
@@ -118,17 +154,12 @@ export function ParentHomePage() {
             <Text style={styles.recentMeta}>첫 이야기를 끝까지 읽으면 여기에 기록이 남아요.</Text>
           </View>
         )}
-
-        <Pressable onPress={logout} accessibilityRole="button">
-          <Text style={styles.logout}>로그아웃</Text>
-        </Pressable>
       </View>
-    </SafeAreaView>
+    </AppNavShell>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: storybookTheme.color.background },
   scroll: {
     flex: 1,
     width: '100%',
@@ -139,41 +170,70 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
-    maxWidth: 640,
+    maxWidth: storybookTheme.layout.dashboardCardMaxWidth,
     alignSelf: 'center',
     alignItems: 'stretch',
     backgroundColor: storybookTheme.color.surfaceCard,
-    borderRadius: 28,
+    borderRadius: storybookTheme.radius.card,
     paddingHorizontal: 24,
     paddingVertical: 28,
     gap: 10,
   },
-  cardWide: { maxWidth: 760, paddingHorizontal: 40, paddingVertical: 36 },
-  eyebrow: { fontSize: 12, fontWeight: '700', color: storybookTheme.color.error, letterSpacing: 0.4 },
-  title: { fontSize: 22, fontWeight: '900', color: storybookTheme.color.onCardTitle },
-  body: { fontSize: 14, lineHeight: 21, color: storybookTheme.color.onCardBody, marginTop: 2 },
+  cardWide: {
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
+    paddingHorizontal: 40,
+    paddingVertical: 36,
+  },
+  eyebrow: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.error,
+    letterSpacing: 0.4,
+  },
+  title: { fontSize: storybookTheme.type.lg, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onCardTitle },
+  body: {
+    fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onCardBody,
+    marginTop: 2,
+  },
   pressed: { opacity: 0.9 },
   recentCard: {
     width: '100%',
-    maxWidth: 640,
+    maxWidth: storybookTheme.layout.dashboardCardMaxWidth,
     alignSelf: 'center',
     gap: 4,
     backgroundColor: storybookTheme.color.panelOnDarkBackground,
-    borderRadius: 24,
+    borderRadius: storybookTheme.radius.card,
     borderWidth: 1,
     borderColor: storybookTheme.color.panelOnDarkBorder,
     paddingHorizontal: 20,
     paddingVertical: 18,
   },
-  recentCardWide: { maxWidth: 760 },
-  recentLabel: { fontSize: 12, fontWeight: '700', color: storybookTheme.color.gold, letterSpacing: 0.3 },
-  recentTitle: { fontSize: 17, fontWeight: '900', color: storybookTheme.color.onDark, marginTop: 2 },
-  recentMeta: { fontSize: 13, color: storybookTheme.color.linkOnDark },
-  recentLink: { fontSize: 13, fontWeight: '700', color: storybookTheme.color.gold, marginTop: 6 },
-  logout: {
-    fontSize: 13,
-    color: storybookTheme.color.onDarkMuted,
-    textAlign: 'center',
-    fontWeight: '700',
+  recentCardWide: { maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth },
+  tutorReportRow: {
+    gap: 2,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: storybookTheme.color.panelOnDarkBorder,
+  },
+  recentLabel: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.gold,
+    letterSpacing: 0.3,
+  },
+  recentTitle: {
+    fontSize: storybookTheme.type.md,
+    fontWeight: storybookTheme.type.weight.black,
+    color: storybookTheme.color.onDark,
+    marginTop: 2,
+  },
+  recentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.linkOnDark },
+  recentLink: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.gold,
+    marginTop: 6,
   },
 });

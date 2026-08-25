@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { OneStoryPage } from '@/pages/one-story';
 import { loadStoryPackage, type StoryRuntimePackage } from '@/entities/story';
@@ -22,6 +22,10 @@ type LoadState =
 export function StoryPlayerRoute() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // 방문 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 붙는다(TutorChildScreen에서 이식된
+  // "오늘 추천 이야기" 진입 경로가 이 쿼리 파라미터를 실어 보낸다) - 완주 시 그대로 기록된다.
+  const tutorStudentId = searchParams.get('tutorStudentId') ?? undefined;
   const [attempt, setAttempt] = useState(0);
   const requestKey = `${storyId ?? ''}:${attempt}`;
   const [state, setState] = useState<LoadState>({ requestKey, status: 'loading' });
@@ -48,7 +52,7 @@ export function StoryPlayerRoute() {
   const effectiveState: LoadState = state.requestKey === requestKey ? state : { requestKey, status: 'loading' };
 
   if (effectiveState.status === 'ready') {
-    return <OneStoryPage storyPackage={effectiveState.storyPackage} />;
+    return <OneStoryPage storyPackage={effectiveState.storyPackage} tutorStudentId={tutorStudentId} />;
   }
 
   return (
@@ -57,7 +61,7 @@ export function StoryPlayerRoute() {
         <BrandLockup size="compact" />
       </View>
       <View style={styles.content}>
-        <Text style={styles.title}>
+        <Text style={styles.title} accessibilityRole="header">
           {effectiveState.status === 'error' ? '이야기를 불러오지 못했어요' : '이야기를 준비하는 중이에요'}
         </Text>
         <Text style={styles.body}>
@@ -86,6 +90,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: storybookTheme.type.lg,
+    lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
+    letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
     fontWeight: '600',
     color: storybookTheme.color.onDark,
     textAlign: 'center',

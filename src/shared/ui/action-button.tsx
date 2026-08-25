@@ -41,14 +41,19 @@ export function ActionButton({
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       disabled={disabled || loading}
       onPress={onPress}
-      style={[
+      // react-native-web은 웹에서 Pressable의 style 콜백에 pressed 말고도 hovered를 실제로
+      // 넘겨주지만, 이 프로젝트가 쓰는 RN 타입 선언(PressableStateCallbackType)에는 hovered가
+      // 없다 - 런타임 동작은 맞고 타입 선언만 웹 확장을 안 담고 있는 경우라 여기서만 좁혀서 받는다.
+      style={({ hovered }: { pressed: boolean; hovered?: boolean }) => [
         styles.base,
         variant === 'primary' && styles.primary,
+        variant === 'primary' && hovered && !disabled && !loading && styles.primaryHovered,
         variant === 'secondary' && styles.secondary,
         variant === 'secondaryFull' && styles.secondaryFull,
         variant === 'record' && styles.record,
         variant === 'stop' && styles.stop,
         variant === 'gold' && styles.gold,
+        variant === 'gold' && hovered && !disabled && !loading && styles.goldHovered,
         disabled && !loading && styles.disabled,
       ]}
     >
@@ -82,6 +87,10 @@ const styles = StyleSheet.create({
   primary: {
     backgroundColor: storybookTheme.color.primary,
   },
+  /** 웹 마우스 hover 전용 - 네이티브에서는 hovered가 항상 false라 적용되지 않는다. */
+  primaryHovered: {
+    backgroundColor: storybookTheme.semantic.brand.hover,
+  },
   secondary: {
     flex: 1,
     minHeight: 50,
@@ -110,22 +119,25 @@ const styles = StyleSheet.create({
   gold: {
     backgroundColor: storybookTheme.color.gold,
   },
+  goldHovered: {
+    backgroundColor: storybookTheme.semantic.accent.hover,
+  },
   disabled: {
     opacity: 0.56,
   },
   icon: {
     color: storybookTheme.color.onDark,
-    fontSize: 13,
+    fontSize: storybookTheme.type.xs,
   },
   primaryText: {
     color: storybookTheme.color.onDark,
-    fontSize: 17,
-    fontWeight: '700',
+    fontSize: storybookTheme.type.md,
+    fontWeight: storybookTheme.type.weight.bold,
   },
   secondaryText: {
     color: storybookTheme.color.primary,
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
 });

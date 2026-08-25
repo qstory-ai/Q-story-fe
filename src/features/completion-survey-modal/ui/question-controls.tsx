@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { TextField } from '@/shared/ui';
+import { TextField, storybookTheme } from '@/shared/ui';
 
 function QuestionLabel({ label, errorText }: { label: string; errorText?: string }) {
   return (
@@ -180,12 +180,12 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   label: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     fontWeight: '500',
     color: '#503267',
   },
   errorText: {
-    fontSize: 12,
+    fontSize: storybookTheme.type.xs,
     color: '#E46647',
   },
   chipRow: {
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     borderColor: '#43225F',
   },
   chipText: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     fontWeight: '600',
     color: '#503267',
   },
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     borderColor: '#43225F',
   },
   scaleDotText: {
-    fontSize: 15,
+    fontSize: storybookTheme.type.md,
     fontWeight: '700',
     color: '#503267',
   },
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   scaleCaption: {
-    fontSize: 11,
+    fontSize: storybookTheme.type.xxs,
     color: '#8A7699',
     maxWidth: '48%',
   },

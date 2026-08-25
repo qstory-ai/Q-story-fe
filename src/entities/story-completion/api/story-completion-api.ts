@@ -59,10 +59,14 @@ async function request<T>(
   return (await response.json()) as T;
 }
 
-/** 방금 끝난 세션의 리포트를 저장한다. outcomes는 실시간 리포트 화면이 이미 구성해 둔 것과 동일한 QuestionOutcome[]이다. */
+/**
+ * 방금 끝난 세션의 리포트를 저장한다. outcomes는 실시간 리포트 화면이 이미 구성해 둔 것과 동일한
+ * QuestionOutcome[]이다. tutorStudentId는 선택값 - 방문 선생님이 자신이 등록한 학생과 진행한
+ * 세션일 때만 넘긴다(StoryPlayerRoute의 ?tutorStudentId= 참고); 가정에서 본 세션은 생략한다.
+ */
 export function recordStoryCompletion(
   token: string,
-  input: { storyId: string; durationSeconds: number | null; outcomes: QuestionOutcome[] },
+  input: { storyId: string; durationSeconds: number | null; outcomes: QuestionOutcome[]; tutorStudentId?: string },
   options?: RequestOptions,
 ): Promise<StoryCompletionSummary> {
   return request('/v1/story-completions', { method: 'POST', body: JSON.stringify(input) }, token, options);

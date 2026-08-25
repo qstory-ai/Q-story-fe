@@ -1,8 +1,9 @@
 import { useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Modal, ModalBody, TextField } from '@/shared/ui';
+import { Modal, ModalBody, TextField, storybookTheme } from '@/shared/ui';
 import type { ChildGender } from '@/entities/launch-notification';
+import { useAuth } from '@/entities/auth';
 
 import { useLaunchNotificationGate } from '../model/use-launch-notification-gate';
 
@@ -22,9 +23,15 @@ const GENDER_OPTIONS: { value: ChildGender; label: string }[] = [
  * 있으면 버튼은 눌러도 제출되지 않고 대신 어떤 항목이 비었는지 각 필드 아래 보여준다(그냥
  * 조용히 막기만 하면 왜 안 되는지 알 수 없다). Modal에 linkAction/scrim 닫기를 주지 않아
  * 아무 정보도 없이 그냥 지나치는 경로만 구조적으로 없앴다.
+ *
+ * 통과 여부는 로그인 상태면 계정 단위로, 익명이면 기존처럼 브라우저 단위로 기억한다 -
+ * 브라우저 하나로만 묶으면 한 계정(혹은 익명 상태)에서 한 번 통과한 뒤로는 다른 계정으로
+ * 로그인해도 다시는 뜨지 않는 문제가 있었다.
  */
 export function LaunchNotificationGate({ children }: { children: ReactNode }) {
-  const form = useLaunchNotificationGate();
+  const { state: auth } = useAuth();
+  const accountId = auth.status === 'authenticated' ? auth.user.id : null;
+  const form = useLaunchNotificationGate(accountId);
   // 필드가 비었어도 버튼은 그냥 눌리지 않기만 할 뿐 아무 설명이 없었다 - 한 번이라도 눌러
   // 보면(canSubmit이 false인 채로) 그때부터 어떤 항목이 비었는지 각 필드 아래 보여준다.
   const [showValidation, setShowValidation] = useState(false);
@@ -142,7 +149,7 @@ export function LaunchNotificationGate({ children }: { children: ReactNode }) {
 const styles = StyleSheet.create({
   requiredNotice: {
     marginTop: -4,
-    fontSize: 12,
+    fontSize: storybookTheme.type.xs,
     fontWeight: '700',
     color: '#6E428B',
     textAlign: 'center',
@@ -151,12 +158,12 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   label: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     fontWeight: '500',
     color: '#503267',
   },
   fieldErrorText: {
-    fontSize: 12,
+    fontSize: storybookTheme.type.xs,
     color: '#E46647',
   },
   genderRow: {
@@ -179,7 +186,7 @@ const styles = StyleSheet.create({
     borderColor: '#43225F',
   },
   genderButtonText: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     fontWeight: '600',
     color: '#503267',
   },

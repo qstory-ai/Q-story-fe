@@ -2,7 +2,7 @@ import { readEnv } from '@/shared/config';
 
 const apiBaseUrl = readEnv('VITE_QSTORY_API_URL');
 
-export type Role = 'DIRECTOR' | 'CLASS_ACCOUNT' | 'PARENT' | 'STAFF';
+export type Role = 'DIRECTOR' | 'CLASS_ACCOUNT' | 'PARENT' | 'TUTOR' | 'STAFF';
 
 export type UserSummary = {
   id: string;
@@ -15,6 +15,8 @@ export type UserSummary = {
   subscriptionStatus: 'NONE' | 'TRIALING' | 'ACTIVE' | 'EXPIRED';
   /** 백엔드가 이미 기관 구독과 개인 구독을 OR로 합쳐 계산해 준 값 - 프론트에서 다시 판단하지 않는다. */
   grantsAccess: boolean;
+  /** PARENT 역할에서만 의미가 있다 - 다른 역할은 항상 null. */
+  childName: string | null;
 };
 
 export type AuthResponse = {
@@ -98,13 +100,6 @@ async function request<T>(
   return (await response.json()) as T;
 }
 
-export function signupDirector(
-  input: { email: string; password: string; displayName: string },
-  options?: RequestOptions,
-): Promise<AuthResponse> {
-  return request('/v1/auth/signup/director', { method: 'POST', body: JSON.stringify(input) }, options);
-}
-
 export function signupOrganizationOwner(
   input: { email: string; password: string; displayName: string },
   options?: RequestOptions,
@@ -120,11 +115,34 @@ export function signupParent(
   return request('/v1/auth/signup/parent', { method: 'POST', body: JSON.stringify(input) }, options);
 }
 
+/** 방문 선생님 - 가정을 방문해 1:1 수업을 진행하는 셀프서비스 역할. 조직/반 없이 바로 가입된다. */
+export function signupTutor(
+  input: { email: string; password: string; displayName: string },
+  options?: RequestOptions,
+): Promise<AuthResponse> {
+  return request('/v1/auth/signup/tutor', { method: 'POST', body: JSON.stringify(input) }, options);
+}
+
 export function login(
   input: { loginId: string; password: string },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/auth/login', { method: 'POST', body: JSON.stringify(input) }, options);
+}
+
+/**
+ * 구글/카카오 소셜 로그인·가입 - token은 provider마다 의미가 다르다(구글은 Google Identity
+ * Services의 id_token, 카카오는 카카오 JS SDK의 access token - google-identity.ts/kakao-sdk.ts
+ * 참고). role은 이 provider 계정으로 처음 가입하는 경우에만 필요하고, 이미 연결된 계정으로
+ * 로그인할 때는 백엔드가 무시한다.
+ */
+export function oauthLogin(
+  provider: 'GOOGLE' | 'KAKAO',
+  input: { token: string; role?: Role },
+  options?: RequestOptions,
+): Promise<AuthResponse> {
+  const path = provider === 'GOOGLE' ? '/v1/auth/oauth/google' : '/v1/auth/oauth/kakao';
+  return request(path, { method: 'POST', body: JSON.stringify(input) }, options);
 }
 
 /** loginId가 계정과 일치하는지 여부와 무관하게 항상 resolve된다 - 백엔드가 어느 쪽이든 동일하게 응답하기 때문이다. */
@@ -144,6 +162,33 @@ export function confirmPasswordReset(
 
 export function fetchCurrentUser(token: string, options?: RequestOptions): Promise<UserSummary> {
   return request('/v1/auth/me', { method: 'GET' }, { ...options, token });
+}
+
+/** displayName은 모든 역할에 필수. childName은 PARENT가 아니면 백엔드가 조용히 무시한다. */
+export function updateProfile(
+  token: string,
+  input: { displayName: string; childName?: string | null },
+  options?: RequestOptions,
+): Promise<UserSummary> {
+  return request('/v1/auth/me/profile', { method: 'POST', body: JSON.stringify(input) }, { ...options, token });
+}
+
+/** "비밀번호를 잊어버렸을 때" 쓰는 confirmPasswordReset()과 달리, 로그인된 상태에서 현재 비밀번호로 바로 바꾼다. */
+export function changePassword(
+  token: string,
+  input: { currentPassword: string; newPassword: string },
+  options?: RequestOptions,
+): Promise<void> {
+  return request('/v1/auth/me/password', { method: 'POST', body: JSON.stringify(input) }, { ...options, token });
+}
+
+/** 소프트 삭제 - 성공하면 이 토큰은 더 이상 쓸 수 없다. 호출한 쪽에서 곧바로 useAuth().logout()을 호출해야 한다. */
+export function deleteAccount(
+  token: string,
+  input: { reasonCategory: string; reasonDetail?: string },
+  options?: RequestOptions,
+): Promise<void> {
+  return request('/v1/auth/me/delete', { method: 'POST', body: JSON.stringify(input) }, { ...options, token });
 }
 
 /**

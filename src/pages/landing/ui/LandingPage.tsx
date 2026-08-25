@@ -610,7 +610,7 @@ const styles = StyleSheet.create({
   sectionSubLead: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.md,
-    lineHeight: 24,
+    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: '300',
   },
   sectionHeading: {
@@ -635,14 +635,14 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     color: storybookTheme.color.onDark,
-    fontSize: 34,
+    fontSize: storybookTheme.type.xxl,
     lineHeight: 42,
     fontWeight: '700',
   },
   heroLead: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.md,
-    lineHeight: 25,
+    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: '300',
   },
   heroActions: {
@@ -713,7 +713,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#2B1748',
+    backgroundColor: storybookTheme.color.onCardTitle,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
     borderColor: 'rgba(246, 198, 77, 0.4)',
@@ -808,6 +808,7 @@ const styles = StyleSheet.create({
   stepTitle: {
     color: storybookTheme.color.onCardTitle,
     fontSize: storybookTheme.type.md,
+    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: '600',
   },
   stepBody: {
@@ -872,6 +873,7 @@ const styles = StyleSheet.create({
   proofTitle: {
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.md,
+    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: '600',
   },
   proofBody: {
@@ -943,7 +945,7 @@ const styles = StyleSheet.create({
   },
   resultTagText: {
     color: storybookTheme.color.gold,
-    fontSize: 11,
+    fontSize: storybookTheme.type.xxs,
     fontWeight: '600',
   },
 
@@ -967,7 +969,7 @@ const styles = StyleSheet.create({
   },
   parentNoteKicker: {
     color: storybookTheme.color.primary,
-    fontSize: 11,
+    fontSize: storybookTheme.type.xxs,
     fontWeight: '600',
     letterSpacing: 0.4,
     textTransform: 'uppercase',
@@ -975,6 +977,7 @@ const styles = StyleSheet.create({
   parentNoteTitle: {
     color: storybookTheme.color.onCardTitle,
     fontSize: storybookTheme.type.md,
+    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: '600',
   },
   parentNoteBody: {
@@ -1011,6 +1014,7 @@ const styles = StyleSheet.create({
   pillarTitle: {
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.md,
+    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: '600',
   },
   pillarBody: {
@@ -1093,7 +1097,7 @@ const styles = StyleSheet.create({
   },
   betaStoryFrameCaptionKicker: {
     color: storybookTheme.color.gold,
-    fontSize: 11,
+    fontSize: storybookTheme.type.xxs,
     fontWeight: '600',
   },
   betaStoryFrameCaptionText: {
@@ -1134,18 +1138,20 @@ const styles = StyleSheet.create({
   },
   reportBadgeText: {
     color: storybookTheme.color.primary,
-    fontSize: 11,
+    fontSize: storybookTheme.type.xxs,
     fontWeight: '600',
   },
   reportPreviewTitle: {
     color: storybookTheme.color.onCardTitle,
     fontSize: storybookTheme.type.lg,
-    lineHeight: 26,
+    lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
+    letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
     fontWeight: '600',
   },
   reportPreviewQuote: {
     color: storybookTheme.color.primary,
     fontSize: storybookTheme.type.md,
+    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: '500',
     fontStyle: 'italic',
   },
@@ -1177,6 +1183,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: storybookTheme.color.onCardTitle,
     fontSize: storybookTheme.type.md,
+    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: '600',
   },
   faqToggle: {
@@ -1228,6 +1235,7 @@ const styles = StyleSheet.create({
   finalCtaLead: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.md,
+    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: '300',
   },
 
@@ -1286,7 +1294,7 @@ const styles = StyleSheet.create({
   },
   footerBottomText: {
     color: storybookTheme.color.onDarkMuted,
-    fontSize: 11,
+    fontSize: storybookTheme.type.xxs,
     fontWeight: '300',
   },
 });

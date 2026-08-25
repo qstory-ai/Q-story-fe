@@ -11,7 +11,9 @@ type SectionHeaderProps = {
 export function SectionHeader({ title, subtitle }: SectionHeaderProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.title} accessibilityRole="header">
+        {title}
+      </Text>
       {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
     </View>
   );
@@ -24,11 +26,13 @@ const styles = StyleSheet.create({
   title: {
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.lg,
-    fontWeight: '600',
+    lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
+    letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   subtitle: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.sm,
-    fontWeight: '300',
+    fontWeight: storybookTheme.type.weight.light,
   },
 });

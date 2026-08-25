@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { SafeAreaView, storybookTheme } from '@/shared/ui';
-import { useAuth } from '@/entities/auth';
+import { AppNavShell, storybookTheme } from '@/shared/ui';
+import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { buildParentReport, type ParentReport } from '@/entities/analytics';
 import { loadStoryPackage, type StoryRuntimePackage } from '@/entities/story';
 import { ReportContent } from '@/pages/one-story';
@@ -62,16 +62,10 @@ export function ReportHistoryDetailPage() {
   const effectiveLoad: LoadState = load.requestKey === requestKey ? load : { requestKey, status: 'loading' };
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      <Pressable
-        onPress={() => navigate('/reports')}
-        accessibilityRole="link"
-        hitSlop={8}
-        style={styles.backLink}
-      >
-        <Text style={styles.backLinkText}>← 지난 리포트로</Text>
-      </Pressable>
-
+    <AppNavShell
+      items={dashboardNavItems(state.user, navigate, 'reports')}
+      onBack={() => navigate('/reports')}
+    >
       {effectiveLoad.status === 'loading' && (
         <View style={styles.centerBox}>
           <ActivityIndicator color={storybookTheme.color.gold} />
@@ -93,25 +87,11 @@ export function ReportHistoryDetailPage() {
           />
         </ScrollView>
       )}
-    </SafeAreaView>
+    </AppNavShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: storybookTheme.color.background,
-  },
-  backLink: {
-    minHeight: 44,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  backLinkText: {
-    color: storybookTheme.color.onDarkMuted,
-    fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
-  },
   centerBox: {
     flex: 1,
     alignItems: 'center',

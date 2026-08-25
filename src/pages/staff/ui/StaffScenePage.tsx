@@ -87,7 +87,7 @@ export function StaffScenePage() {
       </Pressable>
 
       <View style={styles.content}>
-        <Text style={styles.title}>{sceneId}</Text>
+        <Text style={styles.title} accessibilityRole="header">{sceneId}</Text>
 
         {load.status === 'loading' && (
           <View style={styles.centered}>
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   },
   backLinkText: {
     color: storybookTheme.color.onLightMuted,
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     fontWeight: '500',
   },
   content: {
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    fontSize: 20,
+    fontSize: storybookTheme.type.lg,
     fontWeight: '700',
     color: storybookTheme.color.onLightHeading,
   },
@@ -175,13 +175,13 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   error: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.error,
   },
   card: {
     gap: 6,
     padding: 14,
-    borderRadius: 14,
+    borderRadius: storybookTheme.radius.card,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: storybookTheme.color.lightCardBorder,
@@ -191,15 +191,15 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.status.warning.background,
   },
   cardMeta: {
-    fontSize: 11,
+    fontSize: storybookTheme.type.xxs,
     color: storybookTheme.color.onLightMuted,
   },
   utteranceText: {
-    fontSize: 14,
+    fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onCardTitle,
   },
   payloadDump: {
-    fontSize: 11,
+    fontSize: storybookTheme.type.xxs,
     color: storybookTheme.color.onLightMuted,
   },
   rowActions: {
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   link: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     fontWeight: '500',
     color: storybookTheme.color.linkOnLight,
   },

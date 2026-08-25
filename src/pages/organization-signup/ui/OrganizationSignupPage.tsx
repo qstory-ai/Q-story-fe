@@ -85,7 +85,7 @@ function CreateOrganizationStep({ token }: { token: string }) {
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.content}>
         <AccountLinkRow onMyPage={() => navigate('/mypage')} onLogout={logout} />
-        <Text style={styles.title}>기관 및 단체 등록</Text>
+        <Text style={styles.title} accessibilityRole="header">기관 및 단체 등록</Text>
         <Text style={styles.body}>거의 다 됐어요. 기관 및 단체 이름을 알려주세요.</Text>
         <TextField label="기관 및 단체 이름" value={name} onChangeText={setName} errorText={error ?? undefined} />
         <ActionButton
@@ -167,13 +167,24 @@ function ClassManagementStep({ token, organizationId }: { token: string; organiz
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.content}>
         <AccountLinkRow onMyPage={() => navigate('/mypage')} onLogout={logout} />
-        <Text style={styles.title}>반 관리</Text>
+        <Text style={styles.title} accessibilityRole="header">반 관리</Text>
 
+        {/*
+          entitlement.grantsAccess=false는 requiresEntitlement=true인 작품만 막는다
+          (EntitlementService.assertAccessible) - 지금 카탈로그의 유일한 작품(HG)은
+          requiresEntitlement=false라서 구독 여부와 무관하게 무료 데모로 계속 열려 있다.
+          "이야기를 아예 시작할 수 없다"는 예전 문구는 사실이 아니었다 - 구독은 데모 이후의
+          전체 작품에만 걸리는 것이라고 정확히 말해야 한다.
+        */}
         {entitlement && (
           <StatusBanner
             variant={entitlement.grantsAccess ? 'info' : 'warning'}
             label={SUBSCRIPTION_LABEL[entitlement.subscriptionStatus]}
-            body={entitlement.grantsAccess ? undefined : '지금은 아이들이 이야기를 시작할 수 없어요. 구독을 갱신해 주세요.'}
+            body={
+              entitlement.grantsAccess
+                ? undefined
+                : '구독 없이도 무료 데모 한 편은 계속 이용할 수 있어요. 전체 이야기는 구독 후 열려요.'
+            }
           />
         )}
 
@@ -239,24 +250,24 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    fontSize: 22,
+    fontSize: storybookTheme.type.lg,
     fontWeight: '700',
     color: storybookTheme.color.onLightHeading,
     textAlign: 'center',
     marginBottom: 8,
   },
   sectionLabel: {
-    fontSize: 15,
+    fontSize: storybookTheme.type.md,
     fontWeight: '600',
     color: storybookTheme.color.onLightHeading,
     marginTop: 8,
   },
   body: {
-    fontSize: 14,
+    fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onLightBody,
   },
   error: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.error,
   },
   card: {
@@ -268,12 +279,12 @@ const styles = StyleSheet.create({
     borderColor: storybookTheme.color.lightCardBorder,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: storybookTheme.type.md,
     fontWeight: '600',
     color: storybookTheme.color.onCardTitle,
   },
   inviteUrl: {
-    fontSize: 12,
+    fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.linkOnLight,
   },
 });

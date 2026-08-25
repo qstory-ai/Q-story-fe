@@ -54,7 +54,7 @@ export function ProcessingPanel({ runtime }: { runtime: OneStoryRuntime }) {
       <View style={styles.recoveryActions}>
         <ActionButton
           variant="secondaryFull"
-          label={questionMode === 'text' ? '말로 바꾸기' : '글로 바꾸기'}
+          label={questionMode === 'text' ? '말로 질문하기' : '글로 질문하기'}
           onPress={questionMode === 'text' ? beginQuestion : beginTypedQuestion}
         />
         <ActionButton

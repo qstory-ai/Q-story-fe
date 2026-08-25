@@ -15,10 +15,13 @@ import { TopBar } from './top-bar';
 
 export function OneStoryPage({
   storyPackage,
+  tutorStudentId,
 }: {
   storyPackage: StoryRuntimePackage;
+  /** 방문 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 넘긴다(StoryPlayerRoute 참고). */
+  tutorStudentId?: string;
 }) {
-  const runtime = useOneStoryRuntime(storyPackage);
+  const runtime = useOneStoryRuntime(storyPackage, tutorStudentId);
   const {
     isWide,
     isShort,

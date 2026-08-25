@@ -127,7 +127,7 @@ export function StaffStoryPage() {
       </Pressable>
 
       <View style={styles.content}>
-        <Text style={styles.title}>{storyId}</Text>
+        <Text style={styles.title} accessibilityRole="header">{storyId}</Text>
 
         {load.status === 'loading' && (
           <View style={styles.centered}>
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   },
   backLinkText: {
     color: storybookTheme.color.onLightMuted,
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     fontWeight: '500',
   },
   content: {
@@ -229,22 +229,22 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    fontSize: 22,
+    fontSize: storybookTheme.type.lg,
     fontWeight: '700',
     color: storybookTheme.color.onLightHeading,
   },
   sectionLabel: {
-    fontSize: 15,
+    fontSize: storybookTheme.type.md,
     fontWeight: '600',
     color: storybookTheme.color.onLightHeading,
     marginTop: 8,
   },
   body: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onLightBody,
   },
   error: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.error,
   },
   centered: {
@@ -254,26 +254,26 @@ const styles = StyleSheet.create({
   card: {
     gap: 6,
     padding: 14,
-    borderRadius: 14,
+    borderRadius: storybookTheme.radius.card,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: storybookTheme.color.lightCardBorder,
   },
   cardTitle: {
-    fontSize: 15,
+    fontSize: storybookTheme.type.md,
     fontWeight: '600',
     color: storybookTheme.color.onCardTitle,
   },
   cardMeta: {
-    fontSize: 11,
+    fontSize: storybookTheme.type.xxs,
     color: storybookTheme.color.onLightMuted,
   },
   staleWritten: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onCardTitle,
   },
   staleSpoken: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     color: storybookTheme.status.warning.text,
   },
   rowActions: {
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   link: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.sm,
     fontWeight: '500',
     color: storybookTheme.color.linkOnLight,
   },

@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: storybookTheme.type.xs,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   textOnCard: {
     color: storybookTheme.color.primary,

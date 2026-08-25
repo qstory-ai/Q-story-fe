@@ -1,4 +1,5 @@
 import {
+  ArrowLeft,
   ArrowRight,
   AudioLines,
   BookOpen,
@@ -34,6 +35,7 @@ import {
 export const ICONS = {
   chat: MessageCircle,
   home: Home,
+  back: ArrowLeft,
   replay: RotateCcw,
   next: ArrowRight,
   pause: Pause,

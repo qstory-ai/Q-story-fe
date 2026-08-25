@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useEffect, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ActionButton } from './action-button';
@@ -46,6 +47,21 @@ export function Modal({
   accessibilityLabel,
 }: ModalProps) {
   const { mounted, entered, durationMs } = usePresenceAnimation(visible);
+  const cardRef = useRef<View>(null);
+  const previouslyFocused = useRef<Element | null>(null);
+
+  // 키보드/스크린리더 사용자가 열림과 동시에 카드 안으로 들어오고, 닫히면 원래 있던
+  // 요소(트리거 버튼 등)로 돌아가게 한다 - RNW View는 tabIndex를 그대로 DOM에 통과시킨다.
+  useEffect(() => {
+    if (!visible) return;
+    previouslyFocused.current = typeof document !== 'undefined' ? document.activeElement : null;
+    const node = cardRef.current as unknown as HTMLElement | null;
+    node?.focus?.();
+    return () => {
+      const previous = previouslyFocused.current as HTMLElement | null;
+      previous?.focus?.();
+    };
+  }, [visible]);
 
   if (!mounted) return null;
 
@@ -57,6 +73,8 @@ export function Modal({
       // RN의 position 타입엔 'fixed'가 없어 이 한 스타일만 any로 둔다.
       style={[styles.scrim, { position: 'fixed' } as any]}
       accessibilityViewIsModal
+      accessibilityRole="none"
+      {...({ role: 'dialog', 'aria-modal': true } as any)}
       accessibilityLabel={accessibilityLabel}
     >
       {
@@ -71,6 +89,10 @@ export function Modal({
         keyboardShouldPersistTaps="handled"
       >
         <View
+          ref={cardRef}
+          // 카드 자체를 포커스 대상으로 만들어 모달이 열리자마자 키보드 포커스가 스크림 뒤
+          // 콘텐츠가 아니라 카드 안으로 들어오게 한다 (tabIndex는 RNW가 DOM에 그대로 전달한다).
+          {...({ tabIndex: -1 } as any)}
           // react-native-web은 transitionProperty 등 웹 전용 CSS 확장을 style로 그대로
           // 통과시켜 주지만, RN의 ViewStyle 타입에는 없어서 이 스타일 객체만 any로 둔다.
           style={[
@@ -81,11 +103,12 @@ export function Modal({
               transitionProperty: 'opacity, transform',
               transitionDuration: `${durationMs}ms`,
               transitionTimingFunction: entered ? EASE_OUT_SINE : EASE_IN_SINE,
+              outlineStyle: 'none',
             } as any,
           ]}
         >
           {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
-          {title ? <Text style={styles.title}>{title}</Text> : null}
+          {title ? <Text style={styles.title} accessibilityRole="header">{title}</Text> : null}
           {children}
           {positiveAction ? (
             <ActionButton
@@ -149,10 +172,7 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.surfaceCardOpaque,
     padding: 24,
     gap: 13,
-    shadowColor: storybookTheme.color.shadow,
-    shadowOpacity: 0.3,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
+    ...storybookTheme.elevation.modal,
   },
   eyebrow: {
     alignSelf: 'center',
@@ -161,14 +181,15 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.pill,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    fontSize: 11,
-    fontWeight: '700',
+    fontSize: storybookTheme.type.xxs,
+    fontWeight: storybookTheme.type.weight.bold,
   },
   title: {
     color: storybookTheme.color.onCardTitle,
-    fontSize: 25,
-    lineHeight: 34,
-    fontWeight: '700',
+    fontSize: storybookTheme.type.xl,
+    lineHeight: storybookTheme.type.xl * storybookTheme.lineHeight.tight,
+    letterSpacing: storybookTheme.type.xl * storybookTheme.tracking.heading,
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   linkButton: {
@@ -178,14 +199,14 @@ const styles = StyleSheet.create({
   },
   linkButtonText: {
     color: storybookTheme.color.linkOnLight,
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
     textDecorationLine: 'underline',
   },
   body: {
     color: storybookTheme.color.onCardBody,
-    fontSize: 13,
-    lineHeight: 21,
+    fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     textAlign: 'center',
   },
 });

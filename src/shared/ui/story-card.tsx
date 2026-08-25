@@ -58,15 +58,19 @@ export function StoryCard({
         ) : null}
       </View>
       <View style={[styles.body, locked && styles.bodyLocked]}>
-        {category ? <Pill label={category} /> : null}
-        <Text style={styles.title} numberOfLines={1}>
-          {title}
-        </Text>
-        {description ? (
-          <Text style={styles.description} numberOfLines={2}>
-            {description}
-          </Text>
-        ) : null}
+        <View style={styles.textBlock}>
+          {category ? <Pill label={category} /> : null}
+          <View style={styles.textGroup}>
+            <Text style={styles.title} accessibilityRole="header" numberOfLines={1}>
+              {title}
+            </Text>
+            {description ? (
+              <Text style={styles.description} numberOfLines={2}>
+                {description}
+              </Text>
+            ) : null}
+          </View>
+        </View>
         {locked && lockedCaption ? <Text style={styles.lockedCaption}>{lockedCaption}</Text> : null}
       </View>
     </Pressable>
@@ -118,27 +122,43 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(18, 10, 30, 0.6)',
   },
+  /**
+   * Figma "Simple Design System"의 Card 컴포넌트는 Body2(텍스트 그룹+버튼 그룹) 사이는
+   * space-400(16), Text 그룹 안(제목-설명)은 space-200(8)로 구분한다 - 지금까지는 pill/제목/
+   * 설명/잠금 안내를 전부 gap:6 하나로 뭉뚱그려서, 이 카드가 실제로 "eyebrow + 제목·설명 묶음"
+   * 두 단계라는 게 spacing만으로는 드러나지 않았다.
+   */
   body: {
     padding: 16,
-    gap: 6,
+    gap: storybookTheme.spacing.md,
   },
   bodyLocked: {
     opacity: 0.72,
   },
+  /** eyebrow(Pill)는 제목에 붙어 보이도록 가깝게 - Figma엔 없는 조합이라 이 앱의 다른
+   * eyebrow+제목 카드(roleCard 등)가 쓰는 간격을 따른다. */
+  textBlock: {
+    gap: storybookTheme.spacing.xs,
+  },
+  /** Figma Card의 Text 그룹 간격(space-200=8)과 동일. */
+  textGroup: {
+    gap: storybookTheme.spacing.sm,
+  },
   title: {
     fontSize: storybookTheme.type.md,
-    fontWeight: '600',
+    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onCardTitle,
   },
   description: {
     fontSize: storybookTheme.type.sm,
-    lineHeight: 20,
-    fontWeight: '300',
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.light,
     color: storybookTheme.color.onCardBody,
   },
   lockedCaption: {
     fontSize: storybookTheme.type.xs,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.primary,
   },
 });

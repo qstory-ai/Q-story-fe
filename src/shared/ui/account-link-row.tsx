@@ -39,8 +39,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   link: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onLightMuted,
-    fontWeight: '500',
+    fontWeight: storybookTheme.type.weight.medium,
   },
 });

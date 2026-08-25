@@ -80,7 +80,9 @@ export function CompanionChatModal({
         <ScrollView style={styles.companionChatHistory}>
           {turns.map((turn) => (
             <View key={turn.id} style={styles.companionChatTurn}>
-              <Text style={styles.companionChatChildText}>{turn.childText}</Text>
+              {turn.childText && (
+                <Text style={styles.companionChatChildText}>{turn.childText}</Text>
+              )}
               {turn.status === 'sending' && (
                 <ActivityIndicator color="#F6C64D" style={styles.companionChatSpinner} />
               )}
@@ -118,7 +120,8 @@ export function CompanionChatModal({
             value={draft}
             onChangeText={(value) => setDraft(value.slice(0, 160))}
             placeholder="예: 마녀는 왜 사탕으로 집을 만들었을까?"
-            placeholderTextColor="#998EA5"
+            placeholderTextColor="#6F5D85" // WCAG AA 4.5:1 (원래 #998EA5는 흰 배경에서 3.10:1로 미달)
+            accessibilityLabel="궁금한 것을 입력해 주세요"
             maxLength={160}
             multiline
             returnKeyType="send"

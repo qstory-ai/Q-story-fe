@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
-import { homePathFor, useAuth } from '@/entities/auth';
+import { ActionButton, AppNavShell, storybookTheme } from '@/shared/ui';
+import { dashboardNavItems, homePathFor, useAuth } from '@/entities/auth';
 import { listStories, StoryApiError } from '@/entities/story';
 import { formatReportDuration } from '@/pages/one-story';
 import { listStoryCompletions, StoryCompletionApiError, type StoryCompletionSummary } from '@/entities/story-completion';
@@ -61,18 +61,12 @@ export function ReportHistoryPage() {
   if (!canView) return null;
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      <Pressable
-        onPress={() => navigate('/mypage')}
-        accessibilityRole="link"
-        hitSlop={8}
-        style={styles.backLink}
-      >
-        <Text style={styles.backLinkText}>← 마이페이지로</Text>
-      </Pressable>
-
+    <AppNavShell
+      items={dashboardNavItems(state.user, navigate, 'reports')}
+      onBack={() => navigate('/mypage')}
+    >
       <View style={styles.content}>
-        <Text style={styles.title}>지난 리포트</Text>
+        <Text style={styles.title} accessibilityRole="header">지난 리포트</Text>
         <Text style={styles.subtitle}>아이가 이야기를 마칠 때마다 남긴 질문 기록이에요.</Text>
 
         {load.status === 'loading' && (
@@ -115,25 +109,11 @@ export function ReportHistoryPage() {
             </Pressable>
           ))}
       </View>
-    </SafeAreaView>
+    </AppNavShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: storybookTheme.color.background,
-  },
-  backLink: {
-    minHeight: 44,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  backLinkText: {
-    color: storybookTheme.color.onDarkMuted,
-    fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
-  },
   content: {
     flex: 1,
     width: '100%',
@@ -184,6 +164,7 @@ const styles = StyleSheet.create({
   },
   reportCardTitle: {
     fontSize: storybookTheme.type.md,
+    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: '600',
     color: storybookTheme.color.onCardTitle,
   },

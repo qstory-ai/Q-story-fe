@@ -14,10 +14,16 @@ ARG VITE_QSTORY_API_URL=/api/qstory
 ARG VITE_QSTORY_ANALYTICS_URL=/api/qstory/v1/beta-events
 ARG VITE_QSTORY_VOICE_RESEARCH_URL=/api/qstory/v1/voice-research
 ARG VITE_QSTORY_LANDING_URL=https://qstory.ai.kr
+# 둘 다 비어있으면 SocialLoginButtons가 조용히 아무것도 렌더링하지 않는다(google-identity.ts/
+# kakao-sdk.ts의 *Configured 플래그 참고) - 발급받기 전까지는 기본값 없이 비워둔다.
+ARG VITE_GOOGLE_OAUTH_CLIENT_ID=
+ARG VITE_KAKAO_JS_KEY=
 ENV VITE_QSTORY_API_URL=$VITE_QSTORY_API_URL \
     VITE_QSTORY_ANALYTICS_URL=$VITE_QSTORY_ANALYTICS_URL \
     VITE_QSTORY_VOICE_RESEARCH_URL=$VITE_QSTORY_VOICE_RESEARCH_URL \
-    VITE_QSTORY_LANDING_URL=$VITE_QSTORY_LANDING_URL
+    VITE_QSTORY_LANDING_URL=$VITE_QSTORY_LANDING_URL \
+    VITE_GOOGLE_OAUTH_CLIENT_ID=$VITE_GOOGLE_OAUTH_CLIENT_ID \
+    VITE_KAKAO_JS_KEY=$VITE_KAKAO_JS_KEY
 
 # Regenerate (not check) - the build context here doesn't include the sibling be/ repo that
 # scripts/generate-story-package.mjs optionally reads for Supabase audio URLs, so a plain

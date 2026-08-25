@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1.5,
     borderColor: storybookTheme.color.lightCardBorder,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -50,8 +50,8 @@ const styles = StyleSheet.create({
   },
   label: {
     flex: 1,
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.medium,
     color: storybookTheme.color.onLightBody,
   },
 });

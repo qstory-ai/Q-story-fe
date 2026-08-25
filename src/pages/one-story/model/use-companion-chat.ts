@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   playResponseAudio,
@@ -45,6 +45,24 @@ export function useCompanionChat(params: { storyId: string; sceneId: string | nu
     () => turns.some((turn) => turn.status === 'sending'),
     [turns],
   );
+
+  // 처음 대화창을 열었을 때만 캐릭터가 먼저 자기소개를 한다 - character는 훅 하나의
+  // lifetime(이야기 세션 하나) 동안 고정이라, introduced 플래그도 이 세션 안에서는
+  // 한 번만 켜지면 다시 닫혔다 열어도 재등장하지 않는다.
+  const [introduced, setIntroduced] = useState(false);
+  useEffect(() => {
+    if (!open || introduced) return;
+    setIntroduced(true);
+    setTurns((prev) => [
+      ...prev,
+      {
+        id: `intro-${conversationIdRef.current}`,
+        childText: '',
+        replyText: `안녕, 나는 ${character.displayName}이야! 이야기하다가 궁금한 게 생기면 나한테 물어봐.`,
+        status: 'done',
+      },
+    ]);
+  }, [open, introduced, character.displayName]);
 
   const send = useCallback(
     async (childText: string) => {

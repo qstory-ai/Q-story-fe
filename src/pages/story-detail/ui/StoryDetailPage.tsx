@@ -87,7 +87,7 @@ export function StoryDetailPage() {
           </View>
           <View style={styles.card}>
             {effectiveLoad.story.category ? <Pill label={effectiveLoad.story.category} /> : null}
-            <Text style={styles.title}>{effectiveLoad.story.title}</Text>
+            <Text style={styles.title} accessibilityRole="header">{effectiveLoad.story.title}</Text>
             {effectiveLoad.story.description ? (
               <Text style={styles.description}>{effectiveLoad.story.description}</Text>
             ) : null}
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: storybookTheme.type.md,
-    lineHeight: 23,
+    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: '300',
     color: storybookTheme.color.onCardBody,
   },

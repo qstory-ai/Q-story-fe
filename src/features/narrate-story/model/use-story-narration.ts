@@ -8,7 +8,11 @@ import {
   type NarrationRequest,
 } from './use-device-speech-narration';
 import { getLineNarration } from './line-narration';
-import { playResponseAudio } from '../../route-question/model/play-response-audio';
+import {
+  playResponseAudio,
+  pauseActivePlayback,
+  resumeActivePlayback,
+} from '../../route-question/model/play-response-audio';
 
 type FixedPlayback = {
   generation: number;
@@ -75,6 +79,7 @@ export function useStoryNarration(
   const [progress, setProgress] = useState(0);
   const [captionRequestId, setCaptionRequestId] = useState<string | null>(null);
   const [liveSpeaking, setLiveSpeaking] = useState(false);
+  const [livePaused, setLivePaused] = useState(false);
   const [liveProgress, setLiveProgress] = useState(0);
 
   const settleFixed = useCallback((error?: Error) => {
@@ -268,6 +273,7 @@ export function useStoryNarration(
       setActiveSource('live');
       setCaptionRequestId(request.id);
       setLiveProgress(0);
+      setLivePaused(false);
       try {
         return await playResponseAudio(
           audio,
@@ -277,6 +283,7 @@ export function useStoryNarration(
         );
       } finally {
         setLiveSpeaking(false);
+        setLivePaused(false);
         setLiveProgress(0);
         if (liveAbortRef.current === controller) {
           liveAbortRef.current = null;
@@ -352,8 +359,19 @@ export function useStoryNarration(
       setFixedPaused(true);
       return true;
     }
+    // 'live'(고정 오디오 없이 그 자리에서 만든 TTS)도 일시정지할 수 있어야 한다 - "OO에게
+    // 물어보기"를 누르면 재생 중인 낭독이 실제로 멎어야 하는데, 이 소스는 그동안 pause()가
+    // 아무것도 안 하고 false만 돌려줘서(모달은 그래도 열리니) 뒤에서 계속 재생되고 있었다.
+    // pauseActivePlayback()이 재생 자체(공유 <audio>/AudioContext)를 실제로 멈춘다.
+    if (activeSource === 'live' && liveSpeaking && !livePaused) {
+      const paused = pauseActivePlayback();
+      if (paused) {
+        setLivePaused(true);
+      }
+      return paused;
+    }
     return activeSource === 'device' ? pauseDevice() : false;
-  }, [activeSource, fixedPlaying, pauseDevice]);
+  }, [activeSource, fixedPlaying, liveSpeaking, livePaused, pauseDevice]);
 
   const resume = useCallback(async () => {
     if (activeSource === 'fixed' && fixedPaused) {
@@ -371,8 +389,15 @@ export function useStoryNarration(
         return false;
       }
     }
+    if (activeSource === 'live' && livePaused) {
+      const resumed = resumeActivePlayback();
+      if (resumed) {
+        setLivePaused(false);
+      }
+      return resumed;
+    }
     return activeSource === 'device' ? resumeDevice() : false;
-  }, [activeSource, armTimeout, fixedPaused, resumeDevice]);
+  }, [activeSource, armTimeout, fixedPaused, livePaused, resumeDevice]);
 
   const state = useMemo(
     () => ({
@@ -381,7 +406,7 @@ export function useStoryNarration(
           ? 'fixed-narration'
           : deviceState.activeRequestId,
       isSpeaking: fixedPlaying || liveSpeaking || deviceState.isSpeaking,
-      isPaused: fixedPaused || deviceState.isPaused,
+      isPaused: fixedPaused || livePaused || deviceState.isPaused,
       error: fixedError ?? deviceState.error,
       // 실시간 오픈라우터 낭독('live')도 실제 캐릭터 목소리라 기기 TTS보다는 고정 낭독에
       // 더 가깝다 - 바깥에는 'fixed'로 묶어 노출한다.
@@ -407,6 +432,7 @@ export function useStoryNarration(
       progress,
       liveProgress,
       liveSpeaking,
+      livePaused,
     ],
   );
 

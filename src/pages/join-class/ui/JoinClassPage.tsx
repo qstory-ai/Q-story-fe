@@ -56,12 +56,12 @@ export function JoinClassPage() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>학부모 가입</Text>
+        <Text style={styles.title} accessibilityRole="header">학부모 가입</Text>
         {inviteToken ? (
           <Text style={styles.body}>초대 링크로 반이 확인됐어요.</Text>
         ) : (
           <>
-            <Checkbox checked={hasClass} onChange={setHasClass} label="우리 아이 반이 있어요" />
+            <Checkbox checked={hasClass} onChange={setHasClass} label="기관/단체에서 코드를 받았어요" />
             {hasClass ? (
               <TextField
                 label="반 코드"
@@ -75,7 +75,7 @@ export function JoinClassPage() {
             )}
           </>
         )}
-        <TextField label="이메일" value={email} onChangeText={setEmail} keyboardType="email-address" />
+        <TextField label="아이디" value={email} onChangeText={setEmail} keyboardType="email-address" />
         <TextField label="비밀번호" value={password} onChangeText={setPassword} secureTextEntry />
         <TextField
           label="이름"
@@ -108,14 +108,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    fontSize: 22,
+    fontSize: storybookTheme.type.lg,
     fontWeight: '900',
     color: storybookTheme.color.onLightHeading,
     textAlign: 'center',
     marginBottom: 8,
   },
   body: {
-    fontSize: 14,
+    fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onLightBody,
   },
 });

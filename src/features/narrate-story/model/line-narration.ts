@@ -27,7 +27,9 @@ const narrationCache = new Map<
   Promise<GeneratedLineNarrationAudio | null>
 >();
 
-const DEFAULT_LINE_NARRATION_TIMEOUT_MS = 14_000;
+// 실측 결과 이 TTS 생성 호출은 7~9초가 흔하고 가끔 14초를 넘기기도 한다 - 예전
+// 14초 타임아웃은 그 느린 꼬리를 정상 응답 도중에 잘라 기기 TTS로 넘어가게 만들었다.
+const DEFAULT_LINE_NARRATION_TIMEOUT_MS = 30_000;
 
 function cacheKey(input: LineNarrationInput) {
   return [input.storyId, input.speakerId, input.text].join('|');

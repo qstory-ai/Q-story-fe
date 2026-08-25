@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Modal, ModalBody, TextField } from '@/shared/ui';
+import { Modal, ModalBody, TextField, storybookTheme } from '@/shared/ui';
 
 import {
   BEST_ASPECT_OPTIONS,
@@ -255,17 +255,17 @@ const styles = StyleSheet.create({
     borderTopColor: '#EEE3F5',
   },
   sectionTitle: {
-    fontSize: 15,
+    fontSize: storybookTheme.type.md,
     fontWeight: '700',
     color: '#28153F',
   },
   sectionBody: {
-    fontSize: 12,
+    fontSize: storybookTheme.type.xs,
     lineHeight: 18,
     color: '#706476',
   },
   submitError: {
-    fontSize: 12,
+    fontSize: storybookTheme.type.xs,
     color: '#E46647',
     textAlign: 'center',
   },

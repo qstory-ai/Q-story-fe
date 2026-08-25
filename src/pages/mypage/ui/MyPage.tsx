@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, Icon, Modal, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
-import { homePathFor, useAuth, type Role } from '@/entities/auth';
+import { ActionButton, AppNavShell, Icon, Modal, Pill, storybookTheme } from '@/shared/ui';
+import { dashboardNavItems, homePathFor, useAuth, type Role } from '@/entities/auth';
 
 const ROLE_LABEL: Record<Role, string> = {
   DIRECTOR: '기관 및 단체',
   CLASS_ACCOUNT: '반 계정',
   PARENT: '학부모',
+  TUTOR: '방문 선생님',
   STAFF: '콘텐츠 운영자',
 };
 
@@ -17,10 +18,10 @@ const HOME_LABEL: Record<Role, string> = {
   DIRECTOR: '반 관리로',
   CLASS_ACCOUNT: '우리 반으로',
   PARENT: '홈으로',
+  TUTOR: '학생 관리로',
   STAFF: '저작 화면으로',
 };
 
-/** 의도적으로 읽기 전용임 - 아직 프로필 업데이트 엔드포인트가 없어서, 필드가 수정 가능한 것처럼 꾸미는 대신 ClassDashboardPage/ParentHomePage와 같은 방식으로 계정을 보여준다. */
 export function MyPage() {
   const navigate = useNavigate();
   const { state, logout } = useAuth();
@@ -38,19 +39,12 @@ export function MyPage() {
   const { user } = state;
   const homePath = homePathFor(user);
   const initial = user.displayName.trim().charAt(0) || '?';
-  const homeLinkLabel = `← ${HOME_LABEL[user.role]}`;
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      <Pressable
-        onPress={() => navigate(homePath)}
-        accessibilityRole="link"
-        hitSlop={8}
-        style={styles.backLink}
-      >
-        <Text style={styles.backLinkText}>{homeLinkLabel}</Text>
-      </Pressable>
-
+    <AppNavShell
+      items={dashboardNavItems(user, navigate, 'mypage')}
+      onBack={() => navigate(homePath)}
+    >
       <View style={styles.content}>
         <View style={styles.card}>
           <View style={styles.avatar}>
@@ -87,6 +81,20 @@ export function MyPage() {
           </View>
         </View>
 
+        <View style={styles.menuCard}>
+          {MENU_ITEMS.map((item) => (
+            <Pressable
+              key={item.path}
+              onPress={() => navigate(item.path)}
+              accessibilityRole="link"
+              style={styles.menuRow}
+            >
+              <Text style={styles.menuLabel}>{item.label}</Text>
+              <Text style={styles.menuChevron}>→</Text>
+            </Pressable>
+          ))}
+        </View>
+
         <ActionButton label={`${HOME_LABEL[user.role]} 돌아가기`} onPress={() => navigate(homePath)} />
         <Pressable
           onPress={() => setConfirmingLogout(true)}
@@ -95,6 +103,14 @@ export function MyPage() {
         >
           <Icon name="logout" size={16} color={storybookTheme.color.onDarkMuted} />
           <Text style={styles.logoutText}>로그아웃</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => navigate('/mypage/delete-account')}
+          accessibilityRole="link"
+          hitSlop={8}
+          style={styles.deleteAccountLink}
+        >
+          <Text style={styles.deleteAccountText}>회원 탈퇴</Text>
         </Pressable>
       </View>
 
@@ -105,25 +121,19 @@ export function MyPage() {
         negativeAction={{ label: '취소', onPress: () => setConfirmingLogout(false) }}
         accessibilityLabel="로그아웃 확인"
       />
-    </SafeAreaView>
+    </AppNavShell>
   );
 }
 
+/** 마이페이지 하위 화면 메뉴 - 각 화면은 pages/mypage-*에 있다. */
+const MENU_ITEMS: { label: string; path: string }[] = [
+  { label: '내 정보 관리', path: '/mypage/profile' },
+  { label: '계정 관리', path: '/mypage/account' },
+  { label: '구독 관리', path: '/mypage/subscription' },
+  { label: '개선사항 요청', path: '/mypage/feedback' },
+];
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: storybookTheme.color.background,
-  },
-  backLink: {
-    minHeight: 44,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  backLinkText: {
-    color: storybookTheme.color.onDarkMuted,
-    fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
-  },
   content: {
     flex: 1,
     width: '100%',
@@ -160,6 +170,8 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: storybookTheme.type.lg,
+    lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
+    letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
     fontWeight: '600',
     color: storybookTheme.color.onCardTitle,
   },
@@ -202,5 +214,42 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     fontWeight: '500',
     color: storybookTheme.color.onDarkMuted,
+  },
+  menuCard: {
+    width: '100%',
+    borderRadius: storybookTheme.radius.card,
+    backgroundColor: storybookTheme.color.surfaceCard,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.surfaceCardBorder,
+    paddingHorizontal: 20,
+  },
+  menuRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 52,
+    borderTopWidth: 1,
+    borderTopColor: storybookTheme.color.pillBorder,
+  },
+  menuLabel: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: '600',
+    color: storybookTheme.color.onCardTitle,
+  },
+  menuChevron: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: '500',
+    color: storybookTheme.color.onCardMuted,
+  },
+  deleteAccountLink: {
+    alignSelf: 'center',
+    minHeight: 40,
+    justifyContent: 'center',
+  },
+  deleteAccountText: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: '500',
+    color: storybookTheme.color.onDarkMuted,
+    textDecorationLine: 'underline',
   },
 });

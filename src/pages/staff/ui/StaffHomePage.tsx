@@ -40,7 +40,7 @@ export function StaffHomePage() {
       <View style={styles.content}>
         <AccountLinkRow onMyPage={() => navigate('/mypage')} onLogout={logout} />
 
-        <Text style={styles.title}>콘텐츠 저작</Text>
+        <Text style={styles.title} accessibilityRole="header">콘텐츠 저작</Text>
         <Text style={styles.body}>편집할 이야기를 골라주세요.</Text>
 
         {load.status === 'loading' && (
@@ -83,12 +83,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: storybookTheme.type.lg,
+    fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onLightHeading,
   },
   body: {
-    fontSize: 14,
+    fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onLightBody,
     marginBottom: 8,
   },
@@ -97,24 +97,24 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   error: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.error,
   },
   storyCard: {
     gap: 4,
     padding: 16,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     borderWidth: 1,
     borderColor: storybookTheme.color.lightCardBorder,
   },
   storyCardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: storybookTheme.type.md,
+    fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onCardTitle,
   },
   storyCardMeta: {
-    fontSize: 12,
+    fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onLightMuted,
   },
 });

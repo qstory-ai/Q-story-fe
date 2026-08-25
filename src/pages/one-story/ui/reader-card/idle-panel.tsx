@@ -36,12 +36,13 @@ export function IdlePanel({ runtime }: { runtime: OneStoryRuntime }) {
             setChildNameInput(value.replace(/\s{2,}/g, ' ').slice(0, 10))
           }
           placeholder="예: 하윤"
-          placeholderTextColor="#998EA5"
+          placeholderTextColor="#6F5D85" // WCAG AA 4.5:1 (원래 #998EA5는 흰 배경에서 3.10:1로 미달)
           maxLength={10}
           autoCorrect={false}
           returnKeyType="done"
           style={styles.nameInput}
           onSubmitEditing={startStory}
+          accessibilityLabel="이야기에서 부를 이름 (선택)"
         />
         <Text style={styles.nameHint}>
           이름은 세 번의 질문 순간에만 불러요. 비워두면 ‘친구’라고 불러요.

@@ -1,5 +1,6 @@
 export * from './account-link-row';
 export * from './action-button';
+export * from './app-nav-shell';
 export * from './safe-area-view';
 export * from './text-field';
 export * from './theme';

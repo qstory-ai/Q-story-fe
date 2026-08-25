@@ -59,12 +59,12 @@ const styles = StyleSheet.create({
     height: 36,
   },
   brand: {
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 1.8,
   },
   brandCompact: {
-    fontSize: 13,
+    fontSize: storybookTheme.type.xs,
     letterSpacing: 1.6,
   },
   brandQ: {

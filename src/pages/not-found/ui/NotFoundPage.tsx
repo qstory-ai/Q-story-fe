@@ -10,7 +10,7 @@ export function NotFoundPage() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>이 페이지를 찾을 수 없어요</Text>
+        <Text style={styles.title} accessibilityRole="header">이 페이지를 찾을 수 없어요</Text>
         <Text style={styles.body}>주소가 바뀌었거나 잘못 입력된 것 같아요.</Text>
         <ActionButton label="처음 화면으로" onPress={() => navigate('/')} />
       </View>
@@ -35,6 +35,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: storybookTheme.type.lg,
+    lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
+    letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
     fontWeight: '600',
     color: storybookTheme.color.onDark,
     textAlign: 'center',

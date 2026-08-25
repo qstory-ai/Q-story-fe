@@ -7,6 +7,9 @@ import type { UseCompanionChat } from '../model/use-companion-chat';
 import { styles } from './styles';
 
 const TOP_ICON_COLOR = storybookTheme.color.gold;
+// topControlButton은 시각적으로 38px로 촘촘하게 배치돼 있어(기존 gap 6~9px 유지),
+// 터치 영역만 WCAG 44px 권장치에 가깝게 넓힌다 - 인접 버튼과는 겹치지 않는 선에서.
+const TOP_CONTROL_HIT_SLOP = { top: 4, bottom: 4, left: 3, right: 3 };
 
 export function TopBar({
   runtime,
@@ -37,6 +40,21 @@ export function TopBar({
     closeParentReport,
   } = runtime;
 
+  // 비디오 플레이어의 스크러버처럼, 장면 번호가 딱딱 넘어가는 대신 지금 읽고 있는
+  // 문장의 재생 진행률만큼 매끄럽게 채워지도록 (장면 인덱스 + 그 장면 안 진행률)을 전체
+  // 장면 수로 나눈다.
+  const overallProgress =
+    runtimeState.status === 'complete'
+      ? 1
+      : Math.max(
+          0,
+          Math.min(
+            1,
+            (displayedSceneIndex + narrationState.progress) /
+              Math.max(1, totalScenes),
+          ),
+        );
+
   return (
     <View
       style={[
@@ -45,6 +63,7 @@ export function TopBar({
         isParentReport && styles.reportTopBar,
       ]}
     >
+      <View style={styles.topBarRow}>
       <View
         style={[
           styles.brandLockup,
@@ -97,6 +116,7 @@ export function TopBar({
             accessibilityRole="button"
             accessibilityLabel="이야기 홈 메뉴"
             style={styles.topControlButton}
+            hitSlop={TOP_CONTROL_HIT_SLOP}
             onPress={openHomeMenu}
           >
             <Icon name="home" size={16} color={TOP_ICON_COLOR} />
@@ -108,6 +128,7 @@ export function TopBar({
             accessibilityRole="button"
             accessibilityLabel={`${chat.character.displayName}에게 물어보기`}
             style={styles.topControlButton}
+            hitSlop={TOP_CONTROL_HIT_SLOP}
             onPress={() => {
               // 스토리 내레이션이 계속되는 동안 캐릭터와 대화하면 아이의 주의를 두고
               // 경쟁하게 되므로 - 먼저 일시정지한다(단, 실제로 재생 중일 때만; 이미
@@ -147,6 +168,7 @@ export function TopBar({
                 narrationState.isPaused ? '이어 듣기' : '일시정지'
               }
               style={[styles.topControlButton, styles.topControlButtonPrimary]}
+              hitSlop={TOP_CONTROL_HIT_SLOP}
               onPress={toggleNarration}
             >
               <Icon
@@ -168,6 +190,7 @@ export function TopBar({
                   : '현재 문장 다시 듣기'
               }
               style={styles.topControlButton}
+              hitSlop={TOP_CONTROL_HIT_SLOP}
               onPress={replayCurrent}
             >
               <Icon name="replay" size={15} color={TOP_ICON_COLOR} />
@@ -181,6 +204,7 @@ export function TopBar({
               accessibilityRole="button"
               accessibilityLabel="다음 장면"
               style={styles.topControlButton}
+              hitSlop={TOP_CONTROL_HIT_SLOP}
               onPress={skipCurrentScene}
             >
               {isWide && <Text style={styles.topControlText}>다음 장면</Text>}
@@ -190,6 +214,7 @@ export function TopBar({
               accessibilityRole="button"
               accessibilityLabel={captionVisible ? '자막 숨기기' : '자막 보기'}
               style={styles.topControlButton}
+              hitSlop={TOP_CONTROL_HIT_SLOP}
               onPress={() => setCaptionVisible((visible) => !visible)}
             >
               <Icon
@@ -223,6 +248,26 @@ export function TopBar({
           </View>
         ) : null}
       </View>
+      </View>
+      {runtimeState.status !== 'idle' && !isParentReport && (
+        <View
+          style={styles.progressTrack}
+          accessibilityRole="progressbar"
+          accessibilityValue={{ min: 0, max: 100, now: Math.round(overallProgress * 100) }}
+        >
+          <View
+            style={[
+              styles.progressFill,
+              {
+                width: `${overallProgress * 100}%`,
+                transitionProperty: 'width',
+                transitionDuration: '280ms',
+                transitionTimingFunction: 'linear',
+              } as never,
+            ]}
+          />
+        </View>
+      )}
     </View>
   );
 }

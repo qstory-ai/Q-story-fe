@@ -15,6 +15,8 @@ type AuthContextValue = {
   setSession: (token: string, user: UserSummary) => void;
   logout: () => void;
   refresh: () => Promise<void>;
+  /** 프로필 저장(updateProfile) 성공 직후 호출한다 - refresh()의 전체 왕복 없이 user만 교체한다. */
+  updateUser: (user: UserSummary) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -59,7 +61,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState(await resolveInitialAuthState());
   }, []);
 
-  const value = useMemo(() => ({ state, setSession, logout, refresh }), [state, setSession, logout, refresh]);
+  const updateUser = useCallback((user: UserSummary) => {
+    setState((prev) => (prev.status === 'authenticated' ? { ...prev, user } : prev));
+  }, []);
+
+  const value = useMemo(
+    () => ({ state, setSession, logout, refresh, updateUser }),
+    [state, setSession, logout, refresh, updateUser],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

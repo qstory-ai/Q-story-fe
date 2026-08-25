@@ -76,7 +76,7 @@ import {
 } from '../lib/runtime-view';
 import { preloadImages } from '../lib/preload-images';
 
-export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
+export function useOneStoryRuntime(storyPackage: StoryRuntimePackage, tutorStudentId?: string) {
   const storyManifest = storyPackage.manifest;
   const storyPresentation = storyPackage.presentation;
   const TOTAL_SCENES = storyPresentation.scenes.length;
@@ -594,11 +594,13 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
           storyId: storyPackage.storyId,
           durationSeconds,
           outcomes: questionOutcomes,
+          tutorStudentId,
         }).catch(() => {});
       }
     }
   }, [
     authState,
+    tutorStudentId,
     parentReport.changedSceneCount,
     questionOutcomes,
     runtimeState.status,

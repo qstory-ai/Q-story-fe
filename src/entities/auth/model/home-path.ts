@@ -7,11 +7,13 @@ import type { UserSummary } from '../api/auth-api';
 export function homePathFor(user: UserSummary): string {
   switch (user.role) {
     case 'DIRECTOR':
-      return '/director';
+      return '/organization';
     case 'CLASS_ACCOUNT':
       return '/class';
     case 'PARENT':
       return '/parent';
+    case 'TUTOR':
+      return '/tutor';
     case 'STAFF':
       return '/staff';
     default:

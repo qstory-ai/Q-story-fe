@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { SectionHeader, StoryCard, storybookTheme } from '@/shared/ui';
@@ -13,6 +13,80 @@ import {
 } from '@/entities/story';
 
 type LoadState = { status: 'loading' } | { status: 'ready'; stories: StoryCatalogEntry[] } | { status: 'error' };
+
+/** 한 페이지에 보여줄 카드 수 - 화면 너비와 무관하게 고정(그리드 열 수는 컬럼 계산이 알아서 접는다). */
+const PAGE_SIZE = 3;
+
+/**
+ * 페이지가 많아지면 1 ... 현재-1 현재 현재+1 ... 마지막 형태로 줄인다 - 카탈로그가 지금은
+ * 작지만(이야기 1편), 나중에 수십 편으로 늘어도 숫자 버튼이 한 줄을 넘기지 않게 해 둔다.
+ */
+function pageWindow(current: number, total: number): (number | 'ellipsis')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, index) => index + 1);
+  const pages: (number | 'ellipsis')[] = [1];
+  if (current > 3) pages.push('ellipsis');
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let page = start; page <= end; page += 1) pages.push(page);
+  if (current < total - 2) pages.push('ellipsis');
+  pages.push(total);
+  return pages;
+}
+
+function PaginationBar({
+  page,
+  totalPages,
+  onChange,
+}: {
+  page: number;
+  totalPages: number;
+  onChange: (page: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+
+  return (
+    <View style={styles.pagination} accessibilityRole="none">
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="이전 페이지"
+        disabled={page === 1}
+        onPress={() => onChange(page - 1)}
+        style={[styles.pageArrow, page === 1 && styles.pageArrowDisabled]}
+      >
+        <Text style={styles.pageArrowText}>‹</Text>
+      </Pressable>
+      {pageWindow(page, totalPages).map((entry, index) =>
+        entry === 'ellipsis' ? (
+          <Text key={`ellipsis-${index}`} style={styles.pageEllipsis}>
+            …
+          </Text>
+        ) : (
+          <Pressable
+            key={entry}
+            accessibilityRole="button"
+            accessibilityLabel={`${entry}페이지`}
+            accessibilityState={{ selected: entry === page }}
+            onPress={() => onChange(entry)}
+            style={[styles.pageNumber, entry === page && styles.pageNumberActive]}
+          >
+            <Text style={[styles.pageNumberText, entry === page && styles.pageNumberTextActive]}>
+              {entry}
+            </Text>
+          </Pressable>
+        ),
+      )}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="다음 페이지"
+        disabled={page === totalPages}
+        onPress={() => onChange(page + 1)}
+        style={[styles.pageArrow, page === totalPages && styles.pageArrowDisabled]}
+      >
+        <Text style={styles.pageArrowText}>›</Text>
+      </Pressable>
+    </View>
+  );
+}
 
 function subtitleFor(auth: AuthState): string {
   if (auth.status === 'authenticated' && auth.user.grantsAccess) {
@@ -37,6 +111,7 @@ export function StoryLibraryGrid() {
   const { width } = useWindowDimensions();
   const columns = width >= 860 ? 3 : width >= 520 ? 2 : 1;
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,11 +151,16 @@ export function StoryLibraryGrid() {
     navigate(auth.status === 'authenticated' ? '/mypage' : '/login');
   };
 
+  const totalPages = Math.max(1, Math.ceil(load.stories.length / PAGE_SIZE));
+  // 카탈로그 길이가 줄어들어(필터링 등) 지금 페이지가 범위를 벗어나면 마지막 페이지로 붙인다.
+  const currentPage = Math.min(page, totalPages);
+  const pageStories = load.stories.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   return (
     <View style={styles.section}>
       <SectionHeader title="우리 서재" subtitle={subtitleFor(auth)} />
       <View style={styles.grid}>
-        {load.stories.map((story) => {
+        {pageStories.map((story) => {
           const unlock = unlockStateFor(story, auth);
           const locked = unlock === 'locked';
           return (
@@ -110,6 +190,7 @@ export function StoryLibraryGrid() {
           );
         })}
       </View>
+      <PaginationBar page={currentPage} totalPages={totalPages} onChange={setPage} />
     </View>
   );
 }
@@ -132,5 +213,59 @@ const styles = StyleSheet.create({
   },
   cardSlot: {
     padding: 8,
+  },
+  pagination: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  pageArrow: {
+    minWidth: 40,
+    minHeight: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.panelOnDarkBorder,
+  },
+  pageArrowDisabled: {
+    opacity: 0.35,
+  },
+  pageArrowText: {
+    color: storybookTheme.color.onDark,
+    fontSize: storybookTheme.type.md,
+    fontWeight: storybookTheme.type.weight.bold,
+    lineHeight: 20,
+  },
+  pageNumber: {
+    minWidth: 40,
+    minHeight: 40,
+    borderRadius: 20,
+    paddingHorizontal: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  pageNumberActive: {
+    backgroundColor: storybookTheme.color.gold,
+  },
+  pageNumberText: {
+    color: storybookTheme.color.onDarkMuted,
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
+  },
+  pageNumberTextActive: {
+    color: storybookTheme.color.primary,
+  },
+  pageEllipsis: {
+    color: storybookTheme.color.onDarkMuted,
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
+    paddingHorizontal: 2,
   },
 });

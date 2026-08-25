@@ -12,6 +12,8 @@ export function homePathFor(user: UserSummary): string {
       return '/class';
     case 'PARENT':
       return '/parent';
+    case 'STAFF':
+      return '/staff';
     default:
       return '/';
   }

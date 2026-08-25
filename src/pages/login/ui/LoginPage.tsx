@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, SafeAreaView, TextField } from '@/shared/ui';
+import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
 import { AuthApiError, homePathFor, login, useAuth } from '@/entities/auth';
 
 /** Role-agnostic - loginId is an email for DIRECTOR/PARENT or a director-issued handle for CLASS_ACCOUNT. */
@@ -68,7 +68,7 @@ export function LoginPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F1FB',
+    backgroundColor: storybookTheme.color.shellBackground,
   },
   content: {
     flex: 1,
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '900',
-    color: '#43225F',
+    color: storybookTheme.color.onLightHeading,
     textAlign: 'center',
     marginBottom: 8,
   },
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   link: {
-    color: '#7A4FA0',
+    color: storybookTheme.color.linkOnLight,
     fontSize: 13,
     fontWeight: '700',
     textDecorationLine: 'none',

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, SafeAreaView, TextField } from '@/shared/ui';
+import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
 import { useAuth } from '@/entities/auth';
 import { editSegment, listSegments, StoryAdminApiError, type SegmentView } from '@/entities/story-admin';
 
@@ -145,7 +145,7 @@ export function StaffScenePage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F1FB',
+    backgroundColor: storybookTheme.color.shellBackground,
   },
   backLink: {
     minHeight: 44,
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   backLinkText: {
-    color: '#9C87AC',
+    color: storybookTheme.color.onLightMuted,
     fontSize: 13,
     fontWeight: '500',
   },
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#43225F',
+    color: storybookTheme.color.onLightHeading,
   },
   centered: {
     alignItems: 'center',
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
   error: {
     fontSize: 13,
-    color: '#E46647',
+    color: storybookTheme.color.error,
   },
   card: {
     gap: 6,
@@ -184,23 +184,23 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E0D3EA',
+    borderColor: storybookTheme.color.lightCardBorder,
   },
   cardStale: {
-    borderColor: '#F0C3AE',
-    backgroundColor: '#FBF3EE',
+    borderColor: storybookTheme.status.warning.border,
+    backgroundColor: storybookTheme.status.warning.background,
   },
   cardMeta: {
     fontSize: 11,
-    color: '#8B7A99',
+    color: storybookTheme.color.onLightMuted,
   },
   utteranceText: {
     fontSize: 14,
-    color: '#2E1B3D',
+    color: storybookTheme.color.onCardTitle,
   },
   payloadDump: {
     fontSize: 11,
-    color: '#8B7A99',
+    color: storybookTheme.color.onLightMuted,
   },
   rowActions: {
     flexDirection: 'row',
@@ -213,6 +213,6 @@ const styles = StyleSheet.create({
   link: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#7A4FA0',
+    color: storybookTheme.color.linkOnLight,
   },
 });

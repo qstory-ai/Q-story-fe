@@ -12,6 +12,8 @@ export type StoryCatalogEntry = {
   coverImageUrl: string | null;
   description: string | null;
   category: string | null;
+  /** 이 이야기가 entitlement로 제한되는지 - false면 (HG처럼) 누구나, 익명이라도 바로 볼 수 있다. */
+  requiresEntitlement: boolean;
 };
 
 type RequestOptions = {

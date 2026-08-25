@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AccountLinkRow, SafeAreaView } from '@/shared/ui';
+import { AccountLinkRow, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { useAuth } from '@/entities/auth';
 import { listStories, StoryApiError, type StoryCatalogEntry } from '@/entities/story';
 
@@ -71,7 +71,7 @@ export function StaffHomePage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F1FB',
+    backgroundColor: storybookTheme.color.shellBackground,
   },
   content: {
     flexGrow: 1,
@@ -85,11 +85,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#43225F',
+    color: storybookTheme.color.onLightHeading,
   },
   body: {
     fontSize: 14,
-    color: '#6B5478',
+    color: storybookTheme.color.onLightBody,
     marginBottom: 8,
   },
   centered: {
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   },
   error: {
     fontSize: 13,
-    color: '#E46647',
+    color: storybookTheme.color.error,
   },
   storyCard: {
     gap: 4,
@@ -106,15 +106,15 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E0D3EA',
+    borderColor: storybookTheme.color.lightCardBorder,
   },
   storyCardTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#2E1B3D',
+    color: storybookTheme.color.onCardTitle,
   },
   storyCardMeta: {
     fontSize: 12,
-    color: '#8B7A99',
+    color: storybookTheme.color.onLightMuted,
   },
 });

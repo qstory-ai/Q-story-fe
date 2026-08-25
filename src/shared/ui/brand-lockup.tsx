@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.logoFrame,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 249, 237, 0.96)',
+    backgroundColor: storybookTheme.color.brandFrameBackground,
     borderWidth: 1,
     borderColor: storybookTheme.color.surfaceCardBorder,
   },

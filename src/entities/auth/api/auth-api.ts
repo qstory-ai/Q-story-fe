@@ -2,7 +2,7 @@ import { readEnv } from '@/shared/config';
 
 const apiBaseUrl = readEnv('VITE_QSTORY_API_URL');
 
-export type Role = 'DIRECTOR' | 'CLASS_ACCOUNT' | 'PARENT';
+export type Role = 'DIRECTOR' | 'CLASS_ACCOUNT' | 'PARENT' | 'STAFF';
 
 export type UserSummary = {
   id: string;
@@ -11,6 +11,10 @@ export type UserSummary = {
   displayName: string;
   organizationId: string | null;
   classId: string | null;
+  /** 학부모 개인 구독 상태(NONE/TRIALING/ACTIVE/EXPIRED) - DIRECTOR/CLASS_ACCOUNT는 항상 NONE. */
+  subscriptionStatus: 'NONE' | 'TRIALING' | 'ACTIVE' | 'EXPIRED';
+  /** 백엔드가 이미 기관 구독과 개인 구독을 OR로 합쳐 계산해 준 값 - 프론트에서 다시 판단하지 않는다. */
+  grantsAccess: boolean;
 };
 
 export type AuthResponse = {
@@ -101,11 +105,33 @@ export function signupDirector(
   return request('/v1/auth/signup/director', { method: 'POST', body: JSON.stringify(input) }, options);
 }
 
+export function signupOrganizationOwner(
+  input: { email: string; password: string; displayName: string },
+  options?: RequestOptions,
+): Promise<AuthResponse> {
+  return request('/v1/auth/signup/organization', { method: 'POST', body: JSON.stringify(input) }, options);
+}
+
 export function login(
   input: { loginId: string; password: string },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/auth/login', { method: 'POST', body: JSON.stringify(input) }, options);
+}
+
+/** loginId가 계정과 일치하는지 여부와 무관하게 항상 resolve된다 - 백엔드가 어느 쪽이든 동일하게 응답하기 때문이다. */
+export function requestPasswordReset(
+  input: { loginId: string },
+  options?: RequestOptions,
+): Promise<void> {
+  return request('/v1/auth/password-reset/request', { method: 'POST', body: JSON.stringify(input) }, options);
+}
+
+export function confirmPasswordReset(
+  input: { token: string; newPassword: string },
+  options?: RequestOptions,
+): Promise<AuthResponse> {
+  return request('/v1/auth/password-reset/confirm', { method: 'POST', body: JSON.stringify(input) }, options);
 }
 
 export function fetchCurrentUser(token: string, options?: RequestOptions): Promise<UserSummary> {

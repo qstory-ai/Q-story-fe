@@ -4,11 +4,22 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { HomePage } from '@/pages/home';
 import { OneStoryPage } from '@/pages/one-story';
+import { LaunchNotificationGate } from '@/features/launch-notification-gate';
 import { LoginPage } from '@/pages/login';
 import { DirectorSignupPage } from '@/pages/director-signup';
 import { JoinClassPage } from '@/pages/join-class';
+import { SignupPage } from '@/pages/signup';
+import { OrganizationSignupPage } from '@/pages/organization-signup';
 import { ClassDashboardPage } from '@/pages/class-dashboard';
 import { ParentHomePage } from '@/pages/parent-home';
+import { MyPage } from '@/pages/mypage';
+import { NotFoundPage } from '@/pages/not-found';
+import { ResetPasswordPage } from '@/pages/reset-password';
+import { ReportHistoryPage, ReportHistoryDetailPage } from '@/pages/report-history';
+import { StaffHomePage, StaffStoryPage, StaffScenePage } from '@/pages/staff';
+import { LandingPage } from '@/pages/landing';
+import { StoryDetailPage } from '@/pages/story-detail';
+import { StoryPlayerRoute } from '@/pages/story-player';
 import {
   describeStoryLoadFailure,
   getDefaultBetaStory,
@@ -52,7 +63,11 @@ function DemoStoryRoute() {
   }, []);
 
   if (state.status === 'ready') {
-    return <OneStoryPage storyPackage={state.storyPackage} />;
+    return (
+      <LaunchNotificationGate>
+        <OneStoryPage storyPackage={state.storyPackage} />
+      </LaunchNotificationGate>
+    );
   }
 
   return (
@@ -87,12 +102,25 @@ export function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/landing" element={<LandingPage />} />
           <Route path="/demo" element={<DemoStoryRoute />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/director" element={<DirectorSignupPage />} />
           <Route path="/join" element={<JoinClassPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/organization" element={<OrganizationSignupPage />} />
           <Route path="/class" element={<ClassDashboardPage />} />
           <Route path="/parent" element={<ParentHomePage />} />
+          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/reports" element={<ReportHistoryPage />} />
+          <Route path="/reports/:completionId" element={<ReportHistoryDetailPage />} />
+          <Route path="/staff" element={<StaffHomePage />} />
+          <Route path="/staff/:storyId" element={<StaffStoryPage />} />
+          <Route path="/staff/:storyId/scenes/:sceneId" element={<StaffScenePage />} />
+          <Route path="/stories/:storyId" element={<StoryDetailPage />} />
+          <Route path="/stories/:storyId/play" element={<StoryPlayerRoute />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

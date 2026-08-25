@@ -156,8 +156,8 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     alignSelf: 'center',
-    color: '#6E428B',
-    backgroundColor: '#F0E7F7',
+    color: storybookTheme.color.primary,
+    backgroundColor: storybookTheme.status.info.background,
     borderRadius: storybookTheme.radius.pill,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   title: {
-    color: '#28153F',
+    color: storybookTheme.color.onCardTitle,
     fontSize: 25,
     lineHeight: 34,
     fontWeight: '700',
@@ -177,13 +177,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   linkButtonText: {
-    color: '#6A4B7C',
+    color: storybookTheme.color.linkOnLight,
     fontSize: 12,
     fontWeight: '700',
     textDecorationLine: 'underline',
   },
   body: {
-    color: '#706476',
+    color: storybookTheme.color.onCardBody,
     fontSize: 13,
     lineHeight: 21,
     textAlign: 'center',

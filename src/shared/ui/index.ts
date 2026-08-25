@@ -9,3 +9,4 @@ export * from './pill';
 export * from './section-header';
 export * from './story-card';
 export * from './modal';
+export * from './status-banner';

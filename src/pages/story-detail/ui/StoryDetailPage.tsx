@@ -48,12 +48,12 @@ export function StoryDetailPage() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <Pressable
-        onPress={() => navigate('/home')}
+        onPress={() => navigate('/')}
         accessibilityRole="link"
         hitSlop={8}
         style={styles.backLink}
       >
-        <Text style={styles.backLinkText}>← 서재로</Text>
+        <Text style={styles.backLinkText}>← 처음으로</Text>
       </Pressable>
 
       {effectiveLoad.status === 'loading' && (

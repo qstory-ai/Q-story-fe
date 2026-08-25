@@ -65,7 +65,7 @@ export function StoryPlayerRoute() {
         </Text>
         {effectiveState.status === 'error' && <ActionButton variant="primary" label="다시 시도" onPress={retry} />}
         {/* 로딩 중에도 항상 접근 가능해야 한다 - 멈춰버린 fetch가 사용자를 이 화면에 가둬서는 안 된다. */}
-        <ActionButton variant="secondary" label="서재로 돌아가기" onPress={() => navigate('/home')} />
+        <ActionButton variant="secondary" label="처음으로 돌아가기" onPress={() => navigate('/')} />
       </View>
     </SafeAreaView>
   );

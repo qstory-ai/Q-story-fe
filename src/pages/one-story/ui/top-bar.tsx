@@ -1,12 +1,12 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
-import { Icon } from '@/shared/ui';
+import { Icon, storybookTheme } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../model';
 import type { UseCompanionChat } from '../model/use-companion-chat';
 import { styles } from './styles';
 
-const TOP_ICON_COLOR = '#F6C64D';
+const TOP_ICON_COLOR = storybookTheme.color.gold;
 
 export function TopBar({
   runtime,

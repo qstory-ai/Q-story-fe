@@ -2,8 +2,8 @@ import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { ActionButton, SafeAreaView, TextField } from '@/shared/ui';
-import { AuthApiError, joinClass, signupOrganizationOwner, useAuth } from '@/entities/auth';
+import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
+import { AuthApiError, homePathFor, joinClass, signupOrganizationOwner, useAuth } from '@/entities/auth';
 
 type SignupRole = 'DIRECTOR' | 'PARENT';
 
@@ -43,7 +43,7 @@ export function SignupPage() {
       if (role === 'DIRECTOR') {
         const response = await signupOrganizationOwner({ email: email.trim(), password, displayName: displayName.trim() });
         setSession(response.token, response.user);
-        navigate('/organization', { replace: true });
+        navigate(homePathFor(response.user), { replace: true });
       } else {
         const response = await joinClass({
           ...(inviteToken ? { inviteToken } : { classCode: classCode.trim().toUpperCase() }),
@@ -52,7 +52,7 @@ export function SignupPage() {
           displayName: displayName.trim(),
         });
         setSession(response.token, response.user);
-        navigate('/home', { replace: true });
+        navigate(homePathFor(response.user), { replace: true });
       }
     } catch (failure) {
       setError(failure instanceof AuthApiError ? failure.message : '가입하지 못했어요. 다시 시도해 주세요.');
@@ -135,7 +135,7 @@ export function SignupPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F1FB',
+    backgroundColor: storybookTheme.color.shellBackground,
   },
   content: {
     flexGrow: 1,
@@ -150,13 +150,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#43225F',
+    color: storybookTheme.color.onLightHeading,
     textAlign: 'center',
     marginBottom: 8,
   },
   body: {
     fontSize: 14,
-    color: '#6B5478',
+    color: storybookTheme.color.onLightBody,
   },
   roleRow: {
     flexDirection: 'row',
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 50,
     borderRadius: 15,
-    backgroundColor: '#F0E8F5',
+    backgroundColor: storybookTheme.color.pillBackground,
     borderWidth: 1,
     borderColor: 'transparent',
     alignItems: 'center',
@@ -174,8 +174,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   roleButtonActive: {
-    backgroundColor: '#43225F',
-    borderColor: '#43225F',
+    backgroundColor: storybookTheme.color.primary,
+    borderColor: storybookTheme.color.primary,
   },
   roleButtonDisabled: {
     opacity: 0.56,
@@ -183,9 +183,9 @@ const styles = StyleSheet.create({
   roleButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#503267',
+    color: storybookTheme.color.onLightHeading,
   },
   roleButtonTextActive: {
-    color: '#FFFFFF',
+    color: storybookTheme.color.onDark,
   },
 });

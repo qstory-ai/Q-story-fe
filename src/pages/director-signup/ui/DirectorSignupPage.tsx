@@ -2,33 +2,24 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AccountLinkRow, ActionButton, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
 import {
   AuthApiError,
   createClass,
   createClassInvite,
   createOrganization,
-  fetchEntitlement,
   listClasses,
+  signupDirector,
   useAuth,
   type ClassResponse,
-  type EntitlementResponse,
 } from '@/entities/auth';
 
-const SUBSCRIPTION_LABEL: Record<EntitlementResponse['subscriptionStatus'], string> = {
-  NONE: '구독 전',
-  TRIALING: '체험판 이용 중',
-  ACTIVE: '구독 중',
-  EXPIRED: '구독이 만료됐어요',
-};
-
 /**
- * 인증 상태에 따라 구동되는 두 단계(organization -> classes)임 - 두 개의 라우트가 아닌 이유는,
- * 원장은 항상 이 고정된 순서로 진행하며 한 단계를 지나면 이전 단계로 돌아갈 필요가 없기 때문.
- * 가입 자체는 이제 통합된 /signup 화면에 있으며, 여기서 인증되지 않은 방문자는 그곳으로
- * 리다이렉트된다.
+ * One page, three steps driven by auth state - not three routes, since a director always
+ * progresses signup -> create organization -> manage classes in that fixed order and never
+ * needs to revisit an earlier step once past it.
  */
-export function OrganizationSignupPage() {
+export function DirectorSignupPage() {
   const { state } = useAuth();
 
   if (state.status === 'loading') {
@@ -48,22 +39,56 @@ export function OrganizationSignupPage() {
     );
   }
   if (state.status === 'authenticated') {
-    return <Redirect to="/" />;
+    return <WrongRoleNotice />;
   }
-  return <Redirect to="/signup?role=organization" />;
+  return <SignupStep />;
 }
 
-function Redirect({ to }: { to: string }) {
-  const navigate = useNavigate();
-  useEffect(() => {
-    navigate(to, { replace: true });
-  }, [navigate, to]);
-  return null;
+function SignupStep() {
+  const { setSession } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const onSubmit = useCallback(async () => {
+    setError(null);
+    setSubmitting(true);
+    try {
+      const response = await signupDirector({ email: email.trim(), password, displayName: displayName.trim() });
+      setSession(response.token, response.user);
+    } catch (failure) {
+      setError(failure instanceof AuthApiError ? failure.message : '가입하지 못했어요. 다시 시도해 주세요.');
+    } finally {
+      setSubmitting(false);
+    }
+  }, [email, password, displayName, setSession]);
+
+  return (
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>유치원 원장 가입</Text>
+        <TextField label="이메일" value={email} onChangeText={setEmail} keyboardType="email-address" />
+        <TextField label="비밀번호" value={password} onChangeText={setPassword} secureTextEntry />
+        <TextField
+          label="이름"
+          value={displayName}
+          onChangeText={setDisplayName}
+          errorText={error ?? undefined}
+        />
+        <ActionButton
+          label={submitting ? '가입 중…' : '가입하기'}
+          onPress={onSubmit}
+          disabled={submitting || !email.trim() || !password || !displayName.trim()}
+        />
+      </View>
+    </SafeAreaView>
+  );
 }
 
 function CreateOrganizationStep({ token }: { token: string }) {
-  const navigate = useNavigate();
-  const { setSession, logout } = useAuth();
+  const { setSession } = useAuth();
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -75,7 +100,7 @@ function CreateOrganizationStep({ token }: { token: string }) {
       const response = await createOrganization(token, { name: name.trim() });
       setSession(response.token, response.user);
     } catch (failure) {
-      setError(failure instanceof AuthApiError ? failure.message : '기관 및 단체를 등록하지 못했어요. 다시 시도해 주세요.');
+      setError(failure instanceof AuthApiError ? failure.message : '유치원을 등록하지 못했어요. 다시 시도해 주세요.');
     } finally {
       setSubmitting(false);
     }
@@ -84,15 +109,13 @@ function CreateOrganizationStep({ token }: { token: string }) {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.content}>
-        <AccountLinkRow onMyPage={() => navigate('/mypage')} onLogout={logout} />
-        <Text style={styles.title}>기관 및 단체 등록</Text>
-        <Text style={styles.body}>거의 다 됐어요. 기관 및 단체 이름을 알려주세요.</Text>
-        <TextField label="기관 및 단체 이름" value={name} onChangeText={setName} errorText={error ?? undefined} />
+        <Text style={styles.title}>유치원 등록</Text>
+        <Text style={styles.body}>거의 다 됐어요. 유치원 이름을 알려주세요.</Text>
+        <TextField label="유치원 이름" value={name} onChangeText={setName} errorText={error ?? undefined} />
         <ActionButton
-          label="등록하기"
-          loading={submitting}
+          label={submitting ? '등록 중…' : '등록하기'}
           onPress={onSubmit}
-          disabled={!name.trim()}
+          disabled={submitting || !name.trim()}
         />
       </View>
     </SafeAreaView>
@@ -100,8 +123,6 @@ function CreateOrganizationStep({ token }: { token: string }) {
 }
 
 function ClassManagementStep({ token, organizationId }: { token: string; organizationId: string }) {
-  const navigate = useNavigate();
-  const { logout } = useAuth();
   const [classes, setClasses] = useState<ClassResponse[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [name, setName] = useState('');
@@ -109,7 +130,6 @@ function ClassManagementStep({ token, organizationId }: { token: string; organiz
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [inviteByClassId, setInviteByClassId] = useState<Record<string, string>>({});
-  const [entitlement, setEntitlement] = useState<EntitlementResponse | null>(null);
 
   const reload = useCallback(() => {
     listClasses(token, organizationId)
@@ -120,20 +140,6 @@ function ClassManagementStep({ token, organizationId }: { token: string; organiz
   }, [token, organizationId]);
 
   useEffect(reload, [reload]);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchEntitlement(token, organizationId)
-      .then((response) => {
-        if (!cancelled) setEntitlement(response);
-      })
-      .catch(() => {
-        // 구독 상태는 부가 정보라 조회 실패해도 반 관리 자체는 그대로 쓸 수 있어야 한다.
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [token, organizationId]);
 
   const onCreateClass = useCallback(async () => {
     setFormError(null);
@@ -154,7 +160,7 @@ function ClassManagementStep({ token, organizationId }: { token: string; organiz
     async (classId: string) => {
       try {
         const invite = await createClassInvite(token, classId);
-        const shareUrl = `${globalThis.location?.origin ?? ''}/signup?invite=${invite.token}`;
+        const shareUrl = `${globalThis.location?.origin ?? ''}/join?invite=${invite.token}`;
         setInviteByClassId((prev) => ({ ...prev, [classId]: shareUrl }));
       } catch {
         // 초대 링크 생성 실패는 그 반 카드에만 조용히 남겨둔다 - 다시 누르면 재시도된다.
@@ -166,16 +172,7 @@ function ClassManagementStep({ token, organizationId }: { token: string; organiz
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.content}>
-        <AccountLinkRow onMyPage={() => navigate('/mypage')} onLogout={logout} />
         <Text style={styles.title}>반 관리</Text>
-
-        {entitlement && (
-          <StatusBanner
-            variant={entitlement.grantsAccess ? 'info' : 'warning'}
-            label={SUBSCRIPTION_LABEL[entitlement.subscriptionStatus]}
-            body={entitlement.grantsAccess ? undefined : '지금은 아이들이 이야기를 시작할 수 없어요. 구독을 갱신해 주세요.'}
-          />
-        )}
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>새 반 만들기</Text>
@@ -188,10 +185,9 @@ function ClassManagementStep({ token, organizationId }: { token: string; organiz
             errorText={formError ?? undefined}
           />
           <ActionButton
-            label="반 만들기"
-            loading={submitting}
+            label={submitting ? '만드는 중…' : '반 만들기'}
             onPress={onCreateClass}
-            disabled={!name.trim() || !initialPassword}
+            disabled={submitting || !name.trim() || !initialPassword}
           />
         </View>
 
@@ -219,6 +215,14 @@ function ClassManagementStep({ token, organizationId }: { token: string; organiz
   );
 }
 
+function WrongRoleNotice() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    navigate('/', { replace: true });
+  }, [navigate]);
+  return null;
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -240,14 +244,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: '900',
     color: storybookTheme.color.onLightHeading,
     textAlign: 'center',
     marginBottom: 8,
   },
   sectionLabel: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '800',
     color: storybookTheme.color.onLightHeading,
     marginTop: 8,
   },
@@ -269,7 +273,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '800',
     color: storybookTheme.color.onCardTitle,
   },
   inviteUrl: {

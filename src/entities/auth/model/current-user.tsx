@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { fetchCurrentUser, type UserSummary } from '../api/auth-api';
 import { clearStoredToken, getStoredToken, storeToken } from './session';
 
-type AuthState =
+export type AuthState =
   | { status: 'loading' }
   | { status: 'anonymous' }
   | { status: 'authenticated'; token: string; user: UserSummary };

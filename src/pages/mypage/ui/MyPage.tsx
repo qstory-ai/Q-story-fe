@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, Icon, Modal, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
-import { useAuth, type Role } from '@/entities/auth';
+import { homePathFor, useAuth, type Role } from '@/entities/auth';
 
 const ROLE_LABEL: Record<Role, string> = {
   DIRECTOR: '기관 및 단체',
@@ -12,12 +12,13 @@ const ROLE_LABEL: Record<Role, string> = {
   STAFF: '콘텐츠 운영자',
 };
 
-/** "뒤로"와 주요 액션이 모두 돌아가는 곳 - CLASS_ACCOUNT/PARENT는 /home에 실제 서재가 있음; STAFF는 자체 대시보드가 있음; DIRECTOR는 아직 대시보드가 없어서 랜딩 페이지로 대체됨. */
-function homePathFor(role: Role): string {
-  if (role === 'DIRECTOR') return '/';
-  if (role === 'STAFF') return '/staff';
-  return '/home';
-}
+/** "뒤로"/주요 액션 라벨 - 역할마다 실제 목적지 이름이 다르다(entities/auth의 homePathFor와 짝을 맞춘다). */
+const HOME_LABEL: Record<Role, string> = {
+  DIRECTOR: '반 관리로',
+  CLASS_ACCOUNT: '우리 반으로',
+  PARENT: '홈으로',
+  STAFF: '저작 화면으로',
+};
 
 /** 의도적으로 읽기 전용임 - 아직 프로필 업데이트 엔드포인트가 없어서, 필드가 수정 가능한 것처럼 꾸미는 대신 ClassDashboardPage/ParentHomePage와 같은 방식으로 계정을 보여준다. */
 export function MyPage() {
@@ -35,10 +36,9 @@ export function MyPage() {
   if (state.status !== 'authenticated') return null;
 
   const { user } = state;
-  const homePath = homePathFor(user.role);
+  const homePath = homePathFor(user);
   const initial = user.displayName.trim().charAt(0) || '?';
-  const homeLinkLabel =
-    user.role === 'DIRECTOR' ? '← 처음으로' : user.role === 'STAFF' ? '← 저작 화면으로' : '← 서재로';
+  const homeLinkLabel = `← ${HOME_LABEL[user.role]}`;
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
@@ -87,16 +87,7 @@ export function MyPage() {
           </View>
         </View>
 
-        <ActionButton
-          label={
-            user.role === 'DIRECTOR'
-              ? '처음 화면으로'
-              : user.role === 'STAFF'
-                ? '저작 화면으로 돌아가기'
-                : '이야기 서재로 돌아가기'
-          }
-          onPress={() => navigate(homePath)}
-        />
+        <ActionButton label={`${HOME_LABEL[user.role]} 돌아가기`} onPress={() => navigate(homePath)} />
         <Pressable
           onPress={() => setConfirmingLogout(true)}
           accessibilityRole="button"

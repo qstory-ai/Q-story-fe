@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
-import { useAuth } from '@/entities/auth';
+import { homePathFor, useAuth } from '@/entities/auth';
 import { listStories, StoryApiError } from '@/entities/story';
 import { formatReportDuration } from '@/pages/one-story';
 import { listStoryCompletions, StoryCompletionApiError, type StoryCompletionSummary } from '@/entities/story-completion';
@@ -90,7 +90,11 @@ export function ReportHistoryPage() {
         {load.status === 'ready' && load.completions.length === 0 && (
           <View style={styles.centerBox}>
             <Text style={styles.emptyText}>아직 마친 이야기가 없어요. 이야기를 끝까지 읽으면 여기에 기록이 남아요.</Text>
-            <ActionButton variant="secondary" label="이야기 서재로" onPress={() => navigate('/home')} />
+            <ActionButton
+              variant="secondary"
+              label="홈으로"
+              onPress={() => navigate(state.status === 'authenticated' ? homePathFor(state.user) : '/')}
+            />
           </View>
         )}
 

@@ -27,6 +27,44 @@ export const storybookTheme = {
     scrim: 'rgba(15, 8, 25, 0.72)',
     /** 모달 카드처럼 배경이 완전히 비쳐 보이면 안 되는 서피스용 - surfaceCard(반투명)와 구분. */
     surfaceCardOpaque: '#FFFCF5',
+    /**
+     * 레거시 인증/대시보드 페이지들의 "라이트 셸" 계열 - storybookTheme이 처음 나올 때
+     * "기존 인증 페이지들에는 소급 적용하지 않는다"고 명시했던 바로 그 페이지들(로그인/회원가입/
+     * 대시보드/staff)을 이번에 소급 적용하면서 추가한다. onLightHeading은 값이 primary와
+     * 우연히 같지만("브랜드 버튼 채우기"가 아니라 "밝은 카드 위 제목") 의미가 달라 별도 토큰으로
+     * 둔다 - 나중에 둘이 갈라져도 여기서만 바꾸면 된다.
+     */
+    shellBackground: '#F7F1FB',
+    onLightHeading: '#43225F',
+    onLightBody: '#6B5478',
+    onLightMuted: '#9C87AC',
+    lightCardBorder: '#E0D3EA',
+    linkOnDark: '#DCD1FF',
+    linkOnLight: '#6A4B7C',
+    /** 에러/위험 상태 - 이전엔 토큰이 아예 없어서 파일마다 같은 값을 새로 하드코딩했다. */
+    error: '#E46647',
+    /** brand-lockup의 로고 프레임과 리더 top-bar의 brandLogoFrame이 각자 하드코딩하던 동일한 값. */
+    brandFrameBackground: 'rgba(255, 249, 237, 0.96)',
+    /** 어두운 배경 위의 반투명 패널 - HomePage/ParentHomePage/ClassDashboardPage가 각자 하드코딩하던 값. */
+    panelOnDarkBackground: 'rgba(255, 252, 245, 0.08)',
+    panelOnDarkBorder: 'rgba(255, 252, 245, 0.16)',
+  },
+  /**
+   * 경고/정보 배너 한 벌 - organization-signup의 구독 상태 카드, staff-scene의 "stale" 카드가
+   * 각자 미묘하게 다른 근접값을 하드코딩하고 있던 것을 하나로 수렴시킨다. warning은 두 페이지가
+   * 공유하는 값(조직가입의 경고 variant 그대로) - staff-scene의 근소하게 다른 배경색은 여기로
+   * 수렴한다.
+   */
+  status: {
+    info: {
+      background: '#EDE3F6',
+      border: '#D9C7EC',
+    },
+    warning: {
+      background: '#FBEAE3',
+      border: '#F0C3AE',
+      text: '#B24E2E',
+    },
   },
   radius: {
     card: 24,

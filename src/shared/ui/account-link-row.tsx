@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { storybookTheme } from './theme';
+
 type AccountLinkRowProps = {
   onMyPage: () => void;
   onLogout: () => void;
@@ -38,7 +40,7 @@ const styles = StyleSheet.create({
   },
   link: {
     fontSize: 13,
-    color: '#9C87AC',
+    color: storybookTheme.color.onLightMuted,
     fontWeight: '500',
   },
 });

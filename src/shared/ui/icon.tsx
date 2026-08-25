@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Clock,
   Home,
+  Lock,
   LogOut,
   MessageCircle,
   Mic,
@@ -52,6 +53,7 @@ export const ICONS = {
   users: Users,
   clock: Clock,
   searchCheck: SearchCheck,
+  lock: Lock,
 } as const;
 
 export type IconName = keyof typeof ICONS;

@@ -1,6 +1,8 @@
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import type { TextInputProps } from 'react-native';
 
+import { storybookTheme } from './theme';
+
 type TextFieldProps = TextInputProps & {
   label: string;
   errorText?: string;
@@ -13,7 +15,7 @@ export function TextField({ label, errorText, style, ...rest }: TextFieldProps) 
       <Text style={styles.label}>{label}</Text>
       <TextInput
         style={[styles.input, errorText ? styles.inputError : null, style]}
-        placeholderTextColor="#9C87AC"
+        placeholderTextColor={storybookTheme.color.onLightMuted}
         autoCapitalize="none"
         autoCorrect={false}
         {...rest}
@@ -30,23 +32,23 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#503267',
+    color: storybookTheme.color.onLightBody,
   },
   input: {
     minHeight: 48,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0D3EA',
+    borderColor: storybookTheme.color.lightCardBorder,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 14,
     fontSize: 15,
-    color: '#2E1B3D',
+    color: storybookTheme.color.onCardTitle,
   },
   inputError: {
-    borderColor: '#E46647',
+    borderColor: storybookTheme.color.error,
   },
   errorText: {
     fontSize: 12,
-    color: '#E46647',
+    color: storybookTheme.color.error,
   },
 });

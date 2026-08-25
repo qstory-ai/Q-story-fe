@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { ActionButton, SafeAreaView, TextField } from '@/shared/ui';
+import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
 import { AuthApiError, confirmPasswordReset, requestPasswordReset, useAuth } from '@/entities/auth';
 import { homePathFor } from '@/pages/login';
 
@@ -121,7 +121,7 @@ function ConfirmStep({ token }: { token: string }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F1FB',
+    backgroundColor: storybookTheme.color.shellBackground,
   },
   content: {
     flex: 1,
@@ -135,13 +135,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#43225F',
+    color: storybookTheme.color.onLightHeading,
     textAlign: 'center',
     marginBottom: 8,
   },
   body: {
     fontSize: 14,
-    color: '#6B5478',
+    color: storybookTheme.color.onLightBody,
     textAlign: 'center',
   },
 });

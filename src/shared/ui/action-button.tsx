@@ -1,11 +1,14 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
+import { storybookTheme } from './theme';
+
 export type ActionButtonVariant =
   | 'primary'
   | 'secondary'
   | 'secondaryFull'
   | 'record'
-  | 'stop';
+  | 'stop'
+  | 'gold';
 
 type ActionButtonProps = {
   label: string;
@@ -31,6 +34,7 @@ export function ActionButton({
   loading = false,
 }: ActionButtonProps) {
   const isSecondary = variant === 'secondary' || variant === 'secondaryFull';
+  const isGold = variant === 'gold';
   return (
     <Pressable
       accessibilityRole="button"
@@ -44,15 +48,19 @@ export function ActionButton({
         variant === 'secondaryFull' && styles.secondaryFull,
         variant === 'record' && styles.record,
         variant === 'stop' && styles.stop,
+        variant === 'gold' && styles.gold,
         disabled && !loading && styles.disabled,
       ]}
     >
       {loading ? (
-        <ActivityIndicator size="small" color={isSecondary ? '#503267' : '#FFFFFF'} />
+        <ActivityIndicator
+          size="small"
+          color={isSecondary || isGold ? storybookTheme.color.primary : storybookTheme.color.onDark}
+        />
       ) : (
         <>
           {icon ? <Text style={styles.icon}>{icon}</Text> : null}
-          <Text style={isSecondary ? styles.secondaryText : styles.primaryText}>
+          <Text style={isSecondary || isGold ? styles.secondaryText : styles.primaryText}>
             {label}
           </Text>
         </>
@@ -72,46 +80,50 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   primary: {
-    backgroundColor: '#43225F',
+    backgroundColor: storybookTheme.color.primary,
   },
   secondary: {
     flex: 1,
     minHeight: 50,
     borderRadius: 15,
-    backgroundColor: '#F0E8F5',
+    backgroundColor: storybookTheme.color.pillBackground,
     paddingHorizontal: 12,
   },
   secondaryFull: {
     width: '100%',
     minHeight: 50,
     borderRadius: 15,
-    backgroundColor: '#F0E8F5',
+    backgroundColor: storybookTheme.color.pillBackground,
     paddingHorizontal: 12,
   },
   record: {
     minHeight: 60,
-    backgroundColor: '#E46647',
+    backgroundColor: storybookTheme.color.error,
     borderRadius: 18,
   },
   stop: {
     minHeight: 56,
-    backgroundColor: '#E46647',
+    backgroundColor: storybookTheme.color.error,
     borderRadius: 17,
+  },
+  /** landing의 button--gold를 참고한 골드 채움 - 서재의 "구독하고 전체 보기" 같은 CTA용. */
+  gold: {
+    backgroundColor: storybookTheme.color.gold,
   },
   disabled: {
     opacity: 0.56,
   },
   icon: {
-    color: '#FFFFFF',
+    color: storybookTheme.color.onDark,
     fontSize: 13,
   },
   primaryText: {
-    color: '#FFFFFF',
+    color: storybookTheme.color.onDark,
     fontSize: 17,
     fontWeight: '700',
   },
   secondaryText: {
-    color: '#503267',
+    color: storybookTheme.color.primary,
     fontSize: 13,
     fontWeight: '700',
     textAlign: 'center',

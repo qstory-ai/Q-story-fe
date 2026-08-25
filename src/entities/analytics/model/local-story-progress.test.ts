@@ -1,4 +1,4 @@
-// @ts-nocheck -- Node test assertions intentionally use test-only globals.
+// @ts-nocheck -- Node 테스트 어설션은 테스트 전용 전역 변수를 의도적으로 사용한다.
 import assert from 'node:assert/strict';
 import test from 'node:test';
 

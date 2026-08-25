@@ -1,10 +1,10 @@
 const SESSION_STORAGE_KEY = 'qstory.auth.session.v1';
 
 /**
- * A bearer token in localStorage, not a cookie: the same-origin Vercel/Docker proxy
- * (api/_qstory-proxy-core.mjs) is a stateless per-request function with no cookie
- * forwarding, so a bearer token sent as an explicit Authorization header is the shape that
- * actually survives that hop (see the auth plan doc's frontend section).
+ * 쿠키가 아니라 localStorage에 담긴 bearer 토큰이다: 동일 출처(same-origin) Vercel/Docker 프록시
+ * (api/_qstory-proxy-core.mjs)는 쿠키 전달(forwarding) 기능이 없는, 요청마다 상태를 갖지 않는
+ * (stateless) 함수이므로, 명시적인 Authorization 헤더로 보내는 bearer 토큰이야말로 실제로
+ * 이 hop을 무사히 통과하는 형태다 (auth plan 문서의 frontend 섹션 참고).
  */
 export function getStoredToken(): string | null {
   try {

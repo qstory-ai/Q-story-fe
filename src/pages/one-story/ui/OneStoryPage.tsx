@@ -2,8 +2,10 @@ import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
 import { SafeAreaView } from '@/shared/ui';
 import type { StoryRuntimePackage } from '@/entities/story';
+import { CompletionSurveyModal } from '@/features/completion-survey-modal';
 
-import { useOneStoryRuntime } from '../model';
+import { useCompanionChat, useOneStoryRuntime } from '../model';
+import { CompanionChatModal } from './modals/companion-chat-modal';
 import { HomeMenuModal } from './modals/home-menu-modal';
 import { ResumeModal } from './modals/resume-modal';
 import { ReaderCard } from './reader-card/reader-card';
@@ -26,6 +28,10 @@ export function OneStoryPage({
     scene,
     illustration,
   } = runtime;
+  const chat = useCompanionChat({
+    storyId: storyPackage.storyId,
+    sceneId: scene?.id ?? null,
+  });
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
@@ -46,7 +52,7 @@ export function OneStoryPage({
           ]}
         />
 
-        <TopBar runtime={runtime} />
+        <TopBar runtime={runtime} chat={chat} />
         <SceneProgressBar runtime={runtime} />
 
         <ScrollView
@@ -72,6 +78,12 @@ export function OneStoryPage({
 
         <ResumeModal runtime={runtime} />
         <HomeMenuModal runtime={runtime} />
+        <CompanionChatModal chat={chat} homeMenuOpen={runtime.homeMenuVisible} />
+        <CompletionSurveyModal
+          visible={runtime.completionSurveyVisible}
+          storyId={storyPackage.storyId}
+          onClose={runtime.closeCompletionSurvey}
+        />
       </View>
     </SafeAreaView>
   );

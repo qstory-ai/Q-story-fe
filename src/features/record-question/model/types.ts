@@ -27,8 +27,7 @@ export type RecorderRuntimeInfo = {
 
 export type RecordingResult = LocalRecordingArtifact & {
   /**
-   * Upload source captured before the browser can invalidate its temporary
-   * blob URL.
+   * 브라우저가 임시 blob URL을 무효화하기 전에 캡처해 둔 업로드 소스.
    */
   uploadBlob?: Blob;
 };

@@ -1,14 +1,27 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
+import { Icon } from '@/shared/ui';
+
 import type { OneStoryRuntime } from '../model';
+import type { UseCompanionChat } from '../model/use-companion-chat';
 import { styles } from './styles';
 
-export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
+const TOP_ICON_COLOR = '#F6C64D';
+
+export function TopBar({
+  runtime,
+  chat,
+}: {
+  runtime: OneStoryRuntime;
+  chat: UseCompanionChat;
+}) {
   const {
     isWide,
     isCompactPlayback,
     isParentReport,
     runtimeState,
+    scene,
+    parentReport,
     displayedSceneIndex,
     totalScenes,
     isPlaybackDockState,
@@ -64,8 +77,13 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
               isParentReport && styles.reportStoryTitle,
             ]}
           >
-            {isParentReport ? '우리 아이 사고흔적 리포트' : '헨젤과 그레텔'}
+            {isParentReport ? '오늘의 질문 기록' : parentReport.storyTitle}
           </Text>
+          {runtimeState.status !== 'idle' && !isParentReport && scene?.title && (
+            <Text style={styles.chapterTitle} numberOfLines={1}>
+              {displayedSceneIndex + 1}화 · {scene.title}
+            </Text>
+          )}
         </View>
       </View>
       <View
@@ -81,8 +99,31 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
             style={styles.topControlButton}
             onPress={openHomeMenu}
           >
-            <Text style={styles.topControlIcon}>⌂</Text>
+            <Icon name="home" size={16} color={TOP_ICON_COLOR} />
             {isWide && <Text style={styles.topControlText}>홈</Text>}
+          </Pressable>
+        )}
+        {runtimeState.status !== 'idle' && !isParentReport && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${chat.character.displayName}에게 물어보기`}
+            style={styles.topControlButton}
+            onPress={() => {
+              // 스토리 내레이션이 계속되는 동안 캐릭터와 대화하면 아이의 주의를 두고
+              // 경쟁하게 되므로 - 먼저 일시정지한다(단, 실제로 재생 중일 때만; 이미
+              // 일시정지된 상태에서 토글하면 오히려 재생이 재개되어 버리기 때문).
+              if (!narrationState.isPaused) {
+                void toggleNarration();
+              }
+              chat.setOpen(true);
+            }}
+          >
+            <Icon name="chat" size={16} color={TOP_ICON_COLOR} />
+            {isWide && (
+              <Text style={styles.topControlText}>
+                {chat.character.displayName}에게 물어보기
+              </Text>
+            )}
           </Pressable>
         )}
         {isCompactPlayback && (
@@ -108,9 +149,11 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
               style={[styles.topControlButton, styles.topControlButtonPrimary]}
               onPress={toggleNarration}
             >
-              <Text style={styles.topControlIcon}>
-                {narrationState.isPaused ? '▶' : 'Ⅱ'}
-              </Text>
+              <Icon
+                name={narrationState.isPaused ? 'play' : 'pause'}
+                size={15}
+                color={TOP_ICON_COLOR}
+              />
               {isWide && (
                 <Text style={styles.topControlText}>
                   {narrationState.isPaused ? '이어 듣기' : '일시정지'}
@@ -127,7 +170,7 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
               style={styles.topControlButton}
               onPress={replayCurrent}
             >
-              <Text style={styles.topControlIcon}>↺</Text>
+              <Icon name="replay" size={15} color={TOP_ICON_COLOR} />
               {isWide && (
                 <Text style={styles.topControlText}>
                   {isBranchPlaybackState ? '선택 전개 다시' : '현재 문장 다시'}
@@ -141,7 +184,7 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
               onPress={skipCurrentScene}
             >
               {isWide && <Text style={styles.topControlText}>다음 장면</Text>}
-              <Text style={styles.topControlIcon}>→</Text>
+              <Icon name="next" size={15} color={TOP_ICON_COLOR} />
             </Pressable>
             <Pressable
               accessibilityRole="button"
@@ -149,9 +192,16 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
               style={styles.topControlButton}
               onPress={() => setCaptionVisible((visible) => !visible)}
             >
-              <Text style={styles.topControlText}>
-                {isWide ? (captionVisible ? '자막 끄기' : '자막 켜기') : '자'}
-              </Text>
+              <Icon
+                name="captions"
+                size={15}
+                color={captionVisible ? TOP_ICON_COLOR : 'rgba(255,255,255,0.55)'}
+              />
+              {isWide && (
+                <Text style={styles.topControlText}>
+                  {captionVisible ? '자막 끄기' : '자막 켜기'}
+                </Text>
+              )}
             </Pressable>
           </View>
         )}

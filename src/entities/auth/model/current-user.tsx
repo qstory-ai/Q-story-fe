@@ -11,7 +11,7 @@ type AuthState =
 
 type AuthContextValue = {
   state: AuthState;
-  /** Call after a successful login/signup/join response - stores the token and refreshes `user`. */
+  /** 로그인/회원가입/가입(join) 응답이 성공한 뒤 호출한다 - 토큰을 저장하고 `user`를 새로고침한다. */
   setSession: (token: string, user: UserSummary) => void;
   logout: () => void;
   refresh: () => Promise<void>;

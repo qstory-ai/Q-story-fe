@@ -23,10 +23,10 @@ const SAFE_AREA_ENV_VAR: Record<Edge, string> = {
 const DEFAULT_EDGES: readonly Edge[] = ['top', 'right', 'bottom', 'left'];
 
 /**
- * `react-native-safe-area-context` reads native inset APIs that only exist
- * in a real React Native / Expo runtime. On web (and inside a Capacitor
- * WebView) the equivalent is the CSS `env(safe-area-inset-*)` variables the
- * browser already exposes, which is what this reads instead.
+ * `react-native-safe-area-context`는 실제 React Native / Expo 런타임에만
+ * 존재하는 네이티브 inset API를 읽는다. 웹에서는(그리고 Capacitor WebView
+ * 내부에서도) 이에 대응하는 것이 브라우저가 이미 노출하는 CSS
+ * `env(safe-area-inset-*)` 변수이며, 이 컴포넌트는 그것을 대신 읽는다.
  */
 export function SafeAreaView({
   edges = DEFAULT_EDGES,

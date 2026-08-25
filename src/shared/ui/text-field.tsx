@@ -6,7 +6,7 @@ type TextFieldProps = TextInputProps & {
   errorText?: string;
 };
 
-/** First form-input primitive in this codebase - login/signup forms are the first feature needing one. */
+/** 이 코드베이스에서 첫 번째 폼 입력 프리미티브 - 로그인/회원가입 폼이 이것을 필요로 하는 첫 기능이다. */
 export function TextField({ label, errorText, style, ...rest }: TextFieldProps) {
   return (
     <View style={styles.container}>
@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#503267',
   },
   input: {

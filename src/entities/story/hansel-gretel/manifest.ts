@@ -7,10 +7,10 @@ import type { GeneratedStoryContent, StoryPackageData } from '../model/story-pac
 import generatedContent from './generated-story-content.json';
 import packageData from './story-package.generated.json';
 
-// Regression tests need HG's package synchronously, without a network round trip - so this builds
-// straight from the same locally-committed fixtures the backend import (npm run content:import)
-// is seeded from, instead of going through story-registry.ts's runtime fetch. Product runtime
-// always reads the package through story-registry.ts's loadStoryPackage()/getDefaultBetaStory().
+// 회귀 테스트는 네트워크 왕복 없이 HG의 패키지를 동기적으로 필요로 한다 - 그래서
+// story-registry.ts의 런타임 fetch를 거치는 대신, 백엔드 import(npm run content:import)가
+// 시드로 사용하는 것과 동일한 로컬에 커밋된 fixture에서 곧바로 빌드한다. 실제 제품 런타임은
+// 항상 story-registry.ts의 loadStoryPackage()/getDefaultBetaStory()를 통해 패키지를 읽는다.
 export const hanselGretelStoryPackage = buildStoryRuntimePackage({
   generatedContent: generatedContent as unknown as GeneratedStoryContent,
   packageData: packageData as unknown as StoryPackageData,

@@ -19,7 +19,11 @@ ENV VITE_QSTORY_API_URL=$VITE_QSTORY_API_URL \
     VITE_QSTORY_VOICE_RESEARCH_URL=$VITE_QSTORY_VOICE_RESEARCH_URL \
     VITE_QSTORY_LANDING_URL=$VITE_QSTORY_LANDING_URL
 
-RUN npm run build
+# Regenerate (not check) - the build context here doesn't include the sibling be/ repo that
+# scripts/generate-story-package.mjs optionally reads for Supabase audio URLs, so a plain
+# `npm run build`'s content:check would always see the committed (host-generated, Supabase-URL)
+# files as stale against this container's local-asset-URL regeneration and fail every build.
+RUN npm run build:docker
 
 # ---- Runtime stage ----
 FROM node:22-alpine

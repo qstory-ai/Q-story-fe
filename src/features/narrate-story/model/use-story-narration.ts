@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { AudioSource } from '@/entities/story';
+import type { StoryId } from '@/entities/story-runtime';
 
 import {
   useDeviceSpeechNarration,
   type NarrationRequest,
 } from './use-device-speech-narration';
+import { getLineNarration } from './line-narration';
+import { playResponseAudio } from '../../route-question/model/play-response-audio';
 
 type FixedPlayback = {
   generation: number;
@@ -50,6 +53,7 @@ export function preloadFixedNarration(
 
 export function useStoryNarration(
   fixedNarrationAssets: Readonly<Record<string, AudioSource>>,
+  storyId: StoryId,
 ) {
   const {
     speak: speakDevice,
@@ -61,13 +65,17 @@ export function useStoryNarration(
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const generationRef = useRef(0);
   const pendingRef = useRef<FixedPlayback | null>(null);
+  const liveAbortRef = useRef<AbortController | null>(null);
+  // 'live' = 고정 오디오가 없어서 그 자리에서 오픈라우터 TTS를 불러 재생 중인 상태.
   const [activeSource, setActiveSource] =
-    useState<'fixed' | 'device' | null>(null);
+    useState<'fixed' | 'live' | 'device' | null>(null);
   const [fixedPlaying, setFixedPlaying] = useState(false);
   const [fixedPaused, setFixedPaused] = useState(false);
   const [fixedError, setFixedError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [captionRequestId, setCaptionRequestId] = useState<string | null>(null);
+  const [liveSpeaking, setLiveSpeaking] = useState(false);
+  const [liveProgress, setLiveProgress] = useState(0);
 
   const settleFixed = useCallback((error?: Error) => {
     const pending = pendingRef.current;
@@ -179,6 +187,10 @@ export function useStoryNarration(
   const stop = useCallback(async () => {
     stopFixed();
     setActiveSource(null);
+    liveAbortRef.current?.abort(interruptedError());
+    liveAbortRef.current = null;
+    setLiveSpeaking(false);
+    setLiveProgress(0);
     await stopDevice();
   }, [stopDevice, stopFixed]);
 
@@ -239,18 +251,74 @@ export function useStoryNarration(
     [armTimeout, settleFixed],
   );
 
+  // 고정 오디오가 없는 대사(주로 아이 이름이 들어간 문장)를 그 자리에서 오픈라우터 TTS로
+  // 만들어 재생한다 - 목소리가 고정 낭독과 이어지도록, 기기 TTS보다 먼저 시도한다.
+  const speakLive = useCallback(
+    async (request: NarrationRequest) => {
+      const audio = await getLineNarration({
+        storyId,
+        speakerId: request.speakerId,
+        text: request.text,
+      });
+      if (!audio) {
+        return false;
+      }
+      const controller = new AbortController();
+      liveAbortRef.current = controller;
+      setActiveSource('live');
+      setCaptionRequestId(request.id);
+      setLiveProgress(0);
+      try {
+        return await playResponseAudio(
+          audio,
+          controller.signal,
+          () => setLiveSpeaking(true),
+          (value) => setLiveProgress(value),
+        );
+      } finally {
+        setLiveSpeaking(false);
+        setLiveProgress(0);
+        if (liveAbortRef.current === controller) {
+          liveAbortRef.current = null;
+        }
+      }
+    },
+    [storyId],
+  );
+
+  const speakFallback = useCallback(
+    async (request: NarrationRequest) => {
+      let played = false;
+      try {
+        played = await speakLive(request);
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          throw error;
+        }
+      }
+      if (played) {
+        setActiveSource(null);
+        return;
+      }
+      setActiveSource('device');
+      setCaptionRequestId(request.id);
+      try {
+        await speakDevice(request);
+      } finally {
+        setActiveSource(null);
+      }
+    },
+    [speakDevice, speakLive],
+  );
+
   const speak = useCallback(
     async (request: NarrationRequest) => {
       await stopDevice();
+      liveAbortRef.current?.abort(interruptedError());
+      liveAbortRef.current = null;
       const fixedSource = fixedNarrationAssets[request.id];
       if (!fixedSource) {
-        setActiveSource('device');
-        setCaptionRequestId(request.id);
-        try {
-          await speakDevice(request);
-        } finally {
-          setActiveSource(null);
-        }
+        await speakFallback(request);
         return;
       }
       try {
@@ -259,16 +327,10 @@ export function useStoryNarration(
         if (error instanceof Error && error.name === 'AbortError') {
           throw error;
         }
-        setActiveSource('device');
-        setCaptionRequestId(request.id);
-        try {
-          await speakDevice(request);
-        } finally {
-          setActiveSource(null);
-        }
+        await speakFallback(request);
       }
     },
-    [fixedNarrationAssets, playFixed, speakDevice, stopDevice],
+    [fixedNarrationAssets, playFixed, speakFallback, stopDevice],
   );
 
   const pause = useCallback(async () => {
@@ -315,20 +377,24 @@ export function useStoryNarration(
   const state = useMemo(
     () => ({
       activeRequestId:
-        activeSource === 'fixed'
+        activeSource === 'fixed' || activeSource === 'live'
           ? 'fixed-narration'
           : deviceState.activeRequestId,
-      isSpeaking: fixedPlaying || deviceState.isSpeaking,
+      isSpeaking: fixedPlaying || liveSpeaking || deviceState.isSpeaking,
       isPaused: fixedPaused || deviceState.isPaused,
       error: fixedError ?? deviceState.error,
+      // 실시간 오픈라우터 낭독('live')도 실제 캐릭터 목소리라 기기 TTS보다는 고정 낭독에
+      // 더 가깝다 - 바깥에는 'fixed'로 묶어 노출한다.
       source:
-        activeSource === 'fixed' ? ('fixed' as const) : ('device' as const),
+        activeSource === 'device' ? ('device' as const) : ('fixed' as const),
       progress:
         activeSource === 'fixed'
           ? progress
-          : activeSource === 'device'
-            ? deviceState.progress
-            : 0,
+          : activeSource === 'live'
+            ? liveProgress
+            : activeSource === 'device'
+              ? deviceState.progress
+              : 0,
       captionRequestId,
     }),
     [
@@ -339,6 +405,8 @@ export function useStoryNarration(
       fixedPaused,
       fixedPlaying,
       progress,
+      liveProgress,
+      liveSpeaking,
     ],
   );
 

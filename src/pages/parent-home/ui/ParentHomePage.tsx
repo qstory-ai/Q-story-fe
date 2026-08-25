@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, SafeAreaView } from '@/shared/ui';
+import { AccountLinkRow, ActionButton, SafeAreaView } from '@/shared/ui';
 import { useAuth } from '@/entities/auth';
 
 /**
- * Minimal by design - replaying a specific class session is Phase 2 (see the auth plan doc).
- * This just confirms the parent is signed in and gets them to today's story.
+ * 의도적으로 최소한만 구현했다 - 특정 학급 세션을 다시 재생하는 기능은 Phase 2(인증 계획 문서 참고)에서 다룬다.
+ * 이 화면은 부모가 로그인되어 있는지만 확인하고 오늘의 이야기로 이동시켜 줄 뿐이다.
  */
 export function ParentHomePage() {
   const navigate = useNavigate();
@@ -27,10 +27,8 @@ export function ParentHomePage() {
       <View style={styles.content}>
         <Text style={styles.title}>안녕하세요, {state.user.displayName}님</Text>
         <Text style={styles.body}>아이와 함께 오늘의 이야기를 시작해 보세요.</Text>
-        <ActionButton label="이야기 시작하기" onPress={() => navigate('/')} />
-        <Pressable onPress={logout} accessibilityRole="button">
-          <Text style={styles.logout}>로그아웃</Text>
-        </Pressable>
+        <ActionButton label="이야기 시작하기" onPress={() => navigate('/home')} />
+        <AccountLinkRow onMyPage={() => navigate('/mypage')} onLogout={logout} />
       </View>
     </SafeAreaView>
   );
@@ -52,7 +50,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '900',
+    fontWeight: '700',
     color: '#43225F',
     textAlign: 'center',
   },
@@ -60,11 +58,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B5478',
     textAlign: 'center',
-  },
-  logout: {
-    fontSize: 13,
-    color: '#9C87AC',
-    textAlign: 'center',
-    fontWeight: '700',
   },
 });

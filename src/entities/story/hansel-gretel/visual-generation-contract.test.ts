@@ -1,4 +1,4 @@
-// @ts-nocheck -- Node test runner assertions intentionally inspect generated content.
+// @ts-nocheck -- Node 테스트 러너의 assertion들이 생성된 콘텐츠를 의도적으로 검사한다.
 import assert from 'node:assert/strict';
 import test from 'node:test';
 

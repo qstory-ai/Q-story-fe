@@ -169,7 +169,10 @@ export function buildStoryRuntimePackage({
     const group = `${prefix}-AG-${serial}`;
     const clip = `${prefix}-CLIP-${serial}`;
     const audioAsset = `${prefix}-AUDIO-${serial}`;
-    addAsset(audioAsset, 'audio', `tts://${clip}`);
+    // 버그: 예전에는 항상 tts:// 온디바이스 음성 플레이스홀더를 그대로 기록하고 audioAssets
+    // 맵을 전혀 참조하지 않아서, 사전 녹음된 클립(로컬 mp3 파일 202개)이 전부 조용히
+    // 실제 내레이션 오디오 대신 온디바이스 음성 합성으로 대체되고 있었다.
+    addAsset(audioAsset, 'audio', audioAssets[clip]?.uri ?? `tts://${clip}`);
     audioGroups.push({
       id: audioGroupId(group),
       sceneId: sceneId(scene.id),
@@ -380,6 +383,24 @@ export function buildStoryRuntimePackage({
   };
   const fallbackImage = imageAssets[Object.keys(imageAssets)[0]];
   if (!fallbackImage) throw new Error(`${packageData.story.storyId} has no image assets`);
+  /**
+   * 백엔드가 내려주는 장면 visual의 assetId(예: "night-plan")는 짧은 소문자 슬러그인데,
+   * 프론트가 생성한 imageAssets 레지스트리(content/stories/<storyId>/assets.json에서 만들어짐,
+   * scripts/generate-story-package.mjs 참고)는 "HG-ART-02-NIGHT-PLAN"처럼 번호와 접두어가
+   * 붙은 대문자 키를 쓴다 - 두 콘텐츠 파이프라인이 서로 다른 이름 규칙으로 만들어져서,
+   * 직접 인덱싱(imageAssets[id])은 첫 장면(우연히 폴백과 같은 그림) 말고는 전부 실패하고
+   * 조용히 폴백 이미지로 떨어져, 장면이 바뀌어도 삽화가 안 바뀌는 것처럼 보였다.
+   * 정확히 일치하는 키가 없으면, 영숫자만 남긴 정규화된 문자열이 슬러그로 끝나는 키를 찾는다.
+   */
+  const normalizeForAssetMatch = (value: string) => value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const normalizedImageAssetEntries = Object.entries(imageAssets).map(
+    ([key, value]) => [normalizeForAssetMatch(key), value] as const,
+  );
+  const findIllustration = (id: string): ImageSource | undefined => {
+    if (imageAssets[id]) return imageAssets[id];
+    const needle = normalizeForAssetMatch(id);
+    return normalizedImageAssetEntries.find(([key]) => key.endsWith(needle))?.[1];
+  };
   const familyById = new Map(fallbackFamilies.map((family) => [family.id, family]));
   const narratorSpeakerId =
     Object.values(castByTag).find((speaker) => speaker.role === 'narrator')
@@ -396,7 +417,7 @@ export function buildStoryRuntimePackage({
     reportCopy: packageData.reportCopy,
     imageAssets,
     audioAssets,
-    illustrationForAssetId: (id) => imageAssets[id] ?? fallbackImage,
+    illustrationForAssetId: (id) => findIllustration(id) ?? fallbackImage,
     branchIllustrationAssetId: (familyIdValue) =>
       familyIdValue
         ? ((familyById.get(fallbackFamilyId(familyIdValue))?.branchAssetId as string | undefined) ?? null)
@@ -445,6 +466,7 @@ export function buildStoryRuntimePackage({
             familyId: option.actionFamilyId,
             label: option.label,
             meaning: option.meaning,
+            branchLine: option.branchLine,
           }));
         for (const family of eligibleFamilies) {
           if (
@@ -457,6 +479,7 @@ export function buildStoryRuntimePackage({
             familyId: fallbackFamilyId(family.id),
             label: family.meaning.replace(/[.!?。]$/u, ''),
             meaning: family.meaning,
+            branchLine: family.meaning,
           });
         }
         if (repairedFamilies.length < 3) return plan;
@@ -468,6 +491,7 @@ export function buildStoryRuntimePackage({
             label: family.label,
             meaning: family.meaning,
             actionFamilyId: fallbackFamilyId(family.familyId),
+            branchLine: family.branchLine,
           }));
         const fallbackIsEligible =
           plan.fallbackFamilyId !== null &&

@@ -286,9 +286,9 @@ export async function loadStoryPackageFromDirectory(
       ...assets.imageAssets,
       ...assets.audioAssets,
     })) {
-      // This project serves static story assets from `public/` (Vite's
-      // static root) instead of the `assets/` source tree assets.json
-      // still declares paths against, so remap the prefix on disk lookup.
+      // 이 프로젝트는 정적 스토리 에셋을 (Vite의 정적 루트인) `public/`에서
+      // 서빙하며, assets.json이 여전히 경로를 선언하는 기준인 `assets/` 소스
+      // 트리는 사용하지 않으므로, 디스크 조회 시 접두사를 리매핑한다.
       const onDiskPath = relativePath.replace(/^assets\//, 'public/');
       const actual = `sha256-${createHash('sha256')
         .update(await readFile(join(assetRoot, onDiskPath)))

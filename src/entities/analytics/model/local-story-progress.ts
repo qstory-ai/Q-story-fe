@@ -129,7 +129,7 @@ export function clearLocalStoryProgress(
   try {
     storage?.removeItem(STORAGE_KEY);
   } catch {
-    // Progress storage must never block story playback.
+    // 진행 상황 저장이 스토리 재생을 절대 막아서는 안 된다.
   }
 }
 

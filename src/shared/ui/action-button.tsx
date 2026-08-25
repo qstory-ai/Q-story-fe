@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
 export type ActionButtonVariant =
   | 'primary'
@@ -13,12 +13,14 @@ type ActionButtonProps = {
   variant?: ActionButtonVariant;
   disabled?: boolean;
   icon?: string;
+  /** Solid 2.0 버튼 상태 카탈로그의 Loading - 라벨 대신 스피너를 보여주고 프레스를 막는다. */
+  loading?: boolean;
 };
 
 /**
- * The product screen repeated the same "Pressable wrapping one Text label"
- * markup across ~15 call sites with only the color/width varying by variant.
- * This consolidates that into one component.
+ * 제품 화면에서 "하나의 Text 레이블을 감싼 Pressable"이라는 동일한 마크업이
+ * 약 15곳의 호출부에서 반복됐고, variant에 따라 색상/너비만 달랐다.
+ * 이를 하나의 컴포넌트로 통합한다.
  */
 export function ActionButton({
   label,
@@ -26,12 +28,14 @@ export function ActionButton({
   variant = 'primary',
   disabled = false,
   icon,
+  loading = false,
 }: ActionButtonProps) {
   const isSecondary = variant === 'secondary' || variant === 'secondaryFull';
   return (
     <Pressable
       accessibilityRole="button"
-      disabled={disabled}
+      accessibilityState={{ disabled: disabled || loading, busy: loading }}
+      disabled={disabled || loading}
       onPress={onPress}
       style={[
         styles.base,
@@ -40,13 +44,19 @@ export function ActionButton({
         variant === 'secondaryFull' && styles.secondaryFull,
         variant === 'record' && styles.record,
         variant === 'stop' && styles.stop,
-        disabled && styles.disabled,
+        disabled && !loading && styles.disabled,
       ]}
     >
-      {icon ? <Text style={styles.icon}>{icon}</Text> : null}
-      <Text style={isSecondary ? styles.secondaryText : styles.primaryText}>
-        {label}
-      </Text>
+      {loading ? (
+        <ActivityIndicator size="small" color={isSecondary ? '#503267' : '#FFFFFF'} />
+      ) : (
+        <>
+          {icon ? <Text style={styles.icon}>{icon}</Text> : null}
+          <Text style={isSecondary ? styles.secondaryText : styles.primaryText}>
+            {label}
+          </Text>
+        </>
+      )}
     </Pressable>
   );
 }
@@ -98,12 +108,12 @@ const styles = StyleSheet.create({
   primaryText: {
     color: '#FFFFFF',
     fontSize: 17,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   secondaryText: {
     color: '#503267',
     fontSize: 13,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
 });

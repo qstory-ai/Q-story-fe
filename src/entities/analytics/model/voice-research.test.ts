@@ -89,20 +89,22 @@ test('보호자 동의가 있으면 원음과 확인 문장을 multipart로 전�
   assert.ok(request.body.get('audio') instanceof Blob);
 });
 
-test('동의 철회는 삭제 토큰을 포함한 요청을 보낸다', async () => {
+test('동의 철회는 전용 /withdraw 경로에 삭제 토큰을 포함한 요청을 보낸다', async () => {
   const consent = createVoiceResearchConsent();
+  let url = '';
   let body = '';
   const withdrawn = await withdrawVoiceResearchConsent(consent, {
     endpoint: 'https://example.com/voice-research',
-    fetchImpl: (async (_url, init) => {
+    fetchImpl: (async (requestUrl, init) => {
+      url = String(requestUrl);
       body = String(init?.body ?? '');
       return new Response(null, { status: 200 });
     }) as typeof fetch,
   });
 
   assert.equal(withdrawn, true);
+  assert.equal(url, 'https://example.com/voice-research/withdraw');
   assert.deepEqual(JSON.parse(body), {
-    action: 'withdraw',
     consent_id: consent.consentId,
     deletion_token: consent.deletionToken,
   });

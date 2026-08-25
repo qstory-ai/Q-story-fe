@@ -1,11 +1,13 @@
 import { StyleSheet } from 'react-native';
 
-// One shared stylesheet for the whole reader-card UI, colocated here rather
-// than split per-component: many keys (contentGroup, questionEyebrow,
-// secondaryButtonFull, etc.) are already reused across several panels, and
-// splitting them apart risks losing track of which panel owns which key.
-// Button styles live in shared/ui/action-button instead (that markup was
-// duplicated verbatim across ~15 call sites, unlike these).
+import { storybookTheme } from '@/shared/ui';
+
+// reader-card UI 전체가 공유하는 하나의 스타일시트로, 컴포넌트별로 분리하지 않고
+// 여기 한곳에 모아둔다: 많은 키(contentGroup, questionEyebrow, secondaryButtonFull 등)가
+// 이미 여러 패널에서 재사용되고 있어서, 이를 나누어 놓으면 어느 패널이 어느 키를
+// 소유하는지 추적하기 어려워지는 위험이 있다.
+// 버튼 스타일은 대신 shared/ui/action-button에 있다(그 마크업은 이 스타일들과 달리
+// 약 15개의 호출 지점에 그대로 중복되어 있었다).
 export const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#161025' },
   app: { flex: 1, backgroundColor: '#161025', overflow: 'hidden' },
@@ -26,7 +28,7 @@ export const styles = StyleSheet.create({
     left: 24,
     right: 24,
     top: 18,
-    zIndex: 5,
+    zIndex: storybookTheme.zIndex.sticky,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -51,7 +53,12 @@ export const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
   },
-  brandLockup: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  brandLockup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flexShrink: 1,
+  },
   brandLockupCompactPlayback: { display: 'none' },
   brandLogoFrame: {
     width: 50,
@@ -68,11 +75,11 @@ export const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   brandLogo: { width: 42, height: 46 },
-  brandTextLockup: { gap: 4 },
+  brandTextLockup: { gap: 4, flexShrink: 1 },
   brand: {
     color: '#FFFFFF',
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: '700',
     letterSpacing: 1.8,
   },
   brandQ: { color: '#F6C64D' },
@@ -81,9 +88,15 @@ export const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 17,
     lineHeight: 21,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportStoryTitle: { color: '#6B5C80' },
+  chapterTitle: {
+    color: 'rgba(255, 255, 255, 0.72)',
+    fontSize: 12,
+    lineHeight: 15,
+    fontWeight: '600',
+  },
   topRight: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -126,13 +139,13 @@ export const styles = StyleSheet.create({
     minWidth: 13,
     color: '#F6C64D',
     fontSize: 14,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
   topControlText: {
     color: '#FFFFFF',
     fontSize: 11,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   progressPill: {
     backgroundColor: 'rgba(22, 12, 36, 0.78)',
@@ -152,7 +165,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 13,
   },
-  progressText: { color: '#FFFFFF', fontWeight: '900', fontSize: 13 },
+  progressText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
   reportBackButton: {
     minHeight: 40,
     borderRadius: 12,
@@ -166,14 +179,14 @@ export const styles = StyleSheet.create({
   reportBackButtonText: {
     color: '#34204D',
     fontSize: 13,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   sceneProgress: {
     position: 'absolute',
     left: 24,
     right: 24,
-    top: 72,
-    zIndex: 5,
+    top: 86,
+    zIndex: storybookTheme.zIndex.sticky,
     flexDirection: 'row',
     gap: 5,
   },
@@ -189,11 +202,11 @@ export const styles = StyleSheet.create({
     flexGrow: 1,
     minHeight: '100%',
     paddingHorizontal: 16,
-    paddingTop: 98,
+    paddingTop: 112,
     paddingBottom: 20,
   },
   scrollContentWide: { paddingHorizontal: 34, paddingBottom: 28 },
-  scrollContentShort: { paddingTop: 84, paddingBottom: 12 },
+  scrollContentShort: { paddingTop: 98, paddingBottom: 12 },
   scrollContentPlayback: { paddingBottom: 18 },
   scrollContentCompactPlayback: { paddingTop: 116 },
   scrollContentCentered: { justifyContent: 'center' },
@@ -274,12 +287,12 @@ export const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#7B4AA1',
   },
-  statusText: { color: '#573570', fontSize: 11, fontWeight: '900' },
+  statusText: { color: '#573570', fontSize: 11, fontWeight: '700' },
   sceneLabel: {
     flex: 1,
     color: '#7E7187',
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '600',
     textAlign: 'right',
   },
   contentGroup: { gap: 15 },
@@ -287,7 +300,7 @@ export const styles = StyleSheet.create({
     color: '#28153F',
     fontSize: 30,
     lineHeight: 39,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
   introBody: {
@@ -302,7 +315,7 @@ export const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 14,
   },
-  nameLabel: { color: '#4E3267', fontSize: 12, fontWeight: '900' },
+  nameLabel: { color: '#4E3267', fontSize: 12, fontWeight: '700' },
   nameInput: {
     height: 50,
     borderRadius: 13,
@@ -311,7 +324,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     color: '#2A173F',
     fontSize: 19,
-    fontWeight: '800',
+    fontWeight: '600',
     paddingHorizontal: 15,
   },
   nameHint: { color: '#85778E', fontSize: 11, lineHeight: 17 },
@@ -369,7 +382,7 @@ export const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 15,
     lineHeight: 18,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   voiceConsentText: {
     flex: 1,
@@ -379,7 +392,7 @@ export const styles = StyleSheet.create({
   },
   voiceConsentLabel: {
     color: '#43225F',
-    fontWeight: '900',
+    fontWeight: '700',
   },
   playbackContent: { gap: 5 },
   captionHeader: {
@@ -397,7 +410,7 @@ export const styles = StyleSheet.create({
   playbackSpeaker: {
     color: '#F6C64D',
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: '700',
     letterSpacing: 0.3,
   },
   captionToggle: {
@@ -413,13 +426,13 @@ export const styles = StyleSheet.create({
   captionToggleText: {
     color: '#F4EEF8',
     fontSize: 11,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   playbackSubtitle: {
     color: '#FFFFFF',
     fontSize: 18,
     lineHeight: 25,
-    fontWeight: '800',
+    fontWeight: '600',
     textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.32)',
     textShadowRadius: 3,
@@ -450,12 +463,12 @@ export const styles = StyleSheet.create({
   playbackButtonIcon: {
     color: '#F6C64D',
     fontSize: 15,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   playbackButtonText: {
     color: '#FFFFFF',
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
   playingDot: {
@@ -468,7 +481,7 @@ export const styles = StyleSheet.create({
   questionEyebrow: {
     color: '#C4513B',
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: '700',
     letterSpacing: 0.8,
     textAlign: 'center',
   },
@@ -476,7 +489,7 @@ export const styles = StyleSheet.create({
     color: '#26143C',
     fontSize: 27,
     lineHeight: 37,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
   questionHelp: {
@@ -497,20 +510,20 @@ export const styles = StyleSheet.create({
   questionListeningText: {
     color: '#9B3F2D',
     fontSize: 14,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   splitRow: { flexDirection: 'row', gap: 10 },
   recordingTitle: {
     color: '#28153F',
     fontSize: 23,
     lineHeight: 31,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
   recordingTime: {
     color: '#D65C3F',
     fontSize: 34,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
   meterTrack: {
@@ -533,7 +546,7 @@ export const styles = StyleSheet.create({
     color: '#28153F',
     fontSize: 23,
     lineHeight: 31,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
   recordingSummary: {
@@ -544,7 +557,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
-  recordingSummaryText: { color: '#64546E', fontSize: 12, fontWeight: '900' },
+  recordingSummaryText: { color: '#64546E', fontSize: 12, fontWeight: '700' },
   previewButton: {
     minHeight: 50,
     borderRadius: 15,
@@ -552,13 +565,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  previewButtonText: { color: '#2B183F', fontSize: 14, fontWeight: '900' },
+  previewButtonText: { color: '#2B183F', fontSize: 14, fontWeight: '700' },
   loadingGroup: { alignItems: 'center', gap: 14, paddingVertical: 8 },
   loadingTitle: {
     color: '#28153F',
     fontSize: 23,
     lineHeight: 32,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
   loadingBody: {
@@ -599,10 +612,10 @@ export const styles = StyleSheet.create({
   choiceNumberText: {
     color: '#38204D',
     fontSize: 15,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   choiceCopy: { flex: 1, gap: 3 },
-  choiceLabel: { color: '#321A4A', fontSize: 16, fontWeight: '900' },
+  choiceLabel: { color: '#321A4A', fontSize: 16, fontWeight: '700' },
   choiceMeaning: { color: '#75647C', fontSize: 12, lineHeight: 18 },
   changeBadge: {
     alignSelf: 'center',
@@ -612,12 +625,12 @@ export const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   answerBadge: { backgroundColor: '#FFF0C8' },
-  changeBadgeText: { color: '#57306E', fontSize: 12, fontWeight: '900' },
+  changeBadgeText: { color: '#57306E', fontSize: 12, fontWeight: '700' },
   responseText: {
     color: '#28153F',
     fontSize: 22,
     lineHeight: 33,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
   branchText: {
@@ -635,14 +648,14 @@ export const styles = StyleSheet.create({
   transcriptLabel: {
     color: '#7A687F',
     fontSize: 11,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
   transcriptText: {
     color: '#3D2850',
     fontSize: 14,
     lineHeight: 21,
-    fontWeight: '800',
+    fontWeight: '600',
     textAlign: 'center',
   },
   transcriptConfirmCard: {
@@ -660,7 +673,7 @@ export const styles = StyleSheet.create({
     color: '#321A4A',
     fontSize: 21,
     lineHeight: 31,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
   fallbackText: {
@@ -672,7 +685,7 @@ export const styles = StyleSheet.create({
   completeMark: {
     color: '#D09A19',
     fontSize: 38,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
   parentReportContent: { width: '100%', gap: 20 },
@@ -691,14 +704,14 @@ export const styles = StyleSheet.create({
   reportEyebrow: {
     color: '#F07C58',
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: '700',
     letterSpacing: 1.5,
   },
   reportHeroTitle: {
     color: '#2C1749',
     fontSize: 34,
     lineHeight: 42,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportStoryPill: {
     alignSelf: 'flex-start',
@@ -710,7 +723,7 @@ export const styles = StyleSheet.create({
   reportStoryPillText: {
     color: '#35204D',
     fontSize: 14,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportHeroBody: {
     color: '#746987',
@@ -732,12 +745,12 @@ export const styles = StyleSheet.create({
     color: '#2E174D',
     fontSize: 31,
     lineHeight: 38,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportStatLabel: {
     color: '#756983',
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '600',
   },
   reportPanel: {
     borderRadius: 28,
@@ -753,7 +766,7 @@ export const styles = StyleSheet.create({
     color: '#2D1949',
     fontSize: 25,
     lineHeight: 33,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportPanelDescription: {
     color: '#746987',
@@ -783,14 +796,14 @@ export const styles = StyleSheet.create({
   reportQuestionNumberText: {
     color: '#2D1948',
     fontSize: 18,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportQuestionHeading: { flex: 1, alignItems: 'flex-start', gap: 9 },
   reportQuestionText: {
     color: '#2D1948',
     fontSize: 22,
     lineHeight: 31,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportQuestionType: {
     borderRadius: 999,
@@ -801,7 +814,7 @@ export const styles = StyleSheet.create({
   reportQuestionTypeText: {
     color: '#4B3269',
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportSceneFigure: {
     borderRadius: 19,
@@ -824,7 +837,7 @@ export const styles = StyleSheet.create({
     color: '#716481',
     fontSize: 12,
     lineHeight: 18,
-    fontWeight: '800',
+    fontWeight: '600',
   },
   reportSelectedPath: {
     borderRadius: 18,
@@ -835,13 +848,13 @@ export const styles = StyleSheet.create({
   reportSelectedPathEyebrow: {
     color: '#EF7653',
     fontSize: 11,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportSelectedPathTitle: {
     color: '#2F1C49',
     fontSize: 17,
     lineHeight: 23,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportSelectedPathSummary: {
     color: '#746987',
@@ -858,13 +871,13 @@ export const styles = StyleSheet.create({
   reportStoryDevelopmentLabel: {
     color: '#7B5AA1',
     fontSize: 11,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportStoryDevelopmentText: {
     color: '#4E4058',
     fontSize: 13,
     lineHeight: 21,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   reportEmptyState: {
     borderRadius: 21,
@@ -876,7 +889,7 @@ export const styles = StyleSheet.create({
   reportEmptyTitle: {
     color: '#33204B',
     fontSize: 17,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportEmptyBody: { color: '#756983', fontSize: 13, lineHeight: 21 },
   reportCoachPanel: {
@@ -896,7 +909,7 @@ export const styles = StyleSheet.create({
     color: '#35204D',
     fontSize: 17,
     lineHeight: 29,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportEvidenceBox: {
     borderRadius: 20,
@@ -915,14 +928,14 @@ export const styles = StyleSheet.create({
     color: '#E46647',
     fontSize: 17,
     lineHeight: 22,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportBulletText: {
     flex: 1,
     color: '#4E4058',
     fontSize: 13,
     lineHeight: 21,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   reportFocusBox: {
     borderRadius: 20,
@@ -933,7 +946,7 @@ export const styles = StyleSheet.create({
   reportFocusLabel: {
     color: '#3B2854',
     fontSize: 13,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportFocusChips: {
     flexDirection: 'row',
@@ -949,7 +962,7 @@ export const styles = StyleSheet.create({
   reportFocusChipText: {
     color: '#392650',
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportFocusNote: {
     color: '#786D87',
@@ -976,14 +989,14 @@ export const styles = StyleSheet.create({
   reportFollowUpNumberText: {
     color: '#2E1948',
     fontSize: 13,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportFollowUpText: {
     flex: 1,
     color: '#35204D',
     fontSize: 15,
     lineHeight: 24,
-    fontWeight: '800',
+    fontWeight: '600',
   },
   reportActivity: {
     borderRadius: 20,
@@ -995,7 +1008,7 @@ export const styles = StyleSheet.create({
   reportActivityTitle: {
     color: '#22623A',
     fontSize: 16,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportActivityBody: {
     color: '#345F43',
@@ -1019,7 +1032,7 @@ export const styles = StyleSheet.create({
     color: '#2D1948',
     backgroundColor: '#FFE36E',
     fontSize: 11,
-    fontWeight: '900',
+    fontWeight: '700',
     letterSpacing: 1,
     paddingHorizontal: 5,
     paddingVertical: 2,
@@ -1028,7 +1041,7 @@ export const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 22,
     lineHeight: 30,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportActionBody: {
     color: '#DDD2EB',
@@ -1047,7 +1060,7 @@ export const styles = StyleSheet.create({
   reportPrimaryActionText: {
     color: '#35204E',
     fontSize: 16,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   reportSecondaryAction: {
     flex: 1,
@@ -1062,53 +1075,15 @@ export const styles = StyleSheet.create({
   reportSecondaryActionText: {
     color: '#FFFFFF',
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: '700',
     textAlign: 'center',
   },
   reportSecondaryActionRow: { flexDirection: 'row', gap: 9 },
-  modalScrim: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    zIndex: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(15, 8, 25, 0.72)',
-    padding: 20,
-  },
-  modalCard: {
-    width: '100%',
-    maxWidth: 520,
-    borderRadius: 26,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.8)',
-    backgroundColor: '#FFFCF5',
-    padding: 24,
-    gap: 13,
-    shadowColor: '#12091F',
-    shadowOpacity: 0.3,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
-  },
-  modalEyebrow: {
-    alignSelf: 'center',
-    color: '#6E428B',
-    backgroundColor: '#F0E7F7',
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    fontSize: 11,
-    fontWeight: '900',
-  },
-  modalTitle: {
-    color: '#28153F',
-    fontSize: 25,
-    lineHeight: 34,
-    fontWeight: '900',
-    textAlign: 'center',
-  },
+  /**
+   * modalScrim/modalCard/modalEyebrow/modalTitle은 shared/ui/modal.tsx의 Modal 컴포넌트로
+   * 옮겨갔다. modalBody/modalTextButton*는 home-menu-modal.tsx가 Modal의 고정 액션 슬롯에
+   * 안 맞는 2단계 위저드라 children으로 직접 마크업을 유지하면서 여전히 참조한다.
+   */
   modalBody: {
     color: '#706476',
     fontSize: 13,
@@ -1123,8 +1098,63 @@ export const styles = StyleSheet.create({
   modalTextButtonLabel: {
     color: '#6A4B7C',
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: '700',
     textDecorationLine: 'underline',
+  },
+  companionChatProfileRow: {
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 2,
+  },
+  companionChatAvatarFrame: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    overflow: 'hidden',
+    backgroundColor: '#F0E7F7',
+    borderWidth: 2,
+    borderColor: '#F6C64D',
+  },
+  companionChatAvatarImage: {
+    position: 'absolute',
+  },
+  companionChatProfileName: {
+    color: '#28153F',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  companionChatHistory: { maxHeight: 220 },
+  companionChatTurn: { gap: 4, marginBottom: 12 },
+  companionChatChildText: {
+    alignSelf: 'flex-end',
+    color: '#FFFFFF',
+    backgroundColor: '#6E428B',
+    borderRadius: 14,
+    borderBottomRightRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 13,
+    fontWeight: '500',
+    maxWidth: '85%',
+  },
+  companionChatSpinner: { alignSelf: 'flex-start', marginTop: 4 },
+  companionChatReplyText: {
+    alignSelf: 'flex-start',
+    color: '#28153F',
+    backgroundColor: '#F0E7F7',
+    borderRadius: 14,
+    borderBottomLeftRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 13,
+    fontWeight: '500',
+    maxWidth: '85%',
+  },
+  companionChatErrorText: {
+    alignSelf: 'flex-start',
+    color: '#8C3E1F',
+    fontSize: 12,
+    fontWeight: '500',
   },
   exitReasonList: { gap: 8 },
   exitReasonButton: {
@@ -1140,7 +1170,7 @@ export const styles = StyleSheet.create({
   exitReasonButtonText: {
     color: '#4E3267',
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '600',
   },
   parentMessage: {
     borderRadius: 15,
@@ -1150,12 +1180,12 @@ export const styles = StyleSheet.create({
     padding: 14,
     gap: 5,
   },
-  parentMessageTitle: { color: '#6B5119', fontSize: 12, fontWeight: '900' },
+  parentMessageTitle: { color: '#6B5119', fontSize: 12, fontWeight: '700' },
   parentMessageText: { color: '#6B5119', fontSize: 12, lineHeight: 19 },
   parentMessageAction: {
     color: '#4A2B61',
     fontSize: 12,
-    fontWeight: '900',
+    fontWeight: '700',
     marginTop: 3,
   },
 });

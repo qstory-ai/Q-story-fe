@@ -36,7 +36,7 @@ function voiceStyle(speakerId: string) {
   return { pitch: 1, rate: 0.82 };
 }
 
-/** Browser fallback narration via the Web Speech API, used when a fixed audio clip is unavailable. */
+/** 고정 오디오 클립을 사용할 수 없을 때 사용하는, Web Speech API를 통한 브라우저 폴백 내레이션. */
 export function useDeviceSpeechNarration() {
   const [state, setState] = useState<NarrationState>(INITIAL_STATE);
   const generationRef = useRef(0);

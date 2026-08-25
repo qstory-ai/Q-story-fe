@@ -11,7 +11,7 @@ import type {
 
 export type SpeechPipelineInput = {
   recording: LocalRecordingArtifact;
-  /** Already-captured web audio. Avoids re-reading a temporary blob URL. */
+  /** 이미 캡처된 웹 오디오. 임시 blob URL을 다시 읽지 않기 위함이다. */
   recordingData?: Blob;
   storyId: StoryId;
   sceneId: SceneId;
@@ -24,9 +24,9 @@ export type TextQuestionPipelineInput = Omit<
   'recording' | 'recordingData'
 > & {
   transcript: string;
-  /** Ask the beta router to expose one real choice when none was experienced yet. */
+  /** 아직 한 번도 경험하지 못했다면 베타 라우터가 실제 선택지를 하나 노출하도록 요청한다. */
   guaranteeAgencyChoice?: boolean;
-  /** Families already experienced earlier in this story session. */
+  /** 이번 스토리 세션에서 이미 앞서 경험한 family들. */
   priorActionFamilyIds?: string[];
 };
 

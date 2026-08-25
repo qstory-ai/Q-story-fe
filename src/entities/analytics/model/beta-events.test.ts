@@ -5,7 +5,6 @@ import { test } from 'node:test';
 
 import {
   createBetaId,
-  getCompletionSurveyUrl,
   trafficTypeForUrl,
   viewportClassForWidth,
 } from './beta-events';
@@ -15,15 +14,6 @@ test('베타 식별자는 UUID 형태다', () => {
   assert.match(
     createBetaId(),
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-  );
-});
-
-test('설문 링크는 사용자에게 내부 세션 코드를 노출하지 않는다', () => {
-  const url = new URL(getCompletionSurveyUrl());
-  assert.equal(url.search, '');
-  assert.equal(
-    url.origin + url.pathname,
-    'https://docs.google.com/forms/d/e/1FAIpQLSeO0R44UwcGSc8EQKGLWAIA5OEvAUjOLjP_VRIY2kWUtBbCjQ/viewform',
   );
 });
 

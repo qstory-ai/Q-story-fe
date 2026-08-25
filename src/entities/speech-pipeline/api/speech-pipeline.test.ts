@@ -1,4 +1,4 @@
-// @ts-nocheck -- Node test runner types are intentionally kept out of the Expo bundle.
+// @ts-nocheck -- Node 테스트 러너 타입을 의도적으로 Expo 번들에서 제외한다.
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -256,6 +256,16 @@ test('HTTP pipeline uploads captured web audio without re-reading its blob URL',
   const upload = JSON.parse(String(calls[0].init?.body));
   assert.equal(upload.mimeType, 'audio/mp4');
   assert.equal(upload.audioBase64, 'AQID');
+  // 리소스 컨텍스트는 헤더가 아니라 body로 보낸다 (POST /v1/questions/route와 동일한 관례) -
+  // 이 JSON 업로드 경로가 same-origin 프록시를 타므로, 헤더로 보내면 커스텀 컨텍스트 헤더를
+  // 프록시가 전달해 주지 않는 한 백엔드에 닿지 않는다.
+  assert.equal(upload.storyId, 'HG');
+  assert.equal(upload.sceneId, 'HG-F04');
+  assert.equal(upload.anchorId, 'HG-Q-A');
+  assert.equal(upload.questionRound, 1);
+  const uploadHeaders = calls[0].init?.headers as Record<string, string>;
+  assert.equal(uploadHeaders['x-qstory-story-id'], undefined);
+  assert.equal(uploadHeaders['x-qstory-anchor-id'], undefined);
 });
 
 test('HTTP pipeline rejects oversized web audio before base64 expansion', async () => {

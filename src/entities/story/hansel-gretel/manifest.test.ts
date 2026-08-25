@@ -150,13 +150,12 @@ test('question anchors derive curiosity prompts from the tagged Master script', 
   assert.ok(prompts.every((prompt) => prompt.length <= 85));
 });
 
-// The two upstream tests that grepped `one-story-product-screen.tsx` for
-// specific substrings (guarding against duplicated prompt copies or dead
-// code in that single 4300-line file) were dropped during the move to
-// q-story-web: the screen was split into `pages/`, `widgets/`, and
-// `features/` modules, so "one file, one copy of X" no longer maps onto a
-// single source file to grep. The underlying behaviors they protected are
-// now enforced by the module boundaries themselves.
+// `one-story-product-screen.tsx`에서 특정 부분 문자열을 grep해서 (그 4300줄짜리 단일
+// 파일 안에 프롬프트 카피가 중복되거나 죽은 코드가 있는지 방지하던) 업스트림 테스트 두
+// 개는 q-story-web으로 옮기면서 제거했다: 그 화면이 `pages/`, `widgets/`,
+// `features/` 모듈로 쪼개지면서 "파일 하나, X의 사본 하나"라는 전제가 더 이상 grep할
+// 단일 소스 파일에 대응되지 않기 때문이다. 그 테스트들이 지켜주던 동작들은 이제 모듈
+// 경계 자체가 강제한다.
 
 test('generated story manifest passes shared contract validation', () => {
   const result = validateStoryManifest(hanselGretelManifest);

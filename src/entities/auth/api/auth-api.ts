@@ -112,6 +112,14 @@ export function signupOrganizationOwner(
   return request('/v1/auth/signup/organization', { method: 'POST', body: JSON.stringify(input) }, options);
 }
 
+/** 반 코드 없이 가입하는 "독립" 학부모용 - 반 코드로 가입하려면 joinClass()를 대신 쓴다. */
+export function signupParent(
+  input: { email: string; password: string; displayName: string },
+  options?: RequestOptions,
+): Promise<AuthResponse> {
+  return request('/v1/auth/signup/parent', { method: 'POST', body: JSON.stringify(input) }, options);
+}
+
 export function login(
   input: { loginId: string; password: string },
   options?: RequestOptions,

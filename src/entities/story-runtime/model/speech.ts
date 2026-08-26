@@ -95,6 +95,8 @@ export type RouteOption = {
   label: string;
   meaning: string;
   actionFamilyId: FallbackFamilyId;
+  /** 이 옵션이 선택된 직후에 말해지는 대사 - selectRouteOption의 내레이션 호출 참고. */
+  branchLine: string;
 };
 
 export type RoutePlan = {

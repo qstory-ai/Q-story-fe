@@ -40,7 +40,7 @@ export function RecordingVoicePanel({ runtime }: { runtime: OneStoryRuntime }) {
       <View style={styles.splitRow}>
         <ActionButton
           variant="secondary"
-          label="글로 바꾸기"
+          label="글로 질문하기"
           onPress={beginTypedQuestion}
         />
         <ActionButton

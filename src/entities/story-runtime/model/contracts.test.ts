@@ -1,4 +1,4 @@
-// @ts-nocheck -- Node test runner assertions intentionally exercise invalid runtime data.
+// @ts-nocheck -- Node 테스트 러너 단정문이 의도적으로 잘못된 런타임 데이터를 검사한다.
 import assert from 'node:assert/strict';
 import test from 'node:test';
 

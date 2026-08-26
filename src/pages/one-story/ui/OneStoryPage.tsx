@@ -2,8 +2,10 @@ import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
 import { SafeAreaView } from '@/shared/ui';
 import type { StoryRuntimePackage } from '@/entities/story';
+import { CompletionSurveyModal } from '@/features/completion-survey-modal';
 
-import { useOneStoryRuntime } from '../model';
+import { useCompanionChat, useOneStoryRuntime } from '../model';
+import { CompanionChatModal } from './modals/companion-chat-modal';
 import { HomeMenuModal } from './modals/home-menu-modal';
 import { ResumeModal } from './modals/resume-modal';
 import { ReaderCard } from './reader-card/reader-card';
@@ -13,10 +15,13 @@ import { TopBar } from './top-bar';
 
 export function OneStoryPage({
   storyPackage,
+  tutorStudentId,
 }: {
   storyPackage: StoryRuntimePackage;
+  /** 방문 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 넘긴다(StoryPlayerRoute 참고). */
+  tutorStudentId?: string;
 }) {
-  const runtime = useOneStoryRuntime(storyPackage);
+  const runtime = useOneStoryRuntime(storyPackage, tutorStudentId);
   const {
     isWide,
     isShort,
@@ -26,6 +31,10 @@ export function OneStoryPage({
     scene,
     illustration,
   } = runtime;
+  const chat = useCompanionChat({
+    storyId: storyPackage.storyId,
+    sceneId: scene?.id ?? null,
+  });
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
@@ -46,7 +55,7 @@ export function OneStoryPage({
           ]}
         />
 
-        <TopBar runtime={runtime} />
+        <TopBar runtime={runtime} chat={chat} />
         <SceneProgressBar runtime={runtime} />
 
         <ScrollView
@@ -72,6 +81,12 @@ export function OneStoryPage({
 
         <ResumeModal runtime={runtime} />
         <HomeMenuModal runtime={runtime} />
+        <CompanionChatModal chat={chat} homeMenuOpen={runtime.homeMenuVisible} />
+        <CompletionSurveyModal
+          visible={runtime.completionSurveyVisible}
+          storyId={storyPackage.storyId}
+          onClose={runtime.closeCompletionSurvey}
+        />
       </View>
     </SafeAreaView>
   );

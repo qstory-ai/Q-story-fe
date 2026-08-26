@@ -1,4 +1,4 @@
-// @ts-nocheck -- Node test runner types are intentionally kept out of the Expo bundle.
+// @ts-nocheck -- Node 테스트 러너 타입은 Expo 번들에서 의도적으로 제외한다.
 import assert from 'node:assert/strict';
 import test from 'node:test';
 

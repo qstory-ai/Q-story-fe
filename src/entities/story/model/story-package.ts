@@ -484,6 +484,10 @@ export function buildStoryRuntimePackage({
             label: family.label,
             meaning: family.meaning,
             actionFamilyId: fallbackFamilyId(family.familyId),
+            // 서버 plan이 부족해 여기서 즉석으로 채워 넣는 옵션이라 LLM이 쓴 실제 대사가 없다 -
+            // runtime.ts의 selectRouteOption이 이미 빈 문자열을 family.acknowledgementText로
+            // 대체하도록 되어 있다.
+            branchLine: '',
           }));
         const fallbackIsEligible =
           plan.fallbackFamilyId !== null &&

@@ -4,17 +4,19 @@ import type { ReactNode } from 'react';
 import { fetchCurrentUser, type UserSummary } from '../api/auth-api';
 import { clearStoredToken, getStoredToken, storeToken } from './session';
 
-type AuthState =
+export type AuthState =
   | { status: 'loading' }
   | { status: 'anonymous' }
   | { status: 'authenticated'; token: string; user: UserSummary };
 
 type AuthContextValue = {
   state: AuthState;
-  /** Call after a successful login/signup/join response - stores the token and refreshes `user`. */
+  /** 로그인/회원가입/가입(join) 응답이 성공한 뒤 호출한다 - 토큰을 저장하고 `user`를 새로고침한다. */
   setSession: (token: string, user: UserSummary) => void;
   logout: () => void;
   refresh: () => Promise<void>;
+  /** 프로필 저장(updateProfile) 성공 직후 호출한다 - refresh()의 전체 왕복 없이 user만 교체한다. */
+  updateUser: (user: UserSummary) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -59,7 +61,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState(await resolveInitialAuthState());
   }, []);
 
-  const value = useMemo(() => ({ state, setSession, logout, refresh }), [state, setSession, logout, refresh]);
+  const updateUser = useCallback((user: UserSummary) => {
+    setState((prev) => (prev.status === 'authenticated' ? { ...prev, user } : prev));
+  }, []);
+
+  const value = useMemo(
+    () => ({ state, setSession, logout, refresh, updateUser }),
+    [state, setSession, logout, refresh, updateUser],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

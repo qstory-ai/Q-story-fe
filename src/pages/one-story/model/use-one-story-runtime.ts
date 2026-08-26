@@ -12,7 +12,6 @@ import {
   type StoryRuntimeState,
 } from '@/entities/story-runtime';
 import {
-  getCompletionSurveyUrl,
   buildExitDiagnostics,
   sanitizeQuestionText,
   buildParentReport,
@@ -40,6 +39,8 @@ import {
   type TranscriptionSuccess,
 } from '@/entities/speech-pipeline';
 import type { StoryRuntimePackage } from '@/entities/story';
+import { useAuth } from '@/entities/auth';
+import { recordStoryCompletion } from '@/entities/story-completion';
 import {
   useStoryNarration,
   preloadFixedNarration,
@@ -73,8 +74,9 @@ import {
   questionFailureCopy,
   questionPrompt,
 } from '../lib/runtime-view';
+import { preloadImages } from '../lib/preload-images';
 
-export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
+export function useOneStoryRuntime(storyPackage: StoryRuntimePackage, tutorStudentId?: string) {
   const storyManifest = storyPackage.manifest;
   const storyPresentation = storyPackage.presentation;
   const TOTAL_SCENES = storyPresentation.scenes.length;
@@ -100,13 +102,14 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
   const isWide = width >= 900;
   const isShort = height < 720;
   const recorder = useAudioRecorderAdapter();
+  const { state: authState } = useAuth();
   const {
     speak: speakNarration,
     stop: stopNarration,
     pause: pauseNarration,
     resume: resumeNarration,
     state: narrationState,
-  } = useStoryNarration(storyPackage.audioAssets);
+  } = useStoryNarration(storyPackage.audioAssets, storyManifest.storyId);
   const initialState = useMemo(
     () => createInitialRuntimeState(storyManifest),
     [storyManifest],
@@ -143,6 +146,11 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
   const [pendingTranscription, setPendingTranscription] =
     useState<TranscriptionSuccess | null>(null);
   const [isRoutingQuestion, setIsRoutingQuestion] = useState(false);
+  // "processing-question" 내부의 화면 로컬 단계 구분 - isRoutingQuestion 하나만으로는
+  // "라우팅 LLM 호출을 기다리는 중"과 "응답 TTS를 기다리는 중"을 구분할 수 없어서, 로딩
+  // 화면이 약 10초에 달하는 대기 시간 전체를 하나의 단조로운 화면으로 보여주고 있었다.
+  // pendingTranscription과 같은 관례를 따른다: 새로운 runtime state가 아니라 UI 전용 구분이다.
+  const [isPreparingResponseAudio, setIsPreparingResponseAudio] = useState(false);
   const [pendingResponseAudio, setPendingResponseAudio] =
     useState<ResponseAudio | null>(null);
   const [questionMode, setQuestionMode] =
@@ -165,6 +173,7 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
     number | null
   >(null);
   const [parentReportVisible, setParentReportVisible] = useState(false);
+  const [completionSurveyVisible, setCompletionSurveyVisible] = useState(false);
   const [resumeCandidate, setResumeCandidate] =
     useState<LocalStoryProgress | null>(() => loadLocalStoryProgress());
   const [homeMenuVisible, setHomeMenuVisible] = useState(false);
@@ -524,6 +533,32 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
     storyPackage.audioAssets,
   ]);
 
+  // 오디오 프리로드와 같은 "현재+다음 장면" 윈도 - 한 챕터가 재생되는 동안 다음 챕터 삽화가
+  // 이미 브라우저 캐시에 들어가 있어야, 챕터가 바뀌는 순간 로딩이 보이지 않는다. 동시 요청 수
+  // 제한은 preloadImages 안에 있다.
+  useEffect(() => {
+    const imageUris = storyManifest.scenes
+      .slice(sceneIndex, Math.min(sceneIndex + 2, TOTAL_SCENES))
+      .flatMap((preloadScene) =>
+        preloadScene.visualStateIds.flatMap((visualStateId) => {
+          const masterAssetId = storyManifest.visualStates.find(
+            (visualState) => visualState.id === visualStateId,
+          )?.masterAssetId;
+          if (!masterAssetId) {
+            return [];
+          }
+          return [storyPackage.illustrationForAssetId(masterAssetId).uri];
+        }),
+      );
+    void preloadImages(imageUris);
+  }, [
+    sceneIndex,
+    TOTAL_SCENES,
+    storyManifest.scenes,
+    storyManifest.visualStates,
+    storyPackage,
+  ]);
+
   useEffect(() => {
     return () => {
       processingAbortRef.current?.abort();
@@ -551,12 +586,26 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
         question_count: questionOutcomes.length,
         changed_scene_count: parentReport.changedSceneCount,
       });
+      // 로그인한 부모/반 계정에게만 저장 - 익명 데모(/demo)는 계정이 없어 남길 곳이 없다.
+      // 리포트 저장 실패는 화면에 드러내지 않는다: 다시 시도할 뚜렷한 방법이 없고, 지금 보고
+      // 있는 리포트 자체는 이미 완성된 상태라 아이/부모 경험에 영향을 주지 않는다.
+      if (authState.status === 'authenticated') {
+        void recordStoryCompletion(authState.token, {
+          storyId: storyPackage.storyId,
+          durationSeconds,
+          outcomes: questionOutcomes,
+          tutorStudentId,
+        }).catch(() => {});
+      }
     }
   }, [
+    authState,
+    tutorStudentId,
     parentReport.changedSceneCount,
-    questionOutcomes.length,
+    questionOutcomes,
     runtimeState.status,
     storyDurationSeconds,
+    storyPackage.storyId,
     trackStoryEvent,
   ]);
 
@@ -1058,8 +1107,12 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
         (candidate) => candidate.id === state.anchorId,
       );
       const responseText = personalizeStoryText(plan.text, childName);
+      const audioAlreadyIncluded = !planWasRepaired ? result.audio : null;
+      if (!audioAlreadyIncluded && anchor) {
+        setIsPreparingResponseAudio(true);
+      }
       const preparedAudio =
-        (!planWasRepaired ? result.audio : null) ??
+        audioAlreadyIncluded ??
         (anchor
           ? await audioReadyWithin(
               getResponseNarration(
@@ -1073,6 +1126,7 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
               RESPONSE_AUDIO_PREPARE_MS,
             )
           : null);
+      setIsPreparingResponseAudio(false);
       if (controller.signal.aborted) {
         return;
       }
@@ -1096,6 +1150,7 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
         processingAbortRef.current = null;
       }
       setIsRoutingQuestion(false);
+      setIsPreparingResponseAudio(false);
     }
   }, [
     commitEvent,
@@ -1141,6 +1196,37 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
       setPendingResponseAudio(null);
       setBranchCaption(null);
       activeNarrationIdRef.current = null;
+
+      // Tier 1: 선택지의 branchLine은 선택할 때마다 LLM이 새로 작성하므로(
+      // OpenRouterClient.generatePlan()의 스키마 참고), awaiting-choice 동안 이미 준비되어
+      // 있던 초대 문구(invitation text)와 달리 - 이 오디오는 아직 준비되어 있지 않다.
+      // 여기서 내레이션 호출을 한 번 수행하며, 라우팅 응답의 TTS 준비에 이미 쓰이고 있는
+      // 동일한 audioReadyWithin 경합(race)을 사용한다.
+      if (selectedOption?.branchLine) {
+        const anchor = storyManifest.questionAnchors.find(
+          (candidate) => candidate.id === choiceState.anchorId,
+        );
+        if (anchor) {
+          setIsPreparingResponseAudio(true);
+          const controller = new AbortController();
+          const audio = await audioReadyWithin(
+            getResponseNarration(
+              {
+                storyId: storyManifest.storyId,
+                anchor,
+                text: selectedOption.branchLine,
+              },
+              controller.signal,
+            ),
+            RESPONSE_AUDIO_PREPARE_MS,
+          );
+          setIsPreparingResponseAudio(false);
+          if (runtimeRef.current.status === 'awaiting-choice') {
+            setPendingResponseAudio(audio);
+          }
+        }
+      }
+
       if (
         commitEvent({ type: 'CHOICE_SELECTED', optionId }) &&
         selectedOption
@@ -1158,7 +1244,13 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
         });
       }
     },
-    [commitEvent, rememberQuestionOutcome, stopNarration, trackStoryEvent],
+    [
+      commitEvent,
+      rememberQuestionOutcome,
+      stopNarration,
+      storyManifest,
+      trackStoryEvent,
+    ],
   );
 
   useEffect(() => {
@@ -1330,8 +1422,8 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
         progress: pendingResponseAudio ? 0 : null,
       });
       if (branchVisualAssetId) {
-        // Show the reviewed default image right away and start audio at
-        // the same time — image loading must never block TTS or state.
+        // 검수를 마친 기본 이미지를 즉시 보여주는 동시에 오디오도 시작한다 — 이미지
+        // 로딩이 TTS나 상태 갱신을 절대 막아서는 안 된다.
         setActiveBranchVisualId(branchVisualAssetId);
       }
       const remoteAudio = pendingResponseAudio;
@@ -1687,7 +1779,7 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
           JSON.stringify({ reason, at: new Date().toISOString() }),
         );
       } catch {
-        // Exit feedback storage must never trap the family in the player.
+        // 종료 피드백 저장 실패로 인해 가족이 플레이어 안에 갇히는 일이 있어서는 절대 안 된다.
       }
       await trackStoryEvent('explicit_exit', {
         reason_code: EXIT_REASON_CODES[reason],
@@ -1719,8 +1811,12 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
 
   const openCompletionSurvey = useCallback(async () => {
     await trackStoryEvent('survey_opened');
-    await openExternal(getCompletionSurveyUrl());
-  }, [openExternal, trackStoryEvent]);
+    setCompletionSurveyVisible(true);
+  }, [trackStoryEvent]);
+
+  const closeCompletionSurvey = useCallback(() => {
+    setCompletionSurveyVisible(false);
+  }, []);
 
   const meterPercent =
     typeof recorder.meteringDb === 'number'
@@ -1755,14 +1851,14 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
       : null;
 
   return {
-    // layout
+    // 레이아웃
     isWide,
     isShort,
     isCompactPlayback,
     isPlaybackDockState,
     isParentReport,
     storyPackage,
-    // runtime + derived view state
+    // runtime 및 파생 view 상태
     runtimeState,
     scene,
     speaker,
@@ -1790,7 +1886,7 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
     isSafetyRedirect,
     failedQuestionCopy,
     lastTranscript,
-    // input state
+    // 입력 상태
     childNameInput,
     setChildNameInput,
     childName,
@@ -1802,15 +1898,16 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
     recorder,
     pendingTranscription,
     isRoutingQuestion,
+    isPreparingResponseAudio,
     parentMessage,
-    // choice / response
+    // 선택지 / 응답
     parentReport,
     resumeCandidate,
     homeMenuVisible,
     exitReasonVisible,
     setExitReasonVisible,
     exitReasons: EXIT_REASONS,
-    // handlers
+    // 핸들러
     startStory,
     continueStory,
     beginQuestion,
@@ -1835,6 +1932,8 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage) {
     openParentReport,
     closeParentReport,
     openCompletionSurvey,
+    completionSurveyVisible,
+    closeCompletionSurvey,
     getSceneIndex,
   };
 }

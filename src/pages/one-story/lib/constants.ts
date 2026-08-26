@@ -23,9 +23,9 @@ export const EXIT_REASON_CODES: Record<(typeof EXIT_REASONS)[number], string> = 
 };
 
 export const QUESTION_AUDIO_HEAD_START_MS = 2_000;
-// Operational checks have seen TTS prep take up to ~10.7s. Falling back to
-// device TTS at 8s would replace Gretel's voice with a robotic one, so the
-// character voice gets a bit more time before the device fallback kicks in.
+// 운영 환경 점검 결과 TTS 준비에 최대 약 10.7초까지 걸리는 것을 확인했다. 8초 만에
+// 기기 TTS로 폴백하면 Gretel의 목소리가 로봇 같은 음성으로 바뀌어버리므로,
+// 기기 폴백이 발동하기 전까지 캐릭터 목소리에 조금 더 시간을 준다.
 export const RESPONSE_AUDIO_PREPARE_MS = 12_000;
 export const FIXED_AUDIO_FAILURE_RECOVERY_MS = 2_500;
 

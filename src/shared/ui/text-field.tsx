@@ -1,24 +1,31 @@
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import type { TextInputProps } from 'react-native';
 
+import { storybookTheme } from './theme';
+
 type TextFieldProps = TextInputProps & {
   label: string;
   errorText?: string;
 };
 
-/** First form-input primitive in this codebase - login/signup forms are the first feature needing one. */
-export function TextField({ label, errorText, style, ...rest }: TextFieldProps) {
+/** 이 코드베이스에서 첫 번째 폼 입력 프리미티브 - 로그인/회원가입 폼이 이것을 필요로 하는 첫 기능이다. */
+export function TextField({ label, errorText, style, accessibilityLabel, ...rest }: TextFieldProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
         style={[styles.input, errorText ? styles.inputError : null, style]}
-        placeholderTextColor="#9C87AC"
+        placeholderTextColor={storybookTheme.color.onLightMuted}
         autoCapitalize="none"
         autoCorrect={false}
+        accessibilityLabel={accessibilityLabel ?? label}
         {...rest}
       />
-      {errorText ? <Text style={styles.errorText}>{errorText}</Text> : null}
+      {errorText ? (
+        <Text style={styles.errorText} accessibilityLiveRegion="polite">
+          {errorText}
+        </Text>
+      ) : null}
     </View>
   );
 }
@@ -28,25 +35,26 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   label: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#503267',
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.medium,
+    color: storybookTheme.color.onLightBody,
   },
   input: {
     minHeight: 48,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0D3EA',
-    backgroundColor: '#FFFFFF',
+    borderColor: storybookTheme.color.lightCardBorder,
+    backgroundColor: storybookTheme.color.surfaceWhite,
     paddingHorizontal: 14,
-    fontSize: 15,
-    color: '#2E1B3D',
+    /** md(16)로 반올림 - 15px 미만 입력창은 모바일 사파리에서 포커스 시 자동 확대(zoom)를 유발한다. */
+    fontSize: storybookTheme.type.md,
+    color: storybookTheme.color.onCardTitle,
   },
   inputError: {
-    borderColor: '#E46647',
+    borderColor: storybookTheme.color.error,
   },
   errorText: {
-    fontSize: 12,
-    color: '#E46647',
+    fontSize: storybookTheme.type.xs,
+    color: storybookTheme.color.error,
   },
 });

@@ -2,8 +2,9 @@ import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, SafeAreaView, TextField } from '@/shared/ui';
-import { AuthApiError, homePathFor, login, useAuth } from '@/entities/auth';
+import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
+import { AuthApiError, homePathFor, login, useAuth, type UserSummary } from '@/entities/auth';
+import { SocialLoginButtons } from '@/features/oauth-login';
 
 /** Role-agnostic - loginId is an email for DIRECTOR/PARENT or a director-issued handle for CLASS_ACCOUNT. */
 export function LoginPage() {
@@ -28,15 +29,23 @@ export function LoginPage() {
     }
   }, [loginId, password, navigate, setSession]);
 
+  const onAuthed = useCallback(
+    (token: string, user: UserSummary) => {
+      setSession(token, user);
+      navigate(homePathFor(user), { replace: true });
+    },
+    [navigate, setSession],
+  );
+
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>로그인</Text>
+        <Text style={styles.title} accessibilityRole="header">로그인</Text>
         <TextField
           label="아이디"
           value={loginId}
           onChangeText={setLoginId}
-          placeholder="이메일 또는 반 아이디"
+          placeholder="아이디"
           keyboardType="email-address"
         />
         <TextField
@@ -52,8 +61,9 @@ export function LoginPage() {
           onPress={onSubmit}
           disabled={submitting || !loginId.trim() || !password}
         />
+        <SocialLoginButtons onAuthed={onAuthed} onDark={false} />
         <View style={styles.links}>
-          <Pressable onPress={() => navigate('/director')} accessibilityRole="link">
+          <Pressable onPress={() => navigate('/organization')} accessibilityRole="link">
             <Text style={styles.link}>원장이신가요? 유치원 등록하기</Text>
           </Pressable>
           <Pressable onPress={() => navigate('/join')} accessibilityRole="link">
@@ -68,7 +78,7 @@ export function LoginPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F1FB',
+    backgroundColor: storybookTheme.color.shellBackground,
   },
   content: {
     flex: 1,
@@ -80,9 +90,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    fontSize: 22,
+    fontSize: storybookTheme.type.lg,
     fontWeight: '900',
-    color: '#43225F',
+    color: storybookTheme.color.onLightHeading,
     textAlign: 'center',
     marginBottom: 8,
   },
@@ -92,8 +102,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   link: {
-    color: '#7A4FA0',
-    fontSize: 13,
+    color: storybookTheme.color.linkOnLight,
+    fontSize: storybookTheme.type.sm,
     fontWeight: '700',
     textDecorationLine: 'none',
   },

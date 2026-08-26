@@ -22,7 +22,7 @@ export function AwaitingChoicePanel({ runtime }: { runtime: OneStoryRuntime }) {
   return (
     <View style={styles.contentGroup}>
       <Text style={styles.questionEyebrow}>
-        여러 방법이 모두 괜찮을 때만 골라요
+        정답은 없어요, 마음에 드는 방법을 골라요
       </Text>
       <Text style={styles.panelTitle}>
         {displayedBranchSubtitle ||
@@ -34,7 +34,10 @@ export function AwaitingChoicePanel({ runtime }: { runtime: OneStoryRuntime }) {
             key={option.id}
             accessibilityRole="button"
             accessibilityLabel={`${index + 1}번 선택, ${option.label}`}
-            style={styles.choiceButton}
+            style={({ pressed }) => [
+              styles.choiceButton,
+              pressed && styles.choiceButtonPressed,
+            ]}
             onPress={() => selectRouteOption(option.id)}
           >
             <View style={styles.choiceNumber}>

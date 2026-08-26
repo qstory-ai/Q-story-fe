@@ -25,7 +25,6 @@ export function ReaderCard({ runtime }: { runtime: OneStoryRuntime }) {
     isParentReport,
     isQuestionInvitePlayback,
     speaker,
-    scene,
   } = runtime;
 
   return (
@@ -52,9 +51,6 @@ export function ReaderCard({ runtime }: { runtime: OneStoryRuntime }) {
                 : statusCopy(runtimeState)}
             </Text>
           </View>
-          <Text style={styles.sceneLabel}>
-            {scene?.id} · {scene?.title}
-          </Text>
         </View>
       )}
 

@@ -9,6 +9,7 @@ export function ProcessingPanel({ runtime }: { runtime: OneStoryRuntime }) {
   const {
     runtimeState,
     pendingTranscription,
+    isPreparingResponseAudio,
     questionMode,
     beginQuestion,
     beginTypedQuestion,
@@ -24,13 +25,27 @@ export function ProcessingPanel({ runtime }: { runtime: OneStoryRuntime }) {
   return (
     <View style={styles.loadingGroup}>
       <ActivityIndicator color="#F6C64D" size="large" />
-      <Text style={styles.loadingTitle}>
-        헨젤과 그레텔이{'\n'}
-        아이의 생각을 살펴보고 있어요
-      </Text>
-      <Text style={styles.loadingBody}>
-        이야기와 어울리는 안전한 길을 찾으면 바로 이어갈게요.
-      </Text>
+      {isPreparingResponseAudio ? (
+        <>
+          <Text style={styles.loadingTitle}>
+            헨젤과 그레텔이{'\n'}
+            대답을 준비하고 있어요
+          </Text>
+          <Text style={styles.loadingBody}>
+            목소리로 들려줄 준비가 되면 바로 이어갈게요.
+          </Text>
+        </>
+      ) : (
+        <>
+          <Text style={styles.loadingTitle}>
+            헨젤과 그레텔이{'\n'}
+            아이의 생각을 살펴보고 있어요
+          </Text>
+          <Text style={styles.loadingBody}>
+            이야기와 어울리는 안전한 길을 찾으면 바로 이어갈게요.
+          </Text>
+        </>
+      )}
       <View style={styles.loadingDots}>
         <View style={styles.loadingDot} />
         <View style={styles.loadingDot} />
@@ -39,7 +54,7 @@ export function ProcessingPanel({ runtime }: { runtime: OneStoryRuntime }) {
       <View style={styles.recoveryActions}>
         <ActionButton
           variant="secondaryFull"
-          label={questionMode === 'text' ? '말로 바꾸기' : '글로 바꾸기'}
+          label={questionMode === 'text' ? '말로 질문하기' : '글로 질문하기'}
           onPress={questionMode === 'text' ? beginQuestion : beginTypedQuestion}
         />
         <ActionButton

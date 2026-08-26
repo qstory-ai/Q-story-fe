@@ -6,23 +6,64 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/narrations/stream', true],
   ['POST v1/beta-events', true],
   ['POST v1/voice-research', true],
-  ['POST v1/auth/signup/director', true],
+  ['POST v1/voice-research/withdraw', true],
+  ['POST v1/companion-chat/messages', true],
+  ['POST v1/companion-chat/transcriptions/base64', true],
+  ['POST v1/auth/signup/organization', true],
+  ['POST v1/auth/signup/parent', true],
+  ['POST v1/auth/signup/tutor', true],
   ['POST v1/auth/login', true],
+  ['POST v1/auth/oauth/google', true],
+  ['POST v1/auth/oauth/kakao', true],
   ['GET v1/auth/me', true],
+  ['POST v1/auth/password-reset/request', true],
+  ['POST v1/auth/password-reset/confirm', true],
   ['POST v1/organizations', true],
   ['POST v1/classes/join', true],
+  ['POST v1/launch-notifications', true],
+  ['POST v1/completion-surveys', true],
+  ['GET v1/stories', true],
+  ['POST v1/story-completions', true],
+  ['GET v1/story-completions', true],
+  ['POST v1/tutor-students', true],
+  ['GET v1/tutor-students', true],
+  ['GET v1/tutor-schedules', true],
+  ['GET v1/parents/me/tutor-reports', true],
 ]);
 
-// Routes with a path segment (story/org/class id) that can't be listed as a literal above.
+// Routes with a path segment (story/org/class/scene/segment id) that can't be listed as a literal above.
 const UUID_SEGMENT = '[0-9a-fA-F-]{36}';
+const STORY_ID_SEGMENT = '[A-Za-z0-9_-]{1,64}';
+// TutorInvite/ClassInvite raw tokens are Base64.getUrlEncoder().withoutPadding() of 24 random
+// bytes (ClassService.randomToken()/TutorStudentService.randomToken()) - URL-safe base64, not a UUID.
+const INVITE_TOKEN_SEGMENT = '[A-Za-z0-9_-]{16,64}';
 const DYNAMIC_ROUTES = [
   { method: 'GET', pattern: /^v1\/stories\/[A-Za-z0-9_-]{1,64}\/content$/ },
+  { method: 'GET', pattern: new RegExp(`^v1/stories/${STORY_ID_SEGMENT}$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/story-completions/${UUID_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/entitlement$`) },
   { method: 'POST', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/classes$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/classes$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}$`) },
   { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/invites$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/schedule$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/invites$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/completions$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/tutor-invites/${INVITE_TOKEN_SEGMENT}$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/tutor-invites/${INVITE_TOKEN_SEGMENT}/accept$`) },
+  // Staff CMS (story-admin-api.ts) - storyId/sceneId are content ids, segmentId is a UUID.
+  { method: 'GET', pattern: new RegExp(`^v1/admin/stories/${STORY_ID_SEGMENT}/scenes$`) },
+  { method: 'PATCH', pattern: new RegExp(`^v1/admin/stories/${STORY_ID_SEGMENT}/scenes/${STORY_ID_SEGMENT}$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/admin/stories/${STORY_ID_SEGMENT}/scenes/${STORY_ID_SEGMENT}/segments$`) },
+  { method: 'PATCH', pattern: new RegExp(`^v1/admin/stories/${STORY_ID_SEGMENT}/segments/${UUID_SEGMENT}$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/admin/stories/${STORY_ID_SEGMENT}/revisions$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/admin/stories/${STORY_ID_SEGMENT}/revisions/revert$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/admin/stories/${STORY_ID_SEGMENT}/narration/stale$`) },
+  {
+    method: 'POST',
+    pattern: new RegExp(`^v1/admin/stories/${STORY_ID_SEGMENT}/segments/${UUID_SEGMENT}/narration/rerender$`),
+  },
 ];
 
 function isAllowedRoute(method, upstreamPath) {
@@ -30,14 +71,11 @@ function isAllowedRoute(method, upstreamPath) {
   return DYNAMIC_ROUTES.some((route) => route.method === method && route.pattern.test(upstreamPath));
 }
 
-const FORWARDED_HEADERS = [
-  'content-type',
-  'authorization',
-  'x-qstory-story-id',
-  'x-qstory-scene-id',
-  'x-qstory-anchor-id',
-  'x-qstory-question-round',
-];
+// 리소스 컨텍스트(storyId/sceneId/anchorId/questionRound)는 모든 라우트가 JSON body로
+// 받는다 - 예전엔 x-qstory-* 헤더로 전달하는 라우트도 있었지만, 그 라우트들(/v1/transcriptions,
+// /v1/questions)은 애초에 이 프록시의 화이트리스트에 없었거나(raw 바이너리 업로드는 이 프록시를
+// 안 탄다) 지금은 body 기반으로 옮겨져서, 이 프록시가 전달해야 할 커스텀 컨텍스트 헤더가 없다.
+const FORWARDED_HEADERS = ['content-type', 'authorization'];
 const MAX_RAW_AUDIO_BYTES = Math.floor(2.5 * 1024 * 1024);
 // Base64 JSON audio upload inflates the raw bytes by ~4/3.
 const MAX_TRANSCRIPTION_BODY_BYTES = Math.ceil(MAX_RAW_AUDIO_BYTES / 3) * 4 + 4_096;
@@ -47,24 +85,19 @@ const MAX_VOICE_RESEARCH_BODY_BYTES = 4 * 1024 * 1024;
 const MAX_BETA_EVENT_BODY_BYTES = 8_192;
 // Auth/org/class bodies are small JSON structs (email/password/names), never audio-sized.
 const MAX_AUTH_BODY_BYTES = 8_192;
-const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes'];
+// Two optional free-text fields (topPriority/oneLineReview, 500 chars each server-side) plus
+// checkbox arrays and a contact field can add up past MAX_AUTH_BODY_BYTES in the worst case.
+const MAX_COMPLETION_SURVEY_BODY_BYTES = 16_384;
+const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes', 'v1/tutor-students', 'v1/tutor-invites', 'v1/parents/'];
 
 function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath === 'v1/voice-research') return MAX_VOICE_RESEARCH_BODY_BYTES;
   if (upstreamPath === 'v1/beta-events') return MAX_BETA_EVENT_BODY_BYTES;
+  if (upstreamPath === 'v1/launch-notifications') return MAX_AUTH_BODY_BYTES;
+  if (upstreamPath === 'v1/completion-surveys') return MAX_COMPLETION_SURVEY_BODY_BYTES;
   if (AUTH_PATH_PREFIXES.some((prefix) => upstreamPath.startsWith(prefix))) return MAX_AUTH_BODY_BYTES;
   return MAX_TRANSCRIPTION_BODY_BYTES;
 }
-
-const SUPPORTED_AUDIO_TYPES = new Set([
-  'audio/mp4',
-  'audio/m4a',
-  'audio/mpeg',
-  'audio/wav',
-  'audio/x-wav',
-  'audio/flac',
-  'audio/webm',
-]);
 
 function failureResponse(status, code, safeDetail) {
   return Response.json(
@@ -109,62 +142,6 @@ function normalizedUpstreamUrl(value) {
   } catch {
     return null;
   }
-}
-
-function decodeAudioUpload(body) {
-  let value;
-  try {
-    value = JSON.parse(new TextDecoder().decode(body));
-  } catch {
-    return {
-      response: failureResponse(
-        400,
-        'QSTORY_PROXY_INVALID_AUDIO_UPLOAD',
-        '녹음 데이터를 읽지 못했어요.',
-      ),
-    };
-  }
-
-  const audioBase64 = String(value?.audioBase64 ?? '').trim();
-  const mimeType = String(value?.mimeType ?? '')
-    .split(';', 1)[0]
-    .trim()
-    .toLowerCase();
-  if (
-    !audioBase64 ||
-    audioBase64.length % 4 === 1 ||
-    !/^[A-Za-z0-9+/]*={0,2}$/.test(audioBase64) ||
-    !SUPPORTED_AUDIO_TYPES.has(mimeType)
-  ) {
-    return {
-      response: failureResponse(
-        400,
-        'QSTORY_PROXY_INVALID_AUDIO_UPLOAD',
-        '녹음 데이터가 비어 있거나 손상됐어요.',
-      ),
-    };
-  }
-
-  const audio = Buffer.from(audioBase64, 'base64');
-  if (audio.byteLength === 0) {
-    return {
-      response: failureResponse(
-        400,
-        'QSTORY_PROXY_INVALID_AUDIO_UPLOAD',
-        '녹음 데이터가 비어 있어요.',
-      ),
-    };
-  }
-  if (audio.byteLength > MAX_RAW_AUDIO_BYTES) {
-    return {
-      response: failureResponse(
-        413,
-        'QSTORY_PROXY_AUDIO_TOO_LARGE',
-        '녹음이 30초 한도를 넘었어요. 짧게 다시 말해 주세요.',
-      ),
-    };
-  }
-  return { audio, mimeType };
 }
 
 export function createQStoryProxy({
@@ -230,20 +207,9 @@ export function createQStoryProxy({
       }
     }
 
-    let resolvedUpstreamPath = upstreamPath;
-    if (upstreamPath === 'v1/transcriptions/base64') {
-      const decoded = decodeAudioUpload(body);
-      if (decoded.response) {
-        return decoded.response;
-      }
-      resolvedUpstreamPath = 'v1/transcriptions';
-      body = decoded.audio;
-      headers.set('content-type', decoded.mimeType);
-    }
-
     try {
       const response = await fetchImpl(
-        new URL(`/${resolvedUpstreamPath}`, upstream),
+        new URL(`/${upstreamPath}`, upstream),
         {
           method: request.method,
           headers,

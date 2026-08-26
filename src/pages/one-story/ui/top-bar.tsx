@@ -1,14 +1,30 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
+import { Icon, storybookTheme } from '@/shared/ui';
+
 import type { OneStoryRuntime } from '../model';
+import type { UseCompanionChat } from '../model/use-companion-chat';
 import { styles } from './styles';
 
-export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
+const TOP_ICON_COLOR = storybookTheme.color.gold;
+// topControlButton은 시각적으로 38px로 촘촘하게 배치돼 있어(기존 gap 6~9px 유지),
+// 터치 영역만 WCAG 44px 권장치에 가깝게 넓힌다 - 인접 버튼과는 겹치지 않는 선에서.
+const TOP_CONTROL_HIT_SLOP = { top: 4, bottom: 4, left: 3, right: 3 };
+
+export function TopBar({
+  runtime,
+  chat,
+}: {
+  runtime: OneStoryRuntime;
+  chat: UseCompanionChat;
+}) {
   const {
     isWide,
     isCompactPlayback,
     isParentReport,
     runtimeState,
+    scene,
+    parentReport,
     displayedSceneIndex,
     totalScenes,
     isPlaybackDockState,
@@ -24,6 +40,21 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
     closeParentReport,
   } = runtime;
 
+  // 비디오 플레이어의 스크러버처럼, 장면 번호가 딱딱 넘어가는 대신 지금 읽고 있는
+  // 문장의 재생 진행률만큼 매끄럽게 채워지도록 (장면 인덱스 + 그 장면 안 진행률)을 전체
+  // 장면 수로 나눈다.
+  const overallProgress =
+    runtimeState.status === 'complete'
+      ? 1
+      : Math.max(
+          0,
+          Math.min(
+            1,
+            (displayedSceneIndex + narrationState.progress) /
+              Math.max(1, totalScenes),
+          ),
+        );
+
   return (
     <View
       style={[
@@ -32,6 +63,7 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
         isParentReport && styles.reportTopBar,
       ]}
     >
+      <View style={styles.topBarRow}>
       <View
         style={[
           styles.brandLockup,
@@ -64,8 +96,13 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
               isParentReport && styles.reportStoryTitle,
             ]}
           >
-            {isParentReport ? '우리 아이 사고흔적 리포트' : '헨젤과 그레텔'}
+            {isParentReport ? '오늘의 질문 기록' : parentReport.storyTitle}
           </Text>
+          {runtimeState.status !== 'idle' && !isParentReport && scene?.title && (
+            <Text style={styles.chapterTitle} numberOfLines={1}>
+              {displayedSceneIndex + 1}화 · {scene.title}
+            </Text>
+          )}
         </View>
       </View>
       <View
@@ -79,10 +116,35 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
             accessibilityRole="button"
             accessibilityLabel="이야기 홈 메뉴"
             style={styles.topControlButton}
+            hitSlop={TOP_CONTROL_HIT_SLOP}
             onPress={openHomeMenu}
           >
-            <Text style={styles.topControlIcon}>⌂</Text>
+            <Icon name="home" size={16} color={TOP_ICON_COLOR} />
             {isWide && <Text style={styles.topControlText}>홈</Text>}
+          </Pressable>
+        )}
+        {runtimeState.status !== 'idle' && !isParentReport && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${chat.character.displayName}에게 물어보기`}
+            style={styles.topControlButton}
+            hitSlop={TOP_CONTROL_HIT_SLOP}
+            onPress={() => {
+              // 스토리 내레이션이 계속되는 동안 캐릭터와 대화하면 아이의 주의를 두고
+              // 경쟁하게 되므로 - 먼저 일시정지한다(단, 실제로 재생 중일 때만; 이미
+              // 일시정지된 상태에서 토글하면 오히려 재생이 재개되어 버리기 때문).
+              if (!narrationState.isPaused) {
+                void toggleNarration();
+              }
+              chat.setOpen(true);
+            }}
+          >
+            <Icon name="chat" size={16} color={TOP_ICON_COLOR} />
+            {isWide && (
+              <Text style={styles.topControlText}>
+                {chat.character.displayName}에게 물어보기
+              </Text>
+            )}
           </Pressable>
         )}
         {isCompactPlayback && (
@@ -106,11 +168,14 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
                 narrationState.isPaused ? '이어 듣기' : '일시정지'
               }
               style={[styles.topControlButton, styles.topControlButtonPrimary]}
+              hitSlop={TOP_CONTROL_HIT_SLOP}
               onPress={toggleNarration}
             >
-              <Text style={styles.topControlIcon}>
-                {narrationState.isPaused ? '▶' : 'Ⅱ'}
-              </Text>
+              <Icon
+                name={narrationState.isPaused ? 'play' : 'pause'}
+                size={15}
+                color={TOP_ICON_COLOR}
+              />
               {isWide && (
                 <Text style={styles.topControlText}>
                   {narrationState.isPaused ? '이어 듣기' : '일시정지'}
@@ -125,9 +190,10 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
                   : '현재 문장 다시 듣기'
               }
               style={styles.topControlButton}
+              hitSlop={TOP_CONTROL_HIT_SLOP}
               onPress={replayCurrent}
             >
-              <Text style={styles.topControlIcon}>↺</Text>
+              <Icon name="replay" size={15} color={TOP_ICON_COLOR} />
               {isWide && (
                 <Text style={styles.topControlText}>
                   {isBranchPlaybackState ? '선택 전개 다시' : '현재 문장 다시'}
@@ -138,20 +204,29 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
               accessibilityRole="button"
               accessibilityLabel="다음 장면"
               style={styles.topControlButton}
+              hitSlop={TOP_CONTROL_HIT_SLOP}
               onPress={skipCurrentScene}
             >
               {isWide && <Text style={styles.topControlText}>다음 장면</Text>}
-              <Text style={styles.topControlIcon}>→</Text>
+              <Icon name="next" size={15} color={TOP_ICON_COLOR} />
             </Pressable>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={captionVisible ? '자막 숨기기' : '자막 보기'}
               style={styles.topControlButton}
+              hitSlop={TOP_CONTROL_HIT_SLOP}
               onPress={() => setCaptionVisible((visible) => !visible)}
             >
-              <Text style={styles.topControlText}>
-                {isWide ? (captionVisible ? '자막 끄기' : '자막 켜기') : '자'}
-              </Text>
+              <Icon
+                name="captions"
+                size={15}
+                color={captionVisible ? TOP_ICON_COLOR : 'rgba(255,255,255,0.55)'}
+              />
+              {isWide && (
+                <Text style={styles.topControlText}>
+                  {captionVisible ? '자막 끄기' : '자막 켜기'}
+                </Text>
+              )}
             </Pressable>
           </View>
         )}
@@ -173,6 +248,26 @@ export function TopBar({ runtime }: { runtime: OneStoryRuntime }) {
           </View>
         ) : null}
       </View>
+      </View>
+      {runtimeState.status !== 'idle' && !isParentReport && (
+        <View
+          style={styles.progressTrack}
+          accessibilityRole="progressbar"
+          accessibilityValue={{ min: 0, max: 100, now: Math.round(overallProgress * 100) }}
+        >
+          <View
+            style={[
+              styles.progressFill,
+              {
+                width: `${overallProgress * 100}%`,
+                transitionProperty: 'width',
+                transitionDuration: '280ms',
+                transitionTimingFunction: 'linear',
+              } as never,
+            ]}
+          />
+        </View>
+      )}
     </View>
   );
 }

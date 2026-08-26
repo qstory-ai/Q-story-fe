@@ -172,18 +172,21 @@ test('runtime repairs a stale server plan that offers a family without its prere
         label: '시범 요청하기',
         meaning: '먼저 시범을 요청한다.',
         actionFamilyId: fallbackFamilyId('C_ASK_DEMONSTRATION'),
+        branchLine: '먼저 시범을 보여달라고 부탁해보자.',
       },
       {
         id: 'OPTION_2',
         label: '신호 보내기',
         meaning: '앞에서 정한 신호를 사용한다.',
         actionFamilyId: fallbackFamilyId('C_USE_SIGNAL'),
+        branchLine: '우리가 정한 신호를 보내보자.',
       },
       {
         id: 'OPTION_3',
         label: '자물쇠 살피기',
         meaning: '멀리서 자물쇠를 살핀다.',
         actionFamilyId: fallbackFamilyId('C_CHECK_LOCK_FROM_DISTANCE'),
+        branchLine: '멀리서 자물쇠를 조심히 살펴보자.',
       },
     ],
     versions: {

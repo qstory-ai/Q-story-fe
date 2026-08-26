@@ -243,6 +243,8 @@ export class HttpSpeechPipeline implements SpeechPipeline {
       );
     }
 
+    // raw 바이너리 업로드(/v1/transcriptions)는 바디가 오디오 바이트 자체라 리소스 컨텍스트를
+    // 같이 넣을 수 없어서 헤더를 그대로 쓴다 - .env.local로 백엔드에 직결할 때만 타는 경로다.
     const questionHeaders = {
       'x-qstory-story-id': input.storyId,
       'x-qstory-scene-id': input.sceneId,
@@ -258,14 +260,17 @@ export class HttpSpeechPipeline implements SpeechPipeline {
     let uploadBody: BodyInit = recording;
     if (useJsonAudioUpload) {
       try {
+        // JSON 업로드는 이미 body가 있으니, 리소스 컨텍스트도 헤더가 아니라 body에 함께 담는다 -
+        // POST /v1/questions/route와 같은 방식.
         uploadUrl = `${this.baseUrl}/v1/transcriptions/base64`;
-        uploadHeaders = {
-          'content-type': 'application/json',
-          ...questionHeaders,
-        };
+        uploadHeaders = { 'content-type': 'application/json' };
         uploadBody = JSON.stringify({
           audioBase64: await blobToBase64(recording),
           mimeType: input.recording.mimeType,
+          storyId: input.storyId,
+          sceneId: input.sceneId,
+          anchorId: input.anchorId,
+          questionRound: input.questionRound,
         });
       } catch (error) {
         if (signal.aborted) {

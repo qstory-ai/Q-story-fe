@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run content:check && vite build",
+    "build:docker": "npm run content:generate && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -14,9 +15,12 @@
     "content:validate": "node scripts/generate-story-package.mjs --all --validate",
     "content:fix": "node scripts/generate-story-package.mjs --all --fix",
     "content:check": "node scripts/generate-story-package.mjs --all --check",
-    "content:import": "node scripts/import-story-to-backend.mjs --all"
+    "content:import": "node scripts/import-story-to-backend.mjs --all",
+    "content:sync-audio": "node scripts/sync-audio-assets.mjs --all --write",
+    "audio:upload": "node scripts/upload-audio-to-supabase.mjs"
   },
   "dependencies": {
+    "lucide-react": "^1.34.0",
     "pretendard": "^1.3.9",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",

@@ -538,8 +538,11 @@ export function transitionStoryRuntime(
         route: 'DIRECT_ACTION',
         originRoute: 'THREE_PATHS',
         selectedOptionId: option.id,
+        // branchLine은 이 특정 옵션을 위해 LLM이 작성한 대사이다 (Tier 1 동적 내레이션 참고);
+        // family의 정적 acknowledgementText는 그것이 없을 때만 대체용으로 쓰인다.
         text:
-          selectedFamily?.acknowledgementText ??
+          option.branchLine ||
+          selectedFamily?.acknowledgementText ||
           '좋아, 우리가 고른 방법으로 조심스럽게 해보자.',
         actionFamilyId: option.actionFamilyId,
         rejoinAt: selectedFamily

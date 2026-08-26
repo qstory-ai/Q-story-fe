@@ -1,6 +1,6 @@
-// `import.meta.env` is injected by Vite at build/dev time. It is `undefined`
-// under plain Node execution (e.g. `tsx --test`), so every access here is
-// optional-chained to keep these modules importable outside a Vite bundle.
+// `import.meta.env`는 빌드/개발 시점에 Vite가 주입한다. 순수 Node 실행 환경
+// (예: `tsx --test`)에서는 `undefined`이므로, Vite 번들 밖에서도 이 모듈들을
+// import할 수 있도록 여기서의 모든 접근은 optional chaining을 사용한다.
 export function readEnv(key: keyof ImportMetaEnv): string {
   return import.meta.env?.[key]?.trim() ?? '';
 }

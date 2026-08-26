@@ -1,18 +1,27 @@
 import { Text, View } from 'react-native';
 
 import { ActionButton } from '@/shared/ui';
+import { hasKoreanBatchim } from '@/entities/narration';
 
 import type { OneStoryRuntime } from '../../model';
 import { styles } from '../styles';
 import { ParentReportPanel } from './parent-report-panel';
 
 export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
-  const { runtimeState, isParentReport, openParentReport, finishExperience, restartStory } =
-    runtime;
+  const {
+    runtimeState,
+    isParentReport,
+    openParentReport,
+    finishExperience,
+    restartStory,
+    parentReport,
+  } = runtime;
 
   if (runtimeState.status !== 'complete') {
     return null;
   }
+
+  const objectParticle = hasKoreanBatchim(parentReport.storyTitle) ? '을' : '를';
 
   return (
     <View style={styles.contentGroup}>
@@ -20,12 +29,10 @@ export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
         <>
           <Text style={styles.completeMark}>✦</Text>
           <Text style={styles.heroTitle}>
-            오늘 이야기를{'\n'}끝까지 함께 읽었어!
+            오늘 {parentReport.storyTitle}
+            {objectParticle}{'\n'}함께 읽었어요! 더 대화 나눠 볼까요?
           </Text>
-          <Text style={styles.introBody}>
-            세 번의 질문과 선택을 지나 헨젤과 그레텔이 집으로 돌아와 새로운
-            약속을 세웠어요.
-          </Text>
+          <Text style={styles.introBody}>{parentReport.completedStory}</Text>
           <ActionButton
             variant="primary"
             label="부모 리포트 보기"

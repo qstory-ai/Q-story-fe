@@ -148,7 +148,7 @@ function selectWebMimeType() {
   );
 }
 
-/** Linear amplitude (0..1) read from an AnalyserNode, used for the live metering bar. */
+/** 실시간 미터링 바에 사용하기 위해 AnalyserNode에서 읽은 선형 진폭(0..1). */
 function readPeakAmplitude(analyser: AnalyserNode, buffer: Uint8Array<ArrayBuffer>) {
   analyser.getByteTimeDomainData(buffer);
   let peak = 0;
@@ -158,7 +158,7 @@ function readPeakAmplitude(analyser: AnalyserNode, buffer: Uint8Array<ArrayBuffe
   return peak;
 }
 
-/** Approximates expo-audio's dBFS metering scale from a linear peak amplitude. */
+/** 선형 피크 진폭으로부터 expo-audio의 dBFS 미터링 스케일을 근사한다. */
 function amplitudeToDb(amplitude: number) {
   if (amplitude <= 0) {
     return -160;

@@ -56,8 +56,8 @@ function createUuid() {
 
 function isHttpUrl(value: string) {
   try {
-    // A same-origin proxy path (e.g. `/api/qstory/v1/voice-research`) has no scheme of its own,
-    // so resolve it against the current origin before checking the scheme.
+    // 동일 출처(same-origin) 프록시 경로(예: `/api/qstory/v1/voice-research`)는 그 자체로는 스킴이 없으므로,
+    // 스킴을 확인하기 전에 현재 origin을 기준으로 해석(resolve)한다.
     const base = typeof window === 'undefined' ? undefined : window.location.origin;
     const url = new URL(value, base);
     return url.protocol === 'https:' || url.protocol === 'http:';
@@ -96,7 +96,7 @@ function writeStoredConsents(consents: VoiceResearchConsent[]) {
       JSON.stringify(consents.slice(-12)),
     );
   } catch {
-    // Storage access can be unavailable in private browsing. Voice upload still works.
+    // 비공개 브라우징(private browsing) 모드에서는 저장소 접근이 불가능할 수 있다. 음성 업로드는 여전히 동작한다.
   }
 }
 
@@ -189,11 +189,10 @@ export async function withdrawVoiceResearchConsent(
   if (!isHttpUrl(endpoint)) return false;
   const fetchImpl = (options.fetchImpl ?? fetch).bind(globalThis);
   try {
-    const response = await fetchImpl(endpoint, {
+    const response = await fetchImpl(`${endpoint}/withdraw`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        action: 'withdraw',
         consent_id: consent.consentId,
         deletion_token: consent.deletionToken,
       }),

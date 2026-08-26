@@ -4,10 +4,10 @@ import { fileURLToPath } from 'node:url';
 
 import { loadRegistry } from './lib/story-package.mjs';
 
-// Pushes the already-generated output of `npm run content:generate` (generated-story-content.json
-// + story-package.generated.json) to the backend's admin import endpoint, so the backend's DB
-// becomes the runtime source of truth instead of these files being bundled into the app build.
-// Run content:generate first - this script only reads what's already on disk.
+// `npm run content:generate`가 이미 생성해 둔 결과물(generated-story-content.json
+// + story-package.generated.json)을 백엔드의 admin import 엔드포인트로 전송한다. 이렇게 하면
+// 이 파일들이 앱 빌드에 번들되는 대신, 백엔드 DB가 런타임 소스 오브 트루스가 된다.
+// content:generate를 먼저 실행할 것 - 이 스크립트는 디스크에 이미 있는 것만 읽는다.
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const appDirectory = dirname(scriptDirectory);

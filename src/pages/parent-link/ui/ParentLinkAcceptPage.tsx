@@ -29,7 +29,8 @@ export function ParentLinkAcceptPage() {
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
+  const [newLoginId, setNewLoginId] = useState('');
+  const [newEmail, setNewEmail] = useState('');
   const [loggedInToken, setLoggedInToken] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -70,7 +71,7 @@ export function ParentLinkAcceptPage() {
       const token = state.status === 'authenticated' ? state.token : loggedInToken;
       const response = await acceptTutorInvite(rawToken, token
         ? { token }
-        : { email: email.trim(), password, displayName: displayName.trim() });
+        : { loginId: newLoginId.trim(), email: newEmail.trim(), password, displayName: displayName.trim() });
       setSession(response.token, response.user);
       navigate(homePathFor(response.user), { replace: true });
     } catch (failure) {
@@ -78,7 +79,7 @@ export function ParentLinkAcceptPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [rawToken, state, loggedInToken, email, password, displayName, setSession, navigate]);
+  }, [rawToken, state, loggedInToken, newLoginId, newEmail, password, displayName, setSession, navigate]);
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
@@ -121,12 +122,13 @@ export function ParentLinkAcceptPage() {
             />
             {hasAccount ? (
               <>
-                <TextField label="아이디" value={loginId} onChangeText={setLoginId} keyboardType="email-address" />
+                <TextField label="아이디" value={loginId} onChangeText={setLoginId} />
                 <TextField label="비밀번호" value={password} onChangeText={setPassword} secureTextEntry errorText={errorMessage ?? undefined} />
               </>
             ) : (
               <>
-                <TextField label="아이디" value={email} onChangeText={setEmail} keyboardType="email-address" />
+                <TextField label="아이디" value={newLoginId} onChangeText={setNewLoginId} />
+                <TextField label="이메일" value={newEmail} onChangeText={setNewEmail} keyboardType="email-address" />
                 <TextField label="비밀번호" value={password} onChangeText={setPassword} secureTextEntry />
                 <TextField label="이름" value={displayName} onChangeText={setDisplayName} errorText={errorMessage ?? undefined} />
               </>
@@ -136,7 +138,11 @@ export function ParentLinkAcceptPage() {
               label={submitting ? '확인 중…' : '다음'}
               onPress={hasAccount ? onAccountSubmit : () => setStage('consent')}
               loading={submitting}
-              disabled={hasAccount ? !loginId.trim() || !password : !email.trim() || !password || !displayName.trim()}
+              disabled={
+                hasAccount
+                  ? !loginId.trim() || !password
+                  : !newLoginId.trim() || !newEmail.trim() || !password || !displayName.trim()
+              }
             />
           </>
         )}

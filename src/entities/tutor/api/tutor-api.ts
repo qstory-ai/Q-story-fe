@@ -133,12 +133,12 @@ export function previewTutorInvite(rawToken: string, options?: RequestOptions): 
 }
 
 /**
- * token이 있으면(이미 로그인된 학부모) 그 계정에 바로 연결한다. 없으면 email/password/displayName로
- * 새 학부모 계정을 만들며 연결한다 - joinClass()와 같은 "초대 수락이 곧 회원가입"인 경우.
+ * token이 있으면(이미 로그인된 학부모) 그 계정에 바로 연결한다. 없으면 loginId/email/password/
+ * displayName로 새 학부모 계정을 만들며 연결한다 - joinClass()와 같은 "초대 수락이 곧 회원가입"인 경우.
  */
 export function acceptTutorInvite(
   rawToken: string,
-  input: { token?: string | null; email?: string; password?: string; displayName?: string },
+  input: { token?: string | null; loginId?: string; email?: string; password?: string; displayName?: string },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   const { token, ...body } = input;

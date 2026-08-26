@@ -10,6 +10,7 @@ export type LocalStoryProgress = {
   version: 1;
   savedAt: string;
   state: StoryRuntimeState;
+  storyId: string;
   childName: string;
   elapsedSeconds: number;
   questionOutcomes: QuestionOutcome[];
@@ -81,6 +82,7 @@ export function saveLocalStoryProgress(
     version: 1,
     savedAt: new Date().toISOString(),
     state,
+    storyId: input.storyId,
     childName: input.childName.trim().slice(0, 10),
     elapsedSeconds: Math.max(0, Math.round(input.elapsedSeconds)),
     questionOutcomes: input.questionOutcomes,
@@ -109,6 +111,7 @@ export function loadLocalStoryProgress(
       value.version !== 1 ||
       typeof value.savedAt !== 'string' ||
       !isRuntimeState(value.state) ||
+      typeof value.storyId !== 'string' ||
       typeof value.childName !== 'string' ||
       typeof value.elapsedSeconds !== 'number' ||
       !Array.isArray(value.questionOutcomes)

@@ -41,27 +41,37 @@ export function LoginPage() {
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">로그인</Text>
-        <TextField
-          label="아이디"
-          value={loginId}
-          onChangeText={setLoginId}
-          placeholder="아이디"
-          keyboardType="email-address"
-        />
-        <TextField
-          label="비밀번호"
-          value={password}
-          onChangeText={setPassword}
-          placeholder="비밀번호"
-          secureTextEntry
-          errorText={error ?? undefined}
-        />
-        <ActionButton
-          label={submitting ? '로그인 중…' : '로그인'}
-          onPress={onSubmit}
-          disabled={submitting || !loginId.trim() || !password}
-        />
-        <SocialLoginButtons onAuthed={onAuthed} onDark={false} />
+        <View style={styles.card}>
+          <TextField
+            label="아이디"
+            value={loginId}
+            onChangeText={setLoginId}
+            placeholder="아이디"
+          />
+          <View style={styles.passwordField}>
+            <TextField
+              label="비밀번호"
+              value={password}
+              onChangeText={setPassword}
+              placeholder="비밀번호"
+              secureTextEntry
+              errorText={error ?? undefined}
+            />
+            <Pressable onPress={() => navigate('/reset-password')} accessibilityRole="link" style={styles.forgotPasswordLink}>
+              <Text style={styles.forgotPasswordText}>비밀번호를 잊으셨나요?</Text>
+            </Pressable>
+          </View>
+          <ActionButton
+            label={submitting ? '로그인 중…' : '로그인'}
+            onPress={onSubmit}
+            disabled={submitting || !loginId.trim() || !password}
+          />
+          <SocialLoginButtons onAuthed={onAuthed} onDark={false} />
+        </View>
+        <Pressable onPress={() => navigate('/signup')} accessibilityRole="link" style={styles.signupLinkRow}>
+          <Text style={styles.body}>아직 계정이 없으신가요? </Text>
+          <Text style={styles.signupLink}>회원가입</Text>
+        </Pressable>
         <View style={styles.links}>
           <Pressable onPress={() => navigate('/organization')} accessibilityRole="link">
             <Text style={styles.link}>원장이신가요? 유치원 등록하기</Text>
@@ -95,6 +105,42 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onLightHeading,
     textAlign: 'center',
     marginBottom: 8,
+  },
+  card: {
+    gap: 16,
+    padding: 24,
+    borderRadius: storybookTheme.radius.card,
+    backgroundColor: storybookTheme.color.surfaceWhite,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.lightCardBorder,
+    ...storybookTheme.elevation.low,
+  },
+  passwordField: {
+    gap: 6,
+  },
+  forgotPasswordLink: {
+    alignSelf: 'flex-end',
+    minHeight: 32,
+    justifyContent: 'center',
+  },
+  forgotPasswordText: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: '600',
+    color: storybookTheme.color.linkOnLight,
+  },
+  signupLinkRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    minHeight: 32,
+  },
+  body: {
+    fontSize: storybookTheme.type.sm,
+    color: storybookTheme.color.onLightBody,
+  },
+  signupLink: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: '700',
+    color: storybookTheme.color.linkOnLight,
   },
   links: {
     marginTop: 12,

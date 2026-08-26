@@ -40,21 +40,6 @@ export function TopBar({
     closeParentReport,
   } = runtime;
 
-  // 비디오 플레이어의 스크러버처럼, 장면 번호가 딱딱 넘어가는 대신 지금 읽고 있는
-  // 문장의 재생 진행률만큼 매끄럽게 채워지도록 (장면 인덱스 + 그 장면 안 진행률)을 전체
-  // 장면 수로 나눈다.
-  const overallProgress =
-    runtimeState.status === 'complete'
-      ? 1
-      : Math.max(
-          0,
-          Math.min(
-            1,
-            (displayedSceneIndex + narrationState.progress) /
-              Math.max(1, totalScenes),
-          ),
-        );
-
   return (
     <View
       style={[
@@ -249,25 +234,6 @@ export function TopBar({
         ) : null}
       </View>
       </View>
-      {runtimeState.status !== 'idle' && !isParentReport && (
-        <View
-          style={styles.progressTrack}
-          accessibilityRole="progressbar"
-          accessibilityValue={{ min: 0, max: 100, now: Math.round(overallProgress * 100) }}
-        >
-          <View
-            style={[
-              styles.progressFill,
-              {
-                width: `${overallProgress * 100}%`,
-                transitionProperty: 'width',
-                transitionDuration: '280ms',
-                transitionTimingFunction: 'linear',
-              } as never,
-            ]}
-          />
-        </View>
-      )}
     </View>
   );
 }

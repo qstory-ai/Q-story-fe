@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, SafeAreaView, TextareaField, storybookTheme } from '@/shared/ui';
 import { useAuth } from '@/entities/auth';
 import { editSegment, listSegments, StoryAdminApiError, type SegmentView } from '@/entities/story-admin';
 
@@ -112,11 +112,10 @@ export function StaffScenePage() {
               {segment.kind === 'utterance' ? (
                 editingSegmentId === segment.id ? (
                   <>
-                    <TextField
+                    <TextareaField
                       label="문장"
                       value={draftText}
                       onChangeText={setDraftText}
-                      multiline
                       numberOfLines={3}
                     />
                     <View style={styles.rowActions}>

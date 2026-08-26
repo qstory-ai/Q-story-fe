@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Modal, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Modal, RadioGroup, StatusBanner, TextareaField, storybookTheme } from '@/shared/ui';
 import { AuthApiError, dashboardNavItems, deleteAccount, useAuth } from '@/entities/auth';
 
 /** 백엔드 AuthService.DELETE_REASON_CATEGORIES와 문구를 맞춰야 한다. */
@@ -59,28 +59,17 @@ export function MyPageDeleteAccountPage() {
           <Text style={styles.body}>탈퇴하면 이 아이디로는 더 이상 로그인할 수 없어요.</Text>
 
           <Text style={styles.sectionTitle}>탈퇴하는 이유를 알려주세요</Text>
-          <View style={styles.reasonList}>
-            {REASON_CATEGORIES.map((reason) => {
-              const selected = reason === reasonCategory;
-              return (
-                <Pressable
-                  key={reason}
-                  accessibilityRole="radio"
-                  accessibilityState={{ checked: selected }}
-                  onPress={() => setReasonCategory(reason)}
-                  style={[styles.reasonRow, selected && styles.reasonRowSelected]}
-                >
-                  <Text style={[styles.reasonText, selected && styles.reasonTextSelected]}>{reason}</Text>
-                </Pressable>
-              );
-            })}
-          </View>
+          <RadioGroup
+            accessibilityLabel="탈퇴하는 이유"
+            options={REASON_CATEGORIES.map((reason) => ({ value: reason, label: reason }))}
+            value={reasonCategory}
+            onChange={setReasonCategory}
+          />
 
-          <TextField
+          <TextareaField
             label="더 자세히 알려주시면 도움이 돼요 (선택)"
             value={reasonDetail}
             onChangeText={setReasonDetail}
-            multiline
             numberOfLines={4}
             style={styles.multiline}
           />
@@ -144,30 +133,6 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     fontWeight: '700',
     color: storybookTheme.color.onCardTitle,
-  },
-  reasonList: {
-    gap: 8,
-  },
-  reasonRow: {
-    minHeight: 44,
-    justifyContent: 'center',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.lightCardBorder,
-    paddingHorizontal: 14,
-  },
-  reasonRowSelected: {
-    borderColor: storybookTheme.color.primary,
-    backgroundColor: storybookTheme.color.pillBackground,
-  },
-  reasonText: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
-    color: storybookTheme.color.onCardBody,
-  },
-  reasonTextSelected: {
-    color: storybookTheme.color.primary,
-    fontWeight: '700',
   },
   multiline: {
     minHeight: 100,

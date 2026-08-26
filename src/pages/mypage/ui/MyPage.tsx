@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Icon, Modal, Pill, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, useAuth, type Role } from '@/entities/auth';
+import { FeedbackModal } from '@/features/feedback-modal';
 
 const ROLE_LABEL: Record<Role, string> = {
   DIRECTOR: '기관 및 단체',
@@ -26,6 +27,7 @@ export function MyPage() {
   const navigate = useNavigate();
   const { state, logout } = useAuth();
   const [confirmingLogout, setConfirmingLogout] = useState(false);
+  const [openModal, setOpenModal] = useState<'feedback' | null>(null);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -51,7 +53,9 @@ export function MyPage() {
             <Text style={styles.avatarText}>{initial}</Text>
           </View>
           <Text style={styles.name}>{user.displayName}</Text>
-          <Pill label={ROLE_LABEL[user.role]} />
+          <View style={styles.roleBadgeRow}>
+            <Pill label={ROLE_LABEL[user.role]} />
+          </View>
 
           <View style={styles.infoList}>
             <View style={styles.infoRow}>
@@ -84,9 +88,9 @@ export function MyPage() {
         <View style={styles.menuCard}>
           {MENU_ITEMS.map((item) => (
             <Pressable
-              key={item.path}
-              onPress={() => navigate(item.path)}
-              accessibilityRole="link"
+              key={item.kind === 'route' ? item.path : item.modal}
+              onPress={() => (item.kind === 'route' ? navigate(item.path) : setOpenModal(item.modal))}
+              accessibilityRole={item.kind === 'route' ? 'link' : 'button'}
               style={styles.menuRow}
             >
               <Text style={styles.menuLabel}>{item.label}</Text>
@@ -121,16 +125,23 @@ export function MyPage() {
         negativeAction={{ label: '취소', onPress: () => setConfirmingLogout(false) }}
         accessibilityLabel="로그아웃 확인"
       />
+      <FeedbackModal visible={openModal === 'feedback'} token={state.token} onClose={() => setOpenModal(null)} />
     </AppNavShell>
   );
 }
 
-/** 마이페이지 하위 화면 메뉴 - 각 화면은 pages/mypage-*에 있다. */
-const MENU_ITEMS: { label: string; path: string }[] = [
-  { label: '내 정보 관리', path: '/mypage/profile' },
-  { label: '계정 관리', path: '/mypage/account' },
-  { label: '구독 관리', path: '/mypage/subscription' },
-  { label: '개선사항 요청', path: '/mypage/feedback' },
+/**
+ * 마이페이지 하위 화면 메뉴 - 내 정보/계정 관리/구독 관리는 화면을 완전히 전환하는 전체 화면
+ * (pages/mypage-*)으로 열고, 개선사항 요청만 이 화면 위에 오버레이되는 모달로 연다.
+ */
+const MENU_ITEMS: (
+  | { kind: 'route'; label: string; path: string }
+  | { kind: 'modal'; label: string; modal: 'feedback' }
+)[] = [
+  { kind: 'route', label: '내 정보 관리', path: '/mypage/profile' },
+  { kind: 'route', label: '계정 관리', path: '/mypage/account' },
+  { kind: 'route', label: '구독 관리', path: '/mypage/subscription' },
+  { kind: 'modal', label: '개선사항 요청', modal: 'feedback' },
 ];
 
 const styles = StyleSheet.create({
@@ -167,6 +178,11 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.xl,
     fontWeight: '600',
     color: storybookTheme.color.gold,
+  },
+  roleBadgeRow: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   name: {
     fontSize: storybookTheme.type.lg,

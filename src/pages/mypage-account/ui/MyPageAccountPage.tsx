@@ -2,8 +2,16 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
-import { AuthApiError, changePassword, dashboardNavItems, useAuth } from '@/entities/auth';
+import { ActionButton, AppNavShell, Pill, SectionHeader, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { AuthApiError, changePassword, dashboardNavItems, useAuth, type Role } from '@/entities/auth';
+
+const ROLE_LABEL: Record<Role, string> = {
+  DIRECTOR: '기관 및 단체',
+  CLASS_ACCOUNT: '반 계정',
+  PARENT: '학부모',
+  TUTOR: '방문 선생님',
+  STAFF: '콘텐츠 운영자',
+};
 
 /** 계정 관리 - 아이디 표시 + 로그인된 상태에서 현재 비밀번호로 바로 바꾸는 폼. */
 export function MyPageAccountPage() {
@@ -50,10 +58,25 @@ export function MyPageAccountPage() {
   return (
     <AppNavShell items={dashboardNavItems(user, navigate, 'mypage')} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
+        <SectionHeader title="계정정보" />
         <View style={styles.card}>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>아이디</Text>
             <Text style={styles.infoValue}>{user.loginId}</Text>
+          </View>
+          {user.email ? (
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>이메일</Text>
+              <Text style={styles.infoValue}>{user.email}</Text>
+            </View>
+          ) : null}
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>이름</Text>
+            <Text style={styles.infoValue}>{user.displayName}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>회원 구분</Text>
+            <Pill label={ROLE_LABEL[user.role]} />
           </View>
         </View>
 

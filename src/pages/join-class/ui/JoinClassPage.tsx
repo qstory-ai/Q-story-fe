@@ -20,6 +20,7 @@ export function JoinClassPage() {
 
   const [hasClass, setHasClass] = useState(true);
   const [classCode, setClassCode] = useState('');
+  const [loginId, setLoginId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -33,14 +34,13 @@ export function JoinClassPage() {
     setError(null);
     setSubmitting(true);
     try {
+      const input = { loginId: loginId.trim(), email: email.trim(), password, displayName: displayName.trim() };
       const response = useJoinFlow
         ? await joinClass({
             ...(inviteToken ? { inviteToken } : { classCode: classCode.trim().toUpperCase() }),
-            email: email.trim(),
-            password,
-            displayName: displayName.trim(),
+            ...input,
           })
-        : await signupParent({ email: email.trim(), password, displayName: displayName.trim() });
+        : await signupParent(input);
       setSession(response.token, response.user);
       navigate('/parent', { replace: true });
     } catch (failure) {
@@ -48,10 +48,14 @@ export function JoinClassPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [inviteToken, useJoinFlow, classCode, email, password, displayName, navigate, setSession]);
+  }, [inviteToken, useJoinFlow, classCode, loginId, email, password, displayName, navigate, setSession]);
 
   const canSubmit =
-    (showClassCodeField ? classCode.trim().length > 0 : true) && email.trim() && password && displayName.trim();
+    (showClassCodeField ? classCode.trim().length > 0 : true) &&
+    loginId.trim() &&
+    email.trim() &&
+    password &&
+    displayName.trim();
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
@@ -75,7 +79,8 @@ export function JoinClassPage() {
             )}
           </>
         )}
-        <TextField label="아이디" value={email} onChangeText={setEmail} keyboardType="email-address" />
+        <TextField label="아이디" value={loginId} onChangeText={setLoginId} placeholder="로그인에 쓸 아이디" />
+        <TextField label="이메일" value={email} onChangeText={setEmail} keyboardType="email-address" />
         <TextField label="비밀번호" value={password} onChangeText={setPassword} secureTextEntry />
         <TextField
           label="이름"

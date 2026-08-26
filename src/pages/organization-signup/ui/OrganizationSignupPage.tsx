@@ -2,17 +2,19 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AccountLinkRow, ActionButton, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
   AuthApiError,
   createClass,
   createClassInvite,
   createOrganization,
+  dashboardNavItems,
   fetchEntitlement,
   listClasses,
   useAuth,
   type ClassResponse,
   type EntitlementResponse,
+  type UserSummary,
 } from '@/entities/auth';
 
 const SUBSCRIPTION_LABEL: Record<EntitlementResponse['subscriptionStatus'], string> = {
@@ -27,24 +29,28 @@ const SUBSCRIPTION_LABEL: Record<EntitlementResponse['subscriptionStatus'], stri
  * 원장은 항상 이 고정된 순서로 진행하며 한 단계를 지나면 이전 단계로 돌아갈 필요가 없기 때문.
  * 가입 자체는 이제 통합된 /signup 화면에 있으며, 여기서 인증되지 않은 방문자는 그곳으로
  * 리다이렉트된다.
+ *
+ * 두 단계 모두 DIRECTOR의 실제 홈("/organization")이라 PARENT/CLASS_ACCOUNT/TUTOR 홈과 같은
+ * AppNavShell을 쓴다 - 예전엔 AccountLinkRow + 라이트 셸을 혼자 쓰고 있어서 역할 홈마다
+ * 헤더가 다르게 보였다.
  */
 export function OrganizationSignupPage() {
   const { state } = useAuth();
 
   if (state.status === 'loading') {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.loadingContainer}>
         <View style={styles.centered}>
-          <ActivityIndicator />
+          <ActivityIndicator color={storybookTheme.color.gold} />
         </View>
       </SafeAreaView>
     );
   }
   if (state.status === 'authenticated' && state.user.role === 'DIRECTOR') {
     return state.user.organizationId ? (
-      <ClassManagementStep token={state.token} organizationId={state.user.organizationId} />
+      <ClassManagementStep token={state.token} organizationId={state.user.organizationId} user={state.user} />
     ) : (
-      <CreateOrganizationStep token={state.token} />
+      <CreateOrganizationStep token={state.token} user={state.user} />
     );
   }
   if (state.status === 'authenticated') {
@@ -61,9 +67,9 @@ function Redirect({ to }: { to: string }) {
   return null;
 }
 
-function CreateOrganizationStep({ token }: { token: string }) {
+function CreateOrganizationStep({ token, user }: { token: string; user: UserSummary }) {
   const navigate = useNavigate();
-  const { setSession, logout } = useAuth();
+  const { setSession } = useAuth();
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -82,26 +88,34 @@ function CreateOrganizationStep({ token }: { token: string }) {
   }, [token, name, setSession]);
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      <View style={styles.content}>
-        <AccountLinkRow onMyPage={() => navigate('/mypage')} onLogout={logout} />
-        <Text style={styles.title} accessibilityRole="header">기관 및 단체 등록</Text>
-        <Text style={styles.body}>거의 다 됐어요. 기관 및 단체 이름을 알려주세요.</Text>
-        <TextField label="기관 및 단체 이름" value={name} onChangeText={setName} errorText={error ?? undefined} />
-        <ActionButton
-          label="등록하기"
-          loading={submitting}
-          onPress={onSubmit}
-          disabled={!name.trim()}
-        />
+    <AppNavShell items={dashboardNavItems(user, navigate, 'home')}>
+      <View style={styles.scroll}>
+        <View style={styles.card}>
+          <Text style={styles.title} accessibilityRole="header">기관 및 단체 등록</Text>
+          <Text style={styles.body}>거의 다 됐어요. 기관 및 단체 이름을 알려주세요.</Text>
+          <TextField label="기관 및 단체 이름" value={name} onChangeText={setName} errorText={error ?? undefined} />
+          <ActionButton
+            label="등록하기"
+            loading={submitting}
+            onPress={onSubmit}
+            disabled={!name.trim()}
+          />
+        </View>
       </View>
-    </SafeAreaView>
+    </AppNavShell>
   );
 }
 
-function ClassManagementStep({ token, organizationId }: { token: string; organizationId: string }) {
+function ClassManagementStep({
+  token,
+  organizationId,
+  user,
+}: {
+  token: string;
+  organizationId: string;
+  user: UserSummary;
+}) {
   const navigate = useNavigate();
-  const { logout } = useAuth();
   const [classes, setClasses] = useState<ClassResponse[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [name, setName] = useState('');
@@ -164,127 +178,126 @@ function ClassManagementStep({ token, organizationId }: { token: string; organiz
   );
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      <View style={styles.content}>
-        <AccountLinkRow onMyPage={() => navigate('/mypage')} onLogout={logout} />
-        <Text style={styles.title} accessibilityRole="header">반 관리</Text>
-
-        {/*
-          entitlement.grantsAccess=false는 requiresEntitlement=true인 작품만 막는다
-          (EntitlementService.assertAccessible) - 지금 카탈로그의 유일한 작품(HG)은
-          requiresEntitlement=false라서 구독 여부와 무관하게 무료 데모로 계속 열려 있다.
-          "이야기를 아예 시작할 수 없다"는 예전 문구는 사실이 아니었다 - 구독은 데모 이후의
-          전체 작품에만 걸리는 것이라고 정확히 말해야 한다.
-        */}
-        {entitlement && (
-          <StatusBanner
-            variant={entitlement.grantsAccess ? 'info' : 'warning'}
-            label={SUBSCRIPTION_LABEL[entitlement.subscriptionStatus]}
-            body={
-              entitlement.grantsAccess
-                ? undefined
-                : '구독 없이도 무료 데모 한 편은 계속 이용할 수 있어요. 전체 이야기는 구독 후 열려요.'
-            }
-          />
-        )}
-
+    <AppNavShell items={dashboardNavItems(user, navigate, 'home')}>
+      <View style={styles.scroll}>
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>새 반 만들기</Text>
-          <TextField label="반 이름" value={name} onChangeText={setName} />
-          <TextField
-            label="반 계정 초기 비밀번호"
-            value={initialPassword}
-            onChangeText={setInitialPassword}
-            secureTextEntry
-            errorText={formError ?? undefined}
-          />
-          <ActionButton
-            label="반 만들기"
-            loading={submitting}
-            onPress={onCreateClass}
-            disabled={!name.trim() || !initialPassword}
-          />
+          <Text style={styles.title} accessibilityRole="header">반 관리</Text>
+
+          {/*
+            entitlement.grantsAccess=false는 requiresEntitlement=true인 작품만 막는다
+            (EntitlementService.assertAccessible) - 지금 카탈로그의 유일한 작품(HG)은
+            requiresEntitlement=false라서 구독 여부와 무관하게 무료 데모로 계속 열려 있다.
+            "이야기를 아예 시작할 수 없다"는 예전 문구는 사실이 아니었다 - 구독은 데모 이후의
+            전체 작품에만 걸리는 것이라고 정확히 말해야 한다.
+          */}
+          {entitlement && (
+            <StatusBanner
+              variant={entitlement.grantsAccess ? 'info' : 'warning'}
+              label={SUBSCRIPTION_LABEL[entitlement.subscriptionStatus]}
+              body={
+                entitlement.grantsAccess
+                  ? undefined
+                  : '구독 없이도 무료 데모 한 편은 계속 이용할 수 있어요. 전체 이야기는 구독 후 열려요.'
+              }
+            />
+          )}
+
+          <View style={styles.subCard}>
+            <Text style={styles.cardTitle}>새 반 만들기</Text>
+            <TextField label="반 이름" value={name} onChangeText={setName} />
+            <TextField
+              label="반 계정 초기 비밀번호"
+              value={initialPassword}
+              onChangeText={setInitialPassword}
+              secureTextEntry
+              errorText={formError ?? undefined}
+            />
+            <ActionButton
+              label="반 만들기"
+              loading={submitting}
+              onPress={onCreateClass}
+              disabled={!name.trim() || !initialPassword}
+            />
+          </View>
         </View>
 
-        <Text style={styles.sectionLabel}>등록된 반</Text>
-        {loadError ? <Text style={styles.error}>{loadError}</Text> : null}
-        {classes?.length === 0 ? <Text style={styles.body}>아직 등록된 반이 없어요.</Text> : null}
-        {classes?.map((classGroup) => (
-          <View key={classGroup.id} style={styles.card}>
-            <Text style={styles.cardTitle}>{classGroup.name}</Text>
-            <Text style={styles.body}>반 코드: {classGroup.joinCode}</Text>
-            <ActionButton
-              variant="secondaryFull"
-              label="1회용 초대 링크 만들기"
-              onPress={() => onCreateInvite(classGroup.id)}
-            />
-            {inviteByClassId[classGroup.id] ? (
-              <Text selectable style={styles.inviteUrl}>
-                {inviteByClassId[classGroup.id]}
-              </Text>
-            ) : null}
-          </View>
-        ))}
+        <View style={styles.panel}>
+          <Text style={styles.panelTitle}>등록된 반</Text>
+          {loadError ? <Text style={styles.errorText}>{loadError}</Text> : null}
+          {classes?.length === 0 ? <Text style={styles.panelBody}>아직 등록된 반이 없어요.</Text> : null}
+          {classes?.map((classGroup) => (
+            <View key={classGroup.id} style={styles.classRow}>
+              <Text style={styles.storyTitle}>{classGroup.name}</Text>
+              <Text style={styles.storyMeta}>반 코드: {classGroup.joinCode}</Text>
+              <ActionButton
+                variant="secondaryFull"
+                label="1회용 초대 링크 만들기"
+                onPress={() => onCreateInvite(classGroup.id)}
+              />
+              {inviteByClassId[classGroup.id] ? (
+                <Text selectable style={styles.inviteUrl}>
+                  {inviteByClassId[classGroup.id]}
+                </Text>
+              ) : null}
+            </View>
+          ))}
+        </View>
       </View>
-    </SafeAreaView>
+    </AppNavShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  loadingContainer: { flex: 1, backgroundColor: storybookTheme.color.background },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  scroll: {
     flex: 1,
-    backgroundColor: storybookTheme.color.shellBackground,
-  },
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  content: {
-    flexGrow: 1,
-    gap: 16,
-    paddingHorizontal: 32,
-    paddingVertical: 40,
-    maxWidth: 480,
     width: '100%',
+    maxWidth: 640,
     alignSelf: 'center',
-  },
-  title: {
-    fontSize: storybookTheme.type.lg,
-    fontWeight: '700',
-    color: storybookTheme.color.onLightHeading,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  sectionLabel: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: '600',
-    color: storybookTheme.color.onLightHeading,
-    marginTop: 8,
-  },
-  body: {
-    fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.onLightBody,
-  },
-  error: {
-    fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.error,
+    gap: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 28,
   },
   card: {
+    width: '100%',
+    alignItems: 'stretch',
+    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: storybookTheme.radius.card,
+    paddingHorizontal: 24,
+    paddingVertical: 28,
+    gap: 14,
+  },
+  subCard: {
     gap: 10,
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    marginTop: 4,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: storybookTheme.color.pillBorder,
+  },
+  title: { fontSize: storybookTheme.type.lg, fontWeight: '900', color: storybookTheme.color.onCardTitle },
+  body: { fontSize: storybookTheme.type.sm, lineHeight: 21, color: storybookTheme.color.onCardBody },
+  cardTitle: { fontSize: storybookTheme.type.md, fontWeight: '700', color: storybookTheme.color.onCardTitle },
+  errorText: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.error },
+  panel: {
+    width: '100%',
+    gap: 4,
+    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    borderRadius: storybookTheme.radius.card,
     borderWidth: 1,
-    borderColor: storybookTheme.color.lightCardBorder,
+    borderColor: storybookTheme.color.panelOnDarkBorder,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
   },
-  cardTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: '600',
-    color: storybookTheme.color.onCardTitle,
+  panelTitle: { fontSize: storybookTheme.type.md, fontWeight: '900', color: storybookTheme.color.onDark, marginBottom: 6 },
+  panelBody: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onDarkMuted },
+  classRow: {
+    gap: 8,
+    paddingVertical: 14,
+    borderTopWidth: 1,
+    borderTopColor: storybookTheme.color.panelOnDarkBorder,
   },
-  inviteUrl: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.linkOnLight,
-  },
+  storyTitle: { fontSize: storybookTheme.type.sm, fontWeight: '700', color: storybookTheme.color.onDark },
+  storyMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onDarkMuted },
+  inviteUrl: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.linkOnDark },
 });

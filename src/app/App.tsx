@@ -15,7 +15,6 @@ import { MyPage } from '@/pages/mypage';
 import { MyPageProfilePage } from '@/pages/mypage-profile';
 import { MyPageAccountPage } from '@/pages/mypage-account';
 import { MyPageSubscriptionPage } from '@/pages/mypage-subscription';
-import { MyPageFeedbackPage } from '@/pages/mypage-feedback';
 import { MyPageDeleteAccountPage } from '@/pages/mypage-delete-account';
 import { NotFoundPage } from '@/pages/not-found';
 import { ResetPasswordPage } from '@/pages/reset-password';
@@ -34,6 +33,7 @@ import {
   type StoryRuntimePackage,
 } from '@/entities/story';
 import { AuthProvider } from '@/entities/auth';
+import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
 import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
 
 type LoadState =
@@ -106,6 +106,7 @@ function DemoStoryRoute() {
 export function App() {
   return (
     <AuthProvider>
+      <SyncDemoCompletionOnAuth />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -127,7 +128,6 @@ export function App() {
           <Route path="/mypage/profile" element={<MyPageProfilePage />} />
           <Route path="/mypage/account" element={<MyPageAccountPage />} />
           <Route path="/mypage/subscription" element={<MyPageSubscriptionPage />} />
-          <Route path="/mypage/feedback" element={<MyPageFeedbackPage />} />
           <Route path="/mypage/delete-account" element={<MyPageDeleteAccountPage />} />
           <Route path="/reports" element={<ReportHistoryPage />} />
           <Route path="/reports/:completionId" element={<ReportHistoryDetailPage />} />

@@ -3,8 +3,10 @@ import {
   ArrowRight,
   AudioLines,
   BookOpen,
+  Calendar,
   Check,
   CheckCheck,
+  ChevronDown,
   ClipboardList,
   Clock,
   Home,
@@ -16,12 +18,14 @@ import {
   PenLine,
   Play,
   RotateCcw,
+  Search,
   SearchCheck,
   ShieldCheck,
   Sparkles,
   Subtitles,
   Users,
   UserRound,
+  X,
 } from 'lucide-react';
 
 /**
@@ -56,6 +60,10 @@ export const ICONS = {
   clock: Clock,
   searchCheck: SearchCheck,
   lock: Lock,
+  chevronDown: ChevronDown,
+  calendar: Calendar,
+  search: Search,
+  close: X,
 } as const;
 
 export type IconName = keyof typeof ICONS;

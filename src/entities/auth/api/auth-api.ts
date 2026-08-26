@@ -8,6 +8,8 @@ export type UserSummary = {
   id: string;
   role: Role;
   loginId: string;
+  /** 로그인 식별자가 아니라 연락용 이메일 - CLASS_ACCOUNT는 이메일을 받지 않아 null일 수 있다. */
+  email: string | null;
   displayName: string;
   organizationId: string | null;
   classId: string | null;
@@ -101,7 +103,7 @@ async function request<T>(
 }
 
 export function signupOrganizationOwner(
-  input: { email: string; password: string; displayName: string },
+  input: { loginId: string; email: string; password: string; displayName: string },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/auth/signup/organization', { method: 'POST', body: JSON.stringify(input) }, options);
@@ -109,7 +111,7 @@ export function signupOrganizationOwner(
 
 /** 반 코드 없이 가입하는 "독립" 학부모용 - 반 코드로 가입하려면 joinClass()를 대신 쓴다. */
 export function signupParent(
-  input: { email: string; password: string; displayName: string },
+  input: { loginId: string; email: string; password: string; displayName: string },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/auth/signup/parent', { method: 'POST', body: JSON.stringify(input) }, options);
@@ -117,7 +119,7 @@ export function signupParent(
 
 /** 방문 선생님 - 가정을 방문해 1:1 수업을 진행하는 셀프서비스 역할. 조직/반 없이 바로 가입된다. */
 export function signupTutor(
-  input: { email: string; password: string; displayName: string },
+  input: { loginId: string; email: string; password: string; displayName: string },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/auth/signup/tutor', { method: 'POST', body: JSON.stringify(input) }, options);
@@ -254,6 +256,7 @@ export function joinClass(
   input: {
     classCode?: string;
     inviteToken?: string;
+    loginId: string;
     email: string;
     password: string;
     displayName: string;

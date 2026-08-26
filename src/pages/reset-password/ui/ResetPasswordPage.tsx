@@ -60,7 +60,6 @@ function RequestStep() {
           value={loginId}
           onChangeText={setLoginId}
           placeholder="아이디"
-          keyboardType="email-address"
         />
         <ActionButton
           label="재설정 방법 받기"

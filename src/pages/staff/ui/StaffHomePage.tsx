@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AccountLinkRow, SafeAreaView, storybookTheme } from '@/shared/ui';
-import { useAuth } from '@/entities/auth';
+import { AppNavShell, storybookTheme } from '@/shared/ui';
+import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, StoryApiError, type StoryCatalogEntry } from '@/entities/story';
 
 type LoadState =
@@ -11,10 +11,14 @@ type LoadState =
   | { status: 'ready'; stories: StoryCatalogEntry[] }
   | { status: 'error'; message: string };
 
-/** STAFF의 랜딩 화면 - 저작할 이야기를 고른다. role로 접근을 막는데, OrganizationSignupPage 자체의 인증 상태 가드와 같은 형태다. */
+/**
+ * STAFF의 랜딩 화면 - 저작할 이야기를 고른다. 예전엔 AccountLinkRow + 라이트 셸을 혼자 쓰고
+ * 있었는데, PARENT/CLASS_ACCOUNT/TUTOR 홈은 모두 AppNavShell(다크 스토리북 팔레트)로
+ * 옮겨간 뒤였다 - 역할마다 헤더가 다르게 보이던 걸 여기서도 같은 셸로 맞춘다.
+ */
 export function StaffHomePage() {
   const navigate = useNavigate();
-  const { state, logout } = useAuth();
+  const { state } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
 
   useEffect(() => {
@@ -36,85 +40,85 @@ export function StaffHomePage() {
   if (state.status !== 'authenticated' || state.user.role !== 'STAFF') return null;
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      <View style={styles.content}>
-        <AccountLinkRow onMyPage={() => navigate('/mypage')} onLogout={logout} />
-
-        <Text style={styles.title} accessibilityRole="header">콘텐츠 저작</Text>
-        <Text style={styles.body}>편집할 이야기를 골라주세요.</Text>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')}>
+      <View style={styles.scroll}>
+        <View style={styles.card}>
+          <Text style={styles.eyebrow}>콘텐츠 운영자</Text>
+          <Text style={styles.title} accessibilityRole="header">{state.user.displayName}님</Text>
+          <Text style={styles.body}>편집할 이야기를 골라주세요.</Text>
+        </View>
 
         {load.status === 'loading' && (
           <View style={styles.centered}>
-            <ActivityIndicator />
+            <ActivityIndicator color={storybookTheme.color.gold} />
           </View>
         )}
-        {load.status === 'error' && <Text style={styles.error}>{load.message}</Text>}
-        {load.status === 'ready' &&
-          load.stories.map((story) => (
-            <Pressable
-              key={story.storyId}
-              onPress={() => navigate(`/staff/${story.storyId}`)}
-              accessibilityRole="button"
-              style={styles.storyCard}
-            >
-              <Text style={styles.storyCardTitle}>{story.title}</Text>
-              <Text style={styles.storyCardMeta}>
-                {story.storyId} · v{story.contentVersion}
-              </Text>
-            </Pressable>
-          ))}
+        {load.status === 'error' && <Text style={styles.errorText}>{load.message}</Text>}
+        {load.status === 'ready' && (
+          <View style={styles.panel}>
+            <Text style={styles.panelTitle}>이야기 목록</Text>
+            {load.stories.map((story) => (
+              <Pressable
+                key={story.storyId}
+                onPress={() => navigate(`/staff/${story.storyId}`)}
+                accessibilityRole="link"
+                style={({ pressed }) => [styles.storyRow, pressed && styles.pressed]}
+              >
+                <Text style={styles.storyTitle}>{story.title}</Text>
+                <Text style={styles.storyMeta}>
+                  {story.storyId} · v{story.contentVersion}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
       </View>
-    </SafeAreaView>
+    </AppNavShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scroll: {
     flex: 1,
-    backgroundColor: storybookTheme.color.shellBackground,
-  },
-  content: {
-    flexGrow: 1,
-    gap: 12,
-    paddingHorizontal: 32,
-    paddingVertical: 24,
-    maxWidth: 480,
     width: '100%',
+    maxWidth: 640,
     alignSelf: 'center',
+    gap: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 28,
   },
-  title: {
-    fontSize: storybookTheme.type.lg,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onLightHeading,
+  card: {
+    width: '100%',
+    alignItems: 'stretch',
+    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: storybookTheme.radius.card,
+    paddingHorizontal: 24,
+    paddingVertical: 28,
+    gap: 10,
   },
-  body: {
-    fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.onLightBody,
-    marginBottom: 8,
-  },
-  centered: {
-    alignItems: 'center',
-    paddingVertical: 24,
-  },
-  error: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.error,
-  },
-  storyCard: {
+  eyebrow: { fontSize: storybookTheme.type.xs, fontWeight: '700', color: storybookTheme.color.error, letterSpacing: 0.4 },
+  title: { fontSize: storybookTheme.type.lg, fontWeight: '900', color: storybookTheme.color.onCardTitle },
+  body: { fontSize: storybookTheme.type.sm, lineHeight: 21, color: storybookTheme.color.onCardBody },
+  centered: { alignItems: 'center', paddingVertical: 24 },
+  errorText: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.error, textAlign: 'center' },
+  panel: {
+    width: '100%',
     gap: 4,
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: storybookTheme.color.surfaceWhite,
+    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    borderRadius: storybookTheme.radius.card,
     borderWidth: 1,
-    borderColor: storybookTheme.color.lightCardBorder,
+    borderColor: storybookTheme.color.panelOnDarkBorder,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
   },
-  storyCardTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.onCardTitle,
+  panelTitle: { fontSize: storybookTheme.type.md, fontWeight: '900', color: storybookTheme.color.onDark, marginBottom: 6 },
+  storyRow: {
+    gap: 2,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: storybookTheme.color.panelOnDarkBorder,
   },
-  storyCardMeta: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onLightMuted,
-  },
+  pressed: { opacity: 0.85 },
+  storyTitle: { fontSize: storybookTheme.type.sm, fontWeight: '700', color: storybookTheme.color.onDark },
+  storyMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onDarkMuted },
 });

@@ -1,41 +1,36 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Icon } from './icon';
 import { storybookTheme } from './theme';
 
-type CheckboxProps = {
-  checked: boolean;
-  onChange: (checked: boolean) => void;
+type RadioProps = {
+  selected: boolean;
+  onSelect: () => void;
   label: string;
-  /** 라벨 아래 보조 설명 한 줄 - Figma "Checkbox Field"의 Description Row. */
+  /** 라벨 아래 보조 설명 한 줄 - Figma "Radio Field"의 Description Row. */
   description?: string;
   disabled?: boolean;
 };
 
-/** 라이트 폼 화면(가입 등)에서 쓰는 체크박스 - 반 코드 없이 가입하는 학부모 토글이 첫 사용처다. */
-export function Checkbox({ checked, onChange, label, description, disabled }: CheckboxProps) {
+/** 단일 라디오 옵션 - 실제 상태는 그룹(RadioGroup)이 갖고, 이 컴포넌트는 그 값을 반영만 한다
+ * (Figma 주석: "Checked/Unchecked는 디자인 파일에서만 쓰는 속성이고, 코드에서는 라디오 필드를
+ * 그룹으로 묶어 그 값으로 상태를 나타낸다"). */
+export function Radio({ selected, onSelect, label, description, disabled }: RadioProps) {
   return (
     <Pressable
-      accessibilityRole="checkbox"
-      accessibilityState={{ checked, disabled }}
-      onPress={() => !disabled && onChange(!checked)}
+      accessibilityRole="radio"
+      accessibilityState={{ selected, disabled }}
+      onPress={() => !disabled && onSelect()}
       style={styles.row}
       hitSlop={4}
     >
       <View
         style={[
-          styles.box,
-          checked && styles.boxChecked,
-          disabled && (checked ? styles.boxCheckedDisabled : styles.boxDisabled),
+          styles.circle,
+          selected && styles.circleSelected,
+          disabled && (selected ? styles.circleSelectedDisabled : styles.circleDisabled),
         ]}
       >
-        {checked ? (
-          <Icon
-            name="check"
-            size={13}
-            color={disabled ? storybookTheme.color.disabledText : storybookTheme.color.onDark}
-          />
-        ) : null}
+        {selected ? <View style={[styles.dot, disabled && styles.dotDisabled]} /> : null}
       </View>
       <View style={styles.textColumn}>
         <Text style={[styles.label, disabled && styles.labelDisabled]}>{label}</Text>
@@ -54,28 +49,32 @@ const styles = StyleSheet.create({
     gap: 10,
     minHeight: 44,
   },
-  box: {
+  circle: {
     width: 22,
     height: 22,
-    borderRadius: storybookTheme.radius.control,
+    borderRadius: 11,
     borderWidth: 1.5,
     borderColor: storybookTheme.color.lightCardBorder,
     backgroundColor: storybookTheme.color.surfaceWhite,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  boxChecked: {
-    borderColor: storybookTheme.color.primary,
+  circleSelected: { borderColor: storybookTheme.color.primary },
+  circleDisabled: {
+    borderColor: storybookTheme.color.disabledBorder,
+    backgroundColor: storybookTheme.color.disabledBackground,
+  },
+  circleSelectedDisabled: {
+    borderColor: storybookTheme.color.disabledBorder,
+    backgroundColor: storybookTheme.color.disabledBackground,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: storybookTheme.color.primary,
   },
-  boxDisabled: {
-    borderColor: storybookTheme.color.disabledBorder,
-    backgroundColor: storybookTheme.color.disabledBackground,
-  },
-  boxCheckedDisabled: {
-    borderColor: storybookTheme.color.disabledBorder,
-    backgroundColor: storybookTheme.color.disabledBackground,
-  },
+  dotDisabled: { backgroundColor: storybookTheme.color.disabledText },
   textColumn: { flex: 1, gap: 2 },
   label: {
     fontSize: storybookTheme.type.sm,

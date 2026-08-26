@@ -41,17 +41,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  progressTrack: {
-    height: 4,
-    borderRadius: storybookTheme.radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: storybookTheme.radius.pill,
-    backgroundColor: '#F6C64D',
-  },
   reportTopBar: {
     left: 0,
     right: 0,
@@ -210,8 +199,13 @@ export const styles = StyleSheet.create({
     height: 3,
     borderRadius: 99,
     backgroundColor: 'rgba(255,255,255,0.28)',
+    overflow: 'hidden',
   },
-  progressSegmentActive: { backgroundColor: '#F6C64D' },
+  progressSegmentFill: {
+    height: '100%',
+    borderRadius: 99,
+    backgroundColor: '#F6C64D',
+  },
   scrollContent: {
     flexGrow: 1,
     minHeight: '100%',

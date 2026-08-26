@@ -4,14 +4,14 @@ import type { TextInputProps } from 'react-native';
 import { FieldDescription, FieldError, FieldLabel, fieldBackgroundColor, fieldBorderColor, fieldTextColor } from './field-primitives';
 import { storybookTheme } from './theme';
 
-type TextFieldProps = TextInputProps & {
+type TextareaFieldProps = TextInputProps & {
   label: string;
   description?: string;
   errorText?: string;
 };
 
-/** 이 코드베이스에서 첫 번째 폼 입력 프리미티브 - 로그인/회원가입 폼이 이것을 필요로 하는 첫 기능이다. */
-export function TextField({ label, description, errorText, style, editable, accessibilityLabel, ...rest }: TextFieldProps) {
+/** 여러 줄 입력 - Figma "Textarea Field". TextField와 상태/토큰을 공유한다. */
+export function TextareaField({ label, description, errorText, style, editable, accessibilityLabel, ...rest }: TextareaFieldProps) {
   const isDisabled = editable === false;
   const state = isDisabled ? 'disabled' : errorText ? 'error' : 'default';
   return (
@@ -19,14 +19,14 @@ export function TextField({ label, description, errorText, style, editable, acce
       <FieldLabel disabled={isDisabled}>{label}</FieldLabel>
       {description ? <FieldDescription disabled={isDisabled}>{description}</FieldDescription> : null}
       <TextInput
+        multiline
+        textAlignVertical="top"
         style={[
-          styles.input,
+          styles.textarea,
           { borderColor: fieldBorderColor(state), backgroundColor: fieldBackgroundColor(state), color: fieldTextColor(state) },
           style,
         ]}
         placeholderTextColor={isDisabled ? storybookTheme.color.disabledText : storybookTheme.color.onLightMuted}
-        autoCapitalize="none"
-        autoCorrect={false}
         editable={editable}
         accessibilityLabel={accessibilityLabel ?? label}
         {...rest}
@@ -37,15 +37,13 @@ export function TextField({ label, description, errorText, style, editable, acce
 }
 
 const styles = StyleSheet.create({
-  container: {
-    gap: 6,
-  },
-  input: {
-    minHeight: 48,
+  container: { gap: 6 },
+  textarea: {
+    minHeight: 96,
     borderRadius: storybookTheme.radius.card,
     borderWidth: 1,
     paddingHorizontal: storybookTheme.spacing.md,
-    /** md(16)로 반올림 - 15px 미만 입력창은 모바일 사파리에서 포커스 시 자동 확대(zoom)를 유발한다. */
+    paddingVertical: storybookTheme.spacing.ms,
     fontSize: storybookTheme.type.md,
   },
 });

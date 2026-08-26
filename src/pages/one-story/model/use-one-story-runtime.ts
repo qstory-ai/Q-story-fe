@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useWindowDimensions } from 'react-native';
+import { useNavigate } from 'react-router-dom';
 
 import {
   createInitialRuntimeState,
@@ -98,6 +99,7 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage, tutorStude
     [storyPackage],
   );
 
+  const navigate = useNavigate();
   const { width, height } = useWindowDimensions();
   const isWide = width >= 900;
   const isShort = height < 720;
@@ -201,11 +203,12 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage, tutorStude
   const persistCurrentProgress = useCallback(() => {
     return saveLocalStoryProgress({
       state: runtimeRef.current,
+      storyId: storyPackage.storyId,
       childName,
       elapsedSeconds: elapsedStorySeconds(),
       questionOutcomes,
     });
-  }, [childName, elapsedStorySeconds, questionOutcomes]);
+  }, [childName, elapsedStorySeconds, questionOutcomes, storyPackage.storyId]);
 
   useEffect(() => {
     if (runtimeState.status !== 'idle') {
@@ -1752,9 +1755,14 @@ export function useOneStoryRuntime(storyPackage: StoryRuntimePackage, tutorStude
   const finishExperience = useCallback(async () => {
     processingAbortRef.current?.abort();
     await stopNarration();
-    clearLocalStoryProgress();
-    await openExternal(LANDING_URL);
-  }, [openExternal, stopNarration]);
+    // 익명 데모(/demo)에서는 지우지 않는다 - 로그인/회원가입하면 이 기록으로 계정에
+    // 리포트를 저장해 준다(useSyncDemoCompletionOnAuth 참고). 이미 로그인된 상태라면
+    // 완료 시점에 서버로 저장이 끝났으니 로컬 사본은 정리한다.
+    if (authState.status === 'authenticated') {
+      clearLocalStoryProgress();
+    }
+    navigate('/');
+  }, [authState, navigate, stopNarration]);
 
   const finishToday = useCallback(
     async (reason: (typeof EXIT_REASONS)[number]) => {

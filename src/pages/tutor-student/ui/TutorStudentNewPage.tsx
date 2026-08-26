@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, Checkbox, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, Checkbox, DateInputField, RadioGroup, SafeAreaView, TextField, TextareaField, storybookTheme } from '@/shared/ui';
 import { useAuth } from '@/entities/auth';
 import {
   createTutorInvite,
@@ -93,25 +93,17 @@ function InfoStep({ token, onCreated }: { token: string; onCreated: (student: Tu
       <Text style={styles.stepLabel}>새 학생 등록 · 1 / 3</Text>
       <Text style={styles.title} accessibilityRole="header">아이 이름 또는 별명을 알려주세요</Text>
       <TextField label="아이 이름 또는 별명" value={name} onChangeText={setName} placeholder="예: 민서" />
-      <Text style={styles.fieldLabel}>연령대</Text>
-      <View style={styles.chipRow}>
-        {AGE_BANDS.map((band) => (
-          <Pressable
-            key={band}
-            accessibilityRole="button"
-            onPress={() => setAgeBand(band)}
-            style={[styles.chip, ageBand === band && styles.chipActive]}
-          >
-            <Text style={[styles.chipText, ageBand === band && styles.chipTextActive]}>{band}</Text>
-          </Pressable>
-        ))}
-      </View>
+      <RadioGroup
+        accessibilityLabel="연령대"
+        options={AGE_BANDS.map((band) => ({ value: band, label: band }))}
+        value={ageBand}
+        onChange={setAgeBand}
+      />
       <TextField label="수업 형태" value={classType} onChangeText={setClassType} />
-      <TextField
+      <TextareaField
         label="수업 준비 메모 · 선택"
         value={prepNote}
         onChangeText={setPrepNote}
-        multiline
         numberOfLines={3}
         errorText={error ?? undefined}
       />
@@ -155,22 +147,15 @@ function InviteStep({ token, student, onDone }: { token: string; student: TutorS
 
       {!invite ? (
         <>
-          <View style={styles.chipRow}>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => setMethod('SMS')}
-              style={[styles.chip, method === 'SMS' && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, method === 'SMS' && styles.chipTextActive]}>문자로 보내기</Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => setMethod('LINK')}
-              style={[styles.chip, method === 'LINK' && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, method === 'LINK' && styles.chipTextActive]}>링크 직접 전달</Text>
-            </Pressable>
-          </View>
+          <RadioGroup
+            accessibilityLabel="초대 방법"
+            options={[
+              { value: 'SMS', label: '문자로 보내기' },
+              { value: 'LINK', label: '링크 직접 전달' },
+            ]}
+            value={method}
+            onChange={(next) => setMethod(next as 'SMS' | 'LINK')}
+          />
           {method === 'SMS' && (
             <TextField
               label="부모님 휴대폰 번호"
@@ -221,7 +206,13 @@ function ScheduleStep({ token, student, onDone }: { token: string; student: Tuto
   const [weekday, setWeekday] = useState('FRI');
   const [startTime, setStartTime] = useState('16:00');
   const [endTime, setEndTime] = useState('17:00');
-  const [startDate, setStartDate] = useState('');
+  const [startDay, setStartDay] = useState('');
+  const [startMonth, setStartMonth] = useState('');
+  const [startYear, setStartYear] = useState('');
+  const startDate =
+    startDay && startMonth && startYear
+      ? `${startYear}-${startMonth.padStart(2, '0')}-${startDay.padStart(2, '0')}`
+      : '';
   const [location, setLocation] = useState('가정 방문');
   const [reminderEnabled, setReminderEnabled] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -251,19 +242,12 @@ function ScheduleStep({ token, student, onDone }: { token: string; student: Tuto
     <>
       <Text style={styles.stepLabel}>새 학생 등록 · 3 / 3</Text>
       <Text style={styles.title} accessibilityRole="header">정기 수업 시간을 정해요</Text>
-      <Text style={styles.fieldLabel}>수업 요일</Text>
-      <View style={styles.chipRow}>
-        {WEEKDAYS.map((day) => (
-          <Pressable
-            key={day.value}
-            accessibilityRole="button"
-            onPress={() => setWeekday(day.value)}
-            style={[styles.chip, weekday === day.value && styles.chipActive]}
-          >
-            <Text style={[styles.chipText, weekday === day.value && styles.chipTextActive]}>{day.label}</Text>
-          </Pressable>
-        ))}
-      </View>
+      <RadioGroup
+        accessibilityLabel="수업 요일"
+        options={WEEKDAYS.map((day) => ({ value: day.value, label: day.label }))}
+        value={weekday}
+        onChange={setWeekday}
+      />
       <View style={styles.row}>
         <View style={styles.rowItem}>
           <TextField label="시작 시간" value={startTime} onChangeText={setStartTime} placeholder="16:00" />
@@ -272,14 +256,22 @@ function ScheduleStep({ token, student, onDone }: { token: string; student: Tuto
           <TextField label="종료 시간" value={endTime} onChangeText={setEndTime} placeholder="17:00" />
         </View>
       </View>
-      <TextField label="시작일" value={startDate} onChangeText={setStartDate} placeholder="2026-08-28" />
+      <DateInputField
+        label="시작일"
+        day={startDay}
+        month={startMonth}
+        year={startYear}
+        onChangeDay={setStartDay}
+        onChangeMonth={setStartMonth}
+        onChangeYear={setStartYear}
+      />
       <TextField label="수업 장소" value={location} onChangeText={setLocation} errorText={error ?? undefined} />
       <Checkbox checked={reminderEnabled} onChange={setReminderEnabled} label="수업 30분 전 알림" />
       <ActionButton
         label={submitting ? '등록 중…' : '등록 마치고 홈으로'}
         onPress={onSubmit}
         loading={submitting}
-        disabled={!startTime.trim() || !endTime.trim() || !startDate.trim() || !location.trim()}
+        disabled={!startTime.trim() || !endTime.trim() || !startDate || !location.trim()}
       />
     </>
   );
@@ -298,21 +290,6 @@ const styles = StyleSheet.create({
   },
   stepLabel: { fontSize: storybookTheme.type.xs, fontWeight: '700', color: storybookTheme.color.gold, letterSpacing: 0.4 },
   title: { fontSize: storybookTheme.type.lg, fontWeight: '800', color: storybookTheme.color.onLightHeading, marginBottom: 4 },
-  fieldLabel: { fontSize: storybookTheme.type.sm, fontWeight: '500', color: storybookTheme.color.onLightBody },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: {
-    minHeight: 40,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.lightCardBorder,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  chipActive: { backgroundColor: storybookTheme.color.primary, borderColor: storybookTheme.color.primary },
-  chipText: { fontSize: storybookTheme.type.sm, fontWeight: '600', color: storybookTheme.color.onLightHeading },
-  chipTextActive: { color: storybookTheme.color.onDark },
   row: { flexDirection: 'row', gap: 10 },
   rowItem: { flex: 1 },
   consentCard: {

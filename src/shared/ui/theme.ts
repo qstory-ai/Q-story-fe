@@ -56,6 +56,14 @@ export const storybookTheme = {
     /** 어두운 배경 위의 반투명 패널 - HomePage/ParentHomePage/ClassDashboardPage가 각자 하드코딩하던 값. */
     panelOnDarkBackground: 'rgba(255, 252, 245, 0.08)',
     panelOnDarkBorder: 'rgba(255, 252, 245, 0.16)',
+    /**
+     * 폼 필드(TextField 등)의 비활성 상태 - Figma "Simple Design System"의 중립 회색
+     * disabled 팔레트를 그대로 쓰지 않고, 라이트 셸의 보라 톤(primary #43225F)에서 파생시켜
+     * 톤을 맞췄다. pillBackground/pillBorder와 비슷한 유도 방식이다.
+     */
+    disabledBackground: 'rgba(67, 34, 95, 0.06)',
+    disabledBorder: 'rgba(67, 34, 95, 0.18)',
+    disabledText: '#A79BB0',
   },
   /**
    * 시맨틱 컬러 램프 - Figma "Simple Design System" 커뮤니티 파일의 구조(카테고리별
@@ -137,6 +145,8 @@ export const storybookTheme = {
     pill: 999,
     logoFrame: 8,
     modalCard: 8,
+    /** 체크박스/라디오 컨트롤 박스 전용 - Figma "Simple Design System"의 radius-100(4px). */
+    control: 4,
   },
   /**
    * 화면에 겹쳐지는 것들의 쌓임 순서. one-story 리더가 이미 쓰던 두 값(5, 20)을 그대로

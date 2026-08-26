@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, storybookTheme } from '@/shared/ui';
@@ -109,6 +109,19 @@ export function ParentHomePage() {
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')}>
       <View style={styles.scroll}>
+        <View style={[styles.brandRow, isWide && styles.brandRowWide]}>
+          <View style={styles.brandLogoFrame}>
+            <Image
+              source={{ uri: '/brand/q-story-question-book-logo.svg' }}
+              resizeMode="contain"
+              style={styles.brandLogo}
+              accessibilityLabel="Q-Story 로고"
+            />
+          </View>
+          <Text style={styles.brandWordmark}>
+            <Text style={styles.brandWordmarkQ}>Q</Text>-STORY
+          </Text>
+        </View>
         <View style={[styles.card, isWide && styles.cardWide]}>
           <Text style={styles.eyebrow}>{timeOfDayGreeting()}</Text>
           <Text style={styles.title} accessibilityRole="header">{state.user.displayName}님</Text>
@@ -168,6 +181,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 28,
   },
+  brandRow: {
+    width: '100%',
+    maxWidth: storybookTheme.layout.dashboardCardMaxWidth,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  brandRowWide: { maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth },
+  brandLogoFrame: {
+    width: 44,
+    height: 44,
+    borderRadius: storybookTheme.radius.logoFrame,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: storybookTheme.color.brandFrameBackground,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.surfaceCardBorder,
+  },
+  brandLogo: { width: 34, height: 36 },
+  brandWordmark: {
+    color: storybookTheme.color.onDark,
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
+    letterSpacing: 1.8,
+  },
+  brandWordmarkQ: { color: storybookTheme.color.gold },
   card: {
     width: '100%',
     maxWidth: storybookTheme.layout.dashboardCardMaxWidth,

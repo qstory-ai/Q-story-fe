@@ -226,6 +226,7 @@ function SignUpStep({ role, onAuthed }: { role: OnboardingRole; onAuthed: OnAuth
   const [hasClass, setHasClass] = useState(true);
   const [classCode, setClassCode] = useState('');
   const [orgName, setOrgName] = useState('');
+  const [loginId, setLoginId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -235,7 +236,7 @@ function SignUpStep({ role, onAuthed }: { role: OnboardingRole; onAuthed: OnAuth
   const showClassCodeField = role === 'PARENT' && hasClass;
   const showOrgNameField = role === 'DIRECTOR';
   const canSubmit =
-    Boolean(email.trim()) && Boolean(password) && Boolean(displayName.trim()) &&
+    Boolean(loginId.trim()) && Boolean(email.trim()) && Boolean(password) && Boolean(displayName.trim()) &&
     (showClassCodeField ? classCode.trim().length > 0 : true) &&
     (showOrgNameField ? orgName.trim().length > 0 : true);
 
@@ -243,7 +244,7 @@ function SignUpStep({ role, onAuthed }: { role: OnboardingRole; onAuthed: OnAuth
     setError(null);
     setSubmitting(true);
     try {
-      const input = { email: email.trim(), password, displayName: displayName.trim() };
+      const input = { loginId: loginId.trim(), email: email.trim(), password, displayName: displayName.trim() };
       if (role === 'DIRECTOR') {
         // 계정 생성 직후 같은 화면에서 받은 기관명으로 바로 기관을 만들어, 예전처럼
         // "가입 -> /organization에서 기관명 다시 입력" 두 단계로 나뉘지 않게 한다.
@@ -266,7 +267,7 @@ function SignUpStep({ role, onAuthed }: { role: OnboardingRole; onAuthed: OnAuth
     } finally {
       setSubmitting(false);
     }
-  }, [role, hasClass, classCode, orgName, email, password, displayName, onAuthed]);
+  }, [role, hasClass, classCode, orgName, loginId, email, password, displayName, onAuthed]);
 
   return (
     <View style={styles.form}>
@@ -302,7 +303,8 @@ function SignUpStep({ role, onAuthed }: { role: OnboardingRole; onAuthed: OnAuth
         />
       )}
 
-      <TextField label="아이디" value={email} onChangeText={setEmail} keyboardType="email-address" />
+      <TextField label="아이디" value={loginId} onChangeText={setLoginId} placeholder="로그인에 쓸 아이디" />
+      <TextField label="이메일" value={email} onChangeText={setEmail} keyboardType="email-address" />
       <TextField label="비밀번호" value={password} onChangeText={setPassword} secureTextEntry />
       <TextField label="이름" value={displayName} onChangeText={setDisplayName} errorText={error ?? undefined} />
       <ActionButton variant="gold" label={submitting ? '가입 중…' : '가입하기'} onPress={onSubmit} disabled={submitting || !canSubmit} />
@@ -338,7 +340,6 @@ function SignInStep({ onAuthed }: { onAuthed: OnAuthed }) {
         value={loginId}
         onChangeText={setLoginId}
         placeholder="아이디"
-        keyboardType="email-address"
       />
       <TextField
         label="비밀번호"

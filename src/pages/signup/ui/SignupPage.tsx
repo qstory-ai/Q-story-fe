@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { ActionButton, Checkbox, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, Checkbox, RadioGroup, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { AuthApiError, homePathFor, joinClass, signupOrganizationOwner, signupParent, useAuth } from '@/entities/auth';
 
 type SignupRole = 'DIRECTOR' | 'PARENT';
@@ -32,33 +32,39 @@ export function SignupPage() {
   );
   const [hasClass, setHasClass] = useState(true);
   const [classCode, setClassCode] = useState('');
+  const [loginId, setLoginId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const useJoinFlow = Boolean(inviteToken) || hasClass;
   const showClassCodeField = role === 'PARENT' && !inviteToken && hasClass;
+  const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword;
 
   const onSubmit = useCallback(async () => {
     if (!role) return;
+    if (password !== confirmPassword) {
+      setError('비밀번호가 서로 달라요.');
+      return;
+    }
     setError(null);
     setSubmitting(true);
     try {
+      const input = { loginId: loginId.trim(), email: email.trim(), password, displayName: displayName.trim() };
       if (role === 'DIRECTOR') {
-        const response = await signupOrganizationOwner({ email: email.trim(), password, displayName: displayName.trim() });
+        const response = await signupOrganizationOwner(input);
         setSession(response.token, response.user);
         navigate(homePathFor(response.user), { replace: true });
       } else {
         const response = useJoinFlow
           ? await joinClass({
               ...(inviteToken ? { inviteToken } : { classCode: classCode.trim().toUpperCase() }),
-              email: email.trim(),
-              password,
-              displayName: displayName.trim(),
+              ...input,
             })
-          : await signupParent({ email: email.trim(), password, displayName: displayName.trim() });
+          : await signupParent(input);
         setSession(response.token, response.user);
         navigate(homePathFor(response.user), { replace: true });
       }
@@ -67,12 +73,14 @@ export function SignupPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [role, inviteToken, useJoinFlow, classCode, email, password, displayName, navigate, setSession]);
+  }, [role, inviteToken, useJoinFlow, classCode, loginId, email, password, confirmPassword, displayName, navigate, setSession]);
 
   const canSubmit =
     role !== null &&
+    Boolean(loginId.trim()) &&
     Boolean(email.trim()) &&
     Boolean(password) &&
+    password === confirmPassword &&
     Boolean(displayName.trim()) &&
     (showClassCodeField ? classCode.trim().length > 0 : true);
 
@@ -81,26 +89,15 @@ export function SignupPage() {
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">회원가입</Text>
 
-        <View style={styles.roleRow}>
-          <Pressable
-            accessibilityRole="button"
-            disabled={roleLocked}
-            onPress={() => setRole('DIRECTOR')}
-            style={[styles.roleButton, role === 'DIRECTOR' && styles.roleButtonActive, roleLocked && styles.roleButtonDisabled]}
-          >
-            <Text style={[styles.roleButtonText, role === 'DIRECTOR' && styles.roleButtonTextActive]}>
-              기관 및 단체
-            </Text>
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            disabled={roleLocked}
-            onPress={() => setRole('PARENT')}
-            style={[styles.roleButton, role === 'PARENT' && styles.roleButtonActive, roleLocked && styles.roleButtonDisabled]}
-          >
-            <Text style={[styles.roleButtonText, role === 'PARENT' && styles.roleButtonTextActive]}>학부모</Text>
-          </Pressable>
-        </View>
+        <RadioGroup
+          accessibilityLabel="가입 유형"
+          options={[
+            { value: 'DIRECTOR', label: '기관 및 단체', disabled: roleLocked },
+            { value: 'PARENT', label: '학부모', disabled: roleLocked },
+          ]}
+          value={role}
+          onChange={(next) => setRole(next as SignupRole)}
+        />
 
         {role === null ? <Text style={styles.body}>가입 유형을 선택해 주세요.</Text> : null}
 
@@ -125,22 +122,26 @@ export function SignupPage() {
           ))}
 
         {role !== null ? (
-          <>
-            <TextField label="아이디" value={email} onChangeText={setEmail} keyboardType="email-address" />
+          <View style={styles.card}>
+            <TextField label="아이디" value={loginId} onChangeText={setLoginId} placeholder="로그인에 쓸 아이디" />
+            <TextField label="이메일" value={email} onChangeText={setEmail} keyboardType="email-address" />
             <TextField label="비밀번호" value={password} onChangeText={setPassword} secureTextEntry />
             <TextField
-              label="이름"
-              value={displayName}
-              onChangeText={setDisplayName}
-              errorText={error ?? undefined}
+              label="비밀번호 확인"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              errorText={passwordMismatch ? '비밀번호가 서로 달라요.' : undefined}
             />
+            <TextField label="이름" value={displayName} onChangeText={setDisplayName} />
+            {error ? <StatusBanner variant="warning" label={error} /> : null}
             <ActionButton
               label="가입하기"
               loading={submitting}
               onPress={onSubmit}
               disabled={!canSubmit}
             />
-          </>
+          </View>
         ) : null}
       </View>
     </SafeAreaView>
@@ -173,34 +174,13 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onLightBody,
   },
-  roleRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  roleButton: {
-    flex: 1,
-    minHeight: 50,
-    borderRadius: 15,
-    backgroundColor: storybookTheme.color.pillBackground,
+  card: {
+    gap: 16,
+    padding: 24,
+    borderRadius: storybookTheme.radius.card,
+    backgroundColor: storybookTheme.color.surfaceWhite,
     borderWidth: 1,
-    borderColor: 'transparent',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 12,
-  },
-  roleButtonActive: {
-    backgroundColor: storybookTheme.color.primary,
-    borderColor: storybookTheme.color.primary,
-  },
-  roleButtonDisabled: {
-    opacity: 0.56,
-  },
-  roleButtonText: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: '600',
-    color: storybookTheme.color.onLightHeading,
-  },
-  roleButtonTextActive: {
-    color: storybookTheme.color.onDark,
+    borderColor: storybookTheme.color.lightCardBorder,
+    ...storybookTheme.elevation.low,
   },
 });

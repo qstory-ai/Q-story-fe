@@ -8,6 +8,10 @@ import {
   loadRegistry,
   loadStoryPackage,
 } from './lib/story-package.mjs';
+// Only Hansel & Gretel has a visual-generation-contract.ts today (see references/packs.yaml's
+// sourceModule) - this import must stay story-scoped (see visualReferencePacksFor below) so
+// other stories in the registry don't fail trying to load a module that doesn't exist for them.
+import { hanselGretelVisualReferencePacks } from '../src/entities/story/hansel-gretel/visual-generation-contract.ts';
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const appDirectory = dirname(scriptDirectory);
@@ -61,6 +65,27 @@ function quote(value) {
   return JSON.stringify(value);
 }
 
+// Flattens { style, characters, locations, props } into the backend's StoryVisualReferencePack
+// shape. `label` is deliberately the Record's object key (e.g. HANSEL, HOME), not pack.label
+// (a Korean display string) - the backend matches CHARACTER label against StoryCast.speakerId
+// with its "<STORY>-SPK-" prefix stripped (see StoryVisualReferencePack.java).
+function visualReferencePacksFor(source) {
+  if (source.story.storyId !== 'HG') return [];
+  const { style, characters, locations, props } = hanselGretelVisualReferencePacks;
+  const entries = [
+    ['STYLE', style],
+    ...Object.entries(characters),
+    ...Object.entries(locations),
+    ...Object.entries(props),
+  ];
+  return entries.map(([label, pack]) => ({
+    id: pack.id,
+    kind: pack.kind.toUpperCase(),
+    label,
+    immutableFacts: pack.immutableFacts,
+  }));
+}
+
 function packageData(source, prompts) {
   return {
     schemaVersion: 1,
@@ -75,6 +100,10 @@ function packageData(source, prompts) {
     // meant to be checked or generated.
     qaContract: source.qaContract,
     references: source.references,
+    // Character/location/prop/style appearance-consistency facts for image generation, reused
+    // from the TS module that already holds them (see visualReferencePacksFor) rather than
+    // re-authored here - HG-only today since no other story has a visual-generation-contract.ts.
+    visualReferencePacks: visualReferencePacksFor(source),
     // One flat array, the same shape the backend serves back at /v1/stories/{id}/content. `file` is
     // storage-relative and is what the DB row keeps; `url` is what a client fetches. Both are
     // carried so the import and the app read the same list rather than two divergent ones.

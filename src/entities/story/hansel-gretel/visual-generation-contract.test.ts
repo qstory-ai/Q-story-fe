@@ -89,9 +89,7 @@ test('F07 escape images preserve the oven-first sequence and shared props', () =
   assert.equal(preparation?.requiredFacts.exitState, 'keys-left-on-worktable');
   assert.equal(demonstration?.requiredFacts.entryState, 'keys-left-on-worktable');
   assert.ok(
-    demonstration?.characterPackIds.includes(
-      'HG-CHAR-OLD-WOMAN-WITCH-V1',
-    ),
+    demonstration?.characterPackIds.includes('HG-CHAR-WITCH-V1'),
   );
   assert.ok(demonstration?.propPackIds.includes('HG-PROP-OVEN-V1'));
   assert.ok(securedOven?.propPackIds.includes('HG-PROP-KEY-SET-V1'));
@@ -116,6 +114,13 @@ test('F07 escape images preserve the oven-first sequence and shared props', () =
 test('reference packs preserve the same old-woman identity after the reveal', () => {
   const oldWoman = hanselGretelVisualReferencePacks.characters.OLD_WOMAN;
   const witch = hanselGretelVisualReferencePacks.characters.WITCH;
-  assert.equal(oldWoman.id, witch.id);
+  // Distinct ids (each a valid standalone DB primary key), but the same physical
+  // character: shared reference assets and shared face/body identity facts, differing
+  // only in expression (the last fact - warm as the old woman, cold once revealed).
+  assert.notEqual(oldWoman.id, witch.id);
   assert.deepEqual(oldWoman.canonicalAssetIds, witch.canonicalAssetIds);
+  assert.deepEqual(
+    oldWoman.immutableFacts.slice(0, 2),
+    witch.immutableFacts.slice(0, 2),
+  );
 });

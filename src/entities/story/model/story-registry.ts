@@ -75,6 +75,23 @@ export function loadStoryPackage(
   return promise;
 }
 
+/**
+ * Forces a fresh GET /v1/stories/{storyId}/content fetch, bypassing loadStoryPackage()'s cache, and
+ * replaces the cached entry with the new result. Used after a live-branch generation job reports
+ * READY (see use-one-story-runtime.ts's polling effect): the newly-committed family/segment/asset
+ * only exists once this refetch runs, since there is no incremental-fetch endpoint. Goes through the
+ * exact same fetchStoryPackage()/buildStoryRuntimePackage() parsing path as the initial load, so the
+ * new content is compiled identically to build-time-authored content.
+ */
+export function refetchStoryPackage(
+  storyId: string,
+  options: LoadStoryPackageOptions = {},
+): Promise<StoryRuntimePackage> {
+  const promise = fetchStoryPackage(storyId, options);
+  packageCache.set(storyId, promise);
+  return promise;
+}
+
 async function fetchStoryPackage(
   storyId: string,
   { baseUrl = speechApiUrl, fetchImpl = fetch }: LoadStoryPackageOptions,

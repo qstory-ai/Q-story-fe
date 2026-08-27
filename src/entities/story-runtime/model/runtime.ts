@@ -38,12 +38,16 @@ export type StoryRuntimeState =
       sceneId: SceneId;
       anchorId: QuestionAnchorId;
       questionRound: number;
+      /** questionRound과 같은 방식으로 클라이언트가 무상태로 들고 다니는, 안전게이트가
+       * 연속으로 GENTLE_REDIRECT를 반환한 횟수 (§2 안전게이트 3회 연속 실패 참고). */
+      consecutiveSafetyFailures: number;
     }
   | {
       status: 'recording-question';
       sceneId: SceneId;
       anchorId: QuestionAnchorId;
       questionRound: number;
+      consecutiveSafetyFailures: number;
       inputMode: QuestionInputMode;
     }
   | {
@@ -51,6 +55,7 @@ export type StoryRuntimeState =
       sceneId: SceneId;
       anchorId: QuestionAnchorId;
       questionRound: number;
+      consecutiveSafetyFailures: number;
       plan: RoutePlan;
     }
   | {
@@ -58,6 +63,21 @@ export type StoryRuntimeState =
       sceneId: SceneId;
       anchorId: QuestionAnchorId;
       questionRound: number;
+      consecutiveSafetyFailures: number;
+      prompt: string;
+    }
+  | {
+      /**
+       * 안전게이트가 REDIRECT를 반환했지만 아직 3회 연속(consecutiveSafetyFailures+1 < 3)에
+       * 못 미쳤을 때 진입하는 상태 - awaiting-clarification과 완전히 같은 모양이며(재질문
+       * UI 재사용), question-invite-panel.tsx의 기존 삼항 분기에 케이스만 추가되어 있다.
+       * ASK_SELECTED/TYPE_SELECTED로 재질문을 받거나 CONTINUE_SELECTED로 건너뛸 수 있다.
+       */
+      status: 'awaiting-safety-retry';
+      sceneId: SceneId;
+      anchorId: QuestionAnchorId;
+      questionRound: number;
+      consecutiveSafetyFailures: number;
       prompt: string;
     }
   | {
@@ -65,13 +85,30 @@ export type StoryRuntimeState =
       sceneId: SceneId;
       anchorId: QuestionAnchorId;
       questionRound: number;
+      consecutiveSafetyFailures: number;
       inputMode: QuestionInputMode;
+    }
+  | {
+      /**
+       * 백엔드가 이 질문에 실시간 새 분기 생성을 큐에 넣었을 때(plan.liveBranchJobId)
+       * 진입하는 상태. jobId는 GET /v1/live-branch/{jobId} 폴링에, plan은 "잠깐만
+       * 기다려줘" 안내 문구/화자 등 원본 컨텍스트 보관용으로 쓰인다(사용법: use-one-story
+       * -runtime.ts의 폴링 effect). LIVE_BRANCH_READY/LIVE_BRANCH_FAILED로만 빠져나간다.
+       */
+      status: 'generating-branch';
+      sceneId: SceneId;
+      anchorId: QuestionAnchorId;
+      questionRound: number;
+      consecutiveSafetyFailures: number;
+      jobId: string;
+      plan: RoutePlan;
     }
   | {
       status: 'playing-response';
       sceneId: SceneId;
       anchorId: QuestionAnchorId;
       questionRound: number;
+      consecutiveSafetyFailures: number;
       plan: ResponsePlan;
     }
   | {
@@ -84,6 +121,7 @@ export type StoryRuntimeState =
       sceneId: SceneId;
       anchorId?: QuestionAnchorId;
       questionRound?: number;
+      consecutiveSafetyFailures?: number;
       inputMode?: QuestionInputMode;
       failure: FailureReason;
       fallbackFamilyId?: FallbackFamilyId;
@@ -113,7 +151,21 @@ export type StoryRuntimeEvent =
     }
   | { type: 'RESPONSE_AUDIO_ENDED' }
   | { type: 'FAILURE'; failure: FailureReason }
-  | { type: 'FALLBACK_READY'; plan: FallbackPlan };
+  | { type: 'FALLBACK_READY'; plan: FallbackPlan }
+  /** GET /v1/live-branch/{jobId} 폴링이 READY를 봤고, 콘텐츠 재조회까지 끝난 뒤에 보낸다.
+   *  Phase 2부터는 항상 정확히 3개(새로 생성된 것 + 모자란 자리를 채운 기존 family)이며,
+   *  각 familyId는 재조회된 manifest.fallbackFamilies 안에 반드시 존재해야 한다. */
+  | { type: 'LIVE_BRANCH_READY'; options: readonly LiveBranchReadyOption[] }
+  /** 폴링이 FAILED 상태를 봤거나, 클라이언트 쪽 60초 타임아웃에 걸렸을 때 보낸다. */
+  | { type: 'LIVE_BRANCH_FAILED' };
+
+/** GET /v1/live-branch/{jobId}가 READY일 때 돌려주는 옵션 하나 - THREE_PATHS의 RouteOption과
+ * 달리 branchLine이 없다(백엔드가 선택 시점이 아니라 생성 시점에 한 번만 만들기 때문). */
+export type LiveBranchReadyOption = {
+  familyId: FallbackFamilyId;
+  label: string;
+  meaning: string;
+};
 
 export type PlaybackCommand =
   | {
@@ -311,6 +363,10 @@ function nextAfterAudioGroup(
         sceneId: scene.id,
         anchorId: anchor.id,
         questionRound,
+        // 새로운 앵커에 처음 도달한 것이므로 항상 0으로 리셋한다 - 이전 앵커에서의 안전게이트
+        // 연속 실패는 여기까지 이어지지 않는다 (§2, continueFromAnchor/nextAfterAudioGroup이
+        // 새 awaiting-question을 만드는 지점에서는 항상 리셋).
+        consecutiveSafetyFailures: 0,
       },
       commands: [{ type: 'WAIT_FOR_QUESTION', anchorId: anchor.id }],
     };
@@ -512,6 +568,7 @@ export function transitionStoryRuntime(
           sceneId: state.sceneId,
           anchorId: state.anchorId,
           questionRound: state.questionRound,
+          consecutiveSafetyFailures: state.consecutiveSafetyFailures,
         },
         anchor,
       );
@@ -557,6 +614,7 @@ export function transitionStoryRuntime(
           sceneId: state.sceneId,
           anchorId: state.anchorId,
           questionRound: state.questionRound,
+          consecutiveSafetyFailures: state.consecutiveSafetyFailures,
           plan: selectedPlan,
         },
         commands: [{ type: 'PLAY_RESPONSE', plan: selectedPlan }],
@@ -564,9 +622,113 @@ export function transitionStoryRuntime(
     }
   }
 
+  if (state.status === 'generating-branch') {
+    if (event.type === 'LIVE_BRANCH_READY') {
+      // Phase 2: 더 이상 family 1개를 자동재생하지 않는다 - 백엔드가 만든(부족하면 기존
+      // family로 채운) 정확히 3개를 아이가 직접 고르는 정상적인 THREE_PATHS 흐름으로 넘긴다.
+      // 호출부(use-one-story-runtime.ts)가 이 이벤트를 보내기 전에
+      // GET /v1/stories/{storyId}/content를 재조회해 manifest를 이미 갈아끼웠다고
+      // 가정하므로, 모든 family는 여기서 찾아져야 한다. 이후로는 아이가 방금 세 갈래
+      // 선택지를 마주한 것과 완전히 동일하게 취급되어(selectRouteOption 참고) 새로운
+      // 선택/재생 UI가 필요 없다.
+      const anchor = findAnchor(manifest, state.anchorId);
+      if (!anchor) {
+        return invalidTransition(state, event, 'Question anchor is missing.');
+      }
+      if (
+        event.options.length !== 3 ||
+        event.options.some(
+          (option) =>
+            !manifest.fallbackFamilies.some(
+              (family) => family.id === option.familyId,
+            ),
+        )
+      ) {
+        return invalidTransition(
+          state,
+          event,
+          'Live-generated options were not found after refetching story content.',
+        );
+      }
+      const optionIds = ['OPTION_1', 'OPTION_2', 'OPTION_3'] as const;
+      const threePathsPlan: RoutePlan = {
+        ...state.plan,
+        route: 'THREE_PATHS',
+        liveBranchJobId: undefined,
+        actionFamilyId: null,
+        // THREE_PATHS의 rejoinAt/fallbackFamilyId는 옵션 각각의 실제 rejoin이 아니라
+        // 검증용 기본값이다(선택 시 실제 rejoin은 selectedFamily.rejoinAnchorId를 그대로
+        // 쓴다 - CHOICE_SELECTED 처리 참고) - 서버가 내려주는 일반 THREE_PATHS plan과
+        // 동일한 규칙.
+        rejoinAt: anchor.allowedRejoinAnchorIds[0] ?? null,
+        fallbackFamilyId: anchor.defaultFallbackFamilyId,
+        text: '어떤 방법으로 더 알아볼지 골라볼까?',
+        options: event.options.map((option, index) => ({
+          id: optionIds[index],
+          label: option.label,
+          meaning: option.meaning,
+          actionFamilyId: option.familyId,
+          // 백엔드가 선택 시점이 아니라 생성 시점에 한 번만 대사를 만들기 때문에 비워 둔다 -
+          // CHOICE_SELECTED가 이미 selectedFamily.acknowledgementText로 대체하는 경로를 탄다.
+          branchLine: '',
+        })),
+      };
+      const issue = routePlanIssue(manifest, anchor, threePathsPlan);
+      if (issue) {
+        return invalidTransition(state, event, issue);
+      }
+      return {
+        ok: true,
+        state: {
+          status: 'awaiting-choice',
+          sceneId: state.sceneId,
+          anchorId: state.anchorId,
+          questionRound: state.questionRound,
+          consecutiveSafetyFailures: state.consecutiveSafetyFailures,
+          plan: threePathsPlan,
+        },
+        commands: [],
+      };
+    }
+
+    if (event.type === 'LIVE_BRANCH_FAILED') {
+      // 생성 실패/타임아웃 - 사람 승인 없이 노출할 콘텐츠가 없으므로, 이미 있는
+      // GENTLE_REDIRECT 처리(간단한 안내 후 continueFromAnchor로 이어짐, RESPONSE_AUDIO_ENDED
+      // 처리부의 "rejoinAnchorId가 없으면 계속 진행" 분기 참고)를 그대로 재사용해 이야기를
+      // 안전하게 이어간다.
+      const gentlePlan: RoutePlan = {
+        ...state.plan,
+        route: 'GENTLE_REDIRECT',
+        liveBranchJobId: undefined,
+        actionFamilyId: null,
+        rejoinAt: null,
+        fallbackFamilyId: null,
+        options: [],
+        text: '미안해, 지금은 그건 알아보지 못했어. 대신 이야기를 계속 들려줄게.',
+      };
+      return {
+        ok: true,
+        state: {
+          status: 'playing-response',
+          sceneId: state.sceneId,
+          anchorId: state.anchorId,
+          questionRound: state.questionRound,
+          // 안전게이트가 실제로 거부한 게 아니라 실시간 생성 자체가 실패한 것이므로 §2의
+          // 3회 연속 카운트에는 포함되지 않아야 한다 - 아래 RESPONSE_AUDIO_ENDED의
+          // GENTLE_REDIRECT 분기가 재질문 없이 곧장 continueFromAnchor로 넘어가도록 카운터를
+          // 일부러 임계값(3)에 못박아 둔다.
+          consecutiveSafetyFailures: 3,
+          plan: gentlePlan,
+        },
+        commands: [{ type: 'PLAY_RESPONSE', plan: gentlePlan }],
+      };
+    }
+  }
+
   if (
     state.status === 'awaiting-question' ||
     state.status === 'awaiting-clarification' ||
+    state.status === 'awaiting-safety-retry' ||
     state.status === 'recording-question' ||
     state.status === 'processing-question' ||
     (state.status === 'failed-recoverable' && state.anchorId)
@@ -587,6 +749,7 @@ export function transitionStoryRuntime(
         sceneId: state.sceneId,
         anchorId: anchor.id,
         questionRound: state.questionRound ?? 1,
+        consecutiveSafetyFailures: state.consecutiveSafetyFailures ?? 0,
       };
       return anchor.allowedActions.includes('continue-story')
         ? continueFromAnchor(manifest, waitingState, anchor)
@@ -606,6 +769,7 @@ export function transitionStoryRuntime(
           sceneId: state.sceneId,
           anchorId: anchor.id,
           questionRound: state.questionRound ?? 1,
+          consecutiveSafetyFailures: state.consecutiveSafetyFailures ?? 0,
           inputMode: event.type === 'ASK_SELECTED' ? 'voice' : 'text',
         },
         commands:
@@ -639,6 +803,7 @@ export function transitionStoryRuntime(
         sceneId: state.sceneId,
         anchorId: state.anchorId,
         questionRound: state.questionRound,
+        consecutiveSafetyFailures: state.consecutiveSafetyFailures,
         inputMode: state.inputMode,
       },
       commands: [
@@ -665,6 +830,7 @@ export function transitionStoryRuntime(
         sceneId: state.sceneId,
         anchorId: state.anchorId,
         questionRound: state.questionRound,
+        consecutiveSafetyFailures: state.consecutiveSafetyFailures,
         inputMode: state.inputMode,
       },
       commands: [{ type: 'PROCESS_TEXT', transcript }],
@@ -682,6 +848,7 @@ export function transitionStoryRuntime(
         sceneId: state.sceneId,
         anchorId: state.anchorId,
         questionRound: state.questionRound,
+        consecutiveSafetyFailures: state.consecutiveSafetyFailures,
         inputMode: state.inputMode,
       },
       commands:
@@ -714,6 +881,7 @@ export function transitionStoryRuntime(
         sceneId: state.sceneId,
         anchorId: state.anchorId,
         questionRound: state.questionRound,
+        consecutiveSafetyFailures: state.consecutiveSafetyFailures,
         inputMode: state.inputMode,
         failure,
       },
@@ -731,6 +899,25 @@ export function transitionStoryRuntime(
     }
 
     if (event.plan.kind === 'route') {
+      // 실시간 새 분기 생성이 백그라운드로 큐에 들어간 응답이다 - 아직 실제 콘텐츠를 가리키지
+      // 않으므로 THREE_PATHS 정규화나 routePlanIssue 검증(예: SIMPLE_ROUTE_KINDS는 옵션이
+      // 비어 있어야 한다는 등)보다 먼저 분기해, 이 임시 plan이 그 검증들을 통과하는지 여부와
+      // 무관하게 항상 generating-branch로 들어간다.
+      if (event.plan.liveBranchJobId) {
+        return {
+          ok: true,
+          state: {
+            status: 'generating-branch',
+            sceneId: state.sceneId,
+            anchorId: state.anchorId,
+            questionRound: state.questionRound,
+            consecutiveSafetyFailures: state.consecutiveSafetyFailures,
+            jobId: event.plan.liveBranchJobId,
+            plan: event.plan,
+          },
+          commands: [],
+        };
+      }
       const issue = routePlanIssue(manifest, anchor, event.plan);
       if (issue) {
         return invalidTransition(state, event, issue);
@@ -743,6 +930,7 @@ export function transitionStoryRuntime(
             sceneId: state.sceneId,
             anchorId: state.anchorId,
             questionRound: state.questionRound,
+            consecutiveSafetyFailures: state.consecutiveSafetyFailures,
             plan: event.plan,
           },
           commands: [],
@@ -756,6 +944,7 @@ export function transitionStoryRuntime(
           sceneId: state.sceneId,
           anchorId: state.anchorId,
           questionRound: state.questionRound,
+          consecutiveSafetyFailures: state.consecutiveSafetyFailures,
           plan: normalizedPlan,
         },
         commands: [{ type: 'PLAY_RESPONSE', plan: normalizedPlan }],
@@ -791,6 +980,7 @@ export function transitionStoryRuntime(
         sceneId: state.sceneId,
         anchorId: state.anchorId,
         questionRound: state.questionRound,
+        consecutiveSafetyFailures: state.consecutiveSafetyFailures,
         plan: event.plan,
       },
       commands: [{ type: 'PLAY_RESPONSE', plan: event.plan }],
@@ -825,10 +1015,48 @@ export function transitionStoryRuntime(
           sceneId: state.sceneId,
           anchorId: state.anchorId,
           questionRound: state.questionRound + 1,
+          // CLARIFY_ONCE는 안전게이트와 무관한 별개의 재질문 경로이므로 카운터를 그대로
+          // 이어간다(늘리지도, 리셋하지도 않는다).
+          consecutiveSafetyFailures: state.consecutiveSafetyFailures,
           prompt: state.plan.text,
         },
         commands: [],
       };
+    }
+
+    if (
+      state.plan.kind === 'route' &&
+      state.plan.route === 'GENTLE_REDIRECT'
+    ) {
+      // §2 안전게이트 3회 연속 실패: questionRound와 완전히 같은 방식으로 클라이언트가
+      // 무상태로 들고 다니는 카운터다. 3회 미만이면 재질문 UI(awaiting-safety-retry)를 다시
+      // 띄우고, 3회째에 도달하면 더 묻지 않고 기존 GENTLE_REDIRECT의 fallthrough를 그대로
+      // 호출해 이야기를 이어간다(카운터는 새 사이클이므로 리셋).
+      if (state.consecutiveSafetyFailures + 1 < 3) {
+        return {
+          ok: true,
+          state: {
+            status: 'awaiting-safety-retry',
+            sceneId: state.sceneId,
+            anchorId: state.anchorId,
+            questionRound: state.questionRound + 1,
+            consecutiveSafetyFailures: state.consecutiveSafetyFailures + 1,
+            prompt: state.plan.text,
+          },
+          commands: [],
+        };
+      }
+      return continueFromAnchor(
+        manifest,
+        {
+          status: 'awaiting-question',
+          sceneId: state.sceneId,
+          anchorId: state.anchorId,
+          questionRound: state.questionRound + 1,
+          consecutiveSafetyFailures: 0,
+        },
+        anchor,
+      );
     }
 
     const rejoinAnchorId =
@@ -897,6 +1125,7 @@ export function transitionStoryRuntime(
         sceneId: state.sceneId,
         anchorId: state.anchorId,
         questionRound: state.questionRound + 1,
+        consecutiveSafetyFailures: 0,
       },
       anchor,
     );
@@ -930,6 +1159,7 @@ export function transitionStoryRuntime(
         sceneId: state.sceneId,
         anchorId: state.anchorId,
         questionRound: state.questionRound ?? 1,
+        consecutiveSafetyFailures: state.consecutiveSafetyFailures ?? 0,
         plan: event.plan,
       },
       commands: [{ type: 'PLAY_RESPONSE', plan: event.plan }],
@@ -940,6 +1170,10 @@ export function transitionStoryRuntime(
     const anchorId = 'anchorId' in state ? state.anchorId : undefined;
     const questionRound =
       'questionRound' in state ? state.questionRound : undefined;
+    const consecutiveSafetyFailures =
+      'consecutiveSafetyFailures' in state
+        ? state.consecutiveSafetyFailures
+        : undefined;
     const inputMode =
       'inputMode' in state ? state.inputMode : undefined;
     return {
@@ -949,6 +1183,7 @@ export function transitionStoryRuntime(
         sceneId: state.sceneId,
         anchorId,
         questionRound,
+        consecutiveSafetyFailures,
         inputMode,
         failure: event.failure,
       },

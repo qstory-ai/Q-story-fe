@@ -155,10 +155,14 @@ export function statusCopy(state: StoryRuntimeState) {
       return '목소리 담는 중';
     case 'processing-question':
       return '이야기 속 답을 찾는 중';
+    case 'generating-branch':
+      return '새로운 이야기를 만드는 중';
     case 'awaiting-choice':
       return '세 가지 방법을 살펴보는 중';
     case 'awaiting-clarification':
       return '아이의 뜻을 한 번 더 확인하는 중';
+    case 'awaiting-safety-retry':
+      return '안전하게 다시 한 번 물어보는 중';
     case 'playing-response':
       return '아이의 생각으로 달라진 순간';
     case 'rejoining':
@@ -175,7 +179,10 @@ export function questionPrompt(
   childName: string,
   storyPackage: StoryRuntimePackage,
 ) {
-  if (state.status === 'awaiting-clarification') {
+  if (
+    state.status === 'awaiting-clarification' ||
+    state.status === 'awaiting-safety-retry'
+  ) {
     return personalizeStoryText(state.prompt, childName);
   }
   if (!('anchorId' in state) || !state.anchorId) {

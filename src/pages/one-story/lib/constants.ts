@@ -29,4 +29,10 @@ export const QUESTION_AUDIO_HEAD_START_MS = 2_000;
 export const RESPONSE_AUDIO_PREPARE_MS = 12_000;
 export const FIXED_AUDIO_FAILURE_RECOVERY_MS = 2_500;
 
+// LiveBranchGenerationService(실시간 새 분기 생성) 폴링 간격/총 대기 한도. 백엔드가 재시도까지
+// 소진하려면 시간이 걸리므로 간격을 짧게 두되, 60초를 넘기면 사람 승인 없는 콘텐츠를 계속
+// 기다리게 하지 않고 안전하게 이야기를 이어간다(runtime.ts의 LIVE_BRANCH_FAILED 참고).
+export const LIVE_BRANCH_POLL_INTERVAL_MS = 1_800;
+export const LIVE_BRANCH_POLL_TIMEOUT_MS = 60_000;
+
 export const LANDING_URL = readEnv('VITE_QSTORY_LANDING_URL') || 'https://qstory.ai.kr';

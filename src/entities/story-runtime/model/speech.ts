@@ -113,6 +113,13 @@ export type RoutePlan = {
   options: RouteOption[];
   originRoute?: 'THREE_PATHS';
   selectedOptionId?: RouteOption['id'];
+  /**
+   * 백엔드가 이 질문에 대해 실시간(비동기) 새 분기 생성을 큐에 넣었을 때만 채워진다
+   * (LiveBranchGenerationService 참고). 채워져 있으면 이 plan의 다른 필드(옵션/가족 등)는
+   * 아직 실제 콘텐츠를 가리키지 않는 "잠깐만 기다려줘" 안내일 뿐이므로, 클라이언트는
+   * runtime.ts의 generating-branch 상태로 진입해 GET /v1/live-branch/{jobId}를 폴링한다.
+   */
+  liveBranchJobId?: string;
   versions: {
     modelId: string;
     promptVersion: string;

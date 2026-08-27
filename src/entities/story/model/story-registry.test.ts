@@ -6,6 +6,7 @@ import generatedContent from '../hansel-gretel/generated-story-content.json';
 import packageData from '../hansel-gretel/story-package.generated.json';
 import {
   loadStoryPackage,
+  refetchStoryPackage,
   describeStoryLoadFailure,
   StoryLoadError,
   DEFAULT_BETA_STORY_ID,
@@ -46,6 +47,37 @@ test('loadStoryPackage fetches the content endpoint, builds the runtime package,
   assert.deepEqual(requestedUrls, [
     `https://api.q-story.test/v1/stories/${storyId}/content`,
   ]);
+});
+
+test('refetchStoryPackage bypasses the cache and replaces it, unlike loadStoryPackage', async () => {
+  let requestCount = 0;
+  const fetchImpl = (async () => {
+    requestCount += 1;
+    return new Response(JSON.stringify({ generatedContent, packageData }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  }) as typeof fetch;
+
+  const storyId = 'HG-refetch-test';
+  const options = { baseUrl: 'https://api.q-story.test', fetchImpl };
+  const first = await loadStoryPackage(storyId, options);
+  assert.equal(requestCount, 1, 'the first load hits the network once');
+
+  const cachedAgain = await loadStoryPackage(storyId, options);
+  assert.equal(cachedAgain, first, 'loadStoryPackage still serves from cache');
+  assert.equal(requestCount, 1);
+
+  // live-branch READY 뒤(use-one-story-runtime.ts) 이걸로 강제 재조회한다 - 캐시를 무시하고
+  // 다시 네트워크를 태워야 새로 커밋된 family/segment/asset을 받아올 수 있다.
+  const refetched = await refetchStoryPackage(storyId, options);
+  assert.equal(requestCount, 2, 'refetchStoryPackage always hits the network');
+  assert.equal(refetched.storyId, 'HG');
+
+  // 재조회 이후의 loadStoryPackage 호출은 새로 채워진 캐시 항목을 반환해야 한다.
+  const cachedAfterRefetch = await loadStoryPackage(storyId, options);
+  assert.equal(cachedAfterRefetch, refetched);
+  assert.equal(requestCount, 2);
 });
 
 test('loadStoryPackage rejects on a non-ok response and does not poison the cache', async () => {

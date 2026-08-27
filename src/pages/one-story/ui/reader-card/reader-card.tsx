@@ -7,6 +7,7 @@ import { AwaitingChoicePanel } from './awaiting-choice-panel';
 import { CompletePanel } from './complete-panel';
 import { ConfirmTranscriptPanel } from './confirm-transcript-panel';
 import { FailedRecoverablePanel } from './failed-recoverable-panel';
+import { GeneratingBranchPanel } from './generating-branch-panel';
 import { IdlePanel } from './idle-panel';
 import { ParentMessageBanner } from './parent-message-banner';
 import { PlaybackCaption } from './playback-caption';
@@ -61,6 +62,7 @@ export function ReaderCard({ runtime }: { runtime: OneStoryRuntime }) {
       <RecordingTextPanel runtime={runtime} />
       <ConfirmTranscriptPanel runtime={runtime} />
       <ProcessingPanel runtime={runtime} />
+      <GeneratingBranchPanel runtime={runtime} />
       <FailedRecoverablePanel runtime={runtime} />
       <AwaitingChoicePanel runtime={runtime} />
       <ResponsePanel runtime={runtime} />

@@ -200,6 +200,7 @@ function createManifest() {
         resumeAudioGroupId: IDS.groupResume,
         allowedRejoinAnchorIds: [IDS.rejoin],
         fallbackFamilyIds: [IDS.fallback],
+        defaultFallbackFamilyId: IDS.fallback,
       },
     ],
     rejoinAnchors: [
@@ -236,6 +237,7 @@ test('a rejected transcript returns to recording at the same question anchor', (
       sceneId: IDS.scene1,
       anchorId: IDS.question,
       questionRound: 1,
+      consecutiveSafetyFailures: 0,
       inputMode: 'voice',
     },
     { type: 'RETRY_QUESTION_SELECTED' },
@@ -250,6 +252,7 @@ test('a rejected transcript returns to recording at the same question anchor', (
     sceneId: IDS.scene1,
     anchorId: IDS.question,
     questionRound: 1,
+    consecutiveSafetyFailures: 0,
     inputMode: 'voice',
   });
   assert.deepEqual(transition.commands, [{ type: 'REQUEST_RECORDING' }]);
@@ -264,6 +267,7 @@ test('voice and text input can switch at the same question anchor', () => {
       sceneId: IDS.scene1,
       anchorId: IDS.question,
       questionRound: 1,
+      consecutiveSafetyFailures: 0,
       inputMode: 'voice',
     },
     { type: 'TYPE_SELECTED' },
@@ -278,6 +282,7 @@ test('voice and text input can switch at the same question anchor', () => {
     sceneId: IDS.scene1,
     anchorId: IDS.question,
     questionRound: 1,
+    consecutiveSafetyFailures: 0,
     inputMode: 'text',
   });
   assert.deepEqual(switchedToText.commands, []);
@@ -865,4 +870,232 @@ test('an unexpected audio completion does not corrupt state', () => {
 
   assert.equal(result.ok, false);
   assert.equal(result.state, started.state);
+});
+
+test('a live-branch job id short-circuits THREE_PATHS normalization into generating-branch', () => {
+  const manifest = createManifest();
+  const processing = {
+    status: 'processing-question',
+    sceneId: IDS.scene1,
+    anchorId: IDS.question,
+    questionRound: 1,
+    inputMode: 'voice',
+  };
+  // 이 plan은 옵션이 비어 있지 않으면서도(THREE_PATHS 모양이 아님) actionFamilyId/rejoinAt도
+  // 없는, routePlanIssue라면 거부했을 형태다 - liveBranchJobId가 있으면 그 검증보다 먼저
+  // generating-branch로 빠져야 한다는 것을 확인한다.
+  const waitingPlan = routePlan({
+    route: 'ANSWER_RESUME',
+    text: '그것도 한번 알아볼게, 잠깐만 기다려줘!',
+    liveBranchJobId: 'job-123',
+  });
+  const result = transitionStoryRuntime(manifest, processing, {
+    type: 'RESPONSE_READY',
+    plan: waitingPlan,
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.state.status, 'generating-branch');
+  assert.equal(result.state.jobId, 'job-123');
+  assert.equal(result.commands.length, 0);
+});
+
+test('live branch failure or timeout falls back to the existing gentle-redirect flow', () => {
+  const manifest = createManifest();
+  const generating = {
+    status: 'generating-branch',
+    sceneId: IDS.scene1,
+    anchorId: IDS.question,
+    questionRound: 1,
+    jobId: 'job-123',
+    plan: routePlan({
+      route: 'ANSWER_RESUME',
+      text: '그것도 한번 알아볼게, 잠깐만 기다려줘!',
+      liveBranchJobId: 'job-123',
+    }),
+  };
+  const failed = transitionStoryRuntime(manifest, generating, {
+    type: 'LIVE_BRANCH_FAILED',
+  });
+
+  assert.equal(failed.ok, true);
+  assert.equal(failed.state.status, 'playing-response');
+  assert.equal(failed.state.plan.route, 'GENTLE_REDIRECT');
+  assert.equal(failed.state.plan.actionFamilyId, null);
+  assert.equal(failed.state.plan.rejoinAt, null);
+  assert.equal(failed.state.plan.liveBranchJobId, undefined);
+
+  // GENTLE_REDIRECT는 rejoinAt이 없으니, 기존 continueFromAnchor 경로로 이야기가 이어진다.
+  const resumed = transitionStoryRuntime(manifest, failed.state, {
+    type: 'RESPONSE_AUDIO_ENDED',
+  });
+  assert.equal(resumed.ok, true);
+  assert.equal(resumed.state.status, 'playing-fixed');
+  assert.equal(resumed.state.audioGroupId, IDS.groupResume);
+});
+
+test('live branch ready presents exactly three options as a THREE_PATHS choice instead of auto-playing', () => {
+  const manifest = createManifest();
+  const liveFamilyId = fallbackFamilyId('LIVE_HG_F01_ABCDEF01');
+  // GET /v1/stories/{storyId}/content 재조회 뒤의 manifest를 흉내낸다 - Phase 2부터는 새로
+  // 생성된 family만 자동재생하지 않고, 새 family + 모자란 자리를 채운 기존 family를 합쳐
+  // 항상 정확히 3개를 THREE_PATHS로 제시한다(설계 문서 §3 참고). 새로 커밋된 family는 이미
+  // 앵커의 fallbackFamilyIds에 포함되어 있어야 한다(백엔드가 처음부터 채워 넣는다).
+  manifest.questionAnchors[0].fallbackFamilyIds = [
+    ...manifest.questionAnchors[0].fallbackFamilyIds,
+    liveFamilyId,
+    IDS.fallback2,
+    IDS.fallback3,
+  ];
+  manifest.fallbackFamilies = [
+    ...manifest.fallbackFamilies,
+    {
+      id: liveFamilyId,
+      meaning: '아이의 질문에서 새로 만들어진 이야기',
+      acknowledgementText: '좋아, 그것도 함께 알아보자!',
+      audioGroupId: IDS.groupResume,
+      rejoinAnchorId: IDS.rejoin,
+    },
+    {
+      id: IDS.fallback2,
+      meaning: '모자란 자리를 채운 기존 방법 1',
+      audioGroupId: IDS.groupResume,
+      rejoinAnchorId: IDS.rejoin,
+    },
+    {
+      id: IDS.fallback3,
+      meaning: '모자란 자리를 채운 기존 방법 2',
+      audioGroupId: IDS.groupResume,
+      rejoinAnchorId: null,
+    },
+  ];
+  const generating = {
+    status: 'generating-branch',
+    sceneId: IDS.scene1,
+    anchorId: IDS.question,
+    questionRound: 1,
+    consecutiveSafetyFailures: 0,
+    jobId: 'job-123',
+    plan: routePlan({
+      route: 'ANSWER_RESUME',
+      text: '그것도 한번 알아볼게, 잠깐만 기다려줘!',
+      liveBranchJobId: 'job-123',
+    }),
+  };
+
+  const missingFamily = transitionStoryRuntime(manifest, generating, {
+    type: 'LIVE_BRANCH_READY',
+    options: [
+      {
+        familyId: fallbackFamilyId('LIVE_NOT_COMMITTED'),
+        label: '레이블',
+        meaning: '뜻',
+      },
+      { familyId: IDS.fallback2, label: '레이블2', meaning: '뜻2' },
+      { familyId: IDS.fallback3, label: '레이블3', meaning: '뜻3' },
+    ],
+  });
+  assert.equal(missingFamily.ok, false);
+
+  const ready = transitionStoryRuntime(manifest, generating, {
+    type: 'LIVE_BRANCH_READY',
+    options: [
+      {
+        familyId: liveFamilyId,
+        label: '새로 만든 방법',
+        meaning: '아이가 물어본 새로운 방법을 시도한다.',
+      },
+      { familyId: IDS.fallback2, label: '기존 방법 1', meaning: '기존 선택지 1' },
+      { familyId: IDS.fallback3, label: '기존 방법 2', meaning: '기존 선택지 2' },
+    ],
+  });
+  assert.equal(ready.ok, true);
+  assert.equal(ready.state.status, 'awaiting-choice');
+  assert.equal(ready.state.plan.route, 'THREE_PATHS');
+  assert.equal(ready.state.plan.options.length, 3);
+  assert.equal(ready.state.plan.options[0].actionFamilyId, liveFamilyId);
+  assert.equal(ready.state.plan.actionFamilyId, null);
+  assert.equal(ready.state.plan.liveBranchJobId, undefined);
+  assert.equal(ready.commands.length, 0);
+
+  // 아이가 새로 만들어진 첫 번째 옵션을 직접 고르면, 기존 THREE_PATHS 선택 흐름과 완전히
+  // 동일하게 처리된다(selectRouteOption/CHOICE_SELECTED 참고) - 새 재생 UI가 필요 없다.
+  const selected = transitionStoryRuntime(manifest, ready.state, {
+    type: 'CHOICE_SELECTED',
+    optionId: 'OPTION_1',
+  });
+  assert.equal(selected.ok, true);
+  assert.equal(selected.state.status, 'playing-response');
+  assert.equal(selected.state.plan.route, 'DIRECT_ACTION');
+  assert.equal(selected.state.plan.actionFamilyId, liveFamilyId);
+  assert.equal(selected.state.plan.text, '좋아, 그것도 함께 알아보자!');
+  assert.equal(selected.state.plan.rejoinAt, IDS.rejoin);
+  assert.equal(selected.commands[0].type, 'PLAY_RESPONSE');
+
+  // 실제 아이가 세 갈래 선택지를 고른 것과 완전히 같은 rejoin 경로를 탄다.
+  const rejoined = transitionStoryRuntime(manifest, selected.state, {
+    type: 'RESPONSE_AUDIO_ENDED',
+  });
+  assert.equal(rejoined.ok, true);
+  assert.equal(rejoined.state.status, 'playing-fixed');
+  assert.equal(rejoined.state.audioGroupId, IDS.groupEnding);
+});
+
+test('a gentle-redirect safety failure re-asks via awaiting-safety-retry while under three consecutive failures', () => {
+  const manifest = createManifest();
+  const playing = {
+    status: 'playing-response',
+    sceneId: IDS.scene1,
+    anchorId: IDS.question,
+    questionRound: 1,
+    consecutiveSafetyFailures: 0,
+    plan: routePlan({
+      route: 'GENTLE_REDIRECT',
+      text: '그건 이야기랑 조금 다른 이야기인 것 같아.',
+    }),
+  };
+  const result = transitionStoryRuntime(manifest, playing, {
+    type: 'RESPONSE_AUDIO_ENDED',
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.state.status, 'awaiting-safety-retry');
+  assert.equal(result.state.questionRound, 2);
+  assert.equal(result.state.consecutiveSafetyFailures, 1);
+  assert.equal(result.state.prompt, '그건 이야기랑 조금 다른 이야기인 것 같아.');
+
+  // 재질문 UI에서 다시 말하기를 고르면(ASK_SELECTED) 안전게이트 카운터를 그대로 들고
+  // recording-question으로 넘어간다(questionRound와 완전히 같은 방식).
+  const asked = transitionStoryRuntime(manifest, result.state, {
+    type: 'ASK_SELECTED',
+  });
+  assert.equal(asked.ok, true);
+  assert.equal(asked.state.status, 'recording-question');
+  assert.equal(asked.state.questionRound, 2);
+  assert.equal(asked.state.consecutiveSafetyFailures, 1);
+});
+
+test('a third consecutive safety-gate redirect stops re-asking and continues the story instead', () => {
+  const manifest = createManifest();
+  const playing = {
+    status: 'playing-response',
+    sceneId: IDS.scene1,
+    anchorId: IDS.question,
+    questionRound: 3,
+    consecutiveSafetyFailures: 2,
+    plan: routePlan({
+      route: 'GENTLE_REDIRECT',
+      text: '이번에도 이야기와는 조금 다른 것 같아.',
+    }),
+  };
+  const result = transitionStoryRuntime(manifest, playing, {
+    type: 'RESPONSE_AUDIO_ENDED',
+  });
+
+  // 3번째 연속 실패이므로 4번째 재질문(awaiting-safety-retry)으로 가지 않는다 - 기존
+  // GENTLE_REDIRECT의 fallthrough(continueFromAnchor)를 그대로 타 이야기를 이어간다.
+  assert.equal(result.ok, true);
+  assert.notEqual(result.state.status, 'awaiting-safety-retry');
+  assert.equal(result.state.status, 'playing-fixed');
+  assert.equal(result.state.audioGroupId, IDS.groupResume);
 });

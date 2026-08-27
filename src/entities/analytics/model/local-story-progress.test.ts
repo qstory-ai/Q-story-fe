@@ -50,6 +50,7 @@ test('an interrupted question resumes from its invitation', () => {
       sceneId: 'HG-F04',
       anchorId: 'HG-Q-A',
       questionRound: 1,
+      consecutiveSafetyFailures: 2,
       inputMode: 'voice',
     }),
     {
@@ -57,6 +58,8 @@ test('an interrupted question resumes from its invitation', () => {
       sceneId: 'HG-F04',
       anchorId: 'HG-Q-A',
       questionRound: 1,
+      // 재개는 항상 새 질문 시도로 취급되어 안전게이트 카운터가 리셋된다.
+      consecutiveSafetyFailures: 0,
     },
   );
 });

@@ -127,7 +127,7 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     ],
   },
   OLD_WOMAN: {
-    id: 'HG-CHAR-OLD-WOMAN-WITCH-V1',
+    id: 'HG-CHAR-OLD-WOMAN-V1',
     version: '1.0.0',
     kind: 'character',
     label: '노파·마녀',
@@ -143,7 +143,7 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     ],
   },
   WITCH: {
-    id: 'HG-CHAR-OLD-WOMAN-WITCH-V1',
+    id: 'HG-CHAR-WITCH-V1',
     version: '1.0.0',
     kind: 'character',
     label: '노파·마녀',

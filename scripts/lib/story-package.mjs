@@ -8,6 +8,10 @@ function fail(storyId, message) {
   throw new Error(`Story package ${storyId}: ${message}`);
 }
 
+function isPlainObject(value) {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 /**
  * assets.json is one list of records - {slug, category, file, integrity} - so a hash can never be
  * orphaned from the asset it covers and the shared directory prefix is written once. Callers still
@@ -267,6 +271,44 @@ export async function loadRegistry(appDirectory) {
 }
 
 /**
+ * The Phase 2 three-stage pipeline's prompts (safety_scope_gate/route_classifier/content_generator),
+ * optional on a prompt file so stories naming a single-call-era policy without stages don't break.
+ * When present it must name exactly the three stages, each with a non-empty `system` string list
+ * and an `examples` list of {input, output} objects - mirroring the shape
+ * StoryImportService.importRoutePromptStages/upsertStage expects byte-for-byte.
+ */
+function validateStages(version, stages) {
+  if (stages === undefined) return undefined;
+  if (!isPlainObject(stages)) {
+    throw new Error(`Prompt ${version}: stages must be an object`);
+  }
+  const keys = Object.keys(stages);
+  if (keys.length !== 3 || !['safety', 'classifier', 'generator'].every((key) => keys.includes(key))) {
+    throw new Error(`Prompt ${version}: stages must have exactly safety, classifier, generator`);
+  }
+  for (const [stageName, stage] of Object.entries(stages)) {
+    if (!isPlainObject(stage)) {
+      throw new Error(`Prompt ${version}: stages.${stageName} must be an object`);
+    }
+    if (!Array.isArray(stage.system) || stage.system.length === 0) {
+      throw new Error(`Prompt ${version}: stages.${stageName}.system must be a non-empty list`);
+    }
+    if (stage.system.some((line) => typeof line !== 'string' || !line.trim())) {
+      throw new Error(`Prompt ${version}: stages.${stageName}.system has an empty line`);
+    }
+    if (!Array.isArray(stage.examples)) {
+      throw new Error(`Prompt ${version}: stages.${stageName}.examples must be a list`);
+    }
+    for (const example of stage.examples) {
+      if (!isPlainObject(example) || !isPlainObject(example.input) || !isPlainObject(example.output)) {
+        throw new Error(`Prompt ${version}: stages.${stageName}.examples entries need input and output objects`);
+      }
+    }
+  }
+  return stages;
+}
+
+/**
  * Route policies, keyed by the version a story's route-context.yaml names. Loaded separately from
  * stories because one policy can serve several stories - and because it is the text the backend
  * used to hardcode, which is what let the policy and its version label drift apart.
@@ -289,7 +331,13 @@ export async function loadPrompts(appDirectory) {
         throw new Error(`Prompt ${entry.version}: ${field} has an empty line`);
       }
     }
-    prompts.push({ version: parsed.version, system: parsed.system, instruction: parsed.instruction });
+    const stages = validateStages(entry.version, parsed.stages);
+    prompts.push({
+      version: parsed.version,
+      system: parsed.system,
+      instruction: parsed.instruction,
+      ...(stages ? { stages } : {}),
+    });
   }
   const versions = new Set(prompts.map((prompt) => prompt.version));
   if (versions.size !== prompts.length) throw new Error('Duplicate prompt version in registry');

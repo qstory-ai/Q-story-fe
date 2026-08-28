@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { AppNavShell, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { buildParentReport, type ParentReport } from '@/entities/analytics';
-import { loadStoryPackage, type StoryRuntimePackage } from '@/entities/story';
+import { refetchStoryPackage, type StoryRuntimePackage } from '@/entities/story';
 import { ReportContent } from '@/pages/one-story';
 import { getStoryCompletion, StoryCompletionApiError } from '@/entities/story-completion';
 
@@ -38,7 +38,9 @@ export function ReportHistoryDetailPage() {
     let cancelled = false;
     getStoryCompletion(state.token, completionId)
       .then(async (detail) => {
-        const storyPackage = await loadStoryPackage(detail.storyId);
+        // 캐시 우회 - 같은 탭에서 이 이야기를 먼저 플레이했다면 loadStoryPackage()의 세션
+        // 캐시가 방금 완료된 실시간 브랜치 삽화(GENERATED_BRANCH_ASSET)를 영영 못 보게 막는다.
+        const storyPackage = await refetchStoryPackage(detail.storyId);
         if (cancelled) return;
         const parentReport = buildParentReport(storyPackage.reportCopy, detail.outcomes, {
           durationSeconds: detail.durationSeconds,

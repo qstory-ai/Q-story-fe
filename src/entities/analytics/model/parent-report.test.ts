@@ -9,6 +9,7 @@ import {
 
 import {
   buildParentReport,
+  buildRecentApproachTrend,
   hasExperiencedStoryAgency,
 } from './parent-report';
 import { hanselGretelStoryPackage } from '@/entities/story/hansel-gretel/manifest';
@@ -183,4 +184,60 @@ test('agency experience requires an actual action route or a selected path', () 
     ]),
     true,
   );
+});
+
+test('recent approach trend surfaces a strategy repeated across sessions', () => {
+  const checkKeysOutcome = {
+    anchorId: questionAnchorId('HG-Q-B'),
+    childRelevantMeaning: '열쇠가 어디 있는지 확인한다.',
+    route: 'THREE_PATHS' as const,
+    responseText: '열쇠부터 확인하자.',
+    actionFamilyId: 'B_CHECK_KEYS',
+  };
+  const markExitOutcome = {
+    anchorId: questionAnchorId('HG-Q-B'),
+    childRelevantMeaning: '출구를 미리 표시해 둔다.',
+    route: 'DIRECT_ACTION' as const,
+    responseText: '출구 표시부터 하자.',
+    actionFamilyId: 'B_STEP_BACK_MARK_EXIT',
+  };
+  const noQuestionOutcome = {
+    anchorId: questionAnchorId('HG-Q-A'),
+    childRelevantMeaning: '이야기를 계속 듣는다.',
+    route: 'SKIP_CONTINUE' as const,
+    responseText: '',
+  };
+
+  const trend = buildRecentApproachTrend([
+    { outcomes: [checkKeysOutcome] },
+    { outcomes: [checkKeysOutcome, markExitOutcome] },
+    { outcomes: [noQuestionOutcome] },
+  ]);
+
+  assert.equal(trend.sessionCount, 3);
+  assert.equal(trend.questionSessionCount, 2);
+  assert.deepEqual(trend.repeatedApproach, { label: '단서를 관찰하고 확인하기', count: 2 });
+  assert.deepEqual(trend.otherApproaches, ['미리 계획하고 안전 확보하기']);
+});
+
+test('recent approach trend has no repeated approach when nothing recurs', () => {
+  const trend = buildRecentApproachTrend([
+    {
+      outcomes: [
+        {
+          anchorId: questionAnchorId('HG-Q-A'),
+          childRelevantMeaning: '새를 관찰한다.',
+          route: 'DIRECT_ACTION' as const,
+          responseText: '새를 지켜보자.',
+          actionFamilyId: 'A_OBSERVE_BIRD',
+        },
+      ],
+    },
+    { outcomes: [] },
+  ]);
+
+  assert.equal(trend.sessionCount, 2);
+  assert.equal(trend.questionSessionCount, 1);
+  assert.equal(trend.repeatedApproach, null);
+  assert.deepEqual(trend.otherApproaches, ['단서를 관찰하고 확인하기']);
 });

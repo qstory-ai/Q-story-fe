@@ -83,3 +83,12 @@ export function getStoryCompletion(
 ): Promise<StoryCompletionDetail> {
   return request(`/v1/story-completions/${id}`, { method: 'GET' }, token, options);
 }
+
+/** 최근 N회의 전체 리포트를 outcomes와 함께 가져온다 - 목록 화면의 누적 트렌드 카드(buildRecentApproachTrend)용. */
+export function listRecentStoryCompletions(
+  token: string,
+  limit: number,
+  options?: RequestOptions,
+): Promise<StoryCompletionDetail[]> {
+  return request(`/v1/story-completions/recent?limit=${limit}`, { method: 'GET' }, token, options);
+}

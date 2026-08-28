@@ -17,9 +17,17 @@ function storageKeyFor(accountId: string | null): string {
   return accountId ? `${STORAGE_KEY}:account:${accountId}` : STORAGE_KEY;
 }
 
+/**
+ * 계정 키와 익명 키 둘 다 확인한다 - 익명으로 통과한 뒤 로그인 상태로 재방문하거나(혹은 그
+ * 반대) 하면 accountId 유무에 따라 storageKeyFor()가 다른 키를 가리키게 되어, 이미 한 번
+ * 통과한 사용자에게 모달이 다시 뜨는 문제가 있었다. 두 키 중 하나라도 '1'이면 통과로 본다.
+ */
 function readPassed(storageKey: string): boolean {
   try {
-    return window.localStorage.getItem(storageKey) === '1';
+    return (
+      window.localStorage.getItem(storageKey) === '1' ||
+      window.localStorage.getItem(STORAGE_KEY) === '1'
+    );
   } catch {
     return false;
   }
@@ -28,6 +36,8 @@ function readPassed(storageKey: string): boolean {
 function writePassed(storageKey: string) {
   try {
     window.localStorage.setItem(storageKey, '1');
+    // 익명 키도 함께 남겨 두면, 이후 로그인/로그아웃으로 키가 바뀌어도 readPassed()가 찾을 수 있다.
+    window.localStorage.setItem(STORAGE_KEY, '1');
   } catch {
     // localStorage를 못 쓰는 환경(사파리 프라이빗 모드 등)이면 이번 방문에서만 통과 상태를 유지한다.
   }

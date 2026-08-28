@@ -9,6 +9,12 @@ import { OnboardingFlow } from '@/features/onboarding';
 
 type OnboardingEntry = { step: 'welcome' | 'sign-up' | 'sign-in'; role?: 'PARENT' | 'DIRECTOR' | 'TUTOR' };
 
+const ROLE_OPTIONS: { role: 'DIRECTOR' | 'PARENT' | 'TUTOR'; label: string; body: string }[] = [
+  { role: 'DIRECTOR', label: '원장님', body: '유치원을 등록하고 반을 만들어요' },
+  { role: 'PARENT', label: '학부모님', body: '반 코드를 받아 참여해요' },
+  { role: 'TUTOR', label: '방문 선생님', body: '학생을 등록하고 수업을 준비해요' },
+];
+
 /**
  * "/"의 서재 홈. 이전에는 히어로 카드 + 3버튼짜리 화면이었는데, StoryCard/listStories()가
  * "홈 라이브러리 그리드용"으로 이미 만들어져 있었으면서도 어디에도 안 쓰이고 있던 걸 여기
@@ -83,30 +89,17 @@ export function HomePage() {
             </View>
             <Text style={styles.panelNote}>또는 이미 어떤 역할인지 알고 있다면 바로 골라주세요.</Text>
             <View style={[styles.roles, isWide && styles.rolesWide]}>
-              <Pressable
-                accessibilityRole="link"
-                style={styles.role}
-                onPress={() => setOnboarding({ step: 'sign-up', role: 'DIRECTOR' })}
-              >
-                <Text style={styles.roleLabel}>원장님</Text>
-                <Text style={styles.roleBody}>유치원을 등록하고 반을 만들어요</Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="link"
-                style={styles.role}
-                onPress={() => setOnboarding({ step: 'sign-up', role: 'PARENT' })}
-              >
-                <Text style={styles.roleLabel}>학부모님</Text>
-                <Text style={styles.roleBody}>반 코드를 받아 참여해요</Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="link"
-                style={styles.role}
-                onPress={() => setOnboarding({ step: 'sign-up', role: 'TUTOR' })}
-              >
-                <Text style={styles.roleLabel}>방문 선생님</Text>
-                <Text style={styles.roleBody}>학생을 등록하고 수업을 준비해요</Text>
-              </Pressable>
+              {ROLE_OPTIONS.map(({ role, label, body }) => (
+                <Pressable
+                  key={role}
+                  accessibilityRole="link"
+                  style={styles.role}
+                  onPress={() => setOnboarding({ step: 'sign-up', role })}
+                >
+                  <Text style={styles.roleLabel}>{label}</Text>
+                  <Text style={styles.roleBody}>{body}</Text>
+                </Pressable>
+              ))}
             </View>
             {/* Class accounts are issued by a director, so there is nothing to sign up for here -
                 saying so is kinder than a fourth card that leads nowhere. */}

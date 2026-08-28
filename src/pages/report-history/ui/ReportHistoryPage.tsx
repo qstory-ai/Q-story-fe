@@ -6,11 +6,25 @@ import { ActionButton, AppNavShell, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, useAuth } from '@/entities/auth';
 import { listStories, StoryApiError } from '@/entities/story';
 import { formatReportDuration } from '@/pages/one-story';
-import { listStoryCompletions, StoryCompletionApiError, type StoryCompletionSummary } from '@/entities/story-completion';
+import { buildRecentApproachTrend, type RecentApproachTrend } from '@/entities/analytics';
+import {
+  listRecentStoryCompletions,
+  listStoryCompletions,
+  StoryCompletionApiError,
+  type StoryCompletionSummary,
+} from '@/entities/story-completion';
+
+/** 트렌드 카드가 내려다보는 최근 회차 수 - 1~2회로는 "반복"이라 부르기 애매해 최소 2회 겹쳐야 표시한다. */
+const RECENT_TREND_LIMIT = 5;
 
 type LoadState =
   | { status: 'loading' }
-  | { status: 'ready'; completions: StoryCompletionSummary[]; titleByStoryId: Record<string, string> }
+  | {
+      status: 'ready';
+      completions: StoryCompletionSummary[];
+      titleByStoryId: Record<string, string>;
+      recentTrend: RecentApproachTrend | null;
+    }
   | { status: 'error'; message: string };
 
 function formatCompletedAt(iso: string) {
@@ -36,13 +50,21 @@ export function ReportHistoryPage() {
   useEffect(() => {
     if (state.status !== 'authenticated') return;
     let cancelled = false;
-    Promise.all([listStoryCompletions(state.token), listStories()])
-      .then(([completions, stories]) => {
+    Promise.all([
+      listStoryCompletions(state.token),
+      listStories(),
+      // 트렌드 카드는 부가 기능이므로, 이 호출이 실패해도(예: 구버전 백엔드) 목록/상세 조회 자체는
+      // 계속 동작해야 한다 - 실패를 빈 배열로 흡수해 recentTrend가 조용히 null로 남게 한다.
+      listRecentStoryCompletions(state.token, RECENT_TREND_LIMIT).catch(() => []),
+    ])
+      .then(([completions, stories, recentCompletions]) => {
         if (cancelled) return;
         setLoad({
           status: 'ready',
           completions,
           titleByStoryId: Object.fromEntries(stories.map((story) => [story.storyId, story.title])),
+          recentTrend:
+            recentCompletions.length >= 2 ? buildRecentApproachTrend(recentCompletions) : null,
         });
       })
       .catch((failure: unknown) => {
@@ -78,6 +100,19 @@ export function ReportHistoryPage() {
         {load.status === 'error' && (
           <View style={styles.centerBox}>
             <Text style={styles.errorText}>{load.message}</Text>
+          </View>
+        )}
+
+        {load.status === 'ready' && load.recentTrend?.repeatedApproach && (
+          <View style={styles.trendCard}>
+            <Text style={styles.trendEyebrow}>
+              최근 {load.recentTrend.sessionCount}회 동안 반복된 접근
+            </Text>
+            <Text style={styles.trendTitle}>‘{load.recentTrend.repeatedApproach.label}’</Text>
+            <Text style={styles.trendBody}>
+              {load.recentTrend.repeatedApproach.count}번의 장면에서 이 방식을 골랐어요. 오늘 하루가
+              아니라 최근 흐름에서 나온 경향이에요 - 성격이나 발달을 판단하는 진단은 아니에요.
+            </Text>
           </View>
         )}
 
@@ -147,6 +182,33 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.sm,
     textAlign: 'center',
+  },
+  trendCard: {
+    borderRadius: storybookTheme.radius.card,
+    backgroundColor: storybookTheme.color.surfaceCard,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.gold,
+    padding: 18,
+    gap: 6,
+    ...storybookTheme.elevation.low,
+  },
+  trendEyebrow: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: '600',
+    color: storybookTheme.color.gold,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  trendTitle: {
+    fontSize: storybookTheme.type.md,
+    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
+    fontWeight: '600',
+    color: storybookTheme.color.onCardTitle,
+  },
+  trendBody: {
+    fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onCardMuted,
   },
   reportCard: {
     borderRadius: storybookTheme.radius.card,

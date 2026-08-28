@@ -3,25 +3,9 @@ import { speechApiUrl } from '@/entities/speech-pipeline';
 import type { QuestionNarrationInput } from './question-narration';
 import { getQuestionNarration } from './question-narration';
 import type { PcmStreamResponseAudio, ResponseAudio } from './response-audio';
+import { positiveHeader, supportsStreamingPcm } from './response-audio';
 
 const STREAM_RESPONSE_TIMEOUT_MS = 14_000;
-
-function positiveHeader(response: Response, name: string, fallback: number) {
-  const parsed = Number.parseInt(response.headers.get(name) ?? '', 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
-}
-
-function supportsStreamingPcm() {
-  return (
-    typeof window !== 'undefined' &&
-    Boolean(
-      window.AudioContext ||
-        (window as typeof window & { webkitAudioContext?: typeof AudioContext })
-          .webkitAudioContext,
-    ) &&
-    typeof ReadableStream !== 'undefined'
-  );
-}
 
 export async function getResponseNarration(
   input: QuestionNarrationInput,

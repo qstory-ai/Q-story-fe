@@ -2925,7 +2925,7 @@
       "THREE_PATHS의 label과 meaning은 childTranscript가 드러낸 걱정·궁금증·제안에 직접 답해야 한다. 아이가 언급하지 않은 소품을 갑자기 핵심 방법처럼 끼워 넣지 않는다.",
       "responseText는 현재 화자인 그레텔이 또래 아이에게 직접 말하는 친근한 한국어 반말로 쓰며 요·습니다·저는 같은 존댓말을 섞지 않는다.",
       "ANSWER_RESUME은 현재 장면에서 관찰 가능한 정보만 답하고 forbiddenKnowledge를 사실·추측·가능성 형태로도 언급하지 않는다.",
-      "SKIP_CONTINUE는 새 질문이나 선택지를 다시 제시하지 말고 \"괜찮아, 이야기를 계속 들어보자.\"처럼 한 문장으로 자연스럽게 재개한다.",
+      "SKIP_CONTINUE는 새 질문이나 선택지를 다시 제시하지 말고, childRelevantMeaning에 담긴 아이의 감상·반응에 짧게 대꾸한 뒤 한 문장으로 자연스럽게 재개한다 - 감상이 없는 단순 동의·거부·잡음일 때만 \"괜찮아, 이야기를 계속 들어보자.\"처럼 쓴다.",
       "CLARIFY_ONCE만 쉬운 확인 질문 한 문장을 쓴다.",
       "GENTLE_REDIRECT는 위험을 짧게 막고 허용된 안전 행동 하나만 제안하며, 거절한 위험 행동을 대안으로 다시 표현하지 않는다.",
       "THREE_PATHS의 실제 선택지는 options에 있으므로 responseText에는 짧은 선택 초대만 써도 된다.",
@@ -3039,9 +3039,9 @@
           "G2 CLARIFY_ONCE: 행동 의도는 있지만 지시어나 핵심 단어 하나가 빠져 쉬운 확인 질문 한 번으로 복구할 수 있는 발화 - clarificationAlreadyUsed가 true면 이 게이트를 건너뛰고 여전히 불명확하면 SKIP_CONTINUE로 간다.",
           "G3 ANSWER_RESUME: 왜·무엇·감정 같은 사실 질문이 answerableFacts만으로 1~2문장 답이 되고 다음 행동을 고를 필요가 없는 경우.",
           "G4 DETOUR_REJOIN: 잠깐·먼저·전에 조사하거나 물러난 뒤 다시·돌아오자는 명시적 왕복 표지가 있고 hasRejoinAnchor가 true인 경우 - 왕복 표지가 있으면 DIRECT_ACTION보다 우선한다.",
-          "G5 THREE_PATHS: 아이가 방법·선택을 고민하거나 무섭다·걱정된다·괜찮을까처럼 안전을 걱정해 다음 행동을 고르는 것이 도움이 되며, 서로 다른 허용 family가 최소 3개 모두 실제로 의미 있는 경우.",
-          "G6 SCENE_REPLACE: 고정 사건의 기능은 유지하면서 과정을 바꾸는 명확한 제안.",
-          "G7 DIRECT_ACTION: 왕복 없이 현재 위치에서 한 가지 행동을 바로 실행하자는 구체적 제안 - 아무 것도 맞지 않으면 기본값은 SKIP_CONTINUE다.",
+          "G5 THREE_PATHS: 아이가 다음 행동을 제안하거나 방법·선택을 고민하는 경우 - 무섭다·걱정된다·괜찮을까처럼 안전을 걱정하는 표현이 없어도 되며, 서로 다른 허용 family가 최소 3개 모두 실제로 의미 있는 선택지가 될 수 있으면 이 게이트를 먼저 적용해 선택지를 준다.",
+          "G6 SCENE_REPLACE: 고정 사건의 기능은 유지하면서 과정을 바꾸는 명확한 제안 - 서로 다른 허용 family가 실제로 의미 있게 3개 이상 있다면 G5를 먼저 적용하고, 그렇지 않을 때만 이 게이트를 쓴다.",
+          "G7 DIRECT_ACTION: 왕복 없이 현재 위치에서 한 가지 행동을 바로 실행하자는 구체적 제안 - 서로 다른 허용 family가 실제로 의미 있게 3개 이상 있다면 G5를 먼저 적용하고, 그렇지 않을 때만 이 게이트를 쓴다. 아무 것도 맞지 않으면 기본값은 SKIP_CONTINUE다.",
           "단순 동의·거부·잡음에 CLARIFY_ONCE를 쓰지 않고, 사실 질문에 억지 선택지를 만들지 않는다.",
           "route를 정한 뒤 coverageStatus를 판단한다.",
           "exact는 직접 답할 수 있거나 가장 가까운 허용 family가 아이 제안과 거의 같은 경우, partial은 가장 가까운 family가 의도 일부만 반영하고 대상·방식·결과가 다른 경우, uncovered는 아이가 제안한 안전한 행동을 이 장면의 어떤 허용 family로도 실행할 수 없는 경우다 - 위험해서 거절하는 것과는 다르다(그 경우는 이미 안전게이트에서 걸러졌다).",
@@ -3213,6 +3213,49 @@
           },
           {
             "input": {
+              "childTranscript": "지금 바로 문 열고 들어가자",
+              "clarificationAlreadyUsed": false,
+              "allowedFamilies": [
+                {
+                  "id": "B_ASK_OLD_WOMAN",
+                  "summary": "노파에게 안전한지 말로 묻는다."
+                },
+                {
+                  "id": "B_CHECK_KEYS",
+                  "summary": "노파가 든 열쇠고리를 확인한다."
+                },
+                {
+                  "id": "B_CHECK_HOUSE",
+                  "summary": "창문·문틀 같은 집의 상태를 확인한다."
+                }
+              ],
+              "hasRejoinAnchor": true,
+              "sceneObservables": [
+                "아이들이 과자집 문 앞에서 노파를 만났다."
+              ],
+              "answerableFacts": [
+                "아이들이 과자집 문 앞에서 노파를 만났다."
+              ],
+              "allowedSpeakerIds": [
+                "HG-SPK-GRETEL"
+              ],
+              "fixedRejoinAnchorId": "HG-F05-ENTER-HOUSE",
+              "fallbackFamilyId": "B_CHECK_HOUSE"
+            },
+            "output": {
+              "route": "THREE_PATHS",
+              "matchedGate": "G5",
+              "coverageStatus": "exact",
+              "coverageReason": "불안 표현은 없지만 서로 다른 허용 family가 3개 모두 의미 있어 선택지를 먼저 준다",
+              "childRelevantMeaning": "지금 바로 들어가고 싶어함",
+              "actionFamilyId": null,
+              "rejoinAnchorId": "HG-F05-ENTER-HOUSE",
+              "fallbackFamilyId": "B_CHECK_HOUSE",
+              "speakerId": "HG-SPK-GRETEL"
+            }
+          },
+          {
+            "input": {
               "childTranscript": "저거 저기로 옮겨",
               "clarificationAlreadyUsed": false,
               "allowedFamilies": [
@@ -3289,7 +3332,7 @@
           "항상 친근한 한국어 반말을 쓰고 요·습니다 같은 존댓말을 섞지 않으며, 현재 화자가 또래 아이에게 직접 말하듯 쓴다.",
           "아이의 발화를 그대로 옮겨 적지 않고, 공포·폭력·위험을 구체적으로 묘사하지 않는다.",
           "route별 규칙은 다음과 같다.",
-          "SKIP_CONTINUE는 괜찮아, 이야기를 계속 들어보자처럼 자연스럽게 재개하는 한 문장만 쓰고 options는 빈 배열이다.",
+          "SKIP_CONTINUE는 childRelevantMeaning에 담긴 아이의 감상·반응 내용에 짧게 맞장구치거나 대꾸한 뒤 자연스럽게 이야기를 이어가는 한 문장만 쓴다 - 내용과 무관하게 괜찮아, 이야기를 계속 들어보자처럼 매번 똑같은 문장만 반복하지 않는다. 다만 아이가 정말 아무 감상도 없이 단순 동의·거부·잡음만 했다면 그런 일반적인 문장도 괜찮다. options는 빈 배열이다.",
           "ANSWER_RESUME은 sceneObservables만 근거로 1~2문장으로 답하고 forbiddenKnowledge는 추측으로도 언급하지 않으며 options는 빈 배열이다.",
           "CLARIFY_ONCE는 쉬운 확인 질문 한 문장만 쓰고 options는 빈 배열이다.",
           "DIRECT_ACTION·SCENE_REPLACE·DETOUR_REJOIN은 확정된 행동 하나를 아이 눈높이에서 짧게 안내하는 한 문장만 쓰고 options는 빈 배열이다.",
@@ -3323,6 +3366,33 @@
             },
             "output": {
               "responseText": "괜찮아, 이야기를 계속 들어보자.",
+              "options": []
+            }
+          },
+          {
+            "input": {
+              "route": "SKIP_CONTINUE",
+              "childRelevantMeaning": "과자집이 못생겼다고 생각함",
+              "coverageStatus": "exact",
+              "speaker": "HG-SPK-GRETEL",
+              "sceneObservables": [
+                "과자집은 지붕과 벽이 빵과 사탕으로 덮여 있고 달콤한 냄새가 난다."
+              ],
+              "forbiddenKnowledge": [
+                "과자집 노파의 정체",
+                "마녀의 계획",
+                "최종 탈출 방법과 결말"
+              ],
+              "allowedFamilies": [
+                {
+                  "id": "B_CHECK_HOUSE",
+                  "summary": "창문·문틀 같은 집의 상태를 확인한다."
+                }
+              ],
+              "optionSlots": 0
+            },
+            "output": {
+              "responseText": "하하, 너한테는 좀 이상하게 보이나 보다! 그래도 우리는 계속 가보자.",
               "options": []
             }
           },

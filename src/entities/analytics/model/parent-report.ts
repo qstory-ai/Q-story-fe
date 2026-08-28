@@ -90,6 +90,54 @@ const STRATEGY_BY_FAMILY: Record<string, string> = {
   C_BLOCK_PURSUIT_SAFELY: '미리 계획하고 안전 확보하기',
 };
 
+export type RecentApproachTrend = {
+  sessionCount: number;
+  questionSessionCount: number;
+  repeatedApproach: { label: string; count: number } | null;
+  otherApproaches: string[];
+};
+
+/**
+ * 최근 N회 세션의 outcomes를 가로질러 반복되는 접근(STRATEGY_BY_FAMILY 라벨)을 집계한다.
+ * report-history 목록 화면의 누적 트렌드 카드용 - 단일 세션 리포트(buildParentReport)와 달리
+ * reportCopy 없이 계산되므로, 이야기별 관심 주제(curiosityTopics)는 다루지 않고 선택 전략만 본다.
+ * STRATEGY_BY_FAMILY에 없는 actionFamilyId(다른 이야기의 것 등)는 조용히 걸러진다.
+ */
+export function buildRecentApproachTrend(
+  sessions: readonly { outcomes: readonly QuestionOutcome[] }[],
+): RecentApproachTrend {
+  const meaningfulBySession = sessions.map((session) =>
+    session.outcomes.filter(
+      (outcome) => outcome.route !== 'CLARIFY_ONCE' && outcome.route !== 'SKIP_CONTINUE',
+    ),
+  );
+  const questionSessionCount = meaningfulBySession.filter(
+    (meaningful) => meaningful.length > 0,
+  ).length;
+  const strategies = meaningfulBySession
+    .flat()
+    .map((outcome) => {
+      const familyId = selectedFamilyId(outcome);
+      return familyId ? STRATEGY_BY_FAMILY[familyId] : null;
+    })
+    .filter((strategy): strategy is string => Boolean(strategy));
+  const strategyCounts = strategies.reduce<Map<string, number>>(
+    (counts, strategy) => counts.set(strategy, (counts.get(strategy) ?? 0) + 1),
+    new Map(),
+  );
+  const ranked = [...strategyCounts.entries()].sort((left, right) => right[1] - left[1]);
+  const top = ranked[0];
+  const repeatedApproach = top && top[1] >= 2 ? { label: top[0], count: top[1] } : null;
+  const remaining = repeatedApproach ? ranked.slice(1) : ranked;
+
+  return {
+    sessionCount: sessions.length,
+    questionSessionCount,
+    repeatedApproach,
+    otherApproaches: remaining.map(([label]) => label),
+  };
+}
+
 export function hasExperiencedStoryAgency(
   outcomes: readonly QuestionOutcome[],
 ) {

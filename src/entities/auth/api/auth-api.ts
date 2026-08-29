@@ -1,6 +1,5 @@
-import { readEnv } from '@/shared/config';
-
-const apiBaseUrl = readEnv('VITE_QSTORY_API_URL');
+import { apiBaseUrl } from '@/shared/config';
+import { requestJson, type RequestOptions as SharedRequestOptions } from '@/shared/api';
 
 export type Role = 'DIRECTOR' | 'CLASS_ACCOUNT' | 'PARENT' | 'TUTOR' | 'STAFF';
 
@@ -51,17 +50,14 @@ export type ClassInviteResponse = {
   expiresAt: string;
 };
 
-type RequestOptions = {
-  baseUrl?: string;
-  fetchImpl?: typeof fetch;
-  token?: string | null;
-};
+export type RequestOptions = SharedRequestOptions;
 
 /**
  * The backend's failure envelope is {ok:false, failure:{code, stage, retryable, safeDetail}} -
  * safeDetail is written to be shown directly to a user, so form error messages surface it as-is
  * rather than a generic "HTTP 4xx" string. story-registry.ts's StoryLoadError does the same for
- * the story load screen.
+ * the story load screen. requestJson() (shared/api) does the actual fetch + envelope parsing;
+ * this module keeps its own error class so callers can `instanceof`-check it.
  */
 export class AuthApiError extends Error {
   constructor(
@@ -73,33 +69,8 @@ export class AuthApiError extends Error {
   }
 }
 
-async function request<T>(
-  path: string,
-  init: RequestInit,
-  { baseUrl = apiBaseUrl, fetchImpl = fetch, token }: RequestOptions = {},
-): Promise<T> {
-  if (!baseUrl) {
-    throw new AuthApiError('VITE_QSTORY_API_URL is not configured.');
-  }
-  const headers = new Headers(init.headers);
-  headers.set('Content-Type', 'application/json');
-  if (token) headers.set('Authorization', `Bearer ${token}`);
-
-  const response = await fetchImpl.call(globalThis, `${baseUrl}${path}`, { ...init, headers });
-  if (!response.ok) {
-    let code: string | undefined;
-    let safeDetail: string | undefined;
-    try {
-      const body = (await response.json()) as { failure?: { code?: string; safeDetail?: string } };
-      code = body.failure?.code;
-      safeDetail = body.failure?.safeDetail;
-    } catch {
-      // 실패 응답 본문을 읽지 못하면 아래 기본 메시지로 대체한다.
-    }
-    throw new AuthApiError(safeDetail ?? `요청을 처리하지 못했어요. (HTTP ${response.status})`, code, response.status);
-  }
-  if (response.status === 204) return undefined as T;
-  return (await response.json()) as T;
+function request<T>(path: string, init: RequestInit, options: RequestOptions = {}): Promise<T> {
+  return requestJson(AuthApiError, path, init, { baseUrl: apiBaseUrl, ...options });
 }
 
 export function signupOrganizationOwner(

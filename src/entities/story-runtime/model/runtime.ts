@@ -488,22 +488,28 @@ export function createInitialRuntimeState(
   return { status: 'idle', storyId: manifest.storyId };
 }
 
-export function transitionStoryRuntime(
+function transitionFromIdle(
   manifest: StoryManifest,
   state: StoryRuntimeState,
   event: StoryRuntimeEvent,
-): RuntimeTransition {
+): RuntimeTransition | undefined {
   if (state.status === 'idle' && event.type === 'START') {
     const entryScene = findScene(manifest, manifest.entrySceneId);
     return entryScene
       ? playScene(manifest, entryScene)
       : invalidTransition(state, event, 'Entry scene does not exist.');
   }
+  return undefined;
+}
 
-  if (
-    state.status === 'playing-fixed' &&
-    event.type === 'SKIP_SCENE_SELECTED'
-  ) {
+function transitionFromPlayingFixed(
+  manifest: StoryManifest,
+  state: StoryRuntimeState,
+  event: StoryRuntimeEvent,
+): RuntimeTransition | undefined {
+  if (state.status !== 'playing-fixed') return undefined;
+
+  if (event.type === 'SKIP_SCENE_SELECTED') {
     const scene = findScene(manifest, state.sceneId);
     if (!scene) {
       return invalidTransition(state, event, 'Active scene is missing.');
@@ -525,7 +531,7 @@ export function transitionStoryRuntime(
       : invalidTransition(state, event, 'Next scene does not exist.');
   }
 
-  if (state.status === 'playing-fixed' && event.type === 'AUDIO_ENDED') {
+  if (event.type === 'AUDIO_ENDED') {
     const scene = findScene(manifest, state.sceneId);
     const group = findAudioGroup(manifest, state.audioGroupId);
     if (!scene || !group) {
@@ -555,6 +561,14 @@ export function transitionStoryRuntime(
     return nextAfterAudioGroup(manifest, scene, group, 1);
   }
 
+  return undefined;
+}
+
+function transitionFromAwaitingChoice(
+  manifest: StoryManifest,
+  state: StoryRuntimeState,
+  event: StoryRuntimeEvent,
+): RuntimeTransition | undefined {
   if (state.status === 'awaiting-choice') {
     const anchor = findAnchor(manifest, state.anchorId);
     if (!anchor) {
@@ -621,7 +635,14 @@ export function transitionStoryRuntime(
       };
     }
   }
+  return undefined;
+}
 
+function transitionFromGeneratingBranch(
+  manifest: StoryManifest,
+  state: StoryRuntimeState,
+  event: StoryRuntimeEvent,
+): RuntimeTransition | undefined {
   if (state.status === 'generating-branch') {
     if (event.type === 'LIVE_BRANCH_READY') {
       // Phase 2: 더 이상 family 1개를 자동재생하지 않는다 - 백엔드가 만든(부족하면 기존
@@ -724,7 +745,14 @@ export function transitionStoryRuntime(
       };
     }
   }
+  return undefined;
+}
 
+function transitionSharedQuestionAnchorActions(
+  manifest: StoryManifest,
+  state: StoryRuntimeState,
+  event: StoryRuntimeEvent,
+): RuntimeTransition | undefined {
   if (
     state.status === 'awaiting-question' ||
     state.status === 'awaiting-clarification' ||
@@ -779,20 +807,23 @@ export function transitionStoryRuntime(
       };
     }
   }
+  return undefined;
+}
 
-  if (
-    state.status === 'recording-question' &&
-    event.type === 'RECORDING_STARTED'
-  ) {
+function transitionFromRecordingQuestion(
+  manifest: StoryManifest,
+  state: StoryRuntimeState,
+  event: StoryRuntimeEvent,
+): RuntimeTransition | undefined {
+  if (state.status !== 'recording-question') return undefined;
+
+  if (event.type === 'RECORDING_STARTED') {
     return state.inputMode === 'voice'
       ? { ok: true, state, commands: [] }
       : invalidTransition(state, event, 'Text input cannot start recording.');
   }
 
-  if (
-    state.status === 'recording-question' &&
-    event.type === 'RECORDING_STOPPED'
-  ) {
+  if (event.type === 'RECORDING_STOPPED') {
     if (state.inputMode !== 'voice') {
       return invalidTransition(state, event, 'Text input has no recording.');
     }
@@ -812,10 +843,7 @@ export function transitionStoryRuntime(
     };
   }
 
-  if (
-    state.status === 'recording-question' &&
-    event.type === 'TEXT_SUBMITTED'
-  ) {
+  if (event.type === 'TEXT_SUBMITTED') {
     if (state.inputMode !== 'text') {
       return invalidTransition(state, event, 'Voice input cannot submit text.');
     }
@@ -837,10 +865,17 @@ export function transitionStoryRuntime(
     };
   }
 
-  if (
-    state.status === 'processing-question' &&
-    event.type === 'RETRY_QUESTION_SELECTED'
-  ) {
+  return undefined;
+}
+
+function transitionFromProcessingQuestion(
+  manifest: StoryManifest,
+  state: StoryRuntimeState,
+  event: StoryRuntimeEvent,
+): RuntimeTransition | undefined {
+  if (state.status !== 'processing-question') return undefined;
+
+  if (event.type === 'RETRY_QUESTION_SELECTED') {
     return {
       ok: true,
       state: {
@@ -858,10 +893,7 @@ export function transitionStoryRuntime(
     };
   }
 
-  if (
-    state.status === 'processing-question' &&
-    event.type === 'SPEECH_RESOLVED'
-  ) {
+  if (event.type === 'SPEECH_RESOLVED') {
     if (event.result.status === 'speech') {
       return { ok: true, state, commands: [] };
     }
@@ -889,10 +921,7 @@ export function transitionStoryRuntime(
     };
   }
 
-  if (
-    state.status === 'processing-question' &&
-    event.type === 'RESPONSE_READY'
-  ) {
+  if (event.type === 'RESPONSE_READY') {
     const anchor = findAnchor(manifest, state.anchorId);
     if (!anchor) {
       return invalidTransition(state, event, 'Question anchor is missing.');
@@ -987,6 +1016,14 @@ export function transitionStoryRuntime(
     };
   }
 
+  return undefined;
+}
+
+function transitionFromPlayingResponse(
+  manifest: StoryManifest,
+  state: StoryRuntimeState,
+  event: StoryRuntimeEvent,
+): RuntimeTransition | undefined {
   if (
     state.status === 'playing-response' &&
     event.type === 'RESPONSE_AUDIO_ENDED'
@@ -1131,6 +1168,14 @@ export function transitionStoryRuntime(
     );
   }
 
+  return undefined;
+}
+
+function transitionFromFailedRecoverable(
+  manifest: StoryManifest,
+  state: StoryRuntimeState,
+  event: StoryRuntimeEvent,
+): RuntimeTransition | undefined {
   if (
     state.status === 'failed-recoverable' &&
     event.type === 'FALLBACK_READY'
@@ -1166,6 +1211,14 @@ export function transitionStoryRuntime(
     };
   }
 
+  return undefined;
+}
+
+function transitionOnFailureEvent(
+  manifest: StoryManifest,
+  state: StoryRuntimeState,
+  event: StoryRuntimeEvent,
+): RuntimeTransition | undefined {
   if (event.type === 'FAILURE' && 'sceneId' in state) {
     const anchorId = 'anchorId' in state ? state.anchorId : undefined;
     const questionRound =
@@ -1191,5 +1244,25 @@ export function transitionStoryRuntime(
     };
   }
 
-  return invalidTransition(state, event);
+  return undefined;
+}
+
+export function transitionStoryRuntime(
+  manifest: StoryManifest,
+  state: StoryRuntimeState,
+  event: StoryRuntimeEvent,
+): RuntimeTransition {
+  return (
+    transitionFromIdle(manifest, state, event) ??
+    transitionFromPlayingFixed(manifest, state, event) ??
+    transitionFromAwaitingChoice(manifest, state, event) ??
+    transitionFromGeneratingBranch(manifest, state, event) ??
+    transitionSharedQuestionAnchorActions(manifest, state, event) ??
+    transitionFromRecordingQuestion(manifest, state, event) ??
+    transitionFromProcessingQuestion(manifest, state, event) ??
+    transitionFromPlayingResponse(manifest, state, event) ??
+    transitionFromFailedRecoverable(manifest, state, event) ??
+    transitionOnFailureEvent(manifest, state, event) ??
+    invalidTransition(state, event)
+  );
 }

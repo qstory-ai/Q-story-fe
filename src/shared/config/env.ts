@@ -4,3 +4,6 @@
 export function readEnv(key: keyof ImportMetaEnv): string {
   return import.meta.env?.[key]?.trim() ?? '';
 }
+
+/** entities 각 도메인의 api 모듈이 각자 readEnv('VITE_QSTORY_API_URL')를 반복하던 것을 여기로 모았다. */
+export const apiBaseUrl = readEnv('VITE_QSTORY_API_URL');

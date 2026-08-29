@@ -1,6 +1,5 @@
-import { readEnv } from '@/shared/config';
-
-const apiBaseUrl = readEnv('VITE_QSTORY_API_URL');
+import { apiBaseUrl } from '@/shared/config';
+import { requestJson, type PublicRequestOptions } from '@/shared/api';
 
 export type CompletionSurveySubmission = {
   storyId: string;
@@ -35,33 +34,14 @@ export class CompletionSurveyApiError extends Error {
   }
 }
 
-export async function submitCompletionSurvey(
+export function submitCompletionSurvey(
   input: CompletionSurveySubmission,
-  options?: { baseUrl?: string; fetchImpl?: typeof fetch },
+  options?: PublicRequestOptions,
 ): Promise<void> {
-  const { baseUrl = apiBaseUrl, fetchImpl = fetch } = options ?? {};
-  if (!baseUrl) {
-    throw new CompletionSurveyApiError('VITE_QSTORY_API_URL is not configured.');
-  }
-  const response = await fetchImpl.call(globalThis, `${baseUrl}/v1/completion-surveys`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
-  });
-  if (!response.ok) {
-    let code: string | undefined;
-    let safeDetail: string | undefined;
-    try {
-      const body = (await response.json()) as { failure?: { code?: string; safeDetail?: string } };
-      code = body.failure?.code;
-      safeDetail = body.failure?.safeDetail;
-    } catch {
-      // 실패 응답 본문을 읽지 못하면 아래 기본 메시지로 대체한다.
-    }
-    throw new CompletionSurveyApiError(
-      safeDetail ?? `요청을 처리하지 못했어요. (HTTP ${response.status})`,
-      code,
-      response.status,
-    );
-  }
+  return requestJson(
+    CompletionSurveyApiError,
+    '/v1/completion-surveys',
+    { method: 'POST', body: JSON.stringify(input) },
+    { baseUrl: apiBaseUrl, ...options, parseResponse: false },
+  );
 }

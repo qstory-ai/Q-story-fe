@@ -1,31 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import { HomePage } from '@/pages/home';
-import { OneStoryPage } from '@/pages/one-story';
 import { LaunchNotificationGate } from '@/features/launch-notification-gate';
-import { LoginPage } from '@/pages/login';
-import { JoinClassPage } from '@/pages/join-class';
-import { SignupPage } from '@/pages/signup';
-import { OrganizationSignupPage } from '@/pages/organization-signup';
-import { ClassDashboardPage } from '@/pages/class-dashboard';
-import { ParentHomePage } from '@/pages/parent-home';
-import { MyPage } from '@/pages/mypage';
-import { MyPageProfilePage } from '@/pages/mypage-profile';
-import { MyPageAccountPage } from '@/pages/mypage-account';
-import { MyPageSubscriptionPage } from '@/pages/mypage-subscription';
-import { MyPageDeleteAccountPage } from '@/pages/mypage-delete-account';
-import { NotFoundPage } from '@/pages/not-found';
-import { ResetPasswordPage } from '@/pages/reset-password';
-import { ReportHistoryPage, ReportHistoryDetailPage } from '@/pages/report-history';
-import { StaffHomePage, StaffStoryPage, StaffScenePage } from '@/pages/staff';
-import { LandingPage } from '@/pages/landing';
-import { TutorHomePage } from '@/pages/tutor-home';
-import { TutorStudentNewPage, TutorStudentsPage, TutorScheduleListPage } from '@/pages/tutor-student';
-import { ParentLinkAcceptPage } from '@/pages/parent-link';
-import { StoryDetailPage } from '@/pages/story-detail';
-import { StoryPlayerRoute } from '@/pages/story-player';
 import {
   describeStoryLoadFailure,
   getDefaultBetaStory,
@@ -35,6 +12,63 @@ import {
 import { AuthProvider } from '@/entities/auth';
 import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
 import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
+
+const HomePage = lazy(() => import('@/pages/home').then((m) => ({ default: m.HomePage })));
+const OneStoryPage = lazy(() => import('@/pages/one-story').then((m) => ({ default: m.OneStoryPage })));
+const LoginPage = lazy(() => import('@/pages/login').then((m) => ({ default: m.LoginPage })));
+const JoinClassPage = lazy(() => import('@/pages/join-class').then((m) => ({ default: m.JoinClassPage })));
+const SignupPage = lazy(() => import('@/pages/signup').then((m) => ({ default: m.SignupPage })));
+const OrganizationSignupPage = lazy(() =>
+  import('@/pages/organization-signup').then((m) => ({ default: m.OrganizationSignupPage })),
+);
+const ClassDashboardPage = lazy(() =>
+  import('@/pages/class-dashboard').then((m) => ({ default: m.ClassDashboardPage })),
+);
+const ParentHomePage = lazy(() => import('@/pages/parent-home').then((m) => ({ default: m.ParentHomePage })));
+const MyPage = lazy(() => import('@/pages/mypage').then((m) => ({ default: m.MyPage })));
+const MyPageProfilePage = lazy(() =>
+  import('@/pages/mypage-profile').then((m) => ({ default: m.MyPageProfilePage })),
+);
+const MyPageAccountPage = lazy(() =>
+  import('@/pages/mypage-account').then((m) => ({ default: m.MyPageAccountPage })),
+);
+const MyPageSubscriptionPage = lazy(() =>
+  import('@/pages/mypage-subscription').then((m) => ({ default: m.MyPageSubscriptionPage })),
+);
+const MyPageDeleteAccountPage = lazy(() =>
+  import('@/pages/mypage-delete-account').then((m) => ({ default: m.MyPageDeleteAccountPage })),
+);
+const NotFoundPage = lazy(() => import('@/pages/not-found').then((m) => ({ default: m.NotFoundPage })));
+const ResetPasswordPage = lazy(() =>
+  import('@/pages/reset-password').then((m) => ({ default: m.ResetPasswordPage })),
+);
+const ReportHistoryPage = lazy(() =>
+  import('@/pages/report-history').then((m) => ({ default: m.ReportHistoryPage })),
+);
+const ReportHistoryDetailPage = lazy(() =>
+  import('@/pages/report-history').then((m) => ({ default: m.ReportHistoryDetailPage })),
+);
+const StaffHomePage = lazy(() => import('@/pages/staff').then((m) => ({ default: m.StaffHomePage })));
+const StaffStoryPage = lazy(() => import('@/pages/staff').then((m) => ({ default: m.StaffStoryPage })));
+const StaffScenePage = lazy(() => import('@/pages/staff').then((m) => ({ default: m.StaffScenePage })));
+const LandingPage = lazy(() => import('@/pages/landing').then((m) => ({ default: m.LandingPage })));
+const TutorHomePage = lazy(() => import('@/pages/tutor-home').then((m) => ({ default: m.TutorHomePage })));
+const TutorStudentNewPage = lazy(() =>
+  import('@/pages/tutor-student').then((m) => ({ default: m.TutorStudentNewPage })),
+);
+const TutorStudentsPage = lazy(() =>
+  import('@/pages/tutor-student').then((m) => ({ default: m.TutorStudentsPage })),
+);
+const TutorScheduleListPage = lazy(() =>
+  import('@/pages/tutor-student').then((m) => ({ default: m.TutorScheduleListPage })),
+);
+const ParentLinkAcceptPage = lazy(() =>
+  import('@/pages/parent-link').then((m) => ({ default: m.ParentLinkAcceptPage })),
+);
+const StoryDetailPage = lazy(() => import('@/pages/story-detail').then((m) => ({ default: m.StoryDetailPage })));
+const StoryPlayerRoute = lazy(() =>
+  import('@/pages/story-player').then((m) => ({ default: m.StoryPlayerRoute })),
+);
 
 type LoadState =
   | { status: 'loading' }
@@ -72,7 +106,9 @@ function DemoStoryRoute() {
   if (state.status === 'ready') {
     return (
       <LaunchNotificationGate>
-        <OneStoryPage storyPackage={state.storyPackage} />
+        <Suspense fallback={<View style={styles.container} />}>
+          <OneStoryPage storyPackage={state.storyPackage} />
+        </Suspense>
       </LaunchNotificationGate>
     );
   }
@@ -108,36 +144,38 @@ export function App() {
     <AuthProvider>
       <SyncDemoCompletionOnAuth />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/landing" element={<LandingPage />} />
-          <Route path="/demo" element={<DemoStoryRoute />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/join" element={<JoinClassPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/organization" element={<OrganizationSignupPage />} />
-          <Route path="/class" element={<ClassDashboardPage />} />
-          <Route path="/parent" element={<ParentHomePage />} />
-          <Route path="/tutor" element={<TutorHomePage />} />
-          <Route path="/tutor/students/new" element={<TutorStudentNewPage />} />
-          <Route path="/tutor/students" element={<TutorStudentsPage />} />
-          <Route path="/tutor/schedule" element={<TutorScheduleListPage />} />
-          <Route path="/tutor-invite/:token" element={<ParentLinkAcceptPage />} />
-          <Route path="/mypage" element={<MyPage />} />
-          <Route path="/mypage/profile" element={<MyPageProfilePage />} />
-          <Route path="/mypage/account" element={<MyPageAccountPage />} />
-          <Route path="/mypage/subscription" element={<MyPageSubscriptionPage />} />
-          <Route path="/mypage/delete-account" element={<MyPageDeleteAccountPage />} />
-          <Route path="/reports" element={<ReportHistoryPage />} />
-          <Route path="/reports/:completionId" element={<ReportHistoryDetailPage />} />
-          <Route path="/staff" element={<StaffHomePage />} />
-          <Route path="/staff/:storyId" element={<StaffStoryPage />} />
-          <Route path="/staff/:storyId/scenes/:sceneId" element={<StaffScenePage />} />
-          <Route path="/stories/:storyId" element={<StoryDetailPage />} />
-          <Route path="/stories/:storyId/play" element={<StoryPlayerRoute />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+        <Suspense fallback={<View style={styles.container} />}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/landing" element={<LandingPage />} />
+            <Route path="/demo" element={<DemoStoryRoute />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/join" element={<JoinClassPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/organization" element={<OrganizationSignupPage />} />
+            <Route path="/class" element={<ClassDashboardPage />} />
+            <Route path="/parent" element={<ParentHomePage />} />
+            <Route path="/tutor" element={<TutorHomePage />} />
+            <Route path="/tutor/students/new" element={<TutorStudentNewPage />} />
+            <Route path="/tutor/students" element={<TutorStudentsPage />} />
+            <Route path="/tutor/schedule" element={<TutorScheduleListPage />} />
+            <Route path="/tutor-invite/:token" element={<ParentLinkAcceptPage />} />
+            <Route path="/mypage" element={<MyPage />} />
+            <Route path="/mypage/profile" element={<MyPageProfilePage />} />
+            <Route path="/mypage/account" element={<MyPageAccountPage />} />
+            <Route path="/mypage/subscription" element={<MyPageSubscriptionPage />} />
+            <Route path="/mypage/delete-account" element={<MyPageDeleteAccountPage />} />
+            <Route path="/reports" element={<ReportHistoryPage />} />
+            <Route path="/reports/:completionId" element={<ReportHistoryDetailPage />} />
+            <Route path="/staff" element={<StaffHomePage />} />
+            <Route path="/staff/:storyId" element={<StaffStoryPage />} />
+            <Route path="/staff/:storyId/scenes/:sceneId" element={<StaffScenePage />} />
+            <Route path="/stories/:storyId" element={<StoryDetailPage />} />
+            <Route path="/stories/:storyId/play" element={<StoryPlayerRoute />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </AuthProvider>
   );

@@ -1,6 +1,5 @@
-import { readEnv } from '@/shared/config';
-
-const apiBaseUrl = readEnv('VITE_QSTORY_API_URL');
+import { apiBaseUrl } from '@/shared/config';
+import { requestJson, type PublicRequestOptions as RequestOptions } from '@/shared/api';
 
 export type SceneView = {
   id: string;
@@ -41,12 +40,6 @@ export type StaleLine = {
 export type ScenesResponse = { revision: number; scenes: SceneView[] };
 export type SegmentsResponse = { revision: number; segments: SegmentView[] };
 
-type RequestOptions = {
-  baseUrl?: string;
-  fetchImpl?: typeof fetch;
-};
-
-/** auth-api.ts의 request<T>()를 작게 로컬로 복제한 것 - 왜 공유하지 않는지는 story-api.ts의 자체 사본을 참고. */
 export class StoryAdminApiError extends Error {
   constructor(
     message: string,
@@ -57,33 +50,8 @@ export class StoryAdminApiError extends Error {
   }
 }
 
-async function request<T>(
-  path: string,
-  init: RequestInit,
-  token: string,
-  { baseUrl = apiBaseUrl, fetchImpl = fetch }: RequestOptions = {},
-): Promise<T> {
-  if (!baseUrl) {
-    throw new StoryAdminApiError('VITE_QSTORY_API_URL is not configured.');
-  }
-  const headers = new Headers(init.headers);
-  headers.set('Content-Type', 'application/json');
-  headers.set('Authorization', `Bearer ${token}`);
-
-  const response = await fetchImpl.call(globalThis, `${baseUrl}${path}`, { ...init, headers });
-  if (!response.ok) {
-    let code: string | undefined;
-    let safeDetail: string | undefined;
-    try {
-      const body = (await response.json()) as { failure?: { code?: string; safeDetail?: string } };
-      code = body.failure?.code;
-      safeDetail = body.failure?.safeDetail;
-    } catch {
-      // 실패 응답 본문을 읽지 못하면 아래 기본 메시지로 대체한다.
-    }
-    throw new StoryAdminApiError(safeDetail ?? `요청을 처리하지 못했어요. (HTTP ${response.status})`, code, response.status);
-  }
-  return (await response.json()) as T;
+function request<T>(path: string, init: RequestInit, token: string, options: RequestOptions = {}): Promise<T> {
+  return requestJson(StoryAdminApiError, path, init, { baseUrl: apiBaseUrl, ...options, token });
 }
 
 export function listScenes(token: string, storyId: string, options?: RequestOptions): Promise<ScenesResponse> {

@@ -4,7 +4,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
 import { homePathFor, login, useAuth, AuthApiError } from '@/entities/auth';
-import { acceptTutorInvite, previewTutorInvite, TutorApiError, type TutorInvitePreview } from '@/entities/tutor';
+import {
+  acceptTutorInvite,
+  acceptTutorInviteByCode,
+  previewTutorInvite,
+  previewTutorInviteByCode,
+  TutorApiError,
+  type TutorInvitePreview,
+} from '@/entities/tutor';
 
 type Stage = 'loading' | 'preview' | 'account' | 'consent' | 'error';
 
@@ -17,7 +24,11 @@ const HIDDEN_ITEMS = ['가정 구독·결제·다른 이야기', '음성 원본�
  * 이미 그 역할을 겸하므로 생략했다 - 별도 재확인 단계를 추가하지 않는다.
  */
 export function ParentLinkAcceptPage() {
-  const { token: rawToken } = useParams<{ token: string }>();
+  // 라우트는 /tutor-invite/:token 과 /tutor-invite/code/:code 두 형태로 붙는다 - 어느 쪽이든
+  // 한 파라미터만 채워져 온다. 둘 다 없으면 잘못된 진입이므로 아래 useEffect에서 에러로 처리.
+  const { token: rawToken, code: rawCode } = useParams<{ token?: string; code?: string }>();
+  const isCodeFlow = Boolean(rawCode && !rawToken);
+  const identifier = isCodeFlow ? (rawCode ?? '') : (rawToken ?? '');
   const navigate = useNavigate();
   const { state, setSession } = useAuth();
   const [stage, setStage] = useState<Stage>('loading');
@@ -35,8 +46,14 @@ export function ParentLinkAcceptPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!rawToken) return;
-    previewTutorInvite(rawToken)
+    // identifier가 비어 있으면(파라미터 자체가 없음) fetch를 건너뛴다 - 이 경우 아래 파생 상태
+    // effectiveStage='error'로 렌더가 오류 안내로 붙는다. setState를 effect에서 즉시 부르면
+    // cascading 렌더가 되어 react-hooks/set-state-in-effect에 걸린다.
+    if (!identifier) return;
+    const previewPromise = isCodeFlow
+      ? previewTutorInviteByCode(identifier)
+      : previewTutorInvite(identifier);
+    previewPromise
       .then((response) => {
         setPreview(response);
         setStage('preview');
@@ -45,7 +62,10 @@ export function ParentLinkAcceptPage() {
         setErrorMessage(failure instanceof TutorApiError ? failure.message : '초대 링크를 확인하지 못했어요.');
         setStage('error');
       });
-  }, [rawToken]);
+  }, [identifier, isCodeFlow]);
+
+  const effectiveStage: Stage = !identifier ? 'error' : stage;
+  const effectiveErrorMessage = !identifier ? '초대 링크 또는 코드가 올바르지 않아요.' : errorMessage;
 
   const onAccountSubmit = useCallback(async () => {
     setErrorMessage(null);
@@ -64,14 +84,17 @@ export function ParentLinkAcceptPage() {
   }, [hasAccount, loginId, password]);
 
   const onAccept = useCallback(async () => {
-    if (!rawToken) return;
+    if (!identifier) return;
     setErrorMessage(null);
     setSubmitting(true);
     try {
       const token = state.status === 'authenticated' ? state.token : loggedInToken;
-      const response = await acceptTutorInvite(rawToken, token
+      const body = token
         ? { token }
-        : { loginId: newLoginId.trim(), email: newEmail.trim(), password, displayName: displayName.trim() });
+        : { loginId: newLoginId.trim(), email: newEmail.trim(), password, displayName: displayName.trim() };
+      const response = isCodeFlow
+        ? await acceptTutorInviteByCode(identifier, body)
+        : await acceptTutorInvite(identifier, body);
       setSession(response.token, response.user);
       navigate(homePathFor(response.user), { replace: true });
     } catch (failure) {
@@ -79,24 +102,24 @@ export function ParentLinkAcceptPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [rawToken, state, loggedInToken, newLoginId, newEmail, password, displayName, setSession, navigate]);
+  }, [identifier, isCodeFlow, state, loggedInToken, newLoginId, newEmail, password, displayName, setSession, navigate]);
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.content}>
-        {stage === 'loading' && (
+        {effectiveStage === 'loading' && (
           <View style={styles.centerBox}>
             <ActivityIndicator color={storybookTheme.color.gold} />
           </View>
         )}
 
-        {stage === 'error' && (
+        {effectiveStage === 'error' && (
           <View style={styles.centerBox}>
-            <Text style={styles.errorText}>{errorMessage}</Text>
+            <Text style={styles.errorText}>{effectiveErrorMessage}</Text>
           </View>
         )}
 
-        {stage === 'preview' && preview && (
+        {effectiveStage === 'preview' && preview && (
           <>
             <Text style={styles.eyebrow}>{preview.tutorDisplayName}이 보낸 안전한 초대 링크</Text>
             <Text style={styles.title} accessibilityRole="header">{preview.studentName}의 오늘 이야기 기록이{'\n'}도착했어요</Text>
@@ -112,7 +135,7 @@ export function ParentLinkAcceptPage() {
           </>
         )}
 
-        {stage === 'account' && (
+        {effectiveStage === 'account' && (
           <>
             <Text style={styles.title} accessibilityRole="header">{hasAccount ? '로그인하고 계속하기' : '계정을 만들고 계속하기'}</Text>
             <ActionButton
@@ -147,7 +170,7 @@ export function ParentLinkAcceptPage() {
           </>
         )}
 
-        {stage === 'consent' && preview && (
+        {effectiveStage === 'consent' && preview && (
           <>
             <Text style={styles.title} accessibilityRole="header">부모님이 확인할 내용</Text>
             <View style={styles.consentCard}>

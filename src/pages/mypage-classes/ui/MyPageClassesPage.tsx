@@ -23,6 +23,8 @@ export function MyPageClassesPage() {
   const [reports, setReports] = useState<ReportLoad>({ status: 'loading' });
   const [inviteInput, setInviteInput] = useState('');
   const [inviteError, setInviteError] = useState<string | null>(null);
+  const [codeInput, setCodeInput] = useState('');
+  const [codeError, setCodeError] = useState<string | null>(null);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -74,6 +76,16 @@ export function MyPageClassesPage() {
     navigate(`/tutor-invite/${encodeURIComponent(token)}`);
   }
 
+  function goToCode() {
+    setCodeError(null);
+    const normalized = codeInput.trim().toUpperCase();
+    if (!/^[A-Z0-9]{4,16}$/.test(normalized)) {
+      setCodeError('영문·숫자 4-16자리 코드를 입력해 주세요.');
+      return;
+    }
+    navigate(`/tutor-invite/code/${encodeURIComponent(normalized)}`);
+  }
+
   if (state.status !== 'authenticated') return null;
 
   const isInClass = Boolean(state.user.classId);
@@ -104,10 +116,23 @@ export function MyPageClassesPage() {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>방문 선생님 연결</Text>
-          <Text style={styles.body}>선생님이 보낸 초대 링크(또는 토큰)를 붙여넣어 주세요.</Text>
+          <Text style={styles.sectionTitle}>선생님 연결</Text>
+          <Text style={styles.body}>선생님에게 받은 코드를 입력하거나, 초대 링크를 붙여넣어 주세요.</Text>
           <TextField
-            label="초대 링크 또는 토큰"
+            label="초대 코드"
+            value={codeInput}
+            onChangeText={(value) => {
+              setCodeInput(value);
+              if (codeError) setCodeError(null);
+            }}
+            placeholder="예: 42QRKM3P"
+            autoCapitalize="characters"
+            errorText={codeError ?? undefined}
+          />
+          <ActionButton label="코드로 확인하기" onPress={goToCode} disabled={codeInput.trim().length === 0} />
+          <View style={styles.divider} />
+          <TextField
+            label="초대 링크"
             value={inviteInput}
             onChangeText={(value) => {
               setInviteInput(value);
@@ -116,7 +141,12 @@ export function MyPageClassesPage() {
             placeholder="https://... 또는 토큰 문자열"
             errorText={inviteError ?? undefined}
           />
-          <ActionButton label="확인하러 가기" onPress={acceptInvite} disabled={inviteInput.trim().length === 0} />
+          <ActionButton
+            label="링크로 확인하기"
+            variant="secondaryFull"
+            onPress={acceptInvite}
+            disabled={inviteInput.trim().length === 0}
+          />
         </View>
 
         <View style={styles.card}>
@@ -206,6 +236,11 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
   },
   pillRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  divider: {
+    height: 1,
+    marginVertical: 8,
+    backgroundColor: storybookTheme.color.pillBorder,
+  },
   tutorList: { gap: 8 },
   tutorRow: {
     flexDirection: 'row',

@@ -39,6 +39,21 @@ const MyPageSubscriptionPage = lazy(() =>
 const MyPageDeleteAccountPage = lazy(() =>
   import('@/pages/mypage-delete-account').then((m) => ({ default: m.MyPageDeleteAccountPage })),
 );
+const MyPageChildrenPage = lazy(() =>
+  import('@/pages/mypage-children').then((m) => ({ default: m.MyPageChildrenPage })),
+);
+const MyPageClassesPage = lazy(() =>
+  import('@/pages/mypage-classes').then((m) => ({ default: m.MyPageClassesPage })),
+);
+const MyPageNotificationsPage = lazy(() =>
+  import('@/pages/mypage-notifications').then((m) => ({ default: m.MyPageNotificationsPage })),
+);
+const MyPagePrivacyPage = lazy(() =>
+  import('@/pages/mypage-privacy').then((m) => ({ default: m.MyPagePrivacyPage })),
+);
+const MyPageSupportPage = lazy(() =>
+  import('@/pages/mypage-support').then((m) => ({ default: m.MyPageSupportPage })),
+);
 const NotFoundPage = lazy(() => import('@/pages/not-found').then((m) => ({ default: m.NotFoundPage })));
 const ResetPasswordPage = lazy(() =>
   import('@/pages/reset-password').then((m) => ({ default: m.ResetPasswordPage })),
@@ -174,6 +189,11 @@ export function App() {
             <Route path="/mypage/account" element={<MyPageAccountPage />} />
             <Route path="/mypage/subscription" element={<MyPageSubscriptionPage />} />
             <Route path="/mypage/delete-account" element={<MyPageDeleteAccountPage />} />
+            <Route path="/mypage/children" element={<MyPageChildrenPage />} />
+            <Route path="/mypage/classes" element={<MyPageClassesPage />} />
+            <Route path="/mypage/notifications" element={<MyPageNotificationsPage />} />
+            <Route path="/mypage/privacy" element={<MyPagePrivacyPage />} />
+            <Route path="/mypage/support" element={<MyPageSupportPage />} />
             <Route path="/reports" element={<ReportHistoryPage />} />
             <Route path="/reports/:completionId" element={<ReportHistoryDetailPage />} />
             <Route path="/staff" element={<StaffHomePage />} />

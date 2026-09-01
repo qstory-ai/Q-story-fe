@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Icon, Modal, Pill, storybookTheme } from '@/shared/ui';
-import { dashboardNavItems, homePathFor, useAuth, type Role } from '@/entities/auth';
+import { AppNavShell, Icon, Modal, Pill, storybookTheme } from '@/shared/ui';
+import { dashboardNavItems, homePathFor, useAuth, type Role, type UserSummary } from '@/entities/auth';
+import { useChildren } from '@/entities/child';
 import { FeedbackModal } from '@/features/feedback-modal';
 
 const ROLE_LABEL: Record<Role, string> = {
@@ -14,15 +16,15 @@ const ROLE_LABEL: Record<Role, string> = {
   STAFF: '콘텐츠 운영자',
 };
 
-/** "뒤로"/주요 액션 라벨 - 역할마다 실제 목적지 이름이 다르다(entities/auth의 homePathFor와 짝을 맞춘다). */
-const HOME_LABEL: Record<Role, string> = {
-  DIRECTOR: '반 관리로',
-  CLASS_ACCOUNT: '우리 반으로',
-  PARENT: '홈으로',
-  TUTOR: '학생 관리로',
-  STAFF: '저작 화면으로',
-};
-
+/**
+ * IA의 [4] 마이페이지를 부모 기준으로 그룹화한 허브 화면. 예전에는 "내 정보/계정/구독" 3개
+ * 링크만 있는 평평한 리스트였는데, IA가 요구한 항목(아이 관리/수업 연결/알림 설정/개인정보 및
+ * 데이터/고객지원/계정 관리)을 다 담기엔 그 구조로는 부족했다. 그래서 부모용은 4개 그룹으로,
+ * 그 외 역할(원장/방문 선생님/반 계정/스태프)은 기존과 유사한 간단한 리스트로 나뉜다.
+ *
+ * 각 하위 페이지는 별도 라우트로 열리므로(pages/mypage-*), 이 화면 자체는 프로필 카드 + 링크
+ * 리스트 + 로그아웃/회원탈퇴 액션까지만 담는다. 개선사항 요청/피드백만 오버레이 모달로 열린다.
+ */
 export function MyPage() {
   const navigate = useNavigate();
   const { state, logout } = useAuth();
@@ -40,82 +42,31 @@ export function MyPage() {
 
   const { user } = state;
   const homePath = homePathFor(user);
-  const initial = user.displayName.trim().charAt(0) || '?';
 
   return (
-    <AppNavShell
-      items={dashboardNavItems(user, navigate, 'mypage')}
-      onBack={() => navigate(homePath)}
-    >
+    <AppNavShell items={dashboardNavItems(user, navigate, 'mypage')} onBack={() => navigate(homePath)}>
       <View style={styles.content}>
-        <View style={styles.card}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initial}</Text>
-          </View>
-          <Text style={styles.name}>{user.displayName}</Text>
-          <View style={styles.roleBadgeRow}>
-            <Pill label={ROLE_LABEL[user.role]} />
-          </View>
+        <ProfileCard user={user} />
 
-          <View style={styles.infoList}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>아이디</Text>
-              <Text style={styles.infoValue}>{user.loginId}</Text>
-            </View>
-            {user.role === 'CLASS_ACCOUNT' && (
-              <Pressable
-                onPress={() => navigate('/class')}
-                accessibilityRole="link"
-                style={styles.infoRow}
-              >
-                <Text style={styles.infoLabel}>우리 반</Text>
-                <Text style={styles.infoLink}>반 코드 보기 →</Text>
-              </Pressable>
-            )}
-            {(user.role === 'PARENT' || user.role === 'CLASS_ACCOUNT') && (
-              <Pressable
-                onPress={() => navigate('/reports')}
-                accessibilityRole="link"
-                style={styles.infoRow}
-              >
-                <Text style={styles.infoLabel}>이야기 기록</Text>
-                <Text style={styles.infoLink}>지난 리포트 보기 →</Text>
-              </Pressable>
-            )}
-          </View>
-        </View>
+        {user.role === 'PARENT' ? (
+          <ParentMenu navigate={navigate} onOpenFeedback={() => setOpenModal('feedback')} />
+        ) : (
+          <GenericMenu navigate={navigate} onOpenFeedback={() => setOpenModal('feedback')} />
+        )}
 
-        <View style={styles.menuCard}>
-          {MENU_ITEMS.map((item) => (
-            <Pressable
-              key={item.kind === 'route' ? item.path : item.modal}
-              onPress={() => (item.kind === 'route' ? navigate(item.path) : setOpenModal(item.modal))}
-              accessibilityRole={item.kind === 'route' ? 'link' : 'button'}
-              style={styles.menuRow}
-            >
-              <Text style={styles.menuLabel}>{item.label}</Text>
-              <Text style={styles.menuChevron}>→</Text>
-            </Pressable>
-          ))}
-        </View>
-
-        <ActionButton label={`${HOME_LABEL[user.role]} 돌아가기`} onPress={() => navigate(homePath)} />
-        <Pressable
-          onPress={() => setConfirmingLogout(true)}
-          accessibilityRole="button"
-          style={styles.logoutButton}
-        >
-          <Icon name="logout" size={16} color={storybookTheme.color.onDarkMuted} />
-          <Text style={styles.logoutText}>로그아웃</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => navigate('/mypage/delete-account')}
-          accessibilityRole="link"
-          hitSlop={8}
-          style={styles.deleteAccountLink}
-        >
-          <Text style={styles.deleteAccountText}>회원 탈퇴</Text>
-        </Pressable>
+        <MenuGroup>
+          <MenuRow
+            label="로그아웃"
+            leadingIcon="logout"
+            onPress={() => setConfirmingLogout(true)}
+            accessibilityRole="button"
+          />
+          <MenuRow
+            label="회원 탈퇴"
+            variant="danger"
+            onPress={() => navigate('/mypage/delete-account')}
+          />
+        </MenuGroup>
       </View>
 
       <Modal
@@ -130,19 +81,133 @@ export function MyPage() {
   );
 }
 
-/**
- * 마이페이지 하위 화면 메뉴 - 내 정보/계정 관리/구독 관리는 화면을 완전히 전환하는 전체 화면
- * (pages/mypage-*)으로 열고, 개선사항 요청만 이 화면 위에 오버레이되는 모달로 연다.
- */
-const MENU_ITEMS: (
-  | { kind: 'route'; label: string; path: string }
-  | { kind: 'modal'; label: string; modal: 'feedback' }
-)[] = [
-  { kind: 'route', label: '내 정보 관리', path: '/mypage/profile' },
-  { kind: 'route', label: '계정 관리', path: '/mypage/account' },
-  { kind: 'route', label: '구독 관리', path: '/mypage/subscription' },
-  { kind: 'modal', label: '개선사항 요청', modal: 'feedback' },
-];
+/* -------------------------------------------------------------- profile */
+
+function ProfileCard({ user }: { user: UserSummary }) {
+  const { children } = useChildren();
+  const initial = user.displayName.trim().charAt(0) || '?';
+  const childrenSummary = user.role === 'PARENT'
+    ? children.length === 0
+      ? '등록된 아이가 없어요'
+      : `등록된 아이 ${children.length}명`
+    : null;
+  return (
+    <View style={styles.profileCard}>
+      <View style={styles.avatar}>
+        <Text style={styles.avatarText}>{initial}</Text>
+      </View>
+      <Text style={styles.name}>{user.displayName}</Text>
+      <View style={styles.roleBadgeRow}>
+        <Pill label={ROLE_LABEL[user.role]} />
+      </View>
+      {childrenSummary ? <Text style={styles.profileMeta}>{childrenSummary}</Text> : null}
+    </View>
+  );
+}
+
+/* -------------------------------------------------------------- menus */
+
+function ParentMenu({
+  navigate,
+  onOpenFeedback,
+}: {
+  navigate: (path: string) => void;
+  onOpenFeedback: () => void;
+}) {
+  return (
+    <View style={styles.menuGroups}>
+      <MenuGroup title="아이">
+        <MenuRow label="아이 관리" hint="아이 프로필 추가·수정·삭제" onPress={() => navigate('/mypage/children')} />
+      </MenuGroup>
+
+      <MenuGroup title="수업">
+        <MenuRow label="수업 연결" hint="선생님·기관 연결과 관리" onPress={() => navigate('/mypage/classes')} />
+      </MenuGroup>
+
+      <MenuGroup title="앱 설정">
+        <MenuRow label="알림 설정" onPress={() => navigate('/mypage/notifications')} />
+        <MenuRow label="개인정보 및 데이터" onPress={() => navigate('/mypage/privacy')} />
+        <MenuRow label="고객지원" onPress={() => navigate('/mypage/support')} />
+      </MenuGroup>
+
+      <MenuGroup title="계정">
+        <MenuRow label="보호자 정보 변경" onPress={() => navigate('/mypage/profile')} />
+        <MenuRow label="이용권/결제" onPress={() => navigate('/mypage/subscription')} />
+        <MenuRow label="계정 관리 (아이디·비밀번호)" onPress={() => navigate('/mypage/account')} />
+        <MenuRow label="개선사항 요청" onPress={onOpenFeedback} accessibilityRole="button" />
+      </MenuGroup>
+    </View>
+  );
+}
+
+function GenericMenu({
+  navigate,
+  onOpenFeedback,
+}: {
+  navigate: (path: string) => void;
+  onOpenFeedback: () => void;
+}) {
+  return (
+    <View style={styles.menuGroups}>
+      <MenuGroup title="계정">
+        <MenuRow label="내 정보 관리" onPress={() => navigate('/mypage/profile')} />
+        <MenuRow label="계정 관리" onPress={() => navigate('/mypage/account')} />
+        <MenuRow label="구독 관리" onPress={() => navigate('/mypage/subscription')} />
+        <MenuRow label="개선사항 요청" onPress={onOpenFeedback} accessibilityRole="button" />
+      </MenuGroup>
+    </View>
+  );
+}
+
+/* -------------------------------------------------------------- menu primitives */
+
+function MenuGroup({ title, children }: { title?: string; children: ReactNode }) {
+  return (
+    <View style={styles.menuGroup}>
+      {title ? <Text style={styles.menuGroupTitle}>{title}</Text> : null}
+      <View style={styles.menuCard}>{children}</View>
+    </View>
+  );
+}
+
+function MenuRow({
+  label,
+  hint,
+  leadingIcon,
+  variant = 'default',
+  onPress,
+  accessibilityRole = 'link',
+}: {
+  label: string;
+  hint?: string;
+  leadingIcon?: 'logout';
+  variant?: 'default' | 'danger';
+  onPress: () => void;
+  accessibilityRole?: 'link' | 'button';
+}) {
+  return (
+    <Pressable
+      accessibilityRole={accessibilityRole}
+      onPress={onPress}
+      style={({ pressed }) => [styles.menuRow, pressed && styles.pressed]}
+    >
+      <View style={styles.menuLead}>
+        {leadingIcon ? (
+          <Icon name={leadingIcon} size={16} color={storybookTheme.color.onCardMuted} />
+        ) : null}
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.menuLabel, variant === 'danger' && styles.menuLabelDanger]} numberOfLines={1}>
+            {label}
+          </Text>
+          {hint ? <Text style={styles.menuHint} numberOfLines={1}>{hint}</Text> : null}
+        </View>
+      </View>
+      <Icon name="chevronRight" size={16} color={storybookTheme.color.onCardMuted} />
+    </Pressable>
+  );
+}
+
+/* -------------------------------------------------------------- styles */
 
 const styles = StyleSheet.create({
   content: {
@@ -153,16 +218,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 8,
     paddingBottom: 32,
-    gap: 16,
+    gap: 20,
   },
-  card: {
+  profileCard: {
     alignItems: 'center',
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,
     borderWidth: 1,
     borderColor: storybookTheme.color.surfaceCardBorder,
     padding: 28,
-    gap: 10,
+    gap: 8,
     ...storybookTheme.elevation.high,
   },
   avatar: {
@@ -176,63 +241,32 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: storybookTheme.type.xl,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.gold,
   },
-  roleBadgeRow: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
+  roleBadgeRow: { flexDirection: 'row', justifyContent: 'center' },
   name: {
     fontSize: storybookTheme.type.lg,
     lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
     letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onCardTitle,
   },
-  infoList: {
-    width: '100%',
-    marginTop: 12,
-    gap: 2,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: 44,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
-  },
-  infoLabel: {
+  profileMeta: {
     fontSize: storybookTheme.type.sm,
-    fontWeight: '400',
     color: storybookTheme.color.onCardMuted,
+    marginTop: 4,
   },
-  infoValue: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
-    color: storybookTheme.color.onCardBody,
-  },
-  infoLink: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
-    color: storybookTheme.color.primary,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    minHeight: 44,
-  },
-  logoutText: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
+  menuGroups: { gap: 16 },
+  menuGroup: { gap: 6 },
+  menuGroupTitle: {
+    paddingHorizontal: 6,
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onDarkMuted,
+    letterSpacing: 0.4,
   },
   menuCard: {
-    width: '100%',
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,
     borderWidth: 1,
@@ -243,29 +277,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: 52,
+    minHeight: 56,
+    gap: 12,
     borderTopWidth: 1,
     borderTopColor: storybookTheme.color.pillBorder,
   },
+  pressed: { opacity: 0.7 },
+  menuLead: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
   menuLabel: {
     fontSize: storybookTheme.type.sm,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onCardTitle,
   },
-  menuChevron: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
-    color: storybookTheme.color.onCardMuted,
-  },
-  deleteAccountLink: {
-    alignSelf: 'center',
-    minHeight: 40,
-    justifyContent: 'center',
-  },
-  deleteAccountText: {
+  menuLabelDanger: { color: storybookTheme.color.error },
+  menuHint: {
     fontSize: storybookTheme.type.xs,
-    fontWeight: '500',
-    color: storybookTheme.color.onDarkMuted,
-    textDecorationLine: 'underline',
+    color: storybookTheme.color.onCardMuted,
+    marginTop: 2,
   },
 });

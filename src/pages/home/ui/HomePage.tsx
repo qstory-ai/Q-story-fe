@@ -9,10 +9,12 @@ import { OnboardingFlow } from '@/features/onboarding';
 
 type OnboardingEntry = { step: 'welcome' | 'sign-up' | 'sign-in'; role?: 'PARENT' | 'DIRECTOR' | 'TUTOR' };
 
+// IA의 회원 유형 분류에 맞춘 표기 - "방문 선생님"이라는 유형 라벨은 IA에서 삭제됐고
+// (기관 소속 여부와 무관하게 모두 "선생님"), 실제 소속은 온보딩 이후에 결정된다.
 const ROLE_OPTIONS: { role: 'DIRECTOR' | 'PARENT' | 'TUTOR'; label: string; body: string }[] = [
-  { role: 'DIRECTOR', label: '원장님', body: '유치원을 등록하고 반을 만들어요' },
-  { role: 'PARENT', label: '학부모님', body: '반 코드를 받아 참여해요' },
-  { role: 'TUTOR', label: '방문 선생님', body: '학생을 등록하고 수업을 준비해요' },
+  { role: 'PARENT', label: '학부모님', body: '아이와 함께 이야기 서재를 시작해요' },
+  { role: 'TUTOR', label: '선생님', body: '학생을 등록하고 수업을 준비해요' },
+  { role: 'DIRECTOR', label: '기관 관리자', body: '유치원·기관을 등록하고 반을 만들어요' },
 ];
 
 /**
@@ -62,7 +64,7 @@ export function HomePage() {
       <View style={styles.scroll}>
         <View style={styles.header}>
           <BrandLockup />
-          <Text style={styles.tagline}>아이가 질문하면 이야기가 귀 기울여요</Text>
+          <Text style={styles.tagline}>아이가 이야기 속 궁금증을 질문으로 표현하고, 얻은 답을 다음 선택에 써봐요</Text>
         </View>
 
         <StoryLibraryGrid />
@@ -101,10 +103,10 @@ export function HomePage() {
                 </Pressable>
               ))}
             </View>
-            {/* Class accounts are issued by a director, so there is nothing to sign up for here -
-                saying so is kinder than a fourth card that leads nowhere. */}
+            {/* 기관 소속 선생님(class account)은 원장이 발급한 반 아이디로 로그인하므로 여기서 별도
+                가입 카드는 만들지 않는다 - 안내 문구로만 존재를 알려 준다. */}
             <Text style={styles.panelNote}>
-              선생님은 원장님께 받은 반 아이디로 로그인해 주세요.
+              기관 소속 선생님은 관리자에게 받은 반 아이디로 로그인해 주세요.
             </Text>
           </View>
         )}

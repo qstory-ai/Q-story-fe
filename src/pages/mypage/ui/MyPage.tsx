@@ -51,7 +51,7 @@ export function MyPage() {
         {user.role === 'PARENT' ? (
           <ParentMenu navigate={navigate} onOpenFeedback={() => setOpenModal('feedback')} />
         ) : (
-          <GenericMenu navigate={navigate} onOpenFeedback={() => setOpenModal('feedback')} />
+          <GenericMenu user={user} navigate={navigate} onOpenFeedback={() => setOpenModal('feedback')} />
         )}
 
         <MenuGroup>
@@ -141,14 +141,25 @@ function ParentMenu({
 }
 
 function GenericMenu({
+  user,
   navigate,
   onOpenFeedback,
 }: {
+  user: UserSummary;
   navigate: (path: string) => void;
   onOpenFeedback: () => void;
 }) {
   return (
     <View style={styles.menuGroups}>
+      {user.role === 'TUTOR' ? (
+        <MenuGroup title="소속">
+          <MenuRow
+            label="기관 참여"
+            hint="초대 코드나 링크로 기관 소속을 완성해요"
+            onPress={() => navigate('/tutor/join-organization')}
+          />
+        </MenuGroup>
+      ) : null}
       <MenuGroup title="계정">
         <MenuRow label="내 정보 관리" onPress={() => navigate('/mypage/profile')} />
         <MenuRow label="계정 관리" onPress={() => navigate('/mypage/account')} />

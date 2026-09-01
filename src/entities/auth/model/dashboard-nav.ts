@@ -36,6 +36,10 @@ export function dashboardNavItems(
   if (user.role === 'PARENT' || user.role === 'CLASS_ACCOUNT') {
     entries.push({ key: 'reports', label: '리포트', icon: 'report', path: '/reports' });
   }
+  if (user.role === 'TUTOR') {
+    // 선생님용 리포트 탭 - 자기 학생 세션 완주 기록을 학생별로 묶어 본다.
+    entries.push({ key: 'reports', label: '리포트', icon: 'report', path: '/tutor/reports' });
+  }
   entries.push({ key: 'mypage', label: '마이페이지', icon: 'user', path: '/mypage' });
 
   return entries.map((entry) => ({

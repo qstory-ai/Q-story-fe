@@ -219,6 +219,18 @@ function ClassManagementStep({
               disabled={!name.trim() || !initialPassword}
             />
           </View>
+
+          <View style={styles.subCard}>
+            <Text style={styles.cardTitle}>선생님 관리</Text>
+            <Text style={styles.panelBody}>
+              소속 선생님을 초대하고 관리해요. 초대 코드나 링크를 전달하면 선생님이 소속을 수락할 수 있어요.
+            </Text>
+            <ActionButton
+              variant="secondaryFull"
+              label="선생님 관리 열기"
+              onPress={() => navigate('/organization/tutors')}
+            />
+          </View>
         </View>
 
         <View style={styles.panel}>

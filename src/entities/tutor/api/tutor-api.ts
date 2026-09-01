@@ -129,3 +129,42 @@ export function listTutorStudentCompletions(
 export function listParentTutorReports(token: string, options?: RequestOptions): Promise<TutorReportSummary[]> {
   return request('/v1/parents/me/tutor-reports', { method: 'GET' }, token, options);
 }
+
+/**
+ * 방문 선생님이 특정 학생의 다음 수업에 쓸 이야기 리스트("수업에 사용하기"로 담긴 것들).
+ * BE의 tutor_lesson_plan 테이블 한 행이 여기서 TutorLessonPlan 하나로 매핑된다 - 서재의
+ * "수업에 사용하기" 버튼이 create를 호출하고, 선생님 수업 상세에서 list/remove를 쓴다.
+ */
+
+export type TutorLessonPlan = {
+  id: string;
+  tutorStudentId: string;
+  studentName: string;
+  storyId: string;
+  addedAt: string;
+};
+
+export function listTutorLessonPlans(token: string, options?: RequestOptions): Promise<TutorLessonPlan[]> {
+  return request('/v1/tutor-lesson-plans', { method: 'GET' }, token, options);
+}
+
+export function listStudentLessonPlans(
+  token: string,
+  studentId: string,
+  options?: RequestOptions,
+): Promise<TutorLessonPlan[]> {
+  return request(`/v1/tutor-students/${studentId}/lesson-plans`, { method: 'GET' }, token, options);
+}
+
+export function createTutorLessonPlan(
+  token: string,
+  input: { tutorStudentId: string; storyId: string },
+  options?: RequestOptions,
+): Promise<TutorLessonPlan> {
+  return request('/v1/tutor-lesson-plans', { method: 'POST', body: JSON.stringify(input) }, token, options);
+}
+
+export function removeTutorLessonPlan(token: string, planId: string, options?: RequestOptions): Promise<void> {
+  // 서버는 204를 반환한다 - requestJson()이 204를 자동으로 undefined로 처리한다.
+  return request(`/v1/tutor-lesson-plans/${planId}`, { method: 'DELETE' }, token, options);
+}

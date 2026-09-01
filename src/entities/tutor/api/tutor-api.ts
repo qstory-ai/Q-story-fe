@@ -30,6 +30,11 @@ export type TutorSchedule = {
 
 export type TutorInvite = {
   token: string;
+  /**
+   * 손으로 옮길 수 있는 짧은 코드 - 링크(token)와 같은 초대를 가리키지만 시크릿은 아니라
+   * 대시보드에서 다시 보여줘도 안전하다. 발급 응답과 함께만 넘어온다.
+   */
+  shortCode: string;
   expiresAt: string;
 };
 
@@ -105,6 +110,11 @@ export function previewTutorInvite(rawToken: string, options?: RequestOptions): 
   return request(`/v1/tutor-invites/${rawToken}`, { method: 'GET' }, null, options);
 }
 
+/** short_code 기반 미리보기 - previewTutorInvite와 응답 형태는 같고 조회 경로만 다르다. */
+export function previewTutorInviteByCode(shortCode: string, options?: RequestOptions): Promise<TutorInvitePreview> {
+  return request(`/v1/tutor-invites/by-code/${encodeURIComponent(shortCode)}`, { method: 'GET' }, null, options);
+}
+
 /**
  * token이 있으면(이미 로그인된 학부모) 그 계정에 바로 연결한다. 없으면 loginId/email/password/
  * displayName로 새 학부모 계정을 만들며 연결한다 - joinClass()와 같은 "초대 수락이 곧 회원가입"인 경우.
@@ -116,6 +126,21 @@ export function acceptTutorInvite(
 ): Promise<AuthResponse> {
   const { token, ...body } = input;
   return request(`/v1/tutor-invites/${rawToken}/accept`, { method: 'POST', body: JSON.stringify(body) }, token ?? null, options);
+}
+
+/** short_code 기반 수락 - 후속 흐름은 acceptTutorInvite와 동일. 조회 경로만 다르다. */
+export function acceptTutorInviteByCode(
+  shortCode: string,
+  input: { token?: string | null; loginId?: string; email?: string; password?: string; displayName?: string },
+  options?: RequestOptions,
+): Promise<AuthResponse> {
+  const { token, ...body } = input;
+  return request(
+    `/v1/tutor-invites/by-code/${encodeURIComponent(shortCode)}/accept`,
+    { method: 'POST', body: JSON.stringify(body) },
+    token ?? null,
+    options,
+  );
 }
 
 export function listTutorStudentCompletions(

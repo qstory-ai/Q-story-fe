@@ -10,6 +10,7 @@ import {
   type StoryRuntimePackage,
 } from '@/entities/story';
 import { AuthProvider } from '@/entities/auth';
+import { BookmarksProvider } from '@/entities/bookmark';
 import { ChildrenProvider } from '@/entities/child';
 import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
 import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
@@ -162,8 +163,9 @@ export function App() {
   return (
     <AuthProvider>
       <ChildrenProvider>
-        <SyncDemoCompletionOnAuth />
-        <BrowserRouter>
+        <BookmarksProvider>
+          <SyncDemoCompletionOnAuth />
+          <BrowserRouter>
         <Suspense fallback={<View style={styles.container} />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -204,7 +206,8 @@ export function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
           </Suspense>
-        </BrowserRouter>
+          </BrowserRouter>
+        </BookmarksProvider>
       </ChildrenProvider>
     </AuthProvider>
   );

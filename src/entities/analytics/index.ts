@@ -4,4 +4,5 @@ export * from './model/exit-diagnostics';
 export * from './model/question-text';
 export * from './model/local-story-progress';
 export * from './model/parent-report';
+export * from './model/comprehensive-report';
 export * from './model/voice-research';

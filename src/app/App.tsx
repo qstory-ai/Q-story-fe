@@ -10,6 +10,7 @@ import {
   type StoryRuntimePackage,
 } from '@/entities/story';
 import { AuthProvider } from '@/entities/auth';
+import { ChildrenProvider } from '@/entities/child';
 import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
 import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
 
@@ -142,8 +143,9 @@ function DemoStoryRoute() {
 export function App() {
   return (
     <AuthProvider>
-      <SyncDemoCompletionOnAuth />
-      <BrowserRouter>
+      <ChildrenProvider>
+        <SyncDemoCompletionOnAuth />
+        <BrowserRouter>
         <Suspense fallback={<View style={styles.container} />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -175,8 +177,9 @@ export function App() {
             <Route path="/stories/:storyId/play" element={<StoryPlayerRoute />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
-        </Suspense>
-      </BrowserRouter>
+          </Suspense>
+        </BrowserRouter>
+      </ChildrenProvider>
     </AuthProvider>
   );
 }

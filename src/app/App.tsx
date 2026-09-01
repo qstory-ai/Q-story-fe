@@ -67,6 +67,9 @@ const ParentLinkAcceptPage = lazy(() =>
   import('@/pages/parent-link').then((m) => ({ default: m.ParentLinkAcceptPage })),
 );
 const StoryDetailPage = lazy(() => import('@/pages/story-detail').then((m) => ({ default: m.StoryDetailPage })));
+const LibraryPage = lazy(() => import('@/pages/library').then((m) => ({ default: m.LibraryPage })));
+const TutorLibraryPage = lazy(() => import('@/pages/tutor-library').then((m) => ({ default: m.TutorLibraryPage })));
+const TutorClassesPage = lazy(() => import('@/pages/tutor-classes').then((m) => ({ default: m.TutorClassesPage })));
 const StoryPlayerRoute = lazy(() =>
   import('@/pages/story-player').then((m) => ({ default: m.StoryPlayerRoute })),
 );
@@ -158,7 +161,10 @@ export function App() {
             <Route path="/organization" element={<OrganizationSignupPage />} />
             <Route path="/class" element={<ClassDashboardPage />} />
             <Route path="/parent" element={<ParentHomePage />} />
+            <Route path="/library" element={<LibraryPage />} />
             <Route path="/tutor" element={<TutorHomePage />} />
+            <Route path="/tutor/library" element={<TutorLibraryPage />} />
+            <Route path="/tutor/classes" element={<TutorClassesPage />} />
             <Route path="/tutor/students/new" element={<TutorStudentNewPage />} />
             <Route path="/tutor/students" element={<TutorStudentsPage />} />
             <Route path="/tutor/schedule" element={<TutorScheduleListPage />} />

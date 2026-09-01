@@ -4,6 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { ActionButton, Icon, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { fetchStoryEntry, StoryApiError, type StoryCatalogEntry } from '@/entities/story';
+import { useAuth } from '@/entities/auth';
+import { useBookmarks } from '@/entities/bookmark';
+import { LessonPlanPickerModal } from '@/features/lesson-plan-picker';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -18,9 +21,18 @@ type LoadState =
 export function StoryDetailPage() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
+  const { state } = useAuth();
+  const bookmarks = useBookmarks();
   const [attempt, setAttempt] = useState(0);
   const requestKey = `${storyId ?? ''}:${attempt}`;
   const [load, setLoad] = useState<LoadState>({ requestKey, status: 'loading' });
+  const [bookmarkPending, setBookmarkPending] = useState(false);
+  const [bookmarkError, setBookmarkError] = useState<string | null>(null);
+  const [lessonPickerOpen, setLessonPickerOpen] = useState(false);
+  const [lessonToast, setLessonToast] = useState<string | null>(null);
+
+  const isAuthenticated = state.status === 'authenticated';
+  const isTutor = isAuthenticated && state.user.role === 'TUTOR';
 
   useEffect(() => {
     if (!storyId) return;
@@ -40,6 +52,24 @@ export function StoryDetailPage() {
   }, [storyId, requestKey]);
 
   const retry = useCallback(() => setAttempt((value) => value + 1), []);
+
+  const toggleBookmark = useCallback(async () => {
+    if (!storyId) return;
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    setBookmarkPending(true);
+    setBookmarkError(null);
+    try {
+      await bookmarks.toggle(storyId);
+    } catch (failure: unknown) {
+      const message = failure instanceof Error ? failure.message : '저장 상태를 바꾸지 못했어요.';
+      setBookmarkError(message);
+    } finally {
+      setBookmarkPending(false);
+    }
+  }, [storyId, isAuthenticated, bookmarks, navigate]);
 
   // 마지막으로 커밋된 로드 이후 storyId/attempt가 바뀌었다 - setState-in-effect 없이
   // 로딩 중인 것처럼 렌더링한다 (react-hooks/set-state-in-effect 참고).
@@ -95,9 +125,50 @@ export function StoryDetailPage() {
               label="이야기 시작하기"
               onPress={() => navigate(`/stories/${effectiveLoad.story.storyId}/play`)}
             />
+            <View style={styles.secondaryActions}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={bookmarks.isBookmarked(effectiveLoad.story.storyId) ? '저장 해제' : '저장하기'}
+                onPress={toggleBookmark}
+                disabled={bookmarkPending}
+                style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+              >
+                <Icon
+                  name={bookmarks.isBookmarked(effectiveLoad.story.storyId) ? 'check' : 'plus'}
+                  size={16}
+                  color={storybookTheme.color.primary}
+                />
+                <Text style={styles.secondaryLabel}>
+                  {bookmarks.isBookmarked(effectiveLoad.story.storyId) ? '저장됨' : '저장하기'}
+                </Text>
+              </Pressable>
+              {isTutor ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="수업에 사용하기"
+                  onPress={() => setLessonPickerOpen(true)}
+                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+                >
+                  <Icon name="graduationCap" size={16} color={storybookTheme.color.primary} />
+                  <Text style={styles.secondaryLabel}>수업에 사용하기</Text>
+                </Pressable>
+              ) : null}
+            </View>
+            {bookmarkError ? <Text style={styles.actionError}>{bookmarkError}</Text> : null}
+            {lessonToast ? <Text style={styles.actionInfo}>{lessonToast}</Text> : null}
           </View>
         </View>
       )}
+
+      {effectiveLoad.status === 'ready' && isTutor ? (
+        <LessonPlanPickerModal
+          visible={lessonPickerOpen}
+          storyId={effectiveLoad.story.storyId}
+          storyTitle={effectiveLoad.story.title}
+          onClose={() => setLessonPickerOpen(false)}
+          onSuccess={(studentName) => setLessonToast(`${studentName} 수업에 담았어요.`)}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -171,5 +242,39 @@ const styles = StyleSheet.create({
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: '300',
     color: storybookTheme.color.onCardBody,
+  },
+  secondaryActions: {
+    marginTop: 4,
+    flexDirection: 'row',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  secondaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: storybookTheme.radius.pill,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.primary,
+    backgroundColor: 'transparent',
+  },
+  pressed: { opacity: 0.7 },
+  secondaryLabel: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.primary,
+  },
+  actionError: {
+    fontSize: storybookTheme.type.xs,
+    color: storybookTheme.color.error,
+    textAlign: 'center',
+  },
+  actionInfo: {
+    fontSize: storybookTheme.type.xs,
+    color: storybookTheme.color.primary,
+    textAlign: 'center',
+    fontWeight: storybookTheme.type.weight.bold,
   },
 });

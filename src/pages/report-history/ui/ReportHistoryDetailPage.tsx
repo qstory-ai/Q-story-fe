@@ -24,7 +24,12 @@ export function ReportHistoryDetailPage() {
   const requestKey = `${completionId ?? ''}`;
   const [load, setLoad] = useState<LoadState>({ requestKey, status: 'loading' });
 
-  const canView = state.status === 'authenticated' && (state.user.role === 'PARENT' || state.user.role === 'CLASS_ACCOUNT');
+  // TUTOR도 자기가 진행한 세션의 상세는 볼 수 있어야 한다 - 선생님 리포트 탭에서 세션을
+  // 탭했을 때 여기로 오게 되어 있다. BE의 getStoryCompletion은 이미 완료 기록 소유자가
+  // 아닌 사용자를 차단하므로, 여기서는 role 기반 페이지 접근만 허용한다.
+  const canView = state.status === 'authenticated' && (
+    state.user.role === 'PARENT' || state.user.role === 'CLASS_ACCOUNT' || state.user.role === 'TUTOR'
+  );
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -66,7 +71,7 @@ export function ReportHistoryDetailPage() {
   return (
     <AppNavShell
       items={dashboardNavItems(state.user, navigate, 'reports')}
-      onBack={() => navigate('/reports')}
+      onBack={() => navigate(state.status === 'authenticated' && state.user.role === 'TUTOR' ? '/tutor/reports' : '/reports')}
     >
       {effectiveLoad.status === 'loading' && (
         <View style={styles.centerBox}>

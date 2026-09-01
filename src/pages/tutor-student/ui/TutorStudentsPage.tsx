@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { ActionButton, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { useAuth } from '@/entities/auth';
 import { DEFAULT_BETA_STORY_ID } from '@/entities/story';
-import { listTutorStudents, type TutorStudent } from '@/entities/tutor';
+import { createTutorInvite, listTutorStudents, type TutorInvite, type TutorStudent } from '@/entities/tutor';
+import { InviteCodeCard } from '@/features/invite-issue';
 
 type LoadState = { status: 'loading' } | { status: 'ready'; students: TutorStudent[] } | { status: 'error' };
 
@@ -14,11 +15,19 @@ const STATUS_LABEL: Record<TutorStudent['status'], string> = {
   CONFIRMED: '연결됨',
 };
 
-/** 과외생 목록 - q-story-flow-prototype.tsx의 TutorStudentsScreen을 실제 로스터로 이식. */
+/**
+ * 과외생 목록. 각 학생 카드에서 곧바로 "부모 초대 코드 발급" → 발급된 코드/링크를 인라인으로
+ * 노출한다 (선생님이 학생과 대화 도중에 바로 구두로 코드를 알려 주거나 링크를 붙여넣을 수
+ * 있게 하려는 의도). 발급은 idempotent가 아니라 매번 새 초대를 만들지만, 만료된 이전 초대는
+ * 어차피 쓸 수 없어 사용자 관점에서는 문제되지 않는다.
+ */
 export function TutorStudentsPage() {
   const navigate = useNavigate();
   const { state } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
+  const [issuedByStudent, setIssuedByStudent] = useState<Record<string, TutorInvite>>({});
+  const [issuingStudentId, setIssuingStudentId] = useState<string | null>(null);
+  const [issueError, setIssueError] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -31,7 +40,28 @@ export function TutorStudentsPage() {
       .catch(() => setLoad({ status: 'error' }));
   }, [state, navigate]);
 
+  async function issueInvite(studentId: string) {
+    if (state.status !== 'authenticated') return;
+    setIssuingStudentId(studentId);
+    setIssueError((prev) => {
+      const next = { ...prev };
+      delete next[studentId];
+      return next;
+    });
+    try {
+      const invite = await createTutorInvite(state.token, studentId, { method: 'LINK' });
+      setIssuedByStudent((prev) => ({ ...prev, [studentId]: invite }));
+    } catch (failure: unknown) {
+      const message = failure instanceof Error ? failure.message : '초대를 만들지 못했어요.';
+      setIssueError((prev) => ({ ...prev, [studentId]: message }));
+    } finally {
+      setIssuingStudentId(null);
+    }
+  }
+
   if (state.status !== 'authenticated') return null;
+
+  const originBase = typeof window !== 'undefined' ? window.location.origin : '';
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
@@ -64,6 +94,29 @@ export function TutorStudentsPage() {
                 label="이야기 시작하기"
                 onPress={() => navigate(`/stories/${DEFAULT_BETA_STORY_ID}/play?tutorStudentId=${student.id}`)}
               />
+              {student.status === 'PENDING_PARENT' ? (
+                <ActionButton
+                  variant="secondaryFull"
+                  label={issuingStudentId === student.id ? '초대 만드는 중…' : '부모 초대 코드 발급'}
+                  onPress={() => issueInvite(student.id)}
+                  disabled={issuingStudentId === student.id}
+                />
+              ) : null}
+              {issueError[student.id] ? (
+                <Text style={styles.error}>{issueError[student.id]}</Text>
+              ) : null}
+              {issuedByStudent[student.id] ? (
+                <InviteCodeCard
+                  shortCode={issuedByStudent[student.id].shortCode}
+                  link={`${originBase}/tutor-invite/${issuedByStudent[student.id].token}`}
+                  expiresLabel={formatExpires(issuedByStudent[student.id].expiresAt)}
+                  onDismiss={() => setIssuedByStudent((prev) => {
+                    const next = { ...prev };
+                    delete next[student.id];
+                    return next;
+                  })}
+                />
+              ) : null}
             </View>
           ))}
 
@@ -71,6 +124,11 @@ export function TutorStudentsPage() {
       </View>
     </SafeAreaView>
   );
+}
+
+function formatExpires(iso: string) {
+  const date = new Date(iso);
+  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric' }).format(date);
 }
 
 const styles = StyleSheet.create({

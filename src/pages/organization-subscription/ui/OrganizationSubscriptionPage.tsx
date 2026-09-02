@@ -4,12 +4,12 @@ import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, StatusBanner, storybookTheme } from '@/shared/ui';
 import {
-  AuthApiError,
   dashboardNavItems,
   fetchEntitlement,
   useAuth,
   type EntitlementResponse,
 } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
 
 type LoadState =
   | { status: 'loading' }
@@ -70,8 +70,10 @@ export function OrganizationSubscriptionPage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof AuthApiError ? failure.message : '이용권 정보를 불러오지 못했어요.';
-        setLoad({ status: 'error', message });
+        setLoad({
+          status: 'error',
+          message: messageForError(failure, '이용권 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+        });
       });
     return () => {
       cancelled = true;

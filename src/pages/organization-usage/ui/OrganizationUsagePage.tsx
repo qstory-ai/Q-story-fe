@@ -3,11 +3,11 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import {
   getOrganizationUsage,
-  OrganizationUsageApiError,
   type OrganizationUsage,
 } from '@/entities/organization-usage';
 
@@ -53,10 +53,10 @@ export function OrganizationUsagePage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof OrganizationUsageApiError
-          ? failure.message
-          : '이용 현황을 불러오지 못했어요.';
-        setLoad({ status: 'error', message });
+        setLoad({
+          status: 'error',
+          message: messageForError(failure, '이용 현황을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+        });
       });
     return () => {
       cancelled = true;

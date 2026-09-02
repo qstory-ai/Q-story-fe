@@ -4,13 +4,13 @@ import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Icon, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
-  AuthApiError,
   createClass,
   dashboardNavItems,
   listClasses,
   useAuth,
   type ClassResponse,
 } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
 
 type LoadState =
   | { status: 'loading' }
@@ -51,8 +51,10 @@ export function OrganizationClassesPage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof AuthApiError ? failure.message : '반 목록을 불러오지 못했어요.';
-        setLoad({ status: 'error', message });
+        setLoad({
+          status: 'error',
+          message: messageForError(failure, '반 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+        });
       });
     return () => {
       cancelled = true;
@@ -69,7 +71,7 @@ export function OrganizationClassesPage() {
       setInitialPassword('');
       setReloadKey((n) => n + 1);
     } catch (failure) {
-      setFormError(failure instanceof AuthApiError ? failure.message : '반을 만들지 못했어요. 다시 시도해 주세요.');
+      setFormError(messageForError(failure, '반을 만들지 못했어요. 반 이름과 초기 비밀번호를 확인해 주세요.'));
     } finally {
       setSubmitting(false);
     }

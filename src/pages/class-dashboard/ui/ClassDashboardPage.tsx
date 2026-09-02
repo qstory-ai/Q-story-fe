@@ -3,7 +3,8 @@ import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-na
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, storybookTheme } from '@/shared/ui';
-import { AuthApiError, dashboardNavItems, fetchClass, useAuth, type ClassResponse } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
+import { dashboardNavItems, fetchClass, useAuth, type ClassResponse } from '@/entities/auth';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { formatReportDuration } from '@/pages/one-story';
 import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
@@ -63,7 +64,7 @@ export function ClassDashboardPage() {
     fetchClass(token, classId)
       .then(setClassGroup)
       .catch((failure) =>
-        setError(failure instanceof AuthApiError ? failure.message : '반 정보를 불러오지 못했어요.'),
+        setError(messageForError(failure, '반 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.')),
       );
   }, [state, token, classId, navigate]);
 

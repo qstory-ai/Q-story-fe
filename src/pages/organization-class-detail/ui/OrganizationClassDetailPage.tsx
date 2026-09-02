@@ -4,7 +4,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, StatusBanner, storybookTheme } from '@/shared/ui';
 import {
-  AuthApiError,
   createClassInvite,
   dashboardNavItems,
   fetchClass,
@@ -13,6 +12,7 @@ import {
   type ClassMemberResponse,
   type ClassResponse,
 } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
 import { InviteCodeCard } from '@/features/invite-issue';
 
 type LoadState =
@@ -51,8 +51,10 @@ export function OrganizationClassDetailPage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof AuthApiError ? failure.message : '반 정보를 불러오지 못했어요.';
-        setLoad({ status: 'error', message });
+        setLoad({
+          status: 'error',
+          message: messageForError(failure, '반 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+        });
       });
     return () => {
       cancelled = true;
@@ -67,8 +69,7 @@ export function OrganizationClassDetailPage() {
       const invite = await createClassInvite(state.token, classId);
       setIssuedInvite(invite);
     } catch (failure: unknown) {
-      const message = failure instanceof AuthApiError ? failure.message : '초대를 만들지 못했어요.';
-      setIssueError(message);
+      setIssueError(messageForError(failure, '초대 코드를 만들지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setIssuing(false);
     }

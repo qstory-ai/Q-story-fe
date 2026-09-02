@@ -90,6 +90,18 @@ const TutorReportsPage = lazy(() => import('@/pages/tutor-reports').then((m) => 
 const OrganizationTutorsPage = lazy(() =>
   import('@/pages/organization-tutors').then((m) => ({ default: m.OrganizationTutorsPage })),
 );
+const OrganizationClassesPage = lazy(() =>
+  import('@/pages/organization-classes').then((m) => ({ default: m.OrganizationClassesPage })),
+);
+const OrganizationClassDetailPage = lazy(() =>
+  import('@/pages/organization-class-detail').then((m) => ({ default: m.OrganizationClassDetailPage })),
+);
+const OrganizationUsagePage = lazy(() =>
+  import('@/pages/organization-usage').then((m) => ({ default: m.OrganizationUsagePage })),
+);
+const OrganizationSubscriptionPage = lazy(() =>
+  import('@/pages/organization-subscription').then((m) => ({ default: m.OrganizationSubscriptionPage })),
+);
 const OrgInviteAcceptPage = lazy(() =>
   import('@/pages/org-invite-accept').then((m) => ({ default: m.OrgInviteAcceptPage })),
 );
@@ -201,6 +213,10 @@ export function App() {
             <Route path="/tutor/reports" element={<TutorReportsPage />} />
             <Route path="/tutor/join-organization" element={<TutorJoinOrganizationPage />} />
             <Route path="/organization/tutors" element={<OrganizationTutorsPage />} />
+            <Route path="/organization/classes" element={<OrganizationClassesPage />} />
+            <Route path="/organization/classes/:classId" element={<OrganizationClassDetailPage />} />
+            <Route path="/organization/usage" element={<OrganizationUsagePage />} />
+            <Route path="/organization/subscription" element={<OrganizationSubscriptionPage />} />
             <Route path="/org-invite/:token" element={<OrgInviteAcceptPage />} />
             <Route path="/org-invite/code/:code" element={<OrgInviteAcceptPage />} />
             <Route path="/tutor/students/new" element={<TutorStudentNewPage />} />

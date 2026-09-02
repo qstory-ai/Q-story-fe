@@ -6,6 +6,7 @@ import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/share
 import { homePathFor, useAuth } from '@/entities/auth';
 import { StoryLibraryGrid } from '@/features/story-library';
 import { OnboardingFlow } from '@/features/onboarding';
+import { hasSeenTutorial } from '@/pages/tutorial';
 
 type OnboardingEntry = { step: 'welcome' | 'sign-up' | 'sign-in'; role?: 'PARENT' | 'DIRECTOR' | 'TUTOR' };
 
@@ -49,6 +50,12 @@ export function HomePage() {
     if (homePath !== '/') {
       return <Navigate to={homePath} replace />;
     }
+  }
+
+  // 아직 로그인 전인 첫 방문자는 튜토리얼로 우회 - localStorage 마크를 두어 이후에는 뜨지 않음.
+  // 로그인된 사용자에게는 튜토리얼을 재차 강요하지 않는다(위 리다이렉트가 이미 각 홈으로 옮긴다).
+  if (state.status === 'anonymous' && !hasSeenTutorial()) {
+    return <Navigate to="/tutorial" replace />;
   }
 
   if (onboarding) {

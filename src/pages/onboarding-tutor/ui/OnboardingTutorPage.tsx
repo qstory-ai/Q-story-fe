@@ -208,9 +208,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 28,
-    paddingTop: 12,
-    gap: 12,
+    paddingHorizontal: storybookTheme.spacing.lg,
+    paddingTop: storybookTheme.spacing.ms,
+    gap: storybookTheme.spacing.ms,
+    // OnboardingParentPage와 같은 중간 폭 - 두 곳뿐이라 별도 layout 토큰은 아직 만들지 않는다.
     maxWidth: 480,
     width: '100%',
     alignSelf: 'center',

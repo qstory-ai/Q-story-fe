@@ -288,9 +288,11 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.semibold,
   },
   content: {
-    paddingHorizontal: 28,
-    paddingBottom: 40,
-    gap: 12,
+    paddingHorizontal: storybookTheme.spacing.lg,
+    paddingBottom: storybookTheme.spacing.xxl,
+    gap: storybookTheme.spacing.ms,
+    // 온보딩은 폼(420)보다는 조금 넓고 리스트(560)보다는 좁은 중간 폭이 편해서, 두 페이지가
+    // 공통으로 480을 쓴다. 두 곳뿐이라 별도 layout 토큰은 아직 만들지 않는다.
     maxWidth: 480,
     width: '100%',
     alignSelf: 'center',
@@ -344,12 +346,13 @@ const styles = StyleSheet.create({
   avatarChoice: {
     width: 56,
     height: 56,
+    // 56/2 = 28 - 원형 아바타. radius.pill(999)를 써도 시각적으로 같지만 의도(정원)을 명시.
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
   },
-  avatarEmoji: { fontSize: 30 },
+  avatarEmoji: { fontSize: storybookTheme.type.xxl },
   errorText: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.error,
@@ -380,7 +383,7 @@ const styles = StyleSheet.create({
   checkboxBox: {
     width: 20,
     height: 20,
-    borderRadius: 4,
+    borderRadius: storybookTheme.radius.control,
     borderWidth: 2,
     borderColor: storybookTheme.color.onDarkMuted,
     alignItems: 'center',
@@ -392,8 +395,9 @@ const styles = StyleSheet.create({
   },
   checkboxMark: {
     color: storybookTheme.color.background,
-    fontSize: 14,
+    fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.black,
-    lineHeight: 14,
+    // 체크 마크는 박스 안에 정확히 눈금선이 맞아야 해서 lineHeight를 fontSize와 동일하게 잠근다.
+    lineHeight: storybookTheme.type.sm,
   },
 });

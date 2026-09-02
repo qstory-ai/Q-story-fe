@@ -269,5 +269,15 @@ export const storybookTheme = {
      * 화면이 정확히 같은 값을 쓰고 있어 중앙화한다. */
     dashboardCardMaxWidth: 640,
     dashboardCardWideMaxWidth: 760,
+    /**
+     * 학생/일정 리스트처럼 카드 나열 위주지만 폼(420)보다는 넓고 대시보드(640)보다는 좁은
+     * 중간 밀도 페이지의 폭 - TutorStudentsPage/TutorScheduleListPage 등이 각자 560으로
+     * 하드코딩하던 값을 중앙화. */
+    narrowMaxWidth: 560,
+    /**
+     * 튜터 홈처럼 콘텐츠 밀도가 높지만 라이브러리 그리드(1040)만큼 넓을 필요는 없는 페이지의
+     * 폭 - TutorHomePage/TutorStudentNewPage/TutorLessonDetailPage 등이 각자 720으로
+     * 하드코딩하던 값을 중앙화. */
+    tabletMaxWidth: 720,
   },
 } as const;

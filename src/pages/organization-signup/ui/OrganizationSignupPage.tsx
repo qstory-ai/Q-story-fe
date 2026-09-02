@@ -1,18 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Icon, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
   AuthApiError,
-  createClass,
-  createClassInvite,
   createOrganization,
   dashboardNavItems,
   fetchEntitlement,
-  listClasses,
   useAuth,
-  type ClassResponse,
   type EntitlementResponse,
   type UserSummary,
 } from '@/entities/auth';
@@ -106,6 +102,12 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
   );
 }
 
+/**
+ * DIRECTOR가 조직을 만든 이후의 홈("/organization")은 IA "기관 관리자"가 요구하는 네 축(반/학생,
+ * 선생님, 이용 현황, 결제/라이선스)의 진입점 카드를 모아 놓은 대시보드다. 이전엔 이 화면 안에
+ * '반 관리'가 인라인으로 있었지만, 소속 선생님·이용 현황 등이 더해지면서 각 축을 별도 페이지로
+ * 옮기고 여기선 링크만 제공한다.
+ */
 function ClassManagementStep({
   token,
   organizationId,
@@ -116,24 +118,7 @@ function ClassManagementStep({
   user: UserSummary;
 }) {
   const navigate = useNavigate();
-  const [classes, setClasses] = useState<ClassResponse[] | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [name, setName] = useState('');
-  const [initialPassword, setInitialPassword] = useState('');
-  const [formError, setFormError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [inviteByClassId, setInviteByClassId] = useState<Record<string, string>>({});
   const [entitlement, setEntitlement] = useState<EntitlementResponse | null>(null);
-
-  const reload = useCallback(() => {
-    listClasses(token, organizationId)
-      .then(setClasses)
-      .catch((failure) =>
-        setLoadError(failure instanceof AuthApiError ? failure.message : '반 목록을 불러오지 못했어요.'),
-      );
-  }, [token, organizationId]);
-
-  useEffect(reload, [reload]);
 
   useEffect(() => {
     let cancelled = false;
@@ -142,47 +127,21 @@ function ClassManagementStep({
         if (!cancelled) setEntitlement(response);
       })
       .catch(() => {
-        // 구독 상태는 부가 정보라 조회 실패해도 반 관리 자체는 그대로 쓸 수 있어야 한다.
+        // 구독 상태는 부가 정보라 조회 실패해도 대시보드 자체는 그대로 쓸 수 있어야 한다.
       });
     return () => {
       cancelled = true;
     };
   }, [token, organizationId]);
 
-  const onCreateClass = useCallback(async () => {
-    setFormError(null);
-    setSubmitting(true);
-    try {
-      await createClass(token, organizationId, { name: name.trim(), initialPassword });
-      setName('');
-      setInitialPassword('');
-      reload();
-    } catch (failure) {
-      setFormError(failure instanceof AuthApiError ? failure.message : '반을 만들지 못했어요. 다시 시도해 주세요.');
-    } finally {
-      setSubmitting(false);
-    }
-  }, [token, organizationId, name, initialPassword, reload]);
-
-  const onCreateInvite = useCallback(
-    async (classId: string) => {
-      try {
-        const invite = await createClassInvite(token, classId);
-        const shareUrl = `${globalThis.location?.origin ?? ''}/signup?invite=${invite.token}`;
-        setInviteByClassId((prev) => ({ ...prev, [classId]: shareUrl }));
-      } catch {
-        // 초대 링크 생성 실패는 그 반 카드에만 조용히 남겨둔다 - 다시 누르면 재시도된다.
-      }
-    },
-    [token],
-  );
-
   return (
     <AppNavShell items={dashboardNavItems(user, navigate, 'home')}>
       <View style={styles.scroll}>
         <View style={styles.card}>
-          <Text style={styles.title} accessibilityRole="header">반 관리</Text>
-
+          <Text style={styles.title} accessibilityRole="header">기관 관리자 대시보드</Text>
+          <Text style={styles.body}>
+            반과 학생, 소속 선생님, 이용 현황을 이곳에서 한눈에 관리해요.
+          </Text>
           {/*
             entitlement.grantsAccess=false는 requiresEntitlement=true인 작품만 막는다
             (EntitlementService.assertAccessible) - 지금 카탈로그의 유일한 작품(HG)은
@@ -201,61 +160,49 @@ function ClassManagementStep({
               }
             />
           )}
-
-          <View style={styles.subCard}>
-            <Text style={styles.cardTitle}>새 반 만들기</Text>
-            <TextField label="반 이름" value={name} onChangeText={setName} />
-            <TextField
-              label="반 계정 초기 비밀번호"
-              value={initialPassword}
-              onChangeText={setInitialPassword}
-              secureTextEntry
-              errorText={formError ?? undefined}
-            />
-            <ActionButton
-              label="반 만들기"
-              loading={submitting}
-              onPress={onCreateClass}
-              disabled={!name.trim() || !initialPassword}
-            />
-          </View>
-
-          <View style={styles.subCard}>
-            <Text style={styles.cardTitle}>선생님 관리</Text>
-            <Text style={styles.panelBody}>
-              소속 선생님을 초대하고 관리해요. 초대 코드나 링크를 전달하면 선생님이 소속을 수락할 수 있어요.
-            </Text>
-            <ActionButton
-              variant="secondaryFull"
-              label="선생님 관리 열기"
-              onPress={() => navigate('/organization/tutors')}
-            />
-          </View>
         </View>
 
-        <View style={styles.panel}>
-          <Text style={styles.panelTitle}>등록된 반</Text>
-          {loadError ? <Text style={styles.errorText}>{loadError}</Text> : null}
-          {classes?.length === 0 ? <Text style={styles.panelBody}>아직 등록된 반이 없어요.</Text> : null}
-          {classes?.map((classGroup) => (
-            <View key={classGroup.id} style={styles.classRow}>
-              <Text style={styles.storyTitle}>{classGroup.name}</Text>
-              <Text style={styles.storyMeta}>반 코드: {classGroup.joinCode}</Text>
-              <ActionButton
-                variant="secondaryFull"
-                label="1회용 초대 링크 만들기"
-                onPress={() => onCreateInvite(classGroup.id)}
-              />
-              {inviteByClassId[classGroup.id] ? (
-                <Text selectable style={styles.inviteUrl}>
-                  {inviteByClassId[classGroup.id]}
-                </Text>
-              ) : null}
-            </View>
-          ))}
+        <View style={styles.dashboardGrid}>
+          <DashboardCard
+            title="반/학생 관리"
+            body="반을 만들고 반에 참여한 부모(학생) 목록을 확인해요."
+            onPress={() => navigate('/organization/classes')}
+          />
+          <DashboardCard
+            title="선생님 관리"
+            body="소속 선생님을 초대하고 관리해요."
+            onPress={() => navigate('/organization/tutors')}
+          />
+          <DashboardCard
+            title="이용 현황"
+            body="기관 전체의 최근 완주 활동과 요약 지표를 확인해요."
+            onPress={() => navigate('/organization/usage')}
+          />
+          <DashboardCard
+            title="이용권 · 라이선스"
+            body="기관 구독 상태와 활성 이용 범위를 확인해요."
+            onPress={() => navigate('/organization/subscription')}
+          />
         </View>
       </View>
     </AppNavShell>
+  );
+}
+
+function DashboardCard({ title, body, onPress }: { title: string; body: string; onPress: () => void }) {
+  return (
+    <Pressable
+      accessibilityRole="link"
+      accessibilityLabel={title}
+      onPress={onPress}
+      style={({ pressed }) => [styles.dashboardCard, pressed && styles.dashboardCardPressed]}
+    >
+      <View style={styles.dashboardCardText}>
+        <Text style={styles.dashboardCardTitle}>{title}</Text>
+        <Text style={styles.dashboardCardBody}>{body}</Text>
+      </View>
+      <Icon name="chevronRight" size={16} color={storybookTheme.color.onCardMuted} />
+    </Pressable>
   );
 }
 
@@ -280,36 +227,32 @@ const styles = StyleSheet.create({
     paddingVertical: 28,
     gap: 14,
   },
-  subCard: {
-    gap: 10,
-    marginTop: 4,
-    paddingTop: 14,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
-  },
   title: { fontSize: storybookTheme.type.lg, fontWeight: '900', color: storybookTheme.color.onCardTitle },
   body: { fontSize: storybookTheme.type.sm, lineHeight: 21, color: storybookTheme.color.onCardBody },
-  cardTitle: { fontSize: storybookTheme.type.md, fontWeight: '700', color: storybookTheme.color.onCardTitle },
-  errorText: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.error },
-  panel: {
-    width: '100%',
-    gap: 4,
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+  dashboardGrid: {
+    gap: 10,
+  },
+  dashboardCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    padding: 18,
     borderRadius: storybookTheme.radius.card,
+    backgroundColor: storybookTheme.color.surfaceCard,
     borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    borderColor: storybookTheme.color.surfaceCardBorder,
   },
-  panelTitle: { fontSize: storybookTheme.type.md, fontWeight: '900', color: storybookTheme.color.onDark, marginBottom: 6 },
-  panelBody: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onDarkMuted },
-  classRow: {
-    gap: 8,
-    paddingVertical: 14,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.panelOnDarkBorder,
+  dashboardCardPressed: { opacity: 0.85 },
+  dashboardCardText: { flex: 1, gap: 4 },
+  dashboardCardTitle: {
+    fontSize: storybookTheme.type.md,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.onCardTitle,
   },
-  storyTitle: { fontSize: storybookTheme.type.sm, fontWeight: '700', color: storybookTheme.color.onDark },
-  storyMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onDarkMuted },
-  inviteUrl: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.linkOnDark },
+  dashboardCardBody: {
+    fontSize: storybookTheme.type.xs,
+    color: storybookTheme.color.onCardMuted,
+    lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
+  },
 });

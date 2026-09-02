@@ -96,6 +96,12 @@ const OrgInviteAcceptPage = lazy(() =>
 const TutorJoinOrganizationPage = lazy(() =>
   import('@/pages/tutor-join-organization').then((m) => ({ default: m.TutorJoinOrganizationPage })),
 );
+const TutorLessonDetailPage = lazy(() =>
+  import('@/pages/tutor-lesson-detail').then((m) => ({ default: m.TutorLessonDetailPage })),
+);
+const TutorStudentDetailPage = lazy(() =>
+  import('@/pages/tutor-student-detail').then((m) => ({ default: m.TutorStudentDetailPage })),
+);
 const StoryPlayerRoute = lazy(() =>
   import('@/pages/story-player').then((m) => ({ default: m.StoryPlayerRoute })),
 );
@@ -199,6 +205,8 @@ export function App() {
             <Route path="/org-invite/code/:code" element={<OrgInviteAcceptPage />} />
             <Route path="/tutor/students/new" element={<TutorStudentNewPage />} />
             <Route path="/tutor/students" element={<TutorStudentsPage />} />
+            <Route path="/tutor/students/:studentId" element={<TutorStudentDetailPage />} />
+            <Route path="/tutor/lessons/:lessonId" element={<TutorLessonDetailPage />} />
             <Route path="/tutor/schedule" element={<TutorScheduleListPage />} />
             <Route path="/tutor-invite/:token" element={<ParentLinkAcceptPage />} />
             <Route path="/tutor-invite/code/:code" element={<ParentLinkAcceptPage />} />

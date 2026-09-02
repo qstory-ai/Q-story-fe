@@ -94,6 +94,11 @@ export function TutorStudentsPage() {
                 label="이야기 시작하기"
                 onPress={() => navigate(`/stories/${DEFAULT_BETA_STORY_ID}/play?tutorStudentId=${student.id}`)}
               />
+              <ActionButton
+                variant="secondaryFull"
+                label="상세 · 메모 편집"
+                onPress={() => navigate(`/tutor/students/${student.id}`)}
+              />
               {student.status === 'PENDING_PARENT' ? (
                 <ActionButton
                   variant="secondaryFull"

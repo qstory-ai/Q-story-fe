@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Icon, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
-  AuthApiError,
   createOrganization,
   dashboardNavItems,
   fetchEntitlement,
@@ -12,6 +11,7 @@ import {
   type EntitlementResponse,
   type UserSummary,
 } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
 
 const SUBSCRIPTION_LABEL: Record<EntitlementResponse['subscriptionStatus'], string> = {
   NONE: '구독 전',
@@ -77,7 +77,7 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
       const response = await createOrganization(token, { name: name.trim() });
       setSession(response.token, response.user);
     } catch (failure) {
-      setError(failure instanceof AuthApiError ? failure.message : '기관 및 단체를 등록하지 못했어요. 다시 시도해 주세요.');
+      setError(messageForError(failure, '기관 및 단체를 등록하지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }

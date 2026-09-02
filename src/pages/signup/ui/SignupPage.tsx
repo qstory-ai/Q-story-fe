@@ -3,7 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ActionButton, Checkbox, RadioGroup, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
-import { AuthApiError, homePathFor, joinClass, signupOrganizationOwner, signupParent, useAuth } from '@/entities/auth';
+import { homePathFor, joinClass, signupOrganizationOwner, signupParent, useAuth } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
 import {
   EMPTY_TERMS_CONSENT,
   TermsConsent,
@@ -84,7 +85,13 @@ export function SignupPage() {
         navigate('/onboarding/parent', { replace: true });
       }
     } catch (failure) {
-      setError(failure instanceof AuthApiError ? failure.message : '가입하지 못했어요. 다시 시도해 주세요.');
+      const fallback =
+        role === 'DIRECTOR'
+          ? '기관 관리자 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
+          : useJoinFlow
+            ? '반 코드로 가입하지 못했어요. 반 코드와 입력값을 다시 확인해 주세요.'
+            : '학부모 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.';
+      setError(messageForError(failure, fallback));
     } finally {
       setSubmitting(false);
     }

@@ -3,7 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
-import { AuthApiError, confirmPasswordReset, requestPasswordReset, useAuth } from '@/entities/auth';
+import { confirmPasswordReset, requestPasswordReset, useAuth } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
 import { homePathFor } from '@/pages/login';
 
 /**
@@ -88,7 +89,7 @@ function ConfirmStep({ token }: { token: string }) {
       navigate(homePathFor(response.user), { replace: true });
     } catch (failure) {
       setError(
-        failure instanceof AuthApiError ? failure.message : '비밀번호를 바꾸지 못했어요. 다시 시도해 주세요.',
+        messageForError(failure, '비밀번호를 바꾸지 못했어요. 재설정 링크가 만료됐거나 이미 사용됐을 수 있어요.'),
       );
     } finally {
       setSubmitting(false);

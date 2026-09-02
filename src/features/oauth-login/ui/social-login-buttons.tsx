@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { storybookTheme } from '@/shared/ui';
+import { messageForError, type ApiErrorLike } from '@/shared/api';
 import {
-  AuthApiError,
   googleOAuthConfigured,
   kakaoOAuthConfigured,
   oauthLogin,
@@ -38,13 +38,13 @@ export function SocialLoginButtons({ role, onAuthed, onDark = true }: SocialLogi
   const [kakaoSubmitting, setKakaoSubmitting] = useState(false);
 
   const handleFailure = useCallback((failure: unknown) => {
-    setError(
-      failure instanceof AuthApiError
-        ? failure.code === 'OAUTH_ROLE_REQUIRED'
-          ? '아직 가입되지 않은 계정이에요. 역할을 선택해서 먼저 가입해 주세요.'
-          : failure.message
-        : '로그인하지 못했어요. 다시 시도해 주세요.',
-    );
+    // OAUTH_ROLE_REQUIRED는 사전 카피(회원가입 유도)로 덮어 쓰고, 나머지는 공통 유틸에 맡긴다.
+    const code = (failure as ApiErrorLike | null)?.code;
+    if (code === 'OAUTH_ROLE_REQUIRED') {
+      setError('아직 가입되지 않은 계정이에요. 역할을 선택해서 먼저 가입해 주세요.');
+      return;
+    }
+    setError(messageForError(failure, '소셜 로그인에 실패했어요. 다시 시도해 주세요.'));
   }, []);
 
   useEffect(() => {

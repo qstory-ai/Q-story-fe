@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, BrandLockup, Checkbox, TextField, storybookTheme } from '@/shared/ui';
 import {
-  AuthApiError,
   createOrganization,
   homePathFor,
   joinClass,
@@ -15,6 +14,7 @@ import {
   useAuth,
   type UserSummary,
 } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
 import { SocialLoginButtons } from '@/features/oauth-login';
 
 type OnAuthed = (token: string, user: UserSummary) => void;
@@ -270,7 +270,15 @@ function SignUpStep({ role, onAuthed }: { role: OnboardingRole; onAuthed: OnAuth
             : await signupParent(input);
       onAuthed(response.token, response.user);
     } catch (failure) {
-      setError(failure instanceof AuthApiError ? failure.message : '가입하지 못했어요. 다시 시도해 주세요.');
+      const fallback =
+        role === 'DIRECTOR'
+          ? '기관 관리자 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
+          : role === 'TUTOR'
+            ? '선생님 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
+            : hasClass
+              ? '반 코드로 가입하지 못했어요. 반 코드와 입력값을 확인해 주세요.'
+              : '학부모 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.';
+      setError(messageForError(failure, fallback));
     } finally {
       setSubmitting(false);
     }
@@ -333,7 +341,7 @@ function SignInStep({ onAuthed }: { onAuthed: OnAuthed }) {
       const response = await login({ loginId: loginId.trim(), password });
       onAuthed(response.token, response.user);
     } catch (failure) {
-      setError(failure instanceof AuthApiError ? failure.message : '로그인하지 못했어요. 다시 시도해 주세요.');
+      setError(messageForError(failure, '로그인하지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }

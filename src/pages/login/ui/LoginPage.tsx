@@ -3,7 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
-import { AuthApiError, homePathFor, login, useAuth, type UserSummary } from '@/entities/auth';
+import { homePathFor, login, useAuth, type UserSummary } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
 import { SocialLoginButtons } from '@/features/oauth-login';
 
 /** Role-agnostic - loginId is an email for DIRECTOR/PARENT or a director-issued handle for CLASS_ACCOUNT. */
@@ -23,7 +24,7 @@ export function LoginPage() {
       setSession(response.token, response.user);
       navigate(homePathFor(response.user), { replace: true });
     } catch (failure) {
-      setError(failure instanceof AuthApiError ? failure.message : '로그인하지 못했어요. 다시 시도해 주세요.');
+      setError(messageForError(failure, '로그인하지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }

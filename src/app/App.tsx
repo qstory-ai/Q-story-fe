@@ -16,6 +16,13 @@ import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
 import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
 
 const HomePage = lazy(() => import('@/pages/home').then((m) => ({ default: m.HomePage })));
+const TutorialPage = lazy(() => import('@/pages/tutorial').then((m) => ({ default: m.TutorialPage })));
+const OnboardingParentPage = lazy(() =>
+  import('@/pages/onboarding-parent').then((m) => ({ default: m.OnboardingParentPage })),
+);
+const OnboardingTutorPage = lazy(() =>
+  import('@/pages/onboarding-tutor').then((m) => ({ default: m.OnboardingTutorPage })),
+);
 const OneStoryPage = lazy(() => import('@/pages/one-story').then((m) => ({ default: m.OneStoryPage })));
 const LoginPage = lazy(() => import('@/pages/login').then((m) => ({ default: m.LoginPage })));
 const JoinClassPage = lazy(() => import('@/pages/join-class').then((m) => ({ default: m.JoinClassPage })));
@@ -197,6 +204,9 @@ export function App() {
         <Suspense fallback={<View style={styles.container} />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/tutorial" element={<TutorialPage />} />
+            <Route path="/onboarding/parent" element={<OnboardingParentPage />} />
+            <Route path="/onboarding/tutor" element={<OnboardingTutorPage />} />
             <Route path="/landing" element={<LandingPage />} />
             <Route path="/demo" element={<DemoStoryRoute />} />
             <Route path="/login" element={<LoginPage />} />

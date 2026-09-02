@@ -88,10 +88,17 @@ export function OnboardingFlow({ initialStep = 'welcome', initialRole, onExit }:
 
   // 방금 가입해 세션은 이미 생겼지만, 홈으로 보내기 전에 가치 제안 캐러셀을 한 번 보여준다 -
   // 이 계정이 존재하는 한 다시 로그인해도 나오지 않는, 통틀어 딱 한 번뿐인 순간이다.
+  // 캐러셀이 끝나면 역할별 온보딩(부모 아이 등록, 선생님 소속 설정)으로 이어지고, 온보딩이
+  // 끝나면 그때 각 역할의 실제 홈으로 진입한다.
   const onSignedUp: OnAuthed = useCallback(
     (token, user) => {
       setSession(token, user);
-      setPendingHomePath(homePathFor(user));
+      const nextAfterCarousel = user.role === 'PARENT'
+        ? '/onboarding/parent'
+        : user.role === 'TUTOR'
+          ? '/onboarding/tutor'
+          : homePathFor(user);
+      setPendingHomePath(nextAfterCarousel);
       go('value-onboarding');
     },
     [setSession, go],

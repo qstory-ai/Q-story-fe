@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Modal, StatusBanner, TextareaField } from '@/shared/ui';
-import { FeedbackApiError, submitFeedback } from '@/entities/feedback';
+import { messageForError } from '@/shared/api';
+import { submitFeedback } from '@/entities/feedback';
 
 /**
  * 마이페이지에서 여는 개선사항 요청 오버레이 - 예전엔 /mypage/feedback 전체 화면 라우트였는데,
@@ -38,7 +39,7 @@ export function FeedbackModal({
       setMessage('');
       setSubmitted(true);
     } catch (err) {
-      setError(err instanceof FeedbackApiError ? err.message : '제출하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      setError(messageForError(err, '의견을 보내지 못했어요. 네트워크를 확인 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }

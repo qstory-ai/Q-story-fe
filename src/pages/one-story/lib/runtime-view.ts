@@ -14,6 +14,16 @@ export function formatReportDuration(durationSeconds: number | null) {
   return `${minutes}분`;
 }
 
+/**
+ * commitEvent()의 이야기 상태 전이 실패 - 예전엔 `INVALID_TRANSITION_playing-fixed_...`
+ * 같은 기술 코드를 그대로 부모 메시지로 노출했다. 코드는 analytics로 보내되, 화면에는
+ * 상황 카피만 붙이도록 이 함수가 대신한다. 다양한 code가 있지만 사용자 관점에서 굳이
+ * 갈라 안내할 만한 종류가 아직 없어(공통 "다시 시도" 패턴), 한 문장으로 통일한다.
+ */
+export function runtimeTransitionFailureCopy(_code: string) {
+  return '이야기 흐름을 이어가지 못했어요. 잠시 뒤 다시 시도해 주세요.';
+}
+
 export function questionFailureCopy(failure: FailureReason) {
   const detail = failure.safeDetail?.trim();
   if (

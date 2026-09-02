@@ -71,6 +71,7 @@ import {
   getSceneIndex as getSceneIndexForPackage,
   questionFailureCopy,
   questionPrompt,
+  runtimeTransitionFailureCopy,
 } from '../lib/runtime-view';
 import { preloadImages } from '../lib/preload-images';
 import { playResponseWithFallback } from '../lib/play-clip-with-fallback';
@@ -306,9 +307,9 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
       event,
     );
     if (!transition.ok) {
-      setParentMessage(
-        `이야기 흐름을 이어가지 못했어요. (${transition.failure.code})`,
-      );
+      // 코드는 노출하지 않는다 - 사용자에게는 STALE_REVISION 같은 기술 문구 대신 상황별 카피만
+      // 보여주고, 코드는 위 analytics 이벤트로만 전송된다.
+      setParentMessage(runtimeTransitionFailureCopy(transition.failure.code));
       return false;
     }
     runtimeRef.current = transition.state;

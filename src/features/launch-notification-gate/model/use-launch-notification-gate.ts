@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react';
 
 import {
-  LaunchNotificationApiError,
   submitLaunchNotification,
   type ChildGender,
 } from '@/entities/launch-notification';
+import { messageForError } from '@/shared/api';
 
 const STORAGE_KEY = 'qstory-launch-notification-submitted';
 
@@ -95,11 +95,7 @@ export function useLaunchNotificationGate(accountId: string | null) {
         writePassed(storageKey);
         setPassed(true);
       } catch (failure) {
-        setError(
-          failure instanceof LaunchNotificationApiError
-            ? failure.message
-            : '신청을 저장하지 못했어요. 다시 시도해 주세요.',
-        );
+        setError(messageForError(failure, '신청 정보를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.'));
       } finally {
         setSubmittingIntent(null);
       }

@@ -1,9 +1,7 @@
 import { useCallback, useState } from 'react';
 
-import {
-  CompletionSurveyApiError,
-  submitCompletionSurvey,
-} from '@/entities/completion-survey';
+import { submitCompletionSurvey } from '@/entities/completion-survey';
+import { messageForError } from '@/shared/api';
 
 export const CHILD_AGE_BAND_OPTIONS = ['5세 이하', '6세', '7세', '8세', '9세', '10세 이상'];
 
@@ -176,11 +174,7 @@ export function useCompletionSurvey(storyId: string) {
       });
       setSubmitted(true);
     } catch (failure) {
-      setError(
-        failure instanceof CompletionSurveyApiError
-          ? failure.message
-          : '후기를 저장하지 못했어요. 다시 시도해 주세요.',
-      );
+      setError(messageForError(failure, '후기를 저장하지 못했어요. 네트워크를 확인 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }

@@ -1,130 +1,14 @@
-import { useCallback, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-
-import { ActionButton, Checkbox, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
-import { joinClass, signupParent, useAuth } from '@/entities/auth';
-import { messageForError } from '@/shared/api';
+import { Navigate, useSearchParams } from 'react-router-dom';
 
 /**
- * This is parent signup - there is no separate "parent signup" page/route. Two backend paths
- * feed the same screen: ClassService.join() (exactly one of classCode/inviteToken) for a parent
- * whose child is enrolled in a partnered kindergarten, or AuthService.signupParent() (no class at
- * all) for a parent who isn't - the "우리 아이 반이 있어요" checkbox picks between them. An invite
- * link already answers that question, so the checkbox only shows without one.
+ * "학부모가 반 코드/초대로 가입" 흐름은 이제 홈("/")의 OnboardingFlow로 흡수됐다. `/join`은
+ * PARENT role의 sign-up 스텝으로 곧장 이동시키는 얇은 리다이렉트로 남는다 - `?invite=<token>`
+ * 이 있으면 그대로 넘겨주고, 없으면 sign-up의 기본값(hasClass=true)이 반 코드 입력을 붙여 준다.
  */
 export function JoinClassPage() {
-  const navigate = useNavigate();
-  const { setSession } = useAuth();
   const [searchParams] = useSearchParams();
-  const inviteToken = searchParams.get('invite');
-
-  const [hasClass, setHasClass] = useState(true);
-  const [classCode, setClassCode] = useState('');
-  const [loginId, setLoginId] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  const useJoinFlow = Boolean(inviteToken) || hasClass;
-  const showClassCodeField = !inviteToken && hasClass;
-
-  const onSubmit = useCallback(async () => {
-    setError(null);
-    setSubmitting(true);
-    try {
-      const input = { loginId: loginId.trim(), email: email.trim(), password, displayName: displayName.trim() };
-      const response = useJoinFlow
-        ? await joinClass({
-            ...(inviteToken ? { inviteToken } : { classCode: classCode.trim().toUpperCase() }),
-            ...input,
-          })
-        : await signupParent(input);
-      setSession(response.token, response.user);
-      navigate('/parent', { replace: true });
-    } catch (failure) {
-      const fallback = useJoinFlow
-        ? '반 코드로 가입하지 못했어요. 반 코드와 입력값을 다시 확인해 주세요.'
-        : '학부모 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.';
-      setError(messageForError(failure, fallback));
-    } finally {
-      setSubmitting(false);
-    }
-  }, [inviteToken, useJoinFlow, classCode, loginId, email, password, displayName, navigate, setSession]);
-
-  const canSubmit =
-    (showClassCodeField ? classCode.trim().length > 0 : true) &&
-    loginId.trim() &&
-    email.trim() &&
-    password &&
-    displayName.trim();
-
-  return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title} accessibilityRole="header">학부모 가입</Text>
-        {inviteToken ? (
-          <Text style={styles.body}>초대 링크로 반이 확인됐어요.</Text>
-        ) : (
-          <>
-            <Checkbox checked={hasClass} onChange={setHasClass} label="기관/단체에서 코드를 받았어요" />
-            {hasClass ? (
-              <TextField
-                label="반 코드"
-                value={classCode}
-                onChangeText={setClassCode}
-                autoCapitalize="characters"
-                placeholder="선생님께 받은 코드"
-              />
-            ) : (
-              <Text style={styles.body}>반 코드 없이 학부모 계정만 만들어요.</Text>
-            )}
-          </>
-        )}
-        <TextField label="아이디" value={loginId} onChangeText={setLoginId} placeholder="로그인에 쓸 아이디" />
-        <TextField label="이메일" value={email} onChangeText={setEmail} keyboardType="email-address" />
-        <TextField label="비밀번호" value={password} onChangeText={setPassword} secureTextEntry />
-        <TextField
-          label="이름"
-          value={displayName}
-          onChangeText={setDisplayName}
-          errorText={error ?? undefined}
-        />
-        <ActionButton
-          label={submitting ? '가입 중…' : '가입하기'}
-          onPress={onSubmit}
-          disabled={submitting || !canSubmit}
-        />
-      </View>
-    </SafeAreaView>
-  );
+  const invite = searchParams.get('invite');
+  const qs = new URLSearchParams({ flow: 'sign-up', role: 'parent' });
+  if (invite) qs.set('invite', invite);
+  return <Navigate to={`/?${qs.toString()}`} replace />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: storybookTheme.color.shellBackground,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    gap: 16,
-    paddingHorizontal: 32,
-    maxWidth: 420,
-    width: '100%',
-    alignSelf: 'center',
-  },
-  title: {
-    fontSize: storybookTheme.type.lg,
-    fontWeight: '900',
-    color: storybookTheme.color.onLightHeading,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  body: {
-    fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.onLightBody,
-  },
-});

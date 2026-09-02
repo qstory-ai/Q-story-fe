@@ -3,13 +3,13 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
-import { homePathFor, login, useAuth, AuthApiError } from '@/entities/auth';
+import { homePathFor, login, useAuth } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
 import {
   acceptTutorInvite,
   acceptTutorInviteByCode,
   previewTutorInvite,
   previewTutorInviteByCode,
-  TutorApiError,
   type TutorInvitePreview,
 } from '@/entities/tutor';
 
@@ -59,7 +59,9 @@ export function ParentLinkAcceptPage() {
         setStage('preview');
       })
       .catch((failure) => {
-        setErrorMessage(failure instanceof TutorApiError ? failure.message : '초대 링크를 확인하지 못했어요.');
+        setErrorMessage(
+          messageForError(failure, isCodeFlow ? '초대 코드를 확인하지 못했어요.' : '초대 링크를 확인하지 못했어요.'),
+        );
         setStage('error');
       });
   }, [identifier, isCodeFlow]);
@@ -77,7 +79,7 @@ export function ParentLinkAcceptPage() {
       }
       setStage('consent');
     } catch (failure) {
-      setErrorMessage(failure instanceof AuthApiError ? failure.message : '로그인하지 못했어요. 다시 시도해 주세요.');
+      setErrorMessage(messageForError(failure, '로그인하지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }
@@ -98,7 +100,7 @@ export function ParentLinkAcceptPage() {
       setSession(response.token, response.user);
       navigate(homePathFor(response.user), { replace: true });
     } catch (failure) {
-      setErrorMessage(failure instanceof TutorApiError ? failure.message : '연결을 완료하지 못했어요. 다시 시도해 주세요.');
+      setErrorMessage(messageForError(failure, '연결을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }

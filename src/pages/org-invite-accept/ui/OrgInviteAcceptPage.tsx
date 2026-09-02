@@ -4,10 +4,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { homePathFor, useAuth } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
 import {
   acceptOrganizationTutorInvite,
   acceptOrganizationTutorInviteByCode,
-  OrganizationTutorApiError,
   previewOrganizationTutorInvite,
   previewOrganizationTutorInviteByCode,
   type OrganizationTutorInvitePreview,
@@ -46,10 +46,9 @@ export function OrgInviteAcceptPage() {
         setStage('preview');
       })
       .catch((failure: unknown) => {
-        const message = failure instanceof OrganizationTutorApiError
-          ? failure.message
-          : '초대를 확인하지 못했어요.';
-        setErrorMessage(message);
+        setErrorMessage(
+          messageForError(failure, isCodeFlow ? '초대 코드를 확인하지 못했어요.' : '초대 링크를 확인하지 못했어요.'),
+        );
         setStage('error');
       });
   }, [identifier, isCodeFlow]);
@@ -81,10 +80,7 @@ export function OrgInviteAcceptPage() {
       }
       setStage('success');
     } catch (failure: unknown) {
-      const message = failure instanceof OrganizationTutorApiError
-        ? failure.message
-        : '수락에 실패했어요. 잠시 후 다시 시도해 주세요.';
-      setErrorMessage(message);
+      setErrorMessage(messageForError(failure, '초대 수락에 실패했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }

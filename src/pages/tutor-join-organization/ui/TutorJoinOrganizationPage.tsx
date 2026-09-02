@@ -6,9 +6,9 @@ import { ActionButton, AppNavShell, TextField, storybookTheme } from '@/shared/u
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
   listMyOrganizations,
-  OrganizationTutorApiError,
   type TutorOrganizationLink,
 } from '@/entities/organization-tutor';
+import { messageForError } from '@/shared/api';
 
 type OrgsLoad = { status: 'loading' } | { status: 'ready'; organizations: TutorOrganizationLink[] } | { status: 'error'; message: string };
 
@@ -42,10 +42,10 @@ export function TutorJoinOrganizationPage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof OrganizationTutorApiError
-          ? failure.message
-          : '소속 기관을 불러오지 못했어요.';
-        setOrgs({ status: 'error', message });
+        setOrgs({
+          status: 'error',
+          message: messageForError(failure, '소속 기관을 불러오지 못했어요. 네트워크 상태를 확인해 주세요.'),
+        });
       });
     return () => {
       cancelled = true;

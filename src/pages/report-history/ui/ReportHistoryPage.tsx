@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, useAuth } from '@/entities/auth';
+import { findChildAvatar, useChildren } from '@/entities/child';
 import { listStories, StoryApiError } from '@/entities/story';
 import { formatReportDuration } from '@/pages/one-story';
 import {
@@ -56,8 +57,11 @@ function formatCompletedAt(iso: string) {
 export function ReportHistoryPage() {
   const navigate = useNavigate();
   const { state } = useAuth();
+  const { children } = useChildren();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [tab, setTab] = useState<Tab>('comprehensive');
+  // null = "전체 아이" 필터. children이 하나뿐일 땐 UI에서도 그 아이가 자동 선택된 것처럼 취급.
+  const [childFilterId, setChildFilterId] = useState<string | null>(null);
 
   const canView = state.status === 'authenticated' && (state.user.role === 'PARENT' || state.user.role === 'CLASS_ACCOUNT');
 
@@ -71,12 +75,13 @@ export function ReportHistoryPage() {
   useEffect(() => {
     if (state.status !== 'authenticated') return;
     let cancelled = false;
+    const filters = childFilterId ? { childId: childFilterId } : undefined;
     Promise.all([
-      listStoryCompletions(state.token),
+      listStoryCompletions(state.token, filters),
       listStories(),
       // 종합/트렌드 카드는 부가 기능이므로, 이 두 호출이 실패해도(예: 구버전 백엔드) 목록 자체는
       // 계속 동작해야 한다 - 실패를 빈 배열로 흡수해 각각 조용히 null/empty가 되게 한다.
-      listRecentStoryCompletions(state.token, COMPREHENSIVE_LIMIT).catch(
+      listRecentStoryCompletions(state.token, COMPREHENSIVE_LIMIT, filters).catch(
         () => [] as StoryCompletionDetail[],
       ),
     ])
@@ -105,7 +110,7 @@ export function ReportHistoryPage() {
     return () => {
       cancelled = true;
     };
-  }, [state]);
+  }, [state, childFilterId]);
 
   const emptyMessageForTab = useMemo(() => {
     if (tab === 'comprehensive') {
@@ -121,6 +126,30 @@ export function ReportHistoryPage() {
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">리포트</Text>
         <Text style={styles.subtitle}>아이의 요즘 흐름을 종합해 보고, 개별 이야기 기록도 다시 볼 수 있어요.</Text>
+
+        {children.length > 0 ? (
+          <View style={styles.childFilterRow}>
+            <ChildFilterChip
+              label="전체 아이"
+              selected={childFilterId === null}
+              onPress={() => setChildFilterId(null)}
+            />
+            {children.map((child) => (
+              <ChildFilterChip
+                key={child.id}
+                label={`${findChildAvatar(child.avatarKey).emoji} ${child.name}`}
+                selected={childFilterId === child.id}
+                onPress={() => setChildFilterId(child.id)}
+              />
+            ))}
+          </View>
+        ) : null}
+
+        {childFilterId ? (
+          <Text style={styles.filterNote}>
+            선택된 아이로 진행한 기록만 표시 중이에요. 아이 프로필이 지정되지 않은 이전 기록은 &lsquo;전체 아이&rsquo;에서 볼 수 있어요.
+          </Text>
+        ) : null}
 
         <View style={styles.tabRow}>
           <TabButton label="종합 리포트" active={tab === 'comprehensive'} onPress={() => setTab('comprehensive')} />
@@ -385,6 +414,23 @@ function TabButton({ label, active, onPress }: { label: string; active: boolean;
   );
 }
 
+function ChildFilterChip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityState={{ selected }}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.childFilterChip,
+        selected && styles.childFilterChipActive,
+        pressed && styles.tabPressed,
+      ]}
+    >
+      <Text style={[styles.childFilterLabel, selected && styles.childFilterLabelActive]}>{label}</Text>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   content: {
     flex: 1,
@@ -406,6 +452,29 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onDarkMuted,
   },
   tabRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 4 },
+  childFilterRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  childFilterChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: storybookTheme.radius.pill,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.panelOnDarkBorder,
+  },
+  childFilterChipActive: {
+    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    borderColor: storybookTheme.color.gold,
+  },
+  childFilterLabel: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.semibold,
+    color: storybookTheme.color.onDarkMuted,
+  },
+  childFilterLabelActive: { color: storybookTheme.color.gold },
+  filterNote: {
+    fontSize: storybookTheme.type.xs,
+    color: storybookTheme.color.onDarkMuted,
+    marginTop: -6,
+  },
   tab: {
     paddingHorizontal: 14,
     paddingVertical: 8,

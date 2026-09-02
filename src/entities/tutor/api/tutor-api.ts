@@ -84,6 +84,19 @@ export function listTutorStudents(token: string, options?: RequestOptions): Prom
   return request('/v1/tutor-students', { method: 'GET' }, token, options);
 }
 
+export function getTutorStudent(token: string, studentId: string, options?: RequestOptions): Promise<TutorStudent> {
+  return request(`/v1/tutor-students/${studentId}`, { method: 'GET' }, token, options);
+}
+
+export function updateTutorStudent(
+  token: string,
+  studentId: string,
+  input: { classType?: string | null; prepNote?: string | null },
+  options?: RequestOptions,
+): Promise<TutorStudent> {
+  return request(`/v1/tutor-students/${studentId}`, { method: 'PATCH', body: JSON.stringify(input) }, token, options);
+}
+
 export function createTutorSchedule(
   token: string,
   studentId: string,

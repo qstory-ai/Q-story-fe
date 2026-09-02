@@ -50,7 +50,10 @@ export async function requestJson<T, E extends Error>(
     } catch {
       // 실패 응답 본문을 읽지 못하면 아래 기본 메시지로 대체한다.
     }
-    throw new ErrorCtor(safeDetail ?? `요청을 처리하지 못했어요. (HTTP ${response.status})`, code, response.status);
+    // safeDetail이 없어도 code/status는 실려 나가므로 호출부의 messageForError()가 상태별
+    // 카피로 대체할 수 있다. 여기서 (HTTP xxx) 같은 기술 문구를 넣으면 UI가 그걸 그대로
+    // 보여줘 사용자에게 노출될 위험이 있어, 빈 문자열로 남긴다(호출부 fallback 우선).
+    throw new ErrorCtor(safeDetail ?? '', code, response.status);
   }
   if (!parseResponse || response.status === 204) return undefined as T;
   return (await response.json()) as T;

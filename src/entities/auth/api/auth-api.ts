@@ -50,6 +50,15 @@ export type ClassInviteResponse = {
   expiresAt: string;
 };
 
+/** IA "반 상세 > 반에 속한 부모(학생)" 목록 응답. childName은 PARENT 계정에서만 채워진다. */
+export type ClassMemberResponse = {
+  id: string;
+  displayName: string;
+  email: string | null;
+  childName: string | null;
+  joinedAt: string;
+};
+
 export type RequestOptions = SharedRequestOptions;
 
 /**
@@ -221,6 +230,15 @@ export function createClassInvite(
   options?: RequestOptions,
 ): Promise<ClassInviteResponse> {
   return request(`/v1/classes/${classId}/invites`, { method: 'POST' }, { ...options, token });
+}
+
+/** 반에 속한 부모 목록 - DIRECTOR나 그 반의 CLASS_ACCOUNT만 접근 가능. */
+export function listClassParents(
+  token: string,
+  classId: string,
+  options?: RequestOptions,
+): Promise<ClassMemberResponse[]> {
+  return request(`/v1/classes/${classId}/parents`, { method: 'GET' }, { ...options, token });
 }
 
 export function joinClass(

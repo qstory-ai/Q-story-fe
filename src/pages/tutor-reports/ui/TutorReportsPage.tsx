@@ -216,11 +216,11 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: 720,
+    maxWidth: storybookTheme.layout.tabletMaxWidth,
     alignSelf: 'center',
-    gap: 16,
-    paddingHorizontal: 20,
-    paddingVertical: 24,
+    gap: storybookTheme.spacing.md,
+    paddingHorizontal: storybookTheme.spacing.ml,
+    paddingVertical: storybookTheme.spacing.lg,
   },
   title: {
     fontSize: storybookTheme.type.xl,

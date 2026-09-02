@@ -126,6 +126,12 @@ export function buildStoryRuntimePackage({
     ),
   );
   const castByTag = packageData.cast.speakers;
+  // 실시간 분기 생성 파이프라인이 가끔 태그 대신 speakerId 자체를 `speaker` 필드에 써서 보낸다
+  // (예: "GRETEL" 대신 "HG-SPK-GRETEL") - 그 값도 캐스트를 찾을 수 있도록 speakerId로도 조회한다.
+  const castBySpeakerId = new Map(
+    Object.values(castByTag).map((cast) => [cast.speakerId, cast] as const),
+  );
+  const resolveCastByTag = (tag: string) => castByTag[tag] ?? castBySpeakerId.get(tag);
   const familyConfigById = new Map(
     Object.values(packageData.routeContext.anchors).flatMap((anchor) =>
       anchor.actionFamilies.map((family) => [family.id, family] as const),
@@ -139,7 +145,7 @@ export function buildStoryRuntimePackage({
   }
 
   function addSpeaker(tag: string) {
-    const cast = castByTag[tag];
+    const cast = resolveCastByTag(tag);
     if (!cast) throw new Error(`Unknown speaker tag ${tag}`);
     if (!knownSpeakerIds.has(cast.speakerId)) {
       knownSpeakerIds.add(cast.speakerId);
@@ -520,7 +526,7 @@ export function buildStoryRuntimePackage({
       }
       return plan;
     },
-    speakerIdForTag: (tag) => castByTag[tag]?.speakerId ?? narratorSpeakerId,
+    speakerIdForTag: (tag) => resolveCastByTag(tag)?.speakerId ?? narratorSpeakerId,
     narratorSpeakerId,
   };
 }

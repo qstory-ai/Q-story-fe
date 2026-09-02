@@ -77,20 +77,20 @@ const styles = StyleSheet.create({
   stepNumber: {
     color: storybookTheme.color.onCardMuted,
     fontSize: storybookTheme.type.xs,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
     letterSpacing: 0.4,
   },
   stepTitle: {
     color: storybookTheme.color.onCardTitle,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   stepBody: {
     color: storybookTheme.color.onCardBody,
     fontSize: storybookTheme.type.sm,
-    lineHeight: 20,
-    fontWeight: '300',
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.light,
   },
   supportRow: {
     flexDirection: 'row',
@@ -113,6 +113,6 @@ const styles = StyleSheet.create({
   supportChipText: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.sm,
-    fontWeight: '400',
+    fontWeight: storybookTheme.type.weight.regular,
   },
 });

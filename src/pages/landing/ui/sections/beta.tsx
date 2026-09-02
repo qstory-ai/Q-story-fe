@@ -111,12 +111,12 @@ const styles = StyleSheet.create({
     flex: 1,
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.sm,
-    lineHeight: 20,
-    fontWeight: '300',
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.light,
   },
   quickFactStrong: {
     color: storybookTheme.color.onDark,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   betaFeedbackRow: {
     flexDirection: 'row',
@@ -127,8 +127,8 @@ const styles = StyleSheet.create({
     flex: 1,
     color: storybookTheme.color.gold,
     fontSize: storybookTheme.type.sm,
-    lineHeight: 20,
-    fontWeight: '500',
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.medium,
   },
   buttonVioletFull: {
     flexDirection: 'row',
@@ -145,12 +145,12 @@ const styles = StyleSheet.create({
   buttonVioletFullText: {
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.md,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   betaNote: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.xs,
-    fontWeight: '400',
+    fontWeight: storybookTheme.type.weight.regular,
   },
   betaShowcase: {
     gap: 16,
@@ -178,12 +178,12 @@ const styles = StyleSheet.create({
   betaStoryFrameCaptionKicker: {
     color: storybookTheme.color.gold,
     fontSize: storybookTheme.type.xxs,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   betaStoryFrameCaptionText: {
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.sm,
-    fontWeight: '400',
+    fontWeight: storybookTheme.type.weight.regular,
   },
   reportPreview: {
     borderRadius: storybookTheme.radius.card,
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: storybookTheme.color.onCardMuted,
     fontSize: storybookTheme.type.xs,
-    fontWeight: '500',
+    fontWeight: storybookTheme.type.weight.medium,
   },
   reportBadge: {
     borderRadius: storybookTheme.radius.pill,
@@ -219,26 +219,26 @@ const styles = StyleSheet.create({
   reportBadgeText: {
     color: storybookTheme.color.primary,
     fontSize: storybookTheme.type.xxs,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   reportPreviewTitle: {
     color: storybookTheme.color.onCardTitle,
     fontSize: storybookTheme.type.lg,
     lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
     letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   reportPreviewQuote: {
     color: storybookTheme.color.primary,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
-    fontWeight: '500',
+    fontWeight: storybookTheme.type.weight.medium,
     fontStyle: 'italic',
   },
   reportPreviewBody: {
     color: storybookTheme.color.onCardBody,
     fontSize: storybookTheme.type.sm,
-    lineHeight: 20,
-    fontWeight: '300',
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.light,
   },
 });

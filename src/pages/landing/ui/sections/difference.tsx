@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   proofIndex: {
     color: storybookTheme.color.gold,
     fontSize: storybookTheme.type.md,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     width: 28,
   },
   proofTextGroup: {
@@ -105,13 +105,13 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   proofBody: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.sm,
-    lineHeight: 20,
-    fontWeight: '300',
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.light,
   },
   differenceVisual: {
     gap: 12,
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   sceneLabel: {
     color: storybookTheme.color.primary,
     fontSize: storybookTheme.type.xs,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   sceneLabelOnResult: {
     color: storybookTheme.color.gold,
@@ -148,21 +148,21 @@ const styles = StyleSheet.create({
   sceneQuote: {
     color: storybookTheme.color.onCardTitle,
     fontSize: storybookTheme.type.sm,
-    lineHeight: 20,
-    fontWeight: '500',
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.medium,
     fontStyle: 'italic',
   },
   sceneBody: {
     color: storybookTheme.color.onCardBody,
     fontSize: storybookTheme.type.sm,
-    lineHeight: 20,
-    fontWeight: '400',
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.regular,
   },
   sceneBodyOnResult: {
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.sm,
-    lineHeight: 20,
-    fontWeight: '400',
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.regular,
   },
   resultTag: {
     alignSelf: 'flex-start',
@@ -177,6 +177,6 @@ const styles = StyleSheet.create({
   resultTagText: {
     color: storybookTheme.color.gold,
     fontSize: storybookTheme.type.xxs,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
 });

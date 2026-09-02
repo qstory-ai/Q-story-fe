@@ -43,8 +43,8 @@ const styles = StyleSheet.create({
   footerLead: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.sm,
-    lineHeight: 20,
-    fontWeight: '300',
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.light,
   },
   footerNav: {
     flexDirection: 'row',
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   footerNavText: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
+    fontWeight: storybookTheme.type.weight.medium,
   },
   footerBottom: {
     gap: 4,
@@ -62,6 +62,6 @@ const styles = StyleSheet.create({
   footerBottomText: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.xxs,
-    fontWeight: '300',
+    fontWeight: storybookTheme.type.weight.light,
   },
 });

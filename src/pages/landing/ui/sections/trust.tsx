@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   parentNoteKicker: {
     color: storybookTheme.color.primary,
     fontSize: storybookTheme.type.xxs,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
     letterSpacing: 0.4,
     textTransform: 'uppercase',
   },
@@ -78,13 +78,13 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardTitle,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   parentNoteBody: {
     color: storybookTheme.color.onCardBody,
     fontSize: storybookTheme.type.sm,
-    lineHeight: 20,
-    fontWeight: '300',
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.light,
   },
   trustPillars: {
     gap: 16,
@@ -115,12 +115,12 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   pillarBody: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.sm,
-    lineHeight: 20,
-    fontWeight: '300',
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.light,
   },
 });

@@ -74,17 +74,17 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardTitle,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   faqToggle: {
     color: storybookTheme.color.primary,
     fontSize: storybookTheme.type.lg,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   faqAnswer: {
     color: storybookTheme.color.onCardBody,
     fontSize: storybookTheme.type.sm,
-    lineHeight: 21,
-    fontWeight: '300',
+    lineHeight: 21, // lineHeight preserved
+    fontWeight: storybookTheme.type.weight.light,
   },
 });

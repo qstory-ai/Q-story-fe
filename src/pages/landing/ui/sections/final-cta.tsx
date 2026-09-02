@@ -61,19 +61,19 @@ const styles = StyleSheet.create({
   finalCtaEyebrow: {
     color: storybookTheme.color.gold,
     fontSize: storybookTheme.type.xs,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
     letterSpacing: 0.4,
   },
   finalCtaTitle: {
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.xl,
-    lineHeight: 34,
-    fontWeight: '700',
+    lineHeight: 34, // lineHeight preserved
+    fontWeight: storybookTheme.type.weight.bold,
   },
   finalCtaLead: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
-    fontWeight: '300',
+    fontWeight: storybookTheme.type.weight.light,
   },
 });

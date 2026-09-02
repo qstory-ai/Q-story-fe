@@ -86,14 +86,14 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.xxl,
-    lineHeight: 42,
-    fontWeight: '700',
+    lineHeight: 42, // lineHeight preserved
+    fontWeight: storybookTheme.type.weight.bold,
   },
   heroLead: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
-    fontWeight: '300',
+    fontWeight: storybookTheme.type.weight.light,
   },
   heroActions: {
     gap: 12,
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   textLink: {
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
+    fontWeight: storybookTheme.type.weight.medium,
     textDecorationLine: 'underline',
   },
   heroFacts: {
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   heroFactText: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.sm,
-    fontWeight: '400',
+    fontWeight: storybookTheme.type.weight.regular,
   },
   heroVisual: {
     marginTop: 32,
@@ -147,14 +147,14 @@ const styles = StyleSheet.create({
   speaker: {
     color: storybookTheme.color.primary,
     fontSize: storybookTheme.type.xs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 0.4,
   },
   storybookCaptionText: {
     color: storybookTheme.color.onCardTitle,
     fontSize: storybookTheme.type.sm,
-    lineHeight: 20,
-    fontWeight: '400',
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    fontWeight: storybookTheme.type.weight.regular,
   },
   questionBubble: {
     alignSelf: 'flex-end',
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   questionBubbleText: {
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.xs,
-    fontWeight: '500',
+    fontWeight: storybookTheme.type.weight.medium,
   },
   changeNote: {
     alignSelf: 'center',
@@ -191,6 +191,6 @@ const styles = StyleSheet.create({
   changeNoteText: {
     color: storybookTheme.color.primary,
     fontSize: storybookTheme.type.xs,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
 });

@@ -72,7 +72,10 @@ export function ParentHomePage() {
   useEffect(() => {
     if (state.status !== 'authenticated') return;
     let cancelled = false;
-    listStoryCompletions(state.token)
+    // 선택된 아이가 있으면 그 아이 완주만, 없으면(=아이 미등록) 전체 완주. 아이 선택기에서
+    // 다른 아이로 바꾸면 최근 활동 카드도 자연스럽게 그 아이 기준으로 갱신된다.
+    const filters = selectedChild ? { childId: selectedChild.id } : undefined;
+    listStoryCompletions(state.token, filters)
       .then((list) => {
         if (!cancelled) setCompletions(list);
       })
@@ -82,7 +85,7 @@ export function ParentHomePage() {
     return () => {
       cancelled = true;
     };
-  }, [state]);
+  }, [state, selectedChild]);
 
   useEffect(() => {
     if (state.status !== 'authenticated') return;

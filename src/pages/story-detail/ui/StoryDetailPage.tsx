@@ -6,6 +6,8 @@ import { ActionButton, Icon, Pill, SafeAreaView, storybookTheme } from '@/shared
 import { fetchStoryEntry, StoryApiError, type StoryCatalogEntry } from '@/entities/story';
 import { useAuth } from '@/entities/auth';
 import { useBookmarks } from '@/entities/bookmark';
+import { useChildren } from '@/entities/child';
+import { ChildPickerModal } from '@/features/child-picker';
 import { LessonPlanPickerModal } from '@/features/lesson-plan-picker';
 
 type LoadState =
@@ -23,6 +25,7 @@ export function StoryDetailPage() {
   const navigate = useNavigate();
   const { state } = useAuth();
   const bookmarks = useBookmarks();
+  const { children } = useChildren();
   const [attempt, setAttempt] = useState(0);
   const requestKey = `${storyId ?? ''}:${attempt}`;
   const [load, setLoad] = useState<LoadState>({ requestKey, status: 'loading' });
@@ -30,9 +33,11 @@ export function StoryDetailPage() {
   const [bookmarkError, setBookmarkError] = useState<string | null>(null);
   const [lessonPickerOpen, setLessonPickerOpen] = useState(false);
   const [lessonToast, setLessonToast] = useState<string | null>(null);
+  const [childPickerOpen, setChildPickerOpen] = useState(false);
 
   const isAuthenticated = state.status === 'authenticated';
   const isTutor = isAuthenticated && state.user.role === 'TUTOR';
+  const isParent = isAuthenticated && state.user.role === 'PARENT';
 
   useEffect(() => {
     if (!storyId) return;
@@ -70,6 +75,25 @@ export function StoryDetailPage() {
       setBookmarkPending(false);
     }
   }, [storyId, isAuthenticated, bookmarks, navigate]);
+
+  /**
+   * "이야기 시작하기"를 눌렀을 때 부모가 여러 아이를 등록해 뒀다면, 어느 아이와 함께 볼지
+   * 명시적으로 고르게 한 번 인터럽트한다 - 홈에서 selectedChild를 바꾸지 않고 시작해 다른
+   * 아이의 세션으로 잘못 기록되는 걸 막는다. 아이가 0명(=아직 등록 안 함)이거나 1명(=명확)
+   * 인 경우, 그리고 부모가 아닌 역할은 그대로 곧바로 시작한다. 아이 0명인 부모는 픽커가
+   * 열려서 등록 CTA를 보게 된다.
+   */
+  const startPlay = useCallback((targetStoryId: string) => {
+    if (isParent && children.length >= 2) {
+      setChildPickerOpen(true);
+      return;
+    }
+    if (isParent && children.length === 0) {
+      setChildPickerOpen(true);
+      return;
+    }
+    navigate(`/stories/${targetStoryId}/play`);
+  }, [isParent, children.length, navigate]);
 
   // 마지막으로 커밋된 로드 이후 storyId/attempt가 바뀌었다 - setState-in-effect 없이
   // 로딩 중인 것처럼 렌더링한다 (react-hooks/set-state-in-effect 참고).
@@ -123,7 +147,7 @@ export function StoryDetailPage() {
             ) : null}
             <ActionButton
               label="이야기 시작하기"
-              onPress={() => navigate(`/stories/${effectiveLoad.story.storyId}/play`)}
+              onPress={() => startPlay(effectiveLoad.story.storyId)}
             />
             <View style={styles.secondaryActions}>
               <Pressable
@@ -167,6 +191,21 @@ export function StoryDetailPage() {
           storyTitle={effectiveLoad.story.title}
           onClose={() => setLessonPickerOpen(false)}
           onSuccess={(studentName) => setLessonToast(`${studentName} 수업에 담았어요.`)}
+        />
+      ) : null}
+
+      {effectiveLoad.status === 'ready' && isParent ? (
+        <ChildPickerModal
+          visible={childPickerOpen}
+          subtitle={`${effectiveLoad.story.title}을(를) 어떤 아이와 함께 볼까요?`}
+          onClose={() => setChildPickerOpen(false)}
+          onSelected={(child) => {
+            setChildPickerOpen(false);
+            // 완주 저장 시점의 useChildren().selectedChild가 이 값을 참조하도록 selectChild는
+            // ChildPickerModal 내부에서 이미 호출됐다 - 여기선 곧바로 플레이어로 이동만.
+            void child;
+            navigate(`/stories/${effectiveLoad.story.storyId}/play`);
+          }}
         />
       ) : null}
     </SafeAreaView>

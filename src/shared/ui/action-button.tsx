@@ -2,10 +2,20 @@ import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
 import { storybookTheme } from './theme';
 
+/**
+ * 버튼 variant 카탈로그. Toss식 정돈에서 변경된 부분:
+ *  - `primary`: 브랜드 보라 채움. 로그인/회원가입 등 인증 흐름의 주된 CTA.
+ *  - `gold`: 골드 채움. 이야기 시작·구독 등 앱 안에서 가장 강조하고 싶은 액션.
+ *  - `secondary` / `secondaryFull`: 낮은 채도의 배경만. secondary는 자연 폭, secondaryFull은
+ *    full width로 명확히 갈랐다.
+ *  - `outline`: 새로 추가. 다크 배경 위에서 취소·해제 같은 낮은 위계 액션에 쓴다.
+ *  - `record`/`stop`: 이야기 녹음/중지 전용 - 색과 크기가 특수해 별도 유지.
+ */
 export type ActionButtonVariant =
   | 'primary'
   | 'secondary'
   | 'secondaryFull'
+  | 'outline'
   | 'record'
   | 'stop'
   | 'gold';
@@ -21,9 +31,8 @@ type ActionButtonProps = {
 };
 
 /**
- * 제품 화면에서 "하나의 Text 레이블을 감싼 Pressable"이라는 동일한 마크업이
- * 약 15곳의 호출부에서 반복됐고, variant에 따라 색상/너비만 달랐다.
- * 이를 하나의 컴포넌트로 통합한다.
+ * 앱 전역 CTA. 라운드/높이는 theme.radius.button, theme.spacing 등 토큰만 참조한다 -
+ * 예전엔 각 variant가 17/15/18 등 다른 라운드를 하드코딩하고 있어서 페이지마다 톤이 달랐다.
  */
 export function ActionButton({
   label,
@@ -34,7 +43,15 @@ export function ActionButton({
   loading = false,
 }: ActionButtonProps) {
   const isSecondary = variant === 'secondary' || variant === 'secondaryFull';
-  const isGold = variant === 'gold';
+  const isOutline = variant === 'outline';
+  const labelColor = variant === 'primary' || variant === 'record' || variant === 'stop'
+    ? storybookTheme.color.onDark
+    : variant === 'gold'
+      ? storybookTheme.semantic.accent.onAccent
+      : isOutline
+        ? storybookTheme.color.onDark
+        : storybookTheme.color.primary;
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -44,28 +61,33 @@ export function ActionButton({
       // react-native-web은 웹에서 Pressable의 style 콜백에 pressed 말고도 hovered를 실제로
       // 넘겨주지만, 이 프로젝트가 쓰는 RN 타입 선언(PressableStateCallbackType)에는 hovered가
       // 없다 - 런타임 동작은 맞고 타입 선언만 웹 확장을 안 담고 있는 경우라 여기서만 좁혀서 받는다.
-      style={({ hovered }: { pressed: boolean; hovered?: boolean }) => [
+      style={({ hovered, pressed }: { pressed: boolean; hovered?: boolean }) => [
         styles.base,
         variant === 'primary' && styles.primary,
         variant === 'primary' && hovered && !disabled && !loading && styles.primaryHovered,
         variant === 'secondary' && styles.secondary,
         variant === 'secondaryFull' && styles.secondaryFull,
+        variant === 'outline' && styles.outline,
         variant === 'record' && styles.record,
         variant === 'stop' && styles.stop,
         variant === 'gold' && styles.gold,
         variant === 'gold' && hovered && !disabled && !loading && styles.goldHovered,
+        pressed && !disabled && !loading && styles.pressed,
         disabled && !loading && styles.disabled,
       ]}
     >
       {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={isSecondary || isGold ? storybookTheme.color.primary : storybookTheme.color.onDark}
-        />
+        <ActivityIndicator size="small" color={labelColor} />
       ) : (
         <>
-          {icon ? <Text style={styles.icon}>{icon}</Text> : null}
-          <Text style={isSecondary || isGold ? styles.secondaryText : styles.primaryText}>
+          {icon ? <Text style={[styles.icon, { color: labelColor }]}>{icon}</Text> : null}
+          <Text
+            style={[
+              styles.label,
+              { color: labelColor },
+              isSecondary && styles.labelSecondary,
+            ]}
+          >
             {label}
           </Text>
         </>
@@ -76,13 +98,13 @@ export function ActionButton({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 56,
-    borderRadius: 17,
+    minHeight: 52,
+    borderRadius: storybookTheme.radius.button,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    gap: 10,
-    paddingHorizontal: 20,
+    gap: storybookTheme.spacing.sm,
+    paddingHorizontal: storybookTheme.spacing.ml,
   },
   primary: {
     backgroundColor: storybookTheme.color.primary,
@@ -92,18 +114,24 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.semantic.brand.hover,
   },
   secondary: {
-    flex: 1,
-    minHeight: 50,
-    borderRadius: 15,
+    minHeight: 44,
+    borderRadius: storybookTheme.radius.button,
     backgroundColor: storybookTheme.color.pillBackground,
-    paddingHorizontal: 12,
+    paddingHorizontal: storybookTheme.spacing.ms,
   },
   secondaryFull: {
     width: '100%',
-    minHeight: 50,
-    borderRadius: 15,
+    minHeight: 44,
+    borderRadius: storybookTheme.radius.button,
     backgroundColor: storybookTheme.color.pillBackground,
-    paddingHorizontal: 12,
+    paddingHorizontal: storybookTheme.spacing.ms,
+  },
+  outline: {
+    minHeight: 48,
+    borderRadius: storybookTheme.radius.button,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.panelOnDarkBorder,
+    backgroundColor: 'transparent',
   },
   record: {
     minHeight: 60,
@@ -122,22 +150,19 @@ const styles = StyleSheet.create({
   goldHovered: {
     backgroundColor: storybookTheme.semantic.accent.hover,
   },
+  pressed: { opacity: 0.85 },
   disabled: {
-    opacity: 0.56,
+    opacity: 0.5,
   },
   icon: {
-    color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.xs,
   },
-  primaryText: {
-    color: storybookTheme.color.onDark,
+  label: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
+    letterSpacing: -0.2,
   },
-  secondaryText: {
-    color: storybookTheme.color.primary,
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    textAlign: 'center',
+  labelSecondary: {
+    fontSize: storybookTheme.type.sm,
   },
 });

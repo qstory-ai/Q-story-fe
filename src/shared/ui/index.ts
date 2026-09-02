@@ -5,6 +5,7 @@ export * from './text-field';
 export * from './theme';
 export * from './icon';
 export * from './brand-lockup';
+export * from './card';
 export * from './pill';
 export * from './section-header';
 export * from './story-card';

@@ -50,10 +50,10 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 44,
+    minHeight: 48,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
-    paddingHorizontal: storybookTheme.spacing.md,
+    paddingHorizontal: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.sm,
   },
   input: { flex: 1, fontSize: storybookTheme.type.md, paddingVertical: 0 },

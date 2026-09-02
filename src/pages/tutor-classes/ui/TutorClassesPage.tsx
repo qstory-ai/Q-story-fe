@@ -1,47 +1,39 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Pill, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
-import {
-  listTutorSchedules,
-  listTutorStudents,
-  type TutorSchedule,
-  type TutorStudent,
-} from '@/entities/tutor';
+import { listLessons, type Lesson, type LessonStatus } from '@/entities/lesson';
+import { LessonFormModal } from '@/features/lesson-form';
 
-type Tab = 'upcoming' | 'in-progress' | 'done';
+type Tab = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED';
 
 const TABS: { key: Tab; label: string }[] = [
-  { key: 'upcoming', label: '예정된 수업' },
-  { key: 'in-progress', label: '진행 중' },
-  { key: 'done', label: '완료' },
+  { key: 'SCHEDULED', label: '예정된 수업' },
+  { key: 'IN_PROGRESS', label: '진행 중' },
+  { key: 'COMPLETED', label: '완료' },
 ];
 
 type LoadState =
   | { status: 'loading' }
-  | { status: 'ready'; students: TutorStudent[]; schedules: TutorSchedule[] }
+  | { status: 'ready'; lessons: Lesson[] }
   | { status: 'error'; message: string };
 
-const WEEKDAY_LABEL: Record<TutorSchedule['weekday'], string> = {
-  MON: '월', TUE: '화', WED: '수', THU: '목', FRI: '금', SAT: '토',
-};
-
 /**
- * 선생님 "수업" 탭("/tutor/classes") - IA에서 요구한 수업 목록(예정/진행중/완료) 세 개 서브탭을
- * 하나의 화면으로 묶었다. 기존 /tutor/students, /tutor/schedule은 딥링크 유지를 위해 그대로
- * 두되, 이 페이지가 그 두 기능을 요약해 노출한다.
+ * IA "[3] 수업" 화면. 상단 서브탭 세 개(예정/진행/완료)로 lesson.status를 필터하고, 각 카드
+ * 탭 → /tutor/lessons/{id} 상세 페이지로 이동. '새 수업 만들기'는 LessonFormModal.
  *
- * - "예정된 수업": listTutorSchedules() 전체 목록을 요일 순으로.
- * - "진행 중": 부모 연결 대기(PENDING_PARENT) 학생 목록 - 세션 진행 상태 스키마가 없어 근사치.
- * - "완료": 아직 완료 세션 목록이 없어 안내만.
+ * <p>지난 세션의 뼈대(학생 상태 기반 근사치)를 실데이터(lesson)로 교체했다. 학생 뷰는 여전히
+ * /tutor/students로 접근하고, 이 화면은 "수업" 축만 다룬다.
  */
 export function TutorClassesPage() {
   const navigate = useNavigate();
   const { state } = useAuth();
-  const [tab, setTab] = useState<Tab>('upcoming');
+  const [tab, setTab] = useState<Tab>('SCHEDULED');
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
+  const [formOpen, setFormOpen] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -53,42 +45,33 @@ export function TutorClassesPage() {
   useEffect(() => {
     if (state.status !== 'authenticated') return;
     let cancelled = false;
-    Promise.all([listTutorStudents(state.token), listTutorSchedules(state.token)])
-      .then(([students, schedules]) => {
-        if (!cancelled) setLoad({ status: 'ready', students, schedules });
+    // tab이나 reloadKey가 바뀌면 새 요청을 시작 - 이전 데이터는 그대로 두고, 응답 도착 시 갈아
+    // 낀다. 매 이펙트에서 즉시 setState({loading})으로 초기화하는 방식은 setState-in-effect
+    // 규칙에 걸려서, 대신 요청 응답 자체가 이전 상태를 덮어쓰도록 흘려 보낸다.
+    listLessons(state.token, { status: tab as LessonStatus })
+      .then((lessons) => {
+        if (!cancelled) setLoad({ status: 'ready', lessons });
       })
-      .catch((error: unknown) => {
-        if (!cancelled) {
-          const message = error instanceof Error ? error.message : '수업 정보를 불러오지 못했어요.';
-          setLoad({ status: 'error', message });
-        }
+      .catch((failure: unknown) => {
+        if (cancelled) return;
+        const message = failure instanceof Error ? failure.message : '수업 목록을 불러오지 못했어요.';
+        setLoad({ status: 'error', message });
       });
     return () => {
       cancelled = true;
     };
-  }, [state]);
+  }, [state, tab, reloadKey]);
 
-  const upcoming = useMemo(() => {
-    if (load.status !== 'ready') return [] as TutorSchedule[];
-    return [...load.schedules].sort((a, b) => {
-      const cmp = a.weekday.localeCompare(b.weekday);
-      return cmp !== 0 ? cmp : a.startTime.localeCompare(b.startTime);
-    });
-  }, [load]);
-
-  const pending = useMemo(() => {
-    if (load.status !== 'ready') return [] as TutorStudent[];
-    return load.students.filter((student) => student.status === 'PENDING_PARENT');
-  }, [load]);
+  const refresh = useCallback(() => setReloadKey((n) => n + 1), []);
 
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')}>
-      <View style={styles.scroll}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor')}>
+      <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title} accessibilityRole="header">수업</Text>
-          <ActionButton label="새 학생 등록" onPress={() => navigate('/tutor/students/new')} />
+          <ActionButton label="새 수업 만들기" onPress={() => setFormOpen(true)} />
         </View>
 
         <View style={styles.tabRow}>
@@ -108,70 +91,91 @@ export function TutorClassesPage() {
           })}
         </View>
 
-        {tab === 'upcoming' && (
+        {load.status === 'loading' ? (
+          <View style={styles.stubPanel}>
+            <Text style={styles.stubBody}>수업을 불러오는 중이에요…</Text>
+          </View>
+        ) : load.status === 'error' ? (
+          <View style={styles.stubPanel}>
+            <Text style={[styles.stubBody, styles.errorText]}>{load.message}</Text>
+          </View>
+        ) : load.lessons.length === 0 ? (
+          <EmptyForTab tab={tab} />
+        ) : (
           <View style={styles.list}>
-            {upcoming.length === 0 ? (
-              <Empty caption="등록된 정기 수업이 아직 없어요." />
-            ) : (
-              upcoming.map((schedule) => (
-                <Pressable
-                  key={schedule.id}
-                  accessibilityRole="link"
-                  onPress={() => navigate('/tutor/schedule')}
-                  style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-                >
-                  <View style={styles.rowLead}>
-                    <Text style={styles.rowLeadText}>{WEEKDAY_LABEL[schedule.weekday]}</Text>
-                    <Text style={styles.rowLeadSub}>{schedule.startTime.slice(0, 5)}</Text>
-                  </View>
-                  <View style={styles.rowBody}>
-                    <Text style={styles.rowTitle}>{schedule.studentName}</Text>
-                    <Text style={styles.rowMeta} numberOfLines={1}>{schedule.location}</Text>
-                  </View>
-                </Pressable>
-              ))
-            )}
+            {load.lessons.map((lesson) => (
+              <LessonRow key={lesson.id} lesson={lesson} onPress={() => navigate(`/tutor/lessons/${lesson.id}`)} />
+            ))}
           </View>
         )}
 
-        {tab === 'in-progress' && (
-          <View style={styles.list}>
-            {pending.length === 0 ? (
-              <Empty caption="지금 진행 중인 수업이 없어요." />
-            ) : (
-              pending.map((student) => (
-                <View key={student.id} style={styles.row}>
-                  <View style={styles.rowBody}>
-                    <Text style={styles.rowTitle}>{student.name} · {student.ageBand}</Text>
-                    {student.classType ? <Text style={styles.rowMeta}>{student.classType}</Text> : null}
-                  </View>
-                  <Pill label="부모 연결 대기" tone="onDark" />
-                </View>
-              ))
-            )}
-          </View>
-        )}
-
-        {tab === 'done' && (
-          <Empty caption="완료된 수업이 곧 여기에 모여요." />
-        )}
-
-        {load.status === 'error' ? <Text style={styles.errorText}>{load.message}</Text> : null}
+        <ActionButton
+          variant="secondaryFull"
+          label="학생 관리로 이동"
+          onPress={() => navigate('/tutor/students')}
+        />
       </View>
+
+      <LessonFormModal
+        visible={formOpen}
+        onClose={() => setFormOpen(false)}
+        onCreated={() => refresh()}
+      />
     </AppNavShell>
   );
 }
 
-function Empty({ caption }: { caption: string }) {
+/* -------------------------------------------------------------- inner */
+
+function LessonRow({ lesson, onPress }: { lesson: Lesson; onPress: () => void }) {
   return (
-    <View style={styles.emptyPanel}>
-      <Text style={styles.emptyText}>{caption}</Text>
+    <Pressable
+      accessibilityRole="link"
+      accessibilityLabel={`${lesson.name} 수업 상세 열기`}
+      onPress={onPress}
+      style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+    >
+      <View style={styles.rowLead}>
+        <Text style={styles.rowLeadDay}>{lesson.scheduledAt ? formatShortDate(lesson.scheduledAt) : '일정 미정'}</Text>
+        {lesson.scheduledAt ? (
+          <Text style={styles.rowLeadTime}>{formatShortTime(lesson.scheduledAt)}</Text>
+        ) : null}
+      </View>
+      <View style={styles.rowBody}>
+        <Text style={styles.rowTitle}>{lesson.name}</Text>
+        {lesson.goal ? <Text style={styles.rowGoal} numberOfLines={2}>{lesson.goal}</Text> : null}
+        <View style={styles.rowMetaRow}>
+          <Pill label={`학생 ${lesson.students.length}명`} tone="onCard" />
+          <Pill label={`이야기 ${lesson.storyIds.length}편`} tone="onCard" />
+        </View>
+      </View>
+    </Pressable>
+  );
+}
+
+function EmptyForTab({ tab }: { tab: Tab }) {
+  const caption = tab === 'SCHEDULED'
+    ? '예정된 수업이 없어요. 새 수업을 만들어 시작해 보세요.'
+    : tab === 'IN_PROGRESS'
+      ? '진행 중인 수업이 없어요.'
+      : '완료된 수업이 없어요.';
+  return (
+    <View style={styles.stubPanel}>
+      <Text style={styles.stubBody}>{caption}</Text>
     </View>
   );
 }
 
+function formatShortDate(iso: string) {
+  return new Intl.DateTimeFormat('ko-KR', { month: 'short', day: 'numeric' }).format(new Date(iso));
+}
+
+function formatShortTime(iso: string) {
+  return new Intl.DateTimeFormat('ko-KR', { hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
+}
+
 const styles = StyleSheet.create({
-  scroll: {
+  content: {
     flex: 1,
     width: '100%',
     maxWidth: 720,
@@ -219,34 +223,36 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: storybookTheme.color.panelOnDarkBorder,
   },
+  rowPressed: { opacity: 0.9 },
   rowLead: {
-    width: 44,
-    alignItems: 'center',
+    width: 60,
     gap: 2,
     paddingRight: 8,
     borderRightWidth: 1,
     borderRightColor: storybookTheme.color.panelOnDarkBorder,
   },
-  rowLeadText: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.black,
+  rowLeadDay: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.gold,
   },
-  rowLeadSub: {
+  rowLeadTime: {
     fontSize: storybookTheme.type.xxs,
     color: storybookTheme.color.onDarkMuted,
   },
-  rowBody: { flex: 1, gap: 2 },
+  rowBody: { flex: 1, gap: 4 },
   rowTitle: {
-    fontSize: storybookTheme.type.sm,
+    fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onDark,
   },
-  rowMeta: {
+  rowGoal: {
     fontSize: storybookTheme.type.xs,
+    lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onDarkMuted,
   },
-  emptyPanel: {
+  rowMetaRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap', marginTop: 2 },
+  stubPanel: {
     backgroundColor: storybookTheme.color.panelOnDarkBackground,
     borderRadius: storybookTheme.radius.card,
     borderWidth: 1,
@@ -255,9 +261,10 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
     alignItems: 'center',
   },
-  emptyText: {
+  stubBody: {
     fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onDarkMuted,
+    textAlign: 'center',
   },
-  errorText: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.error, textAlign: 'center' },
+  errorText: { color: storybookTheme.color.error },
 });

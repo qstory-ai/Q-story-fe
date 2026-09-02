@@ -3,7 +3,8 @@ import { StyleSheet, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
-import { AuthApiError, dashboardNavItems, updateProfile, useAuth, type UserSummary } from '@/entities/auth';
+import { dashboardNavItems, updateProfile, useAuth, type UserSummary } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
 
 export function MyPageProfilePage() {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ function ProfileForm({
       updateUser(updated);
       setSaved(true);
     } catch (err) {
-      setError(err instanceof AuthApiError ? err.message : '저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      setError(messageForError(err, '프로필 저장에 실패했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSaving(false);
     }

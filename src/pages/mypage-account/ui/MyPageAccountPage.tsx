@@ -3,7 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Pill, SectionHeader, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
-import { AuthApiError, changePassword, dashboardNavItems, useAuth, type Role } from '@/entities/auth';
+import { changePassword, dashboardNavItems, useAuth, type Role } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
 
 const ROLE_LABEL: Record<Role, string> = {
   DIRECTOR: '기관 및 단체',
@@ -49,7 +50,7 @@ export function MyPageAccountPage() {
       setConfirmPassword('');
       setSaved(true);
     } catch (err) {
-      setError(err instanceof AuthApiError ? err.message : '변경하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      setError(messageForError(err, '비밀번호를 바꾸지 못했어요. 현재 비밀번호가 맞는지 확인해 주세요.'));
     } finally {
       setSaving(false);
     }

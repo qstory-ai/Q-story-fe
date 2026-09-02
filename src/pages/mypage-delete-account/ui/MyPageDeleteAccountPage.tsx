@@ -3,7 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Modal, RadioGroup, StatusBanner, TextareaField, storybookTheme } from '@/shared/ui';
-import { AuthApiError, dashboardNavItems, deleteAccount, useAuth } from '@/entities/auth';
+import { dashboardNavItems, deleteAccount, useAuth } from '@/entities/auth';
+import { messageForError } from '@/shared/api';
 
 /** 백엔드 AuthService.DELETE_REASON_CATEGORIES와 문구를 맞춰야 한다. */
 const REASON_CATEGORIES = [
@@ -45,7 +46,7 @@ export function MyPageDeleteAccountPage() {
       navigate('/', { replace: true });
     } catch (err) {
       setConfirming(false);
-      setError(err instanceof AuthApiError ? err.message : '탈퇴하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      setError(messageForError(err, '탈퇴 처리 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setDeleting(false);
     }

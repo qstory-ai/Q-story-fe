@@ -4,6 +4,13 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ActionButton, Checkbox, RadioGroup, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { AuthApiError, homePathFor, joinClass, signupOrganizationOwner, signupParent, useAuth } from '@/entities/auth';
+import {
+  EMPTY_TERMS_CONSENT,
+  TermsConsent,
+  termsConsentIsValid,
+  type TermsConsentState,
+} from '@/features/terms-consent';
+import { updateNotificationSettings } from '@/entities/notification-settings';
 
 type SignupRole = 'DIRECTOR' | 'PARENT';
 
@@ -39,6 +46,7 @@ export function SignupPage() {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [terms, setTerms] = useState<TermsConsentState>(EMPTY_TERMS_CONSENT);
 
   const useJoinFlow = Boolean(inviteToken) || hasClass;
   const showClassCodeField = role === 'PARENT' && !inviteToken && hasClass;
@@ -66,14 +74,21 @@ export function SignupPage() {
             })
           : await signupParent(input);
         setSession(response.token, response.user);
-        navigate(homePathFor(response.user), { replace: true });
+        // 마케팅 동의 값을 알림 설정에 즉시 반영 - 실패해도 회원가입 자체는 완료된 상태라
+        // 조용히 넘긴다(사용자가 마이페이지 알림 설정에서 다시 조정할 수 있다).
+        if (response.user.role === 'PARENT') {
+          void updateNotificationSettings(response.token, { marketingEnabled: terms.marketing }).catch(() => {});
+        }
+        // 신규 부모는 온보딩(아이 등록 등)으로, 반 코드로 이미 조인된 부모도 온보딩 첫 스텝에서
+        // '아이가 이미 있어요' 여부를 물을 수 있게 같은 경로로 보낸다.
+        navigate('/onboarding/parent', { replace: true });
       }
     } catch (failure) {
       setError(failure instanceof AuthApiError ? failure.message : '가입하지 못했어요. 다시 시도해 주세요.');
     } finally {
       setSubmitting(false);
     }
-  }, [role, inviteToken, useJoinFlow, classCode, loginId, email, password, confirmPassword, displayName, navigate, setSession]);
+  }, [role, inviteToken, useJoinFlow, classCode, loginId, email, password, confirmPassword, displayName, navigate, setSession, terms.marketing]);
 
   const canSubmit =
     role !== null &&
@@ -82,6 +97,7 @@ export function SignupPage() {
     Boolean(password) &&
     password === confirmPassword &&
     Boolean(displayName.trim()) &&
+    termsConsentIsValid(terms) &&
     (showClassCodeField ? classCode.trim().length > 0 : true);
 
   return (
@@ -134,6 +150,17 @@ export function SignupPage() {
               errorText={passwordMismatch ? '비밀번호가 서로 달라요.' : undefined}
             />
             <TextField label="이름" value={displayName} onChangeText={setDisplayName} />
+            <TermsConsent
+              value={terms}
+              onChange={setTerms}
+              onOpenDoc={(kind) => {
+                if (typeof window !== 'undefined') {
+                  window.alert?.(kind === 'marketing'
+                    ? '마케팅 정보 수신 동의 문서는 곧 공개돼요.'
+                    : '이용약관/개인정보 처리방침 문서는 곧 공개돼요.');
+                }
+              }}
+            />
             {error ? <StatusBanner variant="warning" label={error} /> : null}
             <ActionButton
               label="가입하기"

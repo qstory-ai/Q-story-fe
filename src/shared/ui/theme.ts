@@ -135,16 +135,21 @@ export const storybookTheme = {
     },
   },
   /**
-   * Figma "Simple Design System"처럼 카드/모달/로고프레임 전부 8px 하나로 통일한다 -
-   * 이전엔 24/26/14로 용도마다 제각각이었다. `pill`만 "완전히 둥글게"라는 별개의 의도라
-   * 통일 대상에서 제외한다. 키 이름은 그대로 둬서 이 값들을 참조하는 화면은 자동으로
-   * 새 radius를 받는다.
+   * 라운드 토큰. 처음엔 카드/모달/로고 모두 8px 하나로 통일했었지만, 토스 UI 스타일 정돈
+   * 과정에서 카드/모달의 부드러운 라운드가 다크 배경 위 크림 서피스의 무게감을 낮춰 준다는
+   * 점을 반영해 카드 = 16, 모달 = 20으로 올렸다. 입력창/버튼용 radius도 명시적으로 뒀다 -
+   * ActionButton/TextField가 각자 17/12 등을 하드코딩하던 것을 여기로 수렴시킨다. `pill`은
+   * 여전히 "완전히 둥글게" 의도라 별개, `control`(체크박스/라디오)은 그대로 4.
    */
   radius: {
-    card: 8,
+    card: 16,
     pill: 999,
-    logoFrame: 8,
-    modalCard: 8,
+    logoFrame: 12,
+    modalCard: 20,
+    /** 기본 버튼 radius - ActionButton primary/gold가 하드코딩하던 17을 대체한다. */
+    button: 14,
+    /** 입력창 radius - TextField/SearchField가 하드코딩하던 12를 명시. */
+    input: 12,
     /** 체크박스/라디오 컨트롤 박스 전용 - Figma "Simple Design System"의 radius-100(4px). */
     control: 4,
   },
@@ -218,26 +223,27 @@ export const storybookTheme = {
   elevation: {
     low: {
       shadowColor: '#12091F',
-      shadowOpacity: 0.1,
-      shadowRadius: 10,
-      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.06,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 6 },
     },
     high: {
       shadowColor: '#12091F',
-      shadowOpacity: 0.16,
-      shadowRadius: 20,
-      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.1,
+      shadowRadius: 30,
+      shadowOffset: { width: 0, height: 14 },
     },
     /** modal.tsx가 자체적으로 하드코딩하던 카드 그림자를 그대로 옮긴 세 번째 단계 - low/high보다 진하다. */
     modal: {
       shadowColor: '#12091F',
-      shadowOpacity: 0.3,
-      shadowRadius: 24,
-      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.22,
+      shadowRadius: 40,
+      shadowOffset: { width: 0, height: 18 },
     },
   },
   /** Figma "Simple Design System"에서 확인한 4px 배수 스케일(8/12/16/24) - sm과 md 사이,
-   * lg와 xl 사이에 있던 빈 칸(12, 20)을 채워 완전한 사다리로 만들었다. */
+   * lg와 xl 사이에 있던 빈 칸(12, 20)을 채워 완전한 사다리로 만들었다. 히어로/대시보드에서
+   * 넉넉한 여백이 필요할 때 쓸 상위 두 단계(xxl=40, xxxl=56)도 함께. */
   spacing: {
     xs: 4,
     sm: 8,
@@ -246,6 +252,8 @@ export const storybookTheme = {
     ml: 20,
     lg: 24,
     xl: 32,
+    xxl: 40,
+    xxxl: 56,
   },
   /**
    * 기존 인증 페이지들(login/join/organization-signup/class-dashboard/parent-home)이 이미 각자

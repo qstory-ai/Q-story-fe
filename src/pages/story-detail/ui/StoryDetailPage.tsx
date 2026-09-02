@@ -3,7 +3,8 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'rea
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { ActionButton, Icon, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
-import { fetchStoryEntry, StoryApiError, type StoryCatalogEntry } from '@/entities/story';
+import { fetchStoryEntry, type StoryCatalogEntry } from '@/entities/story';
+import { messageForError } from '@/shared/api';
 import { useAuth } from '@/entities/auth';
 import { useBookmarks } from '@/entities/bookmark';
 import { useChildren } from '@/entities/child';
@@ -48,8 +49,11 @@ export function StoryDetailPage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof StoryApiError ? failure.message : '이야기를 불러오지 못했어요.';
-        setLoad({ requestKey, status: 'error', message });
+        setLoad({
+          requestKey,
+          status: 'error',
+          message: messageForError(failure, '이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+        });
       });
     return () => {
       cancelled = true;

@@ -3,12 +3,12 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, Checkbox, DateInputField, RadioGroup, SafeAreaView, TextField, TextareaField, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { useAuth } from '@/entities/auth';
 import {
   createTutorInvite,
   createTutorSchedule,
   createTutorStudent,
-  TutorApiError,
   type TutorStudent,
 } from '@/entities/tutor';
 
@@ -82,7 +82,7 @@ function InfoStep({ token, onCreated }: { token: string; onCreated: (student: Tu
       });
       onCreated(created);
     } catch (failure) {
-      setError(failure instanceof TutorApiError ? failure.message : '학생을 등록하지 못했어요. 다시 시도해 주세요.');
+      setError(messageForError(failure, '학생을 등록하지 못했어요. 입력값을 확인 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }
@@ -134,7 +134,7 @@ function InviteStep({ token, student, onDone }: { token: string; student: TutorS
       });
       setInvite(created);
     } catch (failure) {
-      setError(failure instanceof TutorApiError ? failure.message : '초대를 만들지 못했어요. 다시 시도해 주세요.');
+      setError(messageForError(failure, '초대 코드를 만들지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }
@@ -232,7 +232,7 @@ function ScheduleStep({ token, student, onDone }: { token: string; student: Tuto
       });
       onDone();
     } catch (failure) {
-      setError(failure instanceof TutorApiError ? failure.message : '일정을 등록하지 못했어요. 다시 시도해 주세요.');
+      setError(messageForError(failure, '수업 일정을 등록하지 못했어요. 시간과 요일을 다시 확인해 주세요.'));
     } finally {
       setSubmitting(false);
     }

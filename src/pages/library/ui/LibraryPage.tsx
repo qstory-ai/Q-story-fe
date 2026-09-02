@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View, useWindowDimensio
 import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, SearchField, StoryCard, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
 import {
   DEFAULT_BETA_STORY_ID,
@@ -67,8 +68,10 @@ export function LibraryPage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof Error ? failure.message : '이야기 목록을 불러오지 못했어요.';
-        setCatalog({ status: 'error', message });
+        setCatalog({
+          status: 'error',
+          message: messageForError(failure, '이야기 목록을 불러오지 못했어요. 네트워크 상태를 확인해 주세요.'),
+        });
       });
     return () => {
       cancelled = true;

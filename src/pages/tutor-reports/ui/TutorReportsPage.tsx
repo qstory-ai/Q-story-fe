@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, Pill, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories } from '@/entities/story';
 import { formatReportDuration } from '@/pages/one-story';
@@ -60,8 +61,10 @@ export function TutorReportsPage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof Error ? failure.message : '학생 목록을 불러오지 못했어요.';
-        setStudentsLoad({ status: 'error', message });
+        setStudentsLoad({
+          status: 'error',
+          message: messageForError(failure, '학생 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+        });
       });
     return () => {
       cancelled = true;
@@ -86,7 +89,7 @@ export function TutorReportsPage() {
         })
         .catch((failure: unknown) => {
           if (cancelled) return;
-          const message = failure instanceof Error ? failure.message : '세션을 불러오지 못했어요.';
+          const message = messageForError(failure, '이 학생의 세션을 불러오지 못했어요.');
           setSessionsByStudent((prev) => ({
             ...prev,
             [student.id]: { student, loading: false, completions: [], error: message },

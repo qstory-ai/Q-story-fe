@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { ActionButton, AppNavShell, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, useAuth } from '@/entities/auth';
 import { findChildAvatar, useChildren } from '@/entities/child';
-import { listStories, StoryApiError } from '@/entities/story';
+import { listStories } from '@/entities/story';
+import { messageForError } from '@/shared/api';
 import { formatReportDuration } from '@/pages/one-story';
 import {
   buildComprehensiveReport,
@@ -16,7 +17,6 @@ import {
 import {
   listRecentStoryCompletions,
   listStoryCompletions,
-  StoryCompletionApiError,
   type StoryCompletionDetail,
   type StoryCompletionSummary,
 } from '@/entities/story-completion';
@@ -101,11 +101,10 @@ export function ReportHistoryPage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message =
-          failure instanceof StoryCompletionApiError || failure instanceof StoryApiError
-            ? failure.message
-            : '기록을 불러오지 못했어요.';
-        setLoad({ status: 'error', message });
+        setLoad({
+          status: 'error',
+          message: messageForError(failure, '리포트 기록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+        });
       });
     return () => {
       cancelled = true;

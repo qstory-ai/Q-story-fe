@@ -7,7 +7,8 @@ import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { buildParentReport, type ParentReport } from '@/entities/analytics';
 import { refetchStoryPackage, type StoryRuntimePackage } from '@/entities/story';
 import { ReportContent } from '@/pages/one-story';
-import { getStoryCompletion, StoryCompletionApiError } from '@/entities/story-completion';
+import { getStoryCompletion } from '@/entities/story-completion';
+import { messageForError } from '@/shared/api';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -56,8 +57,11 @@ export function ReportHistoryDetailPage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof StoryCompletionApiError ? failure.message : '기록을 불러오지 못했어요.';
-        setLoad({ requestKey, status: 'error', message });
+        setLoad({
+          requestKey,
+          status: 'error',
+          message: messageForError(failure, '이 기록을 불러오지 못했어요. 기록이 삭제되었거나 접근 권한이 없을 수 있어요.'),
+        });
       });
     return () => {
       cancelled = true;

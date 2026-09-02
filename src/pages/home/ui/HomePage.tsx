@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 
 import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { homePathFor, useAuth } from '@/entities/auth';
@@ -8,7 +8,37 @@ import { StoryLibraryGrid } from '@/features/story-library';
 import { OnboardingFlow } from '@/features/onboarding';
 import { hasSeenTutorial } from '@/pages/tutorial';
 
-type OnboardingEntry = { step: 'welcome' | 'sign-up' | 'sign-in'; role?: 'PARENT' | 'DIRECTOR' | 'TUTOR' };
+type OnboardingEntry = {
+  step: 'welcome' | 'sign-up' | 'sign-in';
+  role?: 'PARENT' | 'DIRECTOR' | 'TUTOR';
+  invite?: string;
+};
+
+/**
+ * `?flow=sign-in|sign-up|welcome` + 선택적 `?role=parent|organization|tutor` + 선택적
+ * `?invite=<token>`을 OnboardingEntry로 정규화한다. `/login`, `/signup`, `/join` 얇은
+ * 리다이렉트가 이 파라미터들을 붙여 홈으로 보낸다 - 세 경로가 별도 페이지가 아니라 홈의
+ * 온보딩 흐름 안으로 흡수되도록.
+ */
+function readOnboardingParams(params: URLSearchParams): OnboardingEntry | null {
+  const flow = params.get('flow');
+  if (flow !== 'sign-in' && flow !== 'sign-up' && flow !== 'welcome') return null;
+  if (flow === 'sign-in') return { step: 'sign-in' };
+  if (flow === 'welcome') return { step: 'welcome' };
+  const invite = params.get('invite');
+  const roleParam = params.get('role');
+  const role: OnboardingEntry['role'] =
+    invite
+      ? 'PARENT'
+      : roleParam === 'organization'
+        ? 'DIRECTOR'
+        : roleParam === 'tutor'
+          ? 'TUTOR'
+          : roleParam === 'parent'
+            ? 'PARENT'
+            : undefined;
+  return role ? { step: 'sign-up', role, invite: invite ?? undefined } : { step: 'welcome' };
+}
 
 // IA의 회원 유형 분류에 맞춘 표기 - "방문 선생님"이라는 유형 라벨은 IA에서 삭제됐고
 // (기관 소속 여부와 무관하게 모두 "선생님"), 실제 소속은 온보딩 이후에 결정된다.
@@ -43,7 +73,12 @@ export function HomePage() {
   const { state, logout } = useAuth();
   const { width } = useWindowDimensions();
   const isWide = width >= 720;
-  const [onboarding, setOnboarding] = useState<OnboardingEntry | null>(null);
+  const [searchParams] = useSearchParams();
+  // /login, /signup, /join 은 이 페이지로 리다이렉트되며 ?flow=... 파라미터로 온보딩 흐름의
+  // 특정 스텝을 지정한다. searchParams가 있으면 상태보다 파라미터를 우선한다 - URL이 진실.
+  const paramEntry = useMemo(() => readOnboardingParams(searchParams), [searchParams]);
+  const [manualOnboarding, setManualOnboarding] = useState<OnboardingEntry | null>(null);
+  const onboarding = paramEntry ?? manualOnboarding;
 
   if (state.status === 'authenticated') {
     const homePath = homePathFor(state.user);
@@ -53,15 +88,21 @@ export function HomePage() {
   }
 
   // 아직 로그인 전인 첫 방문자는 튜토리얼로 우회 - localStorage 마크를 두어 이후에는 뜨지 않음.
-  // 로그인된 사용자에게는 튜토리얼을 재차 강요하지 않는다(위 리다이렉트가 이미 각 홈으로 옮긴다).
-  if (state.status === 'anonymous' && !hasSeenTutorial()) {
+  // 로그인/가입 딥링크로 들어온 경우(paramEntry)엔 튜토리얼을 건너뛴다 - 이미 뭘 할지 알고
+  // 왔다는 뜻이므로 중간에 튜토리얼을 끼우면 방해가 된다.
+  if (state.status === 'anonymous' && !hasSeenTutorial() && !paramEntry) {
     return <Navigate to="/tutorial" replace />;
   }
 
   if (onboarding) {
     return (
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.screen}>
-        <OnboardingFlow initialStep={onboarding.step} initialRole={onboarding.role} onExit={() => setOnboarding(null)} />
+        <OnboardingFlow
+          initialStep={onboarding.step}
+          initialRole={onboarding.role}
+          initialInvite={onboarding.invite}
+          onExit={() => setManualOnboarding(null)}
+        />
       </SafeAreaView>
     );
   }
@@ -88,12 +129,12 @@ export function HomePage() {
               <Pressable
                 accessibilityRole="button"
                 style={styles.loginButton}
-                onPress={() => setOnboarding({ step: 'sign-in' })}
+                onPress={() => setManualOnboarding({ step: 'sign-in' })}
               >
                 <Text style={styles.loginButtonText}>로그인</Text>
               </Pressable>
               <View style={styles.authButtonHalf}>
-                <ActionButton variant="gold" label="회원가입" onPress={() => setOnboarding({ step: 'welcome' })} />
+                <ActionButton variant="gold" label="회원가입" onPress={() => setManualOnboarding({ step: 'welcome' })} />
               </View>
             </View>
             <Text style={styles.panelNote}>또는 이미 어떤 역할인지 알고 있다면 바로 골라주세요.</Text>
@@ -103,7 +144,7 @@ export function HomePage() {
                   key={role}
                   accessibilityRole="link"
                   style={styles.role}
-                  onPress={() => setOnboarding({ step: 'sign-up', role })}
+                  onPress={() => setManualOnboarding({ step: 'sign-up', role })}
                 >
                   <Text style={styles.roleLabel}>{label}</Text>
                   <Text style={styles.roleBody}>{body}</Text>

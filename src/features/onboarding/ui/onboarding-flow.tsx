@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, BrandLockup, Checkbox, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, BrandLockup, Checkbox, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
   createOrganization,
   homePathFor,
@@ -15,6 +15,13 @@ import {
   type UserSummary,
 } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
+import { updateNotificationSettings } from '@/entities/notification-settings';
+import {
+  EMPTY_TERMS_CONSENT,
+  TermsConsent,
+  termsConsentIsValid,
+  type TermsConsentState,
+} from '@/features/terms-consent';
 import { SocialLoginButtons } from '@/features/oauth-login';
 
 type OnAuthed = (token: string, user: UserSummary) => void;
@@ -26,6 +33,9 @@ type OnboardingFlowProps = {
   /** HomePage의 원장님/학부모님 역할 카드나 "로그인" 링크에서 곧장 들어올 때 해당 단계로 시작한다. */
   initialStep?: OnboardingStep;
   initialRole?: OnboardingRole;
+  /** 이메일 초대 링크나 /tutor-invite/... 리다이렉트로 들어올 때 - PARENT role로 잠기고 반코드
+   *  입력 대신 초대 토큰으로 joinClass를 부른다. */
+  initialInvite?: string;
   /** "← 처음으로"로 닫을 때 - HomePage가 평소 화면으로 되돌아간다. */
   onExit: () => void;
 };
@@ -63,11 +73,12 @@ const ROLE_CARDS: Array<{ role: OnboardingRole; eyebrow: string; title: string; 
  * 순수 클라이언트 UI 단계라 auth 상태로 유도할 수 없어서(OrganizationSignupPage와 달리), 로컬
  * step state + go(step)를 쓰는 작은 상태머신으로 뒀다 - 이 앱에 처음 등장하는 패턴이다.
  */
-export function OnboardingFlow({ initialStep = 'welcome', initialRole, onExit }: OnboardingFlowProps) {
+export function OnboardingFlow({ initialStep = 'welcome', initialRole, initialInvite, onExit }: OnboardingFlowProps) {
   const navigate = useNavigate();
   const { setSession } = useAuth();
   const [step, setStep] = useState<OnboardingStep>(initialStep);
-  const [role, setRole] = useState<OnboardingRole | null>(initialRole ?? null);
+  // 초대 토큰으로 들어오면 role이 PARENT로 잠긴다(ClassService.resolveClassGroup의 XOR 요구).
+  const [role, setRole] = useState<OnboardingRole | null>(initialInvite ? 'PARENT' : (initialRole ?? null));
   // 방금 가입한 계정을 어디로 보낼지 - 캐러셀을 다 보거나 건너뛴 뒤에 이동한다.
   const [pendingHomePath, setPendingHomePath] = useState<string | null>(null);
   const go = useCallback((next: OnboardingStep) => setStep(next), []);
@@ -137,8 +148,16 @@ export function OnboardingFlow({ initialStep = 'welcome', initialRole, onExit }:
             }}
           />
         )}
-        {step === 'sign-up' && role && <SignUpStep role={role} onAuthed={onSignedUp} />}
-        {step === 'sign-in' && <SignInStep onAuthed={onSignedIn} />}
+        {step === 'sign-up' && role && (
+          <SignUpStep role={role} inviteToken={initialInvite ?? null} onAuthed={onSignedUp} />
+        )}
+        {step === 'sign-in' && (
+          <SignInStep
+            onAuthed={onSignedIn}
+            onGoSignUp={() => go('role')}
+            onGoResetPassword={() => navigate('/reset-password')}
+          />
+        )}
         {step === 'value-onboarding' && (
           <ValueOnboardingStep
             onDone={() => {
@@ -229,25 +248,49 @@ function RoleStep({ onSelect }: { onSelect: (role: OnboardingRole) => void }) {
   );
 }
 
-function SignUpStep({ role, onAuthed }: { role: OnboardingRole; onAuthed: OnAuthed }) {
+function SignUpStep({
+  role,
+  inviteToken,
+  onAuthed,
+}: {
+  role: OnboardingRole;
+  inviteToken: string | null;
+  onAuthed: OnAuthed;
+}) {
   const [hasClass, setHasClass] = useState(true);
   const [classCode, setClassCode] = useState('');
   const [orgName, setOrgName] = useState('');
   const [loginId, setLoginId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [terms, setTerms] = useState<TermsConsentState>(EMPTY_TERMS_CONSENT);
 
-  const showClassCodeField = role === 'PARENT' && hasClass;
+  // 초대 토큰이 있으면 반코드 토글/입력은 감추고 초대 안내만 보인다 - ClassService의 XOR 규약
+  // 상 classCode/inviteToken 중 정확히 하나만 실려 나가야 한다.
+  const showClassCodeField = role === 'PARENT' && !inviteToken && hasClass;
   const showOrgNameField = role === 'DIRECTOR';
+  const useJoinFlow = role === 'PARENT' && (Boolean(inviteToken) || hasClass);
+  const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword;
+
   const canSubmit =
-    Boolean(loginId.trim()) && Boolean(email.trim()) && Boolean(password) && Boolean(displayName.trim()) &&
+    Boolean(loginId.trim()) &&
+    Boolean(email.trim()) &&
+    Boolean(password) &&
+    password === confirmPassword &&
+    Boolean(displayName.trim()) &&
+    termsConsentIsValid(terms) &&
     (showClassCodeField ? classCode.trim().length > 0 : true) &&
     (showOrgNameField ? orgName.trim().length > 0 : true);
 
   const onSubmit = useCallback(async () => {
+    if (password !== confirmPassword) {
+      setError('비밀번호가 서로 달라요.');
+      return;
+    }
     setError(null);
     setSubmitting(true);
     try {
@@ -265,9 +308,17 @@ function SignUpStep({ role, onAuthed }: { role: OnboardingRole; onAuthed: OnAuth
       const response =
         role === 'TUTOR'
           ? await signupTutor(input)
-          : hasClass
-            ? await joinClass({ classCode: classCode.trim().toUpperCase(), ...input })
+          : useJoinFlow
+            ? await joinClass({
+                ...(inviteToken ? { inviteToken } : { classCode: classCode.trim().toUpperCase() }),
+                ...input,
+              })
             : await signupParent(input);
+      // 마케팅 동의 값을 알림 설정에 즉시 반영 - 실패해도 회원가입 자체는 완료된 상태라 조용히
+      // 넘긴다(사용자가 마이페이지 알림 설정에서 다시 조정할 수 있다).
+      if (response.user.role === 'PARENT' || response.user.role === 'TUTOR') {
+        void updateNotificationSettings(response.token, { marketingEnabled: terms.marketing }).catch(() => {});
+      }
       onAuthed(response.token, response.user);
     } catch (failure) {
       const fallback =
@@ -275,14 +326,14 @@ function SignUpStep({ role, onAuthed }: { role: OnboardingRole; onAuthed: OnAuth
           ? '기관 관리자 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
           : role === 'TUTOR'
             ? '선생님 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
-            : hasClass
+            : useJoinFlow
               ? '반 코드로 가입하지 못했어요. 반 코드와 입력값을 확인해 주세요.'
               : '학부모 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.';
       setError(messageForError(failure, fallback));
     } finally {
       setSubmitting(false);
     }
-  }, [role, hasClass, classCode, orgName, loginId, email, password, displayName, onAuthed]);
+  }, [role, inviteToken, useJoinFlow, classCode, orgName, loginId, email, password, confirmPassword, displayName, terms.marketing, onAuthed]);
 
   return (
     <View style={styles.form}>
@@ -293,20 +344,24 @@ function SignUpStep({ role, onAuthed }: { role: OnboardingRole; onAuthed: OnAuth
       </Text>
 
       {role === 'PARENT' && (
-        <>
-          <Checkbox checked={hasClass} onChange={setHasClass} label="우리 아이 반이 있어요" />
-          {hasClass ? (
-            <TextField
-              label="반 코드"
-              value={classCode}
-              onChangeText={setClassCode}
-              autoCapitalize="characters"
-              placeholder="선생님께 받은 코드"
-            />
-          ) : (
-            <Text style={styles.formNote}>반 코드 없이 학부모 계정만 만들어요.</Text>
-          )}
-        </>
+        inviteToken ? (
+          <Text style={styles.formNote}>초대 링크로 반이 확인됐어요.</Text>
+        ) : (
+          <>
+            <Checkbox checked={hasClass} onChange={setHasClass} label="우리 아이 반이 있어요" />
+            {hasClass ? (
+              <TextField
+                label="반 코드"
+                value={classCode}
+                onChangeText={setClassCode}
+                autoCapitalize="characters"
+                placeholder="선생님께 받은 코드"
+              />
+            ) : (
+              <Text style={styles.formNote}>반 코드 없이 학부모 계정만 만들어요.</Text>
+            )}
+          </>
+        )
       )}
 
       {role === 'DIRECTOR' && (
@@ -321,14 +376,43 @@ function SignUpStep({ role, onAuthed }: { role: OnboardingRole; onAuthed: OnAuth
       <TextField label="아이디" value={loginId} onChangeText={setLoginId} placeholder="로그인에 쓸 아이디" />
       <TextField label="이메일" value={email} onChangeText={setEmail} keyboardType="email-address" />
       <TextField label="비밀번호" value={password} onChangeText={setPassword} secureTextEntry />
-      <TextField label="이름" value={displayName} onChangeText={setDisplayName} errorText={error ?? undefined} />
+      <TextField
+        label="비밀번호 확인"
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+        secureTextEntry
+        errorText={passwordMismatch ? '비밀번호가 서로 달라요.' : undefined}
+      />
+      <TextField label="이름" value={displayName} onChangeText={setDisplayName} />
+      <TermsConsent
+        value={terms}
+        onChange={setTerms}
+        onOpenDoc={(kind) => {
+          if (typeof window !== 'undefined') {
+            window.alert?.(
+              kind === 'marketing'
+                ? '마케팅 정보 수신 동의 문서는 곧 공개돼요.'
+                : '이용약관/개인정보 처리방침 문서는 곧 공개돼요.',
+            );
+          }
+        }}
+      />
+      {error ? <StatusBanner variant="warning" label={error} /> : null}
       <ActionButton variant="gold" label={submitting ? '가입 중…' : '가입하기'} onPress={onSubmit} disabled={submitting || !canSubmit} />
       <SocialLoginButtons role={role} onAuthed={onAuthed} />
     </View>
   );
 }
 
-function SignInStep({ onAuthed }: { onAuthed: OnAuthed }) {
+function SignInStep({
+  onAuthed,
+  onGoSignUp,
+  onGoResetPassword,
+}: {
+  onAuthed: OnAuthed;
+  onGoSignUp: () => void;
+  onGoResetPassword: () => void;
+}) {
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -364,6 +448,9 @@ function SignInStep({ onAuthed }: { onAuthed: OnAuthed }) {
         secureTextEntry
         errorText={error ?? undefined}
       />
+      <Pressable accessibilityRole="link" hitSlop={4} onPress={onGoResetPassword} style={styles.signInInlineLink}>
+        <Text style={styles.signInInlineLinkText}>비밀번호를 잊으셨나요?</Text>
+      </Pressable>
       <ActionButton
         variant="gold"
         label={submitting ? '로그인 중…' : '로그인'}
@@ -371,6 +458,10 @@ function SignInStep({ onAuthed }: { onAuthed: OnAuthed }) {
         disabled={submitting || !loginId.trim() || !password}
       />
       <SocialLoginButtons onAuthed={onAuthed} />
+      <Pressable accessibilityRole="link" hitSlop={4} onPress={onGoSignUp} style={styles.signInSignUpRow}>
+        <Text style={styles.formNote}>아직 계정이 없으신가요? </Text>
+        <Text style={styles.signInInlineLinkText}>회원가입</Text>
+      </Pressable>
     </View>
   );
 }
@@ -485,4 +576,17 @@ const styles = StyleSheet.create({
   // Forms (sign-up / sign-in)
   form: { gap: 14, paddingTop: 8 },
   formNote: { color: storybookTheme.color.onDarkMuted, fontSize: storybookTheme.type.sm },
+  signInInlineLink: { alignSelf: 'flex-end', minHeight: 32, justifyContent: 'center' },
+  signInInlineLinkText: {
+    color: storybookTheme.color.linkOnDark,
+    fontSize: storybookTheme.type.xs,
+    fontWeight: '700',
+  },
+  signInSignUpRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    minHeight: 32,
+    alignItems: 'center',
+    marginTop: 8,
+  },
 });

@@ -11,6 +11,7 @@ import {
   type StoryCatalogEntry,
 } from '@/entities/story';
 import { useBookmarks } from '@/entities/bookmark';
+import { useChildren } from '@/entities/child';
 import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
 import { loadLocalStoryProgress, type LocalStoryProgress } from '@/entities/analytics';
 
@@ -42,6 +43,7 @@ export function LibraryPage() {
   const { width } = useWindowDimensions();
   const columns = width >= 860 ? 3 : width >= 520 ? 2 : 1;
   const bookmarks = useBookmarks();
+  const { selectedChild } = useChildren();
 
   const [catalog, setCatalog] = useState<CatalogLoad>({ status: 'loading' });
   const [completions, setCompletions] = useState<CompletionsLoad>({ status: 'loading' });
@@ -76,7 +78,11 @@ export function LibraryPage() {
   useEffect(() => {
     if (state.status !== 'authenticated') return;
     let cancelled = false;
-    listStoryCompletions(state.token)
+    // 선택된 아이가 있으면 그 아이 완주만, 없으면(=아이 미등록) 전체 완주. 아이 선택기에서
+    // 다른 아이로 바꾸면 '읽은 작품' 탭도 그 아이 기준으로 자동 갱신된다. legacy 기록
+    // (childId 없음)은 특정 아이 필터에서 제외 - 리포트 페이지와 같은 규약.
+    const filters = selectedChild ? { childId: selectedChild.id } : undefined;
+    listStoryCompletions(state.token, filters)
       .then((list) => {
         if (!cancelled) setCompletions({ status: 'ready', completions: list });
       })
@@ -87,7 +93,7 @@ export function LibraryPage() {
     return () => {
       cancelled = true;
     };
-  }, [state]);
+  }, [state, selectedChild]);
 
   // catalog.status === 'ready' ? catalog.stories : [] 를 그대로 쓰면 매 렌더마다 새로운 빈 배열
   // 참조가 만들어져 아래 useMemo들의 dep가 계속 바뀐다 - useMemo 하나로 안정 참조를 뽑는다.

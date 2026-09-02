@@ -125,11 +125,13 @@ const styles = StyleSheet.create({
   avatarFrame: {
     width: 84,
     height: 84,
-    borderRadius: 42,
+    // 84/2 = 42 - 정원. radius.pill(999)도 같은 결과지만 이 곳은 "정확히 원"임을 유지한다.
+    borderRadius: storybookTheme.radius.pill,
     borderWidth: 3,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // 이모지는 type 스케일에서 xxl(32)이 가장 가깝지만 아바타 안에서는 40이 더 자연스러워 하드코딩 유지.
   avatarEmoji: { fontSize: 40 },
   tileName: {
     fontSize: storybookTheme.type.sm,
@@ -140,7 +142,7 @@ const styles = StyleSheet.create({
   addFrame: {
     width: 84,
     height: 84,
-    borderRadius: 42,
+    borderRadius: storybookTheme.radius.pill,
     borderWidth: 3,
     borderStyle: 'dashed',
     borderColor: storybookTheme.color.onCardMuted,

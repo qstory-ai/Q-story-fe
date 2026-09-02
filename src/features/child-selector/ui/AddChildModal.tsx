@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   avatarChoice: {
     width: 52,
     height: 52,
-    borderRadius: 26,
+    borderRadius: storybookTheme.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,

@@ -174,73 +174,73 @@ export function ScaleQuestion({
 
 const styles = StyleSheet.create({
   field: {
-    gap: 8,
+    gap: storybookTheme.spacing.sm,
   },
   labelRow: {
-    gap: 4,
+    gap: storybookTheme.spacing.xs,
   },
   label: {
     fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
-    color: '#503267',
+    fontWeight: storybookTheme.type.weight.medium,
+    color: storybookTheme.color.onLightHeading,
   },
   errorText: {
     fontSize: storybookTheme.type.xs,
-    color: '#E46647',
+    color: storybookTheme.color.error,
   },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: storybookTheme.spacing.sm,
   },
   chip: {
     minHeight: 38,
-    borderRadius: 12,
-    backgroundColor: '#F0E8F5',
+    borderRadius: storybookTheme.radius.input,
+    backgroundColor: storybookTheme.color.disabledBackground,
     borderWidth: 1,
     borderColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: storybookTheme.spacing.ms,
+    paddingVertical: storybookTheme.spacing.sm,
   },
   chipActive: {
-    backgroundColor: '#43225F',
-    borderColor: '#43225F',
+    backgroundColor: storybookTheme.color.primary,
+    borderColor: storybookTheme.color.primary,
   },
   chipText: {
     fontSize: storybookTheme.type.sm,
-    fontWeight: '600',
-    color: '#503267',
+    fontWeight: storybookTheme.type.weight.semibold,
+    color: storybookTheme.color.onLightHeading,
   },
   chipTextActive: {
-    color: '#FFFFFF',
+    color: storybookTheme.color.surfaceWhite,
   },
   scaleRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: storybookTheme.spacing.sm,
   },
   scaleDot: {
     flex: 1,
     minHeight: 44,
-    borderRadius: 12,
-    backgroundColor: '#F0E8F5',
+    borderRadius: storybookTheme.radius.input,
+    backgroundColor: storybookTheme.color.disabledBackground,
     borderWidth: 1,
     borderColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
   scaleDotActive: {
-    backgroundColor: '#43225F',
-    borderColor: '#43225F',
+    backgroundColor: storybookTheme.color.primary,
+    borderColor: storybookTheme.color.primary,
   },
   scaleDotText: {
     fontSize: storybookTheme.type.md,
-    fontWeight: '700',
-    color: '#503267',
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.onLightHeading,
   },
   scaleDotTextActive: {
-    color: '#FFFFFF',
+    color: storybookTheme.color.surfaceWhite,
   },
   scaleCaptionRow: {
     flexDirection: 'row',
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   },
   scaleCaption: {
     fontSize: storybookTheme.type.xxs,
-    color: '#8A7699',
+    color: storybookTheme.color.onLightMuted,
     maxWidth: '48%',
   },
 });

@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   avatarFrame: {
     width: 60,
     height: 60,
-    borderRadius: 30,
+    borderRadius: storybookTheme.radius.pill,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   addFrame: {
     width: 60,
     height: 60,
-    borderRadius: 30,
+    borderRadius: storybookTheme.radius.pill,
     borderWidth: 2,
     borderStyle: 'dashed',
     borderColor: storybookTheme.color.panelOnDarkBorder,

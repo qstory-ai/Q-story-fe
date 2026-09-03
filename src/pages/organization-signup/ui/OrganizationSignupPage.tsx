@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Icon, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, Icon, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
   createOrganization,
   dashboardNavItems,
@@ -86,7 +86,7 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
   return (
     <AppNavShell items={dashboardNavItems(user, navigate, 'home')}>
       <View style={styles.scroll}>
-        <View style={styles.card}>
+        <Card variant="surface" padding="lg" style={styles.greetingCard}>
           <Text style={styles.title} accessibilityRole="header">기관 및 단체 등록</Text>
           <Text style={styles.body}>거의 다 됐어요. 기관 및 단체 이름을 알려주세요.</Text>
           <TextField label="기관 및 단체 이름" value={name} onChangeText={setName} errorText={error ?? undefined} />
@@ -96,7 +96,7 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
             onPress={onSubmit}
             disabled={!name.trim()}
           />
-        </View>
+        </Card>
       </View>
     </AppNavShell>
   );
@@ -137,7 +137,7 @@ function ClassManagementStep({
   return (
     <AppNavShell items={dashboardNavItems(user, navigate, 'home')}>
       <View style={styles.scroll}>
-        <View style={styles.card}>
+        <Card variant="surface" padding="lg" style={styles.greetingCard}>
           <Text style={styles.title} accessibilityRole="header">기관 관리자 대시보드</Text>
           <Text style={styles.body}>
             반과 학생, 소속 선생님, 이용 현황을 이곳에서 한눈에 관리해요.
@@ -160,13 +160,16 @@ function ClassManagementStep({
               }
             />
           )}
-        </View>
+        </Card>
 
         <View style={styles.dashboardGrid}>
+          {/* 반/학생 관리는 가장 자주 쓰는 액션이라 primary emphasis (금색 액센트 + eyebrow)로
+              시각적 우선순위를 준다. 나머지 셋은 동일한 outlined variant. */}
           <DashboardCard
             title="반/학생 관리"
             body="반을 만들고 반에 참여한 부모(학생) 목록을 확인해요."
             onPress={() => navigate('/organization/classes')}
+            primary
           />
           <DashboardCard
             title="선생님 관리"
@@ -189,19 +192,38 @@ function ClassManagementStep({
   );
 }
 
-function DashboardCard({ title, body, onPress }: { title: string; body: string; onPress: () => void }) {
+function DashboardCard({
+  title,
+  body,
+  onPress,
+  primary = false,
+}: {
+  title: string;
+  body: string;
+  onPress: () => void;
+  primary?: boolean;
+}) {
   return (
     <Pressable
       accessibilityRole="link"
       accessibilityLabel={title}
       onPress={onPress}
-      style={({ pressed }) => [styles.dashboardCard, pressed && styles.dashboardCardPressed]}
+      style={({ pressed }) => [
+        styles.dashboardCard,
+        primary && styles.dashboardCardPrimary,
+        pressed && styles.dashboardCardPressed,
+      ]}
     >
       <View style={styles.dashboardCardText}>
+        {primary ? <Text style={styles.dashboardCardEyebrow}>자주 쓰는 곳</Text> : null}
         <Text style={styles.dashboardCardTitle}>{title}</Text>
         <Text style={styles.dashboardCardBody}>{body}</Text>
       </View>
-      <Icon name="chevronRight" size={16} color={storybookTheme.color.onCardMuted} />
+      <Icon
+        name="chevronRight"
+        size={16}
+        color={primary ? storybookTheme.color.gold : storybookTheme.color.onCardMuted}
+      />
     </Pressable>
   );
 }
@@ -219,13 +241,9 @@ const styles = StyleSheet.create({
     // spacing.lg(24)와 xl(32) 사이 - 상단 카드 위에 여유 있게 두려고 28 유지.
     paddingVertical: 28,
   },
-  card: {
-    width: '100%',
+  // Card 프리미티브(padding='lg')가 배경/테두리/라운드/패딩을 담당. 자식 gap만 오버라이드.
+  greetingCard: {
     alignItems: 'stretch',
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderRadius: storybookTheme.radius.card,
-    paddingHorizontal: storybookTheme.spacing.lg,
-    paddingVertical: 28,
     gap: storybookTheme.spacing.ms,
   },
   title: { fontSize: storybookTheme.type.lg, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onCardTitle },
@@ -245,8 +263,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: storybookTheme.color.surfaceCardBorder,
   },
+  // 대시보드에서 가장 자주 쓰이는 액션에 gold border + tint로 시각 우선순위를 준다.
+  // 다른 셋은 모두 동일한 톤이라 이 하나만 눈에 먼저 들어오도록.
+  dashboardCardPrimary: {
+    borderColor: storybookTheme.color.gold,
+    borderWidth: 2,
+    padding: 17, // border 2 → padding 17로 인접 카드와 실제 콘텐츠 offset 유지
+  },
   dashboardCardPressed: { opacity: 0.85 },
   dashboardCardText: { flex: 1, gap: storybookTheme.spacing.xs },
+  dashboardCardEyebrow: {
+    fontSize: storybookTheme.type.xxs,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.gold,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
   dashboardCardTitle: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,

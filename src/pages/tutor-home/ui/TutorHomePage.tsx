@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Icon, Pill, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, Icon, Pill, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
   listTutorSchedules,
@@ -92,13 +92,13 @@ export function TutorHomePage() {
       <View style={styles.scroll}>
         <TopBar />
 
-        <View style={styles.card}>
+        <Card variant="surface" padding="lg" style={styles.greetingCard}>
           <Text style={styles.eyebrow}>방문 선생님</Text>
           <Text style={styles.title} accessibilityRole="header">{state.user.displayName}님</Text>
           <Text style={styles.body}>오늘 만날 아이와 수업을 준비해 보세요.</Text>
-        </View>
+        </Card>
 
-        <View style={styles.panel}>
+        <Card variant="panel" padding="md" style={styles.panel}>
           <Text style={styles.panelTitle}>오늘의 수업 · {weekdayLabelToday(todaysWeekday)}요일</Text>
           {load.status === 'loading' ? (
             <Text style={styles.panelBody}>불러오는 중이에요…</Text>
@@ -124,9 +124,22 @@ export function TutorHomePage() {
               </Pressable>
             ))
           )}
+        </Card>
+
+        {/* 튜터의 주 액션(새 학생 등록)을 부수 정보(진행 중/주간 요약)보다 위로 올린다 -
+            예전엔 CTA가 맨 아래에 있어 스크롤이 필요했다. */}
+        <View style={styles.ctaRow}>
+          <ActionButton label="새 학생 등록" onPress={() => navigate('/tutor/students/new')} />
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => navigate('/tutor/classes')}
+            style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
+          >
+            <Text style={styles.linkLabel}>수업 관리 열기 →</Text>
+          </Pressable>
         </View>
 
-        <View style={styles.panel}>
+        <Card variant="panel" padding="md" style={styles.panel}>
           <Text style={styles.panelTitle}>이번 주 진행 중</Text>
           {load.status === 'loading' ? (
             <Text style={styles.panelBody}>불러오는 중이에요…</Text>
@@ -143,9 +156,9 @@ export function TutorHomePage() {
               </View>
             ))
           )}
-        </View>
+        </Card>
 
-        <View style={styles.panel}>
+        <Card variant="panel" padding="md" style={styles.panel}>
           <Text style={styles.panelTitle}>이번 주 일정 요약</Text>
           <View style={styles.weeklyRow}>
             {WEEKDAY_ORDER.map((weekday) => {
@@ -167,18 +180,7 @@ export function TutorHomePage() {
               );
             })}
           </View>
-        </View>
-
-        <View style={styles.ctaRow}>
-          <ActionButton label="새 학생 등록" onPress={() => navigate('/tutor/students/new')} />
-          <Pressable
-            accessibilityRole="link"
-            onPress={() => navigate('/tutor/classes')}
-            style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
-          >
-            <Text style={styles.linkLabel}>수업 관리 열기 →</Text>
-          </Pressable>
-        </View>
+        </Card>
 
         {load.status === 'error' ? <Text style={styles.errorText}>{load.message}</Text> : null}
       </View>
@@ -291,13 +293,9 @@ const styles = StyleSheet.create({
     borderColor: storybookTheme.color.panelOnDarkBorder,
   },
   pressed: { opacity: 0.85 },
-  card: {
-    width: '100%',
+  // Card 프리미티브가 배경/테두리/라운드/패딩을 담당한다. 여기선 인사 카드 안의 자식 gap만 오버라이드.
+  greetingCard: {
     alignItems: 'stretch',
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderRadius: storybookTheme.radius.card,
-    paddingHorizontal: storybookTheme.spacing.lg,
-    paddingVertical: storybookTheme.spacing.lg,
     gap: storybookTheme.spacing.xs,
   },
   eyebrow: {
@@ -317,27 +315,21 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
     marginTop: 2,
   },
+  // Card variant='panel'이 배경/테두리/라운드/패딩을 담당. 여기선 자식 gap만 오버라이드.
   panel: {
-    width: '100%',
     gap: storybookTheme.spacing.ms,
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
-    borderRadius: storybookTheme.radius.card,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
-    paddingHorizontal: storybookTheme.spacing.ml,
-    paddingVertical: storybookTheme.spacing.ml,
   },
   panelTitle: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onDark,
   },
-  panelBody: { fontSize: storybookTheme.type.sm, lineHeight: 20, color: storybookTheme.color.onDarkMuted },
+  panelBody: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onDarkMuted },
   scheduleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: 10,
+    gap: storybookTheme.spacing.ms,
+    paddingVertical: storybookTheme.spacing.sm,
     borderTopWidth: 1,
     borderTopColor: storybookTheme.color.panelOnDarkBorder,
   },
@@ -351,8 +343,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 10,
-    paddingVertical: 10,
+    gap: storybookTheme.spacing.sm,
+    paddingVertical: storybookTheme.spacing.sm,
     borderTopWidth: 1,
     borderTopColor: storybookTheme.color.panelOnDarkBorder,
   },

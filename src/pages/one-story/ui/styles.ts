@@ -9,8 +9,8 @@ import { storybookTheme } from '@/shared/ui';
 // 버튼 스타일은 대신 shared/ui/action-button에 있다(그 마크업은 이 스타일들과 달리
 // 약 15개의 호출 지점에 그대로 중복되어 있었다).
 export const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#161025' },
-  app: { flex: 1, backgroundColor: '#161025', overflow: 'hidden' },
+  safeArea: { flex: 1, backgroundColor: storybookTheme.color.background },
+  app: { flex: 1, backgroundColor: storybookTheme.color.background, overflow: 'hidden' },
   imageShade: {
     position: 'absolute',
     left: 0,
@@ -69,9 +69,9 @@ export const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.logoFrame,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 249, 237, 0.96)',
+    backgroundColor: storybookTheme.color.brandFrameBackground,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.72)',
+    borderColor: storybookTheme.color.onDarkMuted,
   },
   reportBrandLogoFrame: {
     backgroundColor: 'transparent',
@@ -80,25 +80,25 @@ export const styles = StyleSheet.create({
   brandLogo: { width: 42, height: 46 },
   brandTextLockup: { gap: 4, flexShrink: 1 },
   brand: {
-    color: '#FFFFFF',
+    color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.xs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 1.8,
   },
-  brandQ: { color: '#F6C64D' },
-  reportTopText: { color: '#2B1748' },
+  brandQ: { color: storybookTheme.color.gold },
+  reportTopText: { color: storybookTheme.color.onCardTitle },
   storyTitle: {
-    color: '#FFFFFF',
+    color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.md,
     lineHeight: 21,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportStoryTitle: { color: '#6B5C80' },
   chapterTitle: {
-    color: 'rgba(255, 255, 255, 0.72)',
+    color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.xs,
     lineHeight: 15,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   topRight: {
     flexDirection: 'row',
@@ -140,15 +140,15 @@ export const styles = StyleSheet.create({
   },
   topControlIcon: {
     minWidth: 13,
-    color: '#F6C64D',
+    color: storybookTheme.color.gold,
     fontSize: storybookTheme.type.sm,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   topControlText: {
-    color: '#FFFFFF',
+    color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.xxs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   progressPill: {
     backgroundColor: 'rgba(22, 12, 36, 0.78)',
@@ -168,13 +168,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 13,
   },
-  progressText: { color: '#FFFFFF', fontWeight: '700', fontSize: storybookTheme.type.sm },
+  progressText: { color: storybookTheme.color.surfaceWhite, fontWeight: storybookTheme.type.weight.bold, fontSize: storybookTheme.type.sm },
   reportBackButton: {
     minHeight: 40,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#CDBEDF',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 15,
@@ -182,7 +182,7 @@ export const styles = StyleSheet.create({
   reportBackButtonText: {
     color: '#34204D',
     fontSize: storybookTheme.type.sm,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   sceneProgress: {
     position: 'absolute',
@@ -204,7 +204,7 @@ export const styles = StyleSheet.create({
   progressSegmentFill: {
     height: '100%',
     borderRadius: 99,
-    backgroundColor: '#F6C64D',
+    backgroundColor: storybookTheme.color.gold,
   },
   scrollContent: {
     flexGrow: 1,
@@ -234,13 +234,13 @@ export const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 760,
     alignSelf: 'center',
-    backgroundColor: 'rgba(255, 252, 245, 0.96)',
+    backgroundColor: storybookTheme.color.surfaceCard,
     borderRadius: 28,
     padding: 22,
     gap: 18,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.74)',
-    shadowColor: '#12091F',
+    shadowColor: storybookTheme.color.shadow,
     shadowOpacity: 0.35,
     shadowRadius: 22,
     shadowOffset: { width: 0, height: 9 },
@@ -295,13 +295,13 @@ export const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#7B4AA1',
   },
-  statusText: { color: '#573570', fontSize: storybookTheme.type.xxs, fontWeight: '700' },
+  statusText: { color: '#573570', fontSize: storybookTheme.type.xxs, fontWeight: storybookTheme.type.weight.bold },
   contentGroup: { gap: 15 },
   heroTitle: {
     color: '#28153F',
     fontSize: storybookTheme.type.xxl,
     lineHeight: 39,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   introBody: {
@@ -316,16 +316,16 @@ export const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 14,
   },
-  nameLabel: { color: '#4E3267', fontSize: storybookTheme.type.xs, fontWeight: '700' },
+  nameLabel: { color: '#4E3267', fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold },
   nameInput: {
     height: 50,
     borderRadius: 13,
     borderWidth: 1,
     borderColor: '#D8C8E2',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     color: '#2A173F',
     fontSize: storybookTheme.type.md,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
     paddingHorizontal: 15,
   },
   nameHint: { color: '#6F5D85', fontSize: storybookTheme.type.xxs, lineHeight: 17 }, // WCAG AA 4.5:1 (원래 #85778E는 이 배경에서 4.4:1로 미달)
@@ -334,7 +334,7 @@ export const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: '#D8C8E2',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     color: '#2A173F',
     fontSize: storybookTheme.type.md,
     lineHeight: 28,
@@ -371,19 +371,19 @@ export const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#76558D',
     borderRadius: 6,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     alignItems: 'center',
     justifyContent: 'center',
   },
   voiceConsentBoxChecked: {
-    borderColor: '#43225F',
-    backgroundColor: '#43225F',
+    borderColor: storybookTheme.color.primary,
+    backgroundColor: storybookTheme.color.primary,
   },
   voiceConsentCheck: {
-    color: '#FFFFFF',
+    color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.md,
     lineHeight: 18,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   voiceConsentText: {
     flex: 1,
@@ -392,8 +392,8 @@ export const styles = StyleSheet.create({
     lineHeight: 17,
   },
   voiceConsentLabel: {
-    color: '#43225F',
-    fontWeight: '700',
+    color: storybookTheme.color.primary,
+    fontWeight: storybookTheme.type.weight.bold,
   },
   playbackContent: { gap: 5 },
   captionHeader: {
@@ -409,9 +409,9 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   playbackSpeaker: {
-    color: '#F6C64D',
+    color: storybookTheme.color.gold,
     fontSize: storybookTheme.type.xs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 0.3,
   },
   captionToggle: {
@@ -427,13 +427,13 @@ export const styles = StyleSheet.create({
   captionToggleText: {
     color: '#F4EEF8',
     fontSize: storybookTheme.type.xxs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   playbackSubtitle: {
-    color: '#FFFFFF',
+    color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.md,
     lineHeight: 25,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
     textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.32)',
     textShadowRadius: 3,
@@ -462,14 +462,14 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(246,198,77,0.20)',
   },
   playbackButtonIcon: {
-    color: '#F6C64D',
+    color: storybookTheme.color.gold,
     fontSize: storybookTheme.type.md,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   playbackButtonText: {
-    color: '#FFFFFF',
+    color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.xs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   playingDot: {
@@ -482,7 +482,7 @@ export const styles = StyleSheet.create({
   questionEyebrow: {
     color: '#C4513B',
     fontSize: storybookTheme.type.xs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 0.8,
     textAlign: 'center',
   },
@@ -490,7 +490,7 @@ export const styles = StyleSheet.create({
     color: '#26143C',
     fontSize: storybookTheme.type.xl,
     lineHeight: 37,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   questionHelp: {
@@ -511,20 +511,20 @@ export const styles = StyleSheet.create({
   questionListeningText: {
     color: '#9B3F2D',
     fontSize: storybookTheme.type.sm,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   splitRow: { flexDirection: 'row', gap: 10 },
   recordingTitle: {
     color: '#28153F',
     fontSize: storybookTheme.type.lg,
     lineHeight: 31,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   recordingTime: {
     color: '#D65C3F',
     fontSize: storybookTheme.type.xxl,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   meterTrack: {
@@ -547,7 +547,7 @@ export const styles = StyleSheet.create({
     color: '#28153F',
     fontSize: storybookTheme.type.lg,
     lineHeight: 31,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   recordingSummary: {
@@ -558,21 +558,21 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
-  recordingSummaryText: { color: '#64546E', fontSize: storybookTheme.type.xs, fontWeight: '700' },
+  recordingSummaryText: { color: '#64546E', fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold },
   previewButton: {
     minHeight: 50,
     borderRadius: 15,
-    backgroundColor: '#F6C64D',
+    backgroundColor: storybookTheme.color.gold,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  previewButtonText: { color: '#2B183F', fontSize: storybookTheme.type.sm, fontWeight: '700' },
+  previewButtonText: { color: '#2B183F', fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.bold },
   loadingGroup: { alignItems: 'center', gap: 14, paddingVertical: 8 },
   loadingTitle: {
     color: '#28153F',
     fontSize: storybookTheme.type.lg,
     lineHeight: 32,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   loadingBody: {
@@ -598,7 +598,7 @@ export const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 2,
     borderColor: '#DDC7E8',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     paddingHorizontal: 14,
     paddingVertical: 12,
     transform: [{ scale: 1 }],
@@ -616,15 +616,15 @@ export const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F6C64D',
+    backgroundColor: storybookTheme.color.gold,
   },
   choiceNumberText: {
     color: '#38204D',
     fontSize: storybookTheme.type.md,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   choiceCopy: { flex: 1, gap: 3 },
-  choiceLabel: { color: '#321A4A', fontSize: storybookTheme.type.md, fontWeight: '700' },
+  choiceLabel: { color: '#321A4A', fontSize: storybookTheme.type.md, fontWeight: storybookTheme.type.weight.bold },
   choiceMeaning: { color: '#75647C', fontSize: storybookTheme.type.xs, lineHeight: 18 },
   changeBadge: {
     alignSelf: 'center',
@@ -634,12 +634,12 @@ export const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   answerBadge: { backgroundColor: '#FFF0C8' },
-  changeBadgeText: { color: '#57306E', fontSize: storybookTheme.type.xs, fontWeight: '700' },
+  changeBadgeText: { color: '#57306E', fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold },
   responseText: {
     color: '#28153F',
     fontSize: storybookTheme.type.lg,
     lineHeight: 33,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   branchText: {
@@ -657,14 +657,14 @@ export const styles = StyleSheet.create({
   transcriptLabel: {
     color: '#7A687F',
     fontSize: storybookTheme.type.xxs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   transcriptText: {
     color: '#3D2850',
     fontSize: storybookTheme.type.sm,
     lineHeight: 21,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
     textAlign: 'center',
   },
   transcriptConfirmCard: {
@@ -682,7 +682,7 @@ export const styles = StyleSheet.create({
     color: '#321A4A',
     fontSize: storybookTheme.type.lg,
     lineHeight: 31,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   fallbackText: {
@@ -694,7 +694,7 @@ export const styles = StyleSheet.create({
   completeMark: {
     color: '#D09A19',
     fontSize: storybookTheme.type.xxl,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   parentReportContent: { width: '100%', gap: 20 },
@@ -702,7 +702,7 @@ export const styles = StyleSheet.create({
     borderRadius: 28,
     borderWidth: 2,
     borderColor: '#DCD1FF',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     padding: 28,
     gap: 14,
     shadowColor: '#2E1948',
@@ -713,14 +713,14 @@ export const styles = StyleSheet.create({
   reportEyebrow: {
     color: '#F07C58',
     fontSize: storybookTheme.type.xs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 1.5,
   },
   reportHeroTitle: {
     color: '#2C1749',
     fontSize: storybookTheme.type.xxl,
     lineHeight: 42,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportStoryPill: {
     alignSelf: 'flex-start',
@@ -732,7 +732,7 @@ export const styles = StyleSheet.create({
   reportStoryPillText: {
     color: '#35204D',
     fontSize: storybookTheme.type.sm,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportHeroBody: {
     color: '#746987',
@@ -754,16 +754,16 @@ export const styles = StyleSheet.create({
     color: '#2E174D',
     fontSize: storybookTheme.type.xxl,
     lineHeight: 38,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportStatLabel: {
     color: '#756983',
     fontSize: storybookTheme.type.sm,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   reportPanel: {
     borderRadius: 28,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     padding: 28,
     gap: 12,
     shadowColor: '#2E1948',
@@ -775,7 +775,7 @@ export const styles = StyleSheet.create({
     color: '#2D1949',
     fontSize: storybookTheme.type.xl,
     lineHeight: 33,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportPanelDescription: {
     color: '#746987',
@@ -805,14 +805,14 @@ export const styles = StyleSheet.create({
   reportQuestionNumberText: {
     color: '#2D1948',
     fontSize: storybookTheme.type.md,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportQuestionHeading: { flex: 1, alignItems: 'flex-start', gap: 9 },
   reportQuestionText: {
     color: '#2D1948',
     fontSize: storybookTheme.type.lg,
     lineHeight: 31,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportQuestionType: {
     borderRadius: storybookTheme.radius.pill,
@@ -823,12 +823,12 @@ export const styles = StyleSheet.create({
   reportQuestionTypeText: {
     color: '#4B3269',
     fontSize: storybookTheme.type.xs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportSceneFigure: {
     borderRadius: 19,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
   },
   reportSceneImage: {
     width: '100%',
@@ -840,30 +840,30 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 15,
     paddingVertical: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
   },
   reportSceneCaptionText: {
     color: '#716481',
     fontSize: storybookTheme.type.xs,
     lineHeight: 18,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   reportSelectedPath: {
     borderRadius: 18,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     padding: 17,
     gap: 4,
   },
   reportSelectedPathEyebrow: {
     color: '#EF7653',
     fontSize: storybookTheme.type.xxs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportSelectedPathTitle: {
     color: '#2F1C49',
     fontSize: storybookTheme.type.md,
     lineHeight: 23,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportSelectedPathSummary: {
     color: '#746987',
@@ -880,13 +880,13 @@ export const styles = StyleSheet.create({
   reportStoryDevelopmentLabel: {
     color: '#7B5AA1',
     fontSize: storybookTheme.type.xxs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportStoryDevelopmentText: {
     color: '#4E4058',
     fontSize: storybookTheme.type.sm,
     lineHeight: 21,
-    fontWeight: '500',
+    fontWeight: storybookTheme.type.weight.medium,
   },
   reportEmptyState: {
     borderRadius: 21,
@@ -898,14 +898,14 @@ export const styles = StyleSheet.create({
   reportEmptyTitle: {
     color: '#33204B',
     fontSize: storybookTheme.type.md,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportEmptyBody: { color: '#756983', fontSize: storybookTheme.type.sm, lineHeight: 21 },
   reportCoachPanel: {
     borderRadius: 28,
     borderWidth: 2,
     borderColor: '#DCD1FF',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     padding: 28,
     gap: 12,
   },
@@ -918,7 +918,7 @@ export const styles = StyleSheet.create({
     color: '#35204D',
     fontSize: storybookTheme.type.md,
     lineHeight: 29,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportEvidenceBox: {
     borderRadius: 20,
@@ -937,14 +937,14 @@ export const styles = StyleSheet.create({
     color: '#C24A2E', // WCAG AA 4.5:1 (원래 #E46647은 흰/크림 배경에서 3.34:1로 미달)
     fontSize: storybookTheme.type.md,
     lineHeight: 22,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportBulletText: {
     flex: 1,
     color: '#4E4058',
     fontSize: storybookTheme.type.sm,
     lineHeight: 21,
-    fontWeight: '500',
+    fontWeight: storybookTheme.type.weight.medium,
   },
   reportFocusBox: {
     borderRadius: 20,
@@ -955,7 +955,7 @@ export const styles = StyleSheet.create({
   reportFocusLabel: {
     color: '#3B2854',
     fontSize: storybookTheme.type.sm,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportFocusChips: {
     flexDirection: 'row',
@@ -964,14 +964,14 @@ export const styles = StyleSheet.create({
   },
   reportFocusChip: {
     borderRadius: storybookTheme.radius.pill,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     paddingHorizontal: 12,
     paddingVertical: 7,
   },
   reportFocusChipText: {
     color: '#392650',
     fontSize: storybookTheme.type.xs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportFocusNote: {
     color: '#786D87',
@@ -998,14 +998,14 @@ export const styles = StyleSheet.create({
   reportFollowUpNumberText: {
     color: '#2E1948',
     fontSize: storybookTheme.type.sm,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportFollowUpText: {
     flex: 1,
     color: '#35204D',
     fontSize: storybookTheme.type.md,
     lineHeight: 24,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   reportActivity: {
     borderRadius: 20,
@@ -1017,7 +1017,7 @@ export const styles = StyleSheet.create({
   reportActivityTitle: {
     color: '#22623A',
     fontSize: storybookTheme.type.md,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportActivityBody: {
     color: '#345F43',
@@ -1041,16 +1041,16 @@ export const styles = StyleSheet.create({
     color: '#2D1948',
     backgroundColor: '#FFE36E',
     fontSize: storybookTheme.type.xxs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 1,
     paddingHorizontal: 5,
     paddingVertical: 2,
   },
   reportActionTitle: {
-    color: '#FFFFFF',
+    color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.lg,
     lineHeight: 30,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportActionBody: {
     color: '#DDD2EB',
@@ -1061,7 +1061,7 @@ export const styles = StyleSheet.create({
   reportPrimaryAction: {
     minHeight: 54,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
@@ -1069,7 +1069,7 @@ export const styles = StyleSheet.create({
   reportPrimaryActionText: {
     color: '#35204E',
     fontSize: storybookTheme.type.md,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   reportSecondaryAction: {
     flex: 1,
@@ -1082,9 +1082,9 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   reportSecondaryActionText: {
-    color: '#FFFFFF',
+    color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.xs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
   reportSecondaryActionRow: { flexDirection: 'row', gap: 9 },
@@ -1107,7 +1107,7 @@ export const styles = StyleSheet.create({
   modalTextButtonLabel: {
     color: '#6A4B7C',
     fontSize: storybookTheme.type.xs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     textDecorationLine: 'underline',
   },
   companionChatProfileRow: {
@@ -1122,7 +1122,7 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#F0E7F7',
     borderWidth: 2,
-    borderColor: '#F6C64D',
+    borderColor: storybookTheme.color.gold,
   },
   companionChatAvatarImage: {
     position: 'absolute',
@@ -1130,20 +1130,20 @@ export const styles = StyleSheet.create({
   companionChatProfileName: {
     color: '#28153F',
     fontSize: storybookTheme.type.sm,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   companionChatHistory: { maxHeight: 220 },
   companionChatTurn: { gap: 4, marginBottom: 12 },
   companionChatChildText: {
     alignSelf: 'flex-end',
-    color: '#FFFFFF',
+    color: storybookTheme.color.surfaceWhite,
     backgroundColor: '#6E428B',
     borderRadius: 14,
     borderBottomRightRadius: 4,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
+    fontWeight: storybookTheme.type.weight.medium,
     maxWidth: '85%',
   },
   companionChatSpinner: { alignSelf: 'flex-start', marginTop: 4 },
@@ -1156,14 +1156,14 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
+    fontWeight: storybookTheme.type.weight.medium,
     maxWidth: '85%',
   },
   companionChatErrorText: {
     alignSelf: 'flex-start',
     color: '#8C3E1F',
     fontSize: storybookTheme.type.xs,
-    fontWeight: '500',
+    fontWeight: storybookTheme.type.weight.medium,
   },
   exitReasonList: { gap: 8 },
   exitReasonButton: {
@@ -1179,7 +1179,7 @@ export const styles = StyleSheet.create({
   exitReasonButtonText: {
     color: '#4E3267',
     fontSize: storybookTheme.type.sm,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   parentMessage: {
     borderRadius: 15,
@@ -1189,12 +1189,12 @@ export const styles = StyleSheet.create({
     padding: 14,
     gap: 5,
   },
-  parentMessageTitle: { color: '#6B5119', fontSize: storybookTheme.type.xs, fontWeight: '700' },
+  parentMessageTitle: { color: '#6B5119', fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold },
   parentMessageText: { color: '#6B5119', fontSize: storybookTheme.type.xs, lineHeight: 19 },
   parentMessageAction: {
     color: '#4A2B61',
     fontSize: storybookTheme.type.xs,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
     marginTop: 3,
   },
 });

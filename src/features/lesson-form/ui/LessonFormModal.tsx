@@ -2,15 +2,21 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Modal, TextField, TextareaField, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { useAuth } from '@/entities/auth';
-import { createLesson, type Lesson } from '@/entities/lesson';
+import { createLesson, updateLesson, type Lesson } from '@/entities/lesson';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { listTutorStudents, type TutorStudent } from '@/entities/tutor';
 
 type Props = {
   visible: boolean;
   onClose: () => void;
+  /** 기존 lesson을 편집할 때 - undefined면 새 수업 만들기 모드. 저장 성공은 onSaved로 전달된다. */
+  editing?: Lesson | null;
+  /** 새로 만든 lesson - 편집 모드에서는 호출되지 않는다(대신 onSaved). */
   onCreated?: (lesson: Lesson) => void;
+  /** 편집 저장 성공 시 호출 - 상세 페이지가 로컬 상태를 갱신할 수 있게. */
+  onSaved?: (lesson: Lesson) => void;
 };
 
 type RefsLoad =
@@ -23,17 +29,27 @@ type RefsLoad =
  * 이야기. 학생과 이야기는 각각 체크리스트로 여러 개 선택할 수 있어서, "한 수업에 여러 학생/
  * 여러 이야기" 요구를 그대로 반영. 실패 시 폼 값은 유지되고 에러만 표시.
  */
-export function LessonFormModal({ visible, onClose, onCreated }: Props) {
+export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved }: Props) {
   const { state } = useAuth();
   const [refs, setRefs] = useState<RefsLoad>({ status: 'loading' });
-  const [name, setName] = useState('');
-  const [goal, setGoal] = useState('');
-  const [scheduledAtInput, setScheduledAtInput] = useState('');
-  const [selectedStudentIds, setSelectedStudentIds] = useState<Set<string>>(new Set());
-  const [selectedStoryIds, setSelectedStoryIds] = useState<Set<string>>(new Set());
+  // 초기값을 editing prop에서 lazy-init으로 뽑는다 - useEffect로 prop을 state에 sync하면
+  // react-hooks/set-state-in-effect에 걸리기 때문. 편집 대상이 바뀔 때는 부모가 `key={lessonId}`
+  // 로 이 컴포넌트를 remount 시켜 initial state를 다시 계산하도록 한다(부모 호출부에 명시).
+  const [name, setName] = useState(() => editing?.name ?? '');
+  const [goal, setGoal] = useState(() => editing?.goal ?? '');
+  const [scheduledAtInput, setScheduledAtInput] = useState(() =>
+    editing?.scheduledAt ? formatDateTimeForInput(editing.scheduledAt) : '',
+  );
+  const [selectedStudentIds, setSelectedStudentIds] = useState<Set<string>>(
+    () => new Set(editing?.students.map((s) => s.id) ?? []),
+  );
+  const [selectedStoryIds, setSelectedStoryIds] = useState<Set<string>>(
+    () => new Set(editing?.storyIds ?? []),
+  );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isEdit = editing != null;
   const canSubmit = useMemo(() => name.trim().length > 0 && !submitting, [name, submitting]);
 
   useEffect(() => {
@@ -59,15 +75,22 @@ export function LessonFormModal({ visible, onClose, onCreated }: Props) {
     setSubmitting(true);
     setError(null);
     try {
-      const created = await createLesson(state.token, {
+      const input = {
         name: name.trim(),
         goal: goal.trim() || null,
         scheduledAt: parseDateTime(scheduledAtInput),
         studentIds: Array.from(selectedStudentIds),
         storyIds: Array.from(selectedStoryIds),
-      });
-      onCreated?.(created);
-      // 성공 시 폼 초기화하고 닫는다.
+      };
+      if (editing) {
+        const updated = await updateLesson(state.token, editing.id, input);
+        onSaved?.(updated);
+      } else {
+        const created = await createLesson(state.token, input);
+        onCreated?.(created);
+      }
+      // 성공 시 폼 초기화하고 닫는다. editing 모드에서도 리셋 - 다음 열림에서 useEffect가 다시
+      // 값을 채우거나 비운다.
       setName('');
       setGoal('');
       setScheduledAtInput('');
@@ -75,8 +98,7 @@ export function LessonFormModal({ visible, onClose, onCreated }: Props) {
       setSelectedStoryIds(new Set());
       onClose();
     } catch (failure: unknown) {
-      const message = failure instanceof Error ? failure.message : '수업을 만들지 못했어요.';
-      setError(message);
+      setError(messageForError(failure, editing ? '수업을 저장하지 못했어요.' : '수업을 만들지 못했어요.'));
     } finally {
       setSubmitting(false);
     }
@@ -101,11 +123,11 @@ export function LessonFormModal({ visible, onClose, onCreated }: Props) {
   return (
     <Modal
       visible={visible}
-      accessibilityLabel="새 수업 만들기"
-      eyebrow="새 수업"
-      title="새 수업 만들기"
+      accessibilityLabel={isEdit ? '수업 편집' : '새 수업 만들기'}
+      eyebrow={isEdit ? '수업 편집' : '새 수업'}
+      title={isEdit ? '수업 편집' : '새 수업 만들기'}
       positiveAction={{
-        label: submitting ? '만드는 중…' : '수업 만들기',
+        label: submitting ? (isEdit ? '저장 중…' : '만드는 중…') : (isEdit ? '변경 저장' : '수업 만들기'),
         onPress: handleSubmit,
         disabled: !canSubmit,
         loading: submitting,
@@ -208,6 +230,18 @@ function parseDateTime(raw: string): string | null {
   const date = new Date(normalized);
   if (Number.isNaN(date.getTime())) return null;
   return date.toISOString();
+}
+
+/**
+ * ISO 문자열(BE 응답)을 편집 입력 placeholder 형식("YYYY-MM-DD HH:MM")으로 되돌린다 -
+ * parseDateTime의 역함수. Date를 로컬 타임존 기준으로 formatting해서 저장했던 그대로의
+ * 시각을 사용자가 다시 보게 한다.
+ */
+function formatDateTimeForInput(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 const styles = StyleSheet.create({

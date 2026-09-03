@@ -207,11 +207,11 @@ const styles = StyleSheet.create({
   avatar: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: storybookTheme.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarEmoji: { fontSize: 26 },
+  avatarEmoji: { fontSize: storybookTheme.type.xl },
   rowBody: { flex: 1, gap: 2 },
   rowName: {
     fontSize: storybookTheme.type.sm,

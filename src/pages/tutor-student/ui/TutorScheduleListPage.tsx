@@ -69,8 +69,8 @@ export function TutorScheduleListPage() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: storybookTheme.color.shellBackground },
-  backLink: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 20 },
-  backLinkText: { color: storybookTheme.color.onLightMuted, fontSize: storybookTheme.type.sm, fontWeight: '500' },
+  backLink: { minHeight: 44, justifyContent: 'center', paddingHorizontal: storybookTheme.spacing.ml },
+  backLinkText: { color: storybookTheme.color.onLightMuted, fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.medium },
   content: {
     gap: storybookTheme.spacing.ms,
     paddingHorizontal: storybookTheme.spacing.ml,
@@ -79,17 +79,17 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
-  title: { fontSize: storybookTheme.type.lg, fontWeight: '700', color: storybookTheme.color.onLightHeading },
+  title: { fontSize: storybookTheme.type.lg, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onLightHeading },
   error: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.error },
   card: {
-    gap: 6,
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    gap: storybookTheme.spacing.xs,
+    padding: storybookTheme.spacing.md,
+    borderRadius: storybookTheme.radius.card,
+    backgroundColor: storybookTheme.color.surfaceWhite,
     borderWidth: 1,
     borderColor: storybookTheme.color.lightCardBorder,
   },
-  cardTime: { fontSize: storybookTheme.type.xs, fontWeight: '700', color: storybookTheme.color.linkOnLight },
-  cardTitle: { fontSize: storybookTheme.type.md, fontWeight: '700', color: storybookTheme.color.onCardTitle },
+  cardTime: { fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.linkOnLight },
+  cardTitle: { fontSize: storybookTheme.type.md, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onCardTitle },
   cardBody: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onCardBody },
 });

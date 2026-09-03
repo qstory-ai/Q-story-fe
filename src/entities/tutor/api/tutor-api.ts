@@ -97,6 +97,15 @@ export function updateTutorStudent(
   return request(`/v1/tutor-students/${studentId}`, { method: 'PATCH', body: JSON.stringify(input) }, token, options);
 }
 
+export function deleteTutorStudent(
+  token: string,
+  studentId: string,
+  options?: RequestOptions,
+): Promise<void> {
+  // 204 응답 - requestJson()이 undefined로 처리.
+  return request(`/v1/tutor-students/${studentId}`, { method: 'DELETE' }, token, options);
+}
+
 export function createTutorSchedule(
   token: string,
   studentId: string,

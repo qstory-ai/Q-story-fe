@@ -2,12 +2,16 @@ import { StyleSheet } from 'react-native';
 
 import { storybookTheme } from '@/shared/ui';
 
-// reader-card UI 전체가 공유하는 하나의 스타일시트로, 컴포넌트별로 분리하지 않고
-// 여기 한곳에 모아둔다: 많은 키(contentGroup, questionEyebrow, secondaryButtonFull 등)가
-// 이미 여러 패널에서 재사용되고 있어서, 이를 나누어 놓으면 어느 패널이 어느 키를
-// 소유하는지 추적하기 어려워지는 위험이 있다.
-// 버튼 스타일은 대신 shared/ui/action-button에 있다(그 마크업은 이 스타일들과 달리
-// 약 15개의 호출 지점에 그대로 중복되어 있었다).
+// reader-card UI 전체가 공유하는 하나의 스타일시트. 컴포넌트별로 분리하지 않고 여기 한곳에
+// 모아둔다: 많은 키(contentGroup/questionEyebrow/secondaryButtonFull 등)가 이미 여러 패널
+// 에서 재사용되고 있어, 나누면 어느 패널이 어느 키를 소유하는지 추적하기 어렵다. 버튼 스타일은
+// 대신 shared/ui/action-button에 있다(그 마크업은 이 스타일들과 달리 약 15개의 호출 지점에
+// 그대로 중복되어 있었다).
+//
+// 색 팔레트가 넓은 이유: 리더는 씬마다 (배경/그림자/pill/CTA) 미묘하게 다른 tint를 써서 시각
+// 리듬을 만든다. 브랜드 primary/gold/error/surfaceWhite/background 계열과 리더 재사용 톤
+// (readerHeading/readerCard/readerShadow/readerBody* 등)은 storybookTheme 토큰으로 통일했고,
+// 남은 hex는 씬별 일회성 tint라 의도적으로 하드코딩으로 둔다.
 export const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: storybookTheme.color.background },
   app: { flex: 1, backgroundColor: storybookTheme.color.background, overflow: 'hidden' },
@@ -51,7 +55,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#FFF9ED',
     borderBottomWidth: 1,
     borderBottomColor: '#E7DCC9',
-    shadowColor: '#2E1948',
+    shadowColor: storybookTheme.color.readerShadow,
     shadowOpacity: 0.08,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -298,7 +302,7 @@ export const styles = StyleSheet.create({
   statusText: { color: '#573570', fontSize: storybookTheme.type.xxs, fontWeight: storybookTheme.type.weight.bold },
   contentGroup: { gap: 15 },
   heroTitle: {
-    color: '#28153F',
+    color: storybookTheme.color.readerHeading,
     fontSize: storybookTheme.type.xxl,
     lineHeight: 39,
     fontWeight: storybookTheme.type.weight.bold,
@@ -515,7 +519,7 @@ export const styles = StyleSheet.create({
   },
   splitRow: { flexDirection: 'row', gap: 10 },
   recordingTitle: {
-    color: '#28153F',
+    color: storybookTheme.color.readerHeading,
     fontSize: storybookTheme.type.lg,
     lineHeight: 31,
     fontWeight: storybookTheme.type.weight.bold,
@@ -544,7 +548,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   panelTitle: {
-    color: '#28153F',
+    color: storybookTheme.color.readerHeading,
     fontSize: storybookTheme.type.lg,
     lineHeight: 31,
     fontWeight: storybookTheme.type.weight.bold,
@@ -569,7 +573,7 @@ export const styles = StyleSheet.create({
   previewButtonText: { color: '#2B183F', fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.bold },
   loadingGroup: { alignItems: 'center', gap: 14, paddingVertical: 8 },
   loadingTitle: {
-    color: '#28153F',
+    color: storybookTheme.color.readerHeading,
     fontSize: storybookTheme.type.lg,
     lineHeight: 32,
     fontWeight: storybookTheme.type.weight.bold,
@@ -636,7 +640,7 @@ export const styles = StyleSheet.create({
   answerBadge: { backgroundColor: '#FFF0C8' },
   changeBadgeText: { color: '#57306E', fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold },
   responseText: {
-    color: '#28153F',
+    color: storybookTheme.color.readerHeading,
     fontSize: storybookTheme.type.lg,
     lineHeight: 33,
     fontWeight: storybookTheme.type.weight.bold,
@@ -705,7 +709,7 @@ export const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.surfaceWhite,
     padding: 28,
     gap: 14,
-    shadowColor: '#2E1948',
+    shadowColor: storybookTheme.color.readerShadow,
     shadowOpacity: 0.08,
     shadowRadius: 22,
     shadowOffset: { width: 0, height: 10 },
@@ -730,12 +734,12 @@ export const styles = StyleSheet.create({
     paddingVertical: 9,
   },
   reportStoryPillText: {
-    color: '#35204D',
+    color: storybookTheme.color.readerBody,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
   },
   reportHeroBody: {
-    color: '#746987',
+    color: storybookTheme.color.readerBodyMuted,
     fontSize: storybookTheme.type.md,
     lineHeight: 25,
   },
@@ -766,7 +770,7 @@ export const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.surfaceWhite,
     padding: 28,
     gap: 12,
-    shadowColor: '#2E1948',
+    shadowColor: storybookTheme.color.readerShadow,
     shadowOpacity: 0.07,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 8 },
@@ -778,14 +782,14 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
   },
   reportPanelDescription: {
-    color: '#746987',
+    color: storybookTheme.color.readerBodyMuted,
     fontSize: storybookTheme.type.sm,
     lineHeight: 22,
   },
   reportQuestionList: { gap: 18, marginTop: 8 },
   reportQuestionCard: {
     borderRadius: storybookTheme.radius.card,
-    backgroundColor: '#FFF7E9',
+    backgroundColor: storybookTheme.color.readerCard,
     padding: 20,
     gap: 16,
   },
@@ -803,13 +807,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   reportQuestionNumberText: {
-    color: '#2D1948',
+    color: storybookTheme.color.readerBodyStrong,
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
   },
   reportQuestionHeading: { flex: 1, alignItems: 'flex-start', gap: 9 },
   reportQuestionText: {
-    color: '#2D1948',
+    color: storybookTheme.color.readerBodyStrong,
     fontSize: storybookTheme.type.lg,
     lineHeight: 31,
     fontWeight: storybookTheme.type.weight.bold,
@@ -866,7 +870,7 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
   },
   reportSelectedPathSummary: {
-    color: '#746987',
+    color: storybookTheme.color.readerBodyMuted,
     fontSize: storybookTheme.type.sm,
     lineHeight: 20,
   },
@@ -890,7 +894,7 @@ export const styles = StyleSheet.create({
   },
   reportEmptyState: {
     borderRadius: 21,
-    backgroundColor: '#FFF7E9',
+    backgroundColor: storybookTheme.color.readerCard,
     padding: 22,
     gap: 7,
     marginTop: 8,
@@ -915,7 +919,7 @@ export const styles = StyleSheet.create({
     padding: 21,
   },
   reportCoachSummaryText: {
-    color: '#35204D',
+    color: storybookTheme.color.readerBody,
     fontSize: storybookTheme.type.md,
     lineHeight: 29,
     fontWeight: storybookTheme.type.weight.bold,
@@ -981,7 +985,7 @@ export const styles = StyleSheet.create({
   reportFollowUpList: { gap: 10, marginTop: 6 },
   reportFollowUpCard: {
     borderRadius: 18,
-    backgroundColor: '#FFF7E9',
+    backgroundColor: storybookTheme.color.readerCard,
     padding: 17,
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -996,13 +1000,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   reportFollowUpNumberText: {
-    color: '#2E1948',
+    color: storybookTheme.color.readerShadow,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
   },
   reportFollowUpText: {
     flex: 1,
-    color: '#35204D',
+    color: storybookTheme.color.readerBody,
     fontSize: storybookTheme.type.md,
     lineHeight: 24,
     fontWeight: storybookTheme.type.weight.semibold,
@@ -1038,7 +1042,7 @@ export const styles = StyleSheet.create({
   reportActionCopy: { flex: 1, gap: 7 },
   reportActionEyebrow: {
     alignSelf: 'flex-start',
-    color: '#2D1948',
+    color: storybookTheme.color.readerBodyStrong,
     backgroundColor: '#FFE36E',
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.bold,
@@ -1128,7 +1132,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
   },
   companionChatProfileName: {
-    color: '#28153F',
+    color: storybookTheme.color.readerHeading,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
   },
@@ -1149,7 +1153,7 @@ export const styles = StyleSheet.create({
   companionChatSpinner: { alignSelf: 'flex-start', marginTop: 4 },
   companionChatReplyText: {
     alignSelf: 'flex-start',
-    color: '#28153F',
+    color: storybookTheme.color.readerHeading,
     backgroundColor: '#F0E7F7',
     borderRadius: 14,
     borderBottomLeftRadius: 4,

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AppNavShell, SearchField, StoryCard, storybookTheme } from '@/shared/ui';
+import { AppNavShell, Card, FilterChip, SearchField, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
 import {
@@ -137,9 +137,9 @@ export function LibraryPage() {
 
         {availableCategories.length > 0 ? (
           <View style={styles.categoryRow}>
-            <CategoryChip label="전체" selected={category === null} onPress={() => setCategory(null)} />
+            <FilterChip label="전체" selected={category === null} onPress={() => setCategory(null)} />
             {availableCategories.map((cat) => (
-              <CategoryChip
+              <FilterChip
                 key={cat}
                 label={cat}
                 selected={category === cat}
@@ -150,29 +150,24 @@ export function LibraryPage() {
         ) : null}
 
         <View style={styles.tabRow}>
-          {TABS.map((entry) => {
-            const active = entry.key === tab;
-            return (
-              <Pressable
-                key={entry.key}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: active }}
-                onPress={() => setTab(entry.key)}
-                style={({ pressed }) => [styles.tab, active && styles.tabActive, pressed && styles.pressed]}
-              >
-                <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{entry.label}</Text>
-              </Pressable>
-            );
-          })}
+          {TABS.map((entry) => (
+            <FilterChip
+              key={entry.key}
+              accessibilityRole="tab"
+              tone="filled"
+              label={entry.label}
+              selected={entry.key === tab}
+              onPress={() => setTab(entry.key)}
+            />
+          ))}
         </View>
 
         {catalog.status === 'loading' ? (
           <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.gold} /></View>
         ) : catalog.status === 'error' ? (
-          <View style={styles.stubPanel}>
-            <Text style={styles.stubTitle}>이야기를 불러오지 못했어요</Text>
+          <Card variant="panel" padding="md" title="이야기를 불러오지 못했어요">
             <Text style={styles.stubBody}>{catalog.message}</Text>
-          </View>
+          </Card>
         ) : filtered.length === 0 ? (
           <EmptyForTab tab={tab} query={query} category={category} />
         ) : (
@@ -190,19 +185,6 @@ export function LibraryPage() {
 }
 
 /* -------------------------------------------------------------- inner UI */
-
-function CategoryChip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-      onPress={onPress}
-      style={({ pressed }) => [styles.categoryChip, selected && styles.categoryChipActive, pressed && styles.pressed]}
-    >
-      <Text style={[styles.categoryChipLabel, selected && styles.categoryChipLabelActive]}>{label}</Text>
-    </Pressable>
-  );
-}
 
 function StoryCardWithFallback({
   story,
@@ -251,9 +233,9 @@ function EmptyForTab({ tab, query, category }: { tab: Tab; query: string; catego
     tab === 'saved' ? '저장한 이야기가 없어요. 마음에 드는 작품 상세에서 “저장하기”를 눌러 담아 보세요.' :
     '이야기가 없어요.';
   return (
-    <View style={styles.stubPanel}>
+    <Card variant="panel" padding="md">
       <Text style={styles.stubBody}>{caption}</Text>
-    </View>
+    </Card>
   );
 }
 
@@ -329,57 +311,11 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onDark,
   },
-  categoryRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  categoryChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: storybookTheme.radius.pill,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
-  },
-  categoryChipActive: {
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
-    borderColor: storybookTheme.color.gold,
-  },
-  categoryChipLabel: {
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.onDarkMuted,
-  },
-  categoryChipLabelActive: { color: storybookTheme.color.gold },
-  tabRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
-  tab: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: storybookTheme.radius.pill,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
-  },
-  tabActive: { backgroundColor: storybookTheme.color.gold, borderColor: storybookTheme.color.gold },
-  pressed: { opacity: 0.85 },
-  tabLabel: {
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDarkMuted,
-  },
-  tabLabelActive: { color: storybookTheme.color.background },
-  centerBox: { alignItems: 'center', paddingVertical: 32 },
+  categoryRow: { flexDirection: 'row', gap: storybookTheme.spacing.xs, flexWrap: 'wrap' },
+  tabRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, flexWrap: 'wrap' },
+  centerBox: { alignItems: 'center', paddingVertical: storybookTheme.spacing.xl },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  cardSlot: { padding: 8 },
-  stubPanel: {
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
-    borderRadius: storybookTheme.radius.card,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-    gap: 6,
-  },
-  stubTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.gold,
-  },
+  cardSlot: { padding: storybookTheme.spacing.sm },
   stubBody: {
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,

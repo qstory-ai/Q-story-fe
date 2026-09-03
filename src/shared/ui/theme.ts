@@ -64,6 +64,18 @@ export const storybookTheme = {
     disabledBackground: 'rgba(67, 34, 95, 0.06)',
     disabledBorder: 'rgba(67, 34, 95, 0.18)',
     disabledText: '#A79BB0',
+    /**
+     * 리더(one-story) 전용 톤 - 리더는 씬마다 다양한 tint를 쓰기 때문에 palette가 넓지만,
+     * 아래 6개 톤은 리더 여러 화면(제목/카드/그림자/본문 3단)에서 반복적으로 나와 별도 토큰으로
+     * 뒀다. 브랜드 primary(#43225F)보다 각각 조금 어둡거나 밝은 파생이라 primary로 대체할 수
+     * 없다 - 리더의 크림 배경 위 대비를 위해 별도 톤이 필요.
+     */
+    readerHeading: '#28153F',     // heroTitle/panelTitle/recordingTitle/loadingTitle
+    readerBodyStrong: '#2D1948',  // 리포트의 강조 본문(질문 텍스트/번호)
+    readerBody: '#35204D',        // 리포트 pill/coach summary 본문
+    readerBodyMuted: '#746987',   // 리포트 hero body/panel description 등 보조 본문
+    readerShadow: '#2E1948',      // 리포트 카드/topBar 전용 그림자 (전역 shadow #12091F보다 밝음)
+    readerCard: '#FFF7E9',        // 리포트 카드 배경 (surfaceCardOpaque #FFFCF5보다 따뜻한 크림)
   },
   /**
    * 시맨틱 컬러 램프 - Figma "Simple Design System" 커뮤니티 파일의 구조(카테고리별

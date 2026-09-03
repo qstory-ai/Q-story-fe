@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, Icon, Pill, storybookTheme } from '@/shared/ui';
+import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
   listTutorSchedules,
@@ -90,7 +91,7 @@ export function TutorHomePage() {
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')}>
       <View style={styles.scroll}>
-        <TopBar />
+        <TopBar token={state.token} />
 
         <Card variant="surface" padding="lg" style={styles.greetingCard}>
           <Text style={styles.eyebrow}>방문 선생님</Text>
@@ -192,7 +193,7 @@ export function TutorHomePage() {
 
 /* -------------------------------------------------------------------- helpers */
 
-function TopBar() {
+function TopBar({ token }: { token: string }) {
   return (
     <View style={styles.topBar}>
       <View style={styles.brandRow}>
@@ -208,16 +209,7 @@ function TopBar() {
           <Text style={styles.brandWordmarkQ}>Q</Text>-STORY
         </Text>
       </View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="알림"
-        onPress={() => {
-          if (typeof window !== 'undefined') window.alert?.('알림 기능은 곧 준비돼요.');
-        }}
-        style={({ pressed }) => [styles.bellButton, pressed && styles.pressed]}
-      >
-        <Icon name="bell" size={18} color={storybookTheme.color.onDark} />
-      </Pressable>
+      <NotificationBell token={token} />
     </View>
   );
 }
@@ -284,16 +276,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1.8,
   },
   brandWordmarkQ: { color: storybookTheme.color.gold },
-  bellButton: {
-    width: 40,
-    height: 40,
-    borderRadius: storybookTheme.radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
-  },
   pressed: { opacity: 0.85 },
   // Card 프리미티브가 배경/테두리/라운드/패딩을 담당한다. 여기선 인사 카드 안의 자식 gap만 오버라이드.
   greetingCard: {

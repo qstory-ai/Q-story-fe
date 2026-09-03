@@ -35,13 +35,21 @@ export function MyPageAccountPage() {
   if (state.status !== 'authenticated') return null;
   const { user, token } = state;
 
+  // BE AuthValidator.validatePassword와 같은 규칙(8자 이상)을 client에서 먼저 잡아 서버 왕복 없이
+  // 즉시 피드백. 필드별로 inline 에러가 붙고, canSubmit이 만족되지 않으면 버튼은 disabled.
+  const passwordTooShort = newPassword.length > 0 && newPassword.length < 8;
+  const confirmMismatch = confirmPassword.length > 0 && confirmPassword !== newPassword;
+  const canSubmit =
+    currentPassword.length > 0 &&
+    newPassword.length >= 8 &&
+    confirmPassword === newPassword &&
+    !saving;
+
   async function handleChangePassword() {
+    // 방어적 재검증 - 버튼이 disabled여도 (예: 엔터키·접근성 tool로) 호출될 수 있으니.
+    if (!canSubmit) return;
     setError(null);
     setSaved(false);
-    if (newPassword !== confirmPassword) {
-      setError('새 비밀번호가 서로 달라요.');
-      return;
-    }
     setSaving(true);
     try {
       await changePassword(token, { currentPassword, newPassword });
@@ -89,16 +97,24 @@ export function MyPageAccountPage() {
             onChangeText={setCurrentPassword}
             secureTextEntry
           />
-          <TextField label="새 비밀번호" value={newPassword} onChangeText={setNewPassword} secureTextEntry />
+          <TextField
+            label="새 비밀번호"
+            value={newPassword}
+            onChangeText={setNewPassword}
+            secureTextEntry
+            description="8자 이상"
+            errorText={passwordTooShort ? '비밀번호는 8자 이상이어야 해요.' : undefined}
+          />
           <TextField
             label="새 비밀번호 확인"
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry
+            errorText={confirmMismatch ? '새 비밀번호가 서로 달라요.' : undefined}
           />
           {saved ? <StatusBanner label="비밀번호를 변경했어요." /> : null}
           {error ? <StatusBanner variant="warning" label={error} /> : null}
-          <ActionButton label="비밀번호 변경" onPress={handleChangePassword} loading={saving} />
+          <ActionButton label="비밀번호 변경" onPress={handleChangePassword} loading={saving} disabled={!canSubmit} />
         </View>
 
         <Pressable

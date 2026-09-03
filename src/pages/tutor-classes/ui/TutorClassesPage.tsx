@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Pill, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, FilterChip, Pill, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listLessons, type Lesson, type LessonStatus } from '@/entities/lesson';
 import { LessonFormModal } from '@/features/lesson-form';
@@ -75,20 +75,16 @@ export function TutorClassesPage() {
         </View>
 
         <View style={styles.tabRow}>
-          {TABS.map((entry) => {
-            const active = entry.key === tab;
-            return (
-              <Pressable
-                key={entry.key}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: active }}
-                onPress={() => setTab(entry.key)}
-                style={({ pressed }) => [styles.tab, active && styles.tabActive, pressed && styles.pressed]}
-              >
-                <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{entry.label}</Text>
-              </Pressable>
-            );
-          })}
+          {TABS.map((entry) => (
+            <FilterChip
+              key={entry.key}
+              accessibilityRole="tab"
+              tone="filled"
+              label={entry.label}
+              selected={entry.key === tab}
+              onPress={() => setTab(entry.key)}
+            />
+          ))}
         </View>
 
         {load.status === 'loading' ? (
@@ -116,7 +112,10 @@ export function TutorClassesPage() {
         />
       </View>
 
+      {/* key로 open/closed 상태를 걸어 매번 열 때 폼이 초기화되도록 한다 - LessonFormModal이
+          이제 lazy useState로 초기값을 잡아, 다시 열면 이전 입력이 남지 않고 빈 폼이 보인다. */}
       <LessonFormModal
+        key={formOpen ? 'open' : 'closed'}
         visible={formOpen}
         onClose={() => setFormOpen(false)}
         onCreated={() => refresh()}
@@ -196,22 +195,7 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onDark,
   },
-  tabRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
-  tab: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: storybookTheme.radius.pill,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
-  },
-  tabActive: { backgroundColor: storybookTheme.color.gold, borderColor: storybookTheme.color.gold },
-  pressed: { opacity: 0.85 },
-  tabLabel: {
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDarkMuted,
-  },
-  tabLabelActive: { color: storybookTheme.color.background },
+  tabRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, flexWrap: 'wrap' },
   list: { gap: 8 },
   row: {
     flexDirection: 'row',

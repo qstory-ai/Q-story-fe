@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View, useWindowD
 import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, Card, Icon, storybookTheme } from '@/shared/ui';
+import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
 import { StoryCard } from '@/shared/ui/story-card';
@@ -138,7 +139,7 @@ export function ParentHomePage() {
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')}>
       <View style={styles.scroll}>
-        <TopBar />
+        <TopBar token={state.token} />
 
         <Card variant="surface" padding="lg" style={[styles.greetingCard, isWide && styles.greetingCardWide]}>
           <Text style={styles.eyebrow}>{timeOfDayGreeting()}</Text>
@@ -251,7 +252,7 @@ export function ParentHomePage() {
 
 /* -------------------------------------------------------------------- helpers */
 
-function TopBar() {
+function TopBar({ token }: { token: string }) {
   return (
     <View style={styles.topBar}>
       <View style={styles.brandRow}>
@@ -267,17 +268,7 @@ function TopBar() {
           <Text style={styles.brandWordmarkQ}>Q</Text>-STORY
         </Text>
       </View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="알림"
-        onPress={() => {
-          // 알림 백엔드는 아직 없다 - IA에는 있지만 unread count/센터를 이번 세션에 만들지 않았다.
-          if (typeof window !== 'undefined') window.alert?.('알림 기능은 곧 준비돼요.');
-        }}
-        style={({ pressed }) => [styles.bellButton, pressed && styles.pressed]}
-      >
-        <Icon name="bell" size={18} color={storybookTheme.color.onDark} />
-      </Pressable>
+      <NotificationBell token={token} />
     </View>
   );
 }
@@ -506,16 +497,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1.8,
   },
   brandWordmarkQ: { color: storybookTheme.color.gold },
-  bellButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
-  },
   pressed: { opacity: 0.85 },
   // Card 프리미티브(padding='lg'=spacing.lg)를 쓰되 인사 카드만 maxWidth/gap을 페이지 컨텍스트에
   // 맞게 오버라이드한다. 넓은 화면에서는 dashboardCardWide(760)까지 늘어난다.

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 import { storybookTheme } from './theme';
@@ -22,11 +22,14 @@ type Props = {
   children: ReactNode;
   variant?: CardVariant;
   padding?: CardPadding;
+  /** 카드 내부 헤더 - variant에 따라 색이 자동으로 바뀐다(surface=onCardTitle, panel=onDark).
+   *  개별 화면이 각자 panelTitle/cardTitle 텍스트 스타일을 하드코딩하던 것을 통일한다. */
+  title?: string;
   /** gap 없이 그리드/리스트 안에 카드 자체를 배치하고 싶을 때 상위에서 스타일 오버라이드. */
   style?: StyleProp<ViewStyle>;
 };
 
-export function Card({ children, variant = 'surface', padding = 'md', style }: Props) {
+export function Card({ children, variant = 'surface', padding = 'md', title, style }: Props) {
   const paddingValue =
     padding === 'sm' ? storybookTheme.spacing.md
     : padding === 'lg' ? storybookTheme.spacing.lg
@@ -46,7 +49,21 @@ export function Card({ children, variant = 'surface', padding = 'md', style }: P
     style,
   ];
 
-  return <View style={composed}>{children}</View>;
+  const titleColor =
+    variant === 'panel' || variant === 'outlined'
+      ? storybookTheme.color.onDark
+      : storybookTheme.color.onCardTitle;
+
+  return (
+    <View style={composed}>
+      {title ? (
+        <Text style={[styles.title, { color: titleColor }]} accessibilityRole="header">
+          {title}
+        </Text>
+      ) : null}
+      {children}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -69,5 +86,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: storybookTheme.color.panelOnDarkBorder,
     backgroundColor: 'transparent',
+  },
+  title: {
+    fontSize: storybookTheme.type.md,
+    fontWeight: storybookTheme.type.weight.black,
+    marginBottom: storybookTheme.spacing.sm,
   },
 });

@@ -208,13 +208,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   centerBox: { alignItems: 'center', paddingVertical: 40 },
-  eyebrow: { color: storybookTheme.color.gold, fontSize: storybookTheme.type.xs, fontWeight: '600' },
+  eyebrow: { color: storybookTheme.color.gold, fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.semibold },
   title: {
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.lg,
     lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
     letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   previewCard: {
     gap: 4,
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.card,
     padding: 16,
   },
-  previewName: { fontSize: storybookTheme.type.md, fontWeight: '700', color: storybookTheme.color.onCardTitle },
+  previewName: { fontSize: storybookTheme.type.md, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onCardTitle },
   previewNote: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
   consentCard: {
     gap: 4,
@@ -232,9 +232,9 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.card,
     padding: 16,
   },
-  consentGroupLabel: { fontSize: storybookTheme.type.xxs, fontWeight: '700', color: storybookTheme.color.gold, marginTop: 8, letterSpacing: 0.4 },
-  consentItemAllowed: { fontSize: storybookTheme.type.sm, lineHeight: 20, color: storybookTheme.color.onDark },
-  consentItemBlocked: { fontSize: storybookTheme.type.sm, lineHeight: 20, color: storybookTheme.color.onDarkMuted },
+  consentGroupLabel: { fontSize: storybookTheme.type.xxs, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.gold, marginTop: 8, letterSpacing: 0.4 },
+  consentItemAllowed: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onDark },
+  consentItemBlocked: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onDarkMuted },
   footnote: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onDarkMuted },
   errorText: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.error, textAlign: 'center' },
 });

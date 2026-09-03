@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   backLinkText: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.sm,
-    fontWeight: '500',
+    fontWeight: storybookTheme.type.weight.medium,
   },
   centerBox: {
     flex: 1,
@@ -277,13 +277,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: storybookTheme.type.xl,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onCardTitle,
   },
   description: {
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
-    fontWeight: '300',
+    fontWeight: storybookTheme.type.weight.light,
     color: storybookTheme.color.onCardBody,
   },
   secondaryActions: {

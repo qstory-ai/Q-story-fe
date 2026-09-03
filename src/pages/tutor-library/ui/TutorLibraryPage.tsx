@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AppNavShell, Card, FilterChip, SearchField, StoryCard, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, FilterChip, SearchField, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
 import {
@@ -112,6 +112,17 @@ export function TutorLibraryPage() {
     [tab, allStories, bookmarkedIds, recentIds, storyById, query, category],
   );
 
+  // 탭 라벨 옆 개수 뱃지용 - 각 탭의 "필터 이전" 총 개수. 검색/카테고리 필터는 뱃지 카운트에
+  // 반영하지 않는다: 뱃지는 "이 탭에 총 얼마나 있는가"를 알려 주는 지표이지 현재 필터 결과가 아님.
+  const tabCounts = useMemo<Record<Tab, number>>(() => ({
+    all: allStories.length,
+    saved: pickForTab({ tab: 'saved', allStories, bookmarkedIds, recentIds, storyById }).length,
+    recent: pickForTab({ tab: 'recent', allStories, bookmarkedIds, recentIds, storyById }).length,
+  }), [allStories, bookmarkedIds, recentIds, storyById]);
+
+  const clearFilters = () => { setQuery(''); setCategory(null); };
+  const goToAll = () => setTab('all');
+
   if (state.status !== 'authenticated') return null;
 
   return (
@@ -150,6 +161,7 @@ export function TutorLibraryPage() {
               label={entry.label}
               selected={entry.key === tab}
               onPress={() => setTab(entry.key)}
+              count={tabCounts[entry.key]}
             />
           ))}
         </View>
@@ -161,7 +173,13 @@ export function TutorLibraryPage() {
             <Text style={styles.stubBody}>{catalog.message}</Text>
           </Card>
         ) : filtered.length === 0 ? (
-          <EmptyForTab tab={tab} query={query} category={category} />
+          <EmptyForTab
+            tab={tab}
+            query={query}
+            category={category}
+            onClearFilters={clearFilters}
+            onGoToAll={goToAll}
+          />
         ) : (
           <View style={styles.grid}>
             {filtered.map((story) => (
@@ -211,16 +229,38 @@ function StoryCardWithLink({
   );
 }
 
-function EmptyForTab({ tab, query, category }: { tab: Tab; query: string; category: string | null }) {
+function EmptyForTab({
+  tab,
+  query,
+  category,
+  onClearFilters,
+  onGoToAll,
+}: {
+  tab: Tab;
+  query: string;
+  category: string | null;
+  onClearFilters: () => void;
+  onGoToAll: () => void;
+}) {
   const filtered = query.trim().length > 0 || category !== null;
   const caption =
     filtered ? '검색·필터에 맞는 이야기가 없어요.' :
     tab === 'saved' ? '저장한 이야기가 없어요. 마음에 드는 작품 상세에서 “저장하기”를 눌러 담아 보세요.' :
     tab === 'recent' ? '최근에 사용한 이야기가 없어요. 학생과 함께 이야기를 진행하면 여기에 쌓여요.' :
     '이야기가 없어요.';
+  // LibraryPage와 동일 정책: 필터 걸린 상태는 "필터 해제"로, 필터 없는 서브탭 빈 상태는
+  // "전체 이야기 보기"로 유도. '전체'가 완전히 비어 있을 땐 카탈로그 자체가 비어 CTA가 의미
+  // 없어 캡션만.
+  const showClearFilters = filtered;
+  const showGoToAll = !filtered && tab !== 'all';
   return (
-    <Card variant="panel" padding="md">
+    <Card variant="panel" padding="md" style={styles.emptyCard}>
       <Text style={styles.stubBody}>{caption}</Text>
+      {showClearFilters ? (
+        <ActionButton variant="secondaryFull" label="필터 해제" onPress={onClearFilters} />
+      ) : showGoToAll ? (
+        <ActionButton variant="secondaryFull" label="전체 이야기 보기" onPress={onGoToAll} />
+      ) : null}
     </Card>
   );
 }
@@ -304,4 +344,5 @@ const styles = StyleSheet.create({
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onDarkMuted,
   },
+  emptyCard: { gap: storybookTheme.spacing.ms },
 });

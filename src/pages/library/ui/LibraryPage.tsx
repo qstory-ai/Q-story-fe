@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AppNavShell, Card, FilterChip, SearchField, StoryCard, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, FilterChip, SearchField, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
 import {
@@ -121,6 +121,19 @@ export function LibraryPage() {
     return applyFilters(pickForTab({ tab, allStories, readStoryIds, bookmarkedStoryIds, progress, storyById }), query, category);
   }, [tab, allStories, readStoryIds, bookmarkedStoryIds, progress, storyById, query, category]);
 
+  // 탭 라벨 옆 개수 뱃지용 - 각 탭의 "필터 이전" 총 개수. 검색/카테고리 필터는 뱃지 카운트에
+  // 반영하지 않는다: 뱃지는 "이 탭에 총 얼마나 있는가"를 알려 주는 지표이지 현재 필터 결과
+  // 크기가 아니다.
+  const tabCounts = useMemo<Record<Tab, number>>(() => ({
+    all: allStories.length,
+    'in-progress': pickForTab({ tab: 'in-progress', allStories, readStoryIds, bookmarkedStoryIds, progress, storyById }).length,
+    read: readStoryIds.size,
+    saved: bookmarkedStoryIds.size,
+  }), [allStories, readStoryIds, bookmarkedStoryIds, progress, storyById]);
+
+  const clearFilters = () => { setQuery(''); setCategory(null); };
+  const goToAll = () => setTab('all');
+
   if (state.status !== 'authenticated') return null;
 
   return (
@@ -158,6 +171,7 @@ export function LibraryPage() {
               label={entry.label}
               selected={entry.key === tab}
               onPress={() => setTab(entry.key)}
+              count={tabCounts[entry.key]}
             />
           ))}
         </View>
@@ -169,7 +183,13 @@ export function LibraryPage() {
             <Text style={styles.stubBody}>{catalog.message}</Text>
           </Card>
         ) : filtered.length === 0 ? (
-          <EmptyForTab tab={tab} query={query} category={category} />
+          <EmptyForTab
+            tab={tab}
+            query={query}
+            category={category}
+            onClearFilters={clearFilters}
+            onGoToAll={goToAll}
+          />
         ) : (
           <View style={styles.grid}>
             {filtered.map((story) => (
@@ -224,7 +244,19 @@ function StoryCardWithFallback({
   );
 }
 
-function EmptyForTab({ tab, query, category }: { tab: Tab; query: string; category: string | null }) {
+function EmptyForTab({
+  tab,
+  query,
+  category,
+  onClearFilters,
+  onGoToAll,
+}: {
+  tab: Tab;
+  query: string;
+  category: string | null;
+  onClearFilters: () => void;
+  onGoToAll: () => void;
+}) {
   const filtered = query.trim().length > 0 || category !== null;
   const caption =
     filtered ? '검색·필터에 맞는 이야기가 없어요. 다른 조건으로 다시 찾아보세요.' :
@@ -232,9 +264,20 @@ function EmptyForTab({ tab, query, category }: { tab: Tab; query: string; catego
     tab === 'read' ? '아직 끝까지 읽은 이야기가 없어요.' :
     tab === 'saved' ? '저장한 이야기가 없어요. 마음에 드는 작품 상세에서 “저장하기”를 눌러 담아 보세요.' :
     '이야기가 없어요.';
+  // 필터가 걸린 상태의 empty는 "필터 해제"만 있으면 다음 행동이 분명하다. 필터 없는 상태의
+  // 빈 서브탭(읽는 중/읽은/저장한)에서는 '전체' 탭이 항상 채워져 있으므로 그곳으로 유도한다.
+  // '전체'가 완전히 비어 있는 상황은 카탈로그 자체가 비어야 발생하는데, 그때는 CTA가 의미
+  // 없으므로 caption만 보여준다.
+  const showClearFilters = filtered;
+  const showGoToAll = !filtered && tab !== 'all';
   return (
-    <Card variant="panel" padding="md">
+    <Card variant="panel" padding="md" style={styles.emptyCard}>
       <Text style={styles.stubBody}>{caption}</Text>
+      {showClearFilters ? (
+        <ActionButton variant="secondaryFull" label="필터 해제" onPress={onClearFilters} />
+      ) : showGoToAll ? (
+        <ActionButton variant="secondaryFull" label="전체 이야기 보기" onPress={onGoToAll} />
+      ) : null}
     </Card>
   );
 }
@@ -321,4 +364,6 @@ const styles = StyleSheet.create({
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onDarkMuted,
   },
+  // 빈 상태 카드 - 텍스트 아래 CTA 버튼 사이에 여유 확보.
+  emptyCard: { gap: storybookTheme.spacing.ms },
 });

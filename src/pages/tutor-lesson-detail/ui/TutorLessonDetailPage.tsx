@@ -13,6 +13,7 @@ import {
 } from '@/entities/lesson';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { DEFAULT_BETA_STORY_ID } from '@/entities/story';
+import { LessonFormModal } from '@/features/lesson-form';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -34,6 +35,7 @@ export function TutorLessonDetailPage() {
   const [transitionError, setTransitionError] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteInFlight, setDeleteInFlight] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -227,6 +229,15 @@ export function TutorLessonDetailPage() {
                   disabled={transitioning}
                 />
               ) : null}
+              {/* 편집은 아직 시작하지 않은 수업(SCHEDULED)에만 노출 - 이미 진행/완료된 세션의
+                  참여 학생/이야기를 바꾸면 저장된 리포트와 어긋난다. 상태 전환 후엔 삭제만 남긴다. */}
+              {effective.lesson.status === 'SCHEDULED' ? (
+                <ActionButton
+                  variant="secondaryFull"
+                  label="수업 편집"
+                  onPress={() => setEditOpen(true)}
+                />
+              ) : null}
               {effective.lesson.status === 'COMPLETED' ? (
                 <ActionButton
                   variant="secondaryFull"
@@ -266,6 +277,21 @@ export function TutorLessonDetailPage() {
           수업이 사라져도 이미 진행돼 저장된 세션 리포트는 그대로 남아요.
         </Text>
       </Modal>
+
+      {/* key로 lesson.id + updatedAt을 걸어, 다른 수업이나 새로 갱신된 값으로 전환될 때
+          LessonFormModal이 remount돼 lazy useState가 최신 값을 다시 읽는다.
+          editOpen을 함께 포함시켜 모달을 닫았다가 다시 열 때도 초기값이 재계산되게 한다. */}
+      <LessonFormModal
+        key={effective.status === 'ready' ? `${effective.lesson.id}:${effective.lesson.updatedAt}:${editOpen ? 'open' : 'closed'}` : 'no-lesson'}
+        visible={editOpen}
+        editing={effective.status === 'ready' ? effective.lesson : null}
+        onClose={() => setEditOpen(false)}
+        onSaved={(updated) => {
+          setLoad((prev) => (prev.status === 'ready' && prev.requestKey === requestKey
+            ? { ...prev, lesson: updated }
+            : prev));
+        }}
+      />
     </AppNavShell>
   );
 }

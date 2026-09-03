@@ -63,3 +63,16 @@ export function markAllNotificationsRead(
     { baseUrl: apiBaseUrl, ...options, token, parseResponse: false },
   );
 }
+
+export function deleteNotification(
+  token: string,
+  id: string,
+  options?: RequestOptions,
+): Promise<void> {
+  return requestJson<void, NotificationApiError>(
+    NotificationApiError,
+    `/v1/notifications/${encodeURIComponent(id)}`,
+    { method: 'DELETE' },
+    { baseUrl: apiBaseUrl, ...options, token, parseResponse: false },
+  );
+}

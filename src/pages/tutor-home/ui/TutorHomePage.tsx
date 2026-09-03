@@ -98,8 +98,12 @@ export function TutorHomePage() {
           <Text style={styles.body}>오늘 만날 아이와 수업을 준비해 보세요.</Text>
         </Card>
 
-        <Card variant="panel" padding="md" style={styles.panel}>
-          <Text style={styles.panelTitle}>오늘의 수업 · {weekdayLabelToday(todaysWeekday)}요일</Text>
+        <Card
+          variant="panel"
+          padding="md"
+          title={`오늘의 수업 · ${weekdayLabelToday(todaysWeekday)}요일`}
+          style={styles.panel}
+        >
           {load.status === 'loading' ? (
             <Text style={styles.panelBody}>불러오는 중이에요…</Text>
           ) : todaysClasses.length === 0 ? (
@@ -139,8 +143,7 @@ export function TutorHomePage() {
           </Pressable>
         </View>
 
-        <Card variant="panel" padding="md" style={styles.panel}>
-          <Text style={styles.panelTitle}>이번 주 진행 중</Text>
+        <Card variant="panel" padding="md" title="이번 주 진행 중" style={styles.panel}>
           {load.status === 'loading' ? (
             <Text style={styles.panelBody}>불러오는 중이에요…</Text>
           ) : pendingStudents.length === 0 ? (
@@ -158,8 +161,7 @@ export function TutorHomePage() {
           )}
         </Card>
 
-        <Card variant="panel" padding="md" style={styles.panel}>
-          <Text style={styles.panelTitle}>이번 주 일정 요약</Text>
+        <Card variant="panel" padding="md" title="이번 주 일정 요약" style={styles.panel}>
           <View style={styles.weeklyRow}>
             {WEEKDAY_ORDER.map((weekday) => {
               const count = upcomingByWeekday[weekday] ?? 0;
@@ -318,11 +320,6 @@ const styles = StyleSheet.create({
   // Card variant='panel'이 배경/테두리/라운드/패딩을 담당. 여기선 자식 gap만 오버라이드.
   panel: {
     gap: storybookTheme.spacing.ms,
-  },
-  panelTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onDark,
   },
   panelBody: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onDarkMuted },
   scheduleRow: {

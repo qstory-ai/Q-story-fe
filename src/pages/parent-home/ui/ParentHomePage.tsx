@@ -194,20 +194,25 @@ export function ParentHomePage() {
         ) : null}
 
         <View style={styles.recentSection}>
-          <Text style={styles.recentSectionTitle} accessibilityRole="header">최근 활동</Text>
-          {recentActivity.length > 0 ? (
-            recentActivity.map((entry) => (
-              <RecentActivityRow key={entry.id} entry={entry} onPress={() => {
-                if (entry.kind === 'completion') navigate(`/reports/${entry.id}`);
-              }} />
-            ))
-          ) : (
-            <Card variant="panel" padding="md">
-              <Text style={styles.emptyRecentBody}>
-                첫 이야기를 끝까지 읽으면 여기에 기록이 남아요.
-              </Text>
-            </Card>
-          )}
+          <HomeSection title="최근 활동" direction="vertical">
+            {recentActivity.length > 0 ? (
+              recentActivity.map((entry) => (
+                <RecentActivityRow
+                  key={entry.id}
+                  entry={entry}
+                  onPress={() => {
+                    if (entry.kind === 'completion') navigate(`/reports/${entry.id}`);
+                  }}
+                />
+              ))
+            ) : (
+              <Card variant="panel" padding="md">
+                <Text style={styles.emptyRecentBody}>
+                  첫 이야기를 끝까지 읽으면 여기에 기록이 남아요.
+                </Text>
+              </Card>
+            )}
+          </HomeSection>
         </View>
 
         {storyLoadError && (stories?.length ?? 0) === 0 ? (
@@ -579,13 +584,6 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
-    gap: 8,
-  },
-  recentSectionTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onDark,
-    paddingHorizontal: 4,
   },
   emptyRecentBody: {
     fontSize: storybookTheme.type.xs,

@@ -137,10 +137,10 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: storybookTheme.layout.contentMaxWidth,
     alignSelf: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 32,
-    gap: 14,
+    paddingHorizontal: storybookTheme.spacing.ml,
+    paddingTop: storybookTheme.spacing.sm,
+    paddingBottom: storybookTheme.spacing.xl,
+    gap: storybookTheme.spacing.ms,
   },
   title: {
     fontSize: storybookTheme.type.xl,
@@ -148,14 +148,14 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onDark,
   },
   subtitle: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onDarkMuted },
-  centerBox: { alignItems: 'center', paddingVertical: 40 },
+  centerBox: { alignItems: 'center', paddingVertical: storybookTheme.spacing.xxl },
   card: {
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,
     borderWidth: 1,
     borderColor: storybookTheme.color.surfaceCardBorder,
-    padding: 20,
-    gap: 10,
+    padding: storybookTheme.spacing.ml,
+    gap: storybookTheme.spacing.sm,
   },
   statusEyebrow: {
     fontSize: storybookTheme.type.xxs,
@@ -182,6 +182,7 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    // xs(4)/sm(8) 사이의 컴팩트 값 - 라벨 두 줄이 카드 안에 붙어 보이도록 6 유지.
     paddingVertical: 6,
     marginTop: 6,
     borderTopWidth: 1,
@@ -194,9 +195,9 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
   },
   mailButton: {
-    marginTop: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    marginTop: storybookTheme.spacing.xs,
+    paddingVertical: storybookTheme.spacing.ms,
+    paddingHorizontal: storybookTheme.spacing.md,
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.primary,
     alignItems: 'center',

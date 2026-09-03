@@ -212,10 +212,11 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
     width: '100%',
-    maxWidth: 640,
+    maxWidth: storybookTheme.layout.dashboardCardMaxWidth,
     alignSelf: 'center',
-    gap: 16,
-    paddingHorizontal: 20,
+    gap: storybookTheme.spacing.md,
+    paddingHorizontal: storybookTheme.spacing.ml,
+    // spacing.lg(24)와 xl(32) 사이 - 상단 카드 위에 여유 있게 두려고 28 유지.
     paddingVertical: 28,
   },
   card: {
@@ -223,20 +224,21 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     backgroundColor: storybookTheme.color.surfaceCard,
     borderRadius: storybookTheme.radius.card,
-    paddingHorizontal: 24,
+    paddingHorizontal: storybookTheme.spacing.lg,
     paddingVertical: 28,
-    gap: 14,
+    gap: storybookTheme.spacing.ms,
   },
-  title: { fontSize: storybookTheme.type.lg, fontWeight: '900', color: storybookTheme.color.onCardTitle },
-  body: { fontSize: storybookTheme.type.sm, lineHeight: 21, color: storybookTheme.color.onCardBody },
+  title: { fontSize: storybookTheme.type.lg, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onCardTitle },
+  body: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onCardBody },
   dashboardGrid: {
-    gap: 10,
+    gap: storybookTheme.spacing.sm,
   },
   dashboardCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: storybookTheme.spacing.ms,
+    // spacing.md(16)와 ml(20) 사이 - 대시보드 카드는 좁은 폭에서 여백을 조금 더 둠.
     padding: 18,
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,
@@ -244,7 +246,7 @@ const styles = StyleSheet.create({
     borderColor: storybookTheme.color.surfaceCardBorder,
   },
   dashboardCardPressed: { opacity: 0.85 },
-  dashboardCardText: { flex: 1, gap: 4 },
+  dashboardCardText: { flex: 1, gap: storybookTheme.spacing.xs },
   dashboardCardTitle: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,

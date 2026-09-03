@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, Icon, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
+import { ActionButton, Card, Icon, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { fetchStoryEntry, type StoryCatalogEntry } from '@/entities/story';
 import { messageForError } from '@/shared/api';
 import { useAuth } from '@/entities/auth';
@@ -143,7 +143,7 @@ export function StoryDetailPage() {
               </View>
             )}
           </View>
-          <View style={styles.card}>
+          <Card variant="surface" padding="lg" style={styles.infoCard}>
             {effectiveLoad.story.category ? <Pill label={effectiveLoad.story.category} /> : null}
             <Text style={styles.title} accessibilityRole="header">{effectiveLoad.story.title}</Text>
             {effectiveLoad.story.description ? (
@@ -184,7 +184,7 @@ export function StoryDetailPage() {
             </View>
             {bookmarkError ? <Text style={styles.actionError}>{bookmarkError}</Text> : null}
             {lessonToast ? <Text style={styles.actionInfo}>{lessonToast}</Text> : null}
-          </View>
+          </Card>
         </View>
       )}
 
@@ -264,15 +264,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  card: {
+  // Card 프리미티브가 배경/테두리/라운드/패딩/elevation을 담당. 여기선 커버 이미지 위로
+  // 살짝 겹치는 negative margin과 좌우 여백, 자식 gap, 강조 elevation만 오버라이드한다.
+  infoCard: {
     marginTop: -28,
-    marginHorizontal: 20,
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    padding: 24,
-    gap: 12,
+    marginHorizontal: storybookTheme.spacing.ml,
+    gap: storybookTheme.spacing.ms,
     ...storybookTheme.elevation.high,
   },
   title: {

@@ -2,11 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Icon, StatusBanner, TextField, TextareaField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Icon, Modal, StatusBanner, TextField, TextareaField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
   createTutorInvite,
+  deleteTutorStudent,
   getTutorStudent,
   listStudentLessonPlans,
   removeTutorLessonPlan,
@@ -51,6 +52,9 @@ export function TutorStudentDetailPage() {
   const [issueError, setIssueError] = useState<string | null>(null);
   const [plansLoad, setPlansLoad] = useState<PlansLoad>({ status: 'loading' });
   const [removingPlanId, setRemovingPlanId] = useState<string | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteInFlight, setDeleteInFlight] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -138,6 +142,21 @@ export function TutorStudentDetailPage() {
       setRemovingPlanId(null);
     }
   }, [state]);
+
+  const handleDeleteStudent = useCallback(async () => {
+    if (state.status !== 'authenticated' || !studentId) return;
+    setDeleteInFlight(true);
+    setDeleteError(null);
+    try {
+      await deleteTutorStudent(state.token, studentId);
+      // 성공 - 학생 목록으로 replace 이동 (뒤로가기로 삭제된 학생 상세로 돌아가지 못하게).
+      navigate('/tutor/students', { replace: true });
+    } catch (failure: unknown) {
+      setDeleteError(messageForError(failure, '학생을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.'));
+      setDeleteInFlight(false);
+      // 실패해도 모달은 열어두어 사용자가 재시도하거나 취소할 수 있게 한다.
+    }
+  }, [state, studentId, navigate]);
 
   const handleIssueInvite = useCallback(async () => {
     if (state.status !== 'authenticated' || !studentId) return;
@@ -294,9 +313,45 @@ export function TutorStudentDetailPage() {
                 </View>
               )}
             </View>
+
+            {/* 학생 삭제 - 마이너 액션이라 카드 밖 얇은 링크로 둔다. 확인 모달이 방어막. */}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${effective.student.name} 학생 삭제`}
+              onPress={() => {
+                setDeleteError(null);
+                setDeleteOpen(true);
+              }}
+              style={styles.deleteLink}
+            >
+              <Text style={styles.deleteLinkText}>학생 삭제</Text>
+            </Pressable>
           </>
         )}
       </View>
+
+      <Modal
+        visible={deleteOpen}
+        accessibilityLabel="학생 삭제 확인"
+        title={effective.status === 'ready' ? `${effective.student.name} 학생을 지울까요?` : '학생 삭제'}
+        positiveAction={{
+          label: deleteInFlight ? '삭제 중…' : '삭제',
+          onPress: handleDeleteStudent,
+          disabled: deleteInFlight,
+          loading: deleteInFlight,
+        }}
+        negativeAction={{
+          label: '취소',
+          onPress: () => setDeleteOpen(false),
+          disabled: deleteInFlight,
+        }}
+      >
+        <Text style={styles.dialogBody}>
+          연결된 초대·일정·수업 계획도 함께 사라져요. 이미 저장된 리포트는 남지만
+          "이 학생과 진행한 세션"이라는 표시는 잃어요.
+        </Text>
+        {deleteError ? <Text style={styles.dialogError}>{deleteError}</Text> : null}
+      </Modal>
     </AppNavShell>
   );
 }
@@ -432,4 +487,29 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.pillBackground,
   },
   planRemovePressed: { opacity: 0.7 },
+  // 학생 삭제 링크 - 파괴적 액션이라 카드 밖 얇은 하단 링크. 확인 모달이 실제 방어막.
+  deleteLink: {
+    alignSelf: 'center',
+    paddingVertical: storybookTheme.spacing.sm,
+    paddingHorizontal: storybookTheme.spacing.md,
+    marginTop: storybookTheme.spacing.sm,
+  },
+  deleteLinkText: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.error,
+    textDecorationLine: 'underline',
+  },
+  dialogBody: {
+    fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onCardBody,
+    textAlign: 'center',
+  },
+  dialogError: {
+    fontSize: storybookTheme.type.xs,
+    color: storybookTheme.color.error,
+    textAlign: 'center',
+    marginTop: storybookTheme.spacing.sm,
+  },
 });

@@ -119,6 +119,9 @@ function ClassManagementStep({
 }) {
   const navigate = useNavigate();
   const [entitlement, setEntitlement] = useState<EntitlementResponse | null>(null);
+  // fetchEntitlement가 조용히 실패해도 대시보드가 살아 있어야 하지만, 로딩 중임을 표시는 해야
+  // "구독 상태가 없는 건지, 아직 안 온 건지" 사용자가 혼동하지 않는다. done=true는 성공/실패 무관.
+  const [entitlementDone, setEntitlementDone] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -128,6 +131,9 @@ function ClassManagementStep({
       })
       .catch(() => {
         // 구독 상태는 부가 정보라 조회 실패해도 대시보드 자체는 그대로 쓸 수 있어야 한다.
+      })
+      .finally(() => {
+        if (!cancelled) setEntitlementDone(true);
       });
     return () => {
       cancelled = true;
@@ -149,7 +155,7 @@ function ClassManagementStep({
             "이야기를 아예 시작할 수 없다"는 예전 문구는 사실이 아니었다 - 구독은 데모 이후의
             전체 작품에만 걸리는 것이라고 정확히 말해야 한다.
           */}
-          {entitlement && (
+          {entitlement ? (
             <StatusBanner
               variant={entitlement.grantsAccess ? 'info' : 'warning'}
               label={SUBSCRIPTION_LABEL[entitlement.subscriptionStatus]}
@@ -159,7 +165,12 @@ function ClassManagementStep({
                   : '구독 없이도 무료 데모 한 편은 계속 이용할 수 있어요. 전체 이야기는 구독 후 열려요.'
               }
             />
-          )}
+          ) : !entitlementDone ? (
+            <View style={styles.entitlementLoader}>
+              <ActivityIndicator color={storybookTheme.color.gold} />
+              <Text style={styles.entitlementLoaderText}>구독 상태를 확인 중이에요…</Text>
+            </View>
+          ) : null}
         </Card>
 
         <View style={styles.dashboardGrid}>
@@ -248,6 +259,15 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: storybookTheme.type.lg, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onCardTitle },
   body: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onCardBody },
+  entitlementLoader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: storybookTheme.spacing.sm,
+  },
+  entitlementLoaderText: {
+    fontSize: storybookTheme.type.xs,
+    color: storybookTheme.color.onCardMuted,
+  },
   dashboardGrid: {
     gap: storybookTheme.spacing.sm,
   },

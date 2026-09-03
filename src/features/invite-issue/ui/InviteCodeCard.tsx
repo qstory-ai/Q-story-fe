@@ -82,8 +82,9 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.surfaceCard,
     borderWidth: 1,
     borderColor: storybookTheme.color.gold,
+    // spacing.md(16)와 ml(20) 사이 - 초대 카드는 좁은 폭에서도 여유 있게 보여야 해 18 유지.
     padding: 18,
-    gap: 10,
+    gap: storybookTheme.spacing.sm,
   },
   eyebrow: {
     fontSize: storybookTheme.type.xxs,
@@ -100,8 +101,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingVertical: 10,
+    gap: storybookTheme.spacing.sm,
+    paddingVertical: storybookTheme.spacing.sm,
     borderTopWidth: 1,
     borderTopColor: storybookTheme.color.pillBorder,
   },
@@ -122,8 +123,9 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
   },
   copyButton: {
+    // pill 버튼 안쪽 여백 - spacing.ms(12)와 md(16) 사이. 코드 두 글자짜리 라벨에 맞춘 14 유지.
     paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingVertical: storybookTheme.spacing.sm,
     borderRadius: storybookTheme.radius.pill,
     backgroundColor: storybookTheme.color.primary,
   },
@@ -136,12 +138,13 @@ const styles = StyleSheet.create({
   },
   copyLabelDisabled: { color: storybookTheme.color.disabledText },
   footnote: {
-    marginTop: 4,
+    marginTop: storybookTheme.spacing.xs,
     fontSize: storybookTheme.type.xxs,
     color: storybookTheme.color.onCardMuted,
   },
   dismissLink: {
     alignSelf: 'flex-end',
+    // 닫기 링크 히트 영역 - xs(4)와 sm(8) 사이의 컴팩트 값, 링크 텍스트 주변 여백만 확보.
     paddingHorizontal: 6,
     paddingVertical: 6,
   },

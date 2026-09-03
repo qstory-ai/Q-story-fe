@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   pageArrow: {
     minWidth: 40,
     minHeight: 40,
-    borderRadius: 20,
+    borderRadius: storybookTheme.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: storybookTheme.color.panelOnDarkBackground,
@@ -238,12 +238,14 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
+    // 40x40 정원 안에서 화살표 문자가 수직 중앙에 정확히 오도록 lineHeight를 명시 잠금.
     lineHeight: 20,
   },
   pageNumber: {
     minWidth: 40,
     minHeight: 40,
-    borderRadius: 20,
+    borderRadius: storybookTheme.radius.pill,
+    // 두 자리 숫자를 담을 여유 - xs(4)/sm(8) 사이의 컴팩트 값 유지.
     paddingHorizontal: 6,
     alignItems: 'center',
     justifyContent: 'center',

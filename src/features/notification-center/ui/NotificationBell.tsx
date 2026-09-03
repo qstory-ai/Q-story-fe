@@ -2,13 +2,62 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { Icon, Modal, storybookTheme } from '@/shared/ui';
+import { Icon, Modal, storybookTheme, type IconName } from '@/shared/ui';
 import {
   listNotifications,
   markAllNotificationsRead,
   markNotificationRead,
   type Notification,
 } from '@/entities/notification';
+
+/**
+ * BE의 notification.kind별 시각 표현 - 아이콘과 액센트 톤. BE가 알림을 발행할 때 정하는
+ * kind 문자열(예: 'tutor-report')과 여기 키가 정확히 매칭돼야 한다. 새 kind가 추가되면
+ * 이 표에 항목을 넣고, 없으면 default가 사용된다.
+ *
+ * tone은 배지 배경(투명도 낮은)과 아이콘 색을 함께 결정하는 시맨틱 라벨이라, 색 자체가 아니라
+ * '이 알림이 어떤 성격인지'를 코드에 남긴다 - gold=콘텐츠 도착, positive=관계 성사, brand=신규 참여.
+ */
+type Presentation = { icon: IconName; tone: 'gold' | 'positive' | 'brand' };
+
+const KIND_PRESENTATION: Record<string, Presentation> = {
+  // 튜터 세션 완주 → 부모: 리포트 도착
+  'tutor-report': { icon: 'report', tone: 'gold' },
+  // 부모가 튜터 초대 수락 → 튜터: 새 연결 성사
+  'tutor-invite-accepted': { icon: 'users', tone: 'positive' },
+  // 튜터가 기관 초대 수락 → 원장: 새 소속 선생님
+  'org-tutor-invite-accepted': { icon: 'graduationCap', tone: 'positive' },
+  // 부모가 반 가입 → 원장: 새 반원
+  'class-parent-joined': { icon: 'users', tone: 'brand' },
+};
+
+const DEFAULT_PRESENTATION: Presentation = { icon: 'bell', tone: 'gold' };
+
+function presentationFor(kind: string): Presentation {
+  return KIND_PRESENTATION[kind] ?? DEFAULT_PRESENTATION;
+}
+
+function toneColors(tone: Presentation['tone']): { background: string; icon: string } {
+  switch (tone) {
+    case 'positive':
+      return {
+        background: storybookTheme.semantic.positive.background,
+        icon: storybookTheme.semantic.positive.text,
+      };
+    case 'brand':
+      return {
+        background: storybookTheme.semantic.brand.secondary,
+        icon: storybookTheme.color.primary,
+      };
+    case 'gold':
+    default:
+      // gold-알파 배경 - accent 계열은 아직 tinted 배경 토큰이 따로 없어 계산값을 그대로 유지.
+      return {
+        background: 'rgba(246, 198, 77, 0.16)',
+        icon: storybookTheme.color.gold,
+      };
+  }
+}
 
 type Props = {
   token: string;
@@ -135,27 +184,32 @@ export function NotificationBell({ token, onDark = true }: Props) {
           <Text style={styles.status}>아직 알림이 없어요.</Text>
         ) : (
           <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
-            {notifications.map((n) => (
-              <Pressable
-                key={n.id}
-                accessibilityRole={n.href ? 'link' : 'button'}
-                onPress={() => handleItemPress(n)}
-                style={({ pressed }) => [
-                  styles.row,
-                  n.readAt === null && styles.rowUnread,
-                  pressed && styles.pressed,
-                ]}
-              >
-                <View style={styles.rowDotWrap}>
-                  {n.readAt === null ? <View style={styles.rowDot} /> : null}
-                </View>
-                <View style={styles.rowBody}>
-                  <Text style={styles.rowTitle}>{n.title}</Text>
-                  {n.body ? <Text style={styles.rowSubtitle}>{n.body}</Text> : null}
-                  <Text style={styles.rowMeta}>{formatRelative(n.createdAt)}</Text>
-                </View>
-              </Pressable>
-            ))}
+            {notifications.map((n) => {
+              const { icon, tone } = presentationFor(n.kind);
+              const colors = toneColors(tone);
+              return (
+                <Pressable
+                  key={n.id}
+                  accessibilityRole={n.href ? 'link' : 'button'}
+                  onPress={() => handleItemPress(n)}
+                  style={({ pressed }) => [
+                    styles.row,
+                    n.readAt === null && styles.rowUnread,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <View style={[styles.rowIconFrame, { backgroundColor: colors.background }]}>
+                    <Icon name={icon} size={16} color={colors.icon} />
+                  </View>
+                  <View style={styles.rowBody}>
+                    <Text style={styles.rowTitle}>{n.title}</Text>
+                    {n.body ? <Text style={styles.rowSubtitle}>{n.body}</Text> : null}
+                    <Text style={styles.rowMeta}>{formatRelative(n.createdAt)}</Text>
+                  </View>
+                  {n.readAt === null ? <View style={styles.rowUnreadDot} /> : null}
+                </Pressable>
+              );
+            })}
           </ScrollView>
         )}
       </Modal>
@@ -226,12 +280,22 @@ const styles = StyleSheet.create({
   rowUnread: {
     backgroundColor: storybookTheme.color.pillBorder,
   },
-  rowDotWrap: { width: 12, alignItems: 'center', paddingTop: 6 },
-  rowDot: {
+  // kind별 아이콘 프레임 - background/icon 색은 toneColors()가 인라인으로 결정한다.
+  rowIconFrame: {
+    width: 32,
+    height: 32,
+    borderRadius: storybookTheme.radius.input,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // 오른쪽 unread 점 - 열 자리에 있던 예전 dot을 대체. 아이콘 프레임이 좌측 신호를 담당하고,
+  // 이 점은 "아직 안 읽음"을 명확히 알려 주는 이중 시그널.
+  rowUnreadDot: {
     width: 8,
     height: 8,
     borderRadius: storybookTheme.radius.pill,
     backgroundColor: storybookTheme.color.gold,
+    marginTop: 4,
   },
   rowBody: { flex: 1, gap: 2 },
   rowTitle: {

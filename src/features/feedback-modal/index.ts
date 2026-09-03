@@ -1,1 +1,1 @@
-export { FeedbackModal } from './ui/feedback-modal';
+export { FeedbackModal, type FeedbackKind } from './ui/feedback-modal';

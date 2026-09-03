@@ -4,20 +4,20 @@ import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, Icon, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
-import { FeedbackModal } from '@/features/feedback-modal';
+import { FeedbackModal, type FeedbackKind } from '@/features/feedback-modal';
 
 const SUPPORT_EMAIL = 'support@qstory.co.kr';
 
 /**
  * IA "[4] 마이페이지 > 고객지원" 화면. IA에 열거된 두 액션(기능제안 / 오류제보)은 백엔드의
- * feedback API 하나로 통합돼 있어 여기선 FeedbackModal을 두 진입점으로 나눠 열어 준다 -
- * 제출 시 메시지 앞머리에 [기능제안]/[오류제보]를 붙일 수 있게 hint prop을 다음 세션에 추가할
- * 예정이지만, 지금은 사용자가 본문에 자유롭게 쓰도록 두고 라벨만 구분한다.
+ * feedback API 하나로 통합돼 있어 여기선 FeedbackModal을 kind prop으로 두 진입점으로 나눠
+ * 열어 준다 - 각 kind에 맞춰 모달 제목/힌트/prefix가 달라져 운영 인박스에서 종류를 즉시
+ * 구분할 수 있다.
  */
 export function MyPageSupportPage() {
   const navigate = useNavigate();
   const { state } = useAuth();
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackKind, setFeedbackKind] = useState<FeedbackKind | null>(null);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -46,14 +46,14 @@ export function MyPageSupportPage() {
           title="기능제안"
           body="이런 기능이 있었으면 좋겠다는 아이디어를 남겨 주세요."
           label="아이디어 남기기"
-          onPress={() => setFeedbackOpen(true)}
+          onPress={() => setFeedbackKind('suggestion')}
         />
 
         <ActionCard
           title="오류제보"
           body="이용 중 잘못 동작하는 점이 있다면 알려 주세요. 재현 상황을 함께 적어 주시면 더 빨리 확인할 수 있어요."
           label="오류 남기기"
-          onPress={() => setFeedbackOpen(true)}
+          onPress={() => setFeedbackKind('bug')}
         />
 
         <ActionCard
@@ -69,7 +69,15 @@ export function MyPageSupportPage() {
         </View>
       </View>
 
-      <FeedbackModal visible={feedbackOpen} token={state.token} onClose={() => setFeedbackOpen(false)} />
+      {/* key로 kind를 걸어 종류가 바뀌면 모달 내부 state가 초기화되도록 remount 시킨다 -
+          예전 kind에 남아 있던 입력이 새 kind로 새어 들어가지 않게. */}
+      <FeedbackModal
+        key={feedbackKind ?? 'closed'}
+        visible={feedbackKind !== null}
+        kind={feedbackKind ?? undefined}
+        token={state.token}
+        onClose={() => setFeedbackKind(null)}
+      />
     </AppNavShell>
   );
 }

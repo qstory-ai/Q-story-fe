@@ -1,4 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import type { GestureResponderEvent } from 'react-native';
 
 import { Icon } from './icon';
 import { Pill } from './pill';
@@ -31,6 +32,14 @@ export type StoryCardProps = {
    * 진행률 계산은 호출자 책임 - 표시만 담당한다.
    */
   progress?: number;
+  /**
+   * 표지 우상단에 얹히는 작은 × 오버레이 버튼. "저장한 작품" 탭이 카드 자체 클릭(상세 열기)과
+   * 별개로 즉시 저장 해제할 수 있게 한다. 이 Pressable은 카드 onPress가 함께 발동되지 않도록
+   * stopPropagation으로 이벤트를 잡는다.
+   */
+  onRemove?: () => void;
+  /** onRemove 버튼의 accessibilityLabel - "저장 해제" 같은 상황별 라벨을 호출자가 정한다. */
+  removeLabel?: string;
 };
 
 /** 홈 서재의 그리드 아이템 - 어두운 배경 위에 떠 있는 크림색 카드로, 리더 자체의 reader-card 모티프와 맞춘다. */
@@ -44,9 +53,17 @@ export function StoryCard({
   lockedCaption,
   size = 'default',
   progress,
+  onRemove,
+  removeLabel,
 }: StoryCardProps) {
   const isMini = size === 'mini';
   const accessibilityLabel = locked ? `잠김, ${title}` : category ? `${category}, ${title}` : title;
+  const handleRemove = (event: GestureResponderEvent) => {
+    // 부모 Pressable의 onPress(상세 열기)가 함께 발동되지 않도록 이벤트 전파를 여기서 잡는다.
+    // React Native Web은 DOM 이벤트를 GestureResponderEvent에 래핑하므로 표준 stopPropagation이 동작.
+    event.stopPropagation();
+    onRemove?.();
+  };
   return (
     <Pressable
       accessibilityRole="button"
@@ -71,6 +88,17 @@ export function StoryCard({
           <View style={styles.lockBadge}>
             <Icon name="lock" size={isMini ? 12 : 16} color={storybookTheme.color.onDark} />
           </View>
+        ) : null}
+        {onRemove ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={removeLabel ?? '삭제'}
+            onPress={handleRemove}
+            hitSlop={6}
+            style={({ pressed }) => [styles.removeBadge, pressed && styles.removeBadgePressed]}
+          >
+            <Icon name="close" size={12} color={storybookTheme.color.onDark} />
+          </Pressable>
         ) : null}
         {typeof progress === 'number' ? (
           <View style={styles.progressTrack} accessibilityLabel={`진행률 ${Math.round(progress * 100)}퍼센트`}>
@@ -159,6 +187,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(18, 10, 30, 0.6)',
   },
+  // × 오버레이 - lockBadge와 같은 우상단 자리를 공유하지만, locked/onRemove가 동시에 발생하지
+  // 않는 실사용 조건(잠긴 이야기는 저장할 수 없거나, 있어도 삭제 유효)에서 크게 문제되지 않는다.
+  // 필요해지면 위치를 좌상단이나 top+가로 오프셋으로 나눈다.
+  removeBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 26,
+    height: 26,
+    borderRadius: storybookTheme.radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(18, 10, 30, 0.7)',
+  },
+  removeBadgePressed: { opacity: 0.7 },
   /**
    * Figma "Simple Design System"의 Card 컴포넌트는 Body2(텍스트 그룹+버튼 그룹) 사이는
    * space-400(16), Text 그룹 안(제목-설명)은 space-200(8)로 구분한다 - 지금까지는 pill/제목/

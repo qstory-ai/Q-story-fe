@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, Card, Icon, storybookTheme } from '@/shared/ui';
@@ -43,7 +43,16 @@ export function ParentHomePage() {
   const [storyLoadError, setStoryLoadError] = useState<string | null>(null);
   const [completions, setCompletions] = useState<StoryCompletionSummary[]>([]);
   const [tutorReports, setTutorReports] = useState<TutorReportSummary[]>([]);
+  // 로딩 상태는 "지금 어느 아이 기준으로 요청했고, 어느 아이 응답이 왔는지"를 request/response
+  // key로 비교해 도출한다 - setState-in-effect 없이 selectedChild 전환 순간에도 자연스럽게
+  // "불러오는 중"으로 돌아간다. 응답 key는 fetch를 시작한 시점의 아이 id + 'all' 폴백.
+  const completionsRequestKey = selectedChild?.id ?? 'all';
+  const [completionsResponseKey, setCompletionsResponseKey] = useState<string | null>(null);
+  const [reportsDone, setReportsDone] = useState(false);
   const [progress] = useState<LocalStoryProgress | null>(() => loadLocalStoryProgress());
+  const catalogLoading = stories === null;
+  const completionsDone = completionsResponseKey === completionsRequestKey;
+  const activityLoading = !completionsDone || !reportsDone;
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -75,12 +84,18 @@ export function ParentHomePage() {
     // 선택된 아이가 있으면 그 아이 완주만, 없으면(=아이 미등록) 전체 완주. 아이 선택기에서
     // 다른 아이로 바꾸면 최근 활동 카드도 자연스럽게 그 아이 기준으로 갱신된다.
     const filters = selectedChild ? { childId: selectedChild.id } : undefined;
+    // 요청 시작 시점의 key를 캡처해, finally에서 그 key로 응답 완료 표시를 남긴다. 위의
+    // completionsRequestKey와 이 responseKey가 일치할 때만 completionsDone=true로 도출된다.
+    const requestKey = selectedChild?.id ?? 'all';
     listStoryCompletions(state.token, filters)
       .then((list) => {
         if (!cancelled) setCompletions(list);
       })
       .catch(() => {
         // 최근 활동은 부가 섹션이라 실패해도 조용히 넘긴다 - 다른 섹션은 그대로 살아 있는다.
+      })
+      .finally(() => {
+        if (!cancelled) setCompletionsResponseKey(requestKey);
       });
     return () => {
       cancelled = true;
@@ -96,6 +111,9 @@ export function ParentHomePage() {
       })
       .catch(() => {
         // 위와 같은 이유로 조용히 무시.
+      })
+      .finally(() => {
+        if (!cancelled) setReportsDone(true);
       });
     return () => {
       cancelled = true;
@@ -144,6 +162,10 @@ export function ParentHomePage() {
             onPress={() => navigate(`/stories/${hero.storyId}`)}
             locked={unlockStateFor(hero, state) === 'locked'}
           />
+        ) : catalogLoading ? (
+          <Card variant="panel" padding="lg" style={styles.heroLoader}>
+            <ActivityIndicator color={storybookTheme.color.gold} />
+          </Card>
         ) : null}
 
         {progress ? (
@@ -205,6 +227,10 @@ export function ParentHomePage() {
                   }}
                 />
               ))
+            ) : activityLoading ? (
+              <Card variant="panel" padding="md">
+                <Text style={styles.emptyRecentBody}>불러오는 중이에요…</Text>
+              </Card>
             ) : (
               <Card variant="panel" padding="md">
                 <Text style={styles.emptyRecentBody}>
@@ -532,6 +558,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: storybookTheme.color.surfaceCardBorder,
     overflow: 'hidden',
+  },
+  // 히어로 자리에 카탈로그가 아직 안 왔을 때 잠깐 뜨는 loading placeholder - hero와 같은
+  // 가로 폭을 잡되 세로는 spinner + 여백만 있는 얇은 카드.
+  heroLoader: {
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
+    alignSelf: 'center',
+    alignItems: 'center',
+    minHeight: 96,
+    justifyContent: 'center',
   },
   heroCoverFrame: {
     width: '100%',

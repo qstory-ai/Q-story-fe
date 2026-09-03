@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AppNavShell, Icon, storybookTheme } from '@/shared/ui';
+import { AppNavShell, Card, Icon, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
 import { StoryCard } from '@/shared/ui/story-card';
@@ -122,7 +122,7 @@ export function ParentHomePage() {
       <View style={styles.scroll}>
         <TopBar />
 
-        <View style={[styles.card, isWide && styles.cardWide]}>
+        <Card variant="surface" padding="lg" style={[styles.greetingCard, isWide && styles.greetingCardWide]}>
           <Text style={styles.eyebrow}>{timeOfDayGreeting()}</Text>
           <Text style={styles.title} accessibilityRole="header">
             {displayName}님과 오늘의 이야기
@@ -132,7 +132,7 @@ export function ParentHomePage() {
               ? `${selectedChild.name}에게 딱 맞는 이야기를 골라 봤어요.`
               : '아이를 선택하면 그 아이에게 맞는 이야기를 추천해 줄게요.'}
           </Text>
-        </View>
+        </Card>
 
         <View style={styles.section}>
           <ChildSelector greeting="아이를 골라 주세요" />
@@ -193,23 +193,22 @@ export function ParentHomePage() {
           </HomeSection>
         ) : null}
 
-        {recentActivity.length > 0 ? (
-          <View style={styles.recentSection}>
-            <Text style={styles.recentSectionTitle} accessibilityRole="header">최근 활동</Text>
-            {recentActivity.map((entry) => (
+        <View style={styles.recentSection}>
+          <Text style={styles.recentSectionTitle} accessibilityRole="header">최근 활동</Text>
+          {recentActivity.length > 0 ? (
+            recentActivity.map((entry) => (
               <RecentActivityRow key={entry.id} entry={entry} onPress={() => {
                 if (entry.kind === 'completion') navigate(`/reports/${entry.id}`);
               }} />
-            ))}
-          </View>
-        ) : (
-          <View style={styles.emptyRecent}>
-            <Text style={styles.recentSectionTitle}>최근 활동</Text>
-            <Text style={styles.emptyRecentBody}>
-              첫 이야기를 끝까지 읽으면 여기에 기록이 남아요.
-            </Text>
-          </View>
-        )}
+            ))
+          ) : (
+            <Card variant="panel" padding="md">
+              <Text style={styles.emptyRecentBody}>
+                첫 이야기를 끝까지 읽으면 여기에 기록이 남아요.
+              </Text>
+            </Card>
+          )}
+        </View>
 
         {storyLoadError && (stories?.length ?? 0) === 0 ? (
           <Text style={styles.errorText}>{storyLoadError}</Text>
@@ -487,20 +486,15 @@ const styles = StyleSheet.create({
     borderColor: storybookTheme.color.panelOnDarkBorder,
   },
   pressed: { opacity: 0.85 },
-  card: {
-    width: '100%',
+  // Card 프리미티브(padding='lg'=spacing.lg)를 쓰되 인사 카드만 maxWidth/gap을 페이지 컨텍스트에
+  // 맞게 오버라이드한다. 넓은 화면에서는 dashboardCardWide(760)까지 늘어난다.
+  greetingCard: {
     maxWidth: storybookTheme.layout.dashboardCardMaxWidth,
     alignSelf: 'center',
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderRadius: storybookTheme.radius.card,
-    paddingHorizontal: 22,
-    paddingVertical: 22,
-    gap: 6,
+    gap: storybookTheme.spacing.xs,
   },
-  cardWide: {
+  greetingCardWide: {
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
-    paddingHorizontal: 32,
-    paddingVertical: 28,
   },
   eyebrow: {
     fontSize: storybookTheme.type.xs,
@@ -593,22 +587,9 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onDark,
     paddingHorizontal: 4,
   },
-  emptyRecent: {
-    width: '100%',
-    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
-    alignSelf: 'center',
-    gap: 6,
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
-    borderRadius: storybookTheme.radius.card,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
-    paddingHorizontal: 20,
-    paddingVertical: 18,
-  },
   emptyRecentBody: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onDarkMuted,
-    paddingHorizontal: 4,
   },
   recentRow: {
     flexDirection: 'row',

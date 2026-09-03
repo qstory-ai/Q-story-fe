@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, Icon, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { NotificationBell } from '@/features/notification-center';
 import {
   createOrganization,
   dashboardNavItems,
@@ -143,6 +144,11 @@ function ClassManagementStep({
   return (
     <AppNavShell items={dashboardNavItems(user, navigate, 'home')}>
       <View style={styles.scroll}>
+        {/* Parent/Tutor 홈과 시각 일관성을 위해 우측 정렬 벨 하나만 두는 얇은 상단 행.
+            Director는 브랜드가 AppNavShell 사이드바에 이미 있어 좌측 브랜드는 생략. */}
+        <View style={styles.bellRow}>
+          <NotificationBell token={token} />
+        </View>
         <Card variant="surface" padding="lg" style={styles.greetingCard}>
           <Text style={styles.title} accessibilityRole="header">기관 관리자 대시보드</Text>
           <Text style={styles.body}>
@@ -251,6 +257,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: storybookTheme.spacing.ml,
     // spacing.lg(24)와 xl(32) 사이 - 상단 카드 위에 여유 있게 두려고 28 유지.
     paddingVertical: 28,
+  },
+  bellRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
   // Card 프리미티브(padding='lg')가 배경/테두리/라운드/패딩을 담당. 자식 gap만 오버라이드.
   greetingCard: {

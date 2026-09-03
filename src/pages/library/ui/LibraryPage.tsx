@@ -194,7 +194,13 @@ export function LibraryPage() {
           <View style={styles.grid}>
             {filtered.map((story) => (
               <View key={story.storyId} style={[styles.cardSlot, { width: `${100 / columns}%` }]}>
-                <StoryCardWithFallback story={story} auth={state} navigate={navigate} progress={progress} />
+                <StoryCardWithFallback
+                  story={story}
+                  auth={state}
+                  navigate={navigate}
+                  progress={progress}
+                  onUnbookmark={tab === 'saved' ? () => bookmarks.toggle(story.storyId) : undefined}
+                />
               </View>
             ))}
           </View>
@@ -211,11 +217,13 @@ function StoryCardWithFallback({
   auth,
   navigate,
   progress,
+  onUnbookmark,
 }: {
   story: StoryCatalogEntry;
   auth: AuthState;
   navigate: (path: string) => void;
   progress: LocalStoryProgress | null;
+  onUnbookmark?: () => void;
 }) {
   const locked = unlockStateFor(story, auth) === 'locked';
   const isInProgress = progress?.storyId === story.storyId;
@@ -229,6 +237,8 @@ function StoryCardWithFallback({
       locked={locked}
       progress={progressRatio}
       lockedCaption={locked ? '구독하고 잠금 해제' : undefined}
+      onRemove={onUnbookmark}
+      removeLabel={onUnbookmark ? `${story.title} 저장 해제` : undefined}
       onPress={() => {
         if (locked) {
           navigate('/mypage/subscription');

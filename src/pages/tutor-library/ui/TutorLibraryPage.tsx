@@ -184,7 +184,12 @@ export function TutorLibraryPage() {
           <View style={styles.grid}>
             {filtered.map((story) => (
               <View key={story.storyId} style={[styles.cardSlot, { width: `${100 / columns}%` }]}>
-                <StoryCardWithLink story={story} auth={state} navigate={navigate} />
+                <StoryCardWithLink
+                  story={story}
+                  auth={state}
+                  navigate={navigate}
+                  onUnbookmark={tab === 'saved' ? () => bookmarks.toggle(story.storyId) : undefined}
+                />
               </View>
             ))}
           </View>
@@ -200,10 +205,12 @@ function StoryCardWithLink({
   story,
   auth,
   navigate,
+  onUnbookmark,
 }: {
   story: StoryCatalogEntry;
   auth: AuthState;
   navigate: (path: string) => void;
+  onUnbookmark?: () => void;
 }) {
   const locked = unlockStateFor(story, auth) === 'locked';
   return (
@@ -214,6 +221,8 @@ function StoryCardWithLink({
       category={story.category}
       locked={locked}
       lockedCaption={locked ? '구독하고 잠금 해제' : undefined}
+      onRemove={onUnbookmark}
+      removeLabel={onUnbookmark ? `${story.title} 저장 해제` : undefined}
       onPress={() => {
         if (locked) {
           navigate('/mypage/subscription');

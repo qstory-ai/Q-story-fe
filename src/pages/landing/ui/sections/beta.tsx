@@ -137,10 +137,10 @@ const styles = StyleSheet.create({
     gap: 8,
     minHeight: 56,
     width: '100%',
-    borderRadius: 17,
+    borderRadius: storybookTheme.radius.button,
     backgroundColor: storybookTheme.color.primary,
-    paddingHorizontal: 24,
-    marginTop: 4,
+    paddingHorizontal: storybookTheme.spacing.lg,
+    marginTop: storybookTheme.spacing.xs,
   },
   buttonVioletFullText: {
     color: storybookTheme.color.onDark,
@@ -199,6 +199,7 @@ const styles = StyleSheet.create({
   reportPreviewIcon: {
     width: 32,
     height: 32,
+    // 작은 아이콘 프레임 - input(12)과 control(4) 사이의 값이 필요해 하드코딩 유지.
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',

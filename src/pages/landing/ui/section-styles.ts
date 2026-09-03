@@ -21,34 +21,35 @@ export const sectionStyles = StyleSheet.create({
   eyebrow: {
     color: storybookTheme.color.gold,
     fontSize: storybookTheme.type.xs,
-    fontWeight: '600',
+    fontWeight: storybookTheme.type.weight.semibold,
     letterSpacing: 0.4,
   },
   sectionTitle: {
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.xxl,
+    // xxl(32) * tight(1.2) = 38.4보다 살짝 좁은 헤딩 라인 - 히어로 톤에 맞춘 값이라 유지.
     lineHeight: 36,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
   sectionSubLead: {
     color: storybookTheme.color.onDarkMuted,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
-    fontWeight: '300',
+    fontWeight: storybookTheme.type.weight.light,
   },
   buttonGoldLarge: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: storybookTheme.spacing.sm,
     minHeight: 56,
-    borderRadius: 17,
+    borderRadius: storybookTheme.radius.button,
     backgroundColor: storybookTheme.color.gold,
-    paddingHorizontal: 24,
+    paddingHorizontal: storybookTheme.spacing.lg,
   },
   buttonGoldLargeText: {
     color: storybookTheme.color.primary,
     fontSize: storybookTheme.type.md,
-    fontWeight: '700',
+    fontWeight: storybookTheme.type.weight.bold,
   },
 });

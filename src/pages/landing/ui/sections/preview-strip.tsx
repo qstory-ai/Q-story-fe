@@ -1,6 +1,6 @@
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
-import { SectionHeader } from '@/shared/ui';
+import { SectionHeader, storybookTheme } from '@/shared/ui';
 
 import { PREVIEW_ILLUSTRATIONS } from '../../model/content';
 import { sectionStyles } from '../section-styles';
@@ -38,10 +38,12 @@ const styles = StyleSheet.create({
   previewThumb: {
     flex: 1,
     aspectRatio: 1,
-    borderRadius: 16,
+    borderRadius: storybookTheme.radius.card,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    // 다크 배경 위의 반투명 크림 서피스 - panelOnDarkBackground(0.08)와 정확히 일치.
+    backgroundColor: storybookTheme.color.panelOnDarkBackground,
     borderWidth: 1,
+    // 하얀 라이닝 border - panelOnDarkBorder(0.16)보다 조금 밝은 강조 라인이라 유지.
     borderColor: 'rgba(255, 255, 255, 0.24)',
   },
   previewThumbPressed: {

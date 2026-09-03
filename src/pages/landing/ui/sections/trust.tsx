@@ -102,9 +102,10 @@ const styles = StyleSheet.create({
   pillarIcon: {
     width: 40,
     height: 40,
-    borderRadius: 12,
+    borderRadius: storybookTheme.radius.input,
     alignItems: 'center',
     justifyContent: 'center',
+    // 골드 강조 배경 - CTA/highlight 전용이라 아직 토큰화하지 않고 유지.
     backgroundColor: 'rgba(246, 198, 77, 0.16)',
   },
   pillarTextGroup: {

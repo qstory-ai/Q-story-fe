@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { Icon, Modal, storybookTheme, type IconName } from '@/shared/ui';
 import {
+  deleteNotification,
   listNotifications,
   markAllNotificationsRead,
   markNotificationRead,
@@ -152,6 +153,20 @@ export function NotificationBell({ token, onDark = true }: Props) {
     }
   }, [token]);
 
+  const handleDelete = useCallback(
+    async (n: Notification) => {
+      // 낙관적 제거 - 목록에서 즉시 빼고 unread였다면 뱃지 카운트도 감소.
+      setNotifications((prev) => prev.filter((x) => x.id !== n.id));
+      if (n.readAt === null) setUnreadCount((c) => Math.max(0, c - 1));
+      try {
+        await deleteNotification(token, n.id);
+      } catch {
+        // 실패 시엔 다음 refresh에서 원복 - 알림은 ephemeral이라 짧게 다시 나타나도 큰 문제 아님.
+      }
+    },
+    [token],
+  );
+
   return (
     <>
       <Pressable
@@ -188,26 +203,35 @@ export function NotificationBell({ token, onDark = true }: Props) {
               const { icon, tone } = presentationFor(n.kind);
               const colors = toneColors(tone);
               return (
-                <Pressable
+                <View
                   key={n.id}
-                  accessibilityRole={n.href ? 'link' : 'button'}
-                  onPress={() => handleItemPress(n)}
-                  style={({ pressed }) => [
-                    styles.row,
-                    n.readAt === null && styles.rowUnread,
-                    pressed && styles.pressed,
-                  ]}
+                  style={[styles.row, n.readAt === null && styles.rowUnread]}
                 >
-                  <View style={[styles.rowIconFrame, { backgroundColor: colors.background }]}>
-                    <Icon name={icon} size={16} color={colors.icon} />
-                  </View>
-                  <View style={styles.rowBody}>
-                    <Text style={styles.rowTitle}>{n.title}</Text>
-                    {n.body ? <Text style={styles.rowSubtitle}>{n.body}</Text> : null}
-                    <Text style={styles.rowMeta}>{formatRelative(n.createdAt)}</Text>
-                  </View>
-                  {n.readAt === null ? <View style={styles.rowUnreadDot} /> : null}
-                </Pressable>
+                  <Pressable
+                    accessibilityRole={n.href ? 'link' : 'button'}
+                    onPress={() => handleItemPress(n)}
+                    style={({ pressed }) => [styles.rowMain, pressed && styles.pressed]}
+                  >
+                    <View style={[styles.rowIconFrame, { backgroundColor: colors.background }]}>
+                      <Icon name={icon} size={16} color={colors.icon} />
+                    </View>
+                    <View style={styles.rowBody}>
+                      <Text style={styles.rowTitle}>{n.title}</Text>
+                      {n.body ? <Text style={styles.rowSubtitle}>{n.body}</Text> : null}
+                      <Text style={styles.rowMeta}>{formatRelative(n.createdAt)}</Text>
+                    </View>
+                    {n.readAt === null ? <View style={styles.rowUnreadDot} /> : null}
+                  </Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`${n.title} 알림 삭제`}
+                    onPress={() => handleDelete(n)}
+                    hitSlop={4}
+                    style={({ pressed }) => [styles.rowDeleteButton, pressed && styles.pressed]}
+                  >
+                    <Icon name="close" size={14} color={storybookTheme.color.onCardMuted} />
+                  </Pressable>
+                </View>
               );
             })}
           </ScrollView>
@@ -269,13 +293,30 @@ const styles = StyleSheet.create({
   },
   list: { maxHeight: 360 },
   listContent: { gap: storybookTheme.spacing.sm },
+  // 바깥 컨테이너 - 본문(rowMain, 클릭 → mark-read + 이동)과 삭제 버튼(rowDeleteButton)을
+  // 나란히 두는 shell. 예전엔 row 전체가 하나의 Pressable이었지만 x 버튼이 추가되면서 두
+  // 조각으로 분리됐다. 배경/padding은 여기 컨테이너가 담당.
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: storybookTheme.spacing.sm,
+    gap: storybookTheme.spacing.xs,
     padding: storybookTheme.spacing.ms,
     borderRadius: storybookTheme.radius.input,
     backgroundColor: storybookTheme.color.pillBackground,
+  },
+  rowMain: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: storybookTheme.spacing.sm,
+  },
+  rowDeleteButton: {
+    width: 24,
+    height: 24,
+    borderRadius: storybookTheme.radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
   },
   rowUnread: {
     backgroundColor: storybookTheme.color.pillBorder,

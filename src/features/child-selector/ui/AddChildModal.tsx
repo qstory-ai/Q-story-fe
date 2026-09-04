@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Modal, TextField, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import {
   AGE_BANDS,
   AGE_BAND_LABELS,
@@ -77,9 +78,7 @@ function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: (
       }
       onClose();
     } catch (submitError: unknown) {
-      const message = submitError instanceof Error
-        ? submitError.message
-        : isEdit ? '아이 프로필을 저장하지 못했어요.' : '아이 프로필을 만들지 못했어요.';
+      const message = messageForError(submitError, isEdit ? '아이 프로필을 저장하지 못했어요.' : '아이 프로필을 만들지 못했어요.');
       setError(message);
     } finally {
       setSubmitting(false);

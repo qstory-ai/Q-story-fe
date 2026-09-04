@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Modal, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { useAuth } from '@/entities/auth';
 import {
   createTutorLessonPlan,
@@ -45,7 +46,7 @@ export function LessonPlanPickerModal({ visible, storyId, storyTitle, onClose, o
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof Error ? failure.message : '학생 목록을 불러오지 못했어요.';
+        const message = messageForError(failure, '학생 목록을 불러오지 못했어요.');
         setStudents({ status: 'error', message });
       });
     return () => {
@@ -70,7 +71,7 @@ export function LessonPlanPickerModal({ visible, storyId, storyTitle, onClose, o
       onSuccess?.(student.name);
       onClose();
     } catch (failure: unknown) {
-      const message = failure instanceof Error ? failure.message : '수업 계획에 담지 못했어요.';
+      const message = messageForError(failure, '수업 계획에 담지 못했어요.');
       setError(message);
     } finally {
       setSavingStudentId(null);

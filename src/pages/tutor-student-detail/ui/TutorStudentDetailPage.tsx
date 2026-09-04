@@ -75,7 +75,7 @@ export function TutorStudentDetailPage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof Error ? failure.message : '학생을 불러오지 못했어요.';
+        const message = messageForError(failure, '학생을 불러오지 못했어요.');
         setLoad({ requestKey, status: 'error', message });
       });
     return () => {
@@ -96,7 +96,7 @@ export function TutorStudentDetailPage() {
       setLoad({ requestKey, status: 'ready', student: updated });
       setSavedFlag(true);
     } catch (failure: unknown) {
-      const message = failure instanceof Error ? failure.message : '메모를 저장하지 못했어요.';
+      const message = messageForError(failure, '메모를 저장하지 못했어요.');
       setSaveError(message);
     } finally {
       setSaving(false);
@@ -166,7 +166,7 @@ export function TutorStudentDetailPage() {
       const invite = await createTutorInvite(state.token, studentId, { method: 'LINK' });
       setIssuedInvite(invite);
     } catch (failure: unknown) {
-      const message = failure instanceof Error ? failure.message : '초대를 만들지 못했어요.';
+      const message = messageForError(failure, '초대를 만들지 못했어요.');
       setIssueError(message);
     } finally {
       setIssuing(false);

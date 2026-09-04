@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, FilterChip, Pill, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listLessons, type Lesson, type LessonStatus } from '@/entities/lesson';
 import { LessonFormModal } from '@/features/lesson-form';
@@ -54,7 +55,7 @@ export function TutorClassesPage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof Error ? failure.message : '수업 목록을 불러오지 못했어요.';
+        const message = messageForError(failure, '수업 목록을 불러오지 못했어요.');
         setLoad({ status: 'error', message });
       });
     return () => {

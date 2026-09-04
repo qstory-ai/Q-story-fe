@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View, useWindowD
 import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, Card, Icon, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
@@ -70,7 +71,7 @@ export function ParentHomePage() {
       })
       .catch((error: unknown) => {
         if (!cancelled) {
-          const message = error instanceof Error ? error.message : '이야기 목록을 불러오지 못했어요.';
+          const message = messageForError(error, '이야기 목록을 불러오지 못했어요.');
           setStoryLoadError(message);
         }
       });

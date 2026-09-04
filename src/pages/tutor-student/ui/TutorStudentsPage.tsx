@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { useAuth } from '@/entities/auth';
 import { DEFAULT_BETA_STORY_ID } from '@/entities/story';
 import { createTutorInvite, listTutorStudents, type TutorInvite, type TutorStudent } from '@/entities/tutor';
@@ -52,7 +53,7 @@ export function TutorStudentsPage() {
       const invite = await createTutorInvite(state.token, studentId, { method: 'LINK' });
       setIssuedByStudent((prev) => ({ ...prev, [studentId]: invite }));
     } catch (failure: unknown) {
-      const message = failure instanceof Error ? failure.message : '초대를 만들지 못했어요.';
+      const message = messageForError(failure, '초대를 만들지 못했어요.');
       setIssueError((prev) => ({ ...prev, [studentId]: message }));
     } finally {
       setIssuingStudentId(null);

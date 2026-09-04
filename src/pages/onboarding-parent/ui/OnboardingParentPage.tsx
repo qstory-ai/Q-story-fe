@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { homePathFor, useAuth } from '@/entities/auth';
 import {
   AGE_BANDS,
@@ -55,7 +56,7 @@ export function OnboardingParentPage() {
       await addChild({ name: name.trim(), ageBand, avatarKey });
       setStep('consent');
     } catch (failure: unknown) {
-      const message = failure instanceof Error ? failure.message : '아이 프로필을 만들지 못했어요.';
+      const message = messageForError(failure, '아이 프로필을 만들지 못했어요.');
       setError(message);
     } finally {
       setSubmitting(false);

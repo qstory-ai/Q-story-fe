@@ -96,7 +96,7 @@ export function StoryDetailPage() {
     try {
       await bookmarks.toggle(storyId);
     } catch (failure: unknown) {
-      const message = failure instanceof Error ? failure.message : '저장 상태를 바꾸지 못했어요.';
+      const message = messageForError(failure, '저장 상태를 바꾸지 못했어요.');
       setBookmarkError(message);
     } finally {
       setBookmarkPending(false);

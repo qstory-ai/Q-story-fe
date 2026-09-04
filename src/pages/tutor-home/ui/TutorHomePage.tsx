@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, Icon, Pill, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
@@ -55,7 +56,7 @@ export function TutorHomePage() {
       })
       .catch((error: unknown) => {
         if (!cancelled) {
-          const message = error instanceof Error ? error.message : '학생 정보를 불러오지 못했어요.';
+          const message = messageForError(error, '학생 정보를 불러오지 못했어요.');
           setLoad({ status: 'error', message });
         }
       });

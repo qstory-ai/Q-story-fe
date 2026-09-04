@@ -62,7 +62,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof Error ? failure.message : '학생·이야기 목록을 불러오지 못했어요.';
+        const message = messageForError(failure, '학생·이야기 목록을 불러오지 못했어요.');
         setRefs({ status: 'error', message });
       });
     return () => {

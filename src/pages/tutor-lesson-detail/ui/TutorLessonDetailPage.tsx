@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Modal, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
   completeLesson,
@@ -55,7 +56,7 @@ export function TutorLessonDetailPage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof Error ? failure.message : '수업을 불러오지 못했어요.';
+        const message = messageForError(failure, '수업을 불러오지 못했어요.');
         setLoad({ requestKey, status: 'error', message });
       });
     return () => {
@@ -73,7 +74,7 @@ export function TutorLessonDetailPage() {
         ? { ...prev, lesson: updated }
         : prev);
     } catch (failure: unknown) {
-      setTransitionError(failure instanceof Error ? failure.message : '수업을 시작하지 못했어요.');
+      setTransitionError(messageForError(failure, '수업을 시작하지 못했어요.'));
     } finally {
       setTransitioning(false);
     }
@@ -89,7 +90,7 @@ export function TutorLessonDetailPage() {
         ? { ...prev, lesson: updated }
         : prev);
     } catch (failure: unknown) {
-      setTransitionError(failure instanceof Error ? failure.message : '수업을 완료 처리하지 못했어요.');
+      setTransitionError(messageForError(failure, '수업을 완료 처리하지 못했어요.'));
     } finally {
       setTransitioning(false);
     }
@@ -102,7 +103,7 @@ export function TutorLessonDetailPage() {
       await deleteLesson(state.token, lessonId);
       navigate('/tutor/classes', { replace: true });
     } catch (failure: unknown) {
-      setTransitionError(failure instanceof Error ? failure.message : '수업을 삭제하지 못했어요.');
+      setTransitionError(messageForError(failure, '수업을 삭제하지 못했어요.'));
     } finally {
       setDeleteInFlight(false);
       setDeleteOpen(false);

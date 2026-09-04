@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, StatusBanner, SwitchField, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
   getNotificationSettings,
@@ -43,7 +44,7 @@ export function MyPageNotificationsPage() {
       })
       .catch((error: unknown) => {
         if (cancelled) return;
-        const message = error instanceof Error ? error.message : '알림 설정을 불러오지 못했어요.';
+        const message = messageForError(error, '알림 설정을 불러오지 못했어요.');
         setLoad({ status: 'error', message });
       });
     return () => {
@@ -63,7 +64,7 @@ export function MyPageNotificationsPage() {
       setLoad({ status: 'ready', settings: updated });
     } catch (error: unknown) {
       setLoad({ status: 'ready', settings: previous });
-      const message = error instanceof Error ? error.message : '설정을 저장하지 못했어요.';
+      const message = messageForError(error, '설정을 저장하지 못했어요.');
       setSaveError(message);
     } finally {
       setSavingKey(null);

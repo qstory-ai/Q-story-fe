@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Pill, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listParentTutorReports, type TutorReportSummary } from '@/entities/tutor';
 
@@ -42,7 +43,7 @@ export function MyPageClassesPage() {
       })
       .catch((error: unknown) => {
         if (cancelled) return;
-        const message = error instanceof Error ? error.message : '연결된 선생님을 불러오지 못했어요.';
+        const message = messageForError(error, '연결된 선생님을 불러오지 못했어요.');
         setReports({ status: 'error', message });
       });
     return () => {

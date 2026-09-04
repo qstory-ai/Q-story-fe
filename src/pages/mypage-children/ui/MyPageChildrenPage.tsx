@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Icon, Modal, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { AGE_BAND_LABELS, findChildAvatar, useChildren, type Child } from '@/entities/child';
 import { AddChildModal } from '@/features/child-selector';
@@ -43,7 +44,7 @@ export function MyPageChildrenPage() {
       await removeChild(deleting.id);
       setDeleting(null);
     } catch (error: unknown) {
-      setDeleteError(error instanceof Error ? error.message : '아이 프로필을 삭제하지 못했어요.');
+      setDeleteError(messageForError(error, '아이 프로필을 삭제하지 못했어요.'));
     } finally {
       setDeletingInFlight(false);
     }

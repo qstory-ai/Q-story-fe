@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Modal, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
+import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
   createOrganizationTutorInvite,
@@ -58,7 +59,7 @@ export function OrganizationTutorsPage() {
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
-        const message = failure instanceof Error ? failure.message : '선생님 목록을 불러오지 못했어요.';
+        const message = messageForError(failure, '선생님 목록을 불러오지 못했어요.');
         setTutors({ status: 'error', message });
         setInvites({ status: 'error' });
       });
@@ -79,7 +80,7 @@ export function OrganizationTutorsPage() {
         .then((summaries) => setInvites({ status: 'ready', invites: summaries }))
         .catch(() => { /* 이미 있는 이력은 그대로 유지 */ });
     } catch (failure: unknown) {
-      const message = failure instanceof Error ? failure.message : '초대를 만들지 못했어요.';
+      const message = messageForError(failure, '초대를 만들지 못했어요.');
       setIssueError(message);
     } finally {
       setIssuing(false);
@@ -96,7 +97,7 @@ export function OrganizationTutorsPage() {
         : prev);
       setUnlinkTarget(null);
     } catch (failure: unknown) {
-      const message = failure instanceof Error ? failure.message : '해제하지 못했어요.';
+      const message = messageForError(failure, '해제하지 못했어요.');
       setIssueError(message);
     } finally {
       setUnlinkInFlight(false);

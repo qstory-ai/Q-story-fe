@@ -220,10 +220,13 @@ export function createQStoryProxy({
       upstreamPath.includes('..') ||
       !isAllowedRoute(request.method.toUpperCase(), upstreamPath)
     ) {
+      // 이 프록시는 원래 음성 처리만 담당했지만 지금은 앱 전체 API를 프록싱한다 - 그래서
+      // 문구가 "음성 처리 경로"라고 하면 (수업 탭처럼) 음성과 무관한 화면에서 뜨는
+      // 이 에러가 오해를 부른다. 뭐가 잘못됐는지(=allowlist 누락)를 직접 알려주도록 수정.
       return failureResponse(
         404,
         'QSTORY_PROXY_ROUTE_NOT_ALLOWED',
-        '요청한 음성 처리 경로를 찾지 못했어요.',
+        '요청한 API 경로가 프록시 허용 목록에 없어요. (fe/api/_qstory-proxy-core.mjs)',
       );
     }
 

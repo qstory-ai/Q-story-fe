@@ -120,6 +120,14 @@ export type RoutePlan = {
    * runtime.ts의 generating-branch 상태로 진입해 GET /v1/live-branch/{jobId}를 폴링한다.
    */
   liveBranchJobId?: string;
+  /**
+   * 백엔드가 원래 NEW_CHOICES를 고르려 했지만 앵커당 라이브 생성 상한
+   * (LiveBranchGenerationService.MAX_LIVE_FAMILIES_PER_ANCHOR)에 걸려 ANSWER_RESUME으로
+   * 강등된 경우에만 true. 아이에게 보이는 대사는 다른 이유로 ANSWER_RESUME이 된 경우와
+   * 구분되지 않아 UX는 동일하지만, 프런트가 이 플래그를 보고 question_result 이벤트에
+   * result='live_branch_capped'로 남겨 운영에서 캡 도달 빈도를 관측할 수 있게 한다.
+   */
+  liveBranchCapped?: boolean;
   versions: {
     modelId: string;
     promptVersion: string;

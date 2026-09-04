@@ -62,7 +62,17 @@ export function useLiveBranchPolling({
     let pollInFlight = false;
     const controller = new AbortController();
 
-    const failGently = () => {
+    /**
+     * FAILED로 넘어가는 이유별로 나눠 트래킹한다 - 예전엔 timeout/BE FAILED/options 모양 어긋남/
+     * 재조회 실패가 모두 같은 'live_branch_failed'로 묶여 어떤 병목이 얼마나 자주 사용자를 안전
+     * 폴백으로 밀어내는지 알 수 없었다. 대시보드에서 원인별 비율을 보고 우선순위를 잡는다.
+     */
+    type FailReason =
+      | 'timeout'
+      | 'backend_failed'
+      | 'options_shape_mismatch'
+      | 'refetch_failed';
+    const failGently = (reason: FailReason) => {
       if (settled) return;
       settled = true;
       commitEvent({ type: 'LIVE_BRANCH_FAILED' });
@@ -71,6 +81,7 @@ export function useLiveBranchPolling({
         scene_id: sceneId,
         route: 'GENTLE_REDIRECT',
         result: 'live_branch_failed',
+        fail_reason: reason,
       });
     };
 
@@ -104,7 +115,7 @@ export function useLiveBranchPolling({
       } catch {
         // 콘텐츠 재조회 자체가 실패하면(네트워크 등) 새 콘텐츠를 아이에게 보여줄 방법이
         // 없으니, 이미 있는 안전한 경로(GENTLE_REDIRECT)로 넘어간다.
-        failGently();
+        failGently('refetch_failed');
       }
     };
 
@@ -123,12 +134,12 @@ export function useLiveBranchPolling({
             await succeedWith(status.options);
           } else {
             // 계약대로라면 READY는 항상 정확히 3개를 동반한다 - 어긋나면 안전하게 넘어간다.
-            failGently();
+            failGently('options_shape_mismatch');
           }
           return;
         }
         if (status.status === 'FAILED') {
-          failGently();
+          failGently('backend_failed');
         }
         // QUEUED/GENERATING이면 다음 tick에서 다시 확인한다.
       } catch {
@@ -143,7 +154,7 @@ export function useLiveBranchPolling({
     const intervalId = setInterval(() => {
       void poll();
     }, LIVE_BRANCH_POLL_INTERVAL_MS);
-    const timeoutId = setTimeout(failGently, LIVE_BRANCH_POLL_TIMEOUT_MS);
+    const timeoutId = setTimeout(() => failGently('timeout'), LIVE_BRANCH_POLL_TIMEOUT_MS);
 
     return () => {
       settled = true;

@@ -1061,6 +1061,12 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
               prompt_version: plan.versions.promptVersion,
             }
           : {}),
+        // 백엔드가 NEW_CHOICES를 원했지만 앵커당 상한에 걸려 ANSWER_RESUME으로 폴백한 경우만
+        // true. 대시보드에서 이 flag의 발생 빈도를 세면 MAX_LIVE_FAMILIES_PER_ANCHOR 상향
+        // 조정이 필요한지 판단할 수 있다.
+        ...(plan.kind === 'route' && plan.liveBranchCapped
+          ? { live_branch_capped: true }
+          : {}),
       });
       if (plan.kind === 'route' && plan.route !== 'THREE_PATHS') {
         rememberQuestionOutcome(state.anchorId, plan);

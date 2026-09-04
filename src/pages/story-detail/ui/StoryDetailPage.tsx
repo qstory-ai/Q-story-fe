@@ -8,8 +8,10 @@ import { messageForError } from '@/shared/api';
 import { useAuth } from '@/entities/auth';
 import { useBookmarks } from '@/entities/bookmark';
 import { useChildren } from '@/entities/child';
+import { listTutorStudents, type TutorStudent } from '@/entities/tutor';
 import { ChildPickerModal } from '@/features/child-picker';
 import { LessonPlanPickerModal } from '@/features/lesson-plan-picker';
+import { TutorStudentPickerModal } from '@/features/tutor-student-picker';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -35,10 +37,31 @@ export function StoryDetailPage() {
   const [lessonPickerOpen, setLessonPickerOpen] = useState(false);
   const [lessonToast, setLessonToast] = useState<string | null>(null);
   const [childPickerOpen, setChildPickerOpen] = useState(false);
+  const [tutorStudentPickerOpen, setTutorStudentPickerOpen] = useState(false);
+  // 튜터가 페이지에 들어오는 순간 학생 목록을 미리 fetch해 두면 "이야기 시작하기" 눌렀을 때
+  // 학생 수를 즉시 판단할 수 있다. null=아직 로드 안 됨(그 사이 클릭하면 그냥 picker 열어 로드
+  // 상태를 사용자가 봄), 배열=로드됨.
+  const [tutorStudents, setTutorStudents] = useState<TutorStudent[] | null>(null);
 
   const isAuthenticated = state.status === 'authenticated';
   const isTutor = isAuthenticated && state.user.role === 'TUTOR';
   const isParent = isAuthenticated && state.user.role === 'PARENT';
+  const tutorToken = isTutor ? state.token : null;
+
+  useEffect(() => {
+    if (!tutorToken) return;
+    let cancelled = false;
+    listTutorStudents(tutorToken)
+      .then((list) => {
+        if (!cancelled) setTutorStudents(list);
+      })
+      .catch(() => {
+        if (!cancelled) setTutorStudents([]); // 실패 시엔 빈 목록으로 취급 - picker 안에서 오류가 다시 뜬다.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [tutorToken]);
 
   useEffect(() => {
     if (!storyId) return;
@@ -81,23 +104,29 @@ export function StoryDetailPage() {
   }, [storyId, isAuthenticated, bookmarks, navigate]);
 
   /**
-   * "이야기 시작하기"를 눌렀을 때 부모가 여러 아이를 등록해 뒀다면, 어느 아이와 함께 볼지
-   * 명시적으로 고르게 한 번 인터럽트한다 - 홈에서 selectedChild를 바꾸지 않고 시작해 다른
-   * 아이의 세션으로 잘못 기록되는 걸 막는다. 아이가 0명(=아직 등록 안 함)이거나 1명(=명확)
-   * 인 경우, 그리고 부모가 아닌 역할은 그대로 곧바로 시작한다. 아이 0명인 부모는 픽커가
-   * 열려서 등록 CTA를 보게 된다.
+   * "이야기 시작하기"를 눌렀을 때 다중 프로필/학생 상황이면 명시적으로 고르게 인터럽트한다 -
+   * 홈에서 selectedChild를 바꾸지 않고 시작해 다른 아이 세션으로 잘못 기록되는 걸 막는다.
+   *
+   * 부모: 아이 2+명이면 picker, 0명이면 picker의 등록 CTA, 1명이면 곧바로.
+   * 선생님: 학생 2+명이면 picker, 0명이면 picker의 등록 CTA, 1명이면 그 학생 id를 붙여
+   *   곧바로 시작. 반 선생님도 "새싹반" 같은 이름의 학생 하나로 등록하면 이 흐름으로 커버된다.
    */
   const startPlay = useCallback((targetStoryId: string) => {
-    if (isParent && children.length >= 2) {
+    if (isParent && children.length !== 1) {
       setChildPickerOpen(true);
       return;
     }
-    if (isParent && children.length === 0) {
-      setChildPickerOpen(true);
+    if (isTutor) {
+      // 아직 학생 목록이 안 왔거나 2+명이거나 0명이면 picker를 띄운다. 1명일 때만 곧장 이동.
+      if (tutorStudents !== null && tutorStudents.length === 1) {
+        navigate(`/stories/${targetStoryId}/play?tutorStudentId=${tutorStudents[0].id}`);
+        return;
+      }
+      setTutorStudentPickerOpen(true);
       return;
     }
     navigate(`/stories/${targetStoryId}/play`);
-  }, [isParent, children.length, navigate]);
+  }, [isParent, isTutor, children.length, tutorStudents, navigate]);
 
   // 마지막으로 커밋된 로드 이후 storyId/attempt가 바뀌었다 - setState-in-effect 없이
   // 로딩 중인 것처럼 렌더링한다 (react-hooks/set-state-in-effect 참고).
@@ -209,6 +238,19 @@ export function StoryDetailPage() {
             // ChildPickerModal 내부에서 이미 호출됐다 - 여기선 곧바로 플레이어로 이동만.
             void child;
             navigate(`/stories/${effectiveLoad.story.storyId}/play`);
+          }}
+        />
+      ) : null}
+
+      {effectiveLoad.status === 'ready' && isTutor && tutorToken ? (
+        <TutorStudentPickerModal
+          visible={tutorStudentPickerOpen}
+          token={tutorToken}
+          subtitle={`${effectiveLoad.story.title}을(를) 어떤 학생과 시작할까요?`}
+          onClose={() => setTutorStudentPickerOpen(false)}
+          onSelected={(student) => {
+            setTutorStudentPickerOpen(false);
+            navigate(`/stories/${effectiveLoad.story.storyId}/play?tutorStudentId=${student.id}`);
           }}
         />
       ) : null}

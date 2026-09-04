@@ -250,7 +250,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     gap: storybookTheme.spacing.md,
     paddingHorizontal: storybookTheme.spacing.ml,
-    paddingVertical: storybookTheme.spacing.lg,
+    paddingTop: storybookTheme.spacing.lg,
+    paddingBottom: storybookTheme.spacing.xl,
   },
   topBar: {
     flexDirection: 'row',

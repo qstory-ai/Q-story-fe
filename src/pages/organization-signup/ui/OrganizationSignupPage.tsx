@@ -255,8 +255,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     gap: storybookTheme.spacing.md,
     paddingHorizontal: storybookTheme.spacing.ml,
-    // spacing.lg(24)와 xl(32) 사이 - 상단 카드 위에 여유 있게 두려고 28 유지.
-    paddingVertical: 28,
+    paddingTop: storybookTheme.spacing.lg,
+    paddingBottom: storybookTheme.spacing.xl,
   },
   bellRow: {
     flexDirection: 'row',

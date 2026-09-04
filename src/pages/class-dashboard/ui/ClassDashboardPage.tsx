@@ -147,8 +147,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'stretch',
     gap: 16,
-    paddingHorizontal: 20,
-    paddingVertical: 28,
+    paddingHorizontal: storybookTheme.spacing.ml,
+    paddingTop: storybookTheme.spacing.lg,
+    paddingBottom: storybookTheme.spacing.xl,
   },
   card: {
     width: '100%',

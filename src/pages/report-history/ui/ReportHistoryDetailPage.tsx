@@ -119,8 +119,9 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: storybookTheme.layout.wideMaxWidth,
     alignSelf: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 32,
+    paddingHorizontal: storybookTheme.spacing.ml,
+    paddingTop: storybookTheme.spacing.lg,
+    paddingBottom: storybookTheme.spacing.xl,
     gap: 16,
   },
 });

@@ -467,8 +467,9 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'stretch',
     gap: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 24,
+    paddingHorizontal: storybookTheme.spacing.ml,
+    paddingTop: storybookTheme.spacing.lg,
+    paddingBottom: storybookTheme.spacing.xl,
   },
   topBar: {
     width: '100%',

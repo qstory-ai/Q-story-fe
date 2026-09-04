@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     maxWidth: storybookTheme.layout.contentMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
-    paddingTop: storybookTheme.spacing.sm,
+    paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
     gap: storybookTheme.spacing.md,
   },

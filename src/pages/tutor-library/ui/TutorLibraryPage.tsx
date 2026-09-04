@@ -331,8 +331,9 @@ const styles = StyleSheet.create({
     maxWidth: storybookTheme.layout.wideMaxWidth,
     alignSelf: 'center',
     gap: 14,
-    paddingHorizontal: 20,
-    paddingVertical: 24,
+    paddingHorizontal: storybookTheme.spacing.ml,
+    paddingTop: storybookTheme.spacing.lg,
+    paddingBottom: storybookTheme.spacing.xl,
   },
   title: {
     fontSize: storybookTheme.type.xl,

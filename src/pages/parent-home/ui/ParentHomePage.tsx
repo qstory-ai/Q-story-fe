@@ -143,17 +143,17 @@ export function ParentHomePage() {
       <View style={styles.scroll}>
         <TopBar token={state.token} />
 
-        <Card variant="surface" padding="lg" style={[styles.greetingCard, isWide && styles.greetingCardWide]}>
-          <Text style={styles.eyebrow}>{timeOfDayGreeting()}</Text>
-          <Text style={styles.title} accessibilityRole="header">
-            {displayName}님과 오늘의 이야기
-          </Text>
-          <Text style={styles.body}>
-            {selectedChild
-              ? `${selectedChild.name}에게 딱 맞는 이야기를 골라 봤어요.`
-              : '아이를 선택하면 그 아이에게 맞는 이야기를 추천해 줄게요.'}
-          </Text>
-        </Card>
+        {/* 아이가 선택된 경우에만 인사말 카드 - 미선택 케이스는 아래 ChildSelector가 "아이를
+            골라 주세요"로 이미 안내하므로 카드가 중복 문구가 된다. */}
+        {selectedChild ? (
+          <Card variant="surface" padding="lg" style={[styles.greetingCard, isWide && styles.greetingCardWide]}>
+            <Text style={styles.eyebrow}>{timeOfDayGreeting()}</Text>
+            <Text style={styles.title} accessibilityRole="header">
+              {selectedChild.name}님과 오늘의 이야기
+            </Text>
+            <Text style={styles.body}>{selectedChild.name}에게 딱 맞는 이야기를 골라 봤어요.</Text>
+          </Card>
+        ) : null}
 
         <View style={styles.section}>
           <ChildSelector greeting="아이를 골라 주세요" />

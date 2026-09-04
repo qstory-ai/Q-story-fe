@@ -533,7 +533,7 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
       // 리포트 저장 실패는 화면에 드러내지 않는다: 다시 시도할 뚜렷한 방법이 없고, 지금 보고
       // 있는 리포트 자체는 이미 완성된 상태라 아이/부모 경험에 영향을 주지 않는다.
       if (authState.status === 'authenticated') {
-        // 방문 선생님 세션(tutorStudentId 있음)은 childId를 붙이지 않는다 - 그 세션의 아이별
+        // 선생님 세션(tutorStudentId 있음)은 childId를 붙이지 않는다 - 그 세션의 아이별
         // 필터는 부모 계정 리포트와 별개로 tutor_student_id 축에서 관리된다.
         const childIdForRecord = !tutorStudentId
           && authState.user.role === 'PARENT'

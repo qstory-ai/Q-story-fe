@@ -23,7 +23,7 @@ export function StoryPlayerRoute() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  // 방문 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 붙는다(TutorChildScreen에서 이식된
+  // 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 붙는다(TutorChildScreen에서 이식된
   // "오늘 추천 이야기" 진입 경로가 이 쿼리 파라미터를 실어 보낸다) - 완주 시 그대로 기록된다.
   const tutorStudentId = searchParams.get('tutorStudentId') ?? undefined;
   const [attempt, setAttempt] = useState(0);

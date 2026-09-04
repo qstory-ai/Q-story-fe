@@ -12,7 +12,7 @@ type ReportLoad = { status: 'loading' } | { status: 'ready'; reports: TutorRepor
  * IA "[4] 마이페이지 > 수업 연결" 화면. 세 가지 항목을 한 화면에 담는다.
  *
  *  1. 이미 연결된 것들 - user.classGroupId(기관)와 최근 튜터 리포트에서 뽑은 튜터 목록.
- *  2. 방문 선생님 초대 링크 붙여넣기 - 링크나 토큰만 남기면 /tutor-invite/{token}으로 이동해
+ *  2. 선생님 초대 링크 붙여넣기 - 링크나 토큰만 남기면 /tutor-invite/{token}으로 이동해
  *     기존 ParentLinkAcceptPage 흐름을 재사용한다.
  *  3. 반 코드 안내 - 반 코드는 지금 회원가입 흐름(joinClass)에서만 받을 수 있어, 이미 로그인된
  *     학부모가 반에 참여하는 별도 엔드포인트는 다음 세션의 BE 작업으로 미룬다.

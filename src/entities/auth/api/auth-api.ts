@@ -97,7 +97,7 @@ export function signupParent(
   return request('/v1/auth/signup/parent', { method: 'POST', body: JSON.stringify(input) }, options);
 }
 
-/** 방문 선생님 - 가정을 방문해 1:1 수업을 진행하는 셀프서비스 역할. 조직/반 없이 바로 가입된다. */
+/** 선생님 - 1:1 수업을 진행하는 셀프서비스 역할. 조직/반 없이 바로 가입된다. */
 export function signupTutor(
   input: { loginId: string; email: string; password: string; displayName: string },
   options?: RequestOptions,

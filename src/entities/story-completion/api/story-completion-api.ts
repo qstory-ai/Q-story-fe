@@ -9,7 +9,7 @@ export type StoryCompletionSummary = {
   durationSeconds: number | null;
   /**
    * 부모(PARENT) 계정에서 어느 아이 프로필로 진행한 세션인지 - 리포트 페이지의 아이별 필터에
-   * 이 값이 있는 항목만 노출한다. 방문 선생님 세션이나 legacy 기록(childName 시절)은 null.
+   * 이 값이 있는 항목만 노출한다. 선생님 세션이나 legacy 기록(childName 시절)은 null.
    */
   childId: string | null;
 };
@@ -35,10 +35,10 @@ function request<T>(path: string, init: RequestInit, token: string, options: Req
 /**
  * 방금 끝난 세션의 리포트를 저장한다. outcomes는 실시간 리포트 화면이 이미 구성해 둔 것과 동일한
  * QuestionOutcome[]이다.
- * - tutorStudentId: 방문 선생님이 자신이 등록한 학생과 진행한 세션일 때만 (StoryPlayerRoute의
+ * - tutorStudentId: 선생님이 자신이 등록한 학생과 진행한 세션일 때만 (StoryPlayerRoute의
  *   ?tutorStudentId= 참고). 가정 세션은 생략.
  * - childId: 부모 계정에서 어느 아이 프로필로 진행한 세션인지 - 아이별 리포트 필터를 위해 첨부.
- *   방문 선생님 세션은 childId를 생략하고 대신 tutorStudentId만 넘긴다.
+ *   선생님 세션은 childId를 생략하고 대신 tutorStudentId만 넘긴다.
  */
 export function recordStoryCompletion(
   token: string,

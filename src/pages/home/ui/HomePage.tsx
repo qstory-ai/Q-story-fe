@@ -40,8 +40,8 @@ function readOnboardingParams(params: URLSearchParams): OnboardingEntry | null {
   return role ? { step: 'sign-up', role, invite: invite ?? undefined } : { step: 'welcome' };
 }
 
-// IA의 회원 유형 분류에 맞춘 표기 - "방문 선생님"이라는 유형 라벨은 IA에서 삭제됐고
-// (기관 소속 여부와 무관하게 모두 "선생님"), 실제 소속은 온보딩 이후에 결정된다.
+// IA의 회원 유형 분류에 맞춘 표기 - 기관 소속 여부와 무관하게 모두 "선생님"으로 표기하고,
+// 실제 소속은 온보딩 이후에 결정된다.
 const ROLE_OPTIONS: { role: 'DIRECTOR' | 'PARENT' | 'TUTOR'; label: string; body: string }[] = [
   { role: 'PARENT', label: '학부모님', body: '아이와 함께 이야기 서재를 시작해요' },
   { role: 'TUTOR', label: '선생님', body: '학생을 등록하고 수업을 준비해요' },
@@ -54,10 +54,10 @@ const ROLE_OPTIONS: { role: 'DIRECTOR' | 'PARENT' | 'TUTOR'; label: string; body
  * 연결했다 - <StoryLibraryGrid />가 실제 책장이고, 언락 여부는 entities/story의
  * unlockStateFor()가 판단한다.
  *
- * 아래 auth 상태 패널(비로그인: 원장님/학부모님/방문 선생님/로그인 링크)은 그대로 보존한다 -
+ * 아래 auth 상태 패널(비로그인: 원장님/학부모님/선생님/로그인 링크)은 그대로 보존한다 -
  * 예전엔 /director, /join, /login으로 직접 이동했지만, 이제는 같은 목적지를
  * <OnboardingFlow/>(환영→가치제안→역할선택→가입 순차 흐름)의 해당 단계로 곧장 진입시킨다 -
- * 원장님/학부모님/방문 선생님 카드는 역할이 이미 정해졌으니 role-select를 건너뛰고 바로
+ * 원장님/학부모님/선생님 카드는 역할이 이미 정해졌으니 role-select를 건너뛰고 바로
  * sign-up 단계로. 기존 라우트 중 여전히 살아있는 /join, /login, /signup, /organization은
  * 딥링크·북마크 보호를 위해 그대로 둔다 - 다만 /director는 완전히 죽은 코드였다(가입 단계가
  * 존재하지 않는 백엔드 엔드포인트를 불렀고, 인증 후에는 항상 동일한 기능의 /organization으로

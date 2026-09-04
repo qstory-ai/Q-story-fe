@@ -19,7 +19,7 @@ const SHARED_ITEMS = ['선생님이 진행한 질문·장면·리포트'];
 const HIDDEN_ITEMS = ['가정 구독·결제·다른 이야기', '음성 원본과 아이의 성향 평가'];
 
 /**
- * 방문 선생님의 부모 초대 수락 화면("/tutor-invite/:token") - q-story-flow-prototype.tsx의
+ * 선생님의 부모 초대 수락 화면("/tutor-invite/:token") - q-story-flow-prototype.tsx의
  * ParentLinkScreen(preview→account→child→consent)을 이식했다. "child" 단계는 미리보기 카드가
  * 이미 그 역할을 겸하므로 생략했다 - 별도 재확인 단계를 추가하지 않는다.
  */

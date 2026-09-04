@@ -178,7 +178,7 @@ export function listParentTutorReports(token: string, options?: RequestOptions):
 }
 
 /**
- * 방문 선생님이 특정 학생의 다음 수업에 쓸 이야기 리스트("수업에 사용하기"로 담긴 것들).
+ * 선생님이 특정 학생의 다음 수업에 쓸 이야기 리스트("수업에 사용하기"로 담긴 것들).
  * BE의 tutor_lesson_plan 테이블 한 행이 여기서 TutorLessonPlan 하나로 매핑된다 - 서재의
  * "수업에 사용하기" 버튼이 create를 호출하고, 선생님 수업 상세에서 list/remove를 쓴다.
  */

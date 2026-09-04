@@ -10,7 +10,7 @@ const ROLE_LABEL: Record<Role, string> = {
   DIRECTOR: '기관 및 단체',
   CLASS_ACCOUNT: '반 계정',
   PARENT: '학부모',
-  TUTOR: '방문 선생님',
+  TUTOR: '선생님',
   STAFF: '콘텐츠 운영자',
 };
 

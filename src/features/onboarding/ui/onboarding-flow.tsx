@@ -61,7 +61,7 @@ const VALUE_SLIDES = [
 const ROLE_CARDS: Array<{ role: OnboardingRole; eyebrow: string; title: string; description: string }> = [
   { role: 'PARENT', eyebrow: '가정에서', title: '학부모님', description: '아이와 함께 이야기 서재를 쓰고, 완주 리포트를 받아요.' },
   { role: 'DIRECTOR', eyebrow: '유치원·학원·기관에서', title: '기관 및 단체', description: '반을 만들고 여러 아이가 함께 듣는 수업을 준비해요.' },
-  { role: 'TUTOR', eyebrow: '가정 방문·1:1 수업에서', title: '방문 선생님', description: '만나는 아이별로 수업을 준비하고 부모님께 리포트를 전달해요.' },
+  { role: 'TUTOR', eyebrow: '수업에서', title: '선생님', description: '만나는 아이별로 수업을 준비하고 부모님께 리포트를 전달해요. 기관 소속·독립 활동 모두 가능해요.' },
 ];
 
 /**
@@ -340,7 +340,7 @@ function SignUpStep({
       <Text style={styles.eyebrow}>회원가입 · 2 / 2</Text>
       <Text style={styles.carouselTitle}>계정을 만들어볼까요?</Text>
       <Text style={styles.welcomeLead}>
-        {role === 'PARENT' ? '학부모' : role === 'DIRECTOR' ? '기관 및 단체' : '방문 선생님'} 홈을 준비할게요.
+        {role === 'PARENT' ? '학부모' : role === 'DIRECTOR' ? '기관 및 단체' : '선생님'} 홈을 준비할게요.
       </Text>
 
       {role === 'PARENT' && (

@@ -24,7 +24,7 @@ const WEEKDAY_LABEL: Record<TutorSchedule['weekday'], string> = {
 const WEEKDAY_ORDER: TutorSchedule['weekday'][] = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
 /**
- * 방문 선생님 홈("/tutor") - IA "[1] 홈" 섹션을 반영해 다음 순서로 재구성했다:
+ * 선생님 홈("/tutor") - IA "[1] 홈" 섹션을 반영해 다음 순서로 재구성했다:
  *
  *   1. 상단 바 - 브랜드 라벨 + 알림 벨(스텁).
  *   2. 인사말 카드 - 예전 CTA는 하단으로 밀어서 오늘의 수업이 상단에 오도록.
@@ -94,7 +94,7 @@ export function TutorHomePage() {
         <TopBar token={state.token} />
 
         <Card variant="surface" padding="lg" style={styles.greetingCard}>
-          <Text style={styles.eyebrow}>방문 선생님</Text>
+          <Text style={styles.eyebrow}>선생님</Text>
           <Text style={styles.title} accessibilityRole="header">{state.user.displayName}님</Text>
           <Text style={styles.body}>오늘 만날 아이와 수업을 준비해 보세요.</Text>
         </Card>

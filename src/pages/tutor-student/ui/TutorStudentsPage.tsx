@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { useAuth } from '@/entities/auth';
+import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { DEFAULT_BETA_STORY_ID } from '@/entities/story';
 import { createTutorInvite, listTutorStudents, type TutorInvite, type TutorStudent } from '@/entities/tutor';
 import { InviteCodeCard } from '@/features/invite-issue';
@@ -65,12 +65,12 @@ export function TutorStudentsPage() {
   const originBase = typeof window !== 'undefined' ? window.location.origin : '';
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      <Pressable onPress={() => navigate('/tutor')} accessibilityRole="link" hitSlop={8} style={styles.backLink}>
-        <Text style={styles.backLinkText}>← 홈으로</Text>
-      </Pressable>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor')}>
       <View style={styles.content}>
-        <Text style={styles.title} accessibilityRole="header">등록된 학생</Text>
+        <View style={styles.headerRow}>
+          <Text style={styles.title} accessibilityRole="header">등록된 학생</Text>
+          <ActionButton label="새 학생 등록" onPress={() => navigate('/tutor/students/new')} />
+        </View>
 
         {load.status === 'ready' && load.students.length === 0 && (
           <View style={styles.card}>
@@ -128,7 +128,7 @@ export function TutorStudentsPage() {
 
         {load.status === 'error' && <Text style={styles.error}>학생 목록을 불러오지 못했어요.</Text>}
       </View>
-    </SafeAreaView>
+    </AppNavShell>
   );
 }
 
@@ -138,18 +138,28 @@ function formatExpires(iso: string) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: storybookTheme.color.shellBackground },
-  backLink: { minHeight: 44, justifyContent: 'center', paddingHorizontal: storybookTheme.spacing.ml },
-  backLinkText: { color: storybookTheme.color.onLightMuted, fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.medium },
   content: {
+    flex: 1,
+    width: '100%',
+    maxWidth: storybookTheme.layout.narrowMaxWidth,
+    alignSelf: 'center',
     gap: storybookTheme.spacing.ms,
     paddingHorizontal: storybookTheme.spacing.ml,
+    paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    maxWidth: storybookTheme.layout.narrowMaxWidth,
-    width: '100%',
-    alignSelf: 'center',
   },
-  title: { fontSize: storybookTheme.type.lg, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onLightHeading },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: storybookTheme.spacing.sm,
+    flexWrap: 'wrap',
+  },
+  title: {
+    fontSize: storybookTheme.type.xl,
+    fontWeight: storybookTheme.type.weight.black,
+    color: storybookTheme.color.onDark,
+  },
   error: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.error },
   card: {
     gap: storybookTheme.spacing.sm,

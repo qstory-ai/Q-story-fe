@@ -6,34 +6,27 @@ import { ActionButton, AppNavShell, Card, Icon, Pill, storybookTheme } from '@/s
 import { messageForError } from '@/shared/api';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
-import {
-  listTutorSchedules,
-  listTutorStudents,
-  type TutorSchedule,
-  type TutorStudent,
-} from '@/entities/tutor';
+import { listTutorStudents, type TutorStudent } from '@/entities/tutor';
+import { listLessons, type Lesson } from '@/entities/lesson';
+import { MonthCalendar } from '@/features/month-calendar';
 
 type LoadState =
   | { status: 'loading' }
-  | { status: 'ready'; students: TutorStudent[]; schedules: TutorSchedule[] }
+  | { status: 'ready'; students: TutorStudent[]; lessons: Lesson[] }
   | { status: 'error'; message: string };
 
-const WEEKDAY_LABEL: Record<TutorSchedule['weekday'], string> = {
-  MON: '월', TUE: '화', WED: '수', THU: '목', FRI: '금', SAT: '토',
-};
-
-const WEEKDAY_ORDER: TutorSchedule['weekday'][] = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-
 /**
- * 선생님 홈("/tutor") - IA "[1] 홈" 섹션을 반영해 다음 순서로 재구성했다:
+ * 선생님 홈("/tutor") - IA "[1] 홈" 섹션을 반영. 예전엔 "오늘의 수업"(주 반복 요일 기반) +
+ * "이번 주 일정 요약"(요일별 카운트) 두 패널로 이번 주만 봤는데, 사용자 요청으로 한 달짜리
+ * 애플식 캘린더로 교체했다 - 특정 일자를 탭하면 그 아래에 그 날의 수업 목록이 뜬다.
+ * 데이터 소스도 recurring TutorSchedule에서 실 스케줄이 붙는 Lesson으로 바꿨다
+ * (Lesson.scheduledAt이 실제 datetime).
  *
- *   1. 상단 바 - 브랜드 라벨 + 알림 벨(스텁).
- *   2. 인사말 카드 - 예전 CTA는 하단으로 밀어서 오늘의 수업이 상단에 오도록.
- *   3. 오늘의 수업 - listTutorSchedules()를 오늘 요일 + startTime 순으로 필터.
- *   4. 진행 중인 수업 - 아직 세션 진행 상태 추적이 없어서 "부모 연결 대기중"인 학생만
- *      노출해 최소한 노는 카드는 아니게 한다(추후 세션 진행 상태 스키마가 생기면 대체).
- *   5. 최근 활동 - 이번 세션에선 데이터가 부족해 안내 카피만.
- *   6. CTA - 새 학생/주간 일정 링크.
+ *   1. 상단 바 - 브랜드 라벨 + 알림 벨.
+ *   2. 인사말 카드.
+ *   3. 캘린더 - 월 그리드, 일자별 dot, 선택된 일자의 수업 목록.
+ *   4. CTA - 새 학생 등록 / 학생 관리 / 수업 관리 (홈에서 원터치 진입점을 늘림).
+ *   5. 부모 연결 대기 학생 - 아직 부모 초대가 수락되지 않은 학생 목록.
  */
 export function TutorHomePage() {
   const navigate = useNavigate();
@@ -50,9 +43,11 @@ export function TutorHomePage() {
   useEffect(() => {
     if (state.status !== 'authenticated') return;
     let cancelled = false;
-    Promise.all([listTutorStudents(state.token), listTutorSchedules(state.token)])
-      .then(([students, schedules]) => {
-        if (!cancelled) setLoad({ status: 'ready', students, schedules });
+    // 상태 필터 없이 전부 - 캘린더는 SCHEDULED만 아니라 IN_PROGRESS/COMPLETED도 dot으로
+    // 표시해 지난 수업 참조가 되게 한다.
+    Promise.all([listTutorStudents(state.token), listLessons(state.token)])
+      .then(([students, lessons]) => {
+        if (!cancelled) setLoad({ status: 'ready', students, lessons });
       })
       .catch((error: unknown) => {
         if (!cancelled) {
@@ -65,26 +60,20 @@ export function TutorHomePage() {
     };
   }, [state]);
 
-  const todaysWeekday = useMemo(() => weekdayFromDate(new Date()), []);
-  const todaysClasses = useMemo(() => {
-    if (load.status !== 'ready') return [] as TutorSchedule[];
-    return load.schedules
-      .filter((schedule) => schedule.weekday === todaysWeekday)
-      .sort((a, b) => a.startTime.localeCompare(b.startTime));
-  }, [load, todaysWeekday]);
+  const calendarItems = useMemo(() => {
+    if (load.status !== 'ready') return [] as { id: string; date: Date; lesson: Lesson }[];
+    return load.lessons
+      .filter((lesson) => lesson.scheduledAt !== null)
+      .map((lesson) => ({
+        id: lesson.id,
+        date: new Date(lesson.scheduledAt as string),
+        lesson,
+      }));
+  }, [load]);
 
   const pendingStudents = useMemo(() => {
     if (load.status !== 'ready') return [] as TutorStudent[];
-    return load.students
-      .filter((student) => student.status === 'PENDING_PARENT')
-      .slice(0, 4);
-  }, [load]);
-
-  const upcomingByWeekday = useMemo(() => {
-    if (load.status !== 'ready') return {} as Record<TutorSchedule['weekday'], number>;
-    const map: Record<string, number> = {};
-    for (const schedule of load.schedules) map[schedule.weekday] = (map[schedule.weekday] ?? 0) + 1;
-    return map as Record<TutorSchedule['weekday'], number>;
+    return load.students.filter((student) => student.status === 'PENDING_PARENT').slice(0, 4);
   }, [load]);
 
   if (state.status !== 'authenticated') return null;
@@ -100,52 +89,65 @@ export function TutorHomePage() {
           <Text style={styles.body}>오늘 만날 아이와 수업을 준비해 보세요.</Text>
         </Card>
 
-        <Card
-          variant="panel"
-          padding="md"
-          title={`오늘의 수업 · ${weekdayLabelToday(todaysWeekday)}요일`}
-          style={styles.panel}
-        >
+        <Card variant="panel" padding="md" title="수업 캘린더" style={styles.panel}>
           {load.status === 'loading' ? (
             <Text style={styles.panelBody}>불러오는 중이에요…</Text>
-          ) : todaysClasses.length === 0 ? (
-            <Text style={styles.panelBody}>오늘 예정된 수업이 없어요.</Text>
           ) : (
-            todaysClasses.map((schedule) => (
-              <Pressable
-                key={schedule.id}
-                accessibilityRole="link"
-                onPress={() => navigate('/tutor/schedule')}
-                style={({ pressed }) => [styles.scheduleRow, pressed && styles.pressed]}
-              >
-                <View style={styles.timeCol}>
-                  <Text style={styles.timeText}>{formatTime(schedule.startTime)}</Text>
-                  <Text style={styles.timeMeta}>{formatDuration(schedule.startTime, schedule.endTime)}</Text>
-                </View>
-                <View style={styles.scheduleBody}>
-                  <Text style={styles.scheduleName}>{schedule.studentName}</Text>
-                  <Text style={styles.scheduleMeta} numberOfLines={1}>{schedule.location}</Text>
-                </View>
-                <Icon name="chevronRight" size={16} color={storybookTheme.color.onDarkMuted} />
-              </Pressable>
-            ))
+            <MonthCalendar
+              items={calendarItems}
+              emptyDayMessage="이 날에는 예정된 수업이 없어요."
+              renderItem={(item) => (
+                <Pressable
+                  key={item.id}
+                  accessibilityRole="link"
+                  accessibilityLabel={`${item.lesson.name} 수업 상세 열기`}
+                  onPress={() => navigate(`/tutor/lessons/${item.lesson.id}`)}
+                  style={({ pressed }) => [styles.lessonRow, pressed && styles.pressed]}
+                >
+                  <View style={styles.timeCol}>
+                    <Text style={styles.timeText}>{formatTime(item.date)}</Text>
+                    <StatusPill status={item.lesson.status} />
+                  </View>
+                  <View style={styles.lessonBody}>
+                    <Text style={styles.lessonName}>{item.lesson.name}</Text>
+                    {item.lesson.goal ? (
+                      <Text style={styles.lessonMeta} numberOfLines={1}>{item.lesson.goal}</Text>
+                    ) : null}
+                    <View style={styles.metaRow}>
+                      <Pill label={`학생 ${item.lesson.students.length}명`} tone="onCard" />
+                      <Pill label={`이야기 ${item.lesson.storyIds.length}편`} tone="onCard" />
+                    </View>
+                  </View>
+                  <Icon name="chevronRight" size={16} color={storybookTheme.color.onDarkMuted} />
+                </Pressable>
+              )}
+            />
           )}
         </Card>
 
-        {/* 튜터의 주 액션(새 학생 등록)을 부수 정보(진행 중/주간 요약)보다 위로 올린다 -
-            예전엔 CTA가 맨 아래에 있어 스크롤이 필요했다. */}
+        {/* 튜터의 주 액션(새 학생/학생 관리/수업 관리)을 캘린더 바로 아래에 모아 두어 원터치
+            진입이 가능하게 한다 - 예전엔 학생 목록으로 가려면 두 번 이동해야 했다. */}
         <View style={styles.ctaRow}>
           <ActionButton label="새 학생 등록" onPress={() => navigate('/tutor/students/new')} />
-          <Pressable
-            accessibilityRole="link"
-            onPress={() => navigate('/tutor/classes')}
-            style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
-          >
-            <Text style={styles.linkLabel}>수업 관리 열기 →</Text>
-          </Pressable>
+          <View style={styles.linkRow}>
+            <Pressable
+              accessibilityRole="link"
+              onPress={() => navigate('/tutor/students')}
+              style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
+            >
+              <Text style={styles.linkLabel}>학생 관리 →</Text>
+            </Pressable>
+            <Pressable
+              accessibilityRole="link"
+              onPress={() => navigate('/tutor/classes')}
+              style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
+            >
+              <Text style={styles.linkLabel}>수업 관리 →</Text>
+            </Pressable>
+          </View>
         </View>
 
-        <Card variant="panel" padding="md" title="이번 주 진행 중" style={styles.panel}>
+        <Card variant="panel" padding="md" title="부모 연결 대기" style={styles.panel}>
           {load.status === 'loading' ? (
             <Text style={styles.panelBody}>불러오는 중이에요…</Text>
           ) : pendingStudents.length === 0 ? (
@@ -161,29 +163,6 @@ export function TutorHomePage() {
               </View>
             ))
           )}
-        </Card>
-
-        <Card variant="panel" padding="md" title="이번 주 일정 요약" style={styles.panel}>
-          <View style={styles.weeklyRow}>
-            {WEEKDAY_ORDER.map((weekday) => {
-              const count = upcomingByWeekday[weekday] ?? 0;
-              const isToday = weekday === todaysWeekday;
-              return (
-                <View
-                  key={weekday}
-                  style={[
-                    styles.weeklyPill,
-                    isToday && styles.weeklyPillToday,
-                  ]}
-                >
-                  <Text style={[styles.weeklyLabel, isToday && styles.weeklyLabelToday]}>
-                    {WEEKDAY_LABEL[weekday]}
-                  </Text>
-                  <Text style={[styles.weeklyCount, isToday && styles.weeklyLabelToday]}>{count}</Text>
-                </View>
-              );
-            })}
-          </View>
         </Card>
 
         {load.status === 'error' ? <Text style={styles.errorText}>{load.message}</Text> : null}
@@ -215,32 +194,14 @@ function TopBar({ token }: { token: string }) {
   );
 }
 
-function weekdayFromDate(date: Date): TutorSchedule['weekday'] {
-  // getDay(): 0=Sun … 6=Sat. 이 앱은 일요일 수업을 지원하지 않아 SUN은 MON으로 폴백한다.
-  const map: Record<number, TutorSchedule['weekday']> = {
-    0: 'MON', 1: 'MON', 2: 'TUE', 3: 'WED', 4: 'THU', 5: 'FRI', 6: 'SAT',
-  };
-  return map[date.getDay()];
+function StatusPill({ status }: { status: Lesson['status'] }) {
+  if (status === 'IN_PROGRESS') return <Text style={styles.statusInProgress}>진행 중</Text>;
+  if (status === 'COMPLETED') return <Text style={styles.statusCompleted}>완료</Text>;
+  return null;
 }
 
-function weekdayLabelToday(weekday: TutorSchedule['weekday']) {
-  return WEEKDAY_LABEL[weekday];
-}
-
-function formatTime(time: string) {
-  // "HH:MM:SS" 또는 "HH:MM" 형태를 그대로 HH:MM만 보여준다.
-  return time.slice(0, 5);
-}
-
-function formatDuration(startTime: string, endTime: string) {
-  const [sh, sm] = startTime.split(':').map(Number);
-  const [eh, em] = endTime.split(':').map(Number);
-  const minutes = (eh * 60 + em) - (sh * 60 + sm);
-  if (!Number.isFinite(minutes) || minutes <= 0) return '';
-  if (minutes < 60) return `${minutes}분`;
-  const hours = Math.floor(minutes / 60);
-  const rest = minutes % 60;
-  return rest === 0 ? `${hours}시간` : `${hours}시간 ${rest}분`;
+function formatTime(date: Date) {
+  return new Intl.DateTimeFormat('ko-KR', { hour: 'numeric', minute: '2-digit' }).format(date);
 }
 
 const styles = StyleSheet.create({
@@ -279,7 +240,6 @@ const styles = StyleSheet.create({
   },
   brandWordmarkQ: { color: storybookTheme.color.gold },
   pressed: { opacity: 0.85 },
-  // Card 프리미티브가 배경/테두리/라운드/패딩을 담당한다. 여기선 인사 카드 안의 자식 gap만 오버라이드.
   greetingCard: {
     alignItems: 'stretch',
     gap: storybookTheme.spacing.xs,
@@ -301,25 +261,49 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
     marginTop: 2,
   },
-  // Card variant='panel'이 배경/테두리/라운드/패딩을 담당. 여기선 자식 gap만 오버라이드.
   panel: {
     gap: storybookTheme.spacing.ms,
   },
-  panelBody: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onDarkMuted },
-  scheduleRow: {
+  panelBody: {
+    fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onDarkMuted,
+  },
+  lessonRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: storybookTheme.spacing.ms,
     paddingVertical: storybookTheme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.panelOnDarkBorder,
+    paddingHorizontal: storybookTheme.spacing.sm,
+    borderRadius: storybookTheme.radius.card,
+    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.panelOnDarkBorder,
   },
-  timeCol: { width: 72, gap: 2 },
-  timeText: { fontSize: storybookTheme.type.md, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onDark },
-  timeMeta: { fontSize: storybookTheme.type.xxs, color: storybookTheme.color.onDarkMuted },
-  scheduleBody: { flex: 1, gap: 2 },
-  scheduleName: { fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onDark },
-  scheduleMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onDarkMuted },
+  timeCol: { width: 68, gap: 2 },
+  timeText: {
+    fontSize: storybookTheme.type.md,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.onDark,
+  },
+  statusInProgress: {
+    fontSize: storybookTheme.type.xxs,
+    color: storybookTheme.color.gold,
+    fontWeight: storybookTheme.type.weight.semibold,
+  },
+  statusCompleted: {
+    fontSize: storybookTheme.type.xxs,
+    color: storybookTheme.color.onDarkMuted,
+    fontWeight: storybookTheme.type.weight.semibold,
+  },
+  lessonBody: { flex: 1, gap: 4 },
+  lessonName: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.onDark,
+  },
+  lessonMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onDarkMuted },
+  metaRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap', marginTop: 2 },
   studentRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -330,40 +314,15 @@ const styles = StyleSheet.create({
     borderTopColor: storybookTheme.color.panelOnDarkBorder,
   },
   studentInfo: { gap: 2 },
-  studentName: { fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onDark },
-  studentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onDarkMuted },
-  weeklyRow: { flexDirection: 'row', gap: storybookTheme.spacing.xs, justifyContent: 'space-between' },
-  weeklyPill: {
-    flex: 1,
-    minHeight: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 2,
-    paddingVertical: storybookTheme.spacing.sm,
-    borderRadius: storybookTheme.radius.input,
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
-  },
-  weeklyPillToday: {
-    // 골드 강조 배경 - "오늘"만 이 톤을 쓴다. 다른 곳에도 쓰면 그때 토큰화한다.
-    backgroundColor: 'rgba(246, 198, 77, 0.15)',
-    borderColor: storybookTheme.color.gold,
-  },
-  weeklyLabel: {
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.onDarkMuted,
-  },
-  weeklyLabelToday: { color: storybookTheme.color.gold },
-  weeklyCount: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.black,
+  studentName: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onDark,
   },
-  ctaRow: { gap: 8 },
+  studentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onDarkMuted },
+  ctaRow: { gap: storybookTheme.spacing.sm },
+  linkRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, justifyContent: 'center', flexWrap: 'wrap' },
   linkChip: {
-    alignSelf: 'center',
     paddingHorizontal: 12,
     paddingVertical: 8,
   },

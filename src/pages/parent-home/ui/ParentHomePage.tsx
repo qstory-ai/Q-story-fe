@@ -10,6 +10,7 @@ import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/
 import { StoryCard } from '@/shared/ui/story-card';
 import { HomeSection } from '@/features/home-section';
 import { ChildSelector } from '@/features/child-selector';
+import { MonthCalendar } from '@/features/month-calendar';
 import { AGE_BAND_CATEGORY_HINTS, useChildren, type AgeBand } from '@/entities/child';
 import { loadLocalStoryProgress, type LocalStoryProgress } from '@/entities/analytics';
 import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
@@ -217,31 +218,30 @@ export function ParentHomePage() {
           </HomeSection>
         ) : null}
 
-        <View style={styles.recentSection}>
-          <HomeSection title="최근 활동" direction="vertical">
-            {recentActivity.length > 0 ? (
-              recentActivity.map((entry) => (
+        {/* 활동 캘린더 - 예전엔 최근 6개를 평면 리스트로 보여줬는데, 부모가 "이 달에 몇 번이나
+            읽었지?"를 한눈에 파악하기 어려웠다. 애플 캘린더식 월 그리드에 완주/리포트를 dot으로
+            표시하고, 특정 일자를 탭하면 그 아래 목록이 뜬다. */}
+        <Card variant="panel" padding="md" title="이 달의 활동" style={styles.calendarPanel}>
+          {activityLoading ? (
+            <Text style={styles.emptyRecentBody}>불러오는 중이에요…</Text>
+          ) : recentActivity.length === 0 ? (
+            <Text style={styles.emptyRecentBody}>첫 이야기를 끝까지 읽으면 여기에 기록이 남아요.</Text>
+          ) : (
+            <MonthCalendar
+              items={recentActivity.map((entry) => ({ id: entry.id, date: new Date(entry.iso), entry }))}
+              emptyDayMessage="이 날에는 활동 기록이 없어요."
+              renderItem={(item) => (
                 <RecentActivityRow
-                  key={entry.id}
-                  entry={entry}
+                  key={item.entry.id}
+                  entry={item.entry}
                   onPress={() => {
-                    if (entry.kind === 'completion') navigate(`/reports/${entry.id}`);
+                    if (item.entry.kind === 'completion') navigate(`/reports/${item.entry.id}`);
                   }}
                 />
-              ))
-            ) : activityLoading ? (
-              <Card variant="panel" padding="md">
-                <Text style={styles.emptyRecentBody}>불러오는 중이에요…</Text>
-              </Card>
-            ) : (
-              <Card variant="panel" padding="md">
-                <Text style={styles.emptyRecentBody}>
-                  첫 이야기를 끝까지 읽으면 여기에 기록이 남아요.
-                </Text>
-              </Card>
-            )}
-          </HomeSection>
-        </View>
+              )}
+            />
+          )}
+        </Card>
 
         {storyLoadError && (stories?.length ?? 0) === 0 ? (
           <Text style={styles.errorText}>{storyLoadError}</Text>
@@ -453,9 +453,12 @@ function mergeRecentActivity(
     meta: `${formatDate(report.completedAt)} · ${formatReportDuration(report.durationSeconds)}`,
     iso: report.completedAt,
   }));
+  // 캘린더가 이 달 전체의 dot을 그리려면 최근 6개로 자르면 안 된다 - 지금은 60개까지 남긴다
+  // (한 달에 60회면 어차피 화면 상 dot 하나로 뭉치므로 상한만 있으면 됨). 위 매핑이 이미
+  // 최신순 정렬이라 오래된 것부터 잘려나간다.
   return [...completionEntries, ...tutorEntries]
     .sort((a, b) => (b.iso > a.iso ? 1 : -1))
-    .slice(0, 6);
+    .slice(0, 60);
 }
 
 function formatDate(iso: string) {
@@ -602,6 +605,12 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
+  },
+  calendarPanel: {
+    width: '100%',
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
+    alignSelf: 'center',
+    gap: storybookTheme.spacing.ms,
   },
   emptyRecentBody: {
     fontSize: storybookTheme.type.xs,

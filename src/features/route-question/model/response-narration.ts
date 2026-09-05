@@ -1,4 +1,5 @@
 import { speechApiUrl } from '@/entities/speech-pipeline';
+import { sanitizeNarrationText } from '@/entities/narration';
 
 import type { QuestionNarrationInput } from './question-narration';
 import { getQuestionNarration } from './question-narration';
@@ -34,7 +35,7 @@ export async function getResponseNarration(
         storyId: input.storyId,
         anchorId: input.anchor.id,
         speakerId: input.anchor.promptSpeakerId,
-        text: input.text,
+        text: sanitizeNarrationText(input.text),
       }),
     });
     const contentType = response.headers.get('content-type') ?? '';

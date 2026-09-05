@@ -1,5 +1,6 @@
 import type { QuestionAnchor, StoryId } from '@/entities/story-runtime';
 import { speechApiUrl } from '@/entities/speech-pipeline';
+import { sanitizeNarrationText } from '@/entities/narration';
 import type { BufferedResponseAudio } from './response-audio';
 
 export type GeneratedNarrationAudio = BufferedResponseAudio;
@@ -58,7 +59,7 @@ export async function fetchQuestionNarration(
         storyId: input.storyId,
         anchorId: input.anchor.id,
         speakerId: input.anchor.promptSpeakerId,
-        text: input.text,
+        text: sanitizeNarrationText(input.text),
       }),
     });
     if (!response.ok) {

@@ -1,5 +1,6 @@
 import type { StoryId } from '@/entities/story-runtime';
 import { speechApiUrl } from '@/entities/speech-pipeline';
+import { sanitizeNarrationText } from '@/entities/narration';
 import type {
   BufferedResponseAudio,
   PcmStreamResponseAudio,
@@ -44,16 +45,6 @@ const DEFAULT_LINE_NARRATION_TIMEOUT_MS = 30_000;
 
 function cacheKey(input: LineNarrationInput) {
   return [input.storyId, input.speakerId, input.text].join('|');
-}
-
-// The on-demand TTS backend (NarrationContractValidator) rejects any control character in `text`,
-// including a literal newline - but multi-sentence fallback/branch lines carry '\n' between
-// sentences by design (see manifest.test.ts's own normalizedText helper, which does the same
-// flattening to compare against pre-recorded audio transcripts). Flatten here, at the network
-// boundary, so on-screen captions can keep their line breaks while only the wire payload is
-// squashed to what the backend actually accepts.
-function sanitizeNarrationText(text: string): string {
-  return text.replace(/\s+/g, ' ').trim();
 }
 
 export async function fetchLineNarration(

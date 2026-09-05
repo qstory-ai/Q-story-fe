@@ -22,6 +22,9 @@ type AppNavShellProps = {
 
 // StoryLibraryGrid의 3열 전환 기준(860)과 맞춘다 - 이 폭부터 "웹처럼" 고정 사이드바를 쓴다.
 const WIDE_BREAKPOINT = 860;
+// bottomBarItem의 minHeight(56)과 맞춘다 - narrowMain의 paddingBottom 계산에 재사용해서
+// 고정된 하단바에 콘텐츠 마지막 줄이 가려지지 않게 한다.
+const BOTTOM_BAR_HEIGHT = 56;
 
 /**
  * 로그인 후 대시보드형 화면(홈/보고서/마이페이지)들이 공유하는 페이지 이동 셸.
@@ -74,7 +77,11 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
   }
 
   return (
-    <SafeAreaView edges={['top', 'right', 'bottom', 'left']} style={styles.root}>
+    // bottom은 여기서 빼고 고정된 하단바 쪽(bottomBarFixed) 자신이 안전영역을 책임진다 -
+    // 하단바가 position:fixed로 플로우 밖으로 빠지면 이 SafeAreaView의 padding-bottom은
+    // (더 이상 하단바 뒤가 아니라) narrowMain 뒤에 그대로 남아 스크롤 콘텐츠에 어색한 여백만
+    // 남긴다.
+    <SafeAreaView edges={['top', 'right', 'left']} style={styles.root}>
       <View style={styles.topBar}>
         {onBack ? (
           <Pressable accessibilityRole="link" accessibilityLabel="뒤로가기" hitSlop={8} onPress={onBack} style={styles.topBarButton}>
@@ -94,27 +101,33 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
         </Pressable>
       </View>
       <View style={styles.narrowMain} {...({ role: 'main' } as any)}>{children}</View>
-      <View style={styles.bottomBar}>
-        {items.map((item) => (
-          <Pressable
-            key={item.key}
-            accessibilityRole="link"
-            accessibilityLabel={item.label}
-            accessibilityState={{ selected: item.active }}
-            onPress={item.onPress}
-            style={styles.bottomBarItem}
-          >
-            <Icon
-              name={item.icon}
-              size={20}
-              color={item.active ? storybookTheme.color.primary : storybookTheme.color.onContentMuted}
-            />
-            <Text style={[styles.bottomBarLabel, item.active && styles.bottomBarLabelActive]}>
-              {item.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+      {/* 예전엔 이 하단바가 그냥 마지막 flex 자식이라, 콘텐츠가 길면 스크롤할 때 화면 밖으로
+          같이 밀려 올라갔다(뷰포트에 고정된 게 아니라 문서 흐름의 일부였다) - position:fixed로
+          뷰포트 바닥에 붙여 스크롤과 무관하게 항상 보이게 한다. narrowMain의 paddingBottom이
+          이 높이만큼 콘텐츠를 밀어줘서 마지막 줄이 하단바에 가려지지 않는다. */}
+      <SafeAreaView edges={['bottom']} style={styles.bottomBarFixed}>
+        <View style={styles.bottomBar}>
+          {items.map((item) => (
+            <Pressable
+              key={item.key}
+              accessibilityRole="link"
+              accessibilityLabel={item.label}
+              accessibilityState={{ selected: item.active }}
+              onPress={item.onPress}
+              style={styles.bottomBarItem}
+            >
+              <Icon
+                name={item.icon}
+                size={20}
+                color={item.active ? storybookTheme.color.primary : storybookTheme.color.onContentMuted}
+              />
+              <Text style={[styles.bottomBarLabel, item.active && styles.bottomBarLabelActive]}>
+                {item.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </SafeAreaView>
     </SafeAreaView>
   );
 }
@@ -165,12 +178,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  narrowMain: { flex: 1, backgroundColor: storybookTheme.color.background },
-  bottomBar: {
-    flexDirection: 'row',
+  narrowMain: {
+    flex: 1,
+    backgroundColor: storybookTheme.color.background,
+    // 고정된 하단바(BOTTOM_BAR_HEIGHT + 안전영역)만큼 미리 띄워서, 콘텐츠 마지막 줄이 그
+    // 뒤에 가려지지 않게 한다.
+    paddingBottom: `calc(${BOTTOM_BAR_HEIGHT}px + env(safe-area-inset-bottom))` as unknown as number,
+  },
+  bottomBarFixed: {
+    position: 'fixed' as 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: storybookTheme.zIndex.sticky,
     borderTopWidth: 1,
     borderTopColor: storybookTheme.color.contentPanelBorder,
     backgroundColor: storybookTheme.color.contentSurface,
+  },
+  bottomBar: {
+    flexDirection: 'row',
   },
   bottomBarItem: {
     flex: 1,

@@ -141,7 +141,7 @@ export function MonthCalendar<T extends MonthCalendarItem>({
               accessibilityRole="button"
               accessibilityLabel={`${cell.date.getMonth() + 1}월 ${cell.date.getDate()}일${hasItems ? ', 항목 있음' : ''}`}
               onPress={() => setSelectedDate(cell.date)}
-              style={({ pressed }) => [styles.cell, pressed && styles.pressed]}
+              style={({ pressed }) => [styles.cell, pressed && styles.cellPressed]}
             >
               <View
                 style={[
@@ -262,8 +262,8 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onDarkMuted,
     paddingBottom: storybookTheme.spacing.xs,
   },
-  weekdayLabelSunday: { color: '#FF9AA2' },
-  weekdayLabelSaturday: { color: '#9EC8FF' },
+  weekdayLabelSunday: { color: storybookTheme.color.calendarSunday },
+  weekdayLabelSaturday: { color: storybookTheme.color.calendarSaturday },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -276,9 +276,12 @@ const styles = StyleSheet.create({
     gap: 2,
     paddingVertical: storybookTheme.spacing.xs,
   },
+  cellPressed: { opacity: 0.7 },
   dayBadge: {
-    width: 32,
-    height: 32,
+    // 32→36으로 상향해 터치 hit 안정성을 확보한다 (셀 자체는 paddingVertical: xs를 더해
+    // 총 ~44px 세로 hit 영역이 나오는 것을 유지). "선택된 원"이 더 존재감 있게 보이는 부수효과.
+    width: 36,
+    height: 36,
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
@@ -294,10 +297,13 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onDark,
+    // 캘린더 셀 폭이 균등한데 숫자 폭이 다르면 (예: 1일 vs 28일) 원 안의 시각 중심이
+    // 오른쪽으로 밀린다. tabular-nums로 모든 자릿수를 같은 폭으로 강제해 정렬 유지.
+    fontVariant: ['tabular-nums'],
   },
   dayNumberOutOfMonth: { color: storybookTheme.color.onDarkMuted, opacity: 0.5 },
-  dayNumberSunday: { color: '#FF9AA2' },
-  dayNumberSaturday: { color: '#9EC8FF' },
+  dayNumberSunday: { color: storybookTheme.color.calendarSunday },
+  dayNumberSaturday: { color: storybookTheme.color.calendarSaturday },
   dayNumberSelected: {
     color: storybookTheme.color.primary,
     fontWeight: storybookTheme.type.weight.black,

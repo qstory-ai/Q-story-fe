@@ -17,6 +17,10 @@ body,
   margin: 0;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* macOS/iOS는 기본 렌더가 두껍게 뽑혀 Pretendard 같은 얇은 웨이트가 뭉개진다 -
+     antialiased로 얇고 또렷하게. 다른 플랫폼은 이 속성을 무시하므로 안전. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Every screen's root is a SafeAreaView with `flex: 1`, which react-native-web emits as

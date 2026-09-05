@@ -76,6 +76,10 @@ export const storybookTheme = {
     readerBodyMuted: '#746987',   // 리포트 hero body/panel description 등 보조 본문
     readerShadow: '#2E1948',      // 리포트 카드/topBar 전용 그림자 (전역 shadow #12091F보다 밝음)
     readerCard: '#FFF7E9',        // 리포트 카드 배경 (surfaceCardOpaque #FFFCF5보다 따뜻한 크림)
+    /** 캘린더 주말 컬러 - 국내 캘린더 관행. 어두운 배경/크림 카드 양쪽 배경에서 4.5:1 이상
+     *  대비를 확보한 파스텔 톤. MonthCalendar가 하드코딩하던 값을 토큰화. */
+    calendarSunday: '#FF9AA2',
+    calendarSaturday: '#9EC8FF',
   },
   /**
    * 시맨틱 컬러 램프 - Figma "Simple Design System" 커뮤니티 파일의 구조(카테고리별

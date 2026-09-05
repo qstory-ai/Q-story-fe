@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, TextField, storybookTheme } from '@/shared/ui';
+import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
   listMyOrganizations,
@@ -54,8 +55,8 @@ export function TutorJoinOrganizationPage() {
 
   function goToCode() {
     setCodeError(null);
-    const normalized = codeInput.trim().toUpperCase();
-    if (!/^[A-Z0-9]{4,16}$/.test(normalized)) {
+    const normalized = normalizeInviteCode(codeInput);
+    if (!isValidInviteCode(normalized)) {
       setCodeError('영문·숫자 4-16자리 코드를 입력해 주세요.');
       return;
     }

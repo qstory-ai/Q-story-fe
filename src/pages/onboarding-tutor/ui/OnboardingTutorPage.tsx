@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
 import { homePathFor, useAuth } from '@/entities/auth';
 
 const ONBOARDING_DONE_KEY_PREFIX = 'qstory.onboarding.tutor.done.';
@@ -50,8 +51,8 @@ export function OnboardingTutorPage() {
     // 기관 참여 - 코드 검증 후 org-invite 흐름으로 위임. 완료 마크는 org-invite 수락 페이지가
     // 성공하면 홈으로 리다이렉트한 다음 사용자가 다시 온보딩에 돌아오지 않아도 되게 여기서 미리 남긴다.
     setCodeError(null);
-    const normalized = code.trim().toUpperCase();
-    if (!/^[A-Z0-9]{4,16}$/.test(normalized)) {
+    const normalized = normalizeInviteCode(code);
+    if (!isValidInviteCode(normalized)) {
       setCodeError('영문·숫자 4-16자리 코드를 입력해 주세요.');
       return;
     }

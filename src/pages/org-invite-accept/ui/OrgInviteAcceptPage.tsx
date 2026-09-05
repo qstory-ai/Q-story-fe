@@ -28,7 +28,7 @@ export function OrgInviteAcceptPage() {
   const isCodeFlow = Boolean(rawCode && !rawToken);
   const identifier = isCodeFlow ? (rawCode ?? '') : (rawToken ?? '');
   const navigate = useNavigate();
-  const { state } = useAuth();
+  const { state, refresh } = useAuth();
 
   const [stage, setStage] = useState<Stage>('loading');
   const [preview, setPreview] = useState<OrganizationTutorInvitePreview | null>(null);
@@ -78,13 +78,17 @@ export function OrgInviteAcceptPage() {
       } else {
         await acceptOrganizationTutorInvite(state.token, identifier);
       }
+      // 수락 응답은 OrganizationTutorLink일 뿐 갱신된 user를 안 담고 있다 - 지금 세션의
+      // user.organizationId가 그대로 남아 있으면 마이페이지가 계속 일반 메뉴를 보여주므로,
+      // /v1/auth/me를 다시 불러 organizationId가 반영된 user로 교체한다.
+      await refresh();
       setStage('success');
     } catch (failure: unknown) {
       setErrorMessage(messageForError(failure, '초대 수락에 실패했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }
-  }, [identifier, isCodeFlow, state, navigate]);
+  }, [identifier, isCodeFlow, state, navigate, refresh]);
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>

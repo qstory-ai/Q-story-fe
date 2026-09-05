@@ -35,6 +35,9 @@ const styles = StyleSheet.create({
   text: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.semibold,
+    // Pill 라벨 상당수가 "학생 3명" / "이야기 12편" / "97점" 같은 카운트라, 값이 바뀔 때
+    // 자릿수 별 폭 차이로 인접 pill 위치가 밀리지 않도록 tabular. 순수 텍스트 라벨에도 무해.
+    fontVariant: ['tabular-nums'],
   },
   textOnCard: {
     color: storybookTheme.color.primary,

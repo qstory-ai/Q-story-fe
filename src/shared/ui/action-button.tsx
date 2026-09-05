@@ -150,7 +150,9 @@ const styles = StyleSheet.create({
   goldHovered: {
     backgroundColor: storybookTheme.semantic.accent.hover,
   },
-  pressed: { opacity: 0.85 },
+  // opacity만 있던 press 피드백에 지침 표준 scale(0.96)을 함께. 프레스가 튐 없이
+  // 손끝에 붙는 감이 살아난다 - 0.95 미만은 과장돼 보인다는 지침 따라 0.96 고정.
+  pressed: { opacity: 0.9, transform: [{ scale: 0.96 }] },
   disabled: {
     opacity: 0.5,
   },

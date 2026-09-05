@@ -39,6 +39,9 @@ body,
 body {
   overflow-x: hidden;
   font-family: var(--font-display);
+  /* 짧은-중간 길이 텍스트에서 마지막 줄에 단어 하나만 남는 orphan을 방지 -
+     문단 전체 wrapping을 조정. 긴 텍스트(10줄+)에는 조용히 무시되므로 전역 안전. */
+  text-wrap: pretty;
 }
 
 * {

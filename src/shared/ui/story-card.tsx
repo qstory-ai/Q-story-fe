@@ -94,7 +94,9 @@ export function StoryCard({
             accessibilityRole="button"
             accessibilityLabel={removeLabel ?? '삭제'}
             onPress={handleRemove}
-            hitSlop={6}
+            // 26px 뱃지 + 이전 hitSlop 6 = 38px, 지침의 44px 터치 최소치 미달.
+            // hitSlop 9로 확장해 26+18=44px 확보.
+            hitSlop={9}
             style={({ pressed }) => [styles.removeBadge, pressed && styles.removeBadgePressed]}
           >
             <Icon name="close" size={12} color={storybookTheme.color.onDark} />
@@ -154,13 +156,19 @@ const styles = StyleSheet.create({
     width: 160,
   },
   cardPressed: {
+    // 지침(make-interfaces-feel-better): scale on press는 0.96 표준. 0.98은 눌린 것 같지도
+    // 않게 미미하다는 것이 리뷰 결론.
     opacity: 0.92,
-    transform: [{ scale: 0.98 }],
+    transform: [{ scale: 0.96 }],
   },
   coverFrame: {
     width: '100%',
     aspectRatio: 4 / 3,
     backgroundColor: storybookTheme.color.coverFallback,
+    // 지침(image outlines): 이미지 edge에 매우 옅은 border를 얹어 배경과의 경계를 살린다.
+    // 다크 앱이라 흰색 계열 10% 알파. RN Web은 borderColor의 rgba를 CSS로 통과시킨다.
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   coverFrameLocked: {
     opacity: 0.55,

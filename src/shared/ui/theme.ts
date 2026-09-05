@@ -168,6 +168,12 @@ export const storybookTheme = {
     input: 12,
     /** 체크박스/라디오 컨트롤 박스 전용 - Figma "Simple Design System"의 radius-100(4px). */
     control: 4,
+    /**
+     * 중첩 카드/행 전용 - 부모 Card(card=16, padding=20)에 안겨 있는 자식 서피스에 쓴다.
+     * 지침(concentric radius): outer = inner + padding. inner=8이면 outer=8+20=28에 가장 가까운데
+     * card(16)와 완전히 concentric은 어려우니, 부모의 절반 정도로 잡아 시각적 부딪힘을 줄인다.
+     */
+    innerCard: 8,
   },
   /**
    * 화면에 겹쳐지는 것들의 쌓임 순서. one-story 리더가 이미 쓰던 두 값(5, 20)을 그대로

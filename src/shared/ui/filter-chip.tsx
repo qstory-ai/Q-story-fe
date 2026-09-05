@@ -94,7 +94,9 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.gold,
     borderColor: storybookTheme.color.gold,
   },
-  pressed: { opacity: 0.85 },
+  // 지침 표준 scale(0.96) 추가. FilterChip은 탭 선택을 반복적으로 만지는 컨트롤이라 tactile
+  // 피드백이 특히 중요.
+  pressed: { opacity: 0.9, transform: [{ scale: 0.96 }] },
   label: {
     fontSize: storybookTheme.type.xs,
   },

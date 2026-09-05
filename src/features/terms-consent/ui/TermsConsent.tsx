@@ -51,6 +51,7 @@ export function TermsConsent({ value, onChange, onOpenDoc }: Props) {
       />
       <ConsentRow
         label="[필수] 개인정보 수집·이용 동의"
+        description="아이의 질문 음성과 확인된 문장을 음성 인식 개선을 위해 90일간 비공개로 보관해요. 이름·연락처는 가려서 저장해요."
         checked={value.privacy}
         onChange={(next) => onChange({ ...value, privacy: next })}
         onOpenDoc={() => onOpenDoc?.('privacy')}
@@ -67,11 +68,13 @@ export function TermsConsent({ value, onChange, onOpenDoc }: Props) {
 
 function ConsentRow({
   label,
+  description,
   checked,
   onChange,
   onOpenDoc,
 }: {
   label: string;
+  description?: string;
   checked: boolean;
   onChange: (next: boolean) => void;
   onOpenDoc: () => void;
@@ -79,7 +82,7 @@ function ConsentRow({
   return (
     <View style={styles.itemRow}>
       <View style={styles.itemMain}>
-        <Checkbox checked={checked} onChange={onChange} label={label} />
+        <Checkbox checked={checked} onChange={onChange} label={label} description={description} />
       </View>
       <Pressable
         accessibilityRole="link"

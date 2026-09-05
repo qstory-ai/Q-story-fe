@@ -1,4 +1,4 @@
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Text, TextInput, View } from 'react-native';
 
 import { hasKoreanBatchim } from '@/entities/narration';
 import { ActionButton, storybookTheme } from '@/shared/ui';
@@ -13,8 +13,6 @@ export function IdlePanel({ runtime }: { runtime: OneStoryRuntime }) {
     setChildNameInput,
     selectedChildName,
     startStory,
-    voiceResearchConsentChecked,
-    setVoiceResearchConsentChecked,
   } = runtime;
 
   if (runtimeState.status !== 'idle') {
@@ -64,30 +62,6 @@ export function IdlePanel({ runtime }: { runtime: OneStoryRuntime }) {
         목소리는 문장으로 바뀐 뒤 한 번 확인하고 질문으로 전송돼요. 확인한
         질문 문장은 이름·연락처를 가리고 서비스 개선을 위해 90일 보관해요.
       </Text>
-      <Pressable
-        accessibilityRole="checkbox"
-        accessibilityState={{ checked: voiceResearchConsentChecked }}
-        accessibilityLabel="보호자 음성 연구 저장 동의"
-        onPress={() => setVoiceResearchConsentChecked((checked) => !checked)}
-        style={styles.voiceConsentRow}
-      >
-        <View
-          style={[
-            styles.voiceConsentBox,
-            voiceResearchConsentChecked && styles.voiceConsentBoxChecked,
-          ]}
-        >
-          {voiceResearchConsentChecked && (
-            <Text style={styles.voiceConsentCheck}>✓</Text>
-          )}
-        </View>
-        <Text style={styles.voiceConsentText}>
-          <Text style={styles.voiceConsentLabel}>[보호자 동의]</Text>{' '}
-          아이의 질문 원음을 Q-Story 음성 인식 개선을 위해 90일간 비공개
-          저장합니다. 동의하지 않아도 질문 문장으로 체험할 수 있고, 원음은
-          저장되지 않아요.
-        </Text>
-      </Pressable>
     </View>
   );
 }

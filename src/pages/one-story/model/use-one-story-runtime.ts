@@ -151,8 +151,6 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
   // 빈 입력으로 남는다(IdlePanel이 이 경우에만 입력 UI를 보여준다).
   const [childNameInput, setChildNameInput] = useState(() => selectedChild?.name ?? '');
   const [childName, setChildName] = useState('');
-  const [voiceResearchConsentChecked, setVoiceResearchConsentChecked] =
-    useState(false);
   const [parentMessage, setParentMessage] = useState<string | null>(null);
   const [lastTranscript, setLastTranscript] = useState<string | null>(null);
   const [pendingTranscription, setPendingTranscription] =
@@ -568,9 +566,10 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
   const startStory = useCallback(() => {
     primeResponseAudio();
     const normalizedName = childNameInput.trim().slice(0, 10);
-    voiceResearchConsentRef.current = voiceResearchConsentChecked
-      ? createVoiceResearchConsent()
-      : null;
+    // 보호자 동의 체크박스는 제거됐다 - 질문 원음은 항상 음성 인식 개선 연구용으로 저장한다
+    // (동의 게이팅 없이). storeVoiceResearchSample() 호출부는 여전히 이 ref가 non-null인지로
+    // 판단하므로, consent 객체 자체는 그대로 만들어 채워 둔다.
+    voiceResearchConsentRef.current = createVoiceResearchConsent();
     pendingVoiceResearchSampleRef.current = null;
     clearLocalStoryProgress();
     setResumeCandidate(null);
@@ -606,7 +605,6 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
     childNameInput,
     commitEvent,
     recorder,
-    voiceResearchConsentChecked,
     storyManifest.questionAnchors,
     storyManifest.storyId,
     trackStoryEvent,
@@ -1644,7 +1642,6 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
     setPendingResponseAudio(null);
     voiceResearchConsentRef.current = null;
     pendingVoiceResearchSampleRef.current = null;
-    setVoiceResearchConsentChecked(false);
     setActiveBranchVisualId(null);
     setBranchCaption(null);
     setTypedQuestion('');
@@ -1738,7 +1735,7 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
   }, [authState, navigate, stopNarration]);
 
   const finishToday = useCallback(
-    async (reason: (typeof EXIT_REASONS)[number]) => {
+    (reason: (typeof EXIT_REASONS)[number]) => {
       const latestState = runtimeRef.current;
       const diagnosticClipId =
         getRuntimeClip(latestState, storyPackage)?.id ??
@@ -1762,20 +1759,27 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
       } catch {
         // 종료 피드백 저장 실패로 인해 가족이 플레이어 안에 갇히는 일이 있어서는 절대 안 된다.
       }
-      await trackStoryEvent('explicit_exit', {
+      // "오늘 체험 마치기"를 고르면 홈으로 나가는 게 목적이라 이 이벤트가 도착하는 걸 기다릴
+      // 이유가 없다 - 예전엔 await했는데, 그 네트워크 왕복이 끝날 때까지 화면이 그대로 멈춰
+      // 있어서 "딜레이가 심하다"는 체감으로 이어졌다. startStory()의 story_started처럼
+      // fire-and-forget으로 바꾼다.
+      void trackStoryEvent('explicit_exit', {
         reason_code: EXIT_REASON_CODES[reason],
         ...diagnostics,
       });
       clearLocalStoryProgress();
-      await restartStory();
+      // restartStory()(이야기 처음 화면으로)가 아니라 navigate('/')(진짜 홈으로) - "오늘 체험
+      // 마치기"는 이 이야기를 그만 보겠다는 뜻이지 같은 이야기를 처음부터 다시 보겠다는 뜻이
+      // 아니다. finishExperience()(완주 뒤 "홈으로 돌아가기")와 같은 목적지로 맞춘다.
+      navigate('/');
     },
     [
       narrationState.captionRequestId,
       narrationState.isPaused,
       narrationState.isSpeaking,
       narrationState.source,
+      navigate,
       questionOutcomes,
-      restartStory,
       storyPackage,
       trackStoryEvent,
     ],
@@ -1875,8 +1879,6 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
     // 홈에서 이미 골라 놓은 아이 이름 - IdlePanel이 이 값이 있으면 이름 입력 UI 대신 확인 문구만
     // 보여준다(null이면 선택된 아이가 없는 경로 = 데모 등, 기존처럼 입력 필드를 보여준다).
     selectedChildName: selectedChild?.name ?? null,
-    voiceResearchConsentChecked,
-    setVoiceResearchConsentChecked,
     questionMode,
     typedQuestion,
     setTypedQuestion,

@@ -4,6 +4,7 @@ export * from './safe-area-view';
 export * from './text-field';
 export * from './theme';
 export * from './icon';
+export * from './hexagon-stat-chart';
 export * from './brand-lockup';
 export * from './card';
 export * from './filter-chip';

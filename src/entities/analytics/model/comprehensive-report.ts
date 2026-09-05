@@ -43,9 +43,13 @@ const STRATEGY_BY_FAMILY: Record<string, string> = {
   C_BLOCK_PURSUIT_SAFELY: '미리 계획하고 안전 확보하기',
 };
 
+/** isMeaningful이 걸러내는 라우트 - 육각형 스탯이 "의미 있는 질문 유형이 최대 몇 가지인지"를
+ * 같은 기준으로 세기 위해 재사용한다. */
+const NOT_MEANINGFUL_ROUTES = new Set<RouteKind>(['CLARIFY_ONCE', 'SKIP_CONTINUE']);
+
 /** 의미 없는 관찰(주제 회피/안전 리다이렉트/스킵)을 걸러내는 술어. */
 function isMeaningful(outcome: QuestionOutcome): boolean {
-  return outcome.route !== 'CLARIFY_ONCE' && outcome.route !== 'SKIP_CONTINUE';
+  return !NOT_MEANINGFUL_ROUTES.has(outcome.route);
 }
 
 export type QuestionAnalysis = {
@@ -77,11 +81,16 @@ export type GrowthTrend = {
   broadening: boolean | null;
 };
 
+/** 종합 리포트 상단 육각형 스탯 한 축 - 0~100 점수(비율/캡핑 지표를 섞어 같은 눈금에 맞춘 값). */
+export type HexStat = { label: string; value: number };
+
 export type ComprehensiveReport = {
   question: QuestionAnalysis;
   interest: InterestAnalysis;
   thought: ThoughtAnalysis;
   growth: GrowthTrend | null;
+  /** 질문분석 카드 위에 그리는 육각형 레이더 6축 - 아래 네 축 지표에서 파생한 요약 스탯. */
+  hexStats: HexStat[];
 };
 
 type Session = { completedAt: string; outcomes: readonly QuestionOutcome[] };
@@ -169,16 +178,69 @@ function analyzeGrowth(sessions: readonly Session[]): GrowthTrend | null {
   };
 }
 
+/** byType/strategies가 실제로 도달 가능한 서로 다른 라벨 수 - 캡을 하드코딩하지 않고 매핑
+ * 테이블에서 직접 세어, 나중에 라우트/전략이 추가돼도 육각형 스탯이 따라간다. */
+const MEANINGFUL_QUESTION_TYPE_COUNT = new Set(
+  Object.entries(QUESTION_TYPE_BY_ROUTE)
+    .filter(([route]) => !NOT_MEANINGFUL_ROUTES.has(route as RouteKind))
+    .map(([, label]) => label),
+).size;
+const STRATEGY_LABEL_COUNT = new Set(Object.values(STRATEGY_BY_FAMILY)).size;
+/** 이 정도 빈도부터 "질문을 아주 활발히 한다"로 본다 - 완주 기록 데이터를 보고 고른 캡. */
+const QUESTION_FREQUENCY_CAP = 3;
+
+function clampScore(value: number): number {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+/**
+ * 종합 리포트 네 축(질문/관심/생각/변화)에서 육각형 레이더용 6개 점수를 파생한다 - 새로운
+ * 추적을 추가하지 않고, 이미 계산된 지표를 0~100 눈금 하나로 정규화만 한다.
+ */
+function analyzeHexStats(
+  sessions: readonly Session[],
+  question: QuestionAnalysis,
+  thought: ThoughtAnalysis,
+  growth: GrowthTrend | null,
+): HexStat[] {
+  const meaningful = sessions.flatMap((session) => session.outcomes).filter(isMeaningful);
+  const total = meaningful.length;
+
+  const expressedCount = meaningful.filter(
+    (outcome) => (outcome.childRelevantMeaning?.trim().length ?? 0) > 0,
+  ).length;
+  const proactiveCount = meaningful.filter(
+    (outcome) => outcome.route === 'DIRECT_ACTION' || outcome.route === 'THREE_PATHS',
+  ).length;
+
+  return [
+    { label: '질문 빈도', value: clampScore((question.averagePerSession / QUESTION_FREQUENCY_CAP) * 100) },
+    { label: '질문 다양성', value: clampScore((question.byType.length / MEANINGFUL_QUESTION_TYPE_COUNT) * 100) },
+    { label: '관심 표현', value: clampScore(total > 0 ? (expressedCount / total) * 100 : 0) },
+    { label: '생각 전략', value: clampScore((thought.diversity / STRATEGY_LABEL_COUNT) * 100) },
+    { label: '적극적 행동', value: clampScore(total > 0 ? (proactiveCount / total) * 100 : 0) },
+    {
+      label: '성장 추세',
+      // growth 데이터가 없으면(4편 미만) 판단 근거가 없다는 뜻이라 중립값 50을 둔다.
+      value: growth ? clampScore(50 + (growth.recent.diversity - growth.early.diversity) * 12) : 50,
+    },
+  ];
+}
+
 /**
  * 최근 여러 세션의 outcomes를 가로질러 IA "종합 리포트" 네 축을 한꺼번에 집계한다.
  * 완료 기록이 하나도 없으면 빈 값들이 채워진 형태로 돌아오므로 - null-check 없이 호출부에서
  * 각 배열/카운트가 0인지만 보고 empty state를 표시하면 된다.
  */
 export function buildComprehensiveReport(sessions: readonly Session[]): ComprehensiveReport {
+  const question = analyzeQuestions(sessions);
+  const thought = analyzeThought(sessions);
+  const growth = analyzeGrowth(sessions);
   return {
-    question: analyzeQuestions(sessions),
+    question,
     interest: analyzeInterest(sessions),
-    thought: analyzeThought(sessions),
-    growth: analyzeGrowth(sessions),
+    thought,
+    growth,
+    hexStats: analyzeHexStats(sessions, question, thought, growth),
   };
 }

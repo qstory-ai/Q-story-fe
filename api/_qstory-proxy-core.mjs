@@ -276,9 +276,18 @@ export function createQStoryProxy({
       }
     }
 
+    // "path" carries the routed segment; every other query param (status filters, etc. - see
+    // entities/lesson/api/lesson-api.ts's listLessons) is the caller's actual query string and
+    // must reach the backend, or filters silently no-op instead of erroring.
+    const upstreamRequestUrl = new URL(`/${upstreamPath}`, upstream);
+    for (const [key, value] of requestUrl.searchParams) {
+      if (key === 'path') continue;
+      upstreamRequestUrl.searchParams.append(key, value);
+    }
+
     try {
       const response = await fetchImpl(
-        new URL(`/${upstreamPath}`, upstream),
+        upstreamRequestUrl,
         {
           method: request.method,
           headers,

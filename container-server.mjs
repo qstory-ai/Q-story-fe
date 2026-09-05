@@ -36,8 +36,19 @@ const CONTENT_TYPES = {
 /** Mirrors vercel.json's rewrite ("/api/qstory/:path*" -> "/api/qstory-proxy?path=:path*") so the
  * shared proxy core sees the exact same request shape on both hosting targets. */
 function toQStoryProxyWebRequest(req) {
+  // req.url can carry its own query string (e.g. "v1/tutor-lessons?status=SCHEDULED") - naively
+  // appending that after "?path=" produced a second "?" that _qstory-proxy-core.mjs's
+  // searchParams.get('path') read back verbatim (path becoming "v1/tutor-lessons?status=SCHEDULED"),
+  // which never matches the allowlist and 404s. Split path from query and let URL/URLSearchParams
+  // build the proxy URL, same as Vercel's rewrite does for the hosted target.
   const rest = req.url.slice('/api/qstory/'.length);
-  const url = `http://${req.headers.host ?? 'localhost'}/api/qstory-proxy?path=${rest}`;
+  const [restPath, restQuery = ''] = rest.split('?');
+  const proxyUrl = new URL(`http://${req.headers.host ?? 'localhost'}/api/qstory-proxy`);
+  proxyUrl.searchParams.set('path', restPath);
+  for (const [key, value] of new URLSearchParams(restQuery)) {
+    proxyUrl.searchParams.append(key, value);
+  }
+  const url = proxyUrl;
   const headers = new Headers();
   for (const [key, value] of Object.entries(req.headers)) {
     if (value === undefined) continue;

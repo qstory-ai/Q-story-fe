@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AppNavShell, EmptyState, ErrorState, LoadingState, storybookTheme } from '@/shared/ui';
+import { AppNavShell, EmptyState, ErrorState, HexagonStatChart, LoadingState, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, useAuth } from '@/entities/auth';
 import { findChildAvatar, useChildren } from '@/entities/child';
 import { listStories } from '@/entities/story';
@@ -288,11 +288,24 @@ function ComprehensiveView({
 
   return (
     <>
+      <HexStatCard report={report} />
       <QuestionCard report={report} sessionCount={sessionCount} />
       <InterestCard report={report} />
       <ThoughtCard report={report} recentTrend={recentTrend} />
       <GrowthCard report={report} />
     </>
+  );
+}
+
+function HexStatCard({ report }: { report: ComprehensiveReport }) {
+  return (
+    <View style={styles.reportCard}>
+      <Text style={styles.sectionEyebrow}>종합 스탯</Text>
+      <Text style={styles.sectionTitle}>네 축을 여섯 갈래로 풀어본 요즘 흐름</Text>
+      <View style={styles.hexRow}>
+        <HexagonStatChart data={report.hexStats} />
+      </View>
+    </View>
   );
 }
 
@@ -557,6 +570,7 @@ const styles = StyleSheet.create({
     ...storybookTheme.elevation.low,
   },
   reportCardPressed: { opacity: 0.9 },
+  hexRow: { alignItems: 'center', marginTop: 4 },
   reportCardTitle: {
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,

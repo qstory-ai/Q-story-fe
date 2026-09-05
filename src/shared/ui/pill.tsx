@@ -28,9 +28,11 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.pillBackground,
     borderColor: storybookTheme.color.pillBorder,
   },
+  // 라이트 리테마: onDark tone은 이제 라이트 배경 위 강조 pill로 재해석 - 골드 배경 + 다크 텍스트.
+  // (사이드바처럼 실제 다크 배경 위에서 쓰일 여지도 있어 골드 hue는 유지.)
   onDark: {
-    backgroundColor: 'rgba(246, 198, 77, 0.16)',
-    borderColor: 'rgba(246, 198, 77, 0.4)',
+    backgroundColor: 'rgba(246, 198, 77, 0.22)',
+    borderColor: 'rgba(246, 198, 77, 0.55)',
   },
   text: {
     fontSize: storybookTheme.type.xs,
@@ -43,6 +45,6 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.primary,
   },
   textOnDark: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.onCardTitle,
   },
 });

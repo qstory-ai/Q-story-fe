@@ -49,10 +49,9 @@ export function Card({ children, variant = 'surface', padding = 'md', title, sty
     style,
   ];
 
-  const titleColor =
-    variant === 'panel' || variant === 'outlined'
-      ? storybookTheme.color.onDark
-      : storybookTheme.color.onCardTitle;
+  // 라이트 리테마: 모든 variant가 라이트 배경 위에 있으므로 어두운 텍스트로 통일.
+  //  - surface(순백 카드) / panel(옅은 회색) / outlined 모두 onCardTitle(다크 네이비/보라) 사용.
+  const titleColor = storybookTheme.color.onCardTitle;
 
   return (
     <View style={composed}>
@@ -71,20 +70,22 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.card,
     width: '100%',
   },
+  // 라이트 리테마: 순백 카드 + 아주 옅은 hairline border. 그림자는 elevation.low 그대로 (알파 낮음).
   surface: {
-    backgroundColor: storybookTheme.color.surfaceCard,
+    backgroundColor: storybookTheme.color.contentSurface,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: storybookTheme.color.contentSurfaceBorder,
     ...storybookTheme.elevation.low,
   },
+  // panel = surface보다 살짝 눌린 sub-section. 흰 배경 위에서 아주 옅은 회색 톤.
   panel: {
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    backgroundColor: storybookTheme.color.contentPanel,
     borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
   },
   outlined: {
     borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
     backgroundColor: 'transparent',
   },
   title: {

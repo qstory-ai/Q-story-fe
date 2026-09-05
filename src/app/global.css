@@ -39,6 +39,10 @@ body,
 body {
   overflow-x: hidden;
   font-family: var(--font-display);
+  /* 라이트 리테마: 페이지 최외곽 배경을 흰 계열로. 개별 페이지가 자기 wrapper에 다른 색을
+     칠하면 그게 덮인다(reader 계열은 자체 다크 팔레트를 씀). */
+  background-color: #F7F8FA;
+  color: #1E293B;
   /* 짧은-중간 길이 텍스트에서 마지막 줄에 단어 하나만 남는 orphan을 방지 -
      문단 전체 wrapping을 조정. 긴 텍스트(10줄+)에는 조용히 무시되므로 전역 안전. */
   text-wrap: pretty;

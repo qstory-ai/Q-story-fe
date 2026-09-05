@@ -74,7 +74,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
       <View style={styles.topBar}>
         {onBack ? (
           <Pressable accessibilityRole="link" accessibilityLabel="뒤로가기" hitSlop={8} onPress={onBack} style={styles.topBarButton}>
-            <Icon name="back" size={18} color={storybookTheme.color.onDark} />
+            <Icon name="back" size={18} color={storybookTheme.color.onContent} />
           </Pressable>
         ) : (
           <View style={styles.topBarButton} />
@@ -86,7 +86,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
           onPress={homeItem?.onPress}
           style={styles.topBarButton}
         >
-          <Icon name="home" size={18} color={storybookTheme.color.onDark} />
+          <Icon name="home" size={18} color={storybookTheme.color.onContent} />
         </Pressable>
       </View>
       <View style={styles.narrowMain}>{children}</View>
@@ -102,7 +102,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
             <Icon
               name={item.icon}
               size={20}
-              color={item.active ? storybookTheme.color.gold : storybookTheme.color.onDarkMuted}
+              color={item.active ? storybookTheme.color.primary : storybookTheme.color.onContentMuted}
             />
             <Text style={[styles.bottomBarLabel, item.active && styles.bottomBarLabelActive]}>
               {item.label}
@@ -115,13 +115,15 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
 }
 
 const styles = StyleSheet.create({
+  // 라이트 리테마: root=라이트 배경, 사이드바(우측)는 여전히 다크. 상/하단 nav는 라이트 배경 + 다크 텍스트.
   root: { flex: 1, backgroundColor: storybookTheme.color.background },
   wideRow: { flex: 1, flexDirection: 'row' },
-  wideMain: { flex: 1 },
+  wideMain: { flex: 1, backgroundColor: storybookTheme.color.background },
   sidebar: {
     width: 220,
+    backgroundColor: storybookTheme.color.sidebarBackground,
     borderLeftWidth: 1,
-    borderLeftColor: storybookTheme.color.panelOnDarkBorder,
+    borderLeftColor: storybookTheme.color.sidebarBorder,
     paddingVertical: 24,
     paddingHorizontal: 12,
     gap: 4,
@@ -134,7 +136,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
   },
-  sidebarItemActive: { backgroundColor: storybookTheme.color.panelOnDarkBackground },
+  sidebarItemActive: { backgroundColor: storybookTheme.color.sidebarActive },
   sidebarItemPressed: { opacity: 0.85 },
   sidebarLabel: {
     fontSize: storybookTheme.type.sm,
@@ -148,8 +150,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     paddingVertical: 8,
+    backgroundColor: storybookTheme.color.contentSurface,
     borderBottomWidth: 1,
-    borderBottomColor: storybookTheme.color.panelOnDarkBorder,
+    borderBottomColor: storybookTheme.color.contentPanelBorder,
   },
   topBarButton: {
     minWidth: 40,
@@ -157,12 +160,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  narrowMain: { flex: 1 },
+  narrowMain: { flex: 1, backgroundColor: storybookTheme.color.background },
   bottomBar: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.panelOnDarkBorder,
-    backgroundColor: storybookTheme.color.background,
+    borderTopColor: storybookTheme.color.contentPanelBorder,
+    backgroundColor: storybookTheme.color.contentSurface,
   },
   bottomBarItem: {
     flex: 1,
@@ -175,7 +178,7 @@ const styles = StyleSheet.create({
   bottomBarLabel: {
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
-  bottomBarLabelActive: { color: storybookTheme.color.gold },
+  bottomBarLabelActive: { color: storybookTheme.color.primary },
 });

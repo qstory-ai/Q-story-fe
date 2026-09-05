@@ -74,25 +74,24 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
   },
+  // 라이트 리테마: 흰 배경 위 chip은 outlined = 라이트 hairline, filled(active) = primary(네이비) 채움.
   outline: {
     paddingHorizontal: storybookTheme.spacing.ms,
-    paddingVertical: 6, // spacing.xs(4)와 sm(8) 사이의 컴팩트 값 - 카테고리 chip 톤에 맞춤
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    paddingVertical: 6,
+    borderColor: storybookTheme.color.contentPanelBorder,
   },
   outlineActive: {
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
-    borderColor: storybookTheme.color.gold,
+    backgroundColor: storybookTheme.color.pillBackground,
+    borderColor: storybookTheme.color.primary,
   },
   filled: {
-    // 14/8은 filled 톤이 outline보다 살짝 크게 잡히도록 - 탭이 카테고리 chip보다 시각적으로
-    // 상위 계층이라는 위계.
     paddingHorizontal: 14,
     paddingVertical: storybookTheme.spacing.sm,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
   },
   filledActive: {
-    backgroundColor: storybookTheme.color.gold,
-    borderColor: storybookTheme.color.gold,
+    backgroundColor: storybookTheme.color.primary,
+    borderColor: storybookTheme.color.primary,
   },
   // 지침 표준 scale(0.96) 추가. FilterChip은 탭 선택을 반복적으로 만지는 컨트롤이라 tactile
   // 피드백이 특히 중요.
@@ -100,16 +99,17 @@ const styles = StyleSheet.create({
   label: {
     fontSize: storybookTheme.type.xs,
   },
+  // 라이트 리테마: 라이트 배경 위 chip 라벨은 다크 텍스트.
   outlineLabel: {
     fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
-  outlineLabelActive: { color: storybookTheme.color.gold },
+  outlineLabelActive: { color: storybookTheme.color.primary },
   filledLabel: {
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
-  filledLabelActive: { color: storybookTheme.color.background },
+  filledLabelActive: { color: storybookTheme.color.onDark },
   // 라벨과 뱃지를 나란히 놓기 위한 행 컨테이너 - 기본 pill에도 flexDirection이 필요.
   row: { flexDirection: 'row', alignItems: 'center', gap: storybookTheme.spacing.xs },
   badge: {
@@ -124,14 +124,14 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.bold,
   },
-  // 뱃지 4가지 조합: (tone × selected)의 배경(bg)/글자색(fg) 각각 분리.
-  badgeBgOutlineIdle: { backgroundColor: storybookTheme.color.panelOnDarkBackground },
-  badgeFgOutlineIdle: { color: storybookTheme.color.onDarkMuted },
-  badgeBgOutlineActive: { backgroundColor: storybookTheme.color.panelOnDarkBackground },
-  badgeFgOutlineActive: { color: storybookTheme.color.gold },
-  badgeBgFilledIdle: { backgroundColor: storybookTheme.color.panelOnDarkBackground },
-  badgeFgFilledIdle: { color: storybookTheme.color.onDarkMuted },
-  // gold 배경 위 → 배지는 짙은 카드 톤(primary)으로 대비.
-  badgeBgFilledActive: { backgroundColor: storybookTheme.color.primary },
+  // 라이트 리테마 뱃지 4가지 조합.
+  badgeBgOutlineIdle: { backgroundColor: storybookTheme.color.pillBackground },
+  badgeFgOutlineIdle: { color: storybookTheme.color.onContentMuted },
+  badgeBgOutlineActive: { backgroundColor: storybookTheme.color.pillBackground },
+  badgeFgOutlineActive: { color: storybookTheme.color.primary },
+  badgeBgFilledIdle: { backgroundColor: storybookTheme.color.pillBackground },
+  badgeFgFilledIdle: { color: storybookTheme.color.onContentMuted },
+  // primary(네이비) 채움 chip 위 → 배지는 밝은 카드 톤으로 대비.
+  badgeBgFilledActive: { backgroundColor: 'rgba(255, 255, 255, 0.18)' },
   badgeFgFilledActive: { color: storybookTheme.color.onDark },
 });

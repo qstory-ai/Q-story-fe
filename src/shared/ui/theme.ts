@@ -6,20 +6,44 @@
  */
 export const storybookTheme = {
   color: {
-    background: '#161025',
-    backgroundOverlay: 'rgba(18, 10, 30, 0.12)',
+    // ── 사용자 요청(가비아 콘솔 스타일 리테마): 메인 컨텐츠 배경은 라이트, primary는 네이비.
+    //    다크 계열 토큰(onDark, panelOnDark* 등)은 우측 사이드바가 계속 다크를 유지하므로 그대로.
+    //    페이지는 아래 content* / onContent* 신규 토큰으로 순차 마이그레이션한다.
+    background: '#F7F8FA',
+    backgroundOverlay: 'rgba(15, 23, 42, 0.04)',
+    // ── 라이트 컨텐츠 팔레트 (신규) ────────────────────────────────────────────
+    /** 메인 컨텐츠 영역의 카드/시트. 순백. */
+    contentSurface: '#FFFFFF',
+    /** contentSurface의 경계 - 흰 배경 위에 살짝 뜨는 hairline. */
+    contentSurfaceBorder: 'rgba(15, 23, 42, 0.08)',
+    /** 컨텐츠 위 서브 패널 - 흰 카드 안의 sub-section이나 리스트 아이템 배경. */
+    contentPanel: 'rgba(15, 23, 42, 0.03)',
+    contentPanelBorder: 'rgba(15, 23, 42, 0.08)',
+    /** 컨텐츠 위 텍스트 - 네이비 계열. onCard*와 별개로 페이지 배경 직접 위의 텍스트에 씀. */
+    onContent: '#1E293B',
+    onContentMuted: 'rgba(30, 41, 59, 0.68)',
+    onContentSubtle: 'rgba(30, 41, 59, 0.5)',
+    // ── 사이드바 전용(다크 유지) ────────────────────────────────────────────
+    /** AppNavShell wide 사이드바 - 가비아 네이비 그대로 차용. */
+    sidebarBackground: '#242D38',
+    sidebarBorder: 'rgba(255, 255, 255, 0.08)',
+    sidebarActive: 'rgba(255, 255, 255, 0.10)',
+    // ── 기존 서피스 토큰(리더/기존 다크 화면용, 하위 호환) ──────────────────────
     surfaceCard: 'rgba(255, 252, 245, 0.96)',
     surfaceCardBorder: 'rgba(255, 255, 255, 0.72)',
     gold: '#F6C64D',
-    primary: '#43225F',
+    /** 사용자 요청으로 브랜드 primary를 보라(#43225F)에서 네이비로 이관.
+     *  이 값은 semantic.brand.default와 함께 앱 전역의 CTA/링크/키 컬러의 밑바탕이다. */
+    primary: '#1E293B',
     onDark: '#FFFFFF',
     onDarkMuted: 'rgba(255, 255, 255, 0.72)',
     onCardTitle: '#2B1748',
     onCardBody: '#5E5367',
     /** WCAG AA 4.5:1을 만족하도록 surfaceCardOpaque(#FFFCF5) 대비로 조정한 값(원래 #85778E는 4.08:1로 미달). */
     onCardMuted: '#7A6C82',
-    pillBackground: 'rgba(67, 34, 95, 0.08)',
-    pillBorder: 'rgba(67, 34, 95, 0.16)',
+    /** 보라 파생값이었으나 primary 네이비 이관에 맞춰 함께 이동 - 라이트 카드 위 은은한 배지 배경. */
+    pillBackground: 'rgba(30, 41, 59, 0.06)',
+    pillBorder: 'rgba(30, 41, 59, 0.14)',
     /** 스토리북 테마 페이지(landing/detail/story-card)의 모든 카드가 공유하는 shadowColor. */
     shadow: '#12091F',
     /** 이야기에 아직 커버 아트가 없을 때의 커버 이미지 자리표시자 배경. */
@@ -96,9 +120,10 @@ export const storybookTheme = {
    */
   semantic: {
     brand: {
-      default: '#43225F',
-      hover: '#341A4B',
-      secondary: 'rgba(67, 34, 95, 0.08)',
+      // 보라(#43225F) → 네이비 리브랜딩. hover는 primary보다 한 톤 어둡게.
+      default: '#1E293B',
+      hover: '#0F172A',
+      secondary: 'rgba(30, 41, 59, 0.08)',
       onBrand: '#FFFFFF',
       onBrandMuted: 'rgba(255, 255, 255, 0.72)',
     },

@@ -145,7 +145,7 @@ export function StoryDetailPage() {
 
       {effectiveLoad.status === 'loading' && (
         <View style={styles.centerBox}>
-          <ActivityIndicator color={storybookTheme.color.gold} />
+          <ActivityIndicator color={storybookTheme.color.primary} />
         </View>
       )}
 

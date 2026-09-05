@@ -83,7 +83,7 @@ export function OrganizationClassDetailPage() {
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')} onBack={() => navigate('/organization/classes')}>
       <View style={styles.content}>
         {load.status === 'loading' && (
-          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.gold} /></View>
+          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
         )}
 
         {load.status === 'error' && (

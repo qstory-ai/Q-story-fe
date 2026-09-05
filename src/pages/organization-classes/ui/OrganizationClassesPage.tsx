@@ -105,7 +105,7 @@ export function OrganizationClassesPage() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>등록된 반</Text>
           {load.status === 'loading' ? (
-            <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.gold} /></View>
+            <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
           ) : load.status === 'error' ? (
             <Text style={styles.errorText}>{load.message}</Text>
           ) : load.classes.length === 0 ? (

@@ -119,7 +119,7 @@ export function TutorReportsPage() {
         </Text>
 
         {studentsLoad.status === 'loading' && (
-          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.gold} /></View>
+          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
         )}
 
         {studentsLoad.status === 'error' && (
@@ -249,9 +249,9 @@ const styles = StyleSheet.create({
   },
   studentCard: {
     borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    backgroundColor: storybookTheme.color.contentSurface,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: storybookTheme.color.contentSurfaceBorder,
     padding: 18,
     gap: 12,
     ...storybookTheme.elevation.low,

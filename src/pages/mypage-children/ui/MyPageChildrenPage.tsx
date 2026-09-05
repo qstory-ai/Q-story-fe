@@ -180,9 +180,9 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    backgroundColor: storybookTheme.color.contentSurface,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: storybookTheme.color.contentSurfaceBorder,
     padding: storybookTheme.spacing.lg,
     gap: storybookTheme.spacing.xs,
   },

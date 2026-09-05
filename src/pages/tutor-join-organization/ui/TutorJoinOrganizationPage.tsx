@@ -121,7 +121,7 @@ export function TutorJoinOrganizationPage() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>지금 소속된 기관</Text>
           {orgs.status === 'loading' ? (
-            <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.gold} /></View>
+            <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
           ) : orgs.status === 'error' ? (
             <Text style={[styles.body, styles.errorText]}>{orgs.message}</Text>
           ) : orgs.organizations.length === 0 ? (

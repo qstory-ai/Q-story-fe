@@ -218,9 +218,11 @@ const styles = StyleSheet.create({
     borderRightColor: storybookTheme.color.contentPanelBorder,
   },
   rowLeadDay: {
+    // 리테마 이후 라이트 배경 위 gold는 워시된 것처럼 대비 낮아 primary로 교체 - 날짜 라벨은
+    // 각 수업 행의 primary anchor. 계정/브랜드 톤과도 일관.
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.primary,
   },
   rowLeadTime: {
     fontSize: storybookTheme.type.xxs,

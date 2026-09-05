@@ -161,7 +161,7 @@ export function OrganizationTutorsPage() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>소속 선생님</Text>
           {tutors.status === 'loading' ? (
-            <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.gold} /></View>
+            <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
           ) : tutors.status === 'error' ? (
             <Text style={[styles.body, styles.errorText]}>{tutors.message}</Text>
           ) : tutors.tutors.length === 0 ? (
@@ -248,9 +248,9 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    backgroundColor: storybookTheme.color.contentSurface,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: storybookTheme.color.contentSurfaceBorder,
     padding: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.sm,
   },

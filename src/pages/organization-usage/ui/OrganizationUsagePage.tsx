@@ -72,7 +72,7 @@ export function OrganizationUsagePage() {
         <Text style={styles.subtitle}>기관 전체의 요약 지표와 최근 완주 활동을 확인해요.</Text>
 
         {load.status === 'loading' && (
-          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.gold} /></View>
+          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
         )}
 
         {load.status === 'error' && (

@@ -167,7 +167,7 @@ export function ParentHomePage() {
           />
         ) : catalogLoading ? (
           <Card variant="panel" padding="lg" style={styles.heroLoader}>
-            <ActivityIndicator color={storybookTheme.color.gold} />
+            <ActivityIndicator color={storybookTheme.color.primary} />
           </Card>
         ) : null}
 

@@ -138,7 +138,7 @@ export function StoryLibraryGrid() {
   if (load.status === 'loading' || auth.status === 'loading') {
     return (
       <View style={styles.centerBox}>
-        <ActivityIndicator color={storybookTheme.color.gold} />
+        <ActivityIndicator color={storybookTheme.color.primary} />
       </View>
     );
   }

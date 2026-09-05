@@ -111,7 +111,7 @@ export function ParentLinkAcceptPage() {
       <View style={styles.content}>
         {effectiveStage === 'loading' && (
           <View style={styles.centerBox}>
-            <ActivityIndicator color={storybookTheme.color.gold} />
+            <ActivityIndicator color={storybookTheme.color.primary} />
           </View>
         )}
 

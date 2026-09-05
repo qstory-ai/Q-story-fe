@@ -38,7 +38,7 @@ export function OrganizationSignupPage() {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <View style={styles.centered}>
-          <ActivityIndicator color={storybookTheme.color.gold} />
+          <ActivityIndicator color={storybookTheme.color.primary} />
         </View>
       </SafeAreaView>
     );
@@ -173,7 +173,7 @@ function ClassManagementStep({
             />
           ) : !entitlementDone ? (
             <View style={styles.entitlementLoader}>
-              <ActivityIndicator color={storybookTheme.color.gold} />
+              <ActivityIndicator color={storybookTheme.color.primary} />
               <Text style={styles.entitlementLoaderText}>구독 상태를 확인 중이에요…</Text>
             </View>
           ) : null}

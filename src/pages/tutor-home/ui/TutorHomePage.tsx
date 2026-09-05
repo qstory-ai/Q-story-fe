@@ -159,7 +159,7 @@ export function TutorHomePage() {
                   <Text style={styles.studentName}>{student.name} · {student.ageBand}</Text>
                   {student.classType ? <Text style={styles.studentMeta}>{student.classType}</Text> : null}
                 </View>
-                <Pill label="부모 연결 대기" tone="onDark" />
+                <Pill label="부모 연결 대기" tone="onLight" />
               </View>
             ))
           )}
@@ -245,9 +245,11 @@ const styles = StyleSheet.create({
     gap: storybookTheme.spacing.xs,
   },
   eyebrow: {
+    // 리테마 이후 error(주황빨강)은 라벨 강조에 어울리지 않아 primary(네이비)로 교체 -
+    // 인사 카드의 "선생님" 라벨이 계정 톤과 어울리게.
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.error,
+    color: storybookTheme.color.primary,
     letterSpacing: 0.4,
   },
   title: {

@@ -118,7 +118,7 @@ export function TutorLessonDetailPage() {
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor/classes')}>
       <View style={styles.content}>
         {effective.status === 'loading' && (
-          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.gold} /></View>
+          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
         )}
 
         {effective.status === 'error' && (

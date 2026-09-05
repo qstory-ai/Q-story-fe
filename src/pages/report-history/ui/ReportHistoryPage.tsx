@@ -157,7 +157,7 @@ export function ReportHistoryPage() {
 
         {load.status === 'loading' && (
           <View style={styles.centerBox}>
-            <ActivityIndicator color={storybookTheme.color.gold} />
+            <ActivityIndicator color={storybookTheme.color.primary} />
           </View>
         )}
 

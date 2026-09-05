@@ -89,7 +89,7 @@ export function OrganizationSubscriptionPage() {
         <Text style={styles.subtitle}>기관 구독 상태와 활성 이용 범위를 확인해요.</Text>
 
         {load.status === 'loading' && (
-          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.gold} /></View>
+          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
         )}
 
         {load.status === 'error' && (

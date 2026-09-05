@@ -50,7 +50,7 @@ export function StaffHomePage() {
 
         {load.status === 'loading' && (
           <View style={styles.centered}>
-            <ActivityIndicator color={storybookTheme.color.gold} />
+            <ActivityIndicator color={storybookTheme.color.primary} />
           </View>
         )}
         {load.status === 'error' && <Text style={styles.errorText}>{load.message}</Text>}

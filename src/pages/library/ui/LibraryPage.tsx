@@ -177,7 +177,7 @@ export function LibraryPage() {
         </View>
 
         {catalog.status === 'loading' ? (
-          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.gold} /></View>
+          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
         ) : catalog.status === 'error' ? (
           <Card variant="panel" padding="md" title="이야기를 불러오지 못했어요">
             <Text style={styles.stubBody}>{catalog.message}</Text>

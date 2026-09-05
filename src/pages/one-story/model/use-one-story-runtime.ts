@@ -36,7 +36,7 @@ import {
   createConfiguredSpeechPipeline,
   type TranscriptionSuccess,
 } from '@/entities/speech-pipeline';
-import type { StoryRuntimePackage } from '@/entities/story';
+import { narrationUtteranceSlug, type StoryRuntimePackage } from '@/entities/story';
 import { useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { recordStoryCompletion } from '@/entities/story-completion';
@@ -1457,7 +1457,10 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
             progress: null,
           });
           await speakNarration({
-            id: `FB-${responseBranch.id}-CLIP-${String(segmentIndex + 1).padStart(3, '0')}`,
+            // Must match the slug story-package.ts packaged this segment's fixed audio under
+            // (narrationUtteranceSlug) - a hand-rolled id here would never hit fixedNarrationAssets
+            // and would silently fall back to on-demand TTS for every play.
+            id: narrationUtteranceSlug(responseBranch.id, segmentIndex),
             text: personalizeStoryText(segment.text, childName),
             speakerId: storyPackage.speakerIdForTag(segment.speaker),
             language: 'ko-KR',

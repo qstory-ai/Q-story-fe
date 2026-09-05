@@ -92,6 +92,21 @@ function previousUtteranceIndex(
   return -1;
 }
 
+/**
+ * Deterministic narration-asset slug for one utterance segment - `stem` is a scene id with the
+ * story prefix already stripped ("F01") or a fallback family id ("A_OBSERVE_BIRD"), `segmentIndex`
+ * is that segment's index within its scene's/fallback's full `segments` array (not an
+ * utterance-only counter). This is also the fixed-audio clip id (assets.json, and therefore
+ * STORY_AUDIO_ASSETS_BY_ID) for that segment, so anything that needs to ask for a segment's
+ * pre-recorded audio - inside this module or a caller playing a fallback/story-change branch's own
+ * narrative - must derive the id through this function rather than re-deriving the shape, or the
+ * lookup silently misses and falls back to on-demand TTS for audio that already exists.
+ */
+export function narrationUtteranceSlug(stem: string, segmentIndex: number): string {
+  const serial = String(segmentIndex + 1).padStart(3, '0');
+  return `${stem.toLowerCase().replaceAll('_', '-')}-${serial}`;
+}
+
 export function buildStoryRuntimePackage({
   generatedContent,
   packageData,
@@ -182,12 +197,10 @@ export function buildStoryRuntimePackage({
   }) {
     const visualId = segment.visualId ?? scene.visuals[0]?.id;
     if (!visualId) throw new Error(`${scene.id} utterance has no visual.`);
-    const serial = String(segmentIndex + 1).padStart(3, '0');
     // These ids are derived, never authored - assets.json has to spell them the same way, so the
-    // shape lives here alone. `stem` is a scene id with the story prefix already stripped ("F01")
-    // or a fallback family id ("A_OBSERVE_BIRD"); slugified it becomes the narration asset's slug
-    // in assets.json, which is what makes an audio id greppable back to the thing it narrates.
-    const slug = `${stem.toLowerCase().replaceAll('_', '-')}-${serial}`;
+    // shape lives in narrationUtteranceSlug() alone (see its doc comment for why callers outside
+    // this module must go through it too rather than re-deriving the format).
+    const slug = narrationUtteranceSlug(stem, segmentIndex);
     const group = `ag-${slug}`;
     const clip = slug;
     const audioAsset = `src-${slug}`;

@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   tagline: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.regular,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     textAlign: 'center',
   },
   panel: {
@@ -206,10 +206,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'stretch',
     gap: storybookTheme.spacing.ms,
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    backgroundColor: storybookTheme.color.contentPanel,
     borderRadius: storybookTheme.radius.card,
     borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingVertical: storybookTheme.spacing.ml,
   },
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   panelTitle: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     textAlign: 'center',
   },
   authButtonRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, width: '100%' },
@@ -231,14 +231,14 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.button,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    backgroundColor: storybookTheme.color.contentPanel,
     borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
   },
   loginButtonText: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
   roles: { width: '100%', gap: storybookTheme.spacing.sm },
   rolesWide: { flexDirection: 'row' },
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: storybookTheme.spacing.xs,
     // panelOnDarkBackground(0.08)와 같은 크림 계열 - 이전엔 0.1로 미세하게 달랐다.
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    backgroundColor: storybookTheme.color.contentPanel,
     borderRadius: storybookTheme.radius.card,
     paddingHorizontal: storybookTheme.spacing.md,
     paddingVertical: storybookTheme.spacing.ms,
@@ -255,12 +255,12 @@ const styles = StyleSheet.create({
   roleBody: {
     fontSize: storybookTheme.type.xs,
     lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
   panelNote: {
     fontSize: storybookTheme.type.xs,
     lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     textAlign: 'center',
   },
   link: {
@@ -269,5 +269,5 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.linkOnDark,
     textAlign: 'center',
   },
-  beta: { fontSize: storybookTheme.type.xxs, color: storybookTheme.color.onDarkMuted, textAlign: 'center', marginTop: storybookTheme.spacing.xs },
+  beta: { fontSize: storybookTheme.type.xxs, color: storybookTheme.color.onContentMuted, textAlign: 'center', marginTop: storybookTheme.spacing.xs },
 });

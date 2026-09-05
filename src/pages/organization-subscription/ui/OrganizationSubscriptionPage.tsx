@@ -145,9 +145,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
-  subtitle: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onDarkMuted },
+  subtitle: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onContentMuted },
   centerBox: { alignItems: 'center', paddingVertical: storybookTheme.spacing.xxl },
   card: {
     borderRadius: storybookTheme.radius.card,
@@ -206,6 +206,6 @@ const styles = StyleSheet.create({
   mailButtonLabel: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
 });

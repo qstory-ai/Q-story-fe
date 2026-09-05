@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
   card: {
     borderRadius: storybookTheme.radius.card,

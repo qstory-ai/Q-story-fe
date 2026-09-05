@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   backLinkText: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     fontWeight: '600',
   },
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
   // Welcome
   welcome: { gap: 14, alignItems: 'center', paddingTop: 8 },
   welcomeTitle: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.xl,
     lineHeight: 34,
     fontWeight: '700',
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   welcomeLead: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     lineHeight: 21,
     fontWeight: '300',
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
   welcomeSteps: { flexDirection: 'row', gap: 20, marginTop: 6 },
   welcomeStep: { alignItems: 'center', gap: 2 },
   welcomeStepNumber: { color: storybookTheme.color.gold, fontSize: storybookTheme.type.xs, fontWeight: '700' },
-  welcomeStepLabel: { color: storybookTheme.color.onDarkMuted, fontSize: storybookTheme.type.xs, fontWeight: '500' },
+  welcomeStepLabel: { color: storybookTheme.color.onContentMuted, fontSize: storybookTheme.type.xs, fontWeight: '500' },
   welcomeCard: {
     width: '100%',
     gap: 10,
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
   // Carousel / role / form shared title
   carouselTop: { alignItems: 'flex-end', marginBottom: 4 },
   carouselTitle: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.lg,
     lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
     letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
@@ -549,7 +549,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   dots: { flexDirection: 'row', gap: 6, marginTop: 20, marginBottom: 8 },
-  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: storybookTheme.color.panelOnDarkBorder },
+  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: storybookTheme.color.contentPanelBorder },
   dotActive: { backgroundColor: storybookTheme.color.gold, width: 18 },
   carousel: { gap: 10, paddingTop: 8 },
 
@@ -557,25 +557,25 @@ const styles = StyleSheet.create({
   roleStep: { gap: 10, paddingTop: 8 },
   roleGrid: { gap: 12, marginTop: 12 },
   roleCard: {
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    backgroundColor: storybookTheme.color.contentPanel,
     borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
     borderRadius: storybookTheme.radius.card,
     padding: 18,
     gap: 4,
   },
   roleCardEyebrow: { color: storybookTheme.color.gold, fontSize: storybookTheme.type.xs, fontWeight: '600' },
   roleCardTitle: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: '700',
   },
-  roleCardBody: { color: storybookTheme.color.onDarkMuted, fontSize: storybookTheme.type.sm, lineHeight: 20, fontWeight: '300' },
+  roleCardBody: { color: storybookTheme.color.onContentMuted, fontSize: storybookTheme.type.sm, lineHeight: 20, fontWeight: '300' },
 
   // Forms (sign-up / sign-in)
   form: { gap: 14, paddingTop: 8 },
-  formNote: { color: storybookTheme.color.onDarkMuted, fontSize: storybookTheme.type.sm },
+  formNote: { color: storybookTheme.color.onContentMuted, fontSize: storybookTheme.type.sm },
   signInInlineLink: { alignSelf: 'flex-end', minHeight: 32, justifyContent: 'center' },
   signInInlineLinkText: {
     color: storybookTheme.color.linkOnDark,

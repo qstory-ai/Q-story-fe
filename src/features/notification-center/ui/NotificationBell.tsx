@@ -179,7 +179,7 @@ export function NotificationBell({ token, onDark = true }: Props) {
           pressed && styles.pressed,
         ]}
       >
-        <Icon name="bell" size={18} color={onDark ? storybookTheme.color.onDark : storybookTheme.color.primary} />
+        <Icon name="bell" size={18} color={onDark ? storybookTheme.color.onContent : storybookTheme.color.primary} />
         {unreadCount > 0 ? <View style={styles.badge} /> : null}
       </Pressable>
 
@@ -266,8 +266,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   bellButtonDark: {
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    backgroundColor: storybookTheme.color.contentPanel,
+    borderColor: storybookTheme.color.contentPanelBorder,
   },
   bellButtonLight: {
     backgroundColor: storybookTheme.color.surfaceCard,

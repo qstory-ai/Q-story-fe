@@ -81,12 +81,12 @@ const styles = StyleSheet.create({
   },
   headerText: { flex: 1, gap: 2 },
   title: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.black,
   },
   subtitle: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.xs,
   },
   seeAll: {

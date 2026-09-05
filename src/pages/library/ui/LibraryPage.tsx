@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
   categoryRow: { flexDirection: 'row', gap: storybookTheme.spacing.xs, flexWrap: 'wrap' },
   tabRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, flexWrap: 'wrap' },
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
   stubBody: {
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
   // 빈 상태 카드 - 텍스트 아래 CTA 버튼 사이에 여유 확보.
   emptyCard: { gap: storybookTheme.spacing.ms },

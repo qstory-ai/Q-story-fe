@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: storybookTheme.spacing.xs,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     letterSpacing: 0.4,
   },
   menuCard: {

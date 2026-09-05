@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardBody,
   },
-  chipLabelSelected: { color: storybookTheme.color.onDark },
+  chipLabelSelected: { color: storybookTheme.color.onContent },
   errorText: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.error,

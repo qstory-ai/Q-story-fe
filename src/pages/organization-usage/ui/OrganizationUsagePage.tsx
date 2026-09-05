@@ -146,9 +146,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
-  subtitle: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onDarkMuted },
+  subtitle: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onContentMuted },
   centerBox: { alignItems: 'center', paddingVertical: 40 },
   card: {
     borderRadius: storybookTheme.radius.card,

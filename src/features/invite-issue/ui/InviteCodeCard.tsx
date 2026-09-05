@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   copyLabel: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
   copyLabelDisabled: { color: storybookTheme.color.disabledText },
   footnote: {

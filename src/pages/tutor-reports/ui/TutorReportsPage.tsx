@@ -226,25 +226,25 @@ const styles = StyleSheet.create({
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
   subtitle: {
     fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
   centerBox: { alignItems: 'center', paddingVertical: 24 },
   errorText: { color: storybookTheme.color.error, fontSize: storybookTheme.type.sm, textAlign: 'center' },
   emptyPanel: {
     borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    backgroundColor: storybookTheme.color.contentPanel,
     borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
     paddingHorizontal: 20,
     paddingVertical: 24,
   },
   emptyText: {
     fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     textAlign: 'center',
   },
   studentCard: {

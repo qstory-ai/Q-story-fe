@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   deleteAccountText: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.medium,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     textDecorationLine: 'underline',
   },
 });

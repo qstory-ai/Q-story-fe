@@ -168,7 +168,7 @@ export function StoryDetailPage() {
               />
             ) : (
               <View style={styles.coverFallback}>
-                <Icon name="book" size={36} color={storybookTheme.color.onDarkMuted} />
+                <Icon name="book" size={36} color={storybookTheme.color.onContentMuted} />
               </View>
             )}
           </View>
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   backLinkText: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.medium,
   },
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   errorText: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     textAlign: 'center',
   },

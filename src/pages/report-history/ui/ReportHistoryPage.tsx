@@ -444,11 +444,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
   subtitle: {
     fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
   tabRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 4 },
   childFilterRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
@@ -457,21 +457,21 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
   },
   childFilterChipActive: {
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    backgroundColor: storybookTheme.color.contentPanel,
     borderColor: storybookTheme.color.gold,
   },
   childFilterLabel: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
   childFilterLabelActive: { color: storybookTheme.color.gold },
   filterNote: {
     fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     marginTop: -6,
   },
   tab: {
@@ -479,14 +479,14 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
   },
   tabActive: { backgroundColor: storybookTheme.color.gold, borderColor: storybookTheme.color.gold },
   tabPressed: { opacity: 0.85 },
   tabLabel: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
   tabLabelActive: { color: storybookTheme.color.background },
   centerBox: {
@@ -495,12 +495,12 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   errorText: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     textAlign: 'center',
   },
   emptyText: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     textAlign: 'center',
   },

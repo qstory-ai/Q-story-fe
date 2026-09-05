@@ -93,8 +93,8 @@ const styles = StyleSheet.create({
     lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
     letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
     fontWeight: '600',
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     textAlign: 'center',
   },
-  body: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onDarkMuted, textAlign: 'center' },
+  body: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onContentMuted, textAlign: 'center' },
 });

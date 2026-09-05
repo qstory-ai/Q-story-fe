@@ -56,7 +56,7 @@ export function ChildSelector({ greeting }: Props) {
           style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}
         >
           <View style={styles.addFrame}>
-            <Icon name="plus" size={22} color={storybookTheme.color.onDark} />
+            <Icon name="plus" size={22} color={storybookTheme.color.onContent} />
           </View>
           <Text style={styles.addLabel} numberOfLines={1}>아이 추가</Text>
         </Pressable>
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   container: { width: '100%', gap: 8 },
   greeting: {
     fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     paddingHorizontal: 4,
   },
   emptyRow: {
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   },
   emptyMessage: {
     fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
   scroll: {
     gap: 14,
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   avatarEmoji: { fontSize: 28 },
   avatarName: {
     fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontWeight: storybookTheme.type.weight.semibold,
     textAlign: 'center',
     maxWidth: 62,
@@ -164,15 +164,15 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    backgroundColor: storybookTheme.color.contentPanel,
   },
   pressed: { opacity: 0.8 },
   addLabel: {
     fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontWeight: storybookTheme.type.weight.semibold,
     maxWidth: 62,
     textAlign: 'center',

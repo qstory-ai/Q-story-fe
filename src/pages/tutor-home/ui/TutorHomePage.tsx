@@ -118,7 +118,7 @@ export function TutorHomePage() {
                       <Pill label={`이야기 ${item.lesson.storyIds.length}편`} tone="onCard" />
                     </View>
                   </View>
-                  <Icon name="chevronRight" size={16} color={storybookTheme.color.onDarkMuted} />
+                  <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
                 </Pressable>
               )}
             />
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   },
   brandLogo: { width: 30, height: 32 },
   brandWordmark: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 1.8,
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   panelBody: {
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
   lessonRow: {
     flexDirection: 'row',
@@ -276,15 +276,15 @@ const styles = StyleSheet.create({
     paddingVertical: storybookTheme.spacing.sm,
     paddingHorizontal: storybookTheme.spacing.sm,
     borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    backgroundColor: storybookTheme.color.contentPanel,
     borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
   },
   timeCol: { width: 68, gap: 2 },
   timeText: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
   statusInProgress: {
     fontSize: storybookTheme.type.xxs,
@@ -293,16 +293,16 @@ const styles = StyleSheet.create({
   },
   statusCompleted: {
     fontSize: storybookTheme.type.xxs,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontWeight: storybookTheme.type.weight.semibold,
   },
   lessonBody: { flex: 1, gap: 4 },
   lessonName: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
-  lessonMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onDarkMuted },
+  lessonMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onContentMuted },
   metaRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap', marginTop: 2 },
   studentRow: {
     flexDirection: 'row',
@@ -311,15 +311,15 @@ const styles = StyleSheet.create({
     gap: storybookTheme.spacing.sm,
     paddingVertical: storybookTheme.spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.panelOnDarkBorder,
+    borderTopColor: storybookTheme.color.contentPanelBorder,
   },
   studentInfo: { gap: 2 },
   studentName: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
-  studentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onDarkMuted },
+  studentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onContentMuted },
   ctaRow: { gap: storybookTheme.spacing.sm },
   linkRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, justifyContent: 'center', flexWrap: 'wrap' },
   linkChip: {

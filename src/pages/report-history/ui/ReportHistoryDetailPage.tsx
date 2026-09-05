@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   errorText: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     textAlign: 'center',
   },

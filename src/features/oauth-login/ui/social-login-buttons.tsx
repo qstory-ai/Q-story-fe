@@ -107,10 +107,10 @@ const styles = StyleSheet.create({
   group: { gap: 10, marginTop: 4 },
   dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dividerLine: { flex: 1, height: 1 },
-  dividerLineOnDark: { backgroundColor: storybookTheme.color.panelOnDarkBorder },
+  dividerLineOnDark: { backgroundColor: storybookTheme.color.contentPanelBorder },
   dividerLineOnLight: { backgroundColor: storybookTheme.color.pillBorder },
   dividerText: { fontSize: storybookTheme.type.xs },
-  dividerTextOnDark: { color: storybookTheme.color.onDarkMuted },
+  dividerTextOnDark: { color: storybookTheme.color.onContentMuted },
   dividerTextOnLight: { color: storybookTheme.color.onLightMuted },
   googleContainer: { alignItems: 'center', minHeight: 44 },
   kakaoButton: {

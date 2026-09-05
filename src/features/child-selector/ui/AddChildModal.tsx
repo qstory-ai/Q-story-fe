@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardBody,
   },
-  chipLabelSelected: { color: storybookTheme.color.onDark },
+  chipLabelSelected: { color: storybookTheme.color.onContent },
   avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   avatarChoice: {
     width: 52,
@@ -247,6 +247,6 @@ const styles = StyleSheet.create({
   submitLabel: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
 });

@@ -94,7 +94,7 @@ export function MonthCalendar<T extends MonthCalendarItem>({
           onPress={() => changeMonth(-1)}
           style={({ pressed }) => [styles.navButton, pressed && styles.pressed]}
         >
-          <Icon name="chevronRight" size={16} color={storybookTheme.color.onDark} style={styles.flipHorizontal} />
+          <Icon name="chevronRight" size={16} color={storybookTheme.color.onContent} style={styles.flipHorizontal} />
         </Pressable>
         <Text style={styles.headerLabel} accessibilityRole="header">
           {viewMonth.getFullYear()}년 {MONTH_LABELS[viewMonth.getMonth()]}
@@ -106,7 +106,7 @@ export function MonthCalendar<T extends MonthCalendarItem>({
           onPress={() => changeMonth(1)}
           style={({ pressed }) => [styles.navButton, pressed && styles.pressed]}
         >
-          <Icon name="chevronRight" size={16} color={storybookTheme.color.onDark} />
+          <Icon name="chevronRight" size={16} color={storybookTheme.color.onContent} />
         </Pressable>
       </View>
 
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   headerLabel: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
   navButton: {
     minWidth: 36,
@@ -244,9 +244,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 999,
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    backgroundColor: storybookTheme.color.contentPanel,
     borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
   },
   flipHorizontal: { transform: [{ scaleX: -1 }] },
   pressed: { opacity: 0.7 },
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     paddingBottom: storybookTheme.spacing.xs,
   },
   weekdayLabelSunday: { color: storybookTheme.color.calendarSunday },
@@ -296,12 +296,12 @@ const styles = StyleSheet.create({
   dayNumber: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     // 캘린더 셀 폭이 균등한데 숫자 폭이 다르면 (예: 1일 vs 28일) 원 안의 시각 중심이
     // 오른쪽으로 밀린다. tabular-nums로 모든 자릿수를 같은 폭으로 강제해 정렬 유지.
     fontVariant: ['tabular-nums'],
   },
-  dayNumberOutOfMonth: { color: storybookTheme.color.onDarkMuted, opacity: 0.5 },
+  dayNumberOutOfMonth: { color: storybookTheme.color.onContentMuted, opacity: 0.5 },
   dayNumberSunday: { color: storybookTheme.color.calendarSunday },
   dayNumberSaturday: { color: storybookTheme.color.calendarSaturday },
   dayNumberSelected: {
@@ -328,13 +328,13 @@ const styles = StyleSheet.create({
   listHeader: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
   listItems: {
     gap: storybookTheme.spacing.sm,
   },
   emptyLabel: {
     fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
 });

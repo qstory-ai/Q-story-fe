@@ -227,15 +227,15 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    backgroundColor: storybookTheme.color.contentPanel,
     borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
   },
   pageArrowDisabled: {
     opacity: 0.35,
   },
   pageArrowText: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
     // 40x40 정원 안에서 화살표 문자가 수직 중앙에 정확히 오도록 lineHeight를 명시 잠금.
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.gold,
   },
   pageNumberText: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
   },
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.primary,
   },
   pageEllipsis: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
     paddingHorizontal: 2,

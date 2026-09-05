@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
   startLabel: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
   actionCard: {
     gap: 8,

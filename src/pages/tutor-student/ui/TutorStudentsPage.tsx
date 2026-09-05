@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
   error: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.error },
   card: {

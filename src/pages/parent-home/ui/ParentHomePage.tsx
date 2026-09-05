@@ -295,12 +295,12 @@ function HeroRecommendation({
           <Image source={{ uri: story.coverImageUrl }} resizeMode="cover" style={styles.heroCover} />
         ) : (
           <View style={styles.heroCoverFallback}>
-            <Icon name="book" size={36} color={storybookTheme.color.onDarkMuted} />
+            <Icon name="book" size={36} color={storybookTheme.color.onContentMuted} />
           </View>
         )}
         {locked ? (
           <View style={styles.heroLockBadge}>
-            <Icon name="lock" size={16} color={storybookTheme.color.onDark} />
+            <Icon name="lock" size={16} color={storybookTheme.color.onContent} />
           </View>
         ) : null}
       </View>
@@ -371,7 +371,7 @@ function RecentActivityRow({
         <Text style={styles.recentMeta} numberOfLines={1}>{entry.meta}</Text>
       </View>
       {entry.kind === 'completion' ? (
-        <Icon name="chevronRight" size={16} color={storybookTheme.color.onDarkMuted} />
+        <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
       ) : null}
     </Pressable>
   );
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
   },
   brandLogo: { width: 30, height: 32 },
   brandWordmark: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 1.8,
@@ -614,7 +614,7 @@ const styles = StyleSheet.create({
   },
   emptyRecentBody: {
     fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
   recentRow: {
     flexDirection: 'row',
@@ -622,10 +622,10 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    backgroundColor: storybookTheme.color.contentPanel,
     borderRadius: storybookTheme.radius.card,
     borderWidth: 1,
-    borderColor: storybookTheme.color.panelOnDarkBorder,
+    borderColor: storybookTheme.color.contentPanelBorder,
   },
   recentIcon: {
     width: 32,
@@ -639,11 +639,11 @@ const styles = StyleSheet.create({
   recentLabel: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
   },
   recentMeta: {
     fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
   errorText: {
     fontSize: storybookTheme.type.sm,

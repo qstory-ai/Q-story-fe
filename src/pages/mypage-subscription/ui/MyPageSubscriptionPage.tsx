@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   note: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.regular,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
   },
 });

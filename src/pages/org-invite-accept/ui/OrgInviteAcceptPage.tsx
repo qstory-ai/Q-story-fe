@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
   },
   title: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.lg,
     lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
     letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   body: {
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
   },
   errorText: {
     fontSize: storybookTheme.type.sm,

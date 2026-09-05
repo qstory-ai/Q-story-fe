@@ -14,3 +14,11 @@ dist-ssr
 npm-debug.log*
 
 .DS_Store
+
+# npx skills / impeccable가 install 시 다른 AI 에이전트(Codex/Hermes/Kiro/OpenCode) 훅을
+# 프로젝트에 심는데, 이건 각 개발자의 로컬 툴 선택이라 레포에 들어가면 안 됨.
+.codex/
+.hermes/
+.kiro/
+.opencode/
+.agents/

@@ -1,6 +1,6 @@
 import { Children, Fragment, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, Icon, Modal, ModalBody, Pill, storybookTheme } from '@/shared/ui';
@@ -95,8 +95,19 @@ function ProfileCard({ user }: { user: UserSummary }) {
     : null;
   return (
     <View style={styles.profileCard}>
+      {/* 마이페이지 자체가 IA상 "프로필이 보이는 화면" - MyPageProfilePage에서 등록한
+          profileImageUrl(현재는 TUTOR만 업로드 가능)이 있으면 여기 실제 사진을 보여준다.
+          없으면 기존 이니셜 동그라미로 대체한다. */}
       <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{initial}</Text>
+        {user.profileImageUrl ? (
+          <Image
+            source={{ uri: user.profileImageUrl }}
+            style={styles.avatarImage}
+            accessibilityLabel={`${user.displayName} 프로필 이미지`}
+          />
+        ) : (
+          <Text style={styles.avatarText}>{initial}</Text>
+        )}
       </View>
       <Text style={styles.name}>{user.displayName}</Text>
       <View style={styles.roleBadgeRow}>
@@ -277,7 +288,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: storybookTheme.spacing.xs,
+    overflow: 'hidden',
   },
+  avatarImage: { width: '100%', height: '100%' },
   avatarText: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.semibold,

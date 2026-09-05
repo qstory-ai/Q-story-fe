@@ -51,6 +51,11 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
   const [kind, setKind] = useState<'RECURRING' | 'ONE_OFF'>(() =>
     editing != null ? 'ONE_OFF' : 'RECURRING',
   );
+  // 편집 대상이 정기 수업의 한 회차(seriesId 있음)일 때만 의미 있는 선택 - "이 수업만" 저장하면
+  // 이 Lesson 하나만, "향후 모든 수업"이면 같은 시리즈에서 아직 예정 상태이고 이 수업과 같거나
+  // 이후 시각인 형제들에도 이름/목표/학생/이야기 변경과 시각 이동량을 함께 반영한다(BE의
+  // LessonService.applyToFutureSiblings 참고).
+  const [applyScope, setApplyScope] = useState<'THIS' | 'FUTURE'>('THIS');
   // 정기 수업: 다중 요일 선택 (0=일 ... 6=토). 기본은 오늘 요일 하나만.
   const [weekdays, setWeekdays] = useState<Set<number>>(() => new Set([new Date().getDay()]));
   const [startTime, setStartTime] = useState('15:00');
@@ -116,6 +121,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
         const updated = await updateLesson(state.token, editing.id, {
           ...baseInput,
           scheduledAt: parseDateTime(scheduledAtInput),
+          applyToFutureInSeries: editing.seriesId != null && applyScope === 'FUTURE',
         });
         onSaved?.(updated);
       } else if (kind === 'ONE_OFF') {
@@ -128,6 +134,8 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
         // 정기 수업 - 계산된 각 datetime마다 개별 Lesson을 순차 생성한다. Promise.all로 병렬
         // 화하지 않는 이유: BE에 rate limit이 걸려 있을 수 있고, 진행률을 사용자에게 정확히
         // 보여 주려면 순차가 편하다. 실패는 곧바로 중단(부분 성공은 상세 페이지에서 정리).
+        // seriesId는 이 제출 하나에서만 쓰는 클라이언트 생성 UUID - N번의 create 호출 전체가
+        // 같은 값을 실어 보내야 나중에 "향후 모든 수업 수정"으로 형제들을 함께 찾을 수 있다.
         const dates = computeRecurringDates({
           startDate: startDateInput,
           startTime,
@@ -136,12 +144,14 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
           endCount: Number(endCount) || 0,
           endDate: endDateInput,
         });
+        const seriesId = crypto.randomUUID();
         setSubmitProgress({ done: 0, total: dates.length });
         let lastCreated: Lesson | null = null;
         for (let i = 0; i < dates.length; i += 1) {
           const created = await createLesson(state.token, {
             ...baseInput,
             scheduledAt: dates[i],
+            seriesId,
           });
           lastCreated = created;
           setSubmitProgress({ done: i + 1, total: dates.length });
@@ -157,6 +167,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
       setScheduledAtInput('');
       setSelectedStudentIds(new Set());
       setSelectedStoryIds(new Set());
+      setApplyScope('THIS');
       onClose();
     } catch (failure: unknown) {
       const fallback = editing
@@ -207,7 +218,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
               ? `${submitProgress.done}/${submitProgress.total} 만드는 중…`
               : (isEdit ? '저장 중…' : '만드는 중…'))
           : (isEdit
-              ? '변경 저장'
+              ? (editing?.seriesId != null && applyScope === 'FUTURE' ? '향후 수업까지 저장' : '변경 저장')
               : kind === 'RECURRING' && recurringPreviewCount > 0
                 ? `${recurringPreviewCount}회 수업 만들기`
                 : '수업 만들기'),
@@ -256,6 +267,40 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
                 );
               })}
             </View>
+          </View>
+        ) : null}
+
+        {/* 정기 수업의 한 회차를 편집할 때만 - 단발성 수업이나 시리즈 없는 편집엔 의미가 없다. */}
+        {isEdit && editing?.seriesId != null ? (
+          <View style={styles.group}>
+            <Text style={styles.groupLabel}>적용 범위</Text>
+            <View style={styles.kindRow}>
+              {(['THIS', 'FUTURE'] as const).map((option) => {
+                const selected = applyScope === option;
+                const label = option === 'THIS' ? '이 수업만' : '이 수업과 향후 모든 수업';
+                return (
+                  <Pressable
+                    key={option}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                    onPress={() => setApplyScope(option)}
+                    style={({ pressed }) => [
+                      styles.kindOption,
+                      selected && styles.kindOptionSelected,
+                      pressed && styles.chipPressed,
+                    ]}
+                  >
+                    <Text style={[styles.kindOptionLabel, selected && styles.kindOptionLabelSelected]}>{label}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            {applyScope === 'FUTURE' ? (
+              <Text style={styles.helper}>
+                이름·목표·학생·이야기 변경과 시각 이동은 같은 정기 수업 중 아직 진행 전인 앞으로의
+                회차에도 함께 반영돼요. 요일·주기 자체는 바뀌지 않아요.
+              </Text>
+            ) : null}
           </View>
         ) : null}
 

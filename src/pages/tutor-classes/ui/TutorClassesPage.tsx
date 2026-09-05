@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, EmptyState, ErrorState, FilterChip, LoadingState, Pill, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, EmptyState, ErrorState, FilterChip, Icon, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listLessons, type Lesson, type LessonStatus } from '@/entities/lesson';
@@ -34,6 +34,7 @@ export function TutorClassesPage() {
   const [tab, setTab] = useState<Tab>('SCHEDULED');
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [formOpen, setFormOpen] = useState(false);
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
@@ -97,7 +98,12 @@ export function TutorClassesPage() {
         ) : (
           <View style={styles.list}>
             {load.lessons.map((lesson) => (
-              <LessonRow key={lesson.id} lesson={lesson} onPress={() => navigate(`/tutor/lessons/${lesson.id}`)} />
+              <LessonRow
+                key={lesson.id}
+                lesson={lesson}
+                onPress={() => navigate(`/tutor/lessons/${lesson.id}`)}
+                onEdit={lesson.status === 'SCHEDULED' ? () => setEditingLesson(lesson) : undefined}
+              />
             ))}
           </View>
         )}
@@ -109,13 +115,22 @@ export function TutorClassesPage() {
         />
       </View>
 
-      {/* key로 open/closed 상태를 걸어 매번 열 때 폼이 초기화되도록 한다 - LessonFormModal이
-          이제 lazy useState로 초기값을 잡아, 다시 열면 이전 입력이 남지 않고 빈 폼이 보인다. */}
+      {/* key로 open/closed(+ 편집 대상) 상태를 걸어 매번 열 때 폼이 초기화되도록 한다 -
+          LessonFormModal이 이제 lazy useState로 초기값을 잡아, 다시 열거나 다른 수업 편집으로
+          전환될 때 이전 입력이 남지 않고 올바른 초기값으로 remount된다. */}
       <LessonFormModal
-        key={formOpen ? 'open' : 'closed'}
-        visible={formOpen}
-        onClose={() => setFormOpen(false)}
+        key={editingLesson ? `edit:${editingLesson.id}:${editingLesson.updatedAt}` : formOpen ? 'open' : 'closed'}
+        visible={formOpen || editingLesson != null}
+        editing={editingLesson}
+        onClose={() => {
+          setFormOpen(false);
+          setEditingLesson(null);
+        }}
         onCreated={() => refresh()}
+        onSaved={() => {
+          refresh();
+          setEditingLesson(null);
+        }}
       />
     </AppNavShell>
   );
@@ -123,29 +138,55 @@ export function TutorClassesPage() {
 
 /* -------------------------------------------------------------- inner */
 
-function LessonRow({ lesson, onPress }: { lesson: Lesson; onPress: () => void }) {
+/**
+ * onEdit은 카드 onPress(상세 이동)와 별개인 트레일링 아이콘 버튼으로 얹는다. story-card.tsx의
+ * onRemove와 같은 이유로 안쪽 Pressable에 중첩시키지 않고, 바깥 View 아래 형제 Pressable로
+ * 뺐다 - 웹 DOM에서 Pressable을 서로 중첩하면 클릭 이벤트가 둘 다에 전달돼 편집을 누르면 상세
+ * 페이지로도 함께 이동해 버린다.
+ */
+function LessonRow({
+  lesson,
+  onPress,
+  onEdit,
+}: {
+  lesson: Lesson;
+  onPress: () => void;
+  onEdit?: () => void;
+}) {
   return (
-    <Pressable
-      accessibilityRole="link"
-      accessibilityLabel={`${lesson.name} 수업 상세 열기`}
-      onPress={onPress}
-      style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-    >
-      <View style={styles.rowLead}>
-        <Text style={styles.rowLeadDay}>{lesson.scheduledAt ? formatShortDate(lesson.scheduledAt) : '일정 미정'}</Text>
-        {lesson.scheduledAt ? (
-          <Text style={styles.rowLeadTime}>{formatShortTime(lesson.scheduledAt)}</Text>
-        ) : null}
-      </View>
-      <View style={styles.rowBody}>
-        <Text style={styles.rowTitle}>{lesson.name}</Text>
-        {lesson.goal ? <Text style={styles.rowGoal} numberOfLines={2}>{lesson.goal}</Text> : null}
-        <View style={styles.rowMetaRow}>
-          <Pill label={`학생 ${lesson.students.length}명`} tone="onCard" />
-          <Pill label={`이야기 ${lesson.storyIds.length}편`} tone="onCard" />
+    <View style={[styles.row, onEdit ? styles.rowWithEdit : null]}>
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel={`${lesson.name} 수업 상세 열기`}
+        onPress={onPress}
+        style={({ pressed }) => [styles.rowAction, pressed && styles.rowPressed]}
+      >
+        <View style={styles.rowLead}>
+          <Text style={styles.rowLeadDay}>{lesson.scheduledAt ? formatShortDate(lesson.scheduledAt) : '일정 미정'}</Text>
+          {lesson.scheduledAt ? (
+            <Text style={styles.rowLeadTime}>{formatShortTime(lesson.scheduledAt)}</Text>
+          ) : null}
         </View>
-      </View>
-    </Pressable>
+        <View style={styles.rowBody}>
+          <Text style={styles.rowTitle}>{lesson.name}</Text>
+          {lesson.goal ? <Text style={styles.rowGoal} numberOfLines={2}>{lesson.goal}</Text> : null}
+          <View style={styles.rowMetaRow}>
+            <Pill label={`학생 ${lesson.students.length}명`} tone="onCard" />
+            <Pill label={`이야기 ${lesson.storyIds.length}편`} tone="onCard" />
+          </View>
+        </View>
+      </Pressable>
+      {onEdit ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`${lesson.name} 수업 편집`}
+          onPress={onEdit}
+          style={({ pressed }) => [styles.rowEditButton, pressed && styles.rowEditButtonPressed]}
+        >
+          <Icon name="pencil" size={16} color={storybookTheme.color.onContentMuted} />
+        </Pressable>
+      ) : null}
+    </View>
   );
 }
 
@@ -200,15 +241,27 @@ const styles = StyleSheet.create({
   list: { gap: 8 },
   row: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 16,
+    alignItems: 'stretch',
     backgroundColor: storybookTheme.color.contentPanel,
     borderRadius: storybookTheme.radius.card,
     borderWidth: 1,
     borderColor: storybookTheme.color.contentPanelBorder,
   },
+  rowWithEdit: { paddingRight: 4 },
+  rowAction: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 16,
+  },
   rowPressed: { opacity: 0.9 },
+  rowEditButton: {
+    alignSelf: 'center',
+    padding: 10,
+    borderRadius: storybookTheme.radius.card,
+  },
+  rowEditButtonPressed: { backgroundColor: storybookTheme.color.contentPanelBorder },
   rowLead: {
     width: 60,
     gap: 2,

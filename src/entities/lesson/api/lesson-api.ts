@@ -27,6 +27,8 @@ export type Lesson = {
   storyIds: string[];
   createdAt: string;
   updatedAt: string;
+  /** null이면 단발성 수업. 정기 수업 생성 시 같은 제출에서 만든 형제 lesson들이 이 값을 공유한다. */
+  seriesId: string | null;
 };
 
 export type CreateLessonInput = {
@@ -35,9 +37,16 @@ export type CreateLessonInput = {
   scheduledAt?: string | null;
   studentIds?: string[];
   storyIds?: string[];
+  /** 정기 수업 생성 시 호출부가 crypto.randomUUID()로 한 번 만들어 N번의 create 호출 전체에
+   * 같은 값을 실어 보낸다 - 나중에 "향후 모든 수업 수정"으로 형제들을 함께 찾기 위함. */
+  seriesId?: string;
 };
 
-export type UpdateLessonInput = Partial<CreateLessonInput>;
+export type UpdateLessonInput = Partial<CreateLessonInput> & {
+  /** true면 같은 시리즈에서 아직 SCHEDULED이고 이 수업과 같거나 이후 시각인 형제들에도 이
+   * 요청을 함께 적용한다(scheduledAt은 절대값이 아니라 이 수업의 이동량만큼 각자 이동). */
+  applyToFutureInSeries?: boolean;
+};
 
 export class LessonApiError extends Error {
   constructor(

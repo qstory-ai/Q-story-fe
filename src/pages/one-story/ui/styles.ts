@@ -333,6 +333,13 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   nameHint: { color: storybookTheme.color.onLightMuted, fontSize: storybookTheme.type.xxs, lineHeight: 17 },
+  nameKnownText: {
+    color: '#4E3267',
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.semibold,
+    lineHeight: 21,
+    textAlign: 'center',
+  },
   typedQuestionInput: {
     minHeight: 120,
     borderRadius: 16,

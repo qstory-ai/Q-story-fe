@@ -145,7 +145,11 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
     recording: RecordingResult;
     sttDraft: string;
   } | null>(null);
-  const [childNameInput, setChildNameInput] = useState('');
+  // 홈에서 이미 아이를 선택하고 들어온 경우(정식 플레이 경로) selectedChild.name으로 미리
+  // 채운다 - 방금 고른 이름을 이야기 시작 화면에서 또 타이핑하게 하는 게 부자연스러웠다.
+  // 데모(/demo, 비로그인)처럼 선택된 아이가 없는 경로에서는 selectedChild가 null이라 그대로
+  // 빈 입력으로 남는다(IdlePanel이 이 경우에만 입력 UI를 보여준다).
+  const [childNameInput, setChildNameInput] = useState(() => selectedChild?.name ?? '');
   const [childName, setChildName] = useState('');
   const [voiceResearchConsentChecked, setVoiceResearchConsentChecked] =
     useState(false);
@@ -1865,6 +1869,9 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
     childNameInput,
     setChildNameInput,
     childName,
+    // 홈에서 이미 골라 놓은 아이 이름 - IdlePanel이 이 값이 있으면 이름 입력 UI 대신 확인 문구만
+    // 보여준다(null이면 선택된 아이가 없는 경로 = 데모 등, 기존처럼 입력 필드를 보여준다).
+    selectedChildName: selectedChild?.name ?? null,
     voiceResearchConsentChecked,
     setVoiceResearchConsentChecked,
     questionMode,

@@ -269,7 +269,10 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // contentMaxWidth(420, 로그인/가입 폼 전용 폭)였는데, 이 페이지로 들어오는 진입점(/library,
+    // 홈 히어로)은 훨씬 넓은 폭(wideMaxWidth 1040 / dashboardCardWideMaxWidth 760)을 쓰고 있어서
+    // 넓은 화면에서 카드가 갑자기 좁아지며 뚝 끊기는 느낌이 났다.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
   },
   coverFrame: {

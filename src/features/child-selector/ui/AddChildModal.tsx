@@ -175,8 +175,10 @@ function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: (
 const styles = StyleSheet.create({
   body: { gap: 16 },
   group: { gap: 8 },
+  // xs(12)였던 걸 sm(14)로 - 취소/추가 버튼 라벨(sm)보다도 작아서 정작 채워야 할 폼 내용이
+  // 자기보다 덜 중요한 액션보다 더 눈에 안 띄는 위계 역전이 있었다.
   groupLabel: {
-    fontSize: storybookTheme.type.xs,
+    fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardBody,
   },
@@ -195,7 +197,7 @@ const styles = StyleSheet.create({
   },
   chipPressed: { opacity: 0.85 },
   chipLabel: {
-    fontSize: storybookTheme.type.xs,
+    fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardBody,
   },

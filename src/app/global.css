@@ -38,6 +38,20 @@ body,
   min-height: 100dvh;
 }
 
+/* react-native-web의 Text 컴포넌트는 자체 기본 스타일에 `font: '14px System'`을 하드코딩한다
+   (node_modules/react-native-web/dist/cjs/exports/Text/index.js) - 이건 각 <Text> 엘리먼트에
+   직접 적용되는 값이라, body의 font-family는 상속될 기회조차 없이 매번 덮어써진다. 그 결과
+   Pretendard Variable은 다운로드는 되지만 실제로는 어디에도 렌더링되지 않고 전부 OS 기본
+   폰트(San Francisco/Segoe UI/Roboto)로 나오고 있었다.
+   예전에 src/app/apply-font-defaults.ts가 Text.defaultProps.style로 고치려 시도했지만,
+   defaultProps는 caller가 style prop을 아예 안 넘겼을 때만 쓰인다 - 이 앱은 <Text style={...}>로
+   직접 스타일을 넘기는 곳이 729곳이라(2026-09-06 기준) 그 fallback이 거의 항상 무시됐다(그래서
+   그 파일은 이 커밋에서 제거했다). CSS 캐스케이드에서 강제하는 것만이 React 쪽에서 스타일을
+   어떻게 넘기든 상관없이 확실히 이기는 방법이라 !important로 못박는다. */
+* {
+  font-family: var(--font-display) !important;
+}
+
 body {
   overflow-x: hidden;
   font-family: var(--font-display);

@@ -15,7 +15,7 @@ type FaqSectionProps = {
 export function FaqSection({ sectionRef }: FaqSectionProps) {
   return (
     <View
-      style={sectionStyles.section}
+      style={[sectionStyles.section, styles.faqSection]}
       ref={assignSectionRef(sectionRef)}
     >
       <View style={styles.sectionHeading}>
@@ -50,6 +50,12 @@ function FaqItem({ question, answer, defaultOpen = false }: { question: string; 
 }
 
 const styles = StyleSheet.create({
+  // FAQ는 다른 섹션과 달리 옆에 시각 자료 없이 항상 한 컬럼이라, 공유 section의 1040px 폭을
+  // 그대로 받으면 답변 문단이 화면 끝까지 늘어져 한 줄이 너무 길어졌다(특히 마지막 음성 저장
+  // 문항처럼 여러 문장인 답변). 본문이 읽기 편한 폭(약 640px)을 넘지 않게 좁히고 가운데 둔다.
+  faqSection: {
+    maxWidth: 640,
+  },
   sectionHeading: {
     gap: 10,
   },

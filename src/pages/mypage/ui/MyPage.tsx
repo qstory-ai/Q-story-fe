@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { Children, Fragment, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AppNavShell, Icon, Modal, Pill, storybookTheme } from '@/shared/ui';
+import { AppNavShell, Icon, Modal, ModalBody, Pill, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, useAuth, type Role, type UserSummary } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { FeedbackModal } from '@/features/feedback-modal';
@@ -75,7 +75,9 @@ export function MyPage() {
         positiveAction={{ label: '로그아웃', onPress: logout }}
         negativeAction={{ label: '취소', onPress: () => setConfirmingLogout(false) }}
         accessibilityLabel="로그아웃 확인"
-      />
+      >
+        <ModalBody>다시 로그인하면 그대로 이어서 쓸 수 있어요.</ModalBody>
+      </Modal>
       <FeedbackModal visible={openModal === 'feedback'} token={state.token} onClose={() => setOpenModal(null)} />
     </AppNavShell>
   );
@@ -183,10 +185,22 @@ function GenericMenu({
 /* -------------------------------------------------------------- menu primitives */
 
 function MenuGroup({ title, children }: { title?: string; children: ReactNode }) {
+  // MenuRow는 더 이상 스스로 위쪽 테두리를 그리지 않는다 - 각 행이 각자 borderTopWidth를 그리면
+  // 그룹의 첫 행에도 선이 생겨 menuCard 자체 테두리 바로 밑에 겹쳐 보였다(구분선이 "행 사이"가
+  // 아니라 "맨 위"에도 뜨는 것처럼 보인 원인). 대신 여기서 행 사이에만 명시적으로 구분선을 끼워
+  // 넣는다.
+  const rows = Children.toArray(children);
   return (
     <View style={styles.menuGroup}>
       {title ? <Text style={styles.menuGroupTitle}>{title}</Text> : null}
-      <View style={styles.menuCard}>{children}</View>
+      <View style={styles.menuCard}>
+        {rows.map((row, index) => (
+          <Fragment key={index}>
+            {index > 0 ? <View style={styles.menuDivider} /> : null}
+            {row}
+          </Fragment>
+        ))}
+      </View>
     </View>
   );
 }
@@ -234,7 +248,10 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // 이 탭이 함께 있는 홈 화면들(ParentHomePage/ClassDashboardPage=760, TutorHomePage=720)이
+    // 전부 contentMaxWidth(420, 로그인/가입 폼 전용 폭)보다 훨씬 넓은 값을 쓰는데 마이페이지만
+    // 420에 남아 있어서, 같은 사이드바 레이아웃 안에서 유독 좁고 양옆 여백이 크게 보였다.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
@@ -301,8 +318,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     minHeight: 56,
     gap: storybookTheme.spacing.ms,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: storybookTheme.color.pillBorder,
   },
   pressed: { opacity: 0.7 },
   menuLead: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: storybookTheme.spacing.sm },

@@ -55,7 +55,7 @@ export function MyPageChildrenPage() {
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title} accessibilityRole="header">아이 관리</Text>
-          <ActionButton label="아이 추가" onPress={() => setAddOpen(true)} />
+          <ActionButton label="아이 추가" icon="+" size="sm" onPress={() => setAddOpen(true)} />
         </View>
 
         {load.status === 'loading' ? (

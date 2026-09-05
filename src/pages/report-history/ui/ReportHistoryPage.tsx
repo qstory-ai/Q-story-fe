@@ -156,7 +156,7 @@ export function ReportHistoryPage() {
           </Text>
         ) : null}
 
-        <View style={styles.tabRow}>
+        <View style={styles.tabRow} accessibilityRole="tablist">
           <TabButton label="종합 리포트" active={tab === 'comprehensive'} onPress={() => setTab('comprehensive')} />
           <TabButton label="작품별 리포트" active={tab === 'by-story'} onPress={() => setTab('by-story')} />
           {load.status === 'ready' && load.tutorReports.length > 0 ? (
@@ -484,7 +484,10 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // contentMaxWidth(420)는 로그인/가입 같은 단일 폼 페이지 폭 - 이 탭의 형제인
+    // ParentHomePage/ClassDashboardPage는 진작에 dashboardCardWideMaxWidth(760)로 옮겨가서,
+    // 이 페이지만 420에 남아 같은 사이드바 레이아웃 안에서 유독 좁고 여백이 크게 떠 있었다.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,

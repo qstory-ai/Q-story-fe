@@ -24,6 +24,11 @@ type Presentation = { icon: IconName; tone: 'gold' | 'positive' | 'brand' };
 const KIND_PRESENTATION: Record<string, Presentation> = {
   // 튜터 세션 완주 → 부모: 리포트 도착
   'tutor-report': { icon: 'report', tone: 'gold' },
+  // 선생님이 수업(Lesson)을 완료 처리 → 부모: 리포트 도착 (tutor-report와 발신 경로만 다르고
+  // 의미는 같아서 같은 아이콘/톤을 쓴다)
+  'lesson-report': { icon: 'report', tone: 'gold' },
+  // 수업 시작 30분 전 → 부모: 곧 시작 알림
+  'lesson-reminder': { icon: 'clock', tone: 'gold' },
   // 부모가 튜터 초대 수락 → 튜터: 새 연결 성사
   'tutor-invite-accepted': { icon: 'users', tone: 'positive' },
   // 튜터가 기관 초대 수락 → 원장: 새 소속 선생님

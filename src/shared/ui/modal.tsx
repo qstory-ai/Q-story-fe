@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ActionButton } from './action-button';
@@ -65,7 +66,7 @@ export function Modal({
 
   if (!mounted) return null;
 
-  return (
+  const scrim = (
     <View
       // position:'fixed'는 뷰포트 기준으로 항상 화면 전체를 덮는다 - position:'absolute'였을 땐
       // 가장 가까운 위치 지정 조상의 높이에 얹혀서, 콘텐츠가 뷰포트보다 짧은 화면(마이페이지 등)
@@ -142,6 +143,20 @@ export function Modal({
       </ScrollView>
     </View>
   );
+
+  // react-native-web의 모든 View는 기본 스타일에 position:'relative' + zIndex:0을 깔고 나온다
+  // (react-native-web/dist/.../View/index.js의 view$raw) - z-index:auto가 아니라 명시적 0이라
+  // "position이 static이 아니고 z-index가 auto가 아닌 요소는 새 stacking context를 만든다"는
+  // 규칙에 따라 이 앱의 View 하나하나가 전부 독립된 stacking context다. 그 결과 이 스크림을 평소
+  // 트리 안(예: ChildSelector 안)에 그냥 두면, scrim 자체의 zIndex:overlay(20)는 "그 부모 View
+  // 내부에서"만 의미가 있을 뿐 - 그 부모보다 DOM 순서상 나중에 오는 형제 섹션(예: 홈의 히어로
+  // 추천 카드, 사이드바, 달력)은 여전히 부모 자체의 z-index:0 기준으로 스크림 전체를 덮어버린다
+  // (같은 z-index:0끼리는 나중에 오는 DOM이 위에 그려지므로). 즉 이 컴포넌트 안에서 아무리
+  // z-index를 올려도 원천적으로 이 문제를 못 피한다 - 실제로 뷰포트 최상단에 뜨려면 DOM
+  // 트리에서도 벗어나야 해서, document.body에 직접 포탈로 올린다(React context는 포탈을
+  // 통과해도 그대로 유지된다).
+  if (typeof document === 'undefined') return scrim;
+  return createPortal(scrim, document.body);
 }
 
 /** Modal 안에서 본문 문단에 쓰는 표준 텍스트 스타일 - one-story 모달 3개가 공유하던 값. */

@@ -78,7 +78,7 @@ export function TutorStudentsPage() {
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title} accessibilityRole="header">등록된 학생</Text>
-          <ActionButton label="새 학생 등록" onPress={() => navigate('/tutor/students/new')} />
+          <ActionButton label="새 학생 등록" icon="+" size="sm" onPress={() => navigate('/tutor/students/new')} />
         </View>
 
         {load.status === 'loading' && <LoadingState label="학생 목록을 불러오는 중이에요…" />}

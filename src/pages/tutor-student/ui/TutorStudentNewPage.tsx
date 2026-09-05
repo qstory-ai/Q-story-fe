@@ -2,32 +2,29 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, Checkbox, DateInputField, RadioGroup, SafeAreaView, TextField, TextareaField, storybookTheme } from '@/shared/ui';
+import { ActionButton, RadioGroup, SafeAreaView, TextField, TextareaField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { useAuth } from '@/entities/auth';
 import {
   createTutorInvite,
-  createTutorSchedule,
   createTutorStudent,
   type TutorStudent,
 } from '@/entities/tutor';
 
-type WizardStep = 'info' | 'invite' | 'schedule';
+type WizardStep = 'info' | 'invite';
 
 const AGE_BANDS = ['6세', '7세', '8세', '9세'];
-const WEEKDAYS: Array<{ value: string; label: string }> = [
-  { value: 'MON', label: '월' },
-  { value: 'TUE', label: '화' },
-  { value: 'WED', label: '수' },
-  { value: 'THU', label: '목' },
-  { value: 'FRI', label: '금' },
-  { value: 'SAT', label: '토' },
-];
 
 /**
- * "새 학생 등록" 3단계 - q-story-flow-prototype.tsx의 TutorStudentNewScreen→
- * TutorParentConnectSetupScreen→TutorScheduleSetupScreen 순서를 그대로 따른다. 프로토타입과
- * 다르게 각 단계가 실제로 서버에 저장한다(학생 생성 → 초대 발급 → 일정 등록).
+ * "새 학생 등록" 2단계(학생 정보 → 부모 연결) - q-story-flow-prototype.tsx의
+ * TutorStudentNewScreen→TutorParentConnectSetupScreen 순서를 그대로 따른다. 각 단계가 실제로
+ * 서버에 저장한다(학생 생성 → 초대 발급).
+ *
+ * 예전엔 3단계 끝에 정기 수업 시간(TutorSchedule)까지 여기서 만들었지만, 홈 화면 캘린더가
+ * TutorSchedule 대신 Lesson을 데이터 소스로 쓰도록 이미 바뀌어 있었고(TutorHomePage 참고)
+ * /tutor/schedule도 어디서도 링크되지 않는 죽은 라우트였다 - 수업 생성 자체는 "수업" 탭의
+ * LessonFormModal 하나로 이미 일원화돼 있었던 것. 그래서 이 마법사는 학생 등록/부모 연결까지만
+ * 책임지고, 수업(일정) 생성은 등록 후 "수업" 탭에서 하도록 분리했다.
  */
 export function TutorStudentNewPage() {
   const navigate = useNavigate();
@@ -52,10 +49,7 @@ export function TutorStudentNewPage() {
           <InfoStep token={token} onCreated={(created) => { setStudent(created); setStep('invite'); }} />
         )}
         {step === 'invite' && student && (
-          <InviteStep token={token} student={student} onDone={() => setStep('schedule')} />
-        )}
-        {step === 'schedule' && student && (
-          <ScheduleStep token={token} student={student} onDone={() => navigate('/tutor', { replace: true })} />
+          <InviteStep token={token} student={student} onDone={() => navigate('/tutor', { replace: true })} />
         )}
       </View>
     </SafeAreaView>
@@ -90,7 +84,7 @@ function InfoStep({ token, onCreated }: { token: string; onCreated: (student: Tu
 
   return (
     <>
-      <Text style={styles.stepLabel}>새 학생 등록 · 1 / 3</Text>
+      <Text style={styles.stepLabel}>새 학생 등록 · 1 / 2</Text>
       <Text style={styles.title} accessibilityRole="header">아이 이름 또는 별명을 알려주세요</Text>
       <TextField label="아이 이름 또는 별명" value={name} onChangeText={setName} placeholder="예: 민서" />
       <RadioGroup
@@ -142,7 +136,7 @@ function InviteStep({ token, student, onDone }: { token: string; student: TutorS
 
   return (
     <>
-      <Text style={styles.stepLabel}>새 학생 등록 · 2 / 3</Text>
+      <Text style={styles.stepLabel}>새 학생 등록 · 2 / 2</Text>
       <Text style={styles.title} accessibilityRole="header">{student.name} 부모님께{'\n'}연결을 요청해요</Text>
 
       {!invite ? (
@@ -195,84 +189,10 @@ function InviteStep({ token, student, onDone }: { token: string; student: TutorS
             )}
             {method === 'SMS' ? <Text selectable style={styles.inviteUrl}>{inviteUrl}</Text> : null}
           </View>
-          <ActionButton label="다음" onPress={onDone} />
+          <Text style={styles.hint}>수업 일정은 홈으로 돌아가 "수업" 탭에서 만들 수 있어요.</Text>
+          <ActionButton label="등록 마치고 홈으로" onPress={onDone} />
         </>
       )}
-    </>
-  );
-}
-
-function ScheduleStep({ token, student, onDone }: { token: string; student: TutorStudent; onDone: () => void }) {
-  const [weekday, setWeekday] = useState('FRI');
-  const [startTime, setStartTime] = useState('16:00');
-  const [endTime, setEndTime] = useState('17:00');
-  const [startDay, setStartDay] = useState('');
-  const [startMonth, setStartMonth] = useState('');
-  const [startYear, setStartYear] = useState('');
-  const startDate =
-    startDay && startMonth && startYear
-      ? `${startYear}-${startMonth.padStart(2, '0')}-${startDay.padStart(2, '0')}`
-      : '';
-  const [location, setLocation] = useState('가정 방문');
-  const [reminderEnabled, setReminderEnabled] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  const onSubmit = useCallback(async () => {
-    setError(null);
-    setSubmitting(true);
-    try {
-      await createTutorSchedule(token, student.id, {
-        weekday,
-        startTime,
-        endTime,
-        startDate,
-        location: location.trim(),
-        reminderEnabled,
-      });
-      onDone();
-    } catch (failure) {
-      setError(messageForError(failure, '수업 일정을 등록하지 못했어요. 시간과 요일을 다시 확인해 주세요.'));
-    } finally {
-      setSubmitting(false);
-    }
-  }, [token, student.id, weekday, startTime, endTime, startDate, location, reminderEnabled, onDone]);
-
-  return (
-    <>
-      <Text style={styles.stepLabel}>새 학생 등록 · 3 / 3</Text>
-      <Text style={styles.title} accessibilityRole="header">정기 수업 시간을 정해요</Text>
-      <RadioGroup
-        accessibilityLabel="수업 요일"
-        options={WEEKDAYS.map((day) => ({ value: day.value, label: day.label }))}
-        value={weekday}
-        onChange={setWeekday}
-      />
-      <View style={styles.row}>
-        <View style={styles.rowItem}>
-          <TextField label="시작 시간" value={startTime} onChangeText={setStartTime} placeholder="16:00" />
-        </View>
-        <View style={styles.rowItem}>
-          <TextField label="종료 시간" value={endTime} onChangeText={setEndTime} placeholder="17:00" />
-        </View>
-      </View>
-      <DateInputField
-        label="시작일"
-        day={startDay}
-        month={startMonth}
-        year={startYear}
-        onChangeDay={setStartDay}
-        onChangeMonth={setStartMonth}
-        onChangeYear={setStartYear}
-      />
-      <TextField label="수업 장소" value={location} onChangeText={setLocation} errorText={error ?? undefined} />
-      <Checkbox checked={reminderEnabled} onChange={setReminderEnabled} label="수업 30분 전 알림" />
-      <ActionButton
-        label={submitting ? '등록 중…' : '등록 마치고 홈으로'}
-        onPress={onSubmit}
-        loading={submitting}
-        disabled={!startTime.trim() || !endTime.trim() || !startDate || !location.trim()}
-      />
     </>
   );
 }
@@ -290,8 +210,7 @@ const styles = StyleSheet.create({
   },
   stepLabel: { fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.gold, letterSpacing: 0.4 },
   title: { fontSize: storybookTheme.type.lg, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onLightHeading, marginBottom: storybookTheme.spacing.xs },
-  row: { flexDirection: 'row', gap: storybookTheme.spacing.sm },
-  rowItem: { flex: 1 },
+  hint: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onLightMuted, textAlign: 'center' },
   consentCard: {
     gap: storybookTheme.spacing.xs,
     borderRadius: storybookTheme.radius.card,

@@ -303,11 +303,15 @@ export const storybookTheme = {
     xxxl: 56,
   },
   /**
-   * 기존 인증 페이지들(login/join/organization-signup/class-dashboard/parent-home)이 이미 각자
-   * content wrapper에 `maxWidth: 420, width: '100%', alignSelf: 'center'`로 하드코딩해 둔
-   * 것과 같은 420 값이다 - 새 단일 컬럼 페이지들이 비슷하지만 다른 숫자를 고르는 대신
-   * 정확히 일치시키도록 여기 중앙화했다. `wide`는 읽는 컬럼이 아니라 다중 아이템 그리드인
-   * 유일한 화면(홈 서재)을 위한 값이다.
+   * 기존 인증 페이지들(login/join/organization-signup)이 이미 각자 content wrapper에
+   * `maxWidth: 420, width: '100%', alignSelf: 'center'`로 하드코딩해 둔 것과 같은 420 값이다 -
+   * 새 단일 컬럼 폼 페이지들이 비슷하지만 다른 숫자를 고르는 대신 정확히 일치시키도록 여기
+   * 중앙화했다. `wide`는 읽는 컬럼이 아니라 다중 아이템 그리드인 유일한 화면(홈 서재)을 위한
+   * 값이다.
+   *
+   * class-dashboard/parent-home는 한때 이 값을 썼지만 지금은 아래 dashboardCardWideMaxWidth로
+   * 옮겨갔다(더 넓은 대시보드 카드가 필요해서) - 로그인/가입 폼처럼 순수 단일 컬럼 입력
+   * 페이지가 아니라면 여기(420)보다는 그쪽을 기본으로 고려할 것.
    */
   layout: {
     contentMaxWidth: 420,
@@ -323,8 +327,7 @@ export const storybookTheme = {
     narrowMaxWidth: 560,
     /**
      * 튜터 홈처럼 콘텐츠 밀도가 높지만 라이브러리 그리드(1040)만큼 넓을 필요는 없는 페이지의
-     * 폭 - TutorHomePage/TutorStudentNewPage/TutorLessonDetailPage 등이 각자 720으로
-     * 하드코딩하던 값을 중앙화. */
+     * 폭 - TutorHomePage/TutorLessonDetailPage 등이 각자 720으로 하드코딩하던 값을 중앙화. */
     tabletMaxWidth: 720,
   },
 } as const;

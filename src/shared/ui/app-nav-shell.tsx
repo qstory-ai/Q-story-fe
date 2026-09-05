@@ -39,7 +39,10 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
     return (
       <SafeAreaView edges={['top', 'right', 'bottom', 'left']} style={styles.root}>
         <View style={styles.wideRow}>
-          <View style={styles.wideMain}>{children}</View>
+          {/* Lighthouse의 "main landmark 없음" 접근성 경고 - RN엔 <main> 태그도, accessibilityRole
+              'main'도 없어서(RN AccessibilityRole enum엔 landmark 개념 자체가 없다) raw aria role을
+              얹는다. 이 셸을 쓰는 모든 대시보드 페이지(홈/서재/리포트/마이페이지 등)가 한 번에 해당된다. */}
+          <View style={styles.wideMain} {...({ role: 'main' } as any)}>{children}</View>
           <View style={styles.sidebar}>
             {items.map((item) => (
               <Pressable
@@ -90,7 +93,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
           <Icon name="home" size={18} color={storybookTheme.color.onContent} />
         </Pressable>
       </View>
-      <View style={styles.narrowMain}>{children}</View>
+      <View style={styles.narrowMain} {...({ role: 'main' } as any)}>{children}</View>
       <View style={styles.bottomBar}>
         {items.map((item) => (
           <Pressable

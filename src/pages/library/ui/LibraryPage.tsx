@@ -163,7 +163,7 @@ export function LibraryPage() {
           </View>
         ) : null}
 
-        <View style={styles.tabRow}>
+        <View style={styles.tabRow} accessibilityRole="tablist">
           {TABS.map((entry) => (
             <FilterChip
               key={entry.key}

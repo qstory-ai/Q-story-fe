@@ -17,9 +17,9 @@ type LoadState =
   | { status: 'error'; message: string };
 
 /**
- * IA "[4] 마이페이지 > 알림 설정" 화면. 학부모와 선생님 모두 사용할 수 있으며 지금은 마케팅
- * 알림(새 작품 출시) 토글 하나로 시작한다. 각 스위치는 상태를 BE에 즉시 PATCH로 보내는
- * 낙관적 UI - 저장 버튼 없이 토글이 곧 저장이다.
+ * IA "[4] 마이페이지 > 알림 설정" 화면. 학부모와 선생님 모두 사용할 수 있다. 각 스위치는 상태를
+ * BE에 즉시 PATCH로 보내는 낙관적 UI - 저장 버튼 없이 토글이 곧 저장이다. 수업 시작/완료 알림
+ * 두 개는 실제로 부모 계정에만 발송되는 알림이라 PARENT 역할에만 노출한다.
  */
 export function MyPageNotificationsPage() {
   const navigate = useNavigate();
@@ -95,6 +95,27 @@ export function MyPageNotificationsPage() {
               onChange={(next) => toggle('marketingEnabled', next)}
               disabled={savingKey === 'marketingEnabled'}
             />
+            {/* 이 두 알림은 지금 부모(linkedParentUser)에게만 발송된다(LessonReminderScheduler/
+                LessonService/StoryCompletionService) - 선생님 계정에 보여줘도 받는 알림에 영향이
+                없어서 부모 계정에만 노출한다. */}
+            {state.user.role === 'PARENT' ? (
+              <>
+                <SwitchField
+                  label="수업 시작 알림"
+                  description="선생님과의 수업 시작 30분 전에 알려드려요."
+                  checked={load.settings.lessonReminderEnabled}
+                  onChange={(next) => toggle('lessonReminderEnabled', next)}
+                  disabled={savingKey === 'lessonReminderEnabled'}
+                />
+                <SwitchField
+                  label="수업 완료 알림"
+                  description="수업이 끝나면 리포트가 도착했다고 알려드려요."
+                  checked={load.settings.lessonReportEnabled}
+                  onChange={(next) => toggle('lessonReportEnabled', next)}
+                  disabled={savingKey === 'lessonReportEnabled'}
+                />
+              </>
+            ) : null}
           </View>
         )}
 

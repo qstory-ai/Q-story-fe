@@ -9,6 +9,10 @@ import { requestJson, type PublicRequestOptions as RequestOptions } from '@/shar
 
 export type NotificationSettings = {
   marketingEnabled: boolean;
+  /** 수업 시작 30분 전 알림. */
+  lessonReminderEnabled: boolean;
+  /** 수업/세션 완료 → 리포트 도착 알림. */
+  lessonReportEnabled: boolean;
 };
 
 export type UpdateNotificationSettingsInput = Partial<NotificationSettings>;

@@ -270,13 +270,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
+  // aspectRatio: 1(정사각형)이었을 때는 가로폭이 넓은 화면(데스크톱 사이드바 레이아웃)에서
+  // 폭을 그대로 세로로도 물려받아 6주 그리드 전체가 불필요하게 길어졌다 - 폭은 페이지마다
+  // 다르게 두고 싶은데(가변) 세로만 고정폭으로 눌러야 해서 aspectRatio를 버리고 고정
+  // height로 바꿨다. 36px 뱃지 + 4px dot slot을 담는 최소 높이(~44px, 위 dayBadge 주석 참고)
+  // 보다 살짝 여유 있게 잡아 터치 영역은 그대로 지킨다.
   cell: {
     width: `${100 / 7}%`,
-    aspectRatio: 1,
+    height: 52,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 2,
-    paddingVertical: storybookTheme.spacing.xs,
   },
   cellPressed: { opacity: 0.7 },
   dayBadge: {

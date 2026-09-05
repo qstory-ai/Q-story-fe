@@ -72,10 +72,10 @@ export function TutorClassesPage() {
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title} accessibilityRole="header">수업</Text>
-          <ActionButton label="새 수업 만들기" onPress={() => setFormOpen(true)} />
+          <ActionButton label="새 수업 만들기" icon="+" size="sm" onPress={() => setFormOpen(true)} />
         </View>
 
-        <View style={styles.tabRow}>
+        <View style={styles.tabRow} accessibilityRole="tablist">
           {TABS.map((entry) => (
             <FilterChip
               key={entry.key}

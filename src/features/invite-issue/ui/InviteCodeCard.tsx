@@ -47,7 +47,10 @@ export function InviteCodeCard({ shortCode, link, expiresLabel, onDismiss }: Pro
       <View style={styles.row}>
         <View style={styles.rowBody}>
           <Text style={styles.rowLabel}>링크</Text>
-          <Text style={styles.linkText} numberOfLines={1}>{link}</Text>
+          {/* numberOfLines={1}이던 걸 지웠다 - 토큰이 길어(32자) 한 줄로 자르면 항상
+              "https://…" 형태로 잘려 사용자가 실제로 뭘 복사하는지 확인할 수 없었다.
+              그대로 줄바꿈해 전체 링크가 보이게 한다. */}
+          <Text style={styles.linkText}>{link}</Text>
         </View>
         <CopyButton value={link} enabled={canCopy} />
       </View>
@@ -94,21 +97,27 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   description: {
-    fontSize: storybookTheme.type.xs,
+    // xs(12)였던 걸 sm(14)로 - 카드 안에서 가장 먼저 읽는 안내 문장인데 아래 라벨류보다도
+    // 작아서 정작 중요한 설명이 눈에 덜 띄었다.
+    fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onCardBody,
-    lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
   },
   row: {
     flexDirection: 'row',
-    alignItems: 'center',
+    // 링크 텍스트가 이제 여러 줄로 줄바꿈될 수 있어(아래 linkText) center로 맞추면 복사
+    // 버튼이 어중간하게 걸린다 - 버튼을 첫 줄 높이에 맞춰 위쪽 정렬한다.
+    alignItems: 'flex-start',
     gap: storybookTheme.spacing.sm,
     paddingVertical: storybookTheme.spacing.sm,
     borderTopWidth: 1,
     borderTopColor: storybookTheme.color.pillBorder,
   },
-  rowBody: { flex: 1, gap: 2 },
+  rowBody: { flex: 1, gap: 4 },
   rowLabel: {
-    fontSize: storybookTheme.type.xxs,
+    // xxs(10)였던 걸 xs(12)로 - 코드/링크가 뭘 가리키는지 알려주는 라벨이 본문보다도 작아
+    // 잘 안 읽혔다.
+    fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onCardMuted,
     fontWeight: storybookTheme.type.weight.semibold,
   },
@@ -120,6 +129,7 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: storybookTheme.type.xs,
+    lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onCardBody,
   },
   copyButton: {
@@ -139,7 +149,7 @@ const styles = StyleSheet.create({
   copyLabelDisabled: { color: storybookTheme.color.disabledText },
   footnote: {
     marginTop: storybookTheme.spacing.xs,
-    fontSize: storybookTheme.type.xxs,
+    fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onCardMuted,
   },
   dismissLink: {

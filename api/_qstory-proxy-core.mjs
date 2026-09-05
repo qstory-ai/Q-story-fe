@@ -63,6 +63,12 @@ const STORY_ID_SEGMENT = '[A-Za-z0-9_-]{1,64}';
 // TutorInvite/ClassInvite raw tokens are Base64.getUrlEncoder().withoutPadding() of 24 random
 // bytes (ClassService.randomToken()/TutorStudentService.randomToken()) - URL-safe base64, not a UUID.
 const INVITE_TOKEN_SEGMENT = '[A-Za-z0-9_-]{16,64}';
+// The short, human-typeable code shown alongside the link (JoinCodeGenerator: 8 chars, no
+// ambiguous 0/O/1/I/L) - a different, much shorter format than the raw token above. Reusing
+// INVITE_TOKEN_SEGMENT's {16,64} minimum here rejected every real short code (see
+// shared/lib/invite-code.ts's own 4-16 char rule) with the generic allowlist error, so the
+// "by-code" routes need their own, shorter segment.
+const SHORT_CODE_SEGMENT = '[A-Z0-9]{4,16}';
 const DYNAMIC_ROUTES = [
   { method: 'GET', pattern: /^v1\/stories\/[A-Za-z0-9_-]{1,64}\/content$/ },
   { method: 'GET', pattern: new RegExp(`^v1/stories/${STORY_ID_SEGMENT}$`) },
@@ -86,8 +92,8 @@ const DYNAMIC_ROUTES = [
   { method: 'GET', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/lesson-plans$`) },
   { method: 'GET', pattern: new RegExp(`^v1/tutor-invites/${INVITE_TOKEN_SEGMENT}$`) },
   { method: 'POST', pattern: new RegExp(`^v1/tutor-invites/${INVITE_TOKEN_SEGMENT}/accept$`) },
-  { method: 'GET', pattern: new RegExp(`^v1/tutor-invites/by-code/${INVITE_TOKEN_SEGMENT}$`) },
-  { method: 'POST', pattern: new RegExp(`^v1/tutor-invites/by-code/${INVITE_TOKEN_SEGMENT}/accept$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/tutor-invites/by-code/${SHORT_CODE_SEGMENT}$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/tutor-invites/by-code/${SHORT_CODE_SEGMENT}/accept$`) },
   // ---- tutor lessons(수업 세션)
   { method: 'GET', pattern: new RegExp(`^v1/tutor-lessons/${UUID_SEGMENT}$`) },
   { method: 'PATCH', pattern: new RegExp(`^v1/tutor-lessons/${UUID_SEGMENT}$`) },
@@ -102,8 +108,8 @@ const DYNAMIC_ROUTES = [
   { method: 'DELETE', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/tutors/${UUID_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organization-tutor-invites/${INVITE_TOKEN_SEGMENT}$`) },
   { method: 'POST', pattern: new RegExp(`^v1/organization-tutor-invites/${INVITE_TOKEN_SEGMENT}/accept$`) },
-  { method: 'GET', pattern: new RegExp(`^v1/organization-tutor-invites/by-code/${INVITE_TOKEN_SEGMENT}$`) },
-  { method: 'POST', pattern: new RegExp(`^v1/organization-tutor-invites/by-code/${INVITE_TOKEN_SEGMENT}/accept$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/organization-tutor-invites/by-code/${SHORT_CODE_SEGMENT}$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/organization-tutor-invites/by-code/${SHORT_CODE_SEGMENT}/accept$`) },
   // ---- 아이 프로필(부모)
   { method: 'PATCH', pattern: new RegExp(`^v1/parents/me/children/${UUID_SEGMENT}$`) },
   { method: 'DELETE', pattern: new RegExp(`^v1/parents/me/children/${UUID_SEGMENT}$`) },

@@ -55,7 +55,13 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
   // 이 Lesson 하나만, "향후 모든 수업"이면 같은 시리즈에서 아직 예정 상태이고 이 수업과 같거나
   // 이후 시각인 형제들에도 이름/목표/학생/이야기 변경과 시각 이동량을 함께 반영한다(BE의
   // LessonService.applyToFutureSiblings 참고).
-  const [applyScope, setApplyScope] = useState<'THIS' | 'FUTURE'>('THIS');
+  //
+  // 처음엔 'THIS'를 기본값으로 뒀는데, 정기 수업은 회차마다 별도 Lesson 행이라 "이 수업만"으로
+  // 저장한 학생 추가는 그 회차에만 반영되고 목록의 다른 회차들엔 안 보인다 - 토글이 있는 줄
+  // 모르고 그냥 저장한 사용자에게는 "분명 추가했는데 다른 회차엔 없다"는 혼란으로 이어졌다.
+  // null로 시작해 명시적으로 고르기 전엔 저장 자체를 막아(canSubmit 참고), 조용한 기본값 대신
+  // 매번 실제로 선택하게 한다.
+  const [applyScope, setApplyScope] = useState<'THIS' | 'FUTURE' | null>(null);
   // 정기 수업: 다중 요일 선택 (0=일 ... 6=토). 기본은 오늘 요일 하나만.
   const [weekdays, setWeekdays] = useState<Set<number>>(() => new Set([new Date().getDay()]));
   const [startTime, setStartTime] = useState('15:00');
@@ -68,6 +74,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
   const [error, setError] = useState<string | null>(null);
 
   const isEdit = editing != null;
+  const isSeriesEdit = isEdit && editing?.seriesId != null;
   const recurringPreviewCount = useMemo(() => {
     if (kind !== 'RECURRING') return 0;
     return computeRecurringDates({
@@ -84,8 +91,9 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
     if (submitting) return false;
     if (name.trim().length === 0) return false;
     if (kind === 'RECURRING' && recurringPreviewCount === 0) return false;
+    if (isSeriesEdit && applyScope === null) return false;
     return true;
-  }, [name, submitting, kind, recurringPreviewCount]);
+  }, [name, submitting, kind, recurringPreviewCount, isSeriesEdit, applyScope]);
 
   useEffect(() => {
     if (!visible) return;
@@ -167,7 +175,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
       setScheduledAtInput('');
       setSelectedStudentIds(new Set());
       setSelectedStoryIds(new Set());
-      setApplyScope('THIS');
+      setApplyScope(null);
       onClose();
     } catch (failure: unknown) {
       const fallback = editing
@@ -218,7 +226,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
               ? `${submitProgress.done}/${submitProgress.total} 만드는 중…`
               : (isEdit ? '저장 중…' : '만드는 중…'))
           : (isEdit
-              ? (editing?.seriesId != null && applyScope === 'FUTURE' ? '향후 수업까지 저장' : '변경 저장')
+              ? (isSeriesEdit && applyScope === 'FUTURE' ? '향후 수업까지 저장' : '변경 저장')
               : kind === 'RECURRING' && recurringPreviewCount > 0
                 ? `${recurringPreviewCount}회 수업 만들기`
                 : '수업 만들기'),
@@ -270,10 +278,12 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
           </View>
         ) : null}
 
-        {/* 정기 수업의 한 회차를 편집할 때만 - 단발성 수업이나 시리즈 없는 편집엔 의미가 없다. */}
-        {isEdit && editing?.seriesId != null ? (
+        {/* 정기 수업의 한 회차를 편집할 때만 - 단발성 수업이나 시리즈 없는 편집엔 의미가 없다.
+            applyScope가 null인 동안은 저장 버튼이 비활성(canSubmit) - 토글 존재를 모르고
+            지나쳐 "이 수업만"이 조용히 적용되는 걸 막는다. */}
+        {isSeriesEdit ? (
           <View style={styles.group}>
-            <Text style={styles.groupLabel}>적용 범위</Text>
+            <Text style={styles.groupLabel}>적용 범위 (선택 필요)</Text>
             <View style={styles.kindRow}>
               {(['THIS', 'FUTURE'] as const).map((option) => {
                 const selected = applyScope === option;
@@ -295,12 +305,19 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
                 );
               })}
             </View>
-            {applyScope === 'FUTURE' ? (
+            {applyScope === null ? (
+              <Text style={styles.helper}>
+                정기 수업은 회차마다 따로 저장돼요. 학생·이야기 변경을 앞으로의 다른 회차에도
+                반영할지 먼저 골라 주세요.
+              </Text>
+            ) : applyScope === 'FUTURE' ? (
               <Text style={styles.helper}>
                 이름·목표·학생·이야기 변경과 시각 이동은 같은 정기 수업 중 아직 진행 전인 앞으로의
                 회차에도 함께 반영돼요. 요일·주기 자체는 바뀌지 않아요.
               </Text>
-            ) : null}
+            ) : (
+              <Text style={styles.helper}>이 회차에만 반영돼요. 다른 회차는 그대로 남아요.</Text>
+            )}
           </View>
         ) : null}
 

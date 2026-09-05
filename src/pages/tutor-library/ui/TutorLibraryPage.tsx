@@ -5,12 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ActionButton, AppNavShell, Card, ErrorState, FilterChip, LoadingState, SearchField, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
-import {
-  DEFAULT_BETA_STORY_ID,
-  listStories,
-  unlockStateFor,
-  type StoryCatalogEntry,
-} from '@/entities/story';
+import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
 import { useBookmarks } from '@/entities/bookmark';
 import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
 
@@ -227,10 +222,11 @@ function StoryCardWithLink({
           navigate('/mypage/subscription');
           return;
         }
-        if (story.storyId === DEFAULT_BETA_STORY_ID) {
-          navigate('/demo');
-          return;
-        }
+        // /demo(DemoStoryRoute)는 비로그인 익명 체험용이라 tutorStudentId를 모른다 - 서재에서
+        // 곧장 거기로 보내면 튜터가 시작한 세션이 어떤 학생 것인지 기록되지 않아 완주해도 그
+        // 학생 리포트에도, 그 부모 화면에도 나타나지 않았다. 튜터에게는 베타 스토리도 다른
+        // 스토리와 똑같이 상세 페이지로 보내 StoryDetailPage의 TutorStudentPickerModal
+        // 흐름(학생 선택 -> /stories/{id}/play?tutorStudentId=...)을 그대로 타게 한다.
         navigate(`/stories/${story.storyId}`);
       }}
     />

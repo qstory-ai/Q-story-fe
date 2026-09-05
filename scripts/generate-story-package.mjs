@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   generatedStoryContent,
+  loadLanguageRules,
   loadPrompts,
   loadRegistry,
   loadStoryPackage,
@@ -39,6 +40,7 @@ for (const entry of entries) {
   sources.push(await loadStoryPackage(appDirectory, entry, { rewriteIntegrity: fix }));
 }
 const prompts = await loadPrompts(appDirectory);
+const languageRules = await loadLanguageRules(appDirectory);
 // A story naming a policy nobody ships is the drift this move exists to stop, so it fails here.
 const promptVersions = new Set(prompts.map((prompt) => prompt.version));
 for (const source of sources) {
@@ -86,7 +88,7 @@ function visualReferencePacksFor(source) {
   }));
 }
 
-function packageData(source, prompts) {
+function packageData(source, prompts, languageRules) {
   return {
     schemaVersion: 1,
     story: source.story,
@@ -104,6 +106,13 @@ function packageData(source, prompts) {
     // from the TS module that already holds them (see visualReferencePacksFor) rather than
     // re-authored here - HG-only today since no other story has a visual-generation-contract.ts.
     visualReferencePacks: visualReferencePacksFor(source),
+    // §2.3/§5.1/§2.6 신설 섹션 - personas/discussionBank/visualProvenance는 스토리별,
+    // languageRules는 전 스토리 공용(GLOBAL)이라 매 story의 payload에 동일한 값을 실어 보낸다
+    // (스토리별 override는 아직 미구현 - loadLanguageRules 참고).
+    personas: source.personas,
+    discussionBank: source.discussionBank,
+    visualProvenance: source.visualProvenance,
+    languageRules,
     // One flat array, the same shape the backend serves back at /v1/stories/{id}/content. `file` is
     // storage-relative and is what the DB row keeps; `url` is what a client fetches. Both are
     // carried so the import and the app read the same list rather than two divergent ones.
@@ -174,7 +183,7 @@ for (const source of sources) {
   );
   outputs.push(
     [join(directory, 'generated-story-content.json'), stableJson(generatedStoryContent(source))],
-    [join(directory, 'story-package.generated.json'), stableJson(packageData(source, prompts))],
+    [join(directory, 'story-package.generated.json'), stableJson(packageData(source, prompts, languageRules))],
   );
 }
 outputs.push([

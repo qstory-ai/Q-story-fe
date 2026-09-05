@@ -344,6 +344,47 @@ export async function loadPrompts(appDirectory) {
   return prompts;
 }
 
+/**
+ * content/language-rules.yaml (playbook §2.4) - GLOBAL scope only for now, shared by every story.
+ * A per-story override (scope: <storyId> in content/stories/<slug>/language-rules.yaml) is a
+ * documented future extension, not implemented here - only one global file is loaded today.
+ */
+export async function loadLanguageRules(appDirectory) {
+  const path = join(appDirectory, 'content', 'language-rules.yaml');
+  const rules = parseYaml(await readText(path));
+  if (rules?.schemaVersion !== 1 || rules.scope !== 'GLOBAL') {
+    throw new Error('content/language-rules.yaml must be schemaVersion 1, scope GLOBAL');
+  }
+  if (!Array.isArray(rules.bannedWords)) {
+    throw new Error('language-rules.bannedWords must be a list');
+  }
+  const words = new Set();
+  for (const entry of rules.bannedWords) {
+    if (!entry.word || !entry.replacement) {
+      throw new Error('language-rules.bannedWords entries need word and replacement');
+    }
+    if (words.has(entry.word)) throw new Error(`language-rules has a duplicate banned word: ${entry.word}`);
+    words.add(entry.word);
+  }
+  const { maxSentenceLength, recommendedRange } = rules;
+  if (!Number.isInteger(maxSentenceLength) || maxSentenceLength <= 0) {
+    throw new Error('language-rules.maxSentenceLength must be a positive integer');
+  }
+  if (
+    !Number.isInteger(recommendedRange?.min) ||
+    !Number.isInteger(recommendedRange?.max) ||
+    recommendedRange.min <= 0 ||
+    recommendedRange.min >= recommendedRange.max ||
+    recommendedRange.max > maxSentenceLength
+  ) {
+    throw new Error('language-rules.recommendedRange must be a valid min<max<=maxSentenceLength range');
+  }
+  if (!rules.onomatopoeiaPolicy) {
+    throw new Error('language-rules.onomatopoeiaPolicy is required');
+  }
+  return rules;
+}
+
 export async function loadStoryPackage(appDirectory, entry, { rewriteIntegrity = false } = {}) {
   const directory = join(appDirectory, 'content', 'stories', entry.slug);
   return loadStoryPackageFromDirectory(directory, entry, {
@@ -369,6 +410,9 @@ export async function loadStoryPackageFromDirectory(
     'release.yaml',
     'qa-contract.yaml',
     'references/packs.yaml',
+    'personas.yaml',
+    'discussion-bank.yaml',
+    'visual-provenance.yaml',
   ];
   const values = await Promise.all(names.map((name) => readText(join(directory, name))));
   const byName = Object.fromEntries(names.map((name, index) => [name, values[index]]));
@@ -381,10 +425,16 @@ export async function loadStoryPackageFromDirectory(
   const release = parseYaml(byName['release.yaml']);
   const qaContract = parseYaml(byName['qa-contract.yaml']);
   const references = parseYaml(byName['references/packs.yaml']);
+  const personas = parseYaml(byName['personas.yaml']);
+  const discussionBank = parseYaml(byName['discussion-bank.yaml']);
+  const visualProvenance = parseYaml(byName['visual-provenance.yaml']);
   if (story?.storyId !== entry.storyId || story?.slug !== entry.slug) {
     fail(entry.storyId, 'registry and story.yaml do not match');
   }
-  for (const [label, value] of Object.entries({ routeContext, cast, assets, reportCopy, release, qaContract, references })) {
+  for (const [label, value] of Object.entries({
+    routeContext, cast, assets, reportCopy, release, qaContract, references,
+    personas, discussionBank, visualProvenance,
+  })) {
     if (value?.storyId !== story.storyId) fail(story.storyId, `${label} storyId does not match`);
   }
   if (assetRoot) {
@@ -432,6 +482,9 @@ export async function loadStoryPackageFromDirectory(
     release,
     qaContract,
     references,
+    personas,
+    discussionBank,
+    visualProvenance,
     evaluation: JSON.parse(byName['evaluation.jsonl'].trim()),
     scenes,
     fallbacks,
@@ -474,12 +527,128 @@ function validateQaContract(source) {
   if (missing.length > 0) fail(storyId, `qa-contract is missing families: ${missing.join(', ')}`);
 }
 
+/**
+ * personas.yaml (playbook §2.3) - one persona per cast tag, 1:1 with cast.yaml (same pattern as
+ * report-copy.anchors being 1:1 with route-context.anchors below). knowledgeBoundary is the ⭐
+ * non-negotiable field the playbook calls out - required present even when its lists are empty,
+ * because future features (§4 상시 질문/§5.2 인물과 대화) read it to avoid spoilers.
+ */
+function validatePersonas(source) {
+  const { storyId } = source.story;
+  const castTags = new Set(Object.keys(source.cast.speakers ?? {}));
+  const personaEntries = Object.entries(source.personas?.personas ?? {});
+  const personaTags = new Set(personaEntries.map(([tag]) => tag));
+  if (personaTags.size !== castTags.size || ![...castTags].every((tag) => personaTags.has(tag))) {
+    fail(storyId, 'personas must have exactly one entry per cast tag');
+  }
+  for (const [tag, persona] of personaEntries) {
+    const speaker = source.cast.speakers[tag];
+    if (persona.speakerId !== speaker.speakerId) {
+      fail(storyId, `persona ${tag} speakerId does not match cast.yaml`);
+    }
+    if ((persona.samePersonKey ?? null) !== (speaker.samePersonKey ?? null)) {
+      fail(storyId, `persona ${tag} samePersonKey does not match cast.yaml`);
+    }
+    if (
+      !persona.role ||
+      !persona.ageBand ||
+      !Array.isArray(persona.personality?.traits) || persona.personality.traits.length === 0 ||
+      !persona.personality?.oneLiner ||
+      !Array.isArray(persona.speechStyle?.endings) || persona.speechStyle.endings.length === 0 ||
+      !Array.isArray(persona.speechStyle?.catchphrases) ||
+      !persona.speechStyle?.sentenceLengthBias ||
+      !Array.isArray(persona.emotionRange?.allowed) || persona.emotionRange.allowed.length === 0 ||
+      !persona.emotionRange?.capNote ||
+      !Array.isArray(persona.voiceTexture) || persona.voiceTexture.length === 0 ||
+      !Array.isArray(persona.appearanceFacts) ||
+      !Array.isArray(persona.relationships) ||
+      !isPlainObject(persona.knowledgeBoundary) ||
+      !Array.isArray(persona.knowledgeBoundary.knows) ||
+      !Array.isArray(persona.knowledgeBoundary.doesNotKnow) ||
+      !Array.isArray(persona.knowledgeBoundary.neverRevealsFirst)
+    ) {
+      fail(storyId, `persona ${tag} is missing a required field`);
+    }
+    for (const relationship of persona.relationships) {
+      if (!castTags.has(relationship.with)) {
+        fail(storyId, `persona ${tag} has a relationship with unknown cast tag ${relationship.with}`);
+      }
+    }
+  }
+}
+
+/** discussion-bank.yaml (playbook §5.1) - 3~5 topics grounded in real scenes/assets. */
+function validateDiscussionBank(source) {
+  const { storyId } = source.story;
+  const sceneIds = new Set(source.scenes.map((scene) => scene.id));
+  const { bySlug: assetBySlug } = indexAssets(storyId, source.assets);
+  const topics = source.discussionBank?.topics ?? [];
+  if (!Array.isArray(topics) || topics.length < 3) {
+    fail(storyId, 'discussion bank needs at least 3 topics');
+  }
+  const ids = new Set();
+  for (const topic of topics) {
+    if (!topic.id?.startsWith(`${storyId}-`)) fail(storyId, `discussion topic ${topic.id} has an invalid id`);
+    if (ids.has(topic.id)) fail(storyId, `duplicate discussion topic id ${topic.id}`);
+    ids.add(topic.id);
+    if (!topic.statement || !topic.ageHint) fail(storyId, `discussion topic ${topic.id} is missing statement/ageHint`);
+    if (!(topic.relatedSceneIds ?? []).every((id) => sceneIds.has(id))) {
+      fail(storyId, `discussion topic ${topic.id} references an unknown scene`);
+    }
+    if (!(topic.relatedAssetIds ?? []).every((slug) => assetBySlug.has(slug))) {
+      fail(storyId, `discussion topic ${topic.id} references an unregistered asset`);
+    }
+    if (topic.safetyBoundary?.noForcedAnswer !== true || topic.safetyBoundary?.respectChildOpinion !== true) {
+      fail(storyId, `discussion topic ${topic.id} must keep both safety-boundary flags true`);
+    }
+  }
+}
+
+/**
+ * visual-provenance.yaml (playbook 대원칙 "재현 가능성") - every record must point at a real
+ * registered image asset, and must either carry real generation facts (status RECOVERED) or
+ * honestly explain why it can't (LOST/UNKNOWN + note). Coverage of every existing image is NOT
+ * enforced here: HG shipped before this file existed and some of its early art has no recoverable
+ * prompt (see the file's own header comment) - forcing 100% coverage would only pressure someone
+ * into fabricating a fake prompt, which defeats the principle this file exists to serve. New assets
+ * going forward are expected to be RECOVERED from day one; that's a process norm, not something
+ * this validator can check from content files alone.
+ */
+function validateVisualProvenance(source) {
+  const { storyId } = source.story;
+  const { bySlug: assetBySlug } = indexAssets(storyId, source.assets);
+  const records = source.visualProvenance?.records ?? [];
+  if (!Array.isArray(records)) fail(storyId, 'visual-provenance.records must be a list');
+  const seenSlugs = new Set();
+  const validStatuses = new Set(['RECOVERED', 'LOST', 'UNKNOWN']);
+  for (const record of records) {
+    if (!assetBySlug.has(record.assetSlug)) {
+      fail(storyId, `visual-provenance references unregistered asset ${record.assetSlug}`);
+    }
+    if (seenSlugs.has(record.assetSlug)) fail(storyId, `duplicate visual-provenance record for ${record.assetSlug}`);
+    seenSlugs.add(record.assetSlug);
+    if (!validStatuses.has(record.status)) {
+      fail(storyId, `visual-provenance ${record.assetSlug} has an invalid status`);
+    }
+    if (record.status === 'RECOVERED') {
+      if (!record.prompt || !record.model || !record.inputHash || !record.generatedAt) {
+        fail(storyId, `visual-provenance ${record.assetSlug} is RECOVERED but missing prompt/model/inputHash/generatedAt`);
+      }
+    } else if (!record.note) {
+      fail(storyId, `visual-provenance ${record.assetSlug} is ${record.status} but has no note explaining why`);
+    }
+  }
+}
+
 export function validateStoryPackage(source) {
   const { bySlug: assetBySlug, artSlugs, branchArtByFamily } = indexAssets(
     source.story.storyId,
     source.assets,
   );
   validateQaContract(source);
+  validatePersonas(source);
+  validateDiscussionBank(source);
+  validateVisualProvenance(source);
   const { story, scenes, fallbacks, routeContext, cast, assets, reportCopy, release, references } = source;
   const sceneIds = new Set(scenes.map((scene) => scene.id));
   if (sceneIds.size !== scenes.length || !sceneIds.has(story.entrySceneId) || !sceneIds.has(story.endingSceneId)) {

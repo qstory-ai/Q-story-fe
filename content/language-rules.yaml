@@ -1,0 +1,13 @@
+schemaVersion: 1
+# 플레이북 2.4절 "아이의 언어 규칙" - 전 스토리 공용(GLOBAL). 스토리별 예외가 필요해지면
+# scope를 storyId로 바꾼 별도 파일을 스토리 디렉터리 안에 두는 방식으로 확장할 수 있게 필드는
+# 남겨두되, 지금은 GLOBAL 하나만 로더가 읽는다(scripts/lib/story-package.mjs의 loadLanguageRules).
+scope: GLOBAL
+bannedWords:
+  - word: 노파
+    replacement: 늙은 할머니
+maxSentenceLength: 36
+recommendedRange:
+  min: 10
+  max: 28
+onomatopoeiaPolicy: 장면당 절제 사용 - 남용 금지

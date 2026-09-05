@@ -1,0 +1,29 @@
+schemaVersion: 1
+storyId: HG
+# 플레이북 5.1절 "독서 토론 - 책의 주제로 AI와 대화하기". 재료는 안전 각색(2.1)에서 드러난
+# 가치 충돌과 부모 리포트의 "이어갈 대화 질문"에서 그대로 가져온다. 최소 3개 이상.
+topics:
+  - id: HG-DISC-01
+    statement: 낯선 사람의 친절, 믿어도 될까?
+    relatedSceneIds: [HG-F05, HG-F06]
+    relatedAssetIds: []
+    ageHint: "5~7세: '왜 그렇게 생각해?'로 이어가며, 정답을 알려주기보다 아이 스스로 이유를 말해보게 한다"
+    safetyBoundary:
+      noForcedAnswer: true
+      respectChildOpinion: true
+  - id: HG-DISC-02
+    statement: 무서웠던 아빠의 선택은 괜찮은 걸까?
+    relatedSceneIds: [HG-F01, HG-F10]
+    relatedAssetIds: []
+    ageHint: "5~7세: 아빠도 실수할 수 있다는 것과, 잘못을 인정하고 되돌리는 것의 가치를 함께 이야기한다"
+    safetyBoundary:
+      noForcedAnswer: true
+      respectChildOpinion: true
+  - id: HG-DISC-03
+    statement: 오빠와 동생이 서로 도운 것처럼, 우리 가족을 도울 수 있는 방법은 뭐가 있을까?
+    relatedSceneIds: [HG-F02, HG-F07]
+    relatedAssetIds: []
+    ageHint: "5~7세: 헨젤과 그레텔이 함께 계획을 짠 장면을 떠올리며, 아이가 실제로 할 수 있는 작은 행동을 스스로 말해보게 한다"
+    safetyBoundary:
+      noForcedAnswer: true
+      respectChildOpinion: true

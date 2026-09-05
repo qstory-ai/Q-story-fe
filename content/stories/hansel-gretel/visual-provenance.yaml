@@ -1,0 +1,44 @@
+schemaVersion: 1
+storyId: HG
+# 플레이북 대원칙 "재현 가능성" + 2.6절 provenance 기록 - 그림마다 실제 생성 근거(prompt/model/
+# input hash)를 남긴다. HG는 이 파일이 생기기 전부터 있던 스토리라 41장 전체의 원본 기록이 없다 -
+# 실제로 초기 삽화 15장의 프롬프트 원문이 유실되어 "복구 불가"로 기록된 사례가 있다(대원칙 항목
+# 참고). 그 사실을 숨기지 않고 status: LOST/UNKNOWN으로 정직하게 남기는 편이, 있지도 않은 원본
+# 프롬프트를 지어내 채워 넣는 것보다 이 스키마의 목적(재현 가능성)에 맞는다.
+#
+# 지금부터 새로 만드는 삽화는 예외 없이 RECOVERED로 기록한다(②npm run visual:brief 실행 시점에
+# prompt/model/inputHash를 그대로 옮겨 적으면 된다) - 41장 전체에 대한 소급 기록은 별도 콘텐츠
+# 운영 태스크로 남겨둔다(이 파일은 그 전수조사의 첫 표본).
+records:
+  - assetSlug: white-bird
+    status: LOST
+    prompt: null
+    model: null
+    inputHash: null
+    generatedAt: null
+    approvedBy: null
+    note: 초기 제작분 - 원본 프롬프트 유실, 복구 불가로 기록됨(대원칙 항목 참고)
+  - assetSlug: locked-door-night
+    status: LOST
+    prompt: null
+    model: null
+    inputHash: null
+    generatedAt: null
+    approvedBy: null
+    note: 초기 제작분 - 원본 프롬프트 유실, 복구 불가로 기록됨
+  - assetSlug: home-table
+    status: UNKNOWN
+    prompt: null
+    model: null
+    inputHash: null
+    generatedAt: null
+    approvedBy: null
+    note: 이 파일 도입 이전 제작분 - 생성 이력 미기록. 실제 프롬프트가 남아있는지 자산 아카이브 재확인 필요
+  - assetSlug: morning-song
+    status: UNKNOWN
+    prompt: null
+    model: null
+    inputHash: null
+    generatedAt: null
+    approvedBy: null
+    note: 이 파일 도입 이전 제작분 - 생성 이력 미기록

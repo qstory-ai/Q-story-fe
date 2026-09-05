@@ -1,0 +1,183 @@
+schemaVersion: 1
+storyId: HG
+# 플레이북 2.3절 "캐릭터 페르소나 정의" - cast.yaml(목소리)/캐릭터북(외형)이 여기서 파생된다.
+# 키는 cast.yaml의 CAST_TAG와 정확히 같은 집합이어야 한다(1:1, 검증됨).
+personas:
+  NARRATOR:
+    speakerId: HG-SPK-NARRATOR
+    role: 내레이터
+    ageBand: 성인(내레이터)
+    personality:
+      traits: [차분함, 다정함, 안정적임]
+      oneLiner: 이야기를 따뜻하고 차분하게 들려주는 화자
+    speechStyle:
+      endings: ["~했어요", "~했답니다"]
+      catchphrases: []
+      sentenceLengthBias: MEDIUM
+    emotionRange:
+      allowed: [차분함, 다정함, 은은한 긴장감]
+      capNote: 긴장은 은은하게만 유지한다 - 공포를 과장하지 않는다
+    voiceTexture: [따뜻함, 안정적임]
+    appearanceFacts: []   # 내레이터는 화면에 등장하지 않는 화자라 외형 불변 사실이 없다
+    relationships: []
+    knowledgeBoundary:
+      knows: [이야기 전체 줄거리]
+      doesNotKnow: []
+      neverRevealsFirst: [결말과 반전 요소를 해당 장면 전에 말하지 않는다]
+    samePersonKey: null
+  FATHER:
+    speakerId: HG-SPK-FATHER
+    role: character
+    ageBand: 성인(아버지)
+    personality:
+      traits: [지치고 근심 많음, 책임감 있음, 우유부단함]
+      oneLiner: 가난 앞에서 흔들리지만 결국 책임을 인정하는 아버지
+    speechStyle:
+      endings: ["~구나", "~하자"]
+      catchphrases: []
+      sentenceLengthBias: MEDIUM
+    emotionRange:
+      allowed: [걱정, 망설임, 죄책감, 안도]
+      capNote: 두려움을 책임 회피의 핑계로 표현하지 않는다(forbiddenElements 4번과 일치)
+    voiceTexture: [낮음, 단단함]
+    appearanceFacts: [중년 남성, 지친 얼굴, 수수한 옷차림]
+    relationships:
+      - with: HANSEL
+        label: 아들
+      - with: GRETEL
+        label: 딸
+      - with: STEPMOTHER
+        label: 아내
+    knowledgeBoundary:
+      knows: [집안 형편이 어렵다는 것, 새어머니의 제안에 동의했다는 것]
+      doesNotKnow: [아이들이 조약돌·빵 부스러기로 정확히 무엇을 준비했는지]
+      neverRevealsFirst: [아이들이 숲에서 겪은 일을 해당 장면 전에]
+    samePersonKey: null
+  STEPMOTHER:
+    speakerId: HG-SPK-STEPMOTHER
+    role: character
+    ageBand: 성인(새어머니)
+    personality:
+      traits: [단호함, 고집 셈, 차가움]
+      oneLiner: 무섭지만 마녀가 아닌, 현실적인 어른
+    speechStyle:
+      endings: ["~해", "~하라고"]
+      catchphrases: []
+      sentenceLengthBias: SHORT
+    emotionRange:
+      allowed: [짜증, 단호함, 냉정함]
+      capNote: 초자연적이거나 과장된 악역 톤 금지(안전 각색 원칙과 일치)
+    voiceTexture: [날카로움, 단단함]
+    appearanceFacts: [중년 여성, 엄격한 인상]
+    relationships:
+      - with: FATHER
+        label: 남편
+      - with: HANSEL
+        label: 의붓아들
+      - with: GRETEL
+        label: 의붓딸
+    knowledgeBoundary:
+      knows: [숲에 아이들을 다시 두고 오자고 아버지를 설득했다는 것]
+      doesNotKnow: [아이들이 어떻게 두 번째로 살아 돌아왔는지]
+      neverRevealsFirst: [아이들의 생존 사실을 해당 장면 전에]
+    samePersonKey: null
+  HANSEL:
+    speakerId: HG-SPK-HANSEL
+    role: character
+    ageBand: 7~9세 또래 소년
+    personality:
+      traits: [영리함, 신중함, 여동생을 챙김]
+      oneLiner: 똑똑하지만 아직 아이다운 약함도 있는 오빠
+    speechStyle:
+      endings: ["~야", "~하자"]
+      catchphrases: ["걱정 마, 내가 방법을 생각해볼게"]
+      sentenceLengthBias: SHORT
+    emotionRange:
+      allowed: [불안, 집중, 계획을 설명할 때의 자신감]
+      capNote: 자신감은 계획을 설명할 때만 - 평소엔 여전히 아이답게
+    voiceTexture: [앳됨, 신중함]
+    appearanceFacts: [초록 조끼, 크림색 셔츠, 붉은 목수건]
+    relationships:
+      - with: GRETEL
+        label: 여동생
+      - with: FATHER
+        label: 아버지
+      - with: STEPMOTHER
+        label: 새어머니
+    knowledgeBoundary:
+      knows: [숲에 두 번 버려졌다는 것, 조약돌·빵 부스러기 계획]
+      doesNotKnow: [노파가 처음부터 마녀로 위장하고 있었다는 사실(F06 이전)]
+      neverRevealsFirst: [과자집의 진짜 정체(F06 이전)]
+    samePersonKey: null
+  GRETEL:
+    speakerId: HG-SPK-GRETEL
+    role: character
+    ageBand: 6~8세 또래 소녀
+    personality:
+      traits: [관찰력 있음, 다정함, 탈출 상황에서의 결단력]
+      oneLiner: 무서워도 오빠와 함께 방법을 찾는 동생
+    speechStyle:
+      endings: ["~야", "~지"]
+      catchphrases: ["오빠, 저기 봐"]
+      sentenceLengthBias: SHORT
+    emotionRange:
+      allowed: [두려움, 호기심, 안도, 결단력]
+      capNote: 공포는 '무서웠지만 계속 갔다' 수준까지만 - 공황·절규 표현 금지
+    voiceTexture: [앳됨, 따뜻함]
+    appearanceFacts: [갈색 양갈래 머리, 보라색 리본, 겨자색 원피스]
+    relationships:
+      - with: HANSEL
+        label: 오빠
+      - with: FATHER
+        label: 아버지
+      - with: STEPMOTHER
+        label: 새어머니
+    knowledgeBoundary:
+      knows: [숲에 두 번 버려졌다는 것, 조약돌·빵 부스러기 계획]
+      doesNotKnow: [노파가 처음부터 마녀로 위장하고 있었다는 사실(F06 이전)]
+      neverRevealsFirst: [과자집의 진짜 정체(F06 이전)]
+    samePersonKey: null
+  OLD_WOMAN:
+    speakerId: HG-SPK-OLD_WOMAN
+    role: character
+    ageBand: 노년 여성
+    personality:
+      traits: [다정해 보임, 은근히 수상함]
+      oneLiner: 친절한 척하지만 사실은 마녀인 노파
+    speechStyle:
+      endings: ["~란다", "~구나"]
+      catchphrases: []
+      sentenceLengthBias: MEDIUM
+    emotionRange:
+      allowed: [다정함(위장), 은근한 신비로움]
+      capNote: 위협적으로 보이지 않게 - 초대의 다정함을 유지한다
+    voiceTexture: [원숙함, 약간 쉰 목소리]
+    appearanceFacts: [회색 머리를 뒤로 올림, 어두운 보라색 옷]
+    relationships: []
+    knowledgeBoundary:
+      knows: [자신이 마녀라는 것, 아이들을 왜 초대했는지]
+      doesNotKnow: []
+      neverRevealsFirst: [자신이 마녀라는 사실(F06 이전)]
+    samePersonKey: OLD_WOMAN_WITCH
+  WITCH:
+    speakerId: HG-SPK-WITCH
+    role: character
+    ageBand: 노년 여성(정체가 드러난 뒤)
+    personality:
+      traits: [차가움, 조급함, 위협적]
+      oneLiner: 정체가 드러난 뒤의 노파 - 같은 인물의 다른 상태
+    speechStyle:
+      endings: ["~해라", "~다"]
+      catchphrases: []
+      sentenceLengthBias: SHORT
+    emotionRange:
+      allowed: [차가움, 조급함, 분노]
+      capNote: 같은 목소리 정체성을 유지하고, 과도한 폭력 묘사 없이 위협을 표현한다
+    voiceTexture: [원숙함, 단단함]
+    appearanceFacts: [회색 머리를 뒤로 올림, 어두운 보라색 옷]
+    relationships: []
+    knowledgeBoundary:
+      knows: [아이들을 가두고 있다는 것, 열쇠 규칙]
+      doesNotKnow: [아이들이 협력해서 탈출 방법을 짜고 있다는 것]
+      neverRevealsFirst: [탈출 방법에 대한 힌트를 스스로 주지 않는다]
+    samePersonKey: OLD_WOMAN_WITCH

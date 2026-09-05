@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
 import {
   createClassInvite,
   dashboardNavItems,
@@ -32,6 +32,7 @@ export function OrganizationClassDetailPage() {
   const [issuedInvite, setIssuedInvite] = useState<{ token: string; expiresAt: string } | null>(null);
   const [issuing, setIssuing] = useState(false);
   const [issueError, setIssueError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const canView = state.status === 'authenticated' && state.user.role === 'DIRECTOR';
 
@@ -59,7 +60,7 @@ export function OrganizationClassDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, classId]);
+  }, [state, classId, reloadKey]);
 
   const onIssueInvite = useCallback(async () => {
     if (state.status !== 'authenticated' || !classId) return;
@@ -82,15 +83,10 @@ export function OrganizationClassDetailPage() {
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')} onBack={() => navigate('/organization/classes')}>
       <View style={styles.content}>
-        {load.status === 'loading' && (
-          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
-        )}
+        {load.status === 'loading' && <LoadingState label="반 정보를 불러오는 중이에요…" />}
 
         {load.status === 'error' && (
-          <View style={styles.centerBox}>
-            <Text style={styles.errorText}>{load.message}</Text>
-            <ActionButton variant="secondary" label="반 목록으로" onPress={() => navigate('/organization/classes')} />
-          </View>
+          <ErrorState message={load.message} onRetry={() => setReloadKey((n) => n + 1)} />
         )}
 
         {load.status === 'ready' && (
@@ -176,8 +172,6 @@ const styles = StyleSheet.create({
     paddingBottom: storybookTheme.spacing.xl,
     gap: 14,
   },
-  centerBox: { alignItems: 'center', paddingVertical: 40, gap: 12 },
-  errorText: { color: storybookTheme.color.error, fontSize: storybookTheme.type.sm, textAlign: 'center' },
   card: {
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,

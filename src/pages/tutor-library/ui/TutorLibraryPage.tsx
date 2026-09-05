@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Card, FilterChip, SearchField, StoryCard, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, ErrorState, FilterChip, LoadingState, SearchField, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
 import {
@@ -43,6 +43,7 @@ export function TutorLibraryPage() {
   const [tab, setTab] = useState<Tab>('all');
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<string | null>(null);
+  const [catalogReload, setCatalogReload] = useState(0);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -67,7 +68,7 @@ export function TutorLibraryPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [catalogReload]);
 
   useEffect(() => {
     if (state.status !== 'authenticated') return;
@@ -167,11 +168,9 @@ export function TutorLibraryPage() {
         </View>
 
         {catalog.status === 'loading' ? (
-          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
+          <LoadingState label="이야기를 불러오는 중이에요…" />
         ) : catalog.status === 'error' ? (
-          <Card variant="panel" padding="md" title="이야기를 불러오지 못했어요">
-            <Text style={styles.stubBody}>{catalog.message}</Text>
-          </Card>
+          <ErrorState message={catalog.message} onRetry={() => setCatalogReload((n) => n + 1)} />
         ) : filtered.length === 0 ? (
           <EmptyForTab
             tab={tab}
@@ -346,7 +345,6 @@ const styles = StyleSheet.create({
   },
   categoryRow: { flexDirection: 'row', gap: storybookTheme.spacing.xs, flexWrap: 'wrap' },
   tabRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, flexWrap: 'wrap' },
-  centerBox: { alignItems: 'center', paddingVertical: storybookTheme.spacing.xl },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   cardSlot: { padding: storybookTheme.spacing.sm },
   stubBody: {

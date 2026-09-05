@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Card, Icon, Pill, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
@@ -32,6 +32,7 @@ export function TutorHomePage() {
   const navigate = useNavigate();
   const { state } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -58,7 +59,7 @@ export function TutorHomePage() {
     return () => {
       cancelled = true;
     };
-  }, [state]);
+  }, [state, reloadKey]);
 
   const calendarItems = useMemo(() => {
     if (load.status !== 'ready') return [] as { id: string; date: Date; lesson: Lesson }[];
@@ -91,7 +92,7 @@ export function TutorHomePage() {
 
         <Card variant="panel" padding="md" title="수업 캘린더" style={styles.panel}>
           {load.status === 'loading' ? (
-            <Text style={styles.panelBody}>불러오는 중이에요…</Text>
+            <LoadingState compact label="수업 일정을 불러오는 중이에요…" />
           ) : (
             <MonthCalendar
               items={calendarItems}
@@ -149,7 +150,7 @@ export function TutorHomePage() {
 
         <Card variant="panel" padding="md" title="부모 연결 대기" style={styles.panel}>
           {load.status === 'loading' ? (
-            <Text style={styles.panelBody}>불러오는 중이에요…</Text>
+            <LoadingState compact label="학생 목록을 불러오는 중이에요…" />
           ) : pendingStudents.length === 0 ? (
             <Text style={styles.panelBody}>모든 아이와 부모 연결이 완료됐어요.</Text>
           ) : (
@@ -165,7 +166,9 @@ export function TutorHomePage() {
           )}
         </Card>
 
-        {load.status === 'error' ? <Text style={styles.errorText}>{load.message}</Text> : null}
+        {load.status === 'error' ? (
+          <ErrorState message={load.message} onRetry={() => setReloadKey((n) => n + 1)} />
+        ) : null}
       </View>
     </AppNavShell>
   );
@@ -333,5 +336,4 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.primary,
   },
-  errorText: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.error, textAlign: 'center' },
 });

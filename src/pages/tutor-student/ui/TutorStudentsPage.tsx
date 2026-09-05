@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Pill, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, EmptyState, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { DEFAULT_BETA_STORY_ID } from '@/entities/story';
 import { createTutorInvite, listTutorStudents, type TutorInvite, type TutorStudent } from '@/entities/tutor';
 import { InviteCodeCard } from '@/features/invite-issue';
 
-type LoadState = { status: 'loading' } | { status: 'ready'; students: TutorStudent[] } | { status: 'error' };
+type LoadState =
+  | { status: 'loading' }
+  | { status: 'ready'; students: TutorStudent[] }
+  | { status: 'error'; message: string };
 
 const STATUS_LABEL: Record<TutorStudent['status'], string> = {
   PENDING_PARENT: '부모 확인 대기',
@@ -29,6 +32,7 @@ export function TutorStudentsPage() {
   const [issuedByStudent, setIssuedByStudent] = useState<Record<string, TutorInvite>>({});
   const [issuingStudentId, setIssuingStudentId] = useState<string | null>(null);
   const [issueError, setIssueError] = useState<Record<string, string>>({});
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -38,8 +42,13 @@ export function TutorStudentsPage() {
     }
     listTutorStudents(state.token)
       .then((students) => setLoad({ status: 'ready', students }))
-      .catch(() => setLoad({ status: 'error' }));
-  }, [state, navigate]);
+      .catch((failure: unknown) => setLoad({
+        status: 'error',
+        message: messageForError(failure, '학생 목록을 불러오지 못했어요.'),
+      }));
+  }, [state, navigate, reloadKey]);
+
+  const refresh = () => setReloadKey((n) => n + 1);
 
   async function issueInvite(studentId: string) {
     if (state.status !== 'authenticated') return;
@@ -72,11 +81,14 @@ export function TutorStudentsPage() {
           <ActionButton label="새 학생 등록" onPress={() => navigate('/tutor/students/new')} />
         </View>
 
+        {load.status === 'loading' && <LoadingState label="학생 목록을 불러오는 중이에요…" />}
+
         {load.status === 'ready' && load.students.length === 0 && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>아직 등록된 학생이 없어요</Text>
-            <ActionButton label="새 학생 등록하기" onPress={() => navigate('/tutor/students/new')} />
-          </View>
+          <EmptyState
+            title="아직 등록된 학생이 없어요"
+            body="첫 학생을 등록하고 부모 초대를 시작해 보세요."
+            cta={{ label: '새 학생 등록하기', onPress: () => navigate('/tutor/students/new') }}
+          />
         )}
 
         {load.status === 'ready' &&
@@ -126,7 +138,7 @@ export function TutorStudentsPage() {
             </View>
           ))}
 
-        {load.status === 'error' && <Text style={styles.error}>학생 목록을 불러오지 못했어요.</Text>}
+        {load.status === 'error' && <ErrorState message={load.message} onRetry={refresh} />}
       </View>
     </AppNavShell>
   );

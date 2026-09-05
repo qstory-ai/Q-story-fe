@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Icon, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
   createClass,
   dashboardNavItems,
@@ -105,9 +105,9 @@ export function OrganizationClassesPage() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>등록된 반</Text>
           {load.status === 'loading' ? (
-            <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
+            <LoadingState compact label="반 목록을 불러오는 중이에요…" />
           ) : load.status === 'error' ? (
-            <Text style={styles.errorText}>{load.message}</Text>
+            <ErrorState message={load.message} onRetry={() => setReloadKey((n) => n + 1)} />
           ) : load.classes.length === 0 ? (
             <Text style={styles.body}>아직 등록된 반이 없어요. 위 폼으로 첫 반을 만들어 보세요.</Text>
           ) : (
@@ -165,11 +165,6 @@ const styles = StyleSheet.create({
   body: {
     fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onCardBody,
-  },
-  centerBox: { alignItems: 'center', paddingVertical: 12 },
-  errorText: {
-    fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.error,
   },
   classRow: {
     flexDirection: 'row',

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Icon, Modal, StatusBanner, TextField, TextareaField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, Modal, StatusBanner, TextField, TextareaField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
@@ -40,7 +40,8 @@ export function TutorStudentDetailPage() {
   const { studentId } = useParams<{ studentId: string }>();
   const navigate = useNavigate();
   const { state } = useAuth();
-  const requestKey = studentId ?? '';
+  const [attempt, setAttempt] = useState(0);
+  const requestKey = `${studentId ?? ''}:${attempt}`;
   const [load, setLoad] = useState<LoadState>({ requestKey, status: 'loading' });
   const [classType, setClassType] = useState('');
   const [prepNote, setPrepNote] = useState('');
@@ -181,15 +182,10 @@ export function TutorStudentDetailPage() {
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor/students')}>
       <View style={styles.content}>
-        {effective.status === 'loading' && (
-          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
-        )}
+        {effective.status === 'loading' && <LoadingState label="학생 정보를 불러오는 중이에요…" />}
 
         {effective.status === 'error' && (
-          <View style={styles.centerBox}>
-            <Text style={styles.errorText}>{effective.message}</Text>
-            <ActionButton variant="secondary" label="학생 목록으로" onPress={() => navigate('/tutor/students')} />
-          </View>
+          <ErrorState message={effective.message} onRetry={() => setAttempt((n) => n + 1)} />
         )}
 
         {effective.status === 'ready' && (
@@ -266,7 +262,7 @@ export function TutorStudentDetailPage() {
                 />
               </View>
               {plansLoad.status === 'loading' ? (
-                <Text style={styles.body}>담아둔 이야기를 불러오는 중이에요…</Text>
+                <LoadingState compact label="담아둔 이야기를 불러오는 중이에요…" />
               ) : plansLoad.status === 'error' ? (
                 <StatusBanner variant="warning" label={plansLoad.message} />
               ) : plansLoad.plans.length === 0 ? (
@@ -383,8 +379,6 @@ const styles = StyleSheet.create({
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
   },
-  centerBox: { alignItems: 'center', paddingVertical: 40, gap: 12 },
-  errorText: { color: storybookTheme.color.error, fontSize: storybookTheme.type.sm, textAlign: 'center' },
   card: {
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,

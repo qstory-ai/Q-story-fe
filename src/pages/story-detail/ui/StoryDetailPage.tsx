@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, Card, Icon, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
+import { ActionButton, Card, ErrorState, Icon, LoadingState, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { fetchStoryEntry, type StoryCatalogEntry } from '@/entities/story';
 import { messageForError } from '@/shared/api';
 import { useAuth } from '@/entities/auth';
@@ -143,17 +143,10 @@ export function StoryDetailPage() {
         <Text style={styles.backLinkText}>← 처음으로</Text>
       </Pressable>
 
-      {effectiveLoad.status === 'loading' && (
-        <View style={styles.centerBox}>
-          <ActivityIndicator color={storybookTheme.color.primary} />
-        </View>
-      )}
+      {effectiveLoad.status === 'loading' && <LoadingState label="이야기를 불러오는 중이에요…" />}
 
       {effectiveLoad.status === 'error' && (
-        <View style={styles.centerBox}>
-          <Text style={styles.errorText}>{effectiveLoad.message}</Text>
-          <ActionButton variant="secondary" label="다시 시도" onPress={retry} />
-        </View>
+        <ErrorState message={effectiveLoad.message} onRetry={retry} />
       )}
 
       {effectiveLoad.status === 'ready' && (
@@ -272,18 +265,6 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.medium,
-  },
-  centerBox: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    paddingHorizontal: 32,
-  },
-  errorText: {
-    color: storybookTheme.color.onContentMuted,
-    fontSize: storybookTheme.type.sm,
-    textAlign: 'center',
   },
   content: {
     flex: 1,

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AppNavShell, StatusBanner, SwitchField, storybookTheme } from '@/shared/ui';
+import { AppNavShell, ErrorState, LoadingState, StatusBanner, SwitchField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
@@ -27,6 +27,7 @@ export function MyPageNotificationsPage() {
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [savingKey, setSavingKey] = useState<keyof NotificationSettings | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -50,7 +51,7 @@ export function MyPageNotificationsPage() {
     return () => {
       cancelled = true;
     };
-  }, [state]);
+  }, [state, reloadKey]);
 
   async function toggle(key: keyof NotificationSettings, next: boolean) {
     if (state.status !== 'authenticated' || load.status !== 'ready') return;
@@ -79,9 +80,9 @@ export function MyPageNotificationsPage() {
         <Text style={styles.title} accessibilityRole="header">알림 설정</Text>
 
         {load.status === 'loading' ? (
-          <View style={styles.card}><Text style={styles.body}>불러오는 중이에요…</Text></View>
+          <LoadingState label="알림 설정을 불러오는 중이에요…" />
         ) : load.status === 'error' ? (
-          <View style={styles.card}><Text style={[styles.body, styles.errorText]}>{load.message}</Text></View>
+          <ErrorState message={load.message} onRetry={() => setReloadKey((n) => n + 1)} />
         ) : (
           <View style={styles.card}>
             <SwitchField
@@ -124,9 +125,4 @@ const styles = StyleSheet.create({
     padding: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.ms,
   },
-  body: {
-    fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.onCardBody,
-  },
-  errorText: { color: storybookTheme.color.error },
 });

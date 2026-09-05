@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, storybookTheme } from '@/shared/ui';
+import { AppNavShell, EmptyState, ErrorState, LoadingState, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, useAuth } from '@/entities/auth';
 import { findChildAvatar, useChildren } from '@/entities/child';
 import { listStories } from '@/entities/story';
@@ -62,6 +62,7 @@ export function ReportHistoryPage() {
   const [tab, setTab] = useState<Tab>('comprehensive');
   // null = "전체 아이" 필터. children이 하나뿐일 땐 UI에서도 그 아이가 자동 선택된 것처럼 취급.
   const [childFilterId, setChildFilterId] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const canView = state.status === 'authenticated' && (state.user.role === 'PARENT' || state.user.role === 'CLASS_ACCOUNT');
 
@@ -109,7 +110,7 @@ export function ReportHistoryPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, childFilterId]);
+  }, [state, childFilterId, reloadKey]);
 
   const emptyMessageForTab = useMemo(() => {
     if (tab === 'comprehensive') {
@@ -155,16 +156,10 @@ export function ReportHistoryPage() {
           <TabButton label="작품별 리포트" active={tab === 'by-story'} onPress={() => setTab('by-story')} />
         </View>
 
-        {load.status === 'loading' && (
-          <View style={styles.centerBox}>
-            <ActivityIndicator color={storybookTheme.color.primary} />
-          </View>
-        )}
+        {load.status === 'loading' && <LoadingState label="리포트를 불러오는 중이에요…" />}
 
         {load.status === 'error' && (
-          <View style={styles.centerBox}>
-            <Text style={styles.errorText}>{load.message}</Text>
-          </View>
+          <ErrorState message={load.message} onRetry={() => setReloadKey((n) => n + 1)} />
         )}
 
         {load.status === 'ready' && tab === 'comprehensive' && (
@@ -180,14 +175,11 @@ export function ReportHistoryPage() {
         {load.status === 'ready' && tab === 'by-story' && (
           <>
             {load.completions.length === 0 ? (
-              <View style={styles.centerBox}>
-                <Text style={styles.emptyText}>{emptyMessageForTab}</Text>
-                <ActionButton
-                  variant="secondary"
-                  label="홈으로"
-                  onPress={() => navigate(state.status === 'authenticated' ? homePathFor(state.user) : '/')}
-                />
-              </View>
+              <EmptyState
+                title="작품별 리포트가 아직 없어요"
+                body={emptyMessageForTab}
+                cta={{ label: '홈으로', onPress: () => navigate(state.status === 'authenticated' ? homePathFor(state.user) : '/') }}
+              />
             ) : (
               load.completions.map((completion) => (
                 <Pressable
@@ -229,10 +221,11 @@ function ComprehensiveView({
 }) {
   if (sessionCount === 0) {
     return (
-      <View style={styles.centerBox}>
-        <Text style={styles.emptyText}>{emptyMessage}</Text>
-        <ActionButton variant="secondary" label="홈으로" onPress={onGoHome} />
-      </View>
+      <EmptyState
+        title="종합 리포트가 아직 없어요"
+        body={emptyMessage}
+        cta={{ label: '홈으로', onPress: onGoHome }}
+      />
     );
   }
 
@@ -489,21 +482,6 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContentMuted,
   },
   tabLabelActive: { color: storybookTheme.color.background },
-  centerBox: {
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 24,
-  },
-  errorText: {
-    color: storybookTheme.color.onContentMuted,
-    fontSize: storybookTheme.type.sm,
-    textAlign: 'center',
-  },
-  emptyText: {
-    color: storybookTheme.color.onContentMuted,
-    fontSize: storybookTheme.type.sm,
-    textAlign: 'center',
-  },
   reportCard: {
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,

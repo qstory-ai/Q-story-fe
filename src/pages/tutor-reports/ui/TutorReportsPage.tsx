@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AppNavShell, Pill, storybookTheme } from '@/shared/ui';
+import { AppNavShell, EmptyState, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories } from '@/entities/story';
@@ -42,6 +42,7 @@ export function TutorReportsPage() {
   const [studentsLoad, setStudentsLoad] = useState<StudentsLoad>({ status: 'loading' });
   const [sessionsByStudent, setSessionsByStudent] = useState<Record<string, StudentSessions>>({});
   const [titleByStoryId, setTitleByStoryId] = useState<Record<string, string>>({});
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -69,7 +70,7 @@ export function TutorReportsPage() {
     return () => {
       cancelled = true;
     };
-  }, [state]);
+  }, [state, reloadKey]);
 
   // 학생별 세션 목록은 학생 목록 확정 후 병렬로 페치 - 한 학생의 실패가 다른 학생을 막지 않게
   // 각 카드가 자기 로딩/에러 상태를 갖는다. 초기 loading 표시는 아래 orderedSections에서
@@ -118,22 +119,18 @@ export function TutorReportsPage() {
           학생 별로 완주한 세션을 확인할 수 있어요. 부모 연결이 완료된 학생은 부모 앱에 자동으로 전달돼요.
         </Text>
 
-        {studentsLoad.status === 'loading' && (
-          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
-        )}
+        {studentsLoad.status === 'loading' && <LoadingState label="학생 목록을 불러오는 중이에요…" />}
 
         {studentsLoad.status === 'error' && (
-          <View style={styles.centerBox}>
-            <Text style={styles.errorText}>{studentsLoad.message}</Text>
-          </View>
+          <ErrorState message={studentsLoad.message} onRetry={() => setReloadKey((n) => n + 1)} />
         )}
 
         {studentsLoad.status === 'ready' && studentsLoad.students.length === 0 && (
-          <View style={styles.emptyPanel}>
-            <Text style={styles.emptyText}>
-              등록된 학생이 아직 없어요. 학생을 먼저 등록하고 세션을 진행해 보세요.
-            </Text>
-          </View>
+          <EmptyState
+            title="등록된 학생이 아직 없어요"
+            body="학생을 먼저 등록하고 세션을 진행해 보세요."
+            cta={{ label: '새 학생 등록', onPress: () => navigate('/tutor/students/new') }}
+          />
         )}
 
         {orderedSections.map((section) => (
@@ -231,21 +228,6 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onContentMuted,
-  },
-  centerBox: { alignItems: 'center', paddingVertical: 24 },
-  errorText: { color: storybookTheme.color.error, fontSize: storybookTheme.type.sm, textAlign: 'center' },
-  emptyPanel: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.contentPanel,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-  },
-  emptyText: {
-    fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.onContentMuted,
-    textAlign: 'center',
   },
   studentCard: {
     borderRadius: storybookTheme.radius.card,

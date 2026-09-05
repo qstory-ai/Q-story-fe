@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Modal, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
@@ -30,7 +30,8 @@ export function TutorLessonDetailPage() {
   const { lessonId } = useParams<{ lessonId: string }>();
   const navigate = useNavigate();
   const { state } = useAuth();
-  const requestKey = lessonId ?? '';
+  const [attempt, setAttempt] = useState(0);
+  const requestKey = `${lessonId ?? ''}:${attempt}`;
   const [load, setLoad] = useState<LoadState>({ requestKey, status: 'loading' });
   const [transitioning, setTransitioning] = useState(false);
   const [transitionError, setTransitionError] = useState<string | null>(null);
@@ -117,15 +118,10 @@ export function TutorLessonDetailPage() {
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor/classes')}>
       <View style={styles.content}>
-        {effective.status === 'loading' && (
-          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
-        )}
+        {effective.status === 'loading' && <LoadingState label="수업 정보를 불러오는 중이에요…" />}
 
         {effective.status === 'error' && (
-          <View style={styles.centerBox}>
-            <Text style={styles.errorText}>{effective.message}</Text>
-            <ActionButton variant="secondary" label="수업 목록으로" onPress={() => navigate('/tutor/classes')} />
-          </View>
+          <ErrorState message={effective.message} onRetry={() => setAttempt((n) => n + 1)} />
         )}
 
         {effective.status === 'ready' && (
@@ -322,8 +318,6 @@ const styles = StyleSheet.create({
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
   },
-  centerBox: { alignItems: 'center', paddingVertical: 40, gap: 12 },
-  errorText: { color: storybookTheme.color.error, fontSize: storybookTheme.type.sm, textAlign: 'center' },
   card: {
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,

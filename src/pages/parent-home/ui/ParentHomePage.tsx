@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AppNavShell, Card, Icon, storybookTheme } from '@/shared/ui';
+import { AppNavShell, Card, EmptyState, Icon, LoadingState, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
@@ -167,7 +167,7 @@ export function ParentHomePage() {
           />
         ) : catalogLoading ? (
           <Card variant="panel" padding="lg" style={styles.heroLoader}>
-            <ActivityIndicator color={storybookTheme.color.primary} />
+            <LoadingState compact label="이야기를 준비하는 중이에요…" />
           </Card>
         ) : null}
 
@@ -223,9 +223,12 @@ export function ParentHomePage() {
             표시하고, 특정 일자를 탭하면 그 아래 목록이 뜬다. */}
         <Card variant="panel" padding="md" title="이 달의 활동" style={styles.calendarPanel}>
           {activityLoading ? (
-            <Text style={styles.emptyRecentBody}>불러오는 중이에요…</Text>
+            <LoadingState compact label="활동 기록을 불러오는 중이에요…" />
           ) : recentActivity.length === 0 ? (
-            <Text style={styles.emptyRecentBody}>첫 이야기를 끝까지 읽으면 여기에 기록이 남아요.</Text>
+            <EmptyState
+              title="아직 활동 기록이 없어요"
+              body="첫 이야기를 끝까지 읽으면 여기에 기록이 남아요."
+            />
           ) : (
             <MonthCalendar
               items={recentActivity.map((entry) => ({ id: entry.id, date: new Date(entry.iso), entry }))}
@@ -611,10 +614,6 @@ const styles = StyleSheet.create({
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     gap: storybookTheme.spacing.ms,
-  },
-  emptyRecentBody: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onContentMuted,
   },
   recentRow: {
     flexDirection: 'row',

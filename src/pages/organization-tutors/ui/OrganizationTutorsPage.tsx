@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Modal, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
@@ -34,6 +34,7 @@ export function OrganizationTutorsPage() {
   const [unlinkTarget, setUnlinkTarget] = useState<OrganizationTutorLink | null>(null);
   const [unlinkInFlight, setUnlinkInFlight] = useState(false);
   const [issueError, setIssueError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const canView = state.status === 'authenticated' && state.user.role === 'DIRECTOR' && Boolean(state.user.organizationId);
   const organizationId = state.status === 'authenticated' ? state.user.organizationId : null;
@@ -66,7 +67,7 @@ export function OrganizationTutorsPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, organizationId]);
+  }, [state, organizationId, reloadKey]);
 
   async function issueInvite() {
     if (state.status !== 'authenticated' || !organizationId) return;
@@ -161,9 +162,9 @@ export function OrganizationTutorsPage() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>소속 선생님</Text>
           {tutors.status === 'loading' ? (
-            <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
+            <LoadingState compact label="선생님 목록을 불러오는 중이에요…" />
           ) : tutors.status === 'error' ? (
-            <Text style={[styles.body, styles.errorText]}>{tutors.message}</Text>
+            <ErrorState message={tutors.message} onRetry={() => setReloadKey((n) => n + 1)} />
           ) : tutors.tutors.length === 0 ? (
             <Text style={styles.body}>아직 소속된 선생님이 없어요. 위의 초대로 시작해 보세요.</Text>
           ) : (
@@ -264,7 +265,6 @@ const styles = StyleSheet.create({
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onCardBody,
   },
-  centerBox: { alignItems: 'center', paddingVertical: storybookTheme.spacing.ms },
   inviteRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -320,5 +320,4 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
     textAlign: 'center',
   },
-  errorText: { color: storybookTheme.color.error },
 });

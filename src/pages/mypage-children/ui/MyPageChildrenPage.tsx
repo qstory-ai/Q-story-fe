@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Icon, Modal, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, EmptyState, ErrorState, Icon, LoadingState, Modal, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { AGE_BAND_LABELS, findChildAvatar, useChildren, type Child } from '@/entities/child';
@@ -20,7 +20,7 @@ import { AddChildModal } from '@/features/child-selector';
 export function MyPageChildrenPage() {
   const navigate = useNavigate();
   const { state } = useAuth();
-  const { children, load, removeChild } = useChildren();
+  const { children, load, removeChild, reload } = useChildren();
   const [addOpen, setAddOpen] = useState(false);
   const [editing, setEditing] = useState<Child | null>(null);
   const [deleting, setDeleting] = useState<Child | null>(null);
@@ -59,14 +59,15 @@ export function MyPageChildrenPage() {
         </View>
 
         {load.status === 'loading' ? (
-          <View style={styles.card}><Text style={styles.body}>불러오는 중이에요…</Text></View>
+          <LoadingState label="아이 프로필을 불러오는 중이에요…" />
         ) : load.status === 'error' ? (
-          <View style={styles.card}><Text style={[styles.body, styles.errorText]}>{load.message}</Text></View>
+          <ErrorState message={load.message} onRetry={() => { void reload(); }} />
         ) : children.length === 0 ? (
-          <View style={styles.card}>
-            <Text style={styles.body}>등록된 아이가 없어요.</Text>
-            <Text style={styles.hint}>“아이 추가” 버튼으로 첫 아이 프로필을 만들어 보세요.</Text>
-          </View>
+          <EmptyState
+            title="등록된 아이가 없어요"
+            body="“아이 추가” 버튼으로 첫 아이 프로필을 만들어 보세요."
+            cta={{ label: '아이 추가', onPress: () => setAddOpen(true) }}
+          />
         ) : (
           <View style={styles.list}>
             {children.map((child) => (
@@ -177,22 +178,6 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onContent,
-  },
-  card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.contentSurface,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentSurfaceBorder,
-    padding: storybookTheme.spacing.lg,
-    gap: storybookTheme.spacing.xs,
-  },
-  body: {
-    fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.onCardBody,
-  },
-  hint: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onCardMuted,
   },
   list: { gap: storybookTheme.spacing.sm },
   row: {

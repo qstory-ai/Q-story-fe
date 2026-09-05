@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { AppNavShell, storybookTheme } from '@/shared/ui';
+import { AppNavShell, ErrorState, LoadingState, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { buildParentReport, type ParentReport } from '@/entities/analytics';
 import { refetchStoryPackage, type StoryRuntimePackage } from '@/entities/story';
@@ -22,7 +22,8 @@ export function ReportHistoryDetailPage() {
   const { state } = useAuth();
   const { width } = useWindowDimensions();
   const isWide = width >= 900;
-  const requestKey = `${completionId ?? ''}`;
+  const [attempt, setAttempt] = useState(0);
+  const requestKey = `${completionId ?? ''}:${attempt}`;
   const [load, setLoad] = useState<LoadState>({ requestKey, status: 'loading' });
 
   // TUTOR도 자기가 진행한 세션의 상세는 볼 수 있어야 한다 - 선생님 리포트 탭에서 세션을
@@ -77,16 +78,10 @@ export function ReportHistoryDetailPage() {
       items={dashboardNavItems(state.user, navigate, 'reports')}
       onBack={() => navigate(state.status === 'authenticated' && state.user.role === 'TUTOR' ? '/tutor/reports' : '/reports')}
     >
-      {effectiveLoad.status === 'loading' && (
-        <View style={styles.centerBox}>
-          <ActivityIndicator color={storybookTheme.color.primary} />
-        </View>
-      )}
+      {effectiveLoad.status === 'loading' && <LoadingState label="리포트를 불러오는 중이에요…" />}
 
       {effectiveLoad.status === 'error' && (
-        <View style={styles.centerBox}>
-          <Text style={styles.errorText}>{effectiveLoad.message}</Text>
-        </View>
+        <ErrorState message={effectiveLoad.message} onRetry={() => setAttempt((n) => n + 1)} />
       )}
 
       {effectiveLoad.status === 'ready' && (
@@ -103,18 +98,6 @@ export function ReportHistoryDetailPage() {
 }
 
 const styles = StyleSheet.create({
-  centerBox: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    paddingHorizontal: 32,
-  },
-  errorText: {
-    color: storybookTheme.color.onContentMuted,
-    fontSize: storybookTheme.type.sm,
-    textAlign: 'center',
-  },
   content: {
     width: '100%',
     maxWidth: storybookTheme.layout.wideMaxWidth,

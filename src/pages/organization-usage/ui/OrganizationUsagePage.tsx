@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AppNavShell, storybookTheme } from '@/shared/ui';
+import { AppNavShell, ErrorState, LoadingState, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
@@ -25,6 +25,7 @@ export function OrganizationUsagePage() {
   const navigate = useNavigate();
   const { state } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
+  const [reloadKey, setReloadKey] = useState(0);
 
   const canView = state.status === 'authenticated' && state.user.role === 'DIRECTOR' && Boolean(state.user.organizationId);
   const organizationId = state.status === 'authenticated' ? state.user.organizationId : null;
@@ -61,7 +62,7 @@ export function OrganizationUsagePage() {
     return () => {
       cancelled = true;
     };
-  }, [state, organizationId]);
+  }, [state, organizationId, reloadKey]);
 
   if (!canView) return null;
 
@@ -71,14 +72,10 @@ export function OrganizationUsagePage() {
         <Text style={styles.title} accessibilityRole="header">이용 현황</Text>
         <Text style={styles.subtitle}>기관 전체의 요약 지표와 최근 완주 활동을 확인해요.</Text>
 
-        {load.status === 'loading' && (
-          <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
-        )}
+        {load.status === 'loading' && <LoadingState label="이용 현황을 불러오는 중이에요…" />}
 
         {load.status === 'error' && (
-          <View style={styles.card}>
-            <Text style={styles.errorText}>{load.message}</Text>
-          </View>
+          <ErrorState message={load.message} onRetry={() => setReloadKey((n) => n + 1)} />
         )}
 
         {load.status === 'ready' && (
@@ -149,7 +146,6 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContent,
   },
   subtitle: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onContentMuted },
-  centerBox: { alignItems: 'center', paddingVertical: 40 },
   card: {
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,
@@ -190,7 +186,6 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardTitle,
   },
   body: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onCardBody },
-  errorText: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.error },
   activityRow: {
     paddingVertical: 10,
     borderTopWidth: 1,

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, FilterChip, Pill, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, EmptyState, ErrorState, FilterChip, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listLessons, type Lesson, type LessonStatus } from '@/entities/lesson';
@@ -89,15 +89,11 @@ export function TutorClassesPage() {
         </View>
 
         {load.status === 'loading' ? (
-          <View style={styles.stubPanel}>
-            <Text style={styles.stubBody}>수업을 불러오는 중이에요…</Text>
-          </View>
+          <LoadingState label="수업을 불러오는 중이에요…" />
         ) : load.status === 'error' ? (
-          <View style={styles.stubPanel}>
-            <Text style={[styles.stubBody, styles.errorText]}>{load.message}</Text>
-          </View>
+          <ErrorState message={load.message} onRetry={refresh} />
         ) : load.lessons.length === 0 ? (
-          <EmptyForTab tab={tab} />
+          <EmptyForTab tab={tab} onNewLesson={() => setFormOpen(true)} />
         ) : (
           <View style={styles.list}>
             {load.lessons.map((lesson) => (
@@ -153,17 +149,20 @@ function LessonRow({ lesson, onPress }: { lesson: Lesson; onPress: () => void })
   );
 }
 
-function EmptyForTab({ tab }: { tab: Tab }) {
-  const caption = tab === 'SCHEDULED'
-    ? '예정된 수업이 없어요. 새 수업을 만들어 시작해 보세요.'
-    : tab === 'IN_PROGRESS'
-      ? '진행 중인 수업이 없어요.'
-      : '완료된 수업이 없어요.';
-  return (
-    <View style={styles.stubPanel}>
-      <Text style={styles.stubBody}>{caption}</Text>
-    </View>
-  );
+function EmptyForTab({ tab, onNewLesson }: { tab: Tab; onNewLesson: () => void }) {
+  // 각 탭별 empty title + body + CTA를 명시. SCHEDULED만 새 수업 만들기 유도 -
+  // IN_PROGRESS/COMPLETED는 시스템 상태이지 유도할 액션이 아니다.
+  const props =
+    tab === 'SCHEDULED'
+      ? {
+          title: '예정된 수업이 없어요',
+          body: '새 수업을 만들어 시작해 보세요.',
+          cta: { label: '새 수업 만들기', onPress: onNewLesson },
+        }
+      : tab === 'IN_PROGRESS'
+        ? { title: '진행 중인 수업이 없어요', body: '예정된 수업을 시작하면 여기에 표시돼요.' }
+        : { title: '완료된 수업이 없어요', body: '수업을 마치면 여기에 기록이 남아요.' };
+  return <EmptyState {...props} />;
 }
 
 function formatShortDate(iso: string) {
@@ -240,19 +239,4 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContentMuted,
   },
   rowMetaRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap', marginTop: 2 },
-  stubPanel: {
-    backgroundColor: storybookTheme.color.contentPanel,
-    borderRadius: storybookTheme.radius.card,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-    alignItems: 'center',
-  },
-  stubBody: {
-    fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.onContentMuted,
-    textAlign: 'center',
-  },
-  errorText: { color: storybookTheme.color.error },
 });

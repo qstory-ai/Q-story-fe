@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Pill, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, Pill, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listParentTutorReports, type TutorReportSummary } from '@/entities/tutor';
@@ -26,6 +26,7 @@ export function MyPageClassesPage() {
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState('');
   const [codeError, setCodeError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -49,7 +50,7 @@ export function MyPageClassesPage() {
     return () => {
       cancelled = true;
     };
-  }, [state]);
+  }, [state, reloadKey]);
 
   // 튜터 리포트에서 (튜터명, 학생명) 페어를 뽑아 dedupe - 한 튜터가 여러 세션을 진행했어도
   // "연결된 선생님" 리스트에는 한 번만 보여야 한다. 학생 이름별로도 구분해 두 아이가 같은
@@ -153,9 +154,9 @@ export function MyPageClassesPage() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>연결된 수업</Text>
           {reports.status === 'loading' ? (
-            <Text style={styles.body}>불러오는 중이에요…</Text>
+            <LoadingState compact label="연결된 선생님을 불러오는 중이에요…" />
           ) : reports.status === 'error' ? (
-            <Text style={[styles.body, styles.errorText]}>{reports.message}</Text>
+            <ErrorState message={reports.message} onRetry={() => setReloadKey((n) => n + 1)} />
           ) : tutors.length === 0 ? (
             <Text style={styles.body}>아직 연결된 선생님이 없어요. 위 초대 링크를 붙여넣어 시작해 보세요.</Text>
           ) : (
@@ -261,8 +262,5 @@ const styles = StyleSheet.create({
   tutorSub: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onCardMuted,
-  },
-  errorText: {
-    color: storybookTheme.color.error,
   },
 });

@@ -970,7 +970,10 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
           void storeVoiceResearchSample({
             consent: voiceResearchConsentRef.current,
             recording: pendingVoiceResearchSample.recording,
-            storyId: storyManifest.storyId,
+            // storyManifest.storyId("HG")가 아니라 storyPackage.slug("hansel-gretel") - BE의
+            // VoiceResearchValidator가 story_id 필드를 StoryRegistry.getBySlug()로 찾는다
+            // (내부 id로는 매번 못 찾아 모든 업로드가 VALIDATION_FAILED로 실패했다).
+            storyId: storyPackage.slug,
             sceneId: state.sceneId,
             anchorId: state.anchorId,
             questionRound: state.questionRound,
@@ -1003,7 +1006,7 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
         void storeVoiceResearchSample({
           consent: voiceResearchConsentRef.current,
           recording: pendingVoiceResearchSample.recording,
-          storyId: storyManifest.storyId,
+          storyId: storyPackage.slug,
           sceneId: state.sceneId,
           anchorId: state.anchorId,
           questionRound: state.questionRound,

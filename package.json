@@ -20,6 +20,7 @@
     "audio:upload": "node scripts/upload-audio-to-supabase.mjs"
   },
   "dependencies": {
+    "@tosspayments/tosspayments-sdk": "^2.8.1",
     "lucide-react": "^1.34.0",
     "pretendard": "^1.3.9",
     "react": "^19.2.3",

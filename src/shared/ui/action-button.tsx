@@ -20,10 +20,35 @@ export type ActionButtonVariant =
   | 'stop'
   | 'gold';
 
+/**
+ * 높이 스케일 - 예전엔 variant마다 52/44/48을 각자 하드코딩해서, 화면마다 버튼 높이가 미묘하게
+ * 어긋나 있었다(Figma 커뮤니티 디자인 시스템의 Button 크기 스케일 구조를 참고해 도입).
+ * record/stop은 이 스케일에 포함하지 않는다 - 위 주석대로 "색과 크기가 특수해 별도 유지"하는
+ * 전용 컨트롤이라, 일반 라벨 버튼과 같은 사다리에 두면 의미가 없다.
+ */
+export type ActionButtonSize = 'sm' | 'md' | 'lg';
+
+const BUTTON_HEIGHT: Record<ActionButtonSize, number> = {
+  sm: 40,
+  md: 48,
+  lg: 56,
+};
+
+/** size를 명시하지 않았을 때 variant별 기본 크기 - 가장 가까운 기존 값에 맞춰 골랐다
+ * (primary/gold 52→lg 56, outline 48→md 48, secondary류 44→sm 40). */
+const DEFAULT_SIZE_BY_VARIANT: Partial<Record<ActionButtonVariant, ActionButtonSize>> = {
+  primary: 'lg',
+  gold: 'lg',
+  outline: 'md',
+  secondary: 'sm',
+  secondaryFull: 'sm',
+};
+
 type ActionButtonProps = {
   label: string;
   onPress: () => void;
   variant?: ActionButtonVariant;
+  size?: ActionButtonSize;
   disabled?: boolean;
   icon?: string;
   /** Solid 2.0 버튼 상태 카탈로그의 Loading - 라벨 대신 스피너를 보여주고 프레스를 막는다. */
@@ -38,12 +63,15 @@ export function ActionButton({
   label,
   onPress,
   variant = 'primary',
+  size,
   disabled = false,
   icon,
   loading = false,
 }: ActionButtonProps) {
   const isSecondary = variant === 'secondary' || variant === 'secondaryFull';
   const isOutline = variant === 'outline';
+  const isSizedVariant = variant !== 'record' && variant !== 'stop';
+  const resolvedSize = size ?? DEFAULT_SIZE_BY_VARIANT[variant] ?? 'md';
   const labelColor = variant === 'primary' || variant === 'record' || variant === 'stop'
     ? storybookTheme.color.onDark
     : variant === 'gold'
@@ -72,6 +100,7 @@ export function ActionButton({
         variant === 'stop' && styles.stop,
         variant === 'gold' && styles.gold,
         variant === 'gold' && hovered && !disabled && !loading && styles.goldHovered,
+        isSizedVariant && { minHeight: BUTTON_HEIGHT[resolvedSize] },
         pressed && !disabled && !loading && styles.pressed,
         disabled && !loading && styles.disabled,
       ]}
@@ -97,8 +126,9 @@ export function ActionButton({
 }
 
 const styles = StyleSheet.create({
+  // minHeight는 더 이상 여기 없다 - BUTTON_HEIGHT[resolvedSize]가 유일한 출처다
+  // (record/stop만 예외로 아래에서 자기 높이를 직접 갖는다).
   base: {
-    minHeight: 52,
     borderRadius: storybookTheme.radius.button,
     alignItems: 'center',
     justifyContent: 'center',
@@ -114,20 +144,17 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.semantic.brand.hover,
   },
   secondary: {
-    minHeight: 44,
     borderRadius: storybookTheme.radius.button,
     backgroundColor: storybookTheme.color.pillBackground,
     paddingHorizontal: storybookTheme.spacing.ms,
   },
   secondaryFull: {
     width: '100%',
-    minHeight: 44,
     borderRadius: storybookTheme.radius.button,
     backgroundColor: storybookTheme.color.pillBackground,
     paddingHorizontal: storybookTheme.spacing.ms,
   },
   outline: {
-    minHeight: 48,
     borderRadius: storybookTheme.radius.button,
     borderWidth: 1,
     borderColor: storybookTheme.color.panelOnDarkBorder,

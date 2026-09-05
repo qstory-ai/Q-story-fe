@@ -46,6 +46,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
                 key={item.key}
                 accessibilityRole="link"
                 accessibilityLabel={item.label}
+                accessibilityState={{ selected: item.active }}
                 onPress={item.onPress}
                 style={({ pressed }) => [
                   styles.sidebarItem,
@@ -96,6 +97,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
             key={item.key}
             accessibilityRole="link"
             accessibilityLabel={item.label}
+            accessibilityState={{ selected: item.active }}
             onPress={item.onPress}
             style={styles.bottomBarItem}
           >
@@ -155,8 +157,8 @@ const styles = StyleSheet.create({
     borderBottomColor: storybookTheme.color.contentPanelBorder,
   },
   topBarButton: {
-    minWidth: 40,
-    minHeight: 40,
+    minWidth: 44,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },

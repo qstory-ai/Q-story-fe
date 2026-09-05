@@ -20,7 +20,7 @@ export function DifferenceSection({ isWide, sectionRef }: DifferenceSectionProps
     >
       <View style={[styles.differenceCopy, isWide && styles.differenceCopyWide]}>
         <Text style={sectionStyles.eyebrow}>아이의 말이 닿는 순간</Text>
-        <Text style={sectionStyles.sectionTitle}>
+        <Text style={sectionStyles.sectionTitle} accessibilityRole="header">
           아이의 “왜?”와{'\n'}“이렇게 해 보자”가{'\n'}장면 속 행동이 돼요.
         </Text>
         <Text style={sectionStyles.sectionSubLead}>
@@ -102,13 +102,13 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   proofTitle: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: storybookTheme.type.weight.semibold,
   },
   proofBody: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     fontWeight: storybookTheme.type.weight.light,

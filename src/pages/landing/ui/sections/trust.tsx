@@ -20,7 +20,7 @@ export function TrustSection({ isWide, sectionRef }: TrustSectionProps) {
     >
       <View style={[styles.trustCopy, isWide && styles.trustCopyWide]}>
         <Text style={sectionStyles.eyebrow}>부모가 안심할 수 있도록</Text>
-        <Text style={sectionStyles.sectionTitle}>자유롭게 말해도,{'\n'}이야기는 안전하게 이어져요.</Text>
+        <Text style={sectionStyles.sectionTitle} accessibilityRole="header">자유롭게 말해도,{'\n'}이야기는 안전하게 이어져요.</Text>
         <Text style={sectionStyles.sectionSubLead}>
           Q-Story는 자유 대화 챗봇이 아닙니다. 현재 장면과 미리 검수한 범위 안에서만 아이의 말을 반영하고, 중요한 사건과
           결말은 지킵니다.
@@ -113,13 +113,13 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   pillarTitle: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: storybookTheme.type.weight.semibold,
   },
   pillarBody: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     fontWeight: storybookTheme.type.weight.light,

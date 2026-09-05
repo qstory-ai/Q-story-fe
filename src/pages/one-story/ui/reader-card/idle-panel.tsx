@@ -1,6 +1,6 @@
 import { Pressable, Text, TextInput, View } from 'react-native';
 
-import { ActionButton } from '@/shared/ui';
+import { ActionButton, storybookTheme } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../../model';
 import { styles } from '../styles';
@@ -36,7 +36,7 @@ export function IdlePanel({ runtime }: { runtime: OneStoryRuntime }) {
             setChildNameInput(value.replace(/\s{2,}/g, ' ').slice(0, 10))
           }
           placeholder="예: 하윤"
-          placeholderTextColor="#6F5D85" // WCAG AA 4.5:1 (원래 #998EA5는 흰 배경에서 3.10:1로 미달)
+          placeholderTextColor={storybookTheme.color.onLightMuted}
           maxLength={10}
           autoCorrect={false}
           returnKeyType="done"

@@ -131,7 +131,7 @@ stages:
       - "route를 정한 뒤 coverageStatus를 판단한다."
       - "exact는 직접 답할 수 있거나 가장 가까운 허용 family가 아이 제안과 거의 같은 경우, partial은 가장 가까운 family가 의도 일부만 반영하고 대상·방식·결과가 다른 경우, uncovered는 아이가 제안한 안전한 행동을 이 장면의 어떤 허용 family로도 실행할 수 없는 경우다 - 위험해서 거절하는 것과는 다르다(그 경우는 이미 안전게이트에서 걸러졌다)."
       - "coverageReason과 childRelevantMeaning은 원문을 복제하지 말고 한 문장 의미 요약으로 쓴다."
-      - "아이의 요청이 이야기 내용과 관련 있고 새로우며 맥락상 실제로 일어날 법한데 기존 allowedFamilies로 충분히 다루지 못한다면, THREE_PATHS를 억지로 만들거나 uncovered로 그냥 끝내는 대신 NEW_CHOICES를 고른다."
+      - "아이의 요청이 이야기 내용과 관련 있고 새로우며 맥락상 실제로 일어날 법하다면, 기존 allowedFamilies가 그 의도를 정확히 담아내지 못하는 경우(부분적으로만 겹치는 partial 포함) THREE_PATHS를 억지로 만들거나 가장 비슷한 family로 뭉뚱그리거나 uncovered로 그냥 끝내는 대신 적극적으로 NEW_CHOICES를 고른다. exact로 볼지 NEW_CHOICES로 볼지 애매하면 NEW_CHOICES 쪽을 우선한다."
       - "actionFamilyId·rejoinAnchorId·fallbackFamilyId 규칙: ANSWER_RESUME·CLARIFY_ONCE·SKIP_CONTINUE·NEW_CHOICES는 셋 다 반드시 null이다."
       - "DIRECT_ACTION·SCENE_REPLACE·DETOUR_REJOIN은 허용 family 중 하나를 actionFamilyId로, 제공된 fixedRejoinAnchorId와 fallbackFamilyId를 그대로 쓴다."
       - "THREE_PATHS는 actionFamilyId를 null로 하고 제공된 fixedRejoinAnchorId와 fallbackFamilyId를 그대로 쓴다."

@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, Pill, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, Pill, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
+import { dashboardNavItems, joinExistingClass, leaveClassMembership, useAuth } from '@/entities/auth';
 import { listParentTutorReports, type TutorReportSummary } from '@/entities/tutor';
 
 type ReportLoad = { status: 'loading' } | { status: 'ready'; reports: TutorReportSummary[] } | { status: 'error'; message: string };
@@ -15,17 +16,25 @@ type ReportLoad = { status: 'loading' } | { status: 'ready'; reports: TutorRepor
  *  1. 이미 연결된 것들 - user.classGroupId(기관)와 최근 튜터 리포트에서 뽑은 튜터 목록.
  *  2. 선생님 초대 링크 붙여넣기 - 링크나 토큰만 남기면 /tutor-invite/{token}으로 이동해
  *     기존 ParentLinkAcceptPage 흐름을 재사용한다.
- *  3. 반 코드 안내 - 반 코드는 지금 회원가입 흐름(joinClass)에서만 받을 수 있어, 이미 로그인된
- *     학부모가 반에 참여하는 별도 엔드포인트는 다음 세션의 BE 작업으로 미룬다.
+ *  3. 기관 반 연결 - 독립 학부모도 반 코드를 입력하면 현재 계정을 그대로 연결한다. 새 계정을
+ *     만들지 않고 JWT를 갱신하므로, 기존 아이·가정 이용 기록도 그대로 보존된다.
  */
 export function MyPageClassesPage() {
   const navigate = useNavigate();
-  const { state } = useAuth();
+  const { state, setSession } = useAuth();
   const [reports, setReports] = useState<ReportLoad>({ status: 'loading' });
   const [inviteInput, setInviteInput] = useState('');
   const [inviteError, setInviteError] = useState<string | null>(null);
-  const [codeInput, setCodeInput] = useState('');
-  const [codeError, setCodeError] = useState<string | null>(null);
+  const [tutorCodeInput, setTutorCodeInput] = useState('');
+  const [tutorCodeError, setTutorCodeError] = useState<string | null>(null);
+  const [classCodeInput, setClassCodeInput] = useState('');
+  const [classCodeError, setClassCodeError] = useState<string | null>(null);
+  const [classJoinSuccess, setClassJoinSuccess] = useState(false);
+  const [joiningClass, setJoiningClass] = useState(false);
+  const [leaveModalOpen, setLeaveModalOpen] = useState(false);
+  const [leavingClass, setLeavingClass] = useState(false);
+  const [classLeaveSuccess, setClassLeaveSuccess] = useState(false);
+  const [classLeaveError, setClassLeaveError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
@@ -35,10 +44,14 @@ export function MyPageClassesPage() {
     }
   }, [state, navigate]);
 
+  // state.token만 있으면 충분한 요청인데 [state, reloadKey]로 의존하면, 이 화면 안에서
+  // setSession()을 부르는 다른 액션(반 가입 등)이 state 객체 identity만 바꿔도 무관한 재조회가
+  // 한 번 더 나갔다 - token 문자열로 좁혀서 실제로 인증이 바뀔 때만 다시 부른다.
+  const authToken = state.status === 'authenticated' ? state.token : null;
   useEffect(() => {
-    if (state.status !== 'authenticated') return;
+    if (!authToken) return;
     let cancelled = false;
-    listParentTutorReports(state.token)
+    listParentTutorReports(authToken)
       .then((next) => {
         if (!cancelled) setReports({ status: 'ready', reports: next });
       })
@@ -50,7 +63,7 @@ export function MyPageClassesPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, reloadKey]);
+  }, [authToken, reloadKey]);
 
   // 튜터 리포트에서 (튜터명, 학생명) 페어를 뽑아 dedupe - 한 튜터가 여러 세션을 진행했어도
   // "연결된 선생님" 리스트에는 한 번만 보여야 한다. 학생 이름별로도 구분해 두 아이가 같은
@@ -78,14 +91,52 @@ export function MyPageClassesPage() {
     navigate(`/tutor-invite/${encodeURIComponent(token)}`);
   }
 
-  function goToCode() {
-    setCodeError(null);
-    const normalized = codeInput.trim().toUpperCase();
-    if (!/^[A-Z0-9]{4,16}$/.test(normalized)) {
-      setCodeError('영문·숫자 4-16자리 코드를 입력해 주세요.');
+  function goToTutorCode() {
+    setTutorCodeError(null);
+    const normalized = normalizeInviteCode(tutorCodeInput);
+    if (!isValidInviteCode(normalized)) {
+      setTutorCodeError('영문·숫자 4-16자리 코드를 입력해 주세요.');
       return;
     }
     navigate(`/tutor-invite/code/${encodeURIComponent(normalized)}`);
+  }
+
+  async function joinClassWithCode() {
+    if (state.status !== 'authenticated') return;
+    setClassCodeError(null);
+    setClassJoinSuccess(false);
+    const classCode = normalizeInviteCode(classCodeInput);
+    if (!isValidInviteCode(classCode)) {
+      setClassCodeError('기관에서 받은 영문·숫자 4-16자리 반 코드를 입력해 주세요.');
+      return;
+    }
+    setJoiningClass(true);
+    try {
+      const response = await joinExistingClass(state.token, { classCode });
+      setSession(response.token, response.user);
+      setClassCodeInput('');
+      setClassJoinSuccess(true);
+    } catch (error: unknown) {
+      setClassCodeError(messageForError(error, '기관 반에 연결하지 못했어요. 반 코드를 다시 확인해 주세요.'));
+    } finally {
+      setJoiningClass(false);
+    }
+  }
+
+  async function leaveCurrentClass() {
+    if (state.status !== 'authenticated') return;
+    setClassLeaveError(null);
+    setLeavingClass(true);
+    try {
+      const response = await leaveClassMembership(state.token);
+      setSession(response.token, response.user);
+      setLeaveModalOpen(false);
+      setClassLeaveSuccess(true);
+    } catch (error: unknown) {
+      setClassLeaveError(messageForError(error, '기관 반 연결을 해제하지 못했어요. 잠시 후 다시 시도해 주세요.'));
+    } finally {
+      setLeavingClass(false);
+    }
   }
 
   if (state.status !== 'authenticated') return null;
@@ -105,33 +156,54 @@ export function MyPageClassesPage() {
               <View style={styles.pillRow}>
                 <Pill label="반 참여 중" />
               </View>
+              {classLeaveError ? <StatusBanner variant="warning" label={classLeaveError} /> : null}
+              <ActionButton label="기관 반 연결 해제" variant="outline" onPress={() => setLeaveModalOpen(true)} />
+              <Text style={styles.hint}>해제한 뒤 새 반 코드를 입력하면 같은 계정으로 반을 변경할 수 있어요.</Text>
             </>
           ) : (
             <>
-              <Text style={styles.body}>아직 참여 중인 기관이 없어요.</Text>
-              <StatusBanner
-                variant="warning"
-                label={'반 코드는 회원가입할 때만 사용할 수 있어요. 이미 계정이 있다면 관리자에게 초대 링크를 요청해 주세요.'}
+              {classLeaveSuccess ? <StatusBanner label="기관 반 연결이 해제되었어요. 새 반 코드로 다시 연결할 수 있어요." /> : null}
+              <Text style={styles.body}>기관에서 받은 반 코드로 현재 계정을 연결할 수 있어요.</Text>
+              <TextField
+                label="반 코드"
+                value={classCodeInput}
+                onChangeText={(value) => {
+                  setClassCodeInput(value);
+                  if (classCodeError) setClassCodeError(null);
+                  if (classJoinSuccess) setClassJoinSuccess(false);
+                }}
+                placeholder="예: 7P3KMQ8D"
+                autoCapitalize="characters"
+                errorText={classCodeError ?? undefined}
+              />
+              <ActionButton
+                label="기관 반에 연결하기"
+                onPress={joinClassWithCode}
+                loading={joiningClass}
+                disabled={classCodeInput.trim().length === 0 || joiningClass}
               />
             </>
           )}
+          {/* setSession()과 setClassJoinSuccess(true)가 같은 배치에서 함께 커밋되므로 이 시점엔
+              항상 isInClass 분기가 렌더되지만, 그 순서 관계에 기대지 않도록 분기 밖에 한 번만 둔다. */}
+          {classJoinSuccess ? <StatusBanner label="기관 반에 연결했어요." /> : null}
         </View>
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>선생님 연결</Text>
           <Text style={styles.body}>선생님에게 받은 코드를 입력하거나, 초대 링크를 붙여넣어 주세요.</Text>
           <TextField
-            label="초대 코드"
-            value={codeInput}
+            label="선생님 초대 코드"
+            value={tutorCodeInput}
             onChangeText={(value) => {
-              setCodeInput(value);
-              if (codeError) setCodeError(null);
+              setTutorCodeInput(value);
+              if (tutorCodeError) setTutorCodeError(null);
             }}
             placeholder="예: 42QRKM3P"
             autoCapitalize="characters"
-            errorText={codeError ?? undefined}
+            errorText={tutorCodeError ?? undefined}
           />
-          <ActionButton label="코드로 확인하기" onPress={goToCode} disabled={codeInput.trim().length === 0} />
+          <ActionButton label="코드로 확인하기" onPress={goToTutorCode} disabled={tutorCodeInput.trim().length === 0} />
           <View style={styles.divider} />
           <TextField
             label="초대 링크"
@@ -174,6 +246,16 @@ export function MyPageClassesPage() {
           )}
         </View>
       </View>
+      <Modal
+        visible={leaveModalOpen}
+        accessibilityLabel="기관 반 연결 해제 확인"
+        eyebrow="기관 반 연결"
+        title="현재 반 연결을 해제할까요?"
+        positiveAction={{ label: '연결 해제', onPress: leaveCurrentClass, loading: leavingClass }}
+        negativeAction={{ label: '취소', onPress: () => setLeaveModalOpen(false), disabled: leavingClass }}
+      >
+        <Text style={styles.modalBody}>기관 수업 기록은 보존되지만, 이 계정은 더 이상 현재 기관의 이용권을 사용하지 않아요.</Text>
+      </Modal>
     </AppNavShell>
   );
 }
@@ -233,6 +315,12 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardTitle,
   },
   body: {
+    fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onCardBody,
+  },
+  hint: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
+  modalBody: {
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onCardBody,

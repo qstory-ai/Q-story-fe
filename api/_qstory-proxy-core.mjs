@@ -51,6 +51,10 @@ const ALLOWED_ROUTES = new Map([
   ['GET v1/tutors/me/organizations', true],
   ['GET v1/notifications', true],
   ['POST v1/notifications/read-all', true],
+  ['POST v1/auth/me/profile-image', true],
+  ['DELETE v1/classes/membership', true],
+  ['POST v1/payments/orders', true],
+  ['POST v1/payments/confirm', true],
 ]);
 
 // Routes with a path segment (story/org/class/scene/segment id) that can't be listed as a literal above.
@@ -68,6 +72,7 @@ const DYNAMIC_ROUTES = [
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/entitlement$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/usage$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/reports$`) },
   { method: 'POST', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/classes$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/classes$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}$`) },
@@ -143,13 +148,19 @@ const MAX_AUTH_BODY_BYTES = 8_192;
 // Two optional free-text fields (topPriority/oneLineReview, 500 chars each server-side) plus
 // checkbox arrays and a contact field can add up past MAX_AUTH_BODY_BYTES in the worst case.
 const MAX_COMPLETION_SURVEY_BODY_BYTES = 16_384;
-const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes', 'v1/tutor-students', 'v1/tutor-invites', 'v1/parents/'];
+// Matches application.yml's spring.servlet.multipart.max-file-size/max-request-size (4MB) - the
+// proxy reads the whole body into memory before forwarding, so without this override the generic
+// AUTH_PATH_PREFIXES cap below (8KB, sized for JSON auth bodies) would 413 every real photo before
+// it ever reached that backend limit.
+const MAX_PROFILE_IMAGE_BODY_BYTES = 4 * 1024 * 1024;
+const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes', 'v1/tutor-students', 'v1/tutor-invites', 'v1/parents/', 'v1/payments/'];
 
 function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath === 'v1/voice-research') return MAX_VOICE_RESEARCH_BODY_BYTES;
   if (upstreamPath === 'v1/beta-events') return MAX_BETA_EVENT_BODY_BYTES;
   if (upstreamPath === 'v1/launch-notifications') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/completion-surveys') return MAX_COMPLETION_SURVEY_BODY_BYTES;
+  if (upstreamPath === 'v1/auth/me/profile-image') return MAX_PROFILE_IMAGE_BODY_BYTES;
   if (AUTH_PATH_PREFIXES.some((prefix) => upstreamPath.startsWith(prefix))) return MAX_AUTH_BODY_BYTES;
   return MAX_TRANSCRIPTION_BODY_BYTES;
 }

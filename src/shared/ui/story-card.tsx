@@ -1,5 +1,4 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import type { GestureResponderEvent } from 'react-native';
 
 import { Icon } from './icon';
 import { Pill } from './pill';
@@ -58,19 +57,17 @@ export function StoryCard({
 }: StoryCardProps) {
   const isMini = size === 'mini';
   const accessibilityLabel = locked ? `잠김, ${title}` : category ? `${category}, ${title}` : title;
-  const handleRemove = (event: GestureResponderEvent) => {
-    // 부모 Pressable의 onPress(상세 열기)가 함께 발동되지 않도록 이벤트 전파를 여기서 잡는다.
-    // React Native Web은 DOM 이벤트를 GestureResponderEvent에 래핑하므로 표준 stopPropagation이 동작.
-    event.stopPropagation();
+  const handleRemove = () => {
     onRemove?.();
   };
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      onPress={onPress}
-      style={({ pressed }) => [styles.card, isMini && styles.cardMini, pressed && styles.cardPressed]}
-    >
+    <View style={[styles.card, isMini && styles.cardMini]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        onPress={onPress}
+        style={({ pressed }) => [styles.cardAction, pressed && styles.cardPressed]}
+      >
       <View style={[styles.coverFrame, locked && styles.coverFrameLocked]}>
         {coverImageUrl ? (
           <Image
@@ -88,19 +85,6 @@ export function StoryCard({
           <View style={styles.lockBadge}>
             <Icon name="lock" size={isMini ? 12 : 16} color={storybookTheme.color.onDark} />
           </View>
-        ) : null}
-        {onRemove ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={removeLabel ?? '삭제'}
-            onPress={handleRemove}
-            // 26px 뱃지 + 이전 hitSlop 6 = 38px, 지침의 44px 터치 최소치 미달.
-            // hitSlop 9로 확장해 26+18=44px 확보.
-            hitSlop={9}
-            style={({ pressed }) => [styles.removeBadge, pressed && styles.removeBadgePressed]}
-          >
-            <Icon name="close" size={12} color={storybookTheme.color.onDark} />
-          </Pressable>
         ) : null}
         {typeof progress === 'number' ? (
           <View style={styles.progressTrack} accessibilityLabel={`진행률 ${Math.round(progress * 100)}퍼센트`}>
@@ -132,7 +116,20 @@ export function StoryCard({
           </Text>
         ) : null}
       </View>
-    </Pressable>
+      </Pressable>
+      {onRemove ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={removeLabel ?? '삭제'}
+          onPress={handleRemove}
+          style={({ pressed }) => [styles.removeBadge, pressed && styles.removeBadgePressed]}
+        >
+          <View style={styles.removeBadgeFrame}>
+            <Icon name="close" size={12} color={storybookTheme.color.onDark} />
+          </View>
+        </Pressable>
+      ) : null}
+    </View>
   );
 }
 
@@ -146,6 +143,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     transform: [{ scale: 1 }],
     ...storybookTheme.elevation.low,
+  },
+  cardAction: {
+    width: '100%',
   },
   /**
    * 홈 가로 스트립에서 한 화면에 두 장 반 정도가 보이도록 폭을 고정한다 - 부모 컴포넌트의
@@ -200,8 +200,15 @@ const styles = StyleSheet.create({
   // 필요해지면 위치를 좌상단이나 top+가로 오프셋으로 나눈다.
   removeBadge: {
     position: 'absolute',
-    top: 10,
-    right: 10,
+    top: 3,
+    right: 3,
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  removeBadgeFrame: {
     width: 26,
     height: 26,
     borderRadius: storybookTheme.radius.pill,

@@ -1,6 +1,6 @@
 import { ActivityIndicator, Text, View } from 'react-native';
 
-import { ActionButton } from '@/shared/ui';
+import { ActionButton, storybookTheme } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../../model';
 import { styles } from '../styles';
@@ -46,7 +46,7 @@ export function QuestionInvitePanel({ runtime }: { runtime: OneStoryRuntime }) {
       </Text>
       {isQuestionInvitePlayback ? (
         <View style={styles.questionListening}>
-          <ActivityIndicator color="#E46647" size="small" />
+          <ActivityIndicator color={storybookTheme.color.error} size="small" />
           <Text style={styles.questionListeningText}>
             {questionInviteSpeaking
               ? '질문을 듣고 있어요'

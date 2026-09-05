@@ -199,6 +199,11 @@ function ClassManagementStep({
             onPress={() => navigate('/organization/usage')}
           />
           <DashboardCard
+            title="기관 리포트"
+            body="반별 활동·질문 수와 많이 읽은 작품을 기관 단위로 확인해요."
+            onPress={() => navigate('/organization/reports')}
+          />
+          <DashboardCard
             title="이용권 · 라이선스"
             body="기관 구독 상태와 활성 이용 범위를 확인해요."
             onPress={() => navigate('/organization/subscription')}

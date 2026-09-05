@@ -18,6 +18,10 @@ export type UserSummary = {
   grantsAccess: boolean;
   /** PARENT 역할에서만 의미가 있다 - 다른 역할은 항상 null. */
   childName: string | null;
+  /** A public tutor-image URL, null until a tutor uploads one. */
+  profileImageUrl: string | null;
+  /** Server-issued expiry for a paid personal subscription; null for non-paid/organization access. */
+  subscriptionExpiresAt: string | null;
 };
 
 export type AuthResponse = {
@@ -35,6 +39,7 @@ export type OrganizationResponse = {
 export type EntitlementResponse = {
   subscriptionStatus: OrganizationResponse['subscriptionStatus'];
   grantsAccess: boolean;
+  subscriptionExpiresAt: string | null;
 };
 
 export type ClassResponse = {
@@ -155,6 +160,16 @@ export function updateProfile(
   return request('/v1/auth/me/profile', { method: 'POST', body: JSON.stringify(input) }, { ...options, token });
 }
 
+export function uploadProfileImage(
+  token: string,
+  image: File,
+  options?: RequestOptions,
+): Promise<UserSummary> {
+  const form = new FormData();
+  form.append('image', image);
+  return request('/v1/auth/me/profile-image', { method: 'POST', body: form }, { ...options, token });
+}
+
 /** "비밀번호를 잊어버렸을 때" 쓰는 confirmPasswordReset()과 달리, 로그인된 상태에서 현재 비밀번호로 바로 바꾼다. */
 export function changePassword(
   token: string,
@@ -253,4 +268,25 @@ export function joinClass(
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/classes/join', { method: 'POST', body: JSON.stringify(input) }, options);
+}
+
+/**
+ * 이미 가입한 독립 학부모를 기관 반에 연결한다. 반 소속 정보가 JWT claim에도 들어 있으므로
+ * 응답의 새 token/user를 그대로 AuthProvider에 반영해야 한다.
+ */
+export function joinExistingClass(
+  token: string,
+  input: { classCode?: string; inviteToken?: string },
+  options?: RequestOptions,
+): Promise<AuthResponse> {
+  return request(
+    '/v1/classes/join-existing',
+    { method: 'POST', body: JSON.stringify(input) },
+    { ...options, token },
+  );
+}
+
+/** Clears the current institution/class relationship and refreshes the token's organization claims. */
+export function leaveClassMembership(token: string, options?: RequestOptions): Promise<AuthResponse> {
+  return request('/v1/classes/membership', { method: 'DELETE' }, { ...options, token });
 }

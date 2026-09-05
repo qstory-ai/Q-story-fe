@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { ActivityIndicator, Image, ScrollView, Text, TextInput, View } from 'react-native';
 
-import { ActionButton, Modal, ModalBody } from '@/shared/ui';
+import { ActionButton, Modal, ModalBody, storybookTheme } from '@/shared/ui';
 
 import type { UseCompanionChat } from '../../model/use-companion-chat';
 import { formatDuration } from '../../lib/runtime-view';
@@ -84,7 +84,7 @@ export function CompanionChatModal({
                 <Text style={styles.companionChatChildText}>{turn.childText}</Text>
               )}
               {turn.status === 'sending' && (
-                <ActivityIndicator color="#F6C64D" style={styles.companionChatSpinner} />
+                <ActivityIndicator color={storybookTheme.color.gold} style={styles.companionChatSpinner} />
               )}
               {turn.status === 'done' && turn.replyText && (
                 <Text style={styles.companionChatReplyText}>{turn.replyText}</Text>
@@ -120,7 +120,7 @@ export function CompanionChatModal({
             value={draft}
             onChangeText={(value) => setDraft(value.slice(0, 160))}
             placeholder="예: 마녀는 왜 사탕으로 집을 만들었을까?"
-            placeholderTextColor="#6F5D85" // WCAG AA 4.5:1 (원래 #998EA5는 흰 배경에서 3.10:1로 미달)
+            placeholderTextColor={storybookTheme.color.onLightMuted}
             accessibilityLabel="궁금한 것을 입력해 주세요"
             maxLength={160}
             multiline
@@ -129,7 +129,7 @@ export function CompanionChatModal({
             style={styles.typedQuestionInput}
           />
           {transcribing && (
-            <ActivityIndicator color="#F6C64D" style={styles.companionChatSpinner} />
+            <ActivityIndicator color={storybookTheme.color.gold} style={styles.companionChatSpinner} />
           )}
           {voiceError && (
             <Text style={styles.companionChatErrorText}>{voiceError}</Text>

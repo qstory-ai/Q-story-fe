@@ -222,8 +222,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   pageArrow: {
-    minWidth: 40,
-    minHeight: 40,
+    minWidth: 44,
+    minHeight: 44,
     borderRadius: storybookTheme.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
@@ -242,8 +242,8 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   pageNumber: {
-    minWidth: 40,
-    minHeight: 40,
+    minWidth: 44,
+    minHeight: 44,
     borderRadius: storybookTheme.radius.pill,
     // 두 자리 숫자를 담을 여유 - xs(4)/sm(8) 사이의 컴팩트 값 유지.
     paddingHorizontal: 6,

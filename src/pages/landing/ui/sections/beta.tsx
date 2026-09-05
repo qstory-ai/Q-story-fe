@@ -21,7 +21,7 @@ export function BetaSection({ isWide, sectionRef, onGoToDemo }: BetaSectionProps
     >
       <View style={[styles.betaCopy, isWide && styles.betaCopyWide]}>
         <Text style={sectionStyles.eyebrow}>Q-Story 1차 공개 베타</Text>
-        <Text style={sectionStyles.sectionTitle}>아이와 한 편을 완주하고,{'\n'}느낀 점을 들려주세요.</Text>
+        <Text style={sectionStyles.sectionTitle} accessibilityRole="header">아이와 한 편을 완주하고,{'\n'}느낀 점을 들려주세요.</Text>
         <Text style={sectionStyles.sectionSubLead}>
           「헨젤과 그레텔」을 무료로 체험하고, 완주 뒤 1분 후기로 솔직한 경험을 나눠 주세요.
         </Text>
@@ -109,13 +109,13 @@ const styles = StyleSheet.create({
   },
   quickFactText: {
     flex: 1,
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     fontWeight: storybookTheme.type.weight.light,
   },
   quickFactStrong: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontWeight: storybookTheme.type.weight.semibold,
   },
   betaFeedbackRow: {
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   },
   betaFeedbackText: {
     flex: 1,
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     fontWeight: storybookTheme.type.weight.medium,
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
   },
   betaNote: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.regular,
   },

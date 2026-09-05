@@ -20,7 +20,7 @@ export function ExperienceSection({ isWide, sectionRef }: ExperienceSectionProps
     >
       <View style={styles.sectionHeadingCenter}>
         <Text style={sectionStyles.eyebrow}>Q-Story란</Text>
-        <Text style={sectionStyles.sectionTitle}>보기만 하던 동화에서,{'\n'}아이가 참여하는 이야기로</Text>
+        <Text style={sectionStyles.sectionTitle} accessibilityRole="header">보기만 하던 동화에서,{'\n'}아이가 참여하는 이야기로</Text>
         <Text style={sectionStyles.sectionSubLead}>함께 듣다가 아이의 생각을 들려주면, 그 말이 장면 속 행동으로 이어집니다.</Text>
       </View>
 
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderRadius: storybookTheme.radius.card,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: storybookTheme.color.contentSurfaceBorder,
     backgroundColor: storybookTheme.color.surfaceCard,
     padding: 20,
   },
@@ -106,12 +106,12 @@ const styles = StyleSheet.create({
     gap: 8,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.16)',
+    borderColor: storybookTheme.color.contentPanelBorder,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   supportChipText: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.regular,
   },

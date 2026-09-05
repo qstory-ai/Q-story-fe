@@ -19,20 +19,20 @@ export const sectionStyles = StyleSheet.create({
     gap: 24,
   },
   eyebrow: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.primary,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.semibold,
     letterSpacing: 0.4,
   },
   sectionTitle: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.xxl,
     // xxl(32) * tight(1.2) = 38.4보다 살짝 좁은 헤딩 라인 - 히어로 톤에 맞춘 값이라 유지.
     lineHeight: 36,
     fontWeight: storybookTheme.type.weight.bold,
   },
   sectionSubLead: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: storybookTheme.type.weight.light,

@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     gap: 6,
     padding: 14,
     borderRadius: storybookTheme.radius.card,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: storybookTheme.color.surfaceWhite,
     borderWidth: 1,
     borderColor: storybookTheme.color.lightCardBorder,
   },
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   linkTarget: {
-    minHeight: 32,
+    minHeight: 44,
     justifyContent: 'center',
   },
   link: {

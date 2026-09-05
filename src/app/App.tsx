@@ -13,7 +13,7 @@ import { AuthProvider } from '@/entities/auth';
 import { BookmarksProvider } from '@/entities/bookmark';
 import { ChildrenProvider } from '@/entities/child';
 import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
-import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
+import { ActionButton, LoadingState, SafeAreaView, storybookTheme } from '@/shared/ui';
 
 const HomePage = lazy(() => import('@/pages/home').then((m) => ({ default: m.HomePage })));
 const TutorialPage = lazy(() => import('@/pages/tutorial').then((m) => ({ default: m.TutorialPage })));
@@ -106,6 +106,9 @@ const OrganizationClassDetailPage = lazy(() =>
 const OrganizationUsagePage = lazy(() =>
   import('@/pages/organization-usage').then((m) => ({ default: m.OrganizationUsagePage })),
 );
+const OrganizationReportPage = lazy(() =>
+  import('@/pages/organization-report').then((m) => ({ default: m.OrganizationReportPage })),
+);
 const OrganizationSubscriptionPage = lazy(() =>
   import('@/pages/organization-subscription').then((m) => ({ default: m.OrganizationSubscriptionPage })),
 );
@@ -124,11 +127,32 @@ const TutorStudentDetailPage = lazy(() =>
 const StoryPlayerRoute = lazy(() =>
   import('@/pages/story-player').then((m) => ({ default: m.StoryPlayerRoute })),
 );
+const PaymentCheckoutPage = lazy(() =>
+  import('@/pages/payment-checkout').then((m) => ({ default: m.PaymentCheckoutPage })),
+);
+const PaymentSuccessPage = lazy(() =>
+  import('@/pages/payment-success').then((m) => ({ default: m.PaymentSuccessPage })),
+);
+const PaymentFailPage = lazy(() =>
+  import('@/pages/payment-fail').then((m) => ({ default: m.PaymentFailPage })),
+);
 
 type LoadState =
   | { status: 'loading' }
   | { status: 'ready'; storyPackage: StoryRuntimePackage }
   | { status: 'error'; failure: StoryLoadFailure };
+
+function RouteLoadingFallback() {
+  return (
+    <SafeAreaView
+      edges={['top', 'left', 'right', 'bottom']}
+      style={styles.container}
+      accessibilityLiveRegion="polite"
+    >
+      <LoadingState label="화면을 준비하고 있어요." />
+    </SafeAreaView>
+  );
+}
 
 /** Unchanged from before the auth routes existed - the free anonymous demo must keep working
  * exactly as-is. It moved off "/" to "/demo" when the home page took the root, so anyone holding an
@@ -161,7 +185,7 @@ function DemoStoryRoute() {
   if (state.status === 'ready') {
     return (
       <LaunchNotificationGate>
-        <Suspense fallback={<View style={styles.container} />}>
+        <Suspense fallback={<RouteLoadingFallback />}>
           <OneStoryPage storyPackage={state.storyPackage} />
         </Suspense>
       </LaunchNotificationGate>
@@ -201,7 +225,7 @@ export function App() {
         <BookmarksProvider>
           <SyncDemoCompletionOnAuth />
           <BrowserRouter>
-        <Suspense fallback={<View style={styles.container} />}>
+        <Suspense fallback={<RouteLoadingFallback />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/tutorial" element={<TutorialPage />} />
@@ -226,6 +250,7 @@ export function App() {
             <Route path="/organization/classes" element={<OrganizationClassesPage />} />
             <Route path="/organization/classes/:classId" element={<OrganizationClassDetailPage />} />
             <Route path="/organization/usage" element={<OrganizationUsagePage />} />
+            <Route path="/organization/reports" element={<OrganizationReportPage />} />
             <Route path="/organization/subscription" element={<OrganizationSubscriptionPage />} />
             <Route path="/org-invite/:token" element={<OrgInviteAcceptPage />} />
             <Route path="/org-invite/code/:code" element={<OrgInviteAcceptPage />} />
@@ -240,6 +265,9 @@ export function App() {
             <Route path="/mypage/profile" element={<MyPageProfilePage />} />
             <Route path="/mypage/account" element={<MyPageAccountPage />} />
             <Route path="/mypage/subscription" element={<MyPageSubscriptionPage />} />
+            <Route path="/payment/checkout" element={<PaymentCheckoutPage />} />
+            <Route path="/payment/success" element={<PaymentSuccessPage />} />
+            <Route path="/payment/fail" element={<PaymentFailPage />} />
             <Route path="/mypage/delete-account" element={<MyPageDeleteAccountPage />} />
             <Route path="/mypage/children" element={<MyPageChildrenPage />} />
             <Route path="/mypage/classes" element={<MyPageClassesPage />} />
@@ -264,9 +292,9 @@ export function App() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7F1FB' },
+  container: { flex: 1, backgroundColor: storybookTheme.color.background },
   content: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, paddingHorizontal: 32 },
-  title: { fontSize: storybookTheme.type.md, fontWeight: '900', color: '#43225F', textAlign: 'center' },
-  body: { fontSize: storybookTheme.type.sm, color: '#6B5478', textAlign: 'center' },
-  debugCode: { fontSize: storybookTheme.type.xxs, color: '#9C8AA5', textAlign: 'center' },
+  title: { fontSize: storybookTheme.type.md, fontWeight: '900', color: storybookTheme.color.onContent, textAlign: 'center' },
+  body: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onContentMuted, textAlign: 'center' },
+  debugCode: { fontSize: storybookTheme.type.xxs, color: storybookTheme.color.onContentSubtle, textAlign: 'center' },
 });

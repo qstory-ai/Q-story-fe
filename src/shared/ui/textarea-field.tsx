@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import type { TextInputProps } from 'react-native';
 
@@ -12,6 +13,7 @@ type TextareaFieldProps = TextInputProps & {
 
 /** 여러 줄 입력 - Figma "Textarea Field". TextField와 상태/토큰을 공유한다. */
 export function TextareaField({ label, description, errorText, style, editable, accessibilityLabel, ...rest }: TextareaFieldProps) {
+  const [isFocused, setIsFocused] = useState(false);
   const isDisabled = editable === false;
   const state = isDisabled ? 'disabled' : errorText ? 'error' : 'default';
   return (
@@ -23,13 +25,15 @@ export function TextareaField({ label, description, errorText, style, editable, 
         textAlignVertical="top"
         style={[
           styles.textarea,
-          { borderColor: fieldBorderColor(state), backgroundColor: fieldBackgroundColor(state), color: fieldTextColor(state) },
+          { borderColor: fieldBorderColor(state, isFocused), backgroundColor: fieldBackgroundColor(state), color: fieldTextColor(state) },
           style,
         ]}
         placeholderTextColor={isDisabled ? storybookTheme.color.disabledText : storybookTheme.color.onLightMuted}
         editable={editable}
         accessibilityLabel={accessibilityLabel ?? label}
         {...rest}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
       />
       {errorText ? <FieldError>{errorText}</FieldError> : null}
     </View>

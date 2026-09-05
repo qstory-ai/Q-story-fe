@@ -15,7 +15,12 @@ export function FooterSection({ onNavigateToSection }: FooterSectionProps) {
       <Text style={styles.footerLead}>아이의 질문을 달라지는 중간 장면으로 이어 주는 AI 인터랙티브 동화</Text>
       <View style={styles.footerNav}>
         {NAV_SECTIONS.map((item) => (
-          <Pressable key={item.key} onPress={() => onNavigateToSection(item.key)}>
+          <Pressable
+            key={item.key}
+            accessibilityRole="button"
+            accessibilityLabel={`${item.label} 섹션으로 이동`}
+            onPress={() => onNavigateToSection(item.key)}
+          >
             <Text style={styles.footerNavText}>{item.label}</Text>
           </Pressable>
         ))}
@@ -38,10 +43,11 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     gap: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: storybookTheme.color.contentPanelBorder,
+    backgroundColor: storybookTheme.color.contentSurface,
   },
   footerLead: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     fontWeight: storybookTheme.type.weight.light,
@@ -52,7 +58,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   footerNavText: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.medium,
   },
@@ -60,7 +66,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   footerBottomText: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.light,
   },

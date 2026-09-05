@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     ...storybookTheme.elevation.low,
   },
   optionsScroll: { borderRadius: storybookTheme.radius.card },
-  option: { minHeight: 40, justifyContent: 'center', paddingHorizontal: storybookTheme.spacing.md },
+  option: { minHeight: 44, justifyContent: 'center', paddingHorizontal: storybookTheme.spacing.md },
   optionPressed: { backgroundColor: storybookTheme.color.pillBackground },
   optionSelected: { backgroundColor: storybookTheme.color.pillBackground },
   optionText: { fontSize: storybookTheme.type.md, color: storybookTheme.color.onCardTitle },

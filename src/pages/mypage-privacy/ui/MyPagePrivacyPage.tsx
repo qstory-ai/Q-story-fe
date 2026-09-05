@@ -57,7 +57,10 @@ export function MyPagePrivacyPage() {
 
   useEffect(() => {
     if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'PARENT') {
+    if (
+      state.status !== 'authenticated' ||
+      (state.user.role !== 'PARENT' && state.user.role !== 'TUTOR')
+    ) {
       navigate('/', { replace: true });
     }
   }, [state, navigate]);
@@ -79,7 +82,7 @@ export function MyPagePrivacyPage() {
     ),
     {
       title: '내 데이터 열람·내보내기',
-      body: '아이 프로필, 완주 리포트, 질문 기록 등 계정에 저장된 데이터의 사본을 요청할 수 있어요.',
+      body: '프로필, 수업 또는 완주 리포트, 질문 기록 등 계정에 저장된 데이터의 사본을 요청할 수 있어요.',
       action: {
         label: '메일로 요청하기',
         onPress: () => openMail('[Q-Story] 데이터 열람·내보내기 요청'),

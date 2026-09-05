@@ -94,7 +94,9 @@ export function MonthCalendar<T extends MonthCalendarItem>({
           onPress={() => changeMonth(-1)}
           style={({ pressed }) => [styles.navButton, pressed && styles.pressed]}
         >
-          <Icon name="chevronRight" size={16} color={storybookTheme.color.onContent} style={styles.flipHorizontal} />
+          <View style={styles.flipHorizontal}>
+            <Icon name="chevronRight" size={16} color={storybookTheme.color.onContent} />
+          </View>
         </Pressable>
         <Text style={styles.headerLabel} accessibilityRole="header">
           {viewMonth.getFullYear()}년 {MONTH_LABELS[viewMonth.getMonth()]}

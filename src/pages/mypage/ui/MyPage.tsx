@@ -149,6 +149,7 @@ function GenericMenu({
   navigate: (path: string) => void;
   onOpenFeedback: () => void;
 }) {
+  const isOrganizationTutor = user.role === 'TUTOR' && Boolean(user.organizationId);
   return (
     <View style={styles.menuGroups}>
       {user.role === 'TUTOR' ? (
@@ -163,7 +164,16 @@ function GenericMenu({
       <MenuGroup title="계정">
         <MenuRow label="내 정보 관리" onPress={() => navigate('/mypage/profile')} />
         <MenuRow label="계정 관리" onPress={() => navigate('/mypage/account')} />
-        <MenuRow label="구독 관리" onPress={() => navigate('/mypage/subscription')} />
+        <MenuRow
+          label={isOrganizationTutor ? '비즈니스 이용권' : '이용권/결제'}
+          hint={isOrganizationTutor ? '소속 기관의 이용권이 적용돼요' : undefined}
+          onPress={() => navigate('/mypage/subscription')}
+        />
+      </MenuGroup>
+      <MenuGroup title="앱 설정">
+        <MenuRow label="알림 설정" onPress={() => navigate('/mypage/notifications')} />
+        <MenuRow label="개인정보 및 데이터" onPress={() => navigate('/mypage/privacy')} />
+        <MenuRow label="고객지원" onPress={() => navigate('/mypage/support')} />
         <MenuRow label="개선사항 요청" onPress={onOpenFeedback} accessibilityRole="button" />
       </MenuGroup>
     </View>

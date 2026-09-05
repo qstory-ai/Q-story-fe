@@ -15,8 +15,8 @@ export function HeroSection({ isWide, onGoToDemo, onExploreExperience }: HeroSec
   return (
     <View style={[sectionStyles.section, isWide && styles.heroSectionWide]}>
       <View style={[styles.heroCopy, isWide && styles.heroCopyWide]}>
-        <Pill label="6–9세 아이와 부모가 함께하는 AI 동화" tone="onDark" />
-        <Text style={styles.heroTitle}>
+        <Pill label="6–9세 아이와 부모가 함께하는 AI 동화" tone="accent" />
+        <Text style={styles.heroTitle} accessibilityRole="header">
           아이의 질문과 선택으로,{'\n'}중간 장면이 달라져요.
         </Text>
         <Text style={styles.heroLead}>
@@ -84,13 +84,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroTitle: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.xxl,
     lineHeight: 42, // lineHeight preserved
     fontWeight: storybookTheme.type.weight.bold,
   },
   heroLead: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
     fontWeight: storybookTheme.type.weight.light,
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   textLink: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.medium,
     textDecorationLine: 'underline',
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   heroFactText: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.regular,
   },

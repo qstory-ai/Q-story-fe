@@ -86,7 +86,7 @@ type LoadingStateProps = {
 
 export function LoadingState({ label = '불러오는 중이에요…', compact = false }: LoadingStateProps) {
   return (
-    <View style={[styles.loadingBox, compact && styles.loadingBoxCompact]}>
+      <View style={[styles.loadingBox, compact && styles.loadingBoxCompact]} accessibilityLiveRegion="polite">
       <ActivityIndicator color={storybookTheme.color.primary} />
       {label ? <Text style={styles.loadingLabel}>{label}</Text> : null}
     </View>
@@ -133,7 +133,7 @@ type ErrorStateProps = {
 
 export function ErrorState({ message, onRetry, retryLabel = '다시 시도' }: ErrorStateProps) {
   return (
-    <View style={styles.errorBox}>
+    <View style={styles.errorBox} accessibilityLiveRegion="assertive">
       <Text style={styles.errorMessage}>{message}</Text>
       {onRetry ? (
         <View style={styles.errorRetry}>

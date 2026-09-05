@@ -1,6 +1,6 @@
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { SectionHeader, storybookTheme } from '@/shared/ui';
+import { Icon, SectionHeader, storybookTheme } from '@/shared/ui';
 
 import { PREVIEW_ILLUSTRATIONS } from '../../model/content';
 import { sectionStyles } from '../section-styles';
@@ -23,6 +23,13 @@ export function PreviewStripSection({ onGoToDemo }: PreviewStripSectionProps) {
             style={({ pressed }) => [styles.previewThumb, pressed && styles.previewThumbPressed]}
           >
             <Image source={{ uri: item.uri }} resizeMode="cover" style={styles.previewImage} accessibilityLabel={item.label} />
+            <View style={styles.previewCaption}>
+              <Text style={styles.previewCaptionText} numberOfLines={1}>{item.label}</Text>
+              <View style={styles.previewCta}>
+                <Text style={styles.previewCtaText}>체험하기</Text>
+                <Icon name="next" size={13} color={storybookTheme.color.primary} />
+              </View>
+            </View>
           </Pressable>
         ))}
       </View>
@@ -37,20 +44,39 @@ const styles = StyleSheet.create({
   },
   previewThumb: {
     flex: 1,
-    aspectRatio: 1,
+    minHeight: 184,
     borderRadius: storybookTheme.radius.card,
     overflow: 'hidden',
-    // 다크 배경 위의 반투명 크림 서피스 - panelOnDarkBackground(0.08)와 정확히 일치.
-    backgroundColor: storybookTheme.color.panelOnDarkBackground,
+    backgroundColor: storybookTheme.color.contentSurface,
     borderWidth: 1,
-    // 하얀 라이닝 border - panelOnDarkBorder(0.16)보다 조금 밝은 강조 라인이라 유지.
-    borderColor: 'rgba(255, 255, 255, 0.24)',
+    borderColor: storybookTheme.color.contentSurfaceBorder,
   },
   previewThumbPressed: {
     opacity: 0.85,
   },
   previewImage: {
     width: '100%',
-    height: '100%',
+    flex: 1,
+  },
+  previewCaption: {
+    gap: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+  previewCaptionText: {
+    color: storybookTheme.color.onContent,
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.semibold,
+  },
+  previewCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 2,
+  },
+  previewCtaText: {
+    color: storybookTheme.color.primary,
+    fontSize: storybookTheme.type.xxs,
+    fontWeight: storybookTheme.type.weight.bold,
   },
 });

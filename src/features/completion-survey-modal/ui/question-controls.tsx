@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     gap: storybookTheme.spacing.sm,
   },
   chip: {
-    minHeight: 38,
+    minHeight: 44,
     borderRadius: storybookTheme.radius.input,
     backgroundColor: storybookTheme.color.disabledBackground,
     borderWidth: 1,

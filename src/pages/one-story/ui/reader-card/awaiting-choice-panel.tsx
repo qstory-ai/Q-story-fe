@@ -5,6 +5,7 @@ import { ActionButton } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../../model';
 import { styles } from '../styles';
+import { LoadingPanel } from './loading-panel';
 
 export function AwaitingChoicePanel({ runtime }: { runtime: OneStoryRuntime }) {
   const {
@@ -13,10 +14,29 @@ export function AwaitingChoicePanel({ runtime }: { runtime: OneStoryRuntime }) {
     displayedBranchSubtitle,
     selectRouteOption,
     continueStory,
+    isPreparingResponseAudio,
   } = runtime;
 
   if (runtimeState.status !== 'awaiting-choice') {
     return null;
+  }
+
+  // 선택 직후에도 status는 여전히 'awaiting-choice'로 남아 있고(branchLine의 TTS를
+  // 준비하는 최대 RESPONSE_AUDIO_PREPARE_MS 동안), 이 사이에 선택지 목록을 그대로 두면
+  // 화면이 멈춘 것처럼 보이고 아이가 다른 선택지를 또 눌러버릴 수 있다. ProcessingPanel과
+  // 같은 로딩 시각언어로 대체해 대기 중임을 분명히 한다.
+  if (isPreparingResponseAudio) {
+    return (
+      <LoadingPanel
+        title={
+          <>
+            헨젤과 그레텔이{'\n'}
+            다음 이야기를 준비하고 있어요
+          </>
+        }
+        body="고른 대로 이야기를 이어갈게요, 조금만 기다려 주세요."
+      />
+    );
   }
 
   return (

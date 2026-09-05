@@ -20,7 +20,7 @@ export function FaqSection({ sectionRef }: FaqSectionProps) {
     >
       <View style={styles.sectionHeading}>
         <Text style={sectionStyles.eyebrow}>자주 묻는 질문</Text>
-        <Text style={sectionStyles.sectionTitle}>체험 전,{'\n'}네 가지만 확인하세요.</Text>
+        <Text style={sectionStyles.sectionTitle} accessibilityRole="header">체험 전,{'\n'}네 가지만 확인하세요.</Text>
       </View>
       <View style={styles.accordion}>
         {FAQ_ITEMS.map((item, index) => (

@@ -20,13 +20,14 @@ import {
   type StoryCompletionDetail,
   type StoryCompletionSummary,
 } from '@/entities/story-completion';
+import { listParentTutorReports, type TutorReportSummary } from '@/entities/tutor';
 
 /** 종합 리포트에 넘길 최근 회차 수 - listRecentStoryCompletions()가 outcomes를 함께 실어 오는 유일한 경로. */
 const COMPREHENSIVE_LIMIT = 20;
 /** 트렌드 카드가 내려다보는 최근 회차 수 - 1~2회로는 "반복"이라 부르기 애매해 최소 2회 겹쳐야 표시한다. */
 const RECENT_TREND_LIMIT = 5;
 
-type Tab = 'comprehensive' | 'by-story';
+type Tab = 'comprehensive' | 'by-story' | 'class';
 
 type LoadState =
   | { status: 'loading' }
@@ -37,6 +38,7 @@ type LoadState =
       recentTrend: RecentApproachTrend | null;
       comprehensive: ComprehensiveReport;
       comprehensiveSessionCount: number;
+      tutorReports: TutorReportSummary[];
     }
   | { status: 'error'; message: string };
 
@@ -50,9 +52,8 @@ function formatCompletedAt(iso: string) {
  *  - 종합: buildComprehensiveReport()의 네 축(질문 · 관심 · 생각 · 변화)을 카드로 렌더.
  *  - 작품별: 기존 완주 기록 목록 그대로.
  *
- * <p>단체 리포트는 IA에서 "단체가 있을 경우에는 상단 탭으로 분리"라 했지만, 지금은 BE에서
- * 조직/반 단위 리포트 엔드포인트가 아직 없어 이번 세션 out of scope. 탭 자체도 조건부로
- * 넣지 않고 다음 세션의 BE 스키마가 결정되면 함께 붙인다.
+ * <p>연결된 선생님이 보낸 수업 리포트가 하나 이상이면 세 번째 "수업 리포트" 탭이 나타난다.
+ * 가정에서 직접 읽은 기록(종합/작품별)과 수업에서 진행한 기록을 섞지 않는 IA 원칙을 따른다.
  */
 export function ReportHistoryPage() {
   const navigate = useNavigate();
@@ -85,8 +86,11 @@ export function ReportHistoryPage() {
       listRecentStoryCompletions(state.token, COMPREHENSIVE_LIMIT, filters).catch(
         () => [] as StoryCompletionDetail[],
       ),
+      // 선생님 수업 리포트는 개별 연결의 부가 데이터다. 구버전 서버에 아직 없거나 일시적으로
+      // 실패해도 가정 리포트 전체가 막히지 않도록 빈 목록으로 다룬다.
+      listParentTutorReports(state.token).catch(() => [] as TutorReportSummary[]),
     ])
-      .then(([completions, stories, recentDetailed]) => {
+      .then(([completions, stories, recentDetailed, tutorReports]) => {
         if (cancelled) return;
         setLoad({
           status: 'ready',
@@ -98,6 +102,7 @@ export function ReportHistoryPage() {
               : null,
           comprehensive: buildComprehensiveReport(recentDetailed),
           comprehensiveSessionCount: recentDetailed.length,
+          tutorReports,
         });
       })
       .catch((failure: unknown) => {
@@ -154,6 +159,9 @@ export function ReportHistoryPage() {
         <View style={styles.tabRow}>
           <TabButton label="종합 리포트" active={tab === 'comprehensive'} onPress={() => setTab('comprehensive')} />
           <TabButton label="작품별 리포트" active={tab === 'by-story'} onPress={() => setTab('by-story')} />
+          {load.status === 'ready' && load.tutorReports.length > 0 ? (
+            <TabButton label="수업 리포트" active={tab === 'class'} onPress={() => setTab('class')} />
+          ) : null}
         </View>
 
         {load.status === 'loading' && <LoadingState label="리포트를 불러오는 중이에요…" />}
@@ -199,8 +207,57 @@ export function ReportHistoryPage() {
             )}
           </>
         )}
+
+        {load.status === 'ready' && tab === 'class' && (
+          <TutorReportView
+            reports={load.tutorReports}
+            titleByStoryId={load.titleByStoryId}
+            onOpen={(reportId) => navigate(`/reports/${reportId}`)}
+          />
+        )}
       </View>
     </AppNavShell>
+  );
+}
+
+function TutorReportView({
+  reports,
+  titleByStoryId,
+  onOpen,
+}: {
+  reports: TutorReportSummary[];
+  titleByStoryId: Record<string, string>;
+  onOpen: (reportId: string) => void;
+}) {
+  if (reports.length === 0) {
+    return (
+      <EmptyState
+        title="도착한 수업 리포트가 없어요"
+        body="연결된 선생님과 이야기를 마치면 여기에 수업 기록이 도착해요."
+      />
+    );
+  }
+
+  return (
+    <>
+      <Text style={styles.classReportNote}>
+        선생님과 진행한 수업 기록이에요. 집에서 직접 읽은 기록은 작품별 리포트에서 확인할 수 있어요.
+      </Text>
+      {reports.map((report) => (
+        <Pressable
+          key={report.id}
+          onPress={() => onOpen(report.id)}
+          accessibilityRole="button"
+          style={({ pressed }) => [styles.reportCard, pressed && styles.reportCardPressed]}
+        >
+          <Text style={styles.reportCardTitle}>{titleByStoryId[report.storyId] ?? report.storyId}</Text>
+          <Text style={styles.classReportTeacher}>{report.tutorDisplayName} 선생님 · {report.studentName}</Text>
+          <Text style={styles.reportCardMeta}>
+            {formatCompletedAt(report.completedAt)} · {formatReportDuration(report.durationSeconds)}
+          </Text>
+        </Pressable>
+      ))}
+    </>
   );
 }
 
@@ -467,6 +524,11 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContentMuted,
     marginTop: -6,
   },
+  classReportNote: {
+    fontSize: storybookTheme.type.xs,
+    lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onContentMuted,
+  },
   tab: {
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -501,6 +563,11 @@ const styles = StyleSheet.create({
   reportCardMeta: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onCardMuted,
+  },
+  classReportTeacher: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.semibold,
+    color: storybookTheme.color.onCardBody,
   },
   sectionEyebrow: {
     fontSize: storybookTheme.type.xxs,

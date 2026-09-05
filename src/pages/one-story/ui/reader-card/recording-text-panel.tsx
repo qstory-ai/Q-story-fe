@@ -1,6 +1,6 @@
 import { Text, TextInput, View } from 'react-native';
 
-import { ActionButton } from '@/shared/ui';
+import { ActionButton, storybookTheme } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../../model';
 import { styles } from '../styles';
@@ -32,7 +32,7 @@ export function RecordingTextPanel({ runtime }: { runtime: OneStoryRuntime }) {
         value={typedQuestion}
         onChangeText={(value) => setTypedQuestion(value.slice(0, 240))}
         placeholder="예: 저 하얀 새는 우리를 어디로 데려가는 거야?"
-        placeholderTextColor="#6F5D85" // WCAG AA 4.5:1 (원래 #998EA5는 흰 배경에서 3.10:1로 미달)
+        placeholderTextColor={storybookTheme.color.onLightMuted}
         accessibilityLabel="궁금한 것을 글로 적어 주세요"
         maxLength={240}
         multiline

@@ -1,7 +1,8 @@
-import { useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
+import { homePathFor, useAuth } from '@/entities/auth';
 import { BrandLockup, SafeAreaView, storybookTheme } from '@/shared/ui';
 
 import { NAV_SECTIONS, type SectionKey } from '../model/content';
@@ -24,10 +25,21 @@ import { TrustSection } from './sections/trust';
  */
 export function LandingPage() {
   const navigate = useNavigate();
+  const { state: authState } = useAuth();
   const { width } = useWindowDimensions();
   const isWide = width >= 860;
+  const [activeSection, setActiveSection] = useState<SectionKey>('experience');
 
-  const goToDemo = () => navigate('/demo');
+  // 로그인된 사용자는 무료 체험(데모)이 아니라 자신의 정식 플레이 화면으로 바로 들어가야
+  // 한다 - 이미 가입한 학부모/튜터에게 다시 데모를 보여주는 건 되돌아가는 경험이다.
+  // 비로그인 방문자에게는 기존과 동일하게 데모로 안내한다.
+  const goToDemo = () => {
+    if (authState.status === 'authenticated') {
+      navigate(homePathFor(authState.user));
+      return;
+    }
+    navigate('/demo');
+  };
 
   /**
    * 이 앱은 RN ScrollView 자체의 내부 overflow가 아니라 브라우저 문서(window) 스크롤에
@@ -45,16 +57,73 @@ export function LandingPage() {
   const trustRef = useRef<HTMLElement | null>(null);
   const betaRef = useRef<HTMLElement | null>(null);
   const faqRef = useRef<HTMLElement | null>(null);
-  const sectionRefs: Record<SectionKey, React.RefObject<HTMLElement | null>> = {
-    experience: experienceRef,
-    difference: differenceRef,
-    trust: trustRef,
-    beta: betaRef,
-    faq: faqRef,
-  };
+  const sectionRefs = useMemo<Record<SectionKey, React.RefObject<HTMLElement | null>>>(
+    () => ({
+      experience: experienceRef,
+      difference: differenceRef,
+      trust: trustRef,
+      beta: betaRef,
+      faq: faqRef,
+    }),
+    [experienceRef, differenceRef, trustRef, betaRef, faqRef],
+  );
+  // 클릭으로 scrollToSection이 activeSection을 즉시 세팅한 뒤에도, smooth-scroll이 진행되는
+  // 동안 중간에 지나치는 다른 섹션들이 IntersectionObserver를 계속 건드려 nav 칩 하이라이트가
+  // 깜빡였다 - 두 쓰기 주체(클릭, observer)가 조율 없이 같은 state를 건드린 게 원인. 클릭
+  // 직후엔 observer의 쓰기를 잠깐 무시하는 걸로 막는다. scrollend 대신 고정 지연을 쓰는 이유는
+  // 이미 활성화된 칩을 다시 눌러 스크롤 거리가 0인 경우 scrollend 자체가 안 터질 수 있어서다.
+  const suppressObserverRef = useRef(false);
+  const suppressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollToSection = (key: SectionKey) => {
+    setActiveSection(key);
+    suppressObserverRef.current = true;
+    if (suppressTimeoutRef.current !== null) clearTimeout(suppressTimeoutRef.current);
+    suppressTimeoutRef.current = setTimeout(() => {
+      suppressObserverRef.current = false;
+      suppressTimeoutRef.current = null;
+    }, 600);
     sectionRefs[key].current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (suppressObserverRef.current) return;
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        const section = NAV_SECTIONS.find((item) => sectionRefs[item.key].current === visible?.target);
+        if (section) setActiveSection(section.key);
+      },
+      { rootMargin: '-24% 0px -60% 0px', threshold: [0.1, 0.35, 0.6] },
+    );
+
+    Object.values(sectionRefs).forEach((ref) => {
+      if (ref.current) observer.observe(ref.current);
+    });
+    return () => observer.disconnect();
+  }, [sectionRefs]);
+
+  const navigationItems = NAV_SECTIONS.map((item) => {
+    const active = activeSection === item.key;
+    return (
+      <Pressable
+        key={item.key}
+        accessibilityRole="button"
+        accessibilityState={{ selected: active }}
+        onPress={() => scrollToSection(item.key)}
+        style={({ pressed }) => [
+          styles.navChip,
+          active && styles.navChipActive,
+          pressed && sectionStyles.pressed,
+        ]}
+      >
+        <Text style={[styles.navChipText, active && styles.navChipTextActive]}>{item.label}</Text>
+      </Pressable>
+    );
+  });
 
   return (
     <View style={styles.app}>
@@ -75,23 +144,18 @@ export function LandingPage() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.navRow}
-            contentContainerStyle={styles.navRowContent}
-          >
-            {NAV_SECTIONS.map((item) => (
-              <Pressable
-                key={item.key}
-                accessibilityRole="button"
-                onPress={() => scrollToSection(item.key)}
-                style={({ pressed }) => [styles.navChip, pressed && sectionStyles.pressed]}
-              >
-                <Text style={styles.navChipText}>{item.label}</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
+          {isWide ? (
+            <View style={[styles.navRow, styles.navRowWide]}>{navigationItems}</View>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.navRow}
+              contentContainerStyle={styles.navRowContent}
+            >
+              {navigationItems}
+            </ScrollView>
+          )}
 
           <HeroSection isWide={isWide} onGoToDemo={goToDemo} onExploreExperience={() => scrollToSection('experience')} />
           <ExperienceSection isWide={isWide} sectionRef={experienceRef} />
@@ -99,8 +163,8 @@ export function LandingPage() {
           <TrustSection isWide={isWide} sectionRef={trustRef} />
           <BetaSection isWide={isWide} sectionRef={betaRef} onGoToDemo={goToDemo} />
           <FaqSection sectionRef={faqRef} />
-          <FinalCtaSection onGoToDemo={goToDemo} />
           <PreviewStripSection onGoToDemo={goToDemo} />
+          <FinalCtaSection onGoToDemo={goToDemo} />
           <FooterSection onNavigateToSection={scrollToSection} />
         </ScrollView>
       </SafeAreaView>
@@ -129,6 +193,8 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.gold,
     paddingHorizontal: 16,
     paddingVertical: 10,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   headerCtaText: {
     color: storybookTheme.color.primary,
@@ -148,16 +214,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 8,
   },
+  navRowWide: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingHorizontal: 20,
+  },
   navChip: {
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.16)',
+    borderColor: storybookTheme.color.contentPanelBorder,
+    backgroundColor: storybookTheme.color.contentSurface,
     paddingHorizontal: 14,
     paddingVertical: 8,
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  navChipActive: {
+    backgroundColor: storybookTheme.color.primary,
+    borderColor: storybookTheme.color.primary,
   },
   navChipText: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.xs,
     fontWeight: '500',
   },
+  navChipTextActive: { color: storybookTheme.color.onDark },
 });

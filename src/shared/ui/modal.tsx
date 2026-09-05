@@ -129,7 +129,12 @@ export function Modal({
             />
           ) : null}
           {linkAction ? (
-            <Pressable style={styles.linkButton} onPress={linkAction.onPress}>
+            <Pressable
+              style={styles.linkButton}
+              onPress={linkAction.onPress}
+              accessibilityRole="button"
+              accessibilityLabel={linkAction.label}
+            >
               <Text style={styles.linkButtonText}>{linkAction.label}</Text>
             </Pressable>
           ) : null}
@@ -193,7 +198,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   linkButton: {
-    minHeight: 40,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },

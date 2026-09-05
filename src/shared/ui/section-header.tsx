@@ -24,14 +24,14 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   title: {
-    color: storybookTheme.color.onDark,
+    color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.lg,
     lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
     letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
     fontWeight: storybookTheme.type.weight.semibold,
   },
   subtitle: {
-    color: storybookTheme.color.onDarkMuted,
+    color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.light,
   },

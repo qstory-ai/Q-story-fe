@@ -29,6 +29,7 @@ test('local resume saves progress without recordings or transcripts', () => {
         audioGroupId: 'HG-F04-AG01',
         clipIndex: 1,
       },
+      storyId: 'hansel-gretel',
       childName: '하윤',
       elapsedSeconds: 72,
       questionOutcomes: [],

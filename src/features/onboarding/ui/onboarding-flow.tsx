@@ -576,7 +576,7 @@ const styles = StyleSheet.create({
   // Forms (sign-up / sign-in)
   form: { gap: 14, paddingTop: 8 },
   formNote: { color: storybookTheme.color.onContentMuted, fontSize: storybookTheme.type.sm },
-  signInInlineLink: { alignSelf: 'flex-end', minHeight: 32, justifyContent: 'center' },
+  signInInlineLink: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center' },
   signInInlineLinkText: {
     color: storybookTheme.color.linkOnDark,
     fontSize: storybookTheme.type.xs,
@@ -585,7 +585,7 @@ const styles = StyleSheet.create({
   signInSignUpRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    minHeight: 32,
+    minHeight: 44,
     alignItems: 'center',
     marginTop: 8,
   },

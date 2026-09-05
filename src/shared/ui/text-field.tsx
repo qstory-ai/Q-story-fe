@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import type { TextInputProps } from 'react-native';
 
@@ -12,6 +13,7 @@ type TextFieldProps = TextInputProps & {
 
 /** 이 코드베이스에서 첫 번째 폼 입력 프리미티브 - 로그인/회원가입 폼이 이것을 필요로 하는 첫 기능이다. */
 export function TextField({ label, description, errorText, style, editable, accessibilityLabel, ...rest }: TextFieldProps) {
+  const [isFocused, setIsFocused] = useState(false);
   const isDisabled = editable === false;
   const state = isDisabled ? 'disabled' : errorText ? 'error' : 'default';
   return (
@@ -21,7 +23,7 @@ export function TextField({ label, description, errorText, style, editable, acce
       <TextInput
         style={[
           styles.input,
-          { borderColor: fieldBorderColor(state), backgroundColor: fieldBackgroundColor(state), color: fieldTextColor(state) },
+          { borderColor: fieldBorderColor(state, isFocused), backgroundColor: fieldBackgroundColor(state), color: fieldTextColor(state) },
           style,
         ]}
         placeholderTextColor={isDisabled ? storybookTheme.color.disabledText : storybookTheme.color.onLightMuted}
@@ -30,6 +32,8 @@ export function TextField({ label, description, errorText, style, editable, acce
         editable={editable}
         accessibilityLabel={accessibilityLabel ?? label}
         {...rest}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
       />
       {errorText ? <FieldError>{errorText}</FieldError> : null}
     </View>

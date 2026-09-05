@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { fieldBackgroundColor, fieldBorderColor, fieldTextColor, type FieldState } from './field-primitives';
@@ -15,10 +16,11 @@ type SearchFieldProps = {
 /** 알약형 검색 입력 - 값이 비어있으면 돋보기, 값이 있으면 지우기(X) 아이콘을 보여준다
  * (Figma "Search"). */
 export function SearchField({ value, onChangeText, placeholder = '검색', disabled, accessibilityLabel }: SearchFieldProps) {
+  const [isFocused, setIsFocused] = useState(false);
   const state: FieldState = disabled ? 'disabled' : 'default';
   return (
     <View
-      style={[styles.container, { borderColor: fieldBorderColor(state), backgroundColor: fieldBackgroundColor(state) }]}
+      style={[styles.container, { borderColor: fieldBorderColor(state, isFocused), backgroundColor: fieldBackgroundColor(state) }]}
     >
       <TextInput
         value={value}
@@ -28,6 +30,8 @@ export function SearchField({ value, onChangeText, placeholder = '검색', disab
         placeholderTextColor={disabled ? storybookTheme.color.disabledText : storybookTheme.color.onLightMuted}
         style={[styles.input, { color: fieldTextColor(state) }]}
         accessibilityLabel={accessibilityLabel ?? placeholder}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
       />
       {value ? (
         <Pressable

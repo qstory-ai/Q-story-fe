@@ -21,7 +21,10 @@ export function MyPageSupportPage() {
 
   useEffect(() => {
     if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'PARENT') {
+    if (
+      state.status !== 'authenticated' ||
+      (state.user.role !== 'PARENT' && state.user.role !== 'TUTOR')
+    ) {
       navigate('/', { replace: true });
     }
   }, [state, navigate]);

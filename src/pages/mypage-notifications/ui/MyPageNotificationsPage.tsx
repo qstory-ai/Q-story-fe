@@ -17,9 +17,9 @@ type LoadState =
   | { status: 'error'; message: string };
 
 /**
- * IA "[4] 마이페이지 > 알림 설정" 화면. 지금은 마케팅 알림(새 작품 출시) 토글 하나로 시작해서
- * IA에서 "#### 생각해와라"로 표시된 나머지 항목은 결정되면 여기 추가한다. 각 스위치는 상태를
- * BE에 즉시 PATCH로 보내는 낙관적 UI - 저장 버튼 없이 토글이 곧 저장이다.
+ * IA "[4] 마이페이지 > 알림 설정" 화면. 학부모와 선생님 모두 사용할 수 있으며 지금은 마케팅
+ * 알림(새 작품 출시) 토글 하나로 시작한다. 각 스위치는 상태를 BE에 즉시 PATCH로 보내는
+ * 낙관적 UI - 저장 버튼 없이 토글이 곧 저장이다.
  */
 export function MyPageNotificationsPage() {
   const navigate = useNavigate();
@@ -31,7 +31,10 @@ export function MyPageNotificationsPage() {
 
   useEffect(() => {
     if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'PARENT') {
+    if (
+      state.status !== 'authenticated' ||
+      (state.user.role !== 'PARENT' && state.user.role !== 'TUTOR')
+    ) {
       navigate('/', { replace: true });
     }
   }, [state, navigate]);

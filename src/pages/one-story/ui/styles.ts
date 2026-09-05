@@ -332,7 +332,7 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.semibold,
     paddingHorizontal: 15,
   },
-  nameHint: { color: '#6F5D85', fontSize: storybookTheme.type.xxs, lineHeight: 17 }, // WCAG AA 4.5:1 (원래 #85778E는 이 배경에서 4.4:1로 미달)
+  nameHint: { color: storybookTheme.color.onLightMuted, fontSize: storybookTheme.type.xxs, lineHeight: 17 },
   typedQuestionInput: {
     minHeight: 120,
     borderRadius: 16,
@@ -352,7 +352,7 @@ export const styles = StyleSheet.create({
     textAlign: 'right',
   },
   parentHint: {
-    color: '#6F5D85', // WCAG AA 4.5:1 (원래 #897C90는 흰 배경에서 3.92:1로 미달)
+    color: storybookTheme.color.onLightMuted,
     fontSize: storybookTheme.type.xxs,
     lineHeight: 17,
     textAlign: 'center',
@@ -938,7 +938,7 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   reportBulletMark: {
-    color: '#C24A2E', // WCAG AA 4.5:1 (원래 #E46647은 흰/크림 배경에서 3.34:1로 미달)
+    color: storybookTheme.color.error,
     fontSize: storybookTheme.type.md,
     lineHeight: 22,
     fontWeight: storybookTheme.type.weight.bold,

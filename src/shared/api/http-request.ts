@@ -36,7 +36,10 @@ export async function requestJson<T, E extends Error>(
     throw new ErrorCtor('VITE_QSTORY_API_URL is not configured.');
   }
   const headers = new Headers(init.headers);
-  headers.set('Content-Type', 'application/json');
+  // The browser must generate the multipart boundary for a FormData upload. JSON stays the
+  // default for every existing entity API, but never overwrite that boundary.
+  const isFormData = typeof FormData !== 'undefined' && init.body instanceof FormData;
+  if (!isFormData && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
   const response = await fetchImpl.call(globalThis, `${baseUrl}${path}`, { ...init, headers });

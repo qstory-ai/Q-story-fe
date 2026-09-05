@@ -27,12 +27,16 @@ export function FieldError({ children }: { children: string }) {
   );
 }
 
-export const fieldBorderColor = (state: FieldState) =>
+/** focused는 'default' 상태에서만 의미가 있다 - error/disabled는 이미 그 자체로 더
+ * 우선순위 높은 신호라 focus 링보다 그대로 유지한다. */
+export const fieldBorderColor = (state: FieldState, focused = false) =>
   state === 'error'
     ? storybookTheme.color.error
     : state === 'disabled'
       ? storybookTheme.color.disabledBorder
-      : storybookTheme.color.lightCardBorder;
+      : focused
+        ? storybookTheme.color.primary
+        : storybookTheme.color.lightCardBorder;
 
 export const fieldBackgroundColor = (state: FieldState) =>
   state === 'disabled' ? storybookTheme.color.disabledBackground : storybookTheme.color.surfaceWhite;

@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   },
   deleteAccountLink: {
     alignSelf: 'center',
-    minHeight: 40,
+    minHeight: 44,
     justifyContent: 'center',
   },
   deleteAccountText: {

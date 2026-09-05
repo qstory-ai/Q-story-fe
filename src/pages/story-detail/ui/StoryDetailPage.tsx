@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { ActionButton, Card, ErrorState, Icon, LoadingState, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
@@ -23,10 +23,16 @@ type LoadState =
  * 지원하므로(StoryCatalogService.get의 callerOrNull 참고), 이 페이지는 HomePage처럼 로그인을
  * 강제하지 않는다; 이 페이지가 호출하는 백엔드 엔드포인트와 마찬가지로 공개 카탈로그 뷰다.
  */
+// 이 폭부터 표지+정보 카드를 나란히 배치한다 - AppNavShell의 WIDE_BREAKPOINT(860)와는 별개
+// 값: 이 페이지는 사이드바 셸을 안 쓰고 뷰포트 전체 폭을 그대로 받는다.
+const WIDE_BREAKPOINT = 760;
+
 export function StoryDetailPage() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
   const { state } = useAuth();
+  const { width } = useWindowDimensions();
+  const isWide = width >= WIDE_BREAKPOINT;
   const bookmarks = useBookmarks();
   const { children } = useChildren();
   const [attempt, setAttempt] = useState(0);
@@ -150,8 +156,8 @@ export function StoryDetailPage() {
       )}
 
       {effectiveLoad.status === 'ready' && (
-        <View style={styles.content}>
-          <View style={styles.coverFrame}>
+        <View style={[styles.content, isWide && styles.contentWide]}>
+          <View style={[styles.coverFrame, isWide && styles.coverFrameWide]}>
             {effectiveLoad.story.coverImageUrl ? (
               <Image
                 source={{ uri: effectiveLoad.story.coverImageUrl }}
@@ -165,7 +171,7 @@ export function StoryDetailPage() {
               </View>
             )}
           </View>
-          <Card variant="surface" padding="lg" style={styles.infoCard}>
+          <Card variant="surface" padding="lg" style={[styles.infoCard, isWide && styles.infoCardWide]}>
             {effectiveLoad.story.category ? <Pill label={effectiveLoad.story.category} /> : null}
             <Text style={styles.title} accessibilityRole="header">{effectiveLoad.story.title}</Text>
             {effectiveLoad.story.description ? (
@@ -275,10 +281,27 @@ const styles = StyleSheet.create({
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
   },
+  // WIDE_BREAKPOINT 이상에서만 적용 - 표지+카드를 세로로 쌓지 않고 나란히 둔다. 좁은 화면의
+  // "표지 전체 폭 + 살짝 겹치는 카드" 구성을 그대로 넓혀버리면 4:3 표지가 매우 커지고
+  // (760폭 기준 570px 높이) 그 아래 짧은 정보 카드만 왜소해 보였다 - 좌우 배치가 이 폭에서는
+  // 더 균형 잡힌 결과를 낸다.
+  contentWide: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: storybookTheme.spacing.lg,
+    paddingTop: storybookTheme.spacing.xl,
+    paddingHorizontal: storybookTheme.spacing.ml,
+  },
   coverFrame: {
     width: '100%',
     aspectRatio: 4 / 3,
     backgroundColor: storybookTheme.color.coverFallback,
+  },
+  coverFrameWide: {
+    width: 320,
+    flexShrink: 0,
+    borderRadius: storybookTheme.radius.card,
+    overflow: 'hidden',
   },
   cover: {
     width: '100%',
@@ -297,6 +320,13 @@ const styles = StyleSheet.create({
     marginHorizontal: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.ms,
     ...storybookTheme.elevation.high,
+  },
+  // 넓은 화면은 표지와 나란히 두는 카드라 겹칠 필요가 없다 - negative margin(모바일 "표지 위로
+  // 살짝 얹힌 카드" 연출)을 지우고 flex:1로 남은 폭을 채운다.
+  infoCardWide: {
+    flex: 1,
+    marginTop: 0,
+    marginHorizontal: 0,
   },
   title: {
     fontSize: storybookTheme.type.xl,

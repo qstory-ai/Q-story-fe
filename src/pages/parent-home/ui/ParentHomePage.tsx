@@ -172,50 +172,56 @@ export function ParentHomePage() {
         ) : null}
 
         {progress ? (
-          <HomeSection
-            title="이어서 읽기"
-            subtitle={`${progress.childName || displayName}님이 어제 읽던 이야기예요.`}
-          >
-            <ContinueReadingCard
-              progress={progress}
-              stories={stories ?? []}
-              onPress={() => navigate(`/stories/${progress.storyId}/play`)}
-            />
-          </HomeSection>
+          <View style={styles.section}>
+            <HomeSection
+              title="이어서 읽기"
+              subtitle={`${progress.childName || displayName}님이 어제 읽던 이야기예요.`}
+            >
+              <ContinueReadingCard
+                progress={progress}
+                stories={stories ?? []}
+                onPress={() => navigate(`/stories/${progress.storyId}/play`)}
+              />
+            </HomeSection>
+          </View>
         ) : null}
 
         {forChild.length > 0 ? (
-          <HomeSection
-            title={selectedChild ? `${selectedChild.name}에게 추천하는 작품` : '아이에게 추천하는 작품'}
-            subtitle={selectedChild ? ageBandLabel(selectedChild.ageBand) + '에 어울리는 이야기예요.' : undefined}
-            onSeeAll={() => navigate('/library')}
-          >
-            {forChild.map((story) => (
-              <StoryCard
-                key={story.storyId}
-                size="mini"
-                title={story.title}
-                coverImageUrl={story.coverImageUrl}
-                onPress={() => navigate(`/stories/${story.storyId}`)}
-                locked={unlockStateFor(story, state) === 'locked'}
-              />
-            ))}
-          </HomeSection>
+          <View style={styles.section}>
+            <HomeSection
+              title={selectedChild ? `${selectedChild.name}에게 추천하는 작품` : '아이에게 추천하는 작품'}
+              subtitle={selectedChild ? ageBandLabel(selectedChild.ageBand) + '에 어울리는 이야기예요.' : undefined}
+              onSeeAll={() => navigate('/library')}
+            >
+              {forChild.map((story) => (
+                <StoryCard
+                  key={story.storyId}
+                  size="mini"
+                  title={story.title}
+                  coverImageUrl={story.coverImageUrl}
+                  onPress={() => navigate(`/stories/${story.storyId}`)}
+                  locked={unlockStateFor(story, state) === 'locked'}
+                />
+              ))}
+            </HomeSection>
+          </View>
         ) : null}
 
         {newStories.length > 0 ? (
-          <HomeSection title="새로운 작품" subtitle="새로 준비한 이야기들이에요." onSeeAll={() => navigate('/library')}>
-            {newStories.map((story) => (
-              <StoryCard
-                key={story.storyId}
-                size="mini"
-                title={story.title}
-                coverImageUrl={story.coverImageUrl}
-                onPress={() => navigate(`/stories/${story.storyId}`)}
-                locked={unlockStateFor(story, state) === 'locked'}
-              />
-            ))}
-          </HomeSection>
+          <View style={styles.section}>
+            <HomeSection title="새로운 작품" subtitle="새로 준비한 이야기들이에요." onSeeAll={() => navigate('/library')}>
+              {newStories.map((story) => (
+                <StoryCard
+                  key={story.storyId}
+                  size="mini"
+                  title={story.title}
+                  coverImageUrl={story.coverImageUrl}
+                  onPress={() => navigate(`/stories/${story.storyId}`)}
+                  locked={unlockStateFor(story, state) === 'locked'}
+                />
+              ))}
+            </HomeSection>
+          </View>
         ) : null}
 
         {/* 활동 캘린더 - 예전엔 최근 6개를 평면 리스트로 보여줬는데, 부모가 "이 달에 몇 번이나

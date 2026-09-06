@@ -16,6 +16,7 @@ import {
   Home,
   Lock,
   LogOut,
+  Menu,
   MessageCircle,
   Mic,
   Pause,
@@ -74,6 +75,7 @@ export const ICONS = {
   graduationCap: GraduationCap,
   search: Search,
   close: X,
+  menu: Menu,
 } as const;
 
 export type IconName = keyof typeof ICONS;

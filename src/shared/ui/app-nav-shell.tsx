@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { Icon, type IconName } from './icon';
@@ -25,6 +26,23 @@ const WIDE_BREAKPOINT = 860;
 // bottomBarItem의 minHeight(56)과 맞춘다 - narrowMain의 paddingBottom 계산에 재사용해서
 // 고정된 하단바에 콘텐츠 마지막 줄이 가려지지 않게 한다.
 const BOTTOM_BAR_HEIGHT = 56;
+// sidebar의 width와 맞춘다 - wideMain의 paddingRight/토글 버튼 위치 계산에 재사용한다.
+const SIDEBAR_WIDTH = 220;
+const SLIDE_DURATION = '220ms';
+const SLIDE_EASING = 'ease';
+
+/**
+ * react-native-web 전용 CSS transition - RN 자체 ViewStyle 타입엔 없는 웹 전용 프로퍼티라
+ * 한 곳에서만 캐스팅해서 재사용한다(사이드바 슬라이드/토글 위치/메인 영역 여백 셋 다 같은
+ * 지속시간으로 맞춰야 "같이 움직이는" 느낌이 나서 헬퍼로 뺐다).
+ */
+function transition(property: string) {
+  return {
+    transitionProperty: property,
+    transitionDuration: SLIDE_DURATION,
+    transitionTimingFunction: SLIDE_EASING,
+  } as unknown as Record<string, never>;
+}
 
 /**
  * 로그인 후 대시보드형 화면(홈/보고서/마이페이지)들이 공유하는 페이지 이동 셸.
@@ -37,6 +55,8 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
   const { width } = useWindowDimensions();
   const isWide = width >= WIDE_BREAKPOINT;
   const homeItem = items.find((item) => item.key === 'home') ?? items[0];
+  // 기본은 열림 - 예전(토글 없던 시절)과 같은 화면으로 시작하고, 햄버거로 접을 수만 있게 한다.
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   if (isWide) {
     return (
@@ -45,8 +65,28 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
           {/* Lighthouse의 "main landmark 없음" 접근성 경고 - RN엔 <main> 태그도, accessibilityRole
               'main'도 없어서(RN AccessibilityRole enum엔 landmark 개념 자체가 없다) raw aria role을
               얹는다. 이 셸을 쓰는 모든 대시보드 페이지(홈/서재/리포트/마이페이지 등)가 한 번에 해당된다. */}
-          <View style={styles.wideMain} {...({ role: 'main' } as any)}>{children}</View>
-          <View style={styles.sidebar}>
+          <View
+            style={[styles.wideMain, !sidebarOpen && styles.wideMainCollapsed]}
+            {...({ role: 'main' } as any)}
+          >
+            {children}
+          </View>
+          {/* 사이드바 폭만큼 항상 고정된 자리에서 열고 닫는다 - sidebar 자체가 옆으로
+              밀려나거나(reflow) main 위로 겹쳐 덮는(overlay) 대신, 토글 버튼은 사이드바가
+              열려있든 닫혀있든 그 왼쪽 가장자리에 그대로 붙어 있다. */}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={sidebarOpen ? '사이드바 닫기' : '사이드바 열기'}
+            onPress={() => setSidebarOpen((open) => !open)}
+            style={[styles.sidebarToggle, { right: sidebarOpen ? SIDEBAR_WIDTH + 12 : 12 }]}
+          >
+            <Icon name={sidebarOpen ? 'close' : 'menu'} size={18} color={storybookTheme.color.onContent} />
+          </Pressable>
+          {/* position:fixed - 예전엔 그냥 flex row의 형제라 페이지가 길면 스크롤할 때 같이
+              밀려 올라갔다(하단바와 같은 문제, app-nav-shell 좁은 화면 분기 참고). 뷰포트
+              우측에 고정하고, 열고 닫는 건 translateX 트랜지션으로 우측에서 슬라이드
+              들어오고 나가는 느낌만 준다 - 스크롤 여부와는 완전히 무관하다. */}
+          <View style={[styles.sidebar, !sidebarOpen && styles.sidebarClosed]}>
             {items.map((item) => (
               <Pressable
                 key={item.key}
@@ -136,15 +176,48 @@ const styles = StyleSheet.create({
   // 라이트 리테마: root=라이트 배경, 사이드바(우측)는 여전히 다크. 상/하단 nav는 라이트 배경 + 다크 텍스트.
   root: { flex: 1, backgroundColor: storybookTheme.color.background },
   wideRow: { flex: 1, flexDirection: 'row' },
-  wideMain: { flex: 1, backgroundColor: storybookTheme.color.background },
+  wideMain: {
+    flex: 1,
+    backgroundColor: storybookTheme.color.background,
+    // sidebar가 position:fixed라 flex 흐름 밖에 있으므로, 그 자리만큼 오른쪽 여백을 직접
+    // 확보해 콘텐츠가 사이드바 밑에 깔리지 않게 한다. 닫히면 0으로 - 트랜지션을 sidebar의
+    // translateX와 같은 시간으로 맞춰 같이 좁아지는(reflow) 느낌을 준다.
+    paddingRight: SIDEBAR_WIDTH,
+    ...transition('padding-right'),
+  },
+  wideMainCollapsed: { paddingRight: 0 },
+  sidebarToggle: {
+    position: 'fixed' as 'absolute',
+    top: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: storybookTheme.color.contentSurface,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.contentSurfaceBorder,
+    zIndex: storybookTheme.zIndex.overlay,
+    ...transition('right'),
+  },
   sidebar: {
-    width: 220,
+    position: 'fixed' as 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    width: SIDEBAR_WIDTH,
     backgroundColor: storybookTheme.color.sidebarBackground,
     borderLeftWidth: 1,
     borderLeftColor: storybookTheme.color.sidebarBorder,
     paddingVertical: 24,
     paddingHorizontal: 12,
     gap: 4,
+    zIndex: storybookTheme.zIndex.sticky,
+    transform: [{ translateX: 0 }],
+    ...transition('transform'),
+  },
+  sidebarClosed: {
+    transform: [{ translateX: SIDEBAR_WIDTH }],
   },
   sidebarItem: {
     flexDirection: 'row',

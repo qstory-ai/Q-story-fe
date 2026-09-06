@@ -1,4 +1,5 @@
 import { Image, Pressable, Text, View } from 'react-native';
+import { useNavigate } from 'react-router-dom';
 
 import { Icon, storybookTheme } from '@/shared/ui';
 
@@ -39,6 +40,7 @@ export function TopBar({
     skipCurrentScene,
     closeParentReport,
   } = runtime;
+  const navigate = useNavigate();
 
   return (
     <View
@@ -49,7 +51,10 @@ export function TopBar({
       ]}
     >
       <View style={styles.topBarRow}>
-      <View
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel="Q-Story 처음으로"
+        onPress={() => navigate('/')}
         style={[
           styles.brandLockup,
           isCompactPlayback && styles.brandLockupCompactPlayback,
@@ -89,7 +94,7 @@ export function TopBar({
             </Text>
           )}
         </View>
-      </View>
+      </Pressable>
       <View
         style={[
           styles.topRight,

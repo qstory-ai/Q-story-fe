@@ -740,10 +740,12 @@ export const styles = StyleSheet.create({
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 8 },
   },
+  // xl이었던 걸 lg로 - 이 제목이 카드 하나에 4번(질문/코치 관찰/오늘 밤 질문 등) 반복되는데
+  // 매번 xl+bold로 나오니 스크롤할수록 전체가 유독 크게 느껴졌다.
   reportPanelTitle: {
     color: '#2D1949',
-    fontSize: storybookTheme.type.xl,
-    lineHeight: 33,
+    fontSize: storybookTheme.type.lg,
+    lineHeight: 28,
     fontWeight: storybookTheme.type.weight.bold,
   },
   reportPanelDescription: {
@@ -777,10 +779,12 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
   },
   reportQuestionHeading: { flex: 1, alignItems: 'flex-start', gap: 9 },
+  // lg였던 걸 md로 - 이건 라벨이 아니라 아이가 실제로 물은 문장 전체를 그대로 인용한 것이라,
+  // 길면 두 줄이 넘는데 lg+bold로 두니 헤드라인처럼 무겁게 읽혔다.
   reportQuestionText: {
     color: storybookTheme.color.readerBodyStrong,
-    fontSize: storybookTheme.type.lg,
-    lineHeight: 31,
+    fontSize: storybookTheme.type.md,
+    lineHeight: 26,
     fontWeight: storybookTheme.type.weight.bold,
   },
   reportQuestionType: {
@@ -883,11 +887,13 @@ export const styles = StyleSheet.create({
     backgroundColor: '#FFF6E8',
     padding: 21,
   },
+  // 문장 여러 개짜리 문단 전체를 bold로 두면 본문치고 과하게 두꺼워 보인다 - semibold로
+  // 한 단계만 낮추고 크기는 그대로 둔다(강조는 남기되 헤드라인처럼 읽히지 않게).
   reportCoachSummaryText: {
     color: storybookTheme.color.readerBody,
     fontSize: storybookTheme.type.md,
-    lineHeight: 29,
-    fontWeight: storybookTheme.type.weight.bold,
+    lineHeight: 26,
+    fontWeight: storybookTheme.type.weight.semibold,
   },
   reportEvidenceBox: {
     borderRadius: 20,

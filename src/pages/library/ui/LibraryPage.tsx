@@ -352,7 +352,10 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.wideMaxWidth,
+    // wideMaxWidth(1040, 그리드 전용)였는데, 같은 사이드바 레이아웃을 공유하는 형제 탭들
+    // (ParentHomePage/ReportHistoryPage)은 dashboardCardWideMaxWidth(760)를 쓰고 있어서 서재
+    // 탭만 유독 좌우 여백이 좁아 보였다 - 리포트 탭 기준으로 통일한다.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     gap: 16,
     paddingHorizontal: storybookTheme.spacing.ml,

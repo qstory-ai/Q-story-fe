@@ -12,6 +12,7 @@ import { HomeSection } from '@/features/home-section';
 import { ChildSelector } from '@/features/child-selector';
 import { MonthCalendar } from '@/features/month-calendar';
 import { AGE_BAND_CATEGORY_HINTS, useChildren, type AgeBand } from '@/entities/child';
+import { hasKoreanBatchim } from '@/entities/narration';
 import { loadLocalStoryProgress, type LocalStoryProgress } from '@/entities/analytics';
 import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
 import { listParentTutorReports, type TutorReportSummary } from '@/entities/tutor';
@@ -149,7 +150,9 @@ export function ParentHomePage() {
           <Card variant="surface" padding="lg" style={[styles.greetingCard, isWide && styles.greetingCardWide]}>
             <Text style={styles.eyebrow}>{timeOfDayGreeting()}</Text>
             <Text style={styles.title} accessibilityRole="header">
-              {selectedChild.name}님과 오늘의 이야기
+              {/* "님과"(존칭) 대신 아이 이름에 받침 유무로 이/와를 붙이는 애칭 톤 - 다른 화면의
+                  아이 이름 개인화(child-address.ts)와 같은 방식. */}
+              {selectedChild.name}{hasKoreanBatchim(selectedChild.name) ? '이와' : '와'} 오늘의 이야기
             </Text>
             <Text style={styles.body}>{selectedChild.name}에게 딱 맞는 이야기를 골라 봤어요.</Text>
           </Card>

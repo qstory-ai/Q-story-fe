@@ -157,7 +157,7 @@ export function StoryDetailPage() {
 
       {effectiveLoad.status === 'ready' && (
         <View style={[styles.content, isWide && styles.contentWide]}>
-          <View style={[styles.coverFrame, isWide && styles.coverFrameWide]}>
+          <View style={isWide ? styles.coverFrameWide : styles.coverFrame}>
             {effectiveLoad.story.coverImageUrl ? (
               <Image
                 source={{ uri: effectiveLoad.story.coverImageUrl }}
@@ -284,10 +284,13 @@ const styles = StyleSheet.create({
   // WIDE_BREAKPOINT 이상에서만 적용 - 표지+카드를 세로로 쌓지 않고 나란히 둔다. 좁은 화면의
   // "표지 전체 폭 + 살짝 겹치는 카드" 구성을 그대로 넓혀버리면 4:3 표지가 매우 커지고
   // (760폭 기준 570px 높이) 그 아래 짧은 정보 카드만 왜소해 보였다 - 좌우 배치가 이 폭에서는
-  // 더 균형 잡힌 결과를 낸다.
+  // 더 균형 잡힌 결과를 낸다. alignItems를 stretch로 둬서 표지 높이가 옆 카드의 실제 콘텐츠
+  // 높이에 맞춰지게 한다(coverFrameWide 참고) - flex-start였을 때는 표지가 자기 aspectRatio로
+  // 정해진 고정 높이(320*3/4=240px)에 머물러 있고 옆 카드는 그보다 훨씬 길어서 둘의 높이가
+  // 안 맞았다.
   contentWide: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'stretch',
     gap: storybookTheme.spacing.lg,
     paddingTop: storybookTheme.spacing.xl,
     paddingHorizontal: storybookTheme.spacing.ml,
@@ -297,11 +300,15 @@ const styles = StyleSheet.create({
     aspectRatio: 4 / 3,
     backgroundColor: storybookTheme.color.coverFallback,
   },
+  // coverFrame과 별개 스타일(합치지 않음) - aspectRatio를 아예 안 줘서 부모(contentWide)의
+  // stretch가 실제로 적용되게 한다. 폭만 320으로 고정하고 높이는 옆 정보 카드에 맞춰 늘어난다.
   coverFrameWide: {
     width: 320,
     flexShrink: 0,
+    alignSelf: 'stretch',
     borderRadius: storybookTheme.radius.card,
     overflow: 'hidden',
+    backgroundColor: storybookTheme.color.coverFallback,
   },
   cover: {
     width: '100%',

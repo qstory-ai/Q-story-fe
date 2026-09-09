@@ -5,23 +5,35 @@ import { Navigate, useSearchParams } from 'react-router-dom';
 import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { homePathFor, useAuth } from '@/entities/auth';
 import { StoryLibraryGrid } from '@/features/story-library';
-import { OnboardingFlow } from '@/features/onboarding';
+import { OnboardingFlow, type TutorInviteRef } from '@/features/onboarding';
 import { hasSeenTutorial } from '@/pages/tutorial';
 
 type OnboardingEntry = {
-  step: 'welcome' | 'sign-up' | 'sign-in';
+  step: 'welcome' | 'sign-up' | 'sign-in' | 'tutor-preview';
   role?: 'PARENT' | 'DIRECTOR' | 'TUTOR';
   invite?: string;
+  tutorInvite?: TutorInviteRef;
 };
 
 /**
- * `?flow=sign-in|sign-up|welcome` + 선택적 `?role=parent|organization|tutor` + 선택적
- * `?invite=<token>`을 OnboardingEntry로 정규화한다. `/login`, `/signup`, `/join` 얇은
- * 리다이렉트가 이 파라미터들을 붙여 홈으로 보낸다 - 세 경로가 별도 페이지가 아니라 홈의
- * 온보딩 흐름 안으로 흡수되도록.
+ * `?flow=sign-in|sign-up|welcome|tutor-invite` + 선택적 `?role=parent|organization|tutor` +
+ * 선택적 `?invite=<token>` (기관 반코드 초대) + `flow=tutor-invite`일 때 `?token=<rawToken>` 또는
+ * `?code=<shortCode>` (선생님-학부모 초대)를 OnboardingEntry로 정규화한다. `/login`, `/signup`,
+ * `/join`, `/tutor-invite/...` 얇은 리다이렉트가 이 파라미터들을 붙여 홈으로 보낸다 - 여러 경로가
+ * 별도 페이지가 아니라 홈의 온보딩 흐름 안으로 흡수되도록.
  */
 function readOnboardingParams(params: URLSearchParams): OnboardingEntry | null {
   const flow = params.get('flow');
+  if (flow === 'tutor-invite') {
+    const token = params.get('token');
+    const code = params.get('code');
+    const tutorInvite: TutorInviteRef | undefined = token
+      ? { value: token, isCode: false }
+      : code
+        ? { value: code, isCode: true }
+        : undefined;
+    return tutorInvite ? { step: 'tutor-preview', role: 'PARENT', tutorInvite } : null;
+  }
   if (flow !== 'sign-in' && flow !== 'sign-up' && flow !== 'welcome') return null;
   if (flow === 'sign-in') return { step: 'sign-in' };
   if (flow === 'welcome') return { step: 'welcome' };
@@ -80,7 +92,10 @@ export function HomePage() {
   const [manualOnboarding, setManualOnboarding] = useState<OnboardingEntry | null>(null);
   const onboarding = paramEntry ?? manualOnboarding;
 
-  if (state.status === 'authenticated') {
+  // 선생님 초대(tutor-preview)는 이미 로그인된 학부모도 열 수 있어야 한다 - 마이페이지 > 수업
+  // 연결에서 링크를 붙여넣는 경우가 그렇다. 이 경우엔 역할 홈으로 튕기지 않고 온보딩 흐름 안에서
+  // 미리보기→동의까지 마치게 둔다(OnboardingFlow가 이미 인증된 세션이면 계정 단계를 건너뛴다).
+  if (state.status === 'authenticated' && paramEntry?.step !== 'tutor-preview') {
     const homePath = homePathFor(state.user);
     if (homePath !== '/') {
       return <Navigate to={homePath} replace />;
@@ -101,6 +116,7 @@ export function HomePage() {
           initialStep={onboarding.step}
           initialRole={onboarding.role}
           initialInvite={onboarding.invite}
+          initialTutorInvite={onboarding.tutorInvite}
           onExit={() => setManualOnboarding(null)}
         />
       </SafeAreaView>

@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 
 import {
   createInitialRuntimeState,
+  jumpToScene as jumpToSceneTransition,
   transitionStoryRuntime,
   type QuestionInputMode,
   type QuestionAnchorId,
   type RouteOption,
   type RoutePlan,
+  type SceneId,
   type StoryRuntimeEvent,
   type StoryRuntimeState,
 } from '@/entities/story-runtime';
@@ -1658,6 +1660,46 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
     clearLocalStoryProgress();
   }, [recorder, resetQuestionAttemptTracking, stopNarration, storyManifest]);
 
+  /**
+   * 챕터 사이드바에서 지난 장면을 눌렀을 때 - restartStory()와 달리 idle로 완전히 되돌리지
+   * 않고 그 장면의 시작 지점(playing-fixed)으로 곧장 이동한다. 세션 자체(아이 이름/음성 연구
+   * 동의/시작 시각)는 유지하되, 질문·분기·재생 관련 임시 추적 상태는 restartStory와 같은
+   * 항목들을 정리한다 - 되감은 지점 이후의 질문 기록은 사라지는 게 맞다(사용자에게 확인됨).
+   */
+  const jumpToScene = useCallback(
+    async (sceneId: SceneId) => {
+      processingAbortRef.current?.abort();
+      await stopNarration();
+      recorder.resetRecording();
+      const transition = jumpToSceneTransition(storyManifest, sceneId);
+      if (!transition.ok) {
+        setParentMessage(runtimeTransitionFailureCopy(transition.failure.code));
+        return;
+      }
+      runtimeRef.current = transition.state;
+      setRuntimeState(transition.state);
+      activeNarrationIdRef.current = null;
+      setParentMessage(null);
+      setLastTranscript(null);
+      setPendingTranscription(null);
+      setIsRoutingQuestion(false);
+      setPendingResponseAudio(null);
+      setActiveBranchVisualId(null);
+      setBranchCaption(null);
+      setTypedQuestion('');
+      setQuestionOutcomes([]);
+      trackedPlaybackResultsRef.current.clear();
+      trackedQuestionInvitesRef.current.clear();
+      resetQuestionAttemptTracking();
+      setStoryDurationSeconds(null);
+      setParentReportVisible(false);
+      setHomeMenuVisible(false);
+      setExitReasonVisible(false);
+      setResumeCandidate(null);
+    },
+    [recorder, resetQuestionAttemptTracking, stopNarration, storyManifest],
+  );
+
   const resumeStory = useCallback(async () => {
     if (!resumeCandidate) {
       return;
@@ -1909,6 +1951,7 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
     toggleNarration,
     skipCurrentScene,
     restartStory,
+    jumpToScene,
     resumeStory,
     dismissResumeAndRestart,
     openHomeMenu,

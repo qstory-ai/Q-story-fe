@@ -488,6 +488,28 @@ export function createInitialRuntimeState(
   return { status: 'idle', storyId: manifest.storyId };
 }
 
+/**
+ * 챕터 사이드바에서 지난 장면으로 "진짜 되감기"할 때 쓴다 - transitionStoryRuntime()의 이벤트
+ * 기반 전이를 거치지 않고, START 이벤트가 entrySceneId에 대해 하는 것과 똑같이 playScene()으로
+ * 그 장면의 시작 상태(playing-fixed, clipIndex 0)를 직접 만든다. 질문/분기를 거쳐야만 도달하는
+ * 상태(awaiting-choice 등)로는 못 만든다 - scenes 배열의 모든 장면이 kind:'fixed'라 각 장면의
+ * "시작점" 자체는 분기와 무관하게 항상 존재한다.
+ */
+export function jumpToScene(
+  manifest: StoryManifest,
+  sceneId: SceneId,
+): RuntimeTransition {
+  const scene = findScene(manifest, sceneId);
+  if (!scene) {
+    return {
+      ok: false,
+      state: { status: 'idle', storyId: manifest.storyId },
+      failure: { code: 'SCENE_NOT_FOUND', stage: 'asset', retryable: false },
+    };
+  }
+  return playScene(manifest, scene);
+}
+
 function transitionFromIdle(
   manifest: StoryManifest,
   state: StoryRuntimeState,

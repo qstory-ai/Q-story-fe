@@ -15,9 +15,12 @@ const TOP_CONTROL_HIT_SLOP = { top: 4, bottom: 4, left: 3, right: 3 };
 export function TopBar({
   runtime,
   chat,
+  onOpenChapters,
 }: {
   runtime: OneStoryRuntime;
   chat: UseCompanionChat;
+  /** 챕터 사이드바 토글 - 없으면(예: 스토리를 아직 안 시작해 챕터 개념이 없는 idle 화면) 버튼을 숨긴다. */
+  onOpenChapters?: () => void;
 }) {
   const {
     isWide,
@@ -101,6 +104,18 @@ export function TopBar({
           isCompactPlayback && styles.topRightCompactPlayback,
         ]}
       >
+        {runtimeState.status !== 'idle' && !isParentReport && onOpenChapters && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="챕터 목록 열기"
+            style={styles.topControlButton}
+            hitSlop={TOP_CONTROL_HIT_SLOP}
+            onPress={onOpenChapters}
+          >
+            <Icon name="book" size={16} color={TOP_ICON_COLOR} />
+            {isWide && <Text style={styles.topControlText}>챕터</Text>}
+          </Pressable>
+        )}
         {runtimeState.status !== 'idle' && !isParentReport && (
           <Pressable
             accessibilityRole="button"

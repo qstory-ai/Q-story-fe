@@ -233,7 +233,12 @@ export const styles = StyleSheet.create({
     paddingBottom: 72,
   },
   spacer: { flex: 1, minHeight: 220 },
+  // 360px는 "삽화가 위에서 넉넉히 보이고 재생 카드가 하단에 도킹된" 데스크톱/태블릿 구도를
+  // 위한 값인데, 휴대폰(좁은 폭)에서는 이 여백 + 상단 패딩(scrollContentCompactPlayback)만으로
+  // 뷰포트 대부분을 먹어버려서 정작 대사(캡션) 카드가 첫 화면 밖으로 밀려나 스크롤해야만
+  // 보였다. isCompactPlayback일 때는 훨씬 작은 값으로 줄인다.
   playbackSpacer: { minHeight: 360 },
+  playbackSpacerCompact: { minHeight: 90 },
   readerCard: {
     width: '100%',
     maxWidth: 760,
@@ -1171,5 +1176,104 @@ export const styles = StyleSheet.create({
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
     marginTop: 3,
+  },
+
+  // ---------------------------------------------------------------- 챕터 사이드바
+  // AppNavShell 우측 사이드바(position:fixed + translateX 트랜지션)와 같은 방식을 왼쪽에
+  // 거울로 적용한다 - 다만 이 화면은 배경 삽화가 전체 폭을 쓰고 콘텐츠가 가운데 정렬이라,
+  // reflow(메인 여백 밀기) 대신 오버레이 + 스크림으로 덮는 방식을 쓴다(넓은/좁은 화면 모두
+  // 같은 방식이라 분기가 필요 없다).
+  chapterScrim: {
+    position: 'fixed' as 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(16, 8, 28, 0.45)',
+    zIndex: storybookTheme.zIndex.overlay - 1,
+  },
+  chapterSidebar: {
+    position: 'fixed' as 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: 280,
+    maxWidth: '82%',
+    backgroundColor: storybookTheme.color.sidebarBackground,
+    borderRightWidth: 1,
+    borderRightColor: storybookTheme.color.sidebarBorder,
+    paddingTop: 18,
+    zIndex: storybookTheme.zIndex.overlay,
+    transform: [{ translateX: 0 }],
+    transitionProperty: 'transform',
+    transitionDuration: '220ms',
+    transitionTimingFunction: 'ease',
+  } as any,
+  chapterSidebarClosed: {
+    transform: [{ translateX: -280 }],
+  },
+  chapterHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 18,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: storybookTheme.color.sidebarBorder,
+  },
+  chapterHeaderTitle: {
+    fontSize: storybookTheme.type.md,
+    fontWeight: storybookTheme.type.weight.black,
+    color: storybookTheme.color.onDark,
+  },
+  chapterHeaderClose: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chapterList: { flex: 1 },
+  chapterListContent: { padding: 10, gap: 4 },
+  chapterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    minHeight: 52,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+  },
+  chapterRowActive: { backgroundColor: storybookTheme.color.sidebarActive },
+  chapterRowDisabled: { opacity: 0.4 },
+  chapterRowPressed: { opacity: 0.8 },
+  chapterRowIndex: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
+  chapterRowIndexActive: { backgroundColor: storybookTheme.color.gold },
+  chapterRowIndexText: {
+    fontSize: storybookTheme.type.xxs,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.onDarkMuted,
+  },
+  chapterRowIndexTextActive: { color: '#2C1749' },
+  chapterRowTitle: {
+    flex: 1,
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.semibold,
+    color: storybookTheme.color.onDarkMuted,
+  },
+  chapterRowTitleActive: { color: storybookTheme.color.onDark, fontWeight: storybookTheme.type.weight.bold },
+  chapterRowTitleDisabled: { color: storybookTheme.color.onDarkMuted },
+  chapterToggle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
 import { SafeAreaView } from '@/shared/ui';
@@ -5,6 +6,7 @@ import type { StoryRuntimePackage } from '@/entities/story';
 import { CompletionSurveyModal } from '@/features/completion-survey-modal';
 
 import { useCompanionChat, useOneStoryRuntime } from '../model';
+import { ChapterSidebar } from './chapter-sidebar';
 import { CompanionChatModal } from './modals/companion-chat-modal';
 import { HomeMenuModal } from './modals/home-menu-modal';
 import { ResumeModal } from './modals/resume-modal';
@@ -35,6 +37,7 @@ export function OneStoryPage({
     storyId: storyPackage.storyId,
     sceneId: scene?.id ?? null,
   });
+  const [chaptersOpen, setChaptersOpen] = useState(false);
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
@@ -55,7 +58,9 @@ export function OneStoryPage({
           ]}
         />
 
-        <TopBar runtime={runtime} chat={chat} />
+        {/* onOpenChapters를 항상 넘겨도 된다 - TopBar 자신이 이미 같은 조건(idle 아님 && 리포트
+            아님)으로 다른 버튼들과 함께 보임/숨김을 판단한다. */}
+        <TopBar runtime={runtime} chat={chat} onOpenChapters={() => setChaptersOpen(true)} />
         <SceneProgressBar runtime={runtime} />
 
         <ScrollView
@@ -74,10 +79,22 @@ export function OneStoryPage({
           showsVerticalScrollIndicator={false}
         >
           {isPlaybackDockState && (
-            <View style={[styles.spacer, styles.playbackSpacer]} />
+            <View
+              style={[
+                styles.spacer,
+                styles.playbackSpacer,
+                isCompactPlayback && styles.playbackSpacerCompact,
+              ]}
+            />
           )}
           <ReaderCard runtime={runtime} />
         </ScrollView>
+
+        <ChapterSidebar
+          runtime={runtime}
+          open={chaptersOpen}
+          onClose={() => setChaptersOpen(false)}
+        />
 
         <ResumeModal runtime={runtime} />
         <HomeMenuModal runtime={runtime} />

@@ -3,6 +3,14 @@ dist
 dist-ssr
 *.local
 
+# 태블릿 네이티브 빌드 결과물과 서명 키 (docs/native-build.md)
+build-output/
+android/keystore.properties
+android/*.jks
+android/*.keystore
+ios/App/App/*.mobileprovision
+icons/
+
 .env
 .env.local
 

@@ -128,6 +128,7 @@ export function TutorStudentsPage() {
                   shortCode={issuedByStudent[student.id].shortCode}
                   link={`${originBase}/tutor-invite/${issuedByStudent[student.id].token}`}
                   expiresLabel={formatExpires(issuedByStudent[student.id].expiresAt)}
+                  shareMessage={`${student.name} 부모님, Q-Story 수업 연결 초대예요. 아래 코드나 링크로 들어와 주세요.`}
                   onDismiss={() => setIssuedByStudent((prev) => {
                     const next = { ...prev };
                     delete next[student.id];

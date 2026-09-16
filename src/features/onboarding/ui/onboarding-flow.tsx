@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, BrandLockup, Checkbox, ErrorState, LoadingState, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ageBandFromLabel } from '@/entities/child';
 import {
   createOrganization,
   homePathFor,
@@ -41,7 +42,13 @@ type OnboardingStep =
   | 'sign-up'
   | 'sign-in'
   | 'tutor-preview'
-  | 'tutor-consent';
+  | 'tutor-consent'
+  | 'tutor-linked';
+
+/** 가입 폼의 최소 규칙 - reset-password의 "8자 이상"과 같은 기준을 가입에서도 쓴다(예전엔 가입은
+ *  아무 비밀번호나 받고 재설정만 8자를 요구해 서로 어긋났다). */
+export const PASSWORD_MIN_LENGTH = 8;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** 선생님이 부모에게 보낸 초대(코드 또는 토큰) - previewTutorInvite(By Code)/acceptTutorInvite(By Code)
  * 중 어느 걸 부를지는 isCode로 가른다. */
@@ -141,11 +148,18 @@ export function OnboardingFlow({
   const [pendingTutorAccept, setPendingTutorAccept] = useState<PendingTutorAccept | null>(null);
   const [tutorAcceptError, setTutorAcceptError] = useState<string | null>(null);
   const [tutorAccepting, setTutorAccepting] = useState(false);
+  // 미리보기 재조회 트리거 - 만료/오타 코드로 ErrorState가 떴을 때 "다시 시도"가 이걸 올린다.
+  const [tutorPreviewAttempt, setTutorPreviewAttempt] = useState(0);
 
+  // 선생님 초대로 만든 새 학부모 계정은 /onboarding/parent의 아이 프로필 폼에 초대가 이미 알고
+  // 있는 아이 이름/연령대를 미리 채워 준다 - 방금 미리보기에서 본 정보를 또 타이핑하게 하지 않도록.
   const goHome = useCallback(
-    (path: string) => navigate(path, { replace: true }),
+    (path: string, state?: unknown) => navigate(path, { replace: true, state }),
     [navigate],
   );
+  const parentOnboardingState = tutorPreview
+    ? { prefill: { name: tutorPreview.studentName, ageBand: ageBandFromLabel(tutorPreview.ageBand) } }
+    : undefined;
 
   // 로그인은 매번 곧장 홈으로 - 계정을 통틀어 처음 만들어질 때만 거치는 흐름이 아니다.
   const onSignedIn: OnAuthed = useCallback(
@@ -202,7 +216,7 @@ export function OnboardingFlow({
     // initialTutorInvite는 HomePage가 URL에서 매번 새로 만들어 넘기므로 .value/.isCode로 좁힌다 -
     // 객체 identity로 의존하면 부모 리렌더마다 이 effect가 불필요하게 다시 돈다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialTutorInvite?.value, initialTutorInvite?.isCode]);
+  }, [initialTutorInvite?.value, initialTutorInvite?.isCode, tutorPreviewAttempt]);
 
   const onTutorAccept = useCallback(async () => {
     if (!initialTutorInvite || !pendingTutorAccept) return;
@@ -226,29 +240,41 @@ export function OnboardingFlow({
       if (pendingTutorAccept.kind === 'new-account') {
         void updateNotificationSettings(response.token, { marketingEnabled: pendingTutorAccept.marketing }).catch(() => {});
       }
-      if (tutorAuthMode === 'sign-in') {
-        onSignedIn(response.token, response.user);
-      } else {
-        onSignedUp(response.token, response.user);
-      }
+      // 곧장 홈/캐러셀로 보내지 않고 "연결됐어요" 확인 화면(tutor-linked)을 한 번 거친다 - 예전엔
+      // 동의 버튼을 누르자마자 마케팅 캐러셀이나 부모 홈으로 튕겨서, 연결이 실제로 됐는지 부모가
+      // 확인할 순간이 없었다. 세션은 여기서 바로 만들고, 다음 목적지만 pendingHomePath에 둔다.
+      setSession(response.token, response.user);
+      setPendingHomePath(
+        tutorAuthMode === 'sign-in'
+          ? homePathFor(response.user)
+          : response.user.role === 'PARENT'
+            ? '/onboarding/parent'
+            : homePathFor(response.user),
+      );
+      go('tutor-linked');
     } catch (failure) {
       setTutorAcceptError(messageForError(failure, '연결을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setTutorAccepting(false);
     }
-  }, [initialTutorInvite, pendingTutorAccept, tutorAuthMode, onSignedIn, onSignedUp]);
+  }, [initialTutorInvite, pendingTutorAccept, tutorAuthMode, setSession, go]);
+
+  // 캐러셀(value-onboarding)엔 자체 "건너뛰기"가 있고, 연결 완료(tutor-linked)는 되돌아갈 이전
+  // 단계가 없다(이미 계정이 만들어지고 연결까지 끝난 뒤) - 두 화면에선 상단 링크를 아예 숨긴다.
+  // 예전엔 캐러셀의 "← 이전"이 실제로는 홈으로 *앞서* 가는 버튼이었다.
+  const hideTopLink = step === 'value-onboarding' || step === 'tutor-linked';
 
   return (
     <View style={styles.screen}>
-      {step !== 'welcome' && step !== 'tutor-preview' ? (
+      {hideTopLink ? (
+        <View style={styles.backLink} />
+      ) : step !== 'welcome' && step !== 'tutor-preview' ? (
         <Pressable
           accessibilityRole="link"
           hitSlop={8}
           style={styles.backLink}
           onPress={() => {
-            if (step === 'value-onboarding') {
-              if (pendingHomePath) goHome(pendingHomePath);
-            } else if (step === 'role') go('welcome');
+            if (step === 'role') go('welcome');
             else if (step === 'sign-up') go(initialTutorInvite ? 'tutor-preview' : 'role');
             else if (step === 'sign-in') go(initialTutorInvite ? 'tutor-preview' : 'welcome');
             else if (step === 'tutor-consent') {
@@ -267,7 +293,15 @@ export function OnboardingFlow({
         </Pressable>
       )}
 
-      <View style={styles.body}>
+      {/* ScrollView - 가입 폼(입력 5개 + 약관 카드 + 소셜 버튼)은 폰 세로 화면보다 길어서, 평범한
+          View였을 땐 아래쪽 버튼이 화면 밖으로 잘린 채 닿지 않았다. keyboardShouldPersistTaps로
+          입력 중 버튼 탭이 키보드 닫기에 먹히지 않게 한다. */}
+      <ScrollView
+        style={styles.bodyScroll}
+        contentContainerStyle={styles.body}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         {step === 'welcome' && <WelcomeStep onSignUp={() => go('role')} onSignIn={() => go('sign-in')} />}
         {step === 'role' && (
           <RoleStep
@@ -295,7 +329,7 @@ export function OnboardingFlow({
           <SignInStep
             onAuthed={onSignedIn}
             onGoSignUp={() => go(initialTutorInvite ? 'tutor-preview' : 'role')}
-            onGoResetPassword={() => navigate('/reset-password')}
+            onGoResetPassword={(loginId) => navigate('/reset-password', { state: { loginId } })}
             tutorInvite={initialTutorInvite ?? null}
             onCollectTokenForTutorInvite={(token) => {
               setTutorAuthMode('sign-in');
@@ -307,15 +341,27 @@ export function OnboardingFlow({
         {step === 'value-onboarding' && (
           <ValueOnboardingStep
             onDone={() => {
-              if (pendingHomePath) goHome(pendingHomePath);
+              if (pendingHomePath) {
+                goHome(pendingHomePath, pendingHomePath === '/onboarding/parent' ? parentOnboardingState : undefined);
+              }
             }}
           />
         )}
         {step === 'tutor-preview' && initialTutorInvite && (
           <TutorPreviewStep
-            loading={tutorPreviewLoading}
+            // 세션 복원이 끝나기 전엔 "로그인됐는지"를 모른다 - 그동안 계정 만들기/로그인 버튼을
+            // 보여줬다가 한 박자 뒤 "연결하기" 하나로 바뀌면 깜빡임처럼 보여서, 로딩으로 묶는다.
+            loading={tutorPreviewLoading || authState.status === 'loading'}
             preview={tutorPreview}
             error={tutorPreviewError}
+            // 로딩/에러 상태는 이벤트 핸들러에서 되돌리고, effect는 attempt 변화에 따라
+            // 다시 조회만 한다(effect 본문의 setState는 lint가 막는다).
+            onRetry={() => {
+              setTutorPreviewLoading(true);
+              setTutorPreviewError(null);
+              setTutorPreviewAttempt((n) => n + 1);
+            }}
+            onExit={onExit}
             // 이미 로그인된 채로 이 초대를 열었다면(예: 마이페이지 > 수업 연결에서 링크를 붙여넣은
             // 경우) 계정을 또 만들거나 다시 로그인할 필요가 없다 - 지금 세션의 토큰을 그대로
             // 들고 동의 단계로 간다.
@@ -332,12 +378,26 @@ export function OnboardingFlow({
         )}
         {step === 'tutor-consent' && (
           <TutorConsentStep
+            preview={tutorPreview}
             submitting={tutorAccepting}
             error={tutorAcceptError}
             onAccept={onTutorAccept}
           />
         )}
-      </View>
+        {step === 'tutor-linked' && (
+          <TutorLinkedStep
+            preview={tutorPreview}
+            newAccount={tutorAuthMode !== 'sign-in'}
+            onDone={() => {
+              if (!pendingHomePath) return;
+              // 새 계정은 가치 소개 캐러셀을 한 번 거친 뒤 아이 프로필 온보딩으로, 기존 계정은
+              // 곧장 홈으로 - onSignedUp/onSignedIn이 하던 구분 그대로.
+              if (tutorAuthMode === 'sign-in') goHome(pendingHomePath);
+              else go('value-onboarding');
+            }}
+          />
+        )}
+      </ScrollView>
     </View>
   );
 }
@@ -429,6 +489,8 @@ function TutorPreviewStep({
   loading,
   preview,
   error,
+  onRetry,
+  onExit,
   alreadyAuthenticated,
   onContinue,
   onSignIn,
@@ -437,6 +499,8 @@ function TutorPreviewStep({
   loading: boolean;
   preview: TutorInvitePreview | null;
   error: string | null;
+  onRetry: () => void;
+  onExit: () => void;
   /** 이미 로그인된 세션으로 이 초대를 열었는지 - 마이페이지 > 수업 연결에서 링크를 붙여넣은
    *  경우가 대표적이다. true면 계정 만들기/로그인 선택 대신 "연결하기" 버튼 하나만 보인다. */
   alreadyAuthenticated: boolean;
@@ -452,7 +516,17 @@ function TutorPreviewStep({
     );
   }
   if (error || !preview) {
-    return <ErrorState message={error ?? '초대 정보를 불러오지 못했어요.'} />;
+    // 예전엔 메시지만 있고 버튼이 없어서, 만료됐거나 잘못 적힌 코드로 들어온 부모는 여기서
+    // 막다른 길이었다 - 재시도와 나가는 길을 둘 다 준다.
+    return (
+      <View style={styles.welcome}>
+        <ErrorState message={error ?? '초대 정보를 불러오지 못했어요.'} onRetry={onRetry} />
+        <Text style={styles.formNote}>
+          초대가 만료됐거나 코드가 다를 수 있어요. 선생님께 새 초대를 요청해 주세요.
+        </Text>
+        <ActionButton variant="secondaryFull" label="서재로 돌아가기" onPress={onExit} />
+      </View>
+    );
   }
   return (
     <View style={styles.welcome}>
@@ -483,17 +557,25 @@ function TutorPreviewStep({
 /** 예전 ParentLinkAcceptPage의 'consent' 스테이지 - 문구/항목은 그대로, 스타일만 이 온보딩
  * 흐름의 공유 톤(styles.title/welcomeCard 등)에 맞췄다. */
 function TutorConsentStep({
+  preview,
   submitting,
   error,
   onAccept,
 }: {
+  preview: TutorInvitePreview | null;
   submitting: boolean;
   error: string | null;
   onAccept: () => void;
 }) {
+  // 부모 온보딩(OnboardingParentPage)의 동의 화면과 같은 방식 - 버튼 하나로 "동의"를 갈음하지
+  // 않고 확인 체크를 한 번 받는다. 이 동의는 아이 기록을 제3자(선생님)와 잇는 결정이라서.
+  const [confirmed, setConfirmed] = useState(false);
   return (
     <View style={styles.welcome}>
-      <Text style={styles.welcomeTitle}>부모님이 확인할 내용</Text>
+      <Text style={styles.eyebrow}>연결 전 마지막 확인</Text>
+      <Text style={styles.welcomeTitle}>
+        {preview ? `${preview.tutorDisplayName} 선생님과\n${preview.studentName}의 기록을 나눠요` : '부모님이 확인할 내용'}
+      </Text>
       <View style={styles.consentCard}>
         <Text style={styles.consentGroupLabel}>부모가 받음</Text>
         {TUTOR_CONSENT_SHARED_ITEMS.map((item) => (
@@ -504,9 +586,59 @@ function TutorConsentStep({
           <Text key={item} style={styles.consentItemBlocked}>· {item}</Text>
         ))}
       </View>
-      <Text style={styles.formNote}>연결해도 선생님은 가정 구독 정보나 다른 이야기 기록을 볼 수 없어요.</Text>
+      <Text style={styles.formNote}>연결해도 선생님은 가정 구독 정보나 다른 이야기 기록을 볼 수 없어요. 연결은 마이페이지에서 언제든 끊을 수 있어요.</Text>
+      <View style={styles.consentCheckRow}>
+        <Checkbox checked={confirmed} onChange={setConfirmed} label="위 내용을 확인했고, 연결에 동의해요" />
+      </View>
       {error ? <StatusBanner variant="warning" label={error} /> : null}
-      <ActionButton variant="gold" label={submitting ? '연결하는 중…' : '동의하고 연결 완료'} onPress={onAccept} loading={submitting} />
+      <ActionButton
+        variant="gold"
+        label={submitting ? '연결하는 중…' : '동의하고 연결 완료'}
+        onPress={onAccept}
+        loading={submitting}
+        disabled={!confirmed || submitting}
+      />
+    </View>
+  );
+}
+
+/**
+ * 연결이 실제로 끝난 뒤의 확인 화면 - 누구와, 어떤 아이가 이어졌는지와 앞으로 무엇이 오는지를
+ * 한 번 보여준다. 새 계정이면 다음에 아이 프로필(이미 채워진 상태)로, 기존 계정이면 홈으로.
+ */
+function TutorLinkedStep({
+  preview,
+  newAccount,
+  onDone,
+}: {
+  preview: TutorInvitePreview | null;
+  newAccount: boolean;
+  onDone: () => void;
+}) {
+  return (
+    <View style={styles.welcome}>
+      <View style={styles.linkedBadge}>
+        <Text style={styles.linkedBadgeMark}>✓</Text>
+      </View>
+      <Text style={styles.welcomeTitle}>
+        {preview ? `${preview.tutorDisplayName} 선생님과\n연결됐어요` : '선생님과 연결됐어요'}
+      </Text>
+      <Text style={styles.welcomeLead}>
+        {preview
+          ? `${preview.studentName}의 수업 리포트가 도착하면 알려드릴게요.\n선생님이 진행한 질문과 달라진 장면을 그대로 볼 수 있어요.`
+          : '선생님이 진행한 수업 리포트가 도착하면 알려드릴게요.'}
+      </Text>
+      <View style={styles.welcomeCard}>
+        <Text style={styles.welcomeCardTitle}>
+          {newAccount ? '이제 아이 프로필만 확인하면 끝이에요' : '홈에서 리포트를 기다려 주세요'}
+        </Text>
+        <Text style={styles.welcomeCardBody}>
+          {newAccount
+            ? '초대에 있던 아이 이름과 연령대를 미리 채워 뒀어요. 확인만 하면 돼요.'
+            : '연결된 선생님과 아이는 마이페이지 > 수업 연결에서 볼 수 있어요.'}
+        </Text>
+        <ActionButton variant="gold" label={newAccount ? '다음' : '홈으로 가기'} onPress={onDone} />
+      </View>
     </View>
   );
 }
@@ -553,11 +685,15 @@ function SignUpStep({
   const showOrgNameField = role === 'DIRECTOR';
   const useJoinFlow = role === 'PARENT' && (Boolean(inviteToken) || hasClass);
   const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword;
+  // 입력을 시작한 뒤에만 인라인으로 지적한다 - 빈 필드에 처음부터 빨간 글씨를 띄우진 않는다.
+  const emailInvalid = email.trim().length > 0 && !EMAIL_PATTERN.test(email.trim());
+  const passwordTooShort = password.length > 0 && password.length < PASSWORD_MIN_LENGTH;
 
   const canSubmit =
     Boolean(loginId.trim()) &&
     Boolean(email.trim()) &&
-    Boolean(password) &&
+    !emailInvalid &&
+    password.length >= PASSWORD_MIN_LENGTH &&
     password === confirmPassword &&
     Boolean(displayName.trim()) &&
     termsConsentIsValid(terms) &&
@@ -684,17 +820,42 @@ function SignUpStep({
         />
       )}
 
-      <TextField label="아이디" value={loginId} onChangeText={setLoginId} placeholder="로그인에 쓸 아이디" />
-      <TextField label="이메일" value={email} onChangeText={setEmail} keyboardType="email-address" />
-      <TextField label="비밀번호" value={password} onChangeText={setPassword} secureTextEntry />
+      {/* autoComplete는 react-native-web이 DOM autocomplete로 그대로 넘긴다 - 브라우저/비밀번호
+          관리자가 새 비밀번호 제안과 자동 저장을 제대로 하려면 이 힌트가 있어야 한다. */}
+      <TextField
+        label="아이디"
+        value={loginId}
+        onChangeText={setLoginId}
+        placeholder="로그인에 쓸 아이디"
+        autoComplete="username"
+      />
+      <TextField
+        label="이메일"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoComplete="email"
+        placeholder="example@email.com"
+        errorText={emailInvalid ? '이메일 형식을 확인해 주세요.' : undefined}
+      />
+      <TextField
+        label="비밀번호"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        autoComplete="new-password"
+        description={`${PASSWORD_MIN_LENGTH}자 이상`}
+        errorText={passwordTooShort ? `${PASSWORD_MIN_LENGTH}자 이상 입력해 주세요.` : undefined}
+      />
       <TextField
         label="비밀번호 확인"
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         secureTextEntry
+        autoComplete="new-password"
         errorText={passwordMismatch ? '비밀번호가 서로 달라요.' : undefined}
       />
-      <TextField label="이름" value={displayName} onChangeText={setDisplayName} />
+      <TextField label="이름" value={displayName} onChangeText={setDisplayName} autoComplete="name" placeholder="아이에게 보일 부모님 이름" />
       <TermsConsent
         value={terms}
         onChange={setTerms}
@@ -729,7 +890,8 @@ function SignInStep({
 }: {
   onAuthed: OnAuthed;
   onGoSignUp: () => void;
-  onGoResetPassword: () => void;
+  /** 입력 중이던 아이디를 넘겨 재설정 화면에서 다시 타이핑하지 않게 한다. */
+  onGoResetPassword: (loginId: string) => void;
   /** 있으면 로그인 성공 뒤 곧장 onAuthed(홈 이동)로 가지 않고, 얻은 토큰을 tutor-consent로 넘긴다. */
   tutorInvite: TutorInviteRef | null;
   onCollectTokenForTutorInvite: (token: string) => void;
@@ -738,8 +900,10 @@ function SignInStep({
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const canSubmit = !submitting && Boolean(loginId.trim()) && Boolean(password);
 
   const onSubmit = useCallback(async () => {
+    if (!loginId.trim() || !password) return;
     setError(null);
     setSubmitting(true);
     try {
@@ -759,12 +923,16 @@ function SignInStep({
   return (
     <View style={styles.form}>
       <Text style={styles.carouselTitle}>로그인</Text>
-      {tutorInvite ? <Text style={styles.formNote}>로그인하면 바로 이 초대를 연결할게요.</Text> : null}
+      <Text style={styles.welcomeLead}>
+        {tutorInvite ? '로그인하면 바로 이 초대를 연결할게요.' : '가입할 때 만든 아이디와 비밀번호로 들어와요.'}
+      </Text>
       <TextField
         label="아이디"
         value={loginId}
         onChangeText={setLoginId}
         placeholder="아이디"
+        autoComplete="username"
+        returnKeyType="next"
       />
       <TextField
         label="비밀번호"
@@ -772,16 +940,21 @@ function SignInStep({
         onChangeText={setPassword}
         placeholder="비밀번호"
         secureTextEntry
-        errorText={error ?? undefined}
+        autoComplete="current-password"
+        returnKeyType="go"
+        onSubmitEditing={() => { if (canSubmit) void onSubmit(); }}
       />
-      <Pressable accessibilityRole="link" hitSlop={4} onPress={onGoResetPassword} style={styles.signInInlineLink}>
+      <Pressable accessibilityRole="link" hitSlop={4} onPress={() => onGoResetPassword(loginId.trim())} style={styles.signInInlineLink}>
         <Text style={styles.signInInlineLinkText}>비밀번호를 잊으셨나요?</Text>
       </Pressable>
+      {/* 가입 폼과 같은 배너 - 예전엔 로그인 실패 메시지가 비밀번호 필드의 errorText로만 떠서
+          "비밀번호가 틀렸다"처럼 읽혔다(실제론 아이디가 없거나 서버 오류일 수도 있다). */}
+      {error ? <StatusBanner variant="warning" label={error} /> : null}
       <ActionButton
         variant="gold"
         label={submitting ? '로그인 중…' : '로그인'}
         onPress={onSubmit}
-        disabled={submitting || !loginId.trim() || !password}
+        disabled={!canSubmit}
       />
       {!tutorInvite && <SocialLoginButtons onAuthed={onAuthed} />}
       <Pressable accessibilityRole="link" hitSlop={4} onPress={onGoSignUp} style={styles.signInSignUpRow}>
@@ -809,13 +982,32 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.semibold,
   },
+  bodyScroll: { flex: 1, width: '100%' },
   body: {
-    flex: 1,
+    flexGrow: 1,
     width: '100%',
     maxWidth: storybookTheme.layout.contentMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: 20,
     paddingBottom: 32,
+  },
+  consentCheckRow: { width: '100%', marginTop: 4 },
+  linkedBadge: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: storybookTheme.semantic.positive.background,
+    borderWidth: 2,
+    borderColor: storybookTheme.semantic.positive.border,
+    marginTop: 12,
+  },
+  linkedBadgeMark: {
+    color: storybookTheme.semantic.positive.text,
+    fontSize: storybookTheme.type.xl,
+    fontWeight: storybookTheme.type.weight.black,
+    lineHeight: storybookTheme.type.xl,
   },
   pressed: { opacity: 0.9 },
   eyebrow: {

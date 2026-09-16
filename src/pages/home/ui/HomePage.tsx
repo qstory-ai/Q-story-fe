@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { Navigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { homePathFor, useAuth } from '@/entities/auth';
@@ -57,7 +57,9 @@ function readOnboardingParams(params: URLSearchParams): OnboardingEntry | null {
 const ROLE_OPTIONS: { role: 'DIRECTOR' | 'PARENT' | 'TUTOR'; label: string; body: string }[] = [
   { role: 'PARENT', label: '학부모님', body: '아이와 함께 이야기 서재를 시작해요' },
   { role: 'TUTOR', label: '선생님', body: '학생을 등록하고 수업을 준비해요' },
-  { role: 'DIRECTOR', label: '기관 관리자', body: '유치원·기관을 등록하고 반을 만들어요' },
+  // OnboardingFlow의 ROLE_CARDS와 같은 표기("기관 및 단체") - 예전엔 여기만 "기관 관리자"라
+  // 카드를 눌러 들어간 다음 화면에서 이름이 달라졌다.
+  { role: 'DIRECTOR', label: '기관 및 단체', body: '유치원·기관을 등록하고 반을 만들어요' },
 ];
 
 /**
@@ -83,6 +85,7 @@ const ROLE_OPTIONS: { role: 'DIRECTOR' | 'PARENT' | 'TUTOR'; label: string; body
  */
 export function HomePage() {
   const { state, logout } = useAuth();
+  const navigate = useNavigate();
   const { width } = useWindowDimensions();
   const isWide = width >= 720;
   const [searchParams] = useSearchParams();
@@ -117,7 +120,12 @@ export function HomePage() {
           initialRole={onboarding.role}
           initialInvite={onboarding.invite}
           initialTutorInvite={onboarding.tutorInvite}
-          onExit={() => setManualOnboarding(null)}
+          // URL 파라미터(/login, /join, 초대 링크)로 들어온 경우엔 state를 비워도 paramEntry가
+          // 계속 이기므로 "← 서재로"가 아무 일도 안 했다 - 파라미터 없는 "/"로 실제로 이동한다.
+          onExit={() => {
+            setManualOnboarding(null);
+            if (paramEntry) navigate('/', { replace: true });
+          }}
         />
       </SafeAreaView>
     );

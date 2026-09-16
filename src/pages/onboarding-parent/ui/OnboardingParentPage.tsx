@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -18,6 +18,15 @@ const ONBOARDING_DONE_KEY_PREFIX = 'qstory.onboarding.parent.done.';
 
 type Step = 'child' | 'consent' | 'done';
 
+/** 선생님 초대로 가입한 부모에게 OnboardingFlow가 navigate state로 넘겨주는 미리 채움 값 -
+ *  초대 미리보기에 이미 있던 아이 이름/연령대를 여기서 다시 타이핑하지 않게 한다. */
+type ParentOnboardingPrefill = { name?: string; ageBand?: AgeBand };
+
+function readPrefill(state: unknown): ParentOnboardingPrefill {
+  const prefill = (state as { prefill?: ParentOnboardingPrefill } | null)?.prefill;
+  return prefill && typeof prefill === 'object' ? prefill : {};
+}
+
 /**
  * IA "부모 온보딩" - 회원가입 성공 직후 자동 진입. IA의 네 스텝(보호자 정보/아이 등록/필수
  * 동의/완료) 중 보호자 정보는 signup 폼에서 이미 받았으므로 여기선 아이 등록 → 필수 동의 →
@@ -26,12 +35,14 @@ type Step = 'child' | 'consent' | 'done';
  */
 export function OnboardingParentPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { state } = useAuth();
   const { addChild } = useChildren();
+  const [prefill] = useState(() => readPrefill(location.state));
 
   const [step, setStep] = useState<Step>('child');
-  const [name, setName] = useState('');
-  const [ageBand, setAgeBand] = useState<AgeBand>('6-7');
+  const [name, setName] = useState(prefill.name ?? '');
+  const [ageBand, setAgeBand] = useState<AgeBand>(prefill.ageBand ?? '6-7');
   const [avatarKey, setAvatarKey] = useState<ChildAvatarKey>(CHILD_AVATARS[0].key);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -81,7 +92,7 @@ export function OnboardingParentPage() {
     <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
       <View style={styles.header}>
         <View style={styles.progressRow}>
-          <ProgressPip filled={step !== 'child' || step === 'child'} />
+          <ProgressPip filled />
           <ProgressPip filled={step === 'consent' || step === 'done'} />
           <ProgressPip filled={step === 'done'} />
         </View>
@@ -101,7 +112,9 @@ export function OnboardingParentPage() {
             <Text style={styles.eyebrow}>1 · 아이 등록</Text>
             <Text style={styles.title} accessibilityRole="header">아이 프로필을 만들어 주세요</Text>
             <Text style={styles.body}>
-              이야기 속에서 부를 이름과 아이의 연령대, 아바타를 골라 주세요. 언제든 마이페이지에서 바꿀 수 있어요.
+              {prefill.name
+                ? '선생님 초대에 있던 아이 이름과 연령대를 미리 채워 뒀어요. 맞는지 확인하고 아바타만 골라 주세요.'
+                : '이야기 속에서 부를 이름과 아이의 연령대, 아바타를 골라 주세요. 언제든 마이페이지에서 바꿀 수 있어요.'}
             </Text>
 
             <TextField

@@ -245,6 +245,7 @@ export function TutorStudentDetailPage() {
                       shortCode={issuedInvite.shortCode}
                       link={`${originBase}/tutor-invite/${issuedInvite.token}`}
                       expiresLabel={formatDate(issuedInvite.expiresAt)}
+                      shareMessage={`${effective.student.name} 부모님, Q-Story 수업 연결 초대예요. 아래 코드나 링크로 들어와 주세요.`}
                       onDismiss={() => setIssuedInvite(null)}
                     />
                   ) : null}

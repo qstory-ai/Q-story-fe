@@ -10,6 +10,7 @@ import { ChapterSidebar } from './chapter-sidebar';
 import { CompanionChatModal } from './modals/companion-chat-modal';
 import { HomeMenuModal } from './modals/home-menu-modal';
 import { ResumeModal } from './modals/resume-modal';
+import { PlaybackDock } from './playback-dock';
 import { ReaderCard } from './reader-card/reader-card';
 import { SceneProgressBar } from './scene-progress-bar';
 import { styles } from './styles';
@@ -27,6 +28,7 @@ export function OneStoryPage({
   const {
     isWide,
     isShort,
+    isNarrow,
     isCompactPlayback,
     isPlaybackDockState,
     isParentReport,
@@ -69,7 +71,8 @@ export function OneStoryPage({
             isWide && styles.scrollContentWide,
             isShort && styles.scrollContentShort,
             isPlaybackDockState && styles.scrollContentPlayback,
-            isCompactPlayback && styles.scrollContentCompactPlayback,
+            isNarrow && !isParentReport && styles.scrollContentNarrow,
+            isNarrow && isPlaybackDockState && styles.scrollContentNarrowPlayback,
             !isPlaybackDockState && styles.scrollContentCentered,
             isShort && !isPlaybackDockState && styles.scrollContentShortCentered,
             isParentReport && styles.reportScrollContent,
@@ -89,6 +92,8 @@ export function OneStoryPage({
           )}
           <ReaderCard runtime={runtime} />
         </ScrollView>
+
+        <PlaybackDock runtime={runtime} />
 
         <ChapterSidebar
           runtime={runtime}

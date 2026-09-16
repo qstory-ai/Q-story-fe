@@ -1,6 +1,47 @@
-import type { FailureReason, StoryRuntimeState } from '@/entities/story-runtime';
+import type {
+  FailureReason,
+  SceneId,
+  StoryManifest,
+  StoryRuntimeState,
+} from '@/entities/story-runtime';
 import { personalizeStoryText } from '@/entities/narration';
 import type { StoryRuntimePackage } from '@/entities/story';
+import type { QuestionOutcome } from '@/entities/analytics';
+
+/**
+ * 챕터 사이드바 되감기가 질문 기록(QuestionOutcome)에 미치는 영향을 나눈다 - 되감기 대상 장면
+ * "이전" 장면의 앵커에서 나온 기록은 그대로 유지하고(kept), 대상 장면부터 그 이후 장면의 앵커에서
+ * 나온 기록은 버린다(discarded). 예전엔 되감을 때 기록을 통째로 비웠는데, 7화로 되감는다고
+ * 4화에서 한 질문까지 사라지는 건 "되감은 지점 이후의 기록은 초기화된다"는 약속보다 과했다 -
+ * 그 질문 장면은 다시 재생되지도 않으니 부모 리포트에서 사라질 이유가 없다.
+ *
+ * 사이드바는 이 결과의 discarded 개수로 "확인 모달을 띄울지"를 정하고(0개면 바로 되감기), 런타임
+ * 훅은 kept를 새 questionOutcomes로 쓴다 - 같은 함수를 공유해야 "모달이 사라진다고 한 개수"와
+ * "실제로 사라지는 개수"가 어긋나지 않는다. 앵커/장면을 매니페스트에서 못 찾으면(검증상 없어야
+ * 하는 경우) 보수적으로 버리는 쪽에 둔다.
+ */
+export function splitQuestionOutcomesAtScene(
+  outcomes: readonly QuestionOutcome[],
+  manifest: StoryManifest,
+  targetSceneId: SceneId,
+) {
+  const sceneIndexOf = (id: SceneId | undefined) =>
+    id === undefined ? -1 : manifest.scenes.findIndex((scene) => scene.id === id);
+  const targetIndex = sceneIndexOf(targetSceneId);
+  const kept: QuestionOutcome[] = [];
+  const discarded: QuestionOutcome[] = [];
+  for (const outcome of outcomes) {
+    const anchorSceneIndex = sceneIndexOf(
+      manifest.questionAnchors.find((anchor) => anchor.id === outcome.anchorId)?.sceneId,
+    );
+    if (targetIndex >= 0 && anchorSceneIndex >= 0 && anchorSceneIndex < targetIndex) {
+      kept.push(outcome);
+    } else {
+      discarded.push(outcome);
+    }
+  }
+  return { kept, discarded };
+}
 
 export function formatDuration(durationMillis: number) {
   return `${Math.max(0, Math.ceil(durationMillis / 1000))}초`;

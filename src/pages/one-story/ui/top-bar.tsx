@@ -12,6 +12,13 @@ const TOP_ICON_COLOR = storybookTheme.color.gold;
 // 터치 영역만 WCAG 44px 권장치에 가깝게 넓힌다 - 인접 버튼과는 겹치지 않는 선에서.
 const TOP_CONTROL_HIT_SLOP = { top: 4, bottom: 4, left: 3, right: 3 };
 
+/**
+ * 넓은 화면: [로고+제목+회차] … [챕터][홈][채팅] [재생 컨트롤 4개] [N / M]
+ * 휴대폰(isNarrow): [작은 로고 + "N화 · 제목" 한 줄] … [챕터][홈][채팅] [N / M]
+ *   - 재생 컨트롤은 PlaybackDock(하단)으로 옮겼다. 예전엔 폰에서도 이 바에 전부 욱여넣어
+ *     아이콘 8개가 두 줄로 쌓였고, 질문 화면에선 브랜드 락업이 "Q-\nSTORY" / "헨젤과 그\n레텔"로
+ *     줄바꿈돼 깨졌다.
+ */
 export function TopBar({
   runtime,
   chat,
@@ -24,7 +31,7 @@ export function TopBar({
 }) {
   const {
     isWide,
-    isCompactPlayback,
+    isNarrow,
     isParentReport,
     runtimeState,
     scene,
@@ -44,12 +51,16 @@ export function TopBar({
     closeParentReport,
   } = runtime;
   const navigate = useNavigate();
+  const inStory = runtimeState.status !== 'idle' && !isParentReport;
+  const chapterCaption = inStory && scene?.title ? `${displayedSceneIndex + 1}화 · ${scene.title}` : null;
+  const progressLabel = `${Math.min(displayedSceneIndex + 1, totalScenes)} / ${totalScenes}`;
+  const compactLockup = isNarrow && !isParentReport;
 
   return (
     <View
       style={[
         styles.topBar,
-        isCompactPlayback && styles.topBarCompactPlayback,
+        isNarrow && styles.topBarNarrow,
         isParentReport && styles.reportTopBar,
       ]}
     >
@@ -58,53 +69,55 @@ export function TopBar({
         accessibilityRole="link"
         accessibilityLabel="Q-Story 처음으로"
         onPress={() => navigate('/')}
-        style={[
-          styles.brandLockup,
-          isCompactPlayback && styles.brandLockupCompactPlayback,
-        ]}
+        style={[styles.brandLockup, compactLockup && styles.brandLockupNarrow]}
       >
         <View
           style={[
             styles.brandLogoFrame,
+            compactLockup && styles.brandLogoFrameNarrow,
             isParentReport && styles.reportBrandLogoFrame,
           ]}
         >
           <Image
             source={{ uri: '/brand/q-story-question-book-logo.svg' }}
             resizeMode="contain"
-            style={styles.brandLogo}
+            style={[styles.brandLogo, compactLockup && styles.brandLogoNarrow]}
             accessibilityLabel="Q-Story 로고"
           />
         </View>
-        <View style={styles.brandTextLockup}>
-          <Text style={styles.brand}>
-            <Text style={styles.brandQ}>Q</Text>
-            <Text style={isParentReport && styles.reportTopText}>
-              -STORY
-            </Text>
+        {compactLockup ? (
+          // 폰에선 "Q-STORY" 워드마크를 빼고 회차 캡션 한 줄만 - 이 자리에서 실제로 필요한
+          // 정보는 "지금 몇 화, 무슨 장면인지"뿐이고 브랜드는 로고로 충분하다.
+          <Text style={styles.storyTitleNarrow} numberOfLines={1}>
+            {chapterCaption ?? parentReport.storyTitle}
           </Text>
-          <Text
-            style={[
-              styles.storyTitle,
-              isParentReport && styles.reportStoryTitle,
-            ]}
-          >
-            {isParentReport ? '오늘의 질문 기록' : parentReport.storyTitle}
-          </Text>
-          {runtimeState.status !== 'idle' && !isParentReport && scene?.title && (
-            <Text style={styles.chapterTitle} numberOfLines={1}>
-              {displayedSceneIndex + 1}화 · {scene.title}
+        ) : (
+          <View style={styles.brandTextLockup}>
+            <Text style={styles.brand}>
+              <Text style={styles.brandQ}>Q</Text>
+              <Text style={isParentReport && styles.reportTopText}>
+                -STORY
+              </Text>
             </Text>
-          )}
-        </View>
+            <Text
+              style={[
+                styles.storyTitle,
+                isParentReport && styles.reportStoryTitle,
+              ]}
+              numberOfLines={1}
+            >
+              {isParentReport ? '오늘의 질문 기록' : parentReport.storyTitle}
+            </Text>
+            {chapterCaption && (
+              <Text style={styles.chapterTitle} numberOfLines={1}>
+                {chapterCaption}
+              </Text>
+            )}
+          </View>
+        )}
       </Pressable>
-      <View
-        style={[
-          styles.topRight,
-          isCompactPlayback && styles.topRightCompactPlayback,
-        ]}
-      >
-        {runtimeState.status !== 'idle' && !isParentReport && onOpenChapters && (
+      <View style={styles.topRight}>
+        {inStory && onOpenChapters && (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="챕터 목록 열기"
@@ -116,7 +129,7 @@ export function TopBar({
             {isWide && <Text style={styles.topControlText}>챕터</Text>}
           </Pressable>
         )}
-        {runtimeState.status !== 'idle' && !isParentReport && (
+        {inStory && (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="이야기 홈 메뉴"
@@ -128,7 +141,7 @@ export function TopBar({
             {isWide && <Text style={styles.topControlText}>홈</Text>}
           </Pressable>
         )}
-        {runtimeState.status !== 'idle' && !isParentReport && (
+        {inStory && (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`${chat.character.displayName}에게 물어보기`}
@@ -152,21 +165,9 @@ export function TopBar({
             )}
           </Pressable>
         )}
-        {isCompactPlayback && (
-          <View style={styles.progressPillCompact}>
-            <Text style={styles.progressText}>
-              {Math.min(displayedSceneIndex + 1, totalScenes)} /{' '}
-              {totalScenes}
-            </Text>
-          </View>
-        )}
-        {isPlaybackDockState && (currentClip || isBranchPlaybackState) && (
-          <View
-            style={[
-              styles.topPlaybackControls,
-              isCompactPlayback && styles.topPlaybackControlsCompact,
-            ]}
-          >
+        {/* 재생 컨트롤 - 폰에선 PlaybackDock이 같은 네 버튼을 하단에 라벨과 함께 그린다. */}
+        {!isNarrow && isPlaybackDockState && (currentClip || isBranchPlaybackState) && (
+          <View style={styles.topPlaybackControls}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={
@@ -244,14 +245,14 @@ export function TopBar({
           >
             <Text style={styles.reportBackButtonText}>← 완주로</Text>
           </Pressable>
-        ) : !isCompactPlayback ? (
-          <View style={styles.progressPill}>
-            <Text style={styles.progressText}>
-              {Math.min(displayedSceneIndex + 1, totalScenes)} /{' '}
-              {totalScenes}
-            </Text>
+        ) : (
+          <View
+            style={[styles.progressPill, isNarrow && styles.progressPillNarrow]}
+            accessibilityLabel={`${progressLabel} 회차`}
+          >
+            <Text style={styles.progressText}>{progressLabel}</Text>
           </View>
-        ) : null}
+        )}
       </View>
       </View>
     </View>

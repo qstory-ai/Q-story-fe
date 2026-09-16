@@ -35,7 +35,8 @@ export const styles = StyleSheet.create({
     zIndex: storybookTheme.zIndex.sticky,
     gap: 10,
   },
-  topBarCompactPlayback: {
+  // 휴대폰: 좌우 여백을 줄이고 위로 붙여 한 줄(38px 버튼 높이)로 끝낸다.
+  topBarNarrow: {
     left: 12,
     right: 12,
     top: 10,
@@ -66,7 +67,25 @@ export const styles = StyleSheet.create({
     gap: 10,
     flexShrink: 1,
   },
-  brandLockupCompactPlayback: { display: 'none' },
+  // 휴대폰: 로고를 줄이고 워드마크 없이 회차 캡션 한 줄만 - 오른쪽 버튼 묶음이 먼저 자리를
+  // 잡고 남는 폭을 이 락업이 flex:1로 받는다(numberOfLines=1로 잘림).
+  brandLockupNarrow: { flex: 1, gap: 8, minWidth: 0 },
+  brandLogoFrameNarrow: {
+    width: 34,
+    height: 36,
+    borderRadius: 10,
+  },
+  brandLogoNarrow: { width: 28, height: 30 },
+  storyTitleNarrow: {
+    flex: 1,
+    color: storybookTheme.color.surfaceWhite,
+    fontSize: storybookTheme.type.xs,
+    lineHeight: 16,
+    fontWeight: storybookTheme.type.weight.bold,
+    textShadowColor: 'rgba(0,0,0,0.45)',
+    textShadowRadius: 4,
+    textShadowOffset: { width: 0, height: 1 },
+  },
   brandLogoFrame: {
     width: 50,
     height: 54,
@@ -109,21 +128,12 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
     gap: 9,
-  },
-  topRightCompactPlayback: {
-    width: '100%',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 6,
+    flexShrink: 0,
   },
   topPlaybackControls: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-  },
-  topPlaybackControlsCompact: {
-    width: '100%',
-    justifyContent: 'center',
   },
   topControlButton: {
     minWidth: 38,
@@ -162,15 +172,11 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 8,
   },
-  progressPillCompact: {
+  progressPillNarrow: {
     minHeight: 38,
-    borderRadius: storybookTheme.radius.pill,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
-    backgroundColor: 'rgba(22, 12, 36, 0.78)',
-    alignItems: 'center',
+    paddingHorizontal: 11,
+    paddingVertical: 0,
     justifyContent: 'center',
-    paddingHorizontal: 13,
   },
   progressText: { color: storybookTheme.color.surfaceWhite, fontWeight: storybookTheme.type.weight.bold, fontSize: storybookTheme.type.sm },
   reportBackButton: {
@@ -197,7 +203,8 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 5,
   },
-  sceneProgressCompactPlayback: { left: 12, right: 12, top: 100 },
+  // 휴대폰: 상단 바가 한 줄(top 10 + 38px)로 끝나므로 그 바로 아래에 붙인다.
+  sceneProgressNarrow: { left: 12, right: 12, top: 58 },
   progressSegment: {
     flex: 1,
     height: 3,
@@ -220,7 +227,12 @@ export const styles = StyleSheet.create({
   scrollContentWide: { paddingHorizontal: 34, paddingBottom: 28 },
   scrollContentShort: { paddingTop: 98, paddingBottom: 12 },
   scrollContentPlayback: { paddingBottom: 18 },
-  scrollContentCompactPlayback: { paddingTop: 116 },
+  // 휴대폰: 한 줄 상단 바 + 진행 바(58+3) 아래로 카드가 시작하게 한다.
+  scrollContentNarrow: { paddingTop: 76 },
+  // 휴대폰 재생 중: 하단 PlaybackDock(56px 버튼 + 상하 8px + 안전영역)만큼 캡션 카드를 띄운다.
+  scrollContentNarrowPlayback: {
+    paddingBottom: 'calc(88px + env(safe-area-inset-bottom))' as unknown as number,
+  },
   scrollContentCentered: { justifyContent: 'center' },
   scrollContentShortCentered: { justifyContent: 'flex-start' },
   reportScrollContent: {
@@ -239,6 +251,46 @@ export const styles = StyleSheet.create({
   // 보였다. isCompactPlayback일 때는 훨씬 작은 값으로 줄인다.
   playbackSpacer: { minHeight: 360 },
   playbackSpacerCompact: { minHeight: 90 },
+
+  // ---------------------------------------------------------------- 휴대폰 하단 재생 도크
+  // playback-dock.tsx - 상단 바에서 옮겨온 재생 컨트롤 4개. 캡션 카드 아래, 화면 맨 아래에 고정.
+  playbackDock: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingTop: 8,
+    paddingBottom: 'calc(8px + env(safe-area-inset-bottom))' as unknown as number,
+    backgroundColor: 'rgba(16, 8, 28, 0.86)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.12)',
+    zIndex: storybookTheme.zIndex.sticky,
+  },
+  dockButton: {
+    flex: 1,
+    minHeight: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    borderRadius: 12,
+    paddingHorizontal: 4,
+  },
+  dockButtonPrimary: {
+    backgroundColor: 'rgba(246,198,77,0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(246,198,77,0.45)',
+  },
+  dockButtonPressed: { opacity: 0.7 },
+  dockLabel: {
+    color: storybookTheme.color.surfaceWhite,
+    fontSize: storybookTheme.type.xxs,
+    fontWeight: storybookTheme.type.weight.bold,
+  },
+  dockLabelDim: { color: 'rgba(255,255,255,0.6)' },
   readerCard: {
     width: '100%',
     maxWidth: 760,
@@ -1182,7 +1234,10 @@ export const styles = StyleSheet.create({
   // AppNavShell 우측 사이드바(position:fixed + translateX 트랜지션)와 같은 방식을 왼쪽에
   // 거울로 적용한다 - 다만 이 화면은 배경 삽화가 전체 폭을 쓰고 콘텐츠가 가운데 정렬이라,
   // reflow(메인 여백 밀기) 대신 오버레이 + 스크림으로 덮는 방식을 쓴다(넓은/좁은 화면 모두
-  // 같은 방식이라 분기가 필요 없다).
+  // 같은 방식이라 분기가 필요 없다). 스크림은 패널 슬라이드와 같은 시간으로 페이드한다 -
+  // 예전엔 스크림이 즉시 나타나고 패널만 미끄러져 들어와 두 요소가 따로 노는 느낌이었다.
+  // 두 transitionDuration은 chapter-sidebar.tsx의 CHAPTER_SIDEBAR_SLIDE_MS와 같아야 한다
+  // (usePresenceAnimation이 그 시간 뒤에 언마운트한다).
   chapterScrim: {
     position: 'fixed' as 'absolute',
     top: 0,
@@ -1191,7 +1246,12 @@ export const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgba(16, 8, 28, 0.45)',
     zIndex: storybookTheme.zIndex.overlay - 1,
-  },
+    opacity: 1,
+    transitionProperty: 'opacity',
+    transitionDuration: '220ms',
+    transitionTimingFunction: 'ease',
+  } as any,
+  chapterScrimHidden: { opacity: 0 },
   chapterSidebar: {
     position: 'fixed' as 'absolute',
     top: 0,
@@ -1202,7 +1262,10 @@ export const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.sidebarBackground,
     borderRightWidth: 1,
     borderRightColor: storybookTheme.color.sidebarBorder,
-    paddingTop: 18,
+    // 노치/다이내믹 아일랜드 아래로 헤더가 들어가지 않게 - 이 패널은 position:fixed라 페이지의
+    // SafeAreaView 바깥에 있어서 안전영역을 스스로 챙겨야 한다(app-nav-shell의 하단바와 같은 이유).
+    paddingTop: 'calc(18px + env(safe-area-inset-top))' as unknown as number,
+    paddingBottom: 'env(safe-area-inset-bottom)' as unknown as number,
     zIndex: storybookTheme.zIndex.overlay,
     transform: [{ translateX: 0 }],
     transitionProperty: 'transform',
@@ -1216,15 +1279,22 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 8,
     paddingHorizontal: 18,
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: storybookTheme.color.sidebarBorder,
   },
+  chapterHeaderCopy: { flex: 1, gap: 3 },
   chapterHeaderTitle: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onDark,
+  },
+  chapterHeaderMeta: {
+    fontSize: storybookTheme.type.xxs,
+    fontWeight: storybookTheme.type.weight.semibold,
+    color: storybookTheme.color.onDarkMuted,
   },
   chapterHeaderClose: {
     width: 32,
@@ -1242,6 +1312,7 @@ export const styles = StyleSheet.create({
     minHeight: 52,
     borderRadius: 12,
     paddingHorizontal: 10,
+    paddingVertical: 8,
   },
   chapterRowActive: { backgroundColor: storybookTheme.color.sidebarActive },
   chapterRowDisabled: { opacity: 0.4 },
@@ -1261,19 +1332,28 @@ export const styles = StyleSheet.create({
     color: storybookTheme.color.onDarkMuted,
   },
   chapterRowIndexTextActive: { color: '#2C1749' },
+  chapterRowCopy: { flex: 1, gap: 2 },
   chapterRowTitle: {
-    flex: 1,
     fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onDarkMuted,
   },
   chapterRowTitleActive: { color: storybookTheme.color.onDark, fontWeight: storybookTheme.type.weight.bold },
-  chapterRowTitleDisabled: { color: storybookTheme.color.onDarkMuted },
-  chapterToggle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: 'center',
-    justifyContent: 'center',
+  chapterRowCaption: {
+    fontSize: storybookTheme.type.xxs,
+    fontWeight: storybookTheme.type.weight.semibold,
+    color: storybookTheme.color.gold,
+  },
+  chapterFooter: {
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: storybookTheme.color.sidebarBorder,
+  },
+  chapterFooterText: {
+    fontSize: storybookTheme.type.xxs,
+    lineHeight: storybookTheme.type.xxs * storybookTheme.lineHeight.normal + 2,
+    color: storybookTheme.color.onDarkMuted,
   },
 });

@@ -15,7 +15,8 @@ type ReportLoad = { status: 'loading' } | { status: 'ready'; reports: TutorRepor
  *
  *  1. 이미 연결된 것들 - user.classGroupId(기관)와 최근 튜터 리포트에서 뽑은 튜터 목록.
  *  2. 선생님 초대 링크 붙여넣기 - 링크나 토큰만 남기면 /tutor-invite/{token}으로 이동해
- *     기존 ParentLinkAcceptPage 흐름을 재사용한다.
+ *     홈(OnboardingFlow)의 tutor-preview 단계로 들어간다. 이미 로그인된 상태라 계정 만들기/
+ *     로그인 선택 없이 곧장 "연결하기" → 동의로 이어진다.
  *  3. 기관 반 연결 - 독립 학부모도 반 코드를 입력하면 현재 계정을 그대로 연결한다. 새 계정을
  *     만들지 않고 JWT를 갱신하므로, 기존 아이·가정 이용 기록도 그대로 보존된다.
  */

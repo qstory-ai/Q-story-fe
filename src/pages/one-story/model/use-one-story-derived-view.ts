@@ -31,7 +31,6 @@ interface UseOneStoryDerivedViewParams {
   activeBranchVisualId: string | null;
   branchCaption: BranchCaption | null;
   resumeCandidate: LocalStoryProgress | null;
-  width: number;
 }
 
 /**
@@ -46,7 +45,6 @@ export function useOneStoryDerivedView({
   activeBranchVisualId,
   branchCaption,
   resumeCandidate,
-  width,
 }: UseOneStoryDerivedViewParams) {
   const storyManifest = storyPackage.manifest;
   const storyPresentation = storyPackage.presentation;
@@ -87,7 +85,6 @@ export function useOneStoryDerivedView({
   const isPlaybackDockState =
     (runtimeState.status === 'playing-fixed' && !isQuestionInvitePlayback) ||
     isBranchPlaybackState;
-  const isCompactPlayback = width <= 430 && isPlaybackDockState;
   const spokenText = currentClip
     ? personalizeStoryText(currentClip.transcript, childName)
     : '';
@@ -157,7 +154,6 @@ export function useOneStoryDerivedView({
     isQuestionInvitePlayback,
     isBranchPlaybackState,
     isPlaybackDockState,
-    isCompactPlayback,
     spokenText,
     captionSpeaker,
     displayedSubtitle,

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Pill, SectionHeader, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
-import { changePassword, dashboardNavItems, useAuth, type Role } from '@/entities/auth';
+import { changePassword, dashboardNavItems, isPasswordLongEnough, PASSWORD_RULE_HINT, PASSWORD_TOO_SHORT_MESSAGE, type Role, useAuth } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
 
 const ROLE_LABEL: Record<Role, string> = {
@@ -37,11 +37,11 @@ export function MyPageAccountPage() {
 
   // BE AuthValidator.validatePassword와 같은 규칙(8자 이상)을 client에서 먼저 잡아 서버 왕복 없이
   // 즉시 피드백. 필드별로 inline 에러가 붙고, canSubmit이 만족되지 않으면 버튼은 disabled.
-  const passwordTooShort = newPassword.length > 0 && newPassword.length < 8;
+  const passwordTooShort = newPassword.length > 0 && !isPasswordLongEnough(newPassword);
   const confirmMismatch = confirmPassword.length > 0 && confirmPassword !== newPassword;
   const canSubmit =
     currentPassword.length > 0 &&
-    newPassword.length >= 8 &&
+    isPasswordLongEnough(newPassword) &&
     confirmPassword === newPassword &&
     !saving;
 
@@ -102,8 +102,8 @@ export function MyPageAccountPage() {
             value={newPassword}
             onChangeText={setNewPassword}
             secureTextEntry
-            description="8자 이상"
-            errorText={passwordTooShort ? '비밀번호는 8자 이상이어야 해요.' : undefined}
+            description={PASSWORD_RULE_HINT}
+            errorText={passwordTooShort ? PASSWORD_TOO_SHORT_MESSAGE : undefined}
           />
           <TextField
             label="새 비밀번호 확인"

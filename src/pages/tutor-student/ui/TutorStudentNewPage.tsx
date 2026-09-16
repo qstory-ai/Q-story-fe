@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, RadioGroup, SafeAreaView, TextField, TextareaField, storybookTheme } from '@/shared/ui';
@@ -8,8 +8,10 @@ import { useAuth } from '@/entities/auth';
 import {
   createTutorInvite,
   createTutorStudent,
+  type TutorInvite,
   type TutorStudent,
 } from '@/entities/tutor';
+import { InviteCodeCard, formatInviteExpiry, tutorInviteLink, tutorInviteShareMessage } from '@/features/invite-issue';
 
 type WizardStep = 'info' | 'invite';
 
@@ -44,14 +46,16 @@ export function TutorStudentNewPage() {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      <View style={styles.content}>
+      {/* 폼 + 초대 카드가 폰 세로 화면보다 길어질 수 있어 ScrollView - 예전엔 View라 아래쪽
+          버튼이 화면 밖으로 잘린 채 닿지 않았다. */}
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {step === 'info' && (
           <InfoStep token={token} onCreated={(created) => { setStudent(created); setStep('invite'); }} />
         )}
         {step === 'invite' && student && (
           <InviteStep token={token} student={student} onDone={() => navigate('/tutor', { replace: true })} />
         )}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -107,16 +111,15 @@ function InfoStep({ token, onCreated }: { token: string; onCreated: (student: Tu
 }
 
 function InviteStep({ token, student, onDone }: { token: string; student: TutorStudent; onDone: () => void }) {
-  const [method, setMethod] = useState<'SMS' | 'LINK'>('SMS');
+  // 기본은 LINK - 문자 발송은 아직 연결돼 있지 않아서(번호만 저장) SMS를 기본으로 두면 번호를
+  // 입력하게 만든 뒤 "사실 직접 전달하세요"라고 하는 꼴이었다.
+  const [method, setMethod] = useState<'SMS' | 'LINK'>('LINK');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [invite, setInvite] = useState<{ token: string; expiresAt: string } | null>(null);
+  const [invite, setInvite] = useState<TutorInvite | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const inviteUrl = useMemo(() => {
-    if (!invite) return null;
-    return `${globalThis.location?.origin ?? ''}/tutor-invite/${invite.token}`;
-  }, [invite]);
+  const inviteUrl = useMemo(() => (invite ? tutorInviteLink(invite.token) : null), [invite]);
 
   const onSubmit = useCallback(async () => {
     setError(null);
@@ -141,11 +144,14 @@ function InviteStep({ token, student, onDone }: { token: string; student: TutorS
 
       {!invite ? (
         <>
+          <Text style={styles.hintLeft}>
+            초대 코드나 링크를 만들어 부모님께 전달하면, 부모님이 계정을 만들거나 로그인해서 {student.name}의 기록을 받을 수 있어요.
+          </Text>
           <RadioGroup
             accessibilityLabel="초대 방법"
             options={[
-              { value: 'SMS', label: '문자로 보내기' },
-              { value: 'LINK', label: '링크 직접 전달' },
+              { value: 'LINK', label: '코드·링크 직접 전달 (카카오톡, 문자 등)' },
+              { value: 'SMS', label: '부모님 번호 남겨두기 · 문자 자동 발송은 준비 중' },
             ]}
             value={method}
             onChange={(next) => setMethod(next as 'SMS' | 'LINK')}
@@ -156,7 +162,9 @@ function InviteStep({ token, student, onDone }: { token: string; student: TutorS
               value={phoneNumber}
               onChangeText={setPhoneNumber}
               keyboardType="phone-pad"
+              autoComplete="tel"
               placeholder="010-0000-0000"
+              description="지금은 번호만 저장돼요. 초대 코드·링크는 아래에서 직접 전달해 주세요."
               errorText={error ?? undefined}
             />
           )}
@@ -166,6 +174,7 @@ function InviteStep({ token, student, onDone }: { token: string; student: TutorS
             <Text style={styles.consentItem}>· 개인 리포트 수신과 연결 해제 방법</Text>
             <Text style={styles.consentItem}>· 가정 구독·다른 이야기 기록은 선생님에게 비공개</Text>
           </View>
+          {error && method !== 'SMS' ? <Text style={styles.error}>{error}</Text> : null}
           <ActionButton
             label={submitting ? '만드는 중…' : '초대 만들기'}
             onPress={onSubmit}
@@ -175,21 +184,15 @@ function InviteStep({ token, student, onDone }: { token: string; student: TutorS
         </>
       ) : (
         <>
-          <View style={styles.consentCard}>
-            <Text style={styles.consentTitle}>초대를 만들었어요</Text>
-            {method === 'LINK' ? (
-              <>
-                <Text style={styles.consentItem}>이 링크를 부모님께 전달해 주세요.</Text>
-                <Text selectable style={styles.inviteUrl}>{inviteUrl}</Text>
-              </>
-            ) : (
-              <Text style={styles.consentItem}>
-                {phoneNumber}로 보낼 링크가 준비됐어요. 실제 문자 발송은 아직 연결돼 있지 않아서, 아래 링크를 직접 전달해 주세요.
-              </Text>
-            )}
-            {method === 'SMS' ? <Text selectable style={styles.inviteUrl}>{inviteUrl}</Text> : null}
-          </View>
-          <Text style={styles.hint}>수업 일정은 홈으로 돌아가 "수업" 탭에서 만들 수 있어요.</Text>
+          {/* 학생 목록/상세 화면과 같은 InviteCodeCard - 예전엔 여기만 복사 버튼도 짧은 코드도
+              없는 손수 만든 카드를 써서, 선생님이 등록 직후엔 긴 토큰 URL을 손으로 긁어 복사해야 했다. */}
+          <InviteCodeCard
+            shortCode={invite.shortCode}
+            link={inviteUrl ?? ''}
+            expiresLabel={formatInviteExpiry(invite.expiresAt)}
+            shareMessage={tutorInviteShareMessage(student.name)}
+          />
+          <Text style={styles.hint}>초대는 학생 목록에서 언제든 다시 만들 수 있어요. 수업 일정은 홈의 "수업" 탭에서 만들어요.</Text>
           <ActionButton label="등록 마치고 홈으로" onPress={onDone} />
         </>
       )}
@@ -210,7 +213,9 @@ const styles = StyleSheet.create({
   },
   stepLabel: { fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.gold, letterSpacing: 0.4 },
   title: { fontSize: storybookTheme.type.lg, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onLightHeading, marginBottom: storybookTheme.spacing.xs },
-  hint: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onLightMuted, textAlign: 'center' },
+  hint: { fontSize: storybookTheme.type.xs, lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal, color: storybookTheme.color.onLightMuted, textAlign: 'center' },
+  hintLeft: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onLightBody },
+  error: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.error },
   consentCard: {
     gap: storybookTheme.spacing.xs,
     borderRadius: storybookTheme.radius.card,
@@ -219,5 +224,4 @@ const styles = StyleSheet.create({
   },
   consentTitle: { fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onLightHeading },
   consentItem: { fontSize: storybookTheme.type.xs, lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal, color: storybookTheme.color.onLightBody },
-  inviteUrl: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.linkOnLight, marginTop: storybookTheme.spacing.xs },
 });

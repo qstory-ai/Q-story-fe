@@ -1,3 +1,4 @@
+import { webOrigin } from '@/shared/config';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -77,8 +78,8 @@ export function PaymentCheckoutPage() {
       await load.widgets.requestPayment({
         orderId: load.order.orderId,
         orderName: load.order.orderName,
-        successUrl: `${window.location.origin}/payment/success`,
-        failUrl: `${window.location.origin}/payment/fail`,
+        successUrl: `${webOrigin()}/payment/success`,
+        failUrl: `${webOrigin()}/payment/fail`,
         customerEmail: user.email,
         customerName: user.displayName,
       });

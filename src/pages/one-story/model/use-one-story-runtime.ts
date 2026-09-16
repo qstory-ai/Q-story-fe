@@ -74,6 +74,7 @@ import {
   questionFailureCopy,
   questionPrompt,
   runtimeTransitionFailureCopy,
+  splitQuestionOutcomesAtScene,
 } from '../lib/runtime-view';
 import { preloadImages } from '../lib/preload-images';
 import { playResponseWithFallback } from '../lib/play-clip-with-fallback';
@@ -110,6 +111,10 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
   const { width, height } = useWindowDimensions();
   const isWide = width >= 900;
   const isShort = height < 720;
+  // 휴대폰 세로 폭 - 상단 바를 한 줄 압축 레이아웃(로고+회차 캡션 / 아이콘 버튼 / 진행 pill)으로
+  // 바꾸고, 재생 컨트롤은 상단이 아니라 엄지가 닿는 하단 도크(PlaybackDock)로 옮기는 기준.
+  // isWide(900)와 사이의 태블릿 폭은 기존 데스크톱형 배치를 그대로 쓴다.
+  const isNarrow = width < 600;
   const recorder = useAudioRecorderAdapter();
   const { state: authState } = useAuth();
   const { selectedChild } = useChildren();
@@ -335,7 +340,6 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
     isQuestionInvitePlayback,
     isBranchPlaybackState,
     isPlaybackDockState,
-    isCompactPlayback,
     spokenText,
     captionSpeaker,
     displayedSubtitle,
@@ -350,7 +354,6 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
     activeBranchVisualId,
     branchCaption,
     resumeCandidate,
-    width,
   });
 
   useEffect(() => {
@@ -1661,10 +1664,14 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
   }, [recorder, resetQuestionAttemptTracking, stopNarration, storyManifest]);
 
   /**
-   * 챕터 사이드바에서 지난 장면을 눌렀을 때 - restartStory()와 달리 idle로 완전히 되돌리지
-   * 않고 그 장면의 시작 지점(playing-fixed)으로 곧장 이동한다. 세션 자체(아이 이름/음성 연구
-   * 동의/시작 시각)는 유지하되, 질문·분기·재생 관련 임시 추적 상태는 restartStory와 같은
-   * 항목들을 정리한다 - 되감은 지점 이후의 질문 기록은 사라지는 게 맞다(사용자에게 확인됨).
+   * 챕터 사이드바에서 지난 장면(또는 현재 장면의 처음)을 눌렀을 때 - restartStory()와 달리
+   * idle로 완전히 되돌리지 않고 그 장면의 시작 지점(playing-fixed)으로 곧장 이동한다. 세션
+   * 자체(아이 이름/음성 연구 동의/시작 시각)는 유지하되, 질문·분기·재생 관련 임시 추적 상태는
+   * restartStory와 같은 항목들을 정리한다.
+   *
+   * 질문 기록은 되감는 장면 "이후"의 것만 버린다(splitQuestionOutcomesAtScene) - 처음 구현은
+   * 통째로 비웠는데, 되감기 대상보다 앞선 장면의 질문은 다시 재생되지도 않으니 부모 리포트에서
+   * 지울 이유가 없었다. 사이드바가 확인 모달에 보여주는 "사라질 기록 n개"도 같은 함수로 센다.
    */
   const jumpToScene = useCallback(
     async (sceneId: SceneId) => {
@@ -1687,7 +1694,9 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
       setActiveBranchVisualId(null);
       setBranchCaption(null);
       setTypedQuestion('');
-      setQuestionOutcomes([]);
+      setQuestionOutcomes(
+        (current) => splitQuestionOutcomesAtScene(current, storyManifest, sceneId).kept,
+      );
       trackedPlaybackResultsRef.current.clear();
       trackedQuestionInvitesRef.current.clear();
       resetQuestionAttemptTracking();
@@ -1878,12 +1887,20 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
       ? questionFailureCopy(runtimeState.failure)
       : null;
 
+  const showPlaybackControls =
+    isPlaybackDockState && !isParentReport && Boolean(currentClip || isBranchPlaybackState);
+  const showPlaybackDock = isNarrow && showPlaybackControls;
+
   return {
     // 레이아웃
     isWide,
     isShort,
-    isCompactPlayback,
+    isNarrow,
     isPlaybackDockState,
+    // 재생 컨트롤(일시정지/다시/다음/자막)을 보일지 - TopBar(넓은 화면)와 PlaybackDock(폰)이 같은
+    // 조건을 써야 도크 자리를 비워 둔 여백(scrollContentNarrowPlayback)과 실제 도크가 어긋나지 않는다.
+    showPlaybackControls,
+    showPlaybackDock,
     isParentReport,
     storyPackage,
     // runtime 및 파생 view 상태
@@ -1931,6 +1948,8 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
     parentMessage,
     // 선택지 / 응답
     parentReport,
+    // 챕터 사이드바가 "되감으면 사라질 질문 기록이 있는지"를 세는 데 쓴다(확인 모달 게이팅).
+    questionOutcomes,
     resumeCandidate,
     homeMenuVisible,
     exitReasonVisible,

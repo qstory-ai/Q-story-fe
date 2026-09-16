@@ -6,7 +6,7 @@ import { styles } from './styles';
 export function SceneProgressBar({ runtime }: { runtime: OneStoryRuntime }) {
   const {
     isParentReport,
-    isCompactPlayback,
+    isNarrow,
     scenes,
     displayedSceneIndex,
     runtimeState,
@@ -29,7 +29,7 @@ export function SceneProgressBar({ runtime }: { runtime: OneStoryRuntime }) {
     <View
       style={[
         styles.sceneProgress,
-        isCompactPlayback && styles.sceneProgressCompactPlayback,
+        isNarrow && styles.sceneProgressNarrow,
       ]}
     >
       {scenes.map((progressScene, index) => {

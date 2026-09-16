@@ -5,6 +5,7 @@ import { Icon, storybookTheme } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../model';
 import type { UseCompanionChat } from '../model/use-companion-chat';
+import { playbackControls } from '../lib/playback-controls';
 import { styles } from './styles';
 
 const TOP_ICON_COLOR = storybookTheme.color.gold;
@@ -38,16 +39,10 @@ export function TopBar({
     parentReport,
     displayedSceneIndex,
     totalScenes,
-    isPlaybackDockState,
-    currentClip,
-    isBranchPlaybackState,
+    showPlaybackControls,
     narrationState,
-    captionVisible,
-    setCaptionVisible,
     openHomeMenu,
     toggleNarration,
-    replayCurrent,
-    skipCurrentScene,
     closeParentReport,
   } = runtime;
   const navigate = useNavigate();
@@ -65,10 +60,17 @@ export function TopBar({
       ]}
     >
       <View style={styles.topBarRow}>
+      {/* 폰에서는 이 락업이 상단 바 왼쪽 절반(flex:1)을 차지한다 - 재생 중에 여기를 건드려 곧장
+          홈으로 튕기면 이야기 세션이 확인 없이 버려지므로, 폰의 이야기 화면에서는 홈 메뉴(계속 듣기 /
+          잠시 나가기)를 연다. 넓은 화면·idle 화면에서는 예전대로 서재로 간다. */}
       <Pressable
-        accessibilityRole="link"
-        accessibilityLabel="Q-Story 처음으로"
-        onPress={() => navigate('/')}
+        accessibilityRole={compactLockup && inStory ? 'button' : 'link'}
+        // 오른쪽 "이야기 홈 메뉴" 버튼과 접근성 이름이 겹치지 않게 회차 캡션을 앞에 붙인다.
+        accessibilityLabel={compactLockup && inStory ? `${chapterCaption ?? parentReport.storyTitle}, 메뉴 열기` : 'Q-Story 처음으로'}
+        onPress={() => {
+          if (compactLockup && inStory) void openHomeMenu();
+          else navigate('/');
+        }}
         style={[styles.brandLockup, compactLockup && styles.brandLockupNarrow]}
       >
         <View
@@ -166,74 +168,31 @@ export function TopBar({
           </Pressable>
         )}
         {/* 재생 컨트롤 - 폰에선 PlaybackDock이 같은 네 버튼을 하단에 라벨과 함께 그린다. */}
-        {!isNarrow && isPlaybackDockState && (currentClip || isBranchPlaybackState) && (
+        {!isNarrow && showPlaybackControls && (
           <View style={styles.topPlaybackControls}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={
-                narrationState.isPaused ? '이어 듣기' : '일시정지'
-              }
-              style={[styles.topControlButton, styles.topControlButtonPrimary]}
-              hitSlop={TOP_CONTROL_HIT_SLOP}
-              onPress={toggleNarration}
-            >
-              <Icon
-                name={narrationState.isPaused ? 'play' : 'pause'}
-                size={15}
-                color={TOP_ICON_COLOR}
-              />
-              {isWide && (
-                <Text style={styles.topControlText}>
-                  {narrationState.isPaused ? '이어 듣기' : '일시정지'}
-                </Text>
-              )}
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={
-                isBranchPlaybackState
-                  ? '선택한 전개 처음부터 다시 듣기'
-                  : '현재 문장 다시 듣기'
-              }
-              style={styles.topControlButton}
-              hitSlop={TOP_CONTROL_HIT_SLOP}
-              onPress={replayCurrent}
-            >
-              <Icon name="replay" size={15} color={TOP_ICON_COLOR} />
-              {isWide && (
-                <Text style={styles.topControlText}>
-                  {isBranchPlaybackState ? '선택 전개 다시' : '현재 문장 다시'}
-                </Text>
-              )}
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="다음 장면"
-              style={styles.topControlButton}
-              hitSlop={TOP_CONTROL_HIT_SLOP}
-              onPress={skipCurrentScene}
-            >
-              {isWide && <Text style={styles.topControlText}>다음 장면</Text>}
-              <Icon name="next" size={15} color={TOP_ICON_COLOR} />
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={captionVisible ? '자막 숨기기' : '자막 보기'}
-              style={styles.topControlButton}
-              hitSlop={TOP_CONTROL_HIT_SLOP}
-              onPress={() => setCaptionVisible((visible) => !visible)}
-            >
-              <Icon
-                name="captions"
-                size={15}
-                color={captionVisible ? TOP_ICON_COLOR : 'rgba(255,255,255,0.55)'}
-              />
-              {isWide && (
-                <Text style={styles.topControlText}>
-                  {captionVisible ? '자막 끄기' : '자막 켜기'}
-                </Text>
-              )}
-            </Pressable>
+            {playbackControls(runtime).map((control) => {
+              const text = isWide && <Text style={styles.topControlText}>{control.label}</Text>;
+              const icon = (
+                <Icon
+                  name={control.icon}
+                  size={15}
+                  color={control.dim ? storybookTheme.color.onDarkMuted : TOP_ICON_COLOR}
+                />
+              );
+              return (
+                <Pressable
+                  key={control.key}
+                  accessibilityRole="button"
+                  accessibilityLabel={control.accessibilityLabel}
+                  style={[styles.topControlButton, control.primary && styles.topControlButtonPrimary]}
+                  hitSlop={TOP_CONTROL_HIT_SLOP}
+                  onPress={control.onPress}
+                >
+                  {/* "다음 장면"만 글자가 앞, 화살표가 뒤 - 진행 방향을 가리키도록. */}
+                  {control.key === 'next' ? (<>{text}{icon}</>) : (<>{icon}{text}</>)}
+                </Pressable>
+              );
+            })}
           </View>
         )}
         {isParentReport ? (

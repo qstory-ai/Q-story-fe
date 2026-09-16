@@ -25,7 +25,7 @@ Secondary: 부모-아이 가정 사용자 — 튜터·기관 플로우를 확장
 
 ## Capabilities and Constraints
 
-- 플랫폼은 web 단일 (모바일 웹 포함, 네이티브 래퍼 아님).
+- 플랫폼은 web이 기준이고, 태블릿·폰 배포용으로 같은 빌드를 Capacitor로 감싼 네이티브 셸(android/, ios/)이 있다(docs/native-build.md). 화면·로직은 웹과 동일.
 - 웹 접근성 표준(WCAG) 준수가 명시적 요구사항.
 - 아동이 화면을 직접 조작하는 저연령 UX를 고려해야 함 (충분히 큰 터치 영역, 단순한 문구, 즉각적 피드백).
 

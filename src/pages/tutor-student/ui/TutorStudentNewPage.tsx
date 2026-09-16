@@ -11,7 +11,7 @@ import {
   type TutorInvite,
   type TutorStudent,
 } from '@/entities/tutor';
-import { InviteCodeCard } from '@/features/invite-issue';
+import { InviteCodeCard, formatInviteExpiry, tutorInviteLink, tutorInviteShareMessage } from '@/features/invite-issue';
 
 type WizardStep = 'info' | 'invite';
 
@@ -119,10 +119,7 @@ function InviteStep({ token, student, onDone }: { token: string; student: TutorS
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const inviteUrl = useMemo(() => {
-    if (!invite) return null;
-    return `${globalThis.location?.origin ?? ''}/tutor-invite/${invite.token}`;
-  }, [invite]);
+  const inviteUrl = useMemo(() => (invite ? tutorInviteLink(invite.token) : null), [invite]);
 
   const onSubmit = useCallback(async () => {
     setError(null);
@@ -192,8 +189,8 @@ function InviteStep({ token, student, onDone }: { token: string; student: TutorS
           <InviteCodeCard
             shortCode={invite.shortCode}
             link={inviteUrl ?? ''}
-            expiresLabel={formatExpires(invite.expiresAt)}
-            shareMessage={`${student.name} 부모님, Q-Story 수업 연결 초대예요. 아래 코드나 링크로 들어와 주세요.`}
+            expiresLabel={formatInviteExpiry(invite.expiresAt)}
+            shareMessage={tutorInviteShareMessage(student.name)}
           />
           <Text style={styles.hint}>초대는 학생 목록에서 언제든 다시 만들 수 있어요. 수업 일정은 홈의 "수업" 탭에서 만들어요.</Text>
           <ActionButton label="등록 마치고 홈으로" onPress={onDone} />
@@ -201,12 +198,6 @@ function InviteStep({ token, student, onDone }: { token: string; student: TutorS
       )}
     </>
   );
-}
-
-function formatExpires(iso: string) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return undefined;
-  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric' }).format(date);
 }
 
 const styles = StyleSheet.create({

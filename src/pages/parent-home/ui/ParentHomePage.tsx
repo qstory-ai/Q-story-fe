@@ -11,7 +11,7 @@ import { StoryCard } from '@/shared/ui/story-card';
 import { HomeSection } from '@/features/home-section';
 import { ChildSelector } from '@/features/child-selector';
 import { MonthCalendar } from '@/features/month-calendar';
-import { AGE_BAND_CATEGORY_HINTS, useChildren, type AgeBand } from '@/entities/child';
+import { AGE_BAND_CATEGORY_HINTS, AGE_BAND_LABELS, useChildren, type AgeBand } from '@/entities/child';
 import { hasKoreanBatchim } from '@/entities/narration';
 import { loadLocalStoryProgress, type LocalStoryProgress } from '@/entities/analytics';
 import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
@@ -193,7 +193,7 @@ export function ParentHomePage() {
           <View style={styles.section}>
             <HomeSection
               title={selectedChild ? `${selectedChild.name}에게 추천하는 작품` : '아이에게 추천하는 작품'}
-              subtitle={selectedChild ? ageBandLabel(selectedChild.ageBand) + '에 어울리는 이야기예요.' : undefined}
+              subtitle={selectedChild ? AGE_BAND_LABELS[selectedChild.ageBand] + '에 어울리는 이야기예요.' : undefined}
               onSeeAll={() => navigate('/library')}
             >
               {forChild.map((story) => (
@@ -394,17 +394,6 @@ function timeOfDayGreeting() {
   if (hour < 12) return '좋은 아침이에요';
   if (hour < 18) return '좋은 오후예요';
   return '좋은 저녁이에요';
-}
-
-function ageBandLabel(band: AgeBand) {
-  const map: Record<AgeBand, string> = {
-    '4-5': '4-5세',
-    '6-7': '6-7세',
-    '8-9': '8-9세',
-    '10-11': '10-11세',
-    '12+': '12세 이상',
-  };
-  return map[band];
 }
 
 /**

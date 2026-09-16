@@ -65,12 +65,21 @@ export function ChapterSidebar({
   const [target, setTarget] = useState<RewindTarget | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
-  const currentRowY = useRef(0);
+  // 현재 회차 행의 y - onLayout(ResizeObserver)이 슬라이드 인보다 늦게 올 수 있어 ref가 아니라
+  // state로 두고, 값이 들어온 뒤에 스크롤한다. 닫히면 null로 되돌려 지난번 위치가 남지 않게 한다.
+  const [currentRowY, setCurrentRowY] = useState<number | null>(null);
 
+  // onClose가 부모 렌더마다 새 함수여도 리스너·핸들러는 그대로 두기 위해 ref로 읽는다.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
   const close = useCallback(() => {
     setConfirmOpen(false);
-    onClose();
-  }, [onClose]);
+    // 닫히면 행이 언마운트되므로 지난 위치를 비운다 - 다음에 열릴 때 새 onLayout이 채운다.
+    setCurrentRowY(null);
+    onCloseRef.current();
+  }, []);
 
   // Escape: 확인 모달이 떠 있으면 모달만, 아니면 사이드바를 닫는다(웹 오버레이 관례).
   useEffect(() => {
@@ -90,16 +99,21 @@ export function ChapterSidebar({
   // 열리면 현재 회차가 보이는 위치로 스크롤 - 회차가 많거나(또는 폰 가로 모드처럼 높이가 낮아)
   // 리스트가 스크롤되는 경우, 사용자가 찾는 건 거의 항상 "지금 어디쯤인지"라서.
   useEffect(() => {
-    if (!entered) return;
+    if (!entered || currentRowY === null) return;
     scrollRef.current?.scrollTo({
-      y: Math.max(0, currentRowY.current - CURRENT_ROW_SCROLL_MARGIN),
+      y: Math.max(0, currentRowY - CURRENT_ROW_SCROLL_MARGIN),
       animated: false,
     });
-  }, [entered]);
+  }, [entered, currentRowY]);
 
   const rememberCurrentRow = useCallback((event: LayoutChangeEvent) => {
-    currentRowY.current = event.nativeEvent.layout.y;
+    setCurrentRowY(event.nativeEvent.layout.y);
   }, []);
+
+  // 질문 중(녹음·입력·확인·선택지 등 playing-fixed/complete가 아닌 상태)에 되감으면 그 진행이
+  // 통째로 사라진다 - 기록이 아직 없어도 확인을 받는다. 예전엔 현재 회차 탭이 아무 일도 안 했는데,
+  // "처음부터 다시 듣기"로 바뀌면서 입력 중인 질문을 조용히 지울 수 있게 됐기 때문.
+  const midInteraction = runtimeState.status !== 'playing-fixed' && runtimeState.status !== 'complete';
 
   const requestRewind = useCallback(
     (chapter: { id: string; title: string }, index: number) => {
@@ -108,7 +122,7 @@ export function ChapterSidebar({
         storyPackage.manifest,
         sceneId(chapter.id),
       );
-      if (discarded.length === 0) {
+      if (discarded.length === 0 && !midInteraction) {
         void jumpToScene(sceneId(chapter.id));
         close();
         return;
@@ -116,7 +130,7 @@ export function ChapterSidebar({
       setTarget({ id: chapter.id, index, title: chapter.title, discardedCount: discarded.length });
       setConfirmOpen(true);
     },
-    [close, jumpToScene, questionOutcomes, storyPackage.manifest],
+    [close, jumpToScene, midInteraction, questionOutcomes, storyPackage.manifest],
   );
 
   const confirmRewind = useCallback(() => {
@@ -266,8 +280,10 @@ export function ChapterSidebar({
       >
         {target && (
           <ModalBody>
-            「{target.title}」부터 다시 들어요. 그 장면과 그 뒤에서 한 질문{' '}
-            {target.discardedCount}개의 기록은 사라지고, 다시 들으면서 새로 쌓여요.
+            「{target.title}」부터 다시 들어요.{' '}
+            {target.discardedCount > 0
+              ? `그 장면과 그 뒤에서 한 질문 ${target.discardedCount}개의 기록은 사라지고, 다시 들으면서 새로 쌓여요.`
+              : '지금 하던 질문은 저장되지 않고 사라져요.'}
           </ModalBody>
         )}
       </Modal>

@@ -85,7 +85,8 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 $localProps = Join-Path $repoRoot 'android\local.properties'
 # .NET regex replacement strings treat backslash literally, so '\\' here inserts exactly two.
 $escaped = ($SdkRoot -replace '\\', '\\') -replace ':', '\:'
-"sdk.dir=$escaped" | Out-File -FilePath $localProps -Encoding ascii
+# UTF-8 (no BOM): -Encoding ascii would turn a non-ASCII SDK path (Korean user folder) into '?'.
+[System.IO.File]::WriteAllText($localProps, "sdk.dir=$escaped`n", (New-Object System.Text.UTF8Encoding($false)))
 Write-Host "Wrote $localProps"
 
 Write-Host ""

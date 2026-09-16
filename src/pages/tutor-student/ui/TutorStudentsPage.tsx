@@ -7,7 +7,7 @@ import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { DEFAULT_BETA_STORY_ID } from '@/entities/story';
 import { createTutorInvite, listTutorStudents, type TutorInvite, type TutorStudent } from '@/entities/tutor';
-import { InviteCodeCard } from '@/features/invite-issue';
+import { InviteCodeCard, formatInviteExpiry, tutorInviteLink, tutorInviteShareMessage } from '@/features/invite-issue';
 
 type LoadState =
   | { status: 'loading' }
@@ -71,8 +71,6 @@ export function TutorStudentsPage() {
 
   if (state.status !== 'authenticated') return null;
 
-  const originBase = typeof window !== 'undefined' ? window.location.origin : '';
-
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor')}>
       <View style={styles.content}>
@@ -126,9 +124,9 @@ export function TutorStudentsPage() {
               {issuedByStudent[student.id] ? (
                 <InviteCodeCard
                   shortCode={issuedByStudent[student.id].shortCode}
-                  link={`${originBase}/tutor-invite/${issuedByStudent[student.id].token}`}
-                  expiresLabel={formatExpires(issuedByStudent[student.id].expiresAt)}
-                  shareMessage={`${student.name} 부모님, Q-Story 수업 연결 초대예요. 아래 코드나 링크로 들어와 주세요.`}
+                  link={tutorInviteLink(issuedByStudent[student.id].token)}
+                  expiresLabel={formatInviteExpiry(issuedByStudent[student.id].expiresAt)}
+                  shareMessage={tutorInviteShareMessage(student.name)}
                   onDismiss={() => setIssuedByStudent((prev) => {
                     const next = { ...prev };
                     delete next[student.id];
@@ -143,11 +141,6 @@ export function TutorStudentsPage() {
       </View>
     </AppNavShell>
   );
-}
-
-function formatExpires(iso: string) {
-  const date = new Date(iso);
-  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric' }).format(date);
 }
 
 const styles = StyleSheet.create({

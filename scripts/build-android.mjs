@@ -20,10 +20,13 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const androidDir = path.join(root, 'android');
-const variant = (process.argv[2] ?? 'debug').toLowerCase();
-if (!['debug', 'release'].includes(variant)) {
-  console.error(`알 수 없는 variant: ${variant} (debug | release)`);
-  process.exit(2);
+// 여러 variant를 한 번에 주면(`debug release`) Gradle 호출 한 번으로 둘 다 만든다.
+const variants = (process.argv.length > 2 ? process.argv.slice(2) : ['debug']).map((v) => v.toLowerCase());
+for (const variant of variants) {
+  if (!['debug', 'release'].includes(variant)) {
+    console.error(`알 수 없는 variant: ${variant} (debug | release)`);
+    process.exit(2);
+  }
 }
 
 // --- 1. SDK 위치 확인 -------------------------------------------------------------
@@ -53,10 +56,12 @@ const isWindows = process.platform === 'win32';
 // shell:true인 spawn이 경로를 첫 공백에서 잘라 "'C:\Users\...' is not recognized"로 실패한다.
 // '.\' 를 붙여야 cmd.exe가 PATH가 아니라 cwd에서 찾는다(NoDefaultCurrentDirectoryInExePath 환경 포함).
 const gradlew = isWindows ? '.\\gradlew.bat' : './gradlew';
-const task = variant === 'release' ? 'assembleRelease' : 'assembleDebug';
-console.log(`> ${path.join(androidDir, gradlew)} ${task}  (ANDROID_HOME=${sdkDir})`);
+const tasks = variants.map((v) => (v === 'release' ? 'assembleRelease' : 'assembleDebug')).join(' ');
+// 로컬에서는 Gradle 데몬을 살려 두어 두 번째 빌드부터 JVM 기동·설정 단계를 건너뛴다. CI(일회성 러너)만 --no-daemon.
+const daemonFlag = process.env.CI ? ' --no-daemon' : '';
+console.log(`> ${path.join(androidDir, gradlew)} ${tasks}${daemonFlag}  (ANDROID_HOME=${sdkDir})`);
 // shell:true엔 인자 배열 대신 한 문자열을 준다(Node 24 DEP0190 - 배열 인자는 이스케이프 없이 이어 붙는다).
-const result = spawnSync(`${gradlew} ${task} --no-daemon`, {
+const result = spawnSync(`${gradlew} ${tasks}${daemonFlag}`, {
   cwd: androidDir,
   stdio: 'inherit',
   shell: true,
@@ -68,6 +73,13 @@ if (result.status !== 0) {
 }
 
 // --- 3. 결과물 복사 -----------------------------------------------------------------
+const pkg = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+const outDir = path.join(root, 'build-output');
+mkdirSync(outDir, { recursive: true });
+for (const variant of variants) collect(variant);
+
+function collect(variant) {
 const apkDir = path.join(androidDir, 'app', 'build', 'outputs', 'apk', variant);
 const apkName = variant === 'release'
   ? (existsSync(path.join(apkDir, 'app-release.apk')) ? 'app-release.apk' : 'app-release-unsigned.apk')
@@ -77,10 +89,6 @@ if (!existsSync(apkPath)) {
   console.error(`APK를 찾지 못했어요: ${apkPath}`);
   process.exit(1);
 }
-const pkg = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
-const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-const outDir = path.join(root, 'build-output');
-mkdirSync(outDir, { recursive: true });
 const outName = `qstory-tablet-${pkg.version}-${stamp}-${variant}${apkName.includes('unsigned') ? '-unsigned' : ''}.apk`;
 const outPath = path.join(outDir, outName);
 copyFileSync(apkPath, outPath);
@@ -89,4 +97,5 @@ if (apkName.includes('unsigned')) {
   console.log('  (서명되지 않은 release APK - android/keystore.properties 를 만들면 서명본이 나와요. docs/native-build.md 참고)');
 } else if (variant === 'debug') {
   console.log('  갤럭시탭에 설치: USB 연결 후  adb install -r "' + outPath + '"  또는 파일을 옮겨 직접 설치(출처를 알 수 없는 앱 허용).');
+}
 }

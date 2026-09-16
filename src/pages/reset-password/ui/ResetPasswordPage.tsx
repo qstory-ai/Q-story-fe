@@ -3,9 +3,16 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
-import { confirmPasswordReset, homePathFor, requestPasswordReset, useAuth } from '@/entities/auth';
+import {
+  confirmPasswordReset,
+  homePathFor,
+  isPasswordLongEnough,
+  PASSWORD_RULE_HINT,
+  PASSWORD_TOO_SHORT_MESSAGE,
+  requestPasswordReset,
+  useAuth,
+} from '@/entities/auth';
 import { messageForError } from '@/shared/api';
-import { PASSWORD_MIN_LENGTH } from '@/features/onboarding';
 
 /**
  * `token` 쿼리 파라미터로 갈리는 두 단계 - SignupPage의 `role`/`invite` 파라미터와 같은 형태다.
@@ -27,7 +34,8 @@ function BackToLogin() {
       accessibilityRole="link"
       hitSlop={8}
       style={styles.backLink}
-      onPress={() => navigate('/login', { replace: true })}
+      // replace가 아니라 push - 메일로 받은 ?token= 링크 화면을 히스토리에서 지우면 뒤로가기로 못 돌아온다.
+      onPress={() => navigate('/login')}
     >
       <Text style={styles.backLinkText}>← 로그인으로</Text>
     </Pressable>
@@ -65,7 +73,7 @@ function RequestStep() {
             입력하신 아이디로 등록된 계정이 있다면, 가입 때 적은 이메일로 재설정 방법을 안내해 드려요.
             메일이 보이지 않으면 스팸함도 확인해 주세요.
           </Text>
-          <ActionButton label="로그인으로 돌아가기" onPress={() => navigate('/login', { replace: true })} />
+          <ActionButton label="로그인으로 돌아가기" onPress={() => navigate('/login')} />
         </View>
       </SafeAreaView>
     );
@@ -104,9 +112,9 @@ function ConfirmStep({ token }: { token: string }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const tooShort = newPassword.length > 0 && newPassword.length < PASSWORD_MIN_LENGTH;
+  const tooShort = newPassword.length > 0 && !isPasswordLongEnough(newPassword);
   const mismatch = confirmPassword.length > 0 && newPassword !== confirmPassword;
-  const canSubmit = newPassword.length >= PASSWORD_MIN_LENGTH && newPassword === confirmPassword && !submitting;
+  const canSubmit = isPasswordLongEnough(newPassword) && newPassword === confirmPassword && !submitting;
 
   const onSubmit = useCallback(async () => {
     if (!canSubmit) return;
@@ -136,8 +144,8 @@ function ConfirmStep({ token }: { token: string }) {
           onChangeText={setNewPassword}
           secureTextEntry
           autoComplete="new-password"
-          description={`${PASSWORD_MIN_LENGTH}자 이상`}
-          errorText={tooShort ? `${PASSWORD_MIN_LENGTH}자 이상 입력해 주세요.` : undefined}
+          description={PASSWORD_RULE_HINT}
+          errorText={tooShort ? PASSWORD_TOO_SHORT_MESSAGE : undefined}
         />
         <TextField
           label="새 비밀번호 확인"

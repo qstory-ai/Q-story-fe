@@ -17,7 +17,7 @@ import {
   type TutorStudent,
 } from '@/entities/tutor';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
-import { InviteCodeCard } from '@/features/invite-issue';
+import { InviteCodeCard, formatInviteExpiry, tutorInviteLink, tutorInviteShareMessage } from '@/features/invite-issue';
 
 type PlansLoad =
   | { status: 'loading' }
@@ -177,7 +177,6 @@ export function TutorStudentDetailPage() {
   if (state.status !== 'authenticated') return null;
 
   const effective = load.requestKey === requestKey ? load : { requestKey, status: 'loading' as const };
-  const originBase = typeof window !== 'undefined' ? window.location.origin : '';
 
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor/students')}>
@@ -243,9 +242,9 @@ export function TutorStudentDetailPage() {
                   {issuedInvite ? (
                     <InviteCodeCard
                       shortCode={issuedInvite.shortCode}
-                      link={`${originBase}/tutor-invite/${issuedInvite.token}`}
-                      expiresLabel={formatDate(issuedInvite.expiresAt)}
-                      shareMessage={`${effective.student.name} 부모님, Q-Story 수업 연결 초대예요. 아래 코드나 링크로 들어와 주세요.`}
+                      link={tutorInviteLink(issuedInvite.token)}
+                      expiresLabel={formatInviteExpiry(issuedInvite.expiresAt)}
+                      shareMessage={tutorInviteShareMessage(effective.student.name)}
                       onDismiss={() => setIssuedInvite(null)}
                     />
                   ) : null}

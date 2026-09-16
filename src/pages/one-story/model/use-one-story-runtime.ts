@@ -340,7 +340,6 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
     isQuestionInvitePlayback,
     isBranchPlaybackState,
     isPlaybackDockState,
-    isCompactPlayback,
     spokenText,
     captionSpeaker,
     displayedSubtitle,
@@ -355,7 +354,6 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
     activeBranchVisualId,
     branchCaption,
     resumeCandidate,
-    width,
   });
 
   useEffect(() => {
@@ -1889,13 +1887,20 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
       ? questionFailureCopy(runtimeState.failure)
       : null;
 
+  const showPlaybackControls =
+    isPlaybackDockState && !isParentReport && Boolean(currentClip || isBranchPlaybackState);
+  const showPlaybackDock = isNarrow && showPlaybackControls;
+
   return {
     // 레이아웃
     isWide,
     isShort,
     isNarrow,
-    isCompactPlayback,
     isPlaybackDockState,
+    // 재생 컨트롤(일시정지/다시/다음/자막)을 보일지 - TopBar(넓은 화면)와 PlaybackDock(폰)이 같은
+    // 조건을 써야 도크 자리를 비워 둔 여백(scrollContentNarrowPlayback)과 실제 도크가 어긋나지 않는다.
+    showPlaybackControls,
+    showPlaybackDock,
     isParentReport,
     storyPackage,
     // runtime 및 파생 view 상태

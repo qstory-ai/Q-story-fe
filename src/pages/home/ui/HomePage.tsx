@@ -27,12 +27,12 @@ function readOnboardingParams(params: URLSearchParams): OnboardingEntry | null {
   if (flow === 'tutor-invite') {
     const token = params.get('token');
     const code = params.get('code');
-    const tutorInvite: TutorInviteRef | undefined = token
+    // token/code가 둘 다 없어도(잘린 공유 문구 등) 조용히 홈으로 보내지 않고 온보딩 흐름이 "올바르지
+    // 않은 초대"를 보여 주도록 빈 값을 넘긴다.
+    const tutorInvite: TutorInviteRef = token
       ? { value: token, isCode: false }
-      : code
-        ? { value: code, isCode: true }
-        : undefined;
-    return tutorInvite ? { step: 'tutor-preview', role: 'PARENT', tutorInvite } : null;
+      : { value: code ?? '', isCode: true };
+    return { step: 'tutor-preview', role: 'PARENT', tutorInvite };
   }
   if (flow !== 'sign-in' && flow !== 'sign-up' && flow !== 'welcome') return null;
   if (flow === 'sign-in') return { step: 'sign-in' };
@@ -94,11 +94,16 @@ export function HomePage() {
   const paramEntry = useMemo(() => readOnboardingParams(searchParams), [searchParams]);
   const [manualOnboarding, setManualOnboarding] = useState<OnboardingEntry | null>(null);
   const onboarding = paramEntry ?? manualOnboarding;
+  // OnboardingFlow가 이 화면 안에서 세션을 만들었다(가입 직후 / 초대 수락 직후). 그 순간 아래
+  // "로그인됐으면 역할 홈으로" 리다이렉트가 끼어들면 캐러셀·아이 등록 단계를 못 보고 홈으로 튕긴다 -
+  // 흐름이 스스로 navigate(replace)로 떠날 때까지 리다이렉트를 보류한다.
+  const [flowOwnsSession, setFlowOwnsSession] = useState(false);
 
   // 선생님 초대(tutor-preview)는 이미 로그인된 학부모도 열 수 있어야 한다 - 마이페이지 > 수업
   // 연결에서 링크를 붙여넣는 경우가 그렇다. 이 경우엔 역할 홈으로 튕기지 않고 온보딩 흐름 안에서
-  // 미리보기→동의까지 마치게 둔다(OnboardingFlow가 이미 인증된 세션이면 계정 단계를 건너뛴다).
-  if (state.status === 'authenticated' && paramEntry?.step !== 'tutor-preview') {
+  // 미리보기→동의까지 마치게 둔다(OnboardingFlow가 이미 인증된 세션이면 계정 단계를 건너뛰고,
+  // 학부모가 아닌 역할이면 로그아웃 안내를 보여 준다).
+  if (state.status === 'authenticated' && !flowOwnsSession && onboarding?.step !== 'tutor-preview') {
     const homePath = homePathFor(state.user);
     if (homePath !== '/') {
       return <Navigate to={homePath} replace />;
@@ -124,8 +129,10 @@ export function HomePage() {
           // 계속 이기므로 "← 서재로"가 아무 일도 안 했다 - 파라미터 없는 "/"로 실제로 이동한다.
           onExit={() => {
             setManualOnboarding(null);
+            setFlowOwnsSession(false);
             if (paramEntry) navigate('/', { replace: true });
           }}
+          onSessionCreated={() => setFlowOwnsSession(true)}
         />
       </SafeAreaView>
     );

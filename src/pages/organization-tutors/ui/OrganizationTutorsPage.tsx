@@ -14,7 +14,7 @@ import {
   type OrganizationTutorInviteSummary,
   type OrganizationTutorLink,
 } from '@/entities/organization-tutor';
-import { InviteCodeCard } from '@/features/invite-issue';
+import { InviteCodeCard, formatInviteExpiry, organizationTutorInviteLink } from '@/features/invite-issue';
 
 type TutorsLoad = { status: 'loading' } | { status: 'ready'; tutors: OrganizationTutorLink[] } | { status: 'error'; message: string };
 type InvitesLoad = { status: 'loading' } | { status: 'ready'; invites: OrganizationTutorInviteSummary[] } | { status: 'error' };
@@ -107,7 +107,6 @@ export function OrganizationTutorsPage() {
 
   if (!canView) return null;
 
-  const originBase = typeof window !== 'undefined' ? window.location.origin : '';
   const activeInvites = invites.status === 'ready'
     ? invites.invites.filter((invite) => invite.usedAt === null && new Date(invite.expiresAt) > new Date())
     : [];
@@ -134,8 +133,8 @@ export function OrganizationTutorsPage() {
           {freshInvite ? (
             <InviteCodeCard
               shortCode={freshInvite.shortCode}
-              link={`${originBase}/org-invite/${freshInvite.token}`}
-              expiresLabel={formatExpires(freshInvite.expiresAt)}
+              link={organizationTutorInviteLink(freshInvite.token)}
+              expiresLabel={formatInviteExpiry(freshInvite.expiresAt)}
               onDismiss={() => setFreshInvite(null)}
             />
           ) : null}
@@ -151,7 +150,7 @@ export function OrganizationTutorsPage() {
               <View key={invite.id} style={styles.inviteRow}>
                 <View style={styles.inviteBody}>
                   <Text style={styles.inviteCode}>{invite.shortCode}</Text>
-                  <Text style={styles.inviteMeta}>{formatExpires(invite.expiresAt)}까지</Text>
+                  <Text style={styles.inviteMeta}>{formatInviteExpiry(invite.expiresAt)}까지</Text>
                 </View>
                 <Pill label="사용 대기" tone="onCard" />
               </View>
@@ -216,11 +215,6 @@ export function OrganizationTutorsPage() {
 }
 
 /* -------------------------------------------------------------- helpers */
-
-function formatExpires(iso: string) {
-  const date = new Date(iso);
-  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric' }).format(date);
-}
 
 function formatShortDate(iso: string) {
   const date = new Date(iso);

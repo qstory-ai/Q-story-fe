@@ -13,7 +13,7 @@ import {
   type ClassResponse,
 } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
-import { InviteCodeCard } from '@/features/invite-issue';
+import { InviteCodeCard, classInviteLink, formatInviteExpiry } from '@/features/invite-issue';
 
 type LoadState =
   | { status: 'loading' }
@@ -78,7 +78,6 @@ export function OrganizationClassDetailPage() {
 
   if (!canView) return null;
 
-  const originBase = typeof window !== 'undefined' ? window.location.origin : '';
 
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')} onBack={() => navigate('/organization/classes')}>
@@ -116,8 +115,8 @@ export function OrganizationClassDetailPage() {
               {issuedInvite ? (
                 <InviteCodeCard
                   shortCode={issuedInvite.token.slice(0, 8).toUpperCase()}
-                  link={`${originBase}/signup?invite=${issuedInvite.token}`}
-                  expiresLabel={formatExpires(issuedInvite.expiresAt)}
+                  link={classInviteLink(issuedInvite.token)}
+                  expiresLabel={formatInviteExpiry(issuedInvite.expiresAt)}
                   onDismiss={() => setIssuedInvite(null)}
                 />
               ) : null}
@@ -152,10 +151,6 @@ export function OrganizationClassDetailPage() {
 }
 
 /* -------------------------------------------------------------- helpers */
-
-function formatExpires(iso: string) {
-  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric' }).format(new Date(iso));
-}
 
 function formatShortDate(iso: string) {
   return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(iso));

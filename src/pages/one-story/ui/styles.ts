@@ -246,29 +246,30 @@ export const styles = StyleSheet.create({
   },
   spacer: { flex: 1, minHeight: 220 },
   // 360px는 "삽화가 위에서 넉넉히 보이고 재생 카드가 하단에 도킹된" 데스크톱/태블릿 구도를
-  // 위한 값인데, 휴대폰(좁은 폭)에서는 이 여백 + 상단 패딩(scrollContentCompactPlayback)만으로
-  // 뷰포트 대부분을 먹어버려서 정작 대사(캡션) 카드가 첫 화면 밖으로 밀려나 스크롤해야만
-  // 보였다. isCompactPlayback일 때는 훨씬 작은 값으로 줄인다.
+  // 위한 값인데, 휴대폰(isNarrow)에서는 이 여백 + 상단 패딩만으로 뷰포트 대부분을 먹어버려서
+  // 정작 대사(캡션) 카드가 첫 화면 밖으로 밀려나 스크롤해야만 보였다. 폰에서는 훨씬 작게 줄인다.
   playbackSpacer: { minHeight: 360 },
   playbackSpacerCompact: { minHeight: 90 },
 
   // ---------------------------------------------------------------- 휴대폰 하단 재생 도크
   // playback-dock.tsx - 상단 바에서 옮겨온 재생 컨트롤 4개. 캡션 카드 아래, 화면 맨 아래에 고정.
+  // 바깥은 SafeAreaView(edges=['bottom'])가 홈 인디케이터 여백을 맡고, 안쪽 행이 버튼 패딩을 갖는다.
   playbackDock: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingTop: 8,
-    paddingBottom: 'calc(8px + env(safe-area-inset-bottom))' as unknown as number,
     backgroundColor: 'rgba(16, 8, 28, 0.86)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.12)',
     zIndex: storybookTheme.zIndex.sticky,
+  },
+  playbackDockRow: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
   },
   dockButton: {
     flex: 1,
@@ -290,7 +291,7 @@ export const styles = StyleSheet.create({
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.bold,
   },
-  dockLabelDim: { color: 'rgba(255,255,255,0.6)' },
+  dockLabelDim: { color: storybookTheme.color.onDarkMuted },
   readerCard: {
     width: '100%',
     maxWidth: 760,

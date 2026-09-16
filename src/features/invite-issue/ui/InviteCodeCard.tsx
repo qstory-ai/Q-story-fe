@@ -125,7 +125,8 @@ function CopyButton({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${label}${copied ? ', 복사됨' : ''}`}
+      // 코드/링크 두 버튼이 나란히 있으니 무엇을 복사하는지 값으로 구분해 읽어 준다.
+      accessibilityLabel={`${label === '복사' ? `${value} 복사` : label}${copied ? ', 복사됨' : ''}`}
       accessibilityLiveRegion="polite"
       disabled={!enabled}
       onPress={() => { void onPress(); }}
@@ -137,7 +138,7 @@ function CopyButton({
         pressed && styles.pressed,
       ]}
     >
-      <Text style={[styles.copyLabel, copied && styles.copyLabelCopied, !enabled && styles.copyLabelDisabled]}>
+      <Text style={[styles.copyLabel, !enabled && styles.copyLabelDisabled]}>
         {copied ? '복사됨 ✓' : label}
       </Text>
     </Pressable>
@@ -217,7 +218,6 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.semantic.brand.onBrand,
   },
-  copyLabelCopied: { color: storybookTheme.semantic.brand.onBrand },
   copyLabelDisabled: { color: storybookTheme.color.disabledText },
   footnote: {
     marginTop: storybookTheme.spacing.xs,

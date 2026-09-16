@@ -15,13 +15,15 @@
 
 ## 웹 빌드와 다른 점 - API 주소
 
-웹은 같은 출처의 Vercel 프록시(`/api/qstory`)를 부르지만, 앱 안의 WebView는 `https://localhost`(Android) /
-`capacitor://localhost`(iOS)에서 뜨므로 그 프록시가 없다. 그래서
+웹은 같은 출처의 Vercel 프록시(`/api/qstory`)를 부르지만, 앱 안의 WebView는 `capacitor.config.ts`의
+`server.hostname`으로 정한 가짜 호스트 `https://app.qstory.ai.kr`(Android) / `capacitor://app.qstory.ai.kr`(iOS)에서
+뜨므로 그 프록시가 없다. 그래서
 
 - `npm run build:native` = `vite build --mode native` → [`.env.native`](../.env.native)의 **절대 백엔드 URL**로 빌드
-- 백엔드 CORS `allowed-origins`에 위 두 출처를 넣어 두었다(`be/q-story-backend/src/main/resources/application.yml`, `application-prod.yml`).
-  **배포 서버(Railway)에서 `ALLOWED_ORIGINS` 환경변수로 기본값을 덮어쓰고 있다면 거기에도
-  `https://localhost,capacitor://localhost`를 추가해야 앱에서 로그인·이야기 로딩이 된다.**
+- 백엔드는 이 두 출처를 `qstory.native-origins`(`application.yml`)로 두고 `SecurityConfig`가 환경별
+  `allowed-origins`에 **항상 더한다**. 프로필 yml이나 Railway의 `ALLOWED_ORIGINS` 환경변수가 무엇이든
+  네이티브 출처는 열려 있으므로 배포 환경변수를 손댈 필요가 없다. `hostname`을 바꾸면 백엔드의
+  `native-origins`도 같이 바꾼다.
 - 스테이징 등 다른 백엔드로 빌드하려면 `.env.native.local`(gitignore)에 같은 키를 덮어쓴다.
 
 ## 갤럭시탭 - 이 PC에서 APK 만들기
@@ -132,7 +134,7 @@ Capacitor가 생성한 기본 프로젝트에 아래만 추가했다. `npx cap s
 
 | 파일 | 변경 |
 |---|---|
-| `capacitor.config.ts` | appId/appName, `androidScheme: https`, 외부 링크 허용 도메인, 스플래시 설정 |
+| `capacitor.config.ts` | appId/appName, `server.hostname`(WebView 출처), `androidScheme: https`, 외부 링크 허용 도메인, 스플래시 설정 |
 | `android/app/src/main/AndroidManifest.xml` | `RECORD_AUDIO`, `MODIFY_AUDIO_SETTINGS` 권한(아이 질문 녹음), 마이크 없는 기기 설치 허용 |
 | `android/app/build.gradle` | `keystore.properties`가 있을 때만 release 서명 |
 | `ios/App/App/Info.plist` | 마이크·카메라·사진 사용 설명(권한 창 문구). 아이패드 4방향 회전은 기본값 그대로 |
@@ -144,8 +146,11 @@ Capacitor가 생성한 기본 프로젝트에 아래만 추가했다. `npx cap s
   쓰거나, 나중에 `@capacitor/browser`(시스템 브라우저)로 OAuth를 옮겨야 한다.
 - **결제(토스)**는 WebView에서 카드사 앱 전환이 필요할 수 있어 별도 확인이 필요하다.
 - iOS의 마이크 녹음은 iPadOS 14.3 이상에서만 WebView `getUserMedia`가 동작한다.
-- `window.location.assign(랜딩 URL)`처럼 앱 밖으로 나가는 링크는 `allowNavigation`에 없는 도메인이면
-  시스템 브라우저로 열린다.
+- `window.location.assign(랜딩 URL)`처럼 앱 밖으로 나가는 링크는 시스템 브라우저로 열린다. `capacitor.config.ts`의
+  `server.allowNavigation`은 비워 둔다 - 거기 적힌 호스트는 **WebView 안에서** 열리므로 랜딩 도메인을 넣으면 앱이
+  랜딩 페이지로 바뀌고 돌아올 길이 없다.
+- 초대 링크·결제 복귀 주소는 페이지 출처가 아니라 `.env.native`의 `VITE_QSTORY_WEB_ORIGIN`(공개 웹 주소)으로
+  만든다(`shared/config` `webOrigin()`). 앱 안의 페이지 출처(`app.qstory.ai.kr`)는 실제로 열리는 주소가 아니다.
 
 ## 버전 올리기
 

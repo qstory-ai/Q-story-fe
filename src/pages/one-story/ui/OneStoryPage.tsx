@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
 import { SafeAreaView } from '@/shared/ui';
@@ -29,8 +29,8 @@ export function OneStoryPage({
     isWide,
     isShort,
     isNarrow,
-    isCompactPlayback,
     isPlaybackDockState,
+    showPlaybackDock,
     isParentReport,
     scene,
     illustration,
@@ -40,6 +40,9 @@ export function OneStoryPage({
     sceneId: scene?.id ?? null,
   });
   const [chaptersOpen, setChaptersOpen] = useState(false);
+  // 사이드바의 Escape 리스너·되감기 핸들러가 이 콜백에 의존한다 - 렌더마다 새 함수를 주면 리스너가
+  // 매 렌더(재생 진행률 갱신마다) 떼었다 붙었다 한다.
+  const closeChapters = useCallback(() => setChaptersOpen(false), []);
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
@@ -72,7 +75,7 @@ export function OneStoryPage({
             isShort && styles.scrollContentShort,
             isPlaybackDockState && styles.scrollContentPlayback,
             isNarrow && !isParentReport && styles.scrollContentNarrow,
-            isNarrow && isPlaybackDockState && styles.scrollContentNarrowPlayback,
+            showPlaybackDock && styles.scrollContentNarrowPlayback,
             !isPlaybackDockState && styles.scrollContentCentered,
             isShort && !isPlaybackDockState && styles.scrollContentShortCentered,
             isParentReport && styles.reportScrollContent,
@@ -86,7 +89,7 @@ export function OneStoryPage({
               style={[
                 styles.spacer,
                 styles.playbackSpacer,
-                isCompactPlayback && styles.playbackSpacerCompact,
+                isNarrow && styles.playbackSpacerCompact,
               ]}
             />
           )}
@@ -98,7 +101,7 @@ export function OneStoryPage({
         <ChapterSidebar
           runtime={runtime}
           open={chaptersOpen}
-          onClose={() => setChaptersOpen(false)}
+          onClose={closeChapters}
         />
 
         <ResumeModal runtime={runtime} />

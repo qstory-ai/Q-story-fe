@@ -7,8 +7,11 @@ import { ageBandFromLabel } from '@/entities/child';
 import {
   createOrganization,
   homePathFor,
+  isPasswordLongEnough,
   joinClass,
   login,
+  PASSWORD_RULE_HINT,
+  PASSWORD_TOO_SHORT_MESSAGE,
   signupOrganizationOwner,
   signupParent,
   signupTutor,
@@ -45,9 +48,6 @@ type OnboardingStep =
   | 'tutor-consent'
   | 'tutor-linked';
 
-/** 가입 폼의 최소 규칙 - reset-password의 "8자 이상"과 같은 기준을 가입에서도 쓴다(예전엔 가입은
- *  아무 비밀번호나 받고 재설정만 8자를 요구해 서로 어긋났다). */
-export const PASSWORD_MIN_LENGTH = 8;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** 선생님이 부모에게 보낸 초대(코드 또는 토큰) - previewTutorInvite(By Code)/acceptTutorInvite(By Code)
@@ -74,6 +74,10 @@ type OnboardingFlowProps = {
   initialTutorInvite?: TutorInviteRef;
   /** "← 처음으로"로 닫을 때 - HomePage가 평소 화면으로 되돌아간다. */
   onExit: () => void;
+  /** 이 흐름 안에서 세션이 만들어졌을 때(가입 직후, 초대 수락 직후). HomePage가 이걸 보고 "로그인된
+   *  사용자는 역할 홈으로" 리다이렉트를 잠시 보류한다 - 아니면 가입 직후 캐러셀·아이 등록 단계로 가기
+   *  전에 홈으로 튕긴다. */
+  onSessionCreated?: () => void;
 };
 
 const VALUE_SLIDES = [
@@ -125,9 +129,10 @@ export function OnboardingFlow({
   initialInvite,
   initialTutorInvite,
   onExit,
+  onSessionCreated,
 }: OnboardingFlowProps) {
   const navigate = useNavigate();
-  const { state: authState, setSession } = useAuth();
+  const { state: authState, setSession, logout } = useAuth();
   const [step, setStep] = useState<OnboardingStep>(initialStep);
   // 초대 토큰이 있으면 role이 PARENT로 잠긴다(ClassService.resolveClassGroup의 XOR 요구,
   // 선생님 초대도 학부모만 받는 개념이라 마찬가지).
@@ -142,10 +147,17 @@ export function OnboardingFlow({
   const [tutorPreviewLoading, setTutorPreviewLoading] = useState(Boolean(initialTutorInvite));
   const [tutorPreview, setTutorPreview] = useState<TutorInvitePreview | null>(null);
   const [tutorPreviewError, setTutorPreviewError] = useState<string | null>(null);
-  // sign-up으로 왔는지 sign-in으로 왔는지 - tutor-consent에서 성공했을 때 신규 가입 취급(캐러셀
-  // 경유)할지 로그인 취급(곧장 홈)할지, 그리고 "← 이전"이 어디로 돌아갈지 가른다.
-  const [tutorAuthMode, setTutorAuthMode] = useState<'sign-up' | 'sign-in' | null>(null);
   const [pendingTutorAccept, setPendingTutorAccept] = useState<PendingTutorAccept | null>(null);
+  // sign-up으로 왔는지 sign-in으로 왔는지 - tutor-consent에서 성공했을 때 신규 가입 취급(캐러셀
+  // 경유)할지 로그인 취급(곧장 홈)할지, 그리고 "← 이전"이 어디로 돌아갈지 가른다. 별도 상태가 아니라
+  // pendingTutorAccept.kind에서 그대로 나온다('token' = 기존 계정, 'new-account' = 새 계정).
+  const tutorAuthMode: 'sign-up' | 'sign-in' | null =
+    pendingTutorAccept === null ? null : pendingTutorAccept.kind === 'token' ? 'sign-in' : 'sign-up';
+  // 링크에 token/code가 아예 없는 경우(잘린 공유 문구 등) - 조회할 것도 없이 오류로 보여 준다.
+  const invalidTutorInvite = Boolean(initialTutorInvite) && !initialTutorInvite?.value;
+  // 이미 로그인된 계정이 학부모가 아니면(선생님이 자기 초대 링크를 눌러 본 경우 등) 백엔드가 403을
+  // 내므로, "연결하기"를 보여 주는 대신 로그아웃하고 학부모 계정으로 오라고 안내한다.
+  const authenticatedRole = authState.status === 'authenticated' ? authState.user.role : null;
   const [tutorAcceptError, setTutorAcceptError] = useState<string | null>(null);
   const [tutorAccepting, setTutorAccepting] = useState(false);
   // 미리보기 재조회 트리거 - 만료/오타 코드로 ErrorState가 떴을 때 "다시 시도"가 이걸 올린다.
@@ -176,6 +188,7 @@ export function OnboardingFlow({
   // 끝나면 그때 각 역할의 실제 홈으로 진입한다.
   const onSignedUp: OnAuthed = useCallback(
     (token, user) => {
+      onSessionCreated?.();
       setSession(token, user);
       const nextAfterCarousel = user.role === 'PARENT'
         ? '/onboarding/parent'
@@ -185,11 +198,11 @@ export function OnboardingFlow({
       setPendingHomePath(nextAfterCarousel);
       go('value-onboarding');
     },
-    [setSession, go],
+    [setSession, go, onSessionCreated],
   );
 
   useEffect(() => {
-    if (!initialTutorInvite) return;
+    if (!initialTutorInvite || !initialTutorInvite.value) return;
     let cancelled = false;
     const previewPromise = initialTutorInvite.isCode
       ? previewTutorInviteByCode(initialTutorInvite.value)
@@ -243,6 +256,7 @@ export function OnboardingFlow({
       // 곧장 홈/캐러셀로 보내지 않고 "연결됐어요" 확인 화면(tutor-linked)을 한 번 거친다 - 예전엔
       // 동의 버튼을 누르자마자 마케팅 캐러셀이나 부모 홈으로 튕겨서, 연결이 실제로 됐는지 부모가
       // 확인할 순간이 없었다. 세션은 여기서 바로 만들고, 다음 목적지만 pendingHomePath에 둔다.
+      onSessionCreated?.();
       setSession(response.token, response.user);
       setPendingHomePath(
         tutorAuthMode === 'sign-in'
@@ -257,7 +271,7 @@ export function OnboardingFlow({
     } finally {
       setTutorAccepting(false);
     }
-  }, [initialTutorInvite, pendingTutorAccept, tutorAuthMode, setSession, go]);
+  }, [initialTutorInvite, pendingTutorAccept, tutorAuthMode, setSession, go, onSessionCreated]);
 
   // 캐러셀(value-onboarding)엔 자체 "건너뛰기"가 있고, 연결 완료(tutor-linked)는 되돌아갈 이전
   // 단계가 없다(이미 계정이 만들어지고 연결까지 끝난 뒤) - 두 화면에선 상단 링크를 아예 숨긴다.
@@ -317,9 +331,10 @@ export function OnboardingFlow({
             inviteToken={initialInvite ?? null}
             tutorInvite={initialTutorInvite ?? null}
             tutorPreview={tutorPreview}
+            // 동의 화면에서 "← 이전"으로 돌아오면 폼이 다시 마운트되므로, 모아 둔 값을 되돌려 준다.
+            initial={pendingTutorAccept?.kind === 'new-account' ? pendingTutorAccept : undefined}
             onAuthed={onSignedUp}
             onCollectForTutorInvite={(fields) => {
-              setTutorAuthMode('sign-up');
               setPendingTutorAccept({ kind: 'new-account', ...fields });
               go('tutor-consent');
             }}
@@ -331,8 +346,11 @@ export function OnboardingFlow({
             onGoSignUp={() => go(initialTutorInvite ? 'tutor-preview' : 'role')}
             onGoResetPassword={(loginId) => navigate('/reset-password', { state: { loginId } })}
             tutorInvite={initialTutorInvite ?? null}
-            onCollectTokenForTutorInvite={(token) => {
-              setTutorAuthMode('sign-in');
+            onCollectTokenForTutorInvite={(token, user) => {
+              // 로그인은 성공했으니 세션을 바로 만든다 - 뒤이은 초대 수락이 실패해도(만료 등) 부모가
+              // 로그아웃 상태로 남아 비밀번호를 다시 치게 하지 않기 위해서.
+              onSessionCreated?.();
+              setSession(token, user);
               setPendingTutorAccept({ kind: 'token', token });
               go('tutor-consent');
             }}
@@ -351,9 +369,9 @@ export function OnboardingFlow({
           <TutorPreviewStep
             // 세션 복원이 끝나기 전엔 "로그인됐는지"를 모른다 - 그동안 계정 만들기/로그인 버튼을
             // 보여줬다가 한 박자 뒤 "연결하기" 하나로 바뀌면 깜빡임처럼 보여서, 로딩으로 묶는다.
-            loading={tutorPreviewLoading || authState.status === 'loading'}
+            loading={!invalidTutorInvite && (tutorPreviewLoading || authState.status === 'loading')}
             preview={tutorPreview}
-            error={tutorPreviewError}
+            error={invalidTutorInvite ? '초대 링크 또는 코드가 올바르지 않아요.' : tutorPreviewError}
             // 로딩/에러 상태는 이벤트 핸들러에서 되돌리고, effect는 attempt 변화에 따라
             // 다시 조회만 한다(effect 본문의 setState는 lint가 막는다).
             onRetry={() => {
@@ -365,12 +383,13 @@ export function OnboardingFlow({
             // 이미 로그인된 채로 이 초대를 열었다면(예: 마이페이지 > 수업 연결에서 링크를 붙여넣은
             // 경우) 계정을 또 만들거나 다시 로그인할 필요가 없다 - 지금 세션의 토큰을 그대로
             // 들고 동의 단계로 간다.
-            alreadyAuthenticated={authState.status === 'authenticated'}
+            alreadyAuthenticated={authenticatedRole === 'PARENT'}
+            blockedRole={authenticatedRole && authenticatedRole !== 'PARENT' ? authenticatedRole : null}
+            onLogout={logout}
             onContinue={() => go('sign-up')}
             onSignIn={() => go('sign-in')}
             onContinueAuthenticated={() => {
               if (authState.status !== 'authenticated') return;
-              setTutorAuthMode('sign-in');
               setPendingTutorAccept({ kind: 'token', token: authState.token });
               go('tutor-consent');
             }}
@@ -492,6 +511,8 @@ function TutorPreviewStep({
   onRetry,
   onExit,
   alreadyAuthenticated,
+  blockedRole,
+  onLogout,
   onContinue,
   onSignIn,
   onContinueAuthenticated,
@@ -504,6 +525,9 @@ function TutorPreviewStep({
   /** 이미 로그인된 세션으로 이 초대를 열었는지 - 마이페이지 > 수업 연결에서 링크를 붙여넣은
    *  경우가 대표적이다. true면 계정 만들기/로그인 선택 대신 "연결하기" 버튼 하나만 보인다. */
   alreadyAuthenticated: boolean;
+  /** 로그인은 돼 있지만 학부모가 아닌 역할 - 연결 대신 로그아웃 안내를 보여 준다. */
+  blockedRole: string | null;
+  onLogout: () => void;
   onContinue: () => void;
   onSignIn: () => void;
   onContinueAuthenticated: () => void;
@@ -537,7 +561,17 @@ function TutorPreviewStep({
         <Text style={styles.previewNote}>{preview.tutorDisplayName}이 전달한 정보예요.</Text>
       </View>
       <View style={styles.welcomeCard}>
-        {alreadyAuthenticated ? (
+        {blockedRole ? (
+          <>
+            <Text style={styles.welcomeCardTitle}>학부모 계정으로만 연결할 수 있어요</Text>
+            <Text style={styles.welcomeCardBody}>
+              지금은 {blockedRole === 'TUTOR' ? '선생님' : blockedRole === 'DIRECTOR' ? '기관' : '다른 역할'} 계정으로
+              로그인돼 있어요. 로그아웃한 뒤 학부모 계정을 만들거나 로그인해서 연결해 주세요.
+            </Text>
+            <ActionButton variant="gold" label="로그아웃하고 학부모로 계속" onPress={onLogout} />
+            <ActionButton variant="secondaryFull" label="서재로 돌아가기" onPress={onExit} />
+          </>
+        ) : alreadyAuthenticated ? (
           <>
             <Text style={styles.welcomeCardTitle}>지금 로그인된 계정으로 연결할게요</Text>
             <ActionButton variant="gold" label="연결하기" onPress={onContinueAuthenticated} />
@@ -648,6 +682,7 @@ function SignUpStep({
   inviteToken,
   tutorInvite,
   tutorPreview,
+  initial,
   onAuthed,
   onCollectForTutorInvite,
 }: {
@@ -657,6 +692,8 @@ function SignUpStep({
    *  올려보내고, 실제 계정 생성+초대 수락은 tutor-consent에서 한 번에 처리한다. */
   tutorInvite: TutorInviteRef | null;
   tutorPreview: TutorInvitePreview | null;
+  /** 동의 단계에서 되돌아올 때 되살릴 값(선생님 초대 경로에서만). */
+  initial?: { loginId: string; email: string; password: string; displayName: string; marketing: boolean };
   onAuthed: OnAuthed;
   onCollectForTutorInvite: (fields: {
     loginId: string;
@@ -669,14 +706,17 @@ function SignUpStep({
   const [hasClass, setHasClass] = useState(true);
   const [classCode, setClassCode] = useState('');
   const [orgName, setOrgName] = useState('');
-  const [loginId, setLoginId] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [loginId, setLoginId] = useState(initial?.loginId ?? '');
+  const [email, setEmail] = useState(initial?.email ?? '');
+  const [password, setPassword] = useState(initial?.password ?? '');
+  const [confirmPassword, setConfirmPassword] = useState(initial?.password ?? '');
+  const [displayName, setDisplayName] = useState(initial?.displayName ?? '');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [terms, setTerms] = useState<TermsConsentState>(EMPTY_TERMS_CONSENT);
+  // 되돌아온 경우 필수 약관은 이미 동의한 상태였다(그래야 "다음"이 눌렸다).
+  const [terms, setTerms] = useState<TermsConsentState>(
+    initial ? { service: true, privacy: true, marketing: initial.marketing } : EMPTY_TERMS_CONSENT,
+  );
 
   // 초대 토큰이 있으면 반코드 토글/입력은 감추고 초대 안내만 보인다 - ClassService의 XOR 규약
   // 상 classCode/inviteToken 중 정확히 하나만 실려 나가야 한다. 선생님 초대(tutorInvite)일 땐
@@ -687,13 +727,13 @@ function SignUpStep({
   const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword;
   // 입력을 시작한 뒤에만 인라인으로 지적한다 - 빈 필드에 처음부터 빨간 글씨를 띄우진 않는다.
   const emailInvalid = email.trim().length > 0 && !EMAIL_PATTERN.test(email.trim());
-  const passwordTooShort = password.length > 0 && password.length < PASSWORD_MIN_LENGTH;
+  const passwordTooShort = password.length > 0 && !isPasswordLongEnough(password);
 
   const canSubmit =
     Boolean(loginId.trim()) &&
     Boolean(email.trim()) &&
     !emailInvalid &&
-    password.length >= PASSWORD_MIN_LENGTH &&
+    isPasswordLongEnough(password) &&
     password === confirmPassword &&
     Boolean(displayName.trim()) &&
     termsConsentIsValid(terms) &&
@@ -844,8 +884,8 @@ function SignUpStep({
         onChangeText={setPassword}
         secureTextEntry
         autoComplete="new-password"
-        description={`${PASSWORD_MIN_LENGTH}자 이상`}
-        errorText={passwordTooShort ? `${PASSWORD_MIN_LENGTH}자 이상 입력해 주세요.` : undefined}
+        description={PASSWORD_RULE_HINT}
+        errorText={passwordTooShort ? PASSWORD_TOO_SHORT_MESSAGE : undefined}
       />
       <TextField
         label="비밀번호 확인"
@@ -892,9 +932,9 @@ function SignInStep({
   onGoSignUp: () => void;
   /** 입력 중이던 아이디를 넘겨 재설정 화면에서 다시 타이핑하지 않게 한다. */
   onGoResetPassword: (loginId: string) => void;
-  /** 있으면 로그인 성공 뒤 곧장 onAuthed(홈 이동)로 가지 않고, 얻은 토큰을 tutor-consent로 넘긴다. */
+  /** 있으면 로그인 성공 뒤 곧장 onAuthed(홈 이동)로 가지 않고, 얻은 세션을 tutor-consent로 넘긴다. */
   tutorInvite: TutorInviteRef | null;
-  onCollectTokenForTutorInvite: (token: string) => void;
+  onCollectTokenForTutorInvite: (token: string, user: UserSummary) => void;
 }) {
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
@@ -909,7 +949,7 @@ function SignInStep({
     try {
       const response = await login({ loginId: loginId.trim(), password });
       if (tutorInvite) {
-        onCollectTokenForTutorInvite(response.token);
+        onCollectTokenForTutorInvite(response.token, response.user);
         return;
       }
       onAuthed(response.token, response.user);

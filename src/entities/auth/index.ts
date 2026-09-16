@@ -4,3 +4,4 @@ export * from './model/dashboard-nav';
 export * from './model/google-identity';
 export * from './model/home-path';
 export * from './model/kakao-sdk';
+export * from './model/password-rules';

@@ -44,6 +44,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+          cache: gradle
       - name: Install deps
         run: npm ci --no-audit --no-fund
       - name: Build web (native mode) and sync
@@ -95,9 +96,11 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Build web (native mode) and sync
         run: npm run cap:sync
-      - name: Resolve Swift packages
-        working-directory: ios/App
-        run: xcodebuild -resolvePackageDependencies -project App.xcodeproj -scheme App
+      - name: Cache Swift packages
+        uses: actions/cache@v4
+        with:
+          path: ios/App/build/SourcePackages
+          key: spm-${{ runner.os }}-${{ hashFiles('ios/App/CapApp-SPM/Package.swift') }}
       # 1) 시뮬레이터 빌드 - 서명 불필요. 아이패드 시뮬레이터에서 화면·흐름 확인용.
       - name: Build for iPad simulator
         working-directory: ios/App
@@ -137,7 +140,7 @@ jobs:
         run: |
           xcodebuild -project App.xcodeproj -scheme App -configuration Release \
             -sdk iphoneos -destination 'generic/platform=iOS' \
-            -archivePath build/App.xcarchive DEVELOPMENT_TEAM="$TEAM_ID" archive
+            -derivedDataPath build -archivePath build/App.xcarchive DEVELOPMENT_TEAM="$TEAM_ID" archive
           cat > ExportOptions.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">

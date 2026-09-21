@@ -79,6 +79,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
             accessibilityLabel={sidebarOpen ? '사이드바 닫기' : '사이드바 열기'}
             onPress={() => setSidebarOpen((open) => !open)}
             style={[styles.sidebarToggle, { right: sidebarOpen ? SIDEBAR_WIDTH + 12 : 12 }]}
+            {...({ 'aria-expanded': sidebarOpen, 'aria-controls': 'app-nav-sidebar' } as any)}
           >
             <Icon name={sidebarOpen ? 'close' : 'menu'} size={18} color={storybookTheme.color.onContent} />
           </Pressable>
@@ -86,7 +87,10 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
               밀려 올라갔다(하단바와 같은 문제, app-nav-shell 좁은 화면 분기 참고). 뷰포트
               우측에 고정하고, 열고 닫는 건 translateX 트랜지션으로 우측에서 슬라이드
               들어오고 나가는 느낌만 준다 - 스크롤 여부와는 완전히 무관하다. */}
-          <View style={[styles.sidebar, !sidebarOpen && styles.sidebarClosed]}>
+          <View
+            style={[styles.sidebar, !sidebarOpen && styles.sidebarClosed]}
+            nativeID="app-nav-sidebar"
+          >
             {items.map((item) => (
               <Pressable
                 key={item.key}

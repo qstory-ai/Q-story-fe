@@ -84,7 +84,7 @@ export function CompanionChatModal({
                 <Text style={styles.companionChatChildText}>{turn.childText}</Text>
               )}
               {turn.status === 'sending' && (
-                <ActivityIndicator color={storybookTheme.color.gold} style={styles.companionChatSpinner} />
+                <ActivityIndicator color={storybookTheme.color.primary} style={styles.companionChatSpinner} />
               )}
               {turn.status === 'done' && turn.replyText && (
                 <Text style={styles.companionChatReplyText}>{turn.replyText}</Text>
@@ -129,7 +129,7 @@ export function CompanionChatModal({
             style={styles.typedQuestionInput}
           />
           {transcribing && (
-            <ActivityIndicator color={storybookTheme.color.gold} style={styles.companionChatSpinner} />
+            <ActivityIndicator color={storybookTheme.color.primary} style={styles.companionChatSpinner} />
           )}
           {voiceError && (
             <Text style={styles.companionChatErrorText}>{voiceError}</Text>

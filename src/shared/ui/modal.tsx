@@ -64,6 +64,47 @@ export function Modal({
     };
   }, [visible]);
 
+  // Tab 키가 스크림을 뚫고 뒤쪽 요소로 새어나가지 않도록 포커스를 카드 안에서 순환시킨다 -
+  // createPortal이 body에 붙이므로 DOM 순서상 카드 뒤 형제 요소들이 여전히 tab 대상이 되기
+  // 때문. 스크림 tap 차단과 같은 이유("모달 밖 요소는 조작 불가")를 키보드에도 적용.
+  // Escape는 처리하지 않는다 - Solid 2.0 스펙이 "닫으려면 버튼/linkAction을 명시적으로 눌러야
+  // 한다"로 스크림 tap도 무시하는 것과 같은 결. 닫기가 필요한 모달은 linkAction/negativeAction으로
+  // 명시적 버튼을 두고, 사용자가 Tab으로 그 버튼에 포커스한 뒤 Space/Enter로 닫는다.
+  useEffect(() => {
+    if (!visible || typeof document === 'undefined') return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Tab') return;
+      const cardNode = cardRef.current as unknown as HTMLElement | null;
+      if (!cardNode) return;
+      const focusables = cardNode.querySelectorAll<HTMLElement>(
+        'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])',
+      );
+      const list = Array.from(focusables).filter((element) => !element.hasAttribute('disabled'));
+      if (list.length === 0) {
+        event.preventDefault();
+        cardNode.focus();
+        return;
+      }
+      const first = list[0];
+      const last = list[list.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      const insideCard = active ? cardNode.contains(active) : false;
+      if (event.shiftKey) {
+        if (!insideCard || active === first) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (!insideCard || active === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [visible]);
+
   if (!mounted) return null;
 
   const scrim = (

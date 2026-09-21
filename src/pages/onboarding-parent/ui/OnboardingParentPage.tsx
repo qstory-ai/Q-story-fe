@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.contentPanelBorder,
     maxWidth: 60,
   },
-  progressPipFilled: { backgroundColor: storybookTheme.color.gold },
+  progressPipFilled: { backgroundColor: storybookTheme.color.primary },
   skipLabel: {
     color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   eyebrow: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.primary,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 0.4,
@@ -346,8 +346,8 @@ const styles = StyleSheet.create({
     borderColor: storybookTheme.color.contentPanelBorder,
   },
   chipSelected: {
-    backgroundColor: storybookTheme.color.gold,
-    borderColor: storybookTheme.color.gold,
+    backgroundColor: storybookTheme.color.primary,
+    borderColor: storybookTheme.color.primary,
   },
   chipPressed: { opacity: 0.85 },
   chipLabel: {

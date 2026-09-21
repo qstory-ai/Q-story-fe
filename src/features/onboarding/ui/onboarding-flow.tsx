@@ -620,7 +620,7 @@ function TutorConsentStep({
           <Text key={item} style={styles.consentItemBlocked}>· {item}</Text>
         ))}
       </View>
-      <Text style={styles.formNote}>연결해도 선생님은 가정 구독 정보나 다른 이야기 기록을 볼 수 없어요. 연결은 마이페이지에서 언제든 끊을 수 있어요.</Text>
+      <Text style={styles.formNote}>연결해도 선생님은 가정 구독 정보나 다른 이야기 기록을 볼 수 없어요. 아이의 질문 음성은 음성 인식 개선을 위해 90일간 비공개로 보관해요. 연결은 마이페이지에서 언제든 끊을 수 있어요.</Text>
       <View style={styles.consentCheckRow}>
         <Checkbox checked={confirmed} onChange={setConfirmed} label="위 내용을 확인했고, 연결에 동의해요" />
       </View>
@@ -1051,7 +1051,7 @@ const styles = StyleSheet.create({
   },
   pressed: { opacity: 0.9 },
   eyebrow: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.primary,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.semibold,
     letterSpacing: 0.4,
@@ -1077,7 +1077,7 @@ const styles = StyleSheet.create({
   },
   welcomeSteps: { flexDirection: 'row', gap: 20, marginTop: 6 },
   welcomeStep: { alignItems: 'center', gap: 2 },
-  welcomeStepNumber: { color: storybookTheme.color.gold, fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold },
+  welcomeStepNumber: { color: storybookTheme.color.primary, fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold },
   welcomeStepLabel: { color: storybookTheme.color.onContentMuted, fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.medium },
   welcomeCard: {
     width: '100%',
@@ -1116,7 +1116,7 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.card,
     padding: 16,
   },
-  consentGroupLabel: { fontSize: storybookTheme.type.xxs, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.gold, marginTop: 8, letterSpacing: 0.4 },
+  consentGroupLabel: { fontSize: storybookTheme.type.xxs, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.primary, marginTop: 8, letterSpacing: 0.4 },
   consentItemAllowed: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onContent },
   consentItemBlocked: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onContentMuted },
 
@@ -1132,7 +1132,7 @@ const styles = StyleSheet.create({
   },
   dots: { flexDirection: 'row', gap: 6, marginTop: 20, marginBottom: 8 },
   dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: storybookTheme.color.contentPanelBorder },
-  dotActive: { backgroundColor: storybookTheme.color.gold, width: 18 },
+  dotActive: { backgroundColor: storybookTheme.color.primary, width: 18 },
   carousel: { gap: 10, paddingTop: 8 },
 
   // Role
@@ -1146,7 +1146,7 @@ const styles = StyleSheet.create({
     padding: 18,
     gap: 4,
   },
-  roleCardEyebrow: { color: storybookTheme.color.gold, fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.semibold },
+  roleCardEyebrow: { color: storybookTheme.color.primary, fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.semibold },
   roleCardTitle: {
     color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.md,

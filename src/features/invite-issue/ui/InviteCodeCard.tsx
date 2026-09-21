@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,
     borderWidth: 1,
-    borderColor: storybookTheme.color.gold,
+    borderColor: storybookTheme.color.primary,
     // spacing.md(16)와 ml(20) 사이 - 초대 카드는 좁은 폭에서도 여유 있게 보여야 해 18 유지.
     padding: 18,
     gap: storybookTheme.spacing.sm,
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   eyebrow: {
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.primary,
     letterSpacing: 0.4,
     textTransform: 'uppercase',
   },

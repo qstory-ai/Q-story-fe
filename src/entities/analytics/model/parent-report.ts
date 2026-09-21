@@ -33,6 +33,17 @@ export type ParentReportQuestionRecord = {
   };
 };
 
+/**
+ * 상시 대화(companion-chat) 태그 집계 스냅샷 - 서버가 완주 시점에 계산해 story_completion에
+ * 저장한 형태. 상시 대화를 안 열었거나 아이가 한 번도 말을 걸지 않은 세션은 이 스냅샷이 null.
+ */
+export type CompanionChatSummary = {
+  turnCount: number;
+  topics: { label: string; count: number }[];
+  tones: { label: string; count: number }[];
+  values: { label: string; count: number }[];
+};
+
 export type ParentReport = {
   storyTitle: string;
   completedStory: string;
@@ -53,6 +64,7 @@ export type ParentReport = {
     title: string;
     description: string;
   };
+  companionChat: CompanionChatSummary | null;
 };
 
 const QUESTION_TYPE_BY_ROUTE: Record<RouteKind, string> = {
@@ -187,6 +199,7 @@ type ParentReportOptions = {
   durationSeconds?: number | null;
   branchAssetId?: (familyId: string) => string | null;
   branchSummary?: (familyId: string) => string | null;
+  companionChat?: CompanionChatSummary | null;
 };
 
 export function buildParentReport(
@@ -371,5 +384,6 @@ export function buildParentReport(
       meaningful
         .map((outcome) => reportCopy.anchors[outcome.anchorId]?.activity)
         .find(Boolean) ?? reportCopy.defaultActivity,
+    companionChat: options.companionChat ?? null,
   };
 }

@@ -26,6 +26,7 @@ import {
   storeVoiceResearchSample,
   trackBetaEvent,
   type BetaEventName,
+  type CompanionChatSummary,
   type QuestionOutcome,
   type LocalStoryProgress,
   type VoiceResearchConsent,
@@ -81,7 +82,11 @@ import { playResponseWithFallback } from '../lib/play-clip-with-fallback';
 import { useOneStoryDerivedView } from './use-one-story-derived-view';
 import { useLiveBranchPolling } from './use-live-branch-polling';
 
-export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tutorStudentId?: string) {
+export function useOneStoryRuntime(
+  initialStoryPackage: StoryRuntimePackage,
+  tutorStudentId?: string,
+  companionConversationId?: string,
+) {
   // 실시간 새 분기 생성이 READY가 되면(폴링 effect 아래 참고) GET /v1/stories/{storyId}/content를
   // 재조회해 이 값을 교체한다 - storyPackage를 부모로부터 받은 그대로 쓰지 않고 로컬 상태로 감싸는
   // 이유는 이것 하나뿐이다. 그 갱신 전까지는 항상 부모가 최초에 넘긴 패키지와 동일하다.
@@ -191,6 +196,10 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
   >(null);
   const [parentReportVisible, setParentReportVisible] = useState(false);
   const [completionSurveyVisible, setCompletionSurveyVisible] = useState(false);
+  // record() 응답의 companionChatSummary를 담아 실시간 리포트가 별도 왕복 없이 렌더한다.
+  // history 상세 화면은 자체적으로 detail을 다시 조회하므로 이 state를 공유하지 않는다.
+  const [companionChatSummary, setCompanionChatSummary] =
+    useState<CompanionChatSummary | null>(null);
   const [resumeCandidate, setResumeCandidate] =
     useState<LocalStoryProgress | null>(() => loadLocalStoryProgress());
   const [homeMenuVisible, setHomeMenuVisible] = useState(false);
@@ -201,8 +210,9 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
         durationSeconds: storyDurationSeconds,
         branchAssetId: storyPackage.branchIllustrationAssetId,
         branchSummary: storyPackage.branchReportSummary,
+        companionChat: companionChatSummary,
       }),
-    [questionOutcomes, storyDurationSeconds, storyPackage],
+    [companionChatSummary, questionOutcomes, storyDurationSeconds, storyPackage],
   );
 
   const elapsedStorySeconds = useCallback(() => {
@@ -553,13 +563,21 @@ export function useOneStoryRuntime(initialStoryPackage: StoryRuntimePackage, tut
           outcomes: questionOutcomes,
           tutorStudentId,
           childId: childIdForRecord,
-        }).catch(() => {});
+          companionConversationId,
+        })
+          .then((saved) => {
+            if (saved.companionChatSummary) {
+              setCompanionChatSummary(saved.companionChatSummary);
+            }
+          })
+          .catch(() => {});
       }
     }
   }, [
     authState,
     selectedChild,
     tutorStudentId,
+    companionConversationId,
     parentReport.changedSceneCount,
     questionOutcomes,
     runtimeState.status,

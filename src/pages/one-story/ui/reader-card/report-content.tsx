@@ -189,6 +189,66 @@ export function ReportContent({ parentReport, isWide, illustrationForAssetId }: 
         </View>
       </View>
 
+      {parentReport.companionChat && parentReport.companionChat.turnCount > 0 && (
+        <View style={styles.reportPanel}>
+          <Text style={styles.reportPanelTitle}>헨젤·그레텔과 나눈 이야기</Text>
+          <Text style={styles.reportPanelDescription}>
+            아이가 상시 대화창에서 헨젤과 그레텔에게 물어본 말과 감정을 태그로만 남겼어요 -
+            원문 발화는 저장하지 않아요.
+          </Text>
+          <View style={styles.reportStats}>
+            <View style={styles.reportStatCard}>
+              <Text style={styles.reportStatValue}>
+                {parentReport.companionChat.turnCount}
+              </Text>
+              <Text style={styles.reportStatLabel}>주고받은 대화</Text>
+            </View>
+          </View>
+          {parentReport.companionChat.topics.length > 0 && (
+            <View style={styles.reportFocusBox}>
+              <Text style={styles.reportFocusLabel}>궁금해한 주제</Text>
+              <View style={styles.reportFocusChips}>
+                {parentReport.companionChat.topics.map((topic) => (
+                  <View key={topic.label} style={styles.reportFocusChip}>
+                    <Text style={styles.reportFocusChipText}>
+                      {topic.label} · {topic.count}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+          {parentReport.companionChat.tones.length > 0 && (
+            <View style={styles.reportFocusBox}>
+              <Text style={styles.reportFocusLabel}>드러난 감정</Text>
+              <View style={styles.reportFocusChips}>
+                {parentReport.companionChat.tones.map((tone) => (
+                  <View key={tone.label} style={styles.reportFocusChip}>
+                    <Text style={styles.reportFocusChipText}>
+                      {tone.label} · {tone.count}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+          {parentReport.companionChat.values.length > 0 && (
+            <View style={styles.reportFocusBox}>
+              <Text style={styles.reportFocusLabel}>관심이 향한 가치</Text>
+              <View style={styles.reportFocusChips}>
+                {parentReport.companionChat.values.map((value) => (
+                  <View key={value.label} style={styles.reportFocusChip}>
+                    <Text style={styles.reportFocusChipText}>
+                      {value.label} · {value.count}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+        </View>
+      )}
+
       <View style={styles.reportPanel}>
         <Text style={styles.reportPanelTitle}>오늘 밤 이어갈 질문</Text>
         <Text style={styles.reportPanelDescription}>

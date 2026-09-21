@@ -53,6 +53,7 @@ export function ReportHistoryDetailPage() {
           durationSeconds: detail.durationSeconds,
           branchAssetId: storyPackage.branchIllustrationAssetId,
           branchSummary: storyPackage.branchReportSummary,
+          companionChat: detail.companionChatSummary,
         });
         setLoad({ requestKey, status: 'ready', parentReport, storyPackage });
       })

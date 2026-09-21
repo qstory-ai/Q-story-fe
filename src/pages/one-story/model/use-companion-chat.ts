@@ -27,10 +27,18 @@ export type CompanionChatTurn = {
  * 속하지 않는다. 스토리 세션당 conversationId 하나를 사용하며, 아이가 입력한 원문 텍스트는
  * 답변을 생성하는 단 한 번의 요청 이외에는 이 훅 밖으로 나가지 않는다 - 상태에는 답변
  * 텍스트만 보관한다.
+ *
+ * <p>conversationId는 OneStoryPage에서 하나 만들어 이 훅과 use-one-story-runtime에 같이
+ * 넘긴다 - runtime이 완주를 저장할 때 서버가 그 id로 companion_chat_turn 태그를 집계해
+ * story_completion에 스냅샷을 붙일 수 있어야 한다.
  */
-export function useCompanionChat(params: { storyId: string; sceneId: string | null }) {
-  const { storyId, sceneId } = params;
-  const conversationIdRef = useRef<string>(crypto.randomUUID());
+export function useCompanionChat(params: {
+  storyId: string;
+  sceneId: string | null;
+  conversationId: string;
+}) {
+  const { storyId, sceneId, conversationId } = params;
+  const conversationIdRef = useRef<string>(conversationId);
   const [character] = useState(pickRandomCompanionCharacter);
   const [open, setOpen] = useState(false);
   const [turns, setTurns] = useState<CompanionChatTurn[]>([]);
@@ -194,6 +202,9 @@ export function useCompanionChat(params: { storyId: string; sceneId: string | nu
     transcribing,
     startVoiceInput,
     stopVoiceInput,
+    // 완주 저장 시 서버가 이 conversationId로 companion_chat_turn 태그를 집계해 스냅샷을
+    // 만든다 - use-one-story-runtime의 recordStoryCompletion 호출에 실어 보낸다.
+    conversationId: conversationIdRef.current,
   };
 }
 

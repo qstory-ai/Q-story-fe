@@ -1,6 +1,6 @@
 import { apiBaseUrl } from '@/shared/config';
 import { requestJson, type PublicRequestOptions as RequestOptions } from '@/shared/api';
-import type { QuestionOutcome } from '@/entities/analytics';
+import type { CompanionChatSummary, QuestionOutcome } from '@/entities/analytics';
 
 export type StoryCompletionSummary = {
   id: string;
@@ -12,6 +12,8 @@ export type StoryCompletionSummary = {
    * 이 값이 있는 항목만 노출한다. 선생님 세션이나 legacy 기록(childName 시절)은 null.
    */
   childId: string | null;
+  /** 상시 대화(companion-chat) 태그 집계 스냅샷 - 완주 시점 기록. 대화 안 했으면 null. */
+  companionChatSummary: CompanionChatSummary | null;
 };
 
 export type StoryCompletionDetail = StoryCompletionSummary & {
@@ -48,6 +50,8 @@ export function recordStoryCompletion(
     outcomes: QuestionOutcome[];
     tutorStudentId?: string;
     childId?: string;
+    /** 이 세션에서 사용한 companion-chat conversationId - 있으면 서버가 태그 집계를 스냅샷 저장. */
+    companionConversationId?: string;
   },
   options?: RequestOptions,
 ): Promise<StoryCompletionSummary> {

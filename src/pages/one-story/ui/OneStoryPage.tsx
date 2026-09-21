@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
 import { SafeAreaView } from '@/shared/ui';
@@ -24,7 +24,10 @@ export function OneStoryPage({
   /** 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 넘긴다(StoryPlayerRoute 참고). */
   tutorStudentId?: string;
 }) {
-  const runtime = useOneStoryRuntime(storyPackage, tutorStudentId);
+  // conversationId는 세션 하나 = 하나. runtime의 완주 저장과 chat의 대화 요청이 같은 id를
+  // 공유해야 서버가 companion_chat_turn 태그를 story_completion에 스냅샷으로 붙일 수 있다.
+  const companionConversationIdRef = useRef<string>(crypto.randomUUID());
+  const runtime = useOneStoryRuntime(storyPackage, tutorStudentId, companionConversationIdRef.current);
   const {
     isWide,
     isShort,
@@ -38,6 +41,7 @@ export function OneStoryPage({
   const chat = useCompanionChat({
     storyId: storyPackage.storyId,
     sceneId: scene?.id ?? null,
+    conversationId: companionConversationIdRef.current,
   });
   const [chaptersOpen, setChaptersOpen] = useState(false);
   // 사이드바의 Escape 리스너·되감기 핸들러가 이 콜백에 의존한다 - 렌더마다 새 함수를 주면 리스너가

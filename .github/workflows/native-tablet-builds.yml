@@ -138,16 +138,34 @@ jobs:
           TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
           EXPORT_METHOD: ${{ secrets.IOS_EXPORT_METHOD || 'ad-hoc' }}
         run: |
+          # 프로파일의 내부 Name(파일명이 아니라 <key>Name</key>)을 뽑아 CODE_SIGN 오버라이드에 쓴다 -
+          # pbxproj의 CODE_SIGN_STYLE=Automatic은 서버에서 프로파일을 생성/조회하려 하므로 CI에서
+          # App Store Connect API 키 없이 실패한다. Manual로 강제하고 방금 import한 프로파일과 배포
+          # 인증서를 명시적으로 지정한다.
+          PROFILE_PATH=~/Library/MobileDevice/Provisioning\ Profiles/qstory.mobileprovision
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin <<<"$(security cms -D -i "$PROFILE_PATH")")
+          echo "Using provisioning profile: $PROFILE_NAME"
           xcodebuild -project App.xcodeproj -scheme App -configuration Release \
             -sdk iphoneos -destination 'generic/platform=iOS' \
-            -derivedDataPath build -archivePath build/App.xcarchive DEVELOPMENT_TEAM="$TEAM_ID" archive
+            -derivedDataPath build -archivePath build/App.xcarchive \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" \
+            archive
+          # ExportOptions.plist도 manual + provisioningProfiles 매핑. bundle id → 프로파일 이름.
+          BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' build/App.xcarchive/Info.plist 2>/dev/null || echo "kr.ai.qstory")
           cat > ExportOptions.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0"><dict>
             <key>method</key><string>${EXPORT_METHOD}</string>
             <key>teamID</key><string>${TEAM_ID}</string>
-            <key>signingStyle</key><string>automatic</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>${BUNDLE_ID}</key><string>${PROFILE_NAME}</string>
+            </dict>
           </dict></plist>
           EOF
           xcodebuild -exportArchive -archivePath build/App.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath build/export

@@ -11,7 +11,7 @@
 | 이 PC(Windows)에서 | **가능** - `npm run android:apk` | **불가능** - Xcode는 macOS 전용 |
 | 없이 만들려면 | - | GitHub Actions macOS 러너(`.github/workflows/native-tablet-builds.yml`) 또는 Mac |
 | 기기 설치 | APK 파일 복사 → "출처를 알 수 없는 앱" 허용, 또는 `adb install` | TestFlight(App Store Connect) 또는 Ad Hoc 프로파일 + Apple Developer 계정($99/년) |
-| 앱 ID | `kr.ai.qstory.app` | `kr.ai.qstory.app` |
+| 앱 ID | `kr.ai.qstory` | `kr.ai.qstory` |
 
 ## 웹 빌드와 다른 점 - API 주소
 

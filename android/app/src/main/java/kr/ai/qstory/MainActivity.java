@@ -1,4 +1,4 @@
-package kr.ai.qstory.app;
+package kr.ai.qstory;
 
 import com.getcapacitor.BridgeActivity;
 

@@ -12,7 +12,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
  *                                              → (ios) macOS에서 npx cap open ios 또는 CI(.github/workflows/native-tablet-builds.yml)
  */
 const config: CapacitorConfig = {
-  appId: 'kr.ai.qstory.app',
+  appId: 'kr.ai.qstory',
   appName: 'Q-Story',
   webDir: 'dist',
   server: {

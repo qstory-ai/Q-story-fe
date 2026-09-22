@@ -86,6 +86,7 @@ jobs:
     timeout-minutes: 60
     env:
       HAS_IOS_SIGNING: ${{ secrets.IOS_CERTIFICATE_P12_BASE64 != '' }}
+      HAS_APPSTORE_API: ${{ secrets.APPSTORE_API_KEY_P8_BASE64 != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -175,3 +176,24 @@ jobs:
         with:
           name: qstory-tablet-ios-ipa
           path: qstory-tablet-ios.ipa
+
+      # 3) App Store Connect 업로드 - export가 app-store 방식이고 API 키 시크릿이 있을 때만.
+      # altool은 ~/.appstoreconnect/private_keys/AuthKey_<KEY_ID>.p8 파일을 규약된 위치에서 찾는다.
+      # 업로드 성공 뒤 App Store Connect에서 몇 분 processing → TestFlight에 빌드가 뜬다.
+      - name: Upload IPA to TestFlight
+        if: env.HAS_IOS_SIGNING == 'true' && env.HAS_APPSTORE_API == 'true' && (secrets.IOS_EXPORT_METHOD == 'app-store')
+        env:
+          KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APPSTORE_API_ISSUER_ID }}
+          P8_BASE64: ${{ secrets.APPSTORE_API_KEY_P8_BASE64 }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$P8_BASE64" | base64 -d > ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8
+          chmod 600 ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$GITHUB_WORKSPACE/qstory-tablet-ios.ipa" \
+            --apiKey "$KEY_ID" \
+            --apiIssuer "$ISSUER_ID"
+          # .p8은 러너 임시 파일시스템이라 잡 종료와 함께 사라지지만 명시적으로 지운다.
+          rm -f ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8

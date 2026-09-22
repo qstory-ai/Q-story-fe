@@ -87,6 +87,7 @@ jobs:
     env:
       HAS_IOS_SIGNING: ${{ secrets.IOS_CERTIFICATE_P12_BASE64 != '' }}
       HAS_APPSTORE_API: ${{ secrets.APPSTORE_API_KEY_P8_BASE64 != '' }}
+      EXPORT_METHOD: ${{ secrets.IOS_EXPORT_METHOD || 'ad-hoc' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -181,7 +182,7 @@ jobs:
       # altool은 ~/.appstoreconnect/private_keys/AuthKey_<KEY_ID>.p8 파일을 규약된 위치에서 찾는다.
       # 업로드 성공 뒤 App Store Connect에서 몇 분 processing → TestFlight에 빌드가 뜬다.
       - name: Upload IPA to TestFlight
-        if: env.HAS_IOS_SIGNING == 'true' && env.HAS_APPSTORE_API == 'true' && (secrets.IOS_EXPORT_METHOD == 'app-store')
+        if: env.HAS_IOS_SIGNING == 'true' && env.HAS_APPSTORE_API == 'true' && env.EXPORT_METHOD == 'app-store'
         env:
           KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
           ISSUER_ID: ${{ secrets.APPSTORE_API_ISSUER_ID }}

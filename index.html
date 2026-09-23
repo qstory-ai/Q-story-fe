@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- 삽화·내레이션은 Supabase 공개 버킷에서 받는다(content/registry.yaml assetStorage). 두 줄인 이유:
+         <img>/<audio>는 non-CORS, 프리로드 fetch()는 CORS 연결 풀을 쓰므로 각각 미리 연결한다. -->
+    <link rel="preconnect" href="https://kbghxgejrkebdhjwizbr.supabase.co">
+    <link rel="preconnect" href="https://kbghxgejrkebdhjwizbr.supabase.co" crossorigin>
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
     <meta name="description" content="아이와 함께 듣고 답하며 이야기를 만들어가는 인터랙티브 동화 - 큐스토리." />
     <link rel="icon" href="/brand/q-story-logo-app-icon-1024.png" />

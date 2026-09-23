@@ -472,12 +472,10 @@ export async function loadStoryPackageFromDirectory(
       // source tree the upload script reads from; it is not part of the Vite bundle.
       // Audio originals are no longer kept in the repo (the Supabase bucket is the only copy;
       // assets.json carries the sha256 recorded at upload time), so a file that is not on disk
-      // is skipped rather than failing the build. `--fix` still needs the file to recompute.
+      // is skipped in both modes: `--check` trusts the recorded hash and `--fix` keeps it as-is,
+      // recomputing only for files that are actually present (today: illustrations).
       const onDisk = join(assetRoot, `${assets.root}${asset.file}`);
-      if (!existsSync(onDisk)) {
-        if (rewriteIntegrity) fail(story.storyId, `cannot recompute integrity: ${asset.slug} is not on disk`);
-        continue;
-      }
+      if (!existsSync(onDisk)) continue;
       const actual = `sha256-${createHash('sha256')
         .update(await readFile(onDisk))
         .digest('base64')}`;

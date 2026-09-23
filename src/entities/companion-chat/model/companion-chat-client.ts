@@ -24,6 +24,40 @@ export class CompanionChatError extends Error {
   }
 }
 
+type FailureEnvelope = {
+  ok?: boolean;
+  failure?: { code?: string; retryable?: boolean; safeDetail?: string };
+};
+
+/**
+ * 컴패니언 챗 백엔드(CompanionChatPipelineService)는 STT·LLM 실패를 HTTP 오류가 아니라
+ * HTTP 200 + {ok:false, failure:{code, stage, retryable, safeDetail}} 봉투로 돌려준다 -
+ * /v1/transcriptions·/v1/questions/route가 쓰는 것과 같은 관례다. 그래서 response.ok만 보면
+ * 실패 본문을 성공 응답으로 읽게 되므로, 상태 코드와 무관하게 본문의 ok를 먼저 확인한다.
+ * 프록시/게이트웨이가 JSON이 아닌 오류 페이지(502/503 등)를 돌려줄 수 있으니 response.json()이
+ * 원시 SyntaxError를 던지지 않도록 감싼다 (다른 API client들의 request<T>()가 이미 하는 것과 같은 방어).
+ */
+async function readBody<T extends FailureEnvelope>(
+  response: Response,
+  fallbackMessage: string,
+): Promise<T> {
+  let body: T | undefined;
+  try {
+    body = (await response.json()) as T;
+  } catch {
+    // 실패 응답 본문을 읽지 못하면 아래 기본 메시지로 대체한다.
+  }
+  if (!response.ok || !body || body.ok === false) {
+    const failure = body?.failure;
+    throw new CompanionChatError(
+      failure?.safeDetail ?? fallbackMessage,
+      failure?.code,
+      failure?.retryable,
+    );
+  }
+  return body;
+}
+
 async function blobToBase64(blob: Blob): Promise<string> {
   const bytes = new Uint8Array(await blob.arrayBuffer());
   const chunkSize = 0x8000;
@@ -59,22 +93,10 @@ export async function transcribeCompanionChatAudio(
     }),
   });
 
-  if (!response.ok) {
-    let failure: { code?: string; retryable?: boolean; safeDetail?: string } | undefined;
-    try {
-      const parsed = (await response.json()) as { failure?: typeof failure };
-      failure = parsed.failure;
-    } catch {
-      // 실패 응답 본문을 읽지 못하면 아래 기본 메시지로 대체한다.
-    }
-    throw new CompanionChatError(
-      failure?.safeDetail ?? '지금은 목소리를 인식하지 못했어요.',
-      failure?.code,
-      failure?.retryable,
-    );
-  }
-
-  const body = (await response.json()) as { transcript?: string };
+  const body = await readBody<FailureEnvelope & { transcript?: string }>(
+    response,
+    '지금은 목소리를 인식하지 못했어요.',
+  );
   if (!body.transcript) {
     throw new CompanionChatError('이번에는 말소리를 문장으로 확인하지 못했어요.');
   }
@@ -87,6 +109,13 @@ export async function sendCompanionChatMessage(
     sceneId: string;
     conversationId: string;
     transcript: string;
+    /**
+     * 아이가 대화 중인 캐릭터(companion-character.ts가 고른 헨젤/그레텔의 speakerId). 백엔드는 이
+     * 값으로 story_persona(personas.yaml 임포트본)의 페르소나와 TTS 보이스를 고르므로, 화면의
+     * 아바타와 답변의 말투·목소리가 같은 인물이 된다. 안 보내면 백엔드가 장면의 앵커 화자나
+     * 내레이터로 정한다(구버전 동작).
+     */
+    speakerId?: string;
   },
   signal?: AbortSignal,
 ): Promise<CompanionChatReply> {
@@ -100,29 +129,13 @@ export async function sendCompanionChatMessage(
     body: JSON.stringify(input),
   });
 
-  if (!response.ok) {
-    // 프록시/게이트웨이가 JSON이 아닌 오류 페이지(502/503 등)를 돌려줄 수 있으니, 이 실패
-    // 경로에서는 response.json()이 원시 SyntaxError를 던지지 않도록 감싼다 (다른 API
-    // client들의 request<T>()가 이미 하는 것과 같은 방어).
-    let failure: { code?: string; retryable?: boolean; safeDetail?: string } | undefined;
-    try {
-      const parsed = (await response.json()) as { failure?: typeof failure };
-      failure = parsed.failure;
-    } catch {
-      // 실패 응답 본문을 읽지 못하면 아래 기본 메시지로 대체한다.
+  const body = await readBody<
+    FailureEnvelope & {
+      responseText: string;
+      safety: { mode: CompanionChatSafetyMode };
+      audio?: { mimeType: string; dataBase64: string };
     }
-    throw new CompanionChatError(
-      failure?.safeDetail ?? '지금은 대답을 준비하지 못했어요.',
-      failure?.code,
-      failure?.retryable,
-    );
-  }
-
-  const body = (await response.json()) as {
-    responseText: string;
-    safety: { mode: CompanionChatSafetyMode };
-    audio?: { mimeType: string; dataBase64: string };
-  };
+  >(response, '지금은 대답을 준비하지 못했어요.');
   return {
     responseText: body.responseText,
     safetyMode: body.safety.mode,

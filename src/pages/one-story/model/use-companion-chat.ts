@@ -93,6 +93,7 @@ export function useCompanionChat(params: {
             sceneId,
             conversationId: conversationIdRef.current,
             transcript: text,
+            speakerId: character.speakerId,
           },
           controller.signal,
         );
@@ -127,7 +128,7 @@ export function useCompanionChat(params: {
         );
       }
     },
-    [sceneId, sending, storyId],
+    [character.speakerId, sceneId, sending, storyId],
   );
 
   const startVoiceInput = useCallback(async () => {

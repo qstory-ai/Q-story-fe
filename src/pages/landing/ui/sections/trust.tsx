@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   parentNote: {
     marginTop: 8,
     borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    backgroundColor: storybookTheme.color.storybookCard,
     padding: 18,
     gap: 4,
   },

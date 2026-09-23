@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
     zIndex: storybookTheme.zIndex.sticky,
     gap: 10,
   },
-  // 휴대폰: 좌우 여백을 줄이고 위로 붙여 한 줄(38px 버튼 높이)로 끝낸다.
+  // 휴대폰: 좌우 여백을 줄이고 위로 붙여 한 줄(44px 버튼 높이)로 끝낸다.
   topBarNarrow: {
     left: 12,
     right: 12,
@@ -102,11 +102,16 @@ export const styles = StyleSheet.create({
   },
   brandLogo: { width: 42, height: 46 },
   brandTextLockup: { gap: 4, flexShrink: 1 },
+  // 상단 바는 장면 삽화·idle 화면(밝은 회색) 위에 그대로 얹히므로 흰 글자만으로는 밝은 장면에서
+  // 사라진다 - 오버레이 텍스트답게 짧은 그림자를 깔아 어느 배경에서도 읽히게 한다.
   brand: {
     color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 1.8,
+    textShadowColor: 'rgba(22, 12, 36, 0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   brandQ: { color: storybookTheme.color.gold },
   reportTopText: { color: storybookTheme.color.onCardTitle },
@@ -115,6 +120,9 @@ export const styles = StyleSheet.create({
     fontSize: storybookTheme.type.md,
     lineHeight: 21,
     fontWeight: storybookTheme.type.weight.bold,
+    textShadowColor: 'rgba(22, 12, 36, 0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   reportStoryTitle: { color: '#6B5C80' },
   chapterTitle: {
@@ -122,6 +130,9 @@ export const styles = StyleSheet.create({
     fontSize: storybookTheme.type.xs,
     lineHeight: 15,
     fontWeight: storybookTheme.type.weight.semibold,
+    textShadowColor: 'rgba(22, 12, 36, 0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   topRight: {
     flexDirection: 'row',
@@ -135,10 +146,11 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
+  // 아이가 직접 누르는 버튼 - 38px는 44px 터치 타겟 기준(PRODUCT.md 저연령 UX)에 못 미쳤다.
   topControlButton: {
-    minWidth: 38,
-    minHeight: 38,
-    paddingHorizontal: 11,
+    minWidth: 44,
+    minHeight: 44,
+    paddingHorizontal: 12,
     borderRadius: storybookTheme.radius.pill,
     flexDirection: 'row',
     alignItems: 'center',
@@ -296,7 +308,7 @@ export const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 760,
     alignSelf: 'center',
-    backgroundColor: storybookTheme.color.surfaceCard,
+    backgroundColor: storybookTheme.color.storybookCard,
     borderRadius: 28,
     padding: 22,
     gap: 18,

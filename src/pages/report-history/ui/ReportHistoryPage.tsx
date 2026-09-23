@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onContentMuted,
   },
-  childFilterLabelActive: { color: storybookTheme.color.gold },
+  childFilterLabelActive: { color: storybookTheme.color.goldText },
   filterNote: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onContentMuted,
@@ -589,7 +589,7 @@ const styles = StyleSheet.create({
   sectionEyebrow: {
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.goldText,
     letterSpacing: 0.4,
     textTransform: 'uppercase',
   },
@@ -626,7 +626,7 @@ const styles = StyleSheet.create({
   miniRowCount: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.goldText,
   },
   quoteItem: {
     fontSize: storybookTheme.type.sm,

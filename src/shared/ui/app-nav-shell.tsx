@@ -81,7 +81,8 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
             style={[styles.sidebarToggle, { right: sidebarOpen ? SIDEBAR_WIDTH + 12 : 12 }]}
             {...({ 'aria-expanded': sidebarOpen, 'aria-controls': 'app-nav-sidebar' } as any)}
           >
-            <Icon name={sidebarOpen ? 'close' : 'menu'} size={18} color={storybookTheme.color.onContent} />
+            {/* 'close'(X)는 화면을 닫는 것처럼 읽혀서 - 접힘 방향을 가리키는 chevron으로. */}
+            <Icon name={sidebarOpen ? 'chevronRight' : 'menu'} size={18} color={storybookTheme.color.onContent} />
           </Pressable>
           {/* position:fixed - 예전엔 그냥 flex row의 형제라 페이지가 길면 스크롤할 때 같이
               밀려 올라갔다(하단바와 같은 문제, app-nav-shell 좁은 화면 분기 참고). 뷰포트

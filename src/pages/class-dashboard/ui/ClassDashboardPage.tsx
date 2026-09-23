@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   recentLabel: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.goldText,
     letterSpacing: 0.3,
   },
   recentTitle: {
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   recentLink: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.goldText,
     marginTop: 6,
   },
 });

@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   },
   seeAllPressed: { opacity: 0.7 },
   seeAllLabel: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.goldText,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
   },

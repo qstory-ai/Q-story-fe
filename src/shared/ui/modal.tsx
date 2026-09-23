@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     maxWidth: 520,
     borderRadius: storybookTheme.radius.modalCard,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.8)',
+    borderColor: storybookTheme.color.contentSurfaceBorder,
     backgroundColor: storybookTheme.color.surfaceCardOpaque,
     padding: 24,
     gap: 13,

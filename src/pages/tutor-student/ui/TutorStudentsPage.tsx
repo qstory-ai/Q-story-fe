@@ -105,24 +105,29 @@ export function TutorStudentsPage() {
                 {student.classType ? ` · ${student.classType}` : ''}
               </Text>
               {student.prepNote ? <Text style={styles.cardBody}>{student.prepNote}</Text> : null}
-              <ActionButton
-                variant="secondaryFull"
-                label="이야기 시작하기"
-                onPress={() => navigate(`/stories/${DEFAULT_BETA_STORY_ID}/play?tutorStudentId=${student.id}`)}
-              />
-              <ActionButton
-                variant="secondaryFull"
-                label="상세 · 메모 편집"
-                onPress={() => navigate(`/tutor/students/${student.id}`)}
-              />
-              {student.status === 'PENDING_PARENT' ? (
+              {/* 카드마다 세로로 쌓인 전폭 버튼 셋은 목록을 세 배로 길게 만들고 무엇이 주 동작인지도
+                  흐렸다 - 한 줄에 놓고 "이야기 시작"만 채움 버튼으로 둔다. */}
+              <View style={styles.actions}>
                 <ActionButton
-                  variant="secondaryFull"
-                  label={issuingStudentId === student.id ? '초대 만드는 중…' : '부모 초대 코드 발급'}
-                  onPress={() => issueInvite(student.id)}
-                  disabled={issuingStudentId === student.id}
+                  variant="primary"
+                  size="sm"
+                  label="이야기 시작"
+                  onPress={() => navigate(`/stories/${DEFAULT_BETA_STORY_ID}/play?tutorStudentId=${student.id}`)}
                 />
-              ) : null}
+                <ActionButton
+                  variant="secondary"
+                  label="상세 · 메모"
+                  onPress={() => navigate(`/tutor/students/${student.id}`)}
+                />
+                {student.status === 'PENDING_PARENT' ? (
+                  <ActionButton
+                    variant="secondary"
+                    label={issuingStudentId === student.id ? '초대 만드는 중…' : '부모 초대 코드'}
+                    onPress={() => issueInvite(student.id)}
+                    disabled={issuingStudentId === student.id}
+                  />
+                ) : null}
+              </View>
               {issueError[student.id] ? (
                 <Text style={styles.error}>{issueError[student.id]}</Text>
               ) : null}
@@ -181,6 +186,7 @@ const styles = StyleSheet.create({
     borderColor: storybookTheme.color.lightCardBorder,
   },
   cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: storybookTheme.spacing.sm },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: storybookTheme.spacing.sm, marginTop: storybookTheme.spacing.xs },
   cardTitle: { fontSize: storybookTheme.type.md, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onCardTitle },
   cardBody: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onCardBody },
 });

@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.card,
     borderWidth: 1,
     borderColor: storybookTheme.color.contentSurfaceBorder,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    backgroundColor: storybookTheme.color.storybookCard,
     padding: 20,
   },
   stepCardFeatured: {

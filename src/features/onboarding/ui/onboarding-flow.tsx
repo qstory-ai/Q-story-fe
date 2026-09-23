@@ -424,7 +424,7 @@ export function OnboardingFlow({
 function WelcomeStep({ onSignUp, onSignIn }: { onSignUp: () => void; onSignIn: () => void }) {
   return (
     <View style={styles.welcome}>
-      <BrandLockup />
+      <BrandLockup tone="onLight" />
       <Text style={styles.welcomeTitle}>오늘, 아이의 한마디가{'\n'}이야기를 움직여요.</Text>
       <Text style={styles.welcomeLead}>
         검수된 동화를 듣고 아이가 생각을 말하면,{'\n'}그 뜻이 짧은 장면 변화와 대화 기록으로 이어져요.
@@ -820,7 +820,7 @@ function SignUpStep({
     <View style={styles.form}>
       <Text style={styles.eyebrow}>회원가입 · 2 / 2</Text>
       <Text style={styles.carouselTitle}>계정을 만들어볼까요?</Text>
-      <Text style={styles.welcomeLead}>
+      <Text style={[styles.welcomeLead, styles.formLead]}>
         {role === 'PARENT' ? '학부모' : role === 'DIRECTOR' ? '기관 및 단체' : '선생님'} 홈을 준비할게요.
       </Text>
 
@@ -962,8 +962,11 @@ function SignInStep({
 
   return (
     <View style={styles.form}>
+      <View style={styles.formBrand}>
+        <BrandLockup tone="onLight" size="compact" />
+      </View>
       <Text style={styles.carouselTitle}>로그인</Text>
-      <Text style={styles.welcomeLead}>
+      <Text style={[styles.welcomeLead, styles.formLead]}>
         {tutorInvite ? '로그인하면 바로 이 초대를 연결할게요.' : '가입할 때 만든 아이디와 비밀번호로 들어와요.'}
       </Text>
       <TextField
@@ -1159,10 +1162,15 @@ const styles = StyleSheet.create({
   form: { gap: 14, paddingTop: 8 },
   formNote: { color: storybookTheme.color.onContentMuted, fontSize: storybookTheme.type.sm },
   signInInlineLink: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center' },
+  formBrand: { alignItems: 'center', marginBottom: storybookTheme.spacing.xs },
+  // 폼 제목(왼쪽 정렬) 아래 lead가 가운데 정렬로 어긋나 있던 것을 맞춘다.
+  formLead: { textAlign: 'left' },
   signInInlineLinkText: {
-    color: storybookTheme.color.linkOnDark,
+    // 라이트 배경 위 링크 - 예전 linkOnDark(연보라)는 흰 배경에서 2:1도 안 됐다.
+    color: storybookTheme.color.linkOnLight,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
+    textDecorationLine: 'underline',
   },
   signInSignUpRow: {
     flexDirection: 'row',

@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: storybookTheme.spacing.md,
     paddingVertical: storybookTheme.spacing.ms,
   },
-  roleLabel: { fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.gold },
+  roleLabel: { fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.goldText },
   roleBody: {
     fontSize: storybookTheme.type.xs,
     lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,

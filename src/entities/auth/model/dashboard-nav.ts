@@ -1,12 +1,12 @@
 import type { UserSummary } from '../api/auth-api';
 import { homePathFor } from './home-path';
 
-export type DashboardNavKey = 'home' | 'library' | 'classes' | 'reports' | 'mypage';
+export type DashboardNavKey = 'home' | 'library' | 'classes' | 'tutors' | 'usage' | 'reports' | 'mypage';
 
 // entities 레이어는 shared/ui 컴포넌트에 의존하지 않는다 - AppNavShellItem과 구조적으로
 // 호환되는 형태(key/label/icon/active/onPress)만 여기서 만들고, 실제 컴포넌트 타입에 대한
 // 할당 가능 여부는 이걸 <AppNavShell items={...}> 로 넘기는 호출부에서 구조적으로 검사된다.
-type DashboardNavIcon = 'home' | 'book' | 'graduationCap' | 'report' | 'user';
+type DashboardNavIcon = 'home' | 'book' | 'graduationCap' | 'report' | 'user' | 'users' | 'calendarDays';
 
 /**
  * AppNavShell에 넣을 항목들. IA의 하단 탭 요구를 반영해 부모/선생님 모두 "서재" 탭을 갖고,
@@ -35,6 +35,14 @@ export function dashboardNavItems(
   }
   if (user.role === 'PARENT' || user.role === 'CLASS_ACCOUNT') {
     entries.push({ key: 'reports', label: '리포트', icon: 'report', path: '/reports' });
+  }
+  if (user.role === 'DIRECTOR') {
+    // 기관 관리자 - 예전엔 홈·마이페이지 두 항목뿐이라 반/선생님/이용현황/리포트를 홈 카드로만
+    // 오갈 수 있었다. 대시보드의 네 목적지를 사이드바(좁은 화면은 하단 탭)에 그대로 둔다.
+    entries.push({ key: 'classes', label: '반·학생', icon: 'graduationCap', path: '/organization/classes' });
+    entries.push({ key: 'tutors', label: '선생님', icon: 'users', path: '/organization/tutors' });
+    entries.push({ key: 'usage', label: '이용 현황', icon: 'calendarDays', path: '/organization/usage' });
+    entries.push({ key: 'reports', label: '리포트', icon: 'report', path: '/organization/reports' });
   }
   if (user.role === 'TUTOR') {
     // 선생님용 리포트 탭 - 자기 학생 세션 완주 기록을 학생별로 묶어 본다.

@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   eyebrow: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.goldText,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 0.4,

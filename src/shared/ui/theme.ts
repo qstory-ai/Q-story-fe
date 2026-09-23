@@ -29,29 +29,46 @@ export const storybookTheme = {
     sidebarBorder: 'rgba(255, 255, 255, 0.08)',
     sidebarActive: 'rgba(255, 255, 255, 0.10)',
     // ── 기존 서피스 토큰(리더/기존 다크 화면용, 하위 호환) ──────────────────────
-    surfaceCard: 'rgba(255, 252, 245, 0.96)',
-    surfaceCardBorder: 'rgba(255, 255, 255, 0.72)',
+    /**
+     * 콘솔 세계(대시보드·인증·마이페이지)의 카드. 예전엔 리더의 크림 카드(rgba 255,252,245)를 그대로
+     * 썼는데, 라이트 회색 배경 위에서는 누렇게 떠 보이고 네이비 리테마와도 어긋났다. 리더·랜딩은
+     * 아래 storybookCard*로 옮겼고, 여기서는 contentSurface와 같은 순백 + hairline이다.
+     */
+    surfaceCard: '#FFFFFF',
+    surfaceCardBorder: 'rgba(15, 23, 42, 0.08)',
+    /** 리더(one-story)·랜딩 전용 - 다크 배경 위에 앉는 따뜻한 크림 카드. 콘솔 페이지에서는 쓰지 않는다. */
+    storybookCard: 'rgba(255, 252, 245, 0.96)',
+    storybookCardBorder: 'rgba(255, 255, 255, 0.72)',
+    storybookCardOpaque: '#FFFCF5',
     gold: '#F6C64D',
     /** 사용자 요청으로 브랜드 primary를 보라(#43225F)에서 네이비로 이관.
      *  이 값은 semantic.brand.default와 함께 앱 전역의 CTA/링크/키 컬러의 밑바탕이다. */
     primary: '#1E293B',
     onDark: '#FFFFFF',
     onDarkMuted: 'rgba(255, 255, 255, 0.72)',
-    onCardTitle: '#2B1748',
-    onCardBody: '#5E5367',
-    /** WCAG AA 4.5:1을 만족하도록 surfaceCardOpaque(#FFFCF5) 대비로 조정한 값(원래 #85778E는 4.08:1로 미달). */
-    onCardMuted: '#7A6C82',
+    // 카드 위 텍스트 3단 - 보라(#2B1748/#5E5367/#7A6C82) 시절 값을 네이비 슬레이트 계열로 옮겼다.
+    // onContent*와 같은 hue라 "카드 위"와 "배경 위" 텍스트가 이제 한 세계로 읽힌다. muted는 흰 카드
+    // 기준 4.8:1(AA).
+    onCardTitle: '#1E293B',
+    onCardBody: '#475569',
+    onCardMuted: '#64748B',
     /** 보라 파생값이었으나 primary 네이비 이관에 맞춰 함께 이동 - 라이트 카드 위 은은한 배지 배경. */
     pillBackground: 'rgba(30, 41, 59, 0.06)',
     pillBorder: 'rgba(30, 41, 59, 0.14)',
     /** 스토리북 테마 페이지(landing/detail/story-card)의 모든 카드가 공유하는 shadowColor. */
     shadow: '#12091F',
-    /** 이야기에 아직 커버 아트가 없을 때의 커버 이미지 자리표시자 배경. */
-    coverFallback: '#2A1D3D',
+    /** 이야기에 아직 커버 아트가 없을 때의 커버 이미지 자리표시자 배경 - 네이비 딥. */
+    coverFallback: '#243447',
+    /**
+     * 라이트 배경 위에 "글자"로 놓는 골드. 브랜드 골드(#F6C64D)는 흰 배경에서 1.6:1이라 글자로 못
+     * 쓴다 - 선택된 아이 이름, 워드마크의 Q, 강조 라벨처럼 골드 hue를 유지해야 하는 텍스트는 이
+     * 앰버(흰 배경 5.9:1)를 쓴다. 채움·마커(캘린더 오늘, 사이드바 활성 아이콘)는 계속 gold.
+     */
+    goldText: '#8A6300',
     /** 모달 뒤 배경 딤 처리 - one-story의 세 모달이 원래 하드코딩해 쓰던 값을 그대로 토큰화. */
     scrim: 'rgba(15, 8, 25, 0.72)',
-    /** 모달 카드처럼 배경이 완전히 비쳐 보이면 안 되는 서피스용 - surfaceCard(반투명)와 구분. */
-    surfaceCardOpaque: '#FFFCF5',
+    /** 모달 카드처럼 배경이 완전히 비쳐 보이면 안 되는 서피스용. 콘솔 세계에서는 순백. */
+    surfaceCardOpaque: '#FFFFFF',
     /** text-field 입력창/checkbox 박스/StaffHomePage 카드가 각자 '#FFFFFF'로 하드코딩하던
      * 순백 서피스 - 크림톤인 surfaceCardOpaque(#FFFCF5)와 구분되는 순수한 흰색이 필요한 곳. */
     surfaceWhite: '#FFFFFF',
@@ -62,14 +79,16 @@ export const storybookTheme = {
      * 우연히 같지만("브랜드 버튼 채우기"가 아니라 "밝은 카드 위 제목") 의미가 달라 별도 토큰으로
      * 둔다 - 나중에 둘이 갈라져도 여기서만 바꾸면 된다.
      */
-    shellBackground: '#F7F1FB',
-    onLightHeading: '#43225F',
-    onLightBody: '#6B5478',
-    /** WCAG AA 4.5:1을 만족하도록 조정한 값(원래 #9C87AC는 흰 배경 3.24:1, shellBackground 2.92:1로 미달). */
-    onLightMuted: '#6F5D85',
-    lightCardBorder: '#E0D3EA',
+    // 라이트 셸 계열 - 라벤더(#F7F1FB/#E0D3EA)와 보라 텍스트(#43225F/#6B5478/#6F5D85)를 네이비 콘솔
+    // 세계로 통일했다. 인증·온보딩 화면이 대시보드와 같은 배경·같은 텍스트 hue를 쓴다.
+    shellBackground: '#F7F8FA',
+    onLightHeading: '#1E293B',
+    onLightBody: '#475569',
+    onLightMuted: '#64748B',
+    lightCardBorder: 'rgba(15, 23, 42, 0.14)',
     linkOnDark: '#DCD1FF',
-    linkOnLight: '#6A4B7C',
+    /** 라이트 배경 위 링크 - 본문 네이비와 구분되는 한 단계 밝은 블루(흰 배경 7:1). 밑줄과 함께 쓴다. */
+    linkOnLight: '#2451B2',
     /**
      * 에러/위험 상태 - 이전엔 토큰이 아예 없어서 파일마다 같은 값을 새로 하드코딩했다.
      * WCAG AA 4.5:1을 만족하도록 흰 배경 기준으로 조정(원래 #E46647은 3.34:1로 미달).
@@ -85,9 +104,9 @@ export const storybookTheme = {
      * disabled 팔레트를 그대로 쓰지 않고, 라이트 셸의 보라 톤(primary #43225F)에서 파생시켜
      * 톤을 맞췄다. pillBackground/pillBorder와 비슷한 유도 방식이다.
      */
-    disabledBackground: 'rgba(67, 34, 95, 0.06)',
-    disabledBorder: 'rgba(67, 34, 95, 0.18)',
-    disabledText: '#A79BB0',
+    disabledBackground: 'rgba(30, 41, 59, 0.06)',
+    disabledBorder: 'rgba(30, 41, 59, 0.18)',
+    disabledText: '#8A94A6',
     /**
      * 리더(one-story) 전용 톤 - 리더는 씬마다 다양한 tint를 쓰기 때문에 palette가 넓지만,
      * 아래 6개 톤은 리더 여러 화면(제목/카드/그림자/본문 3단)에서 반복적으로 나와 별도 토큰으로
@@ -131,12 +150,12 @@ export const storybookTheme = {
     accent: {
       default: '#F6C64D',
       hover: '#E8B93D',
-      onAccent: '#2B1748',
+      onAccent: '#1E293B',
     },
     neutral: {
       onDark: { default: '#FFFFFF', muted: 'rgba(255, 255, 255, 0.72)' },
-      onLight: { default: '#43225F', body: '#6B5478', muted: '#6F5D85' },
-      onCard: { title: '#2B1748', body: '#5E5367', muted: '#7A6C82' },
+      onLight: { default: '#1E293B', body: '#475569', muted: '#64748B' },
+      onCard: { title: '#1E293B', body: '#475569', muted: '#64748B' },
     },
     positive: {
       default: '#2F9E62',
@@ -165,8 +184,8 @@ export const storybookTheme = {
    */
   status: {
     info: {
-      background: '#EDE3F6',
-      border: '#D9C7EC',
+      background: '#E8EEF7',
+      border: '#C7D3E6',
     },
     warning: {
       background: '#FBEAE3',

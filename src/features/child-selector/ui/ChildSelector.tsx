@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     maxWidth: 62,
   },
   avatarNameSelected: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.goldText,
     fontWeight: storybookTheme.type.weight.bold,
   },
   addButton: {

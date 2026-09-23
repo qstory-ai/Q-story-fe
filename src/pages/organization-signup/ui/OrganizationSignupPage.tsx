@@ -164,7 +164,7 @@ function ClassManagementStep({
           {entitlement ? (
             <StatusBanner
               variant={entitlement.grantsAccess ? 'info' : 'warning'}
-              label={SUBSCRIPTION_LABEL[entitlement.subscriptionStatus]}
+              label={SUBSCRIPTION_LABEL[entitlement.subscriptionStatus] ?? '구독 상태를 확인하고 있어요.'}
               body={
                 entitlement.grantsAccess
                   ? undefined
@@ -237,14 +237,13 @@ function DashboardCard({
       ]}
     >
       <View style={styles.dashboardCardText}>
-        {primary ? <Text style={styles.dashboardCardEyebrow}>자주 쓰는 곳</Text> : null}
         <Text style={styles.dashboardCardTitle}>{title}</Text>
         <Text style={styles.dashboardCardBody}>{body}</Text>
       </View>
       <Icon
         name="chevronRight"
         size={16}
-        color={primary ? storybookTheme.color.gold : storybookTheme.color.onCardMuted}
+        color={primary ? storybookTheme.color.primary : storybookTheme.color.onCardMuted}
       />
     </Pressable>
   );
@@ -300,20 +299,15 @@ const styles = StyleSheet.create({
   },
   // 대시보드에서 가장 자주 쓰이는 액션에 gold border + tint로 시각 우선순위를 준다.
   // 다른 셋은 모두 동일한 톤이라 이 하나만 눈에 먼저 들어오도록.
+  // 가장 자주 쓰는 카드 하나만 네이비 테두리로 먼저 읽히게 - 골드 테두리+라벨은 콘솔 세계에서
+  // 경고 배너처럼 보였다.
   dashboardCardPrimary: {
-    borderColor: storybookTheme.color.gold,
+    borderColor: storybookTheme.color.primary,
     borderWidth: 2,
     padding: 17, // border 2 → padding 17로 인접 카드와 실제 콘텐츠 offset 유지
   },
   dashboardCardPressed: { opacity: 0.85 },
   dashboardCardText: { flex: 1, gap: storybookTheme.spacing.xs },
-  dashboardCardEyebrow: {
-    fontSize: storybookTheme.type.xxs,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.gold,
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
-  },
   dashboardCardTitle: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,

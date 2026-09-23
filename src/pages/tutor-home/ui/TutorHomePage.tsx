@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Pill, storybookTheme } from '@/shared/ui';
+import { BrandLockup, ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
@@ -85,8 +85,7 @@ export function TutorHomePage() {
         <TopBar token={state.token} />
 
         <Card variant="surface" padding="lg" style={styles.greetingCard}>
-          <Text style={styles.eyebrow}>선생님</Text>
-          <Text style={styles.title} accessibilityRole="header">{state.user.displayName}님</Text>
+          <Text style={styles.title} accessibilityRole="header">{state.user.displayName} 선생님</Text>
           <Text style={styles.body}>오늘 만날 아이와 수업을 준비해 보세요.</Text>
         </Card>
 
@@ -179,19 +178,7 @@ export function TutorHomePage() {
 function TopBar({ token }: { token: string }) {
   return (
     <View style={styles.topBar}>
-      <View style={styles.brandRow}>
-        <View style={styles.brandLogoFrame}>
-          <Image
-            source={{ uri: '/brand/q-story-question-book-logo.svg' }}
-            resizeMode="contain"
-            style={styles.brandLogo}
-            accessibilityLabel="Q-Story 로고"
-          />
-        </View>
-        <Text style={styles.brandWordmark}>
-          <Text style={styles.brandWordmarkQ}>Q</Text>-STORY
-        </Text>
-      </View>
+      <BrandLockup size="compact" tone="onLight" />
       <NotificationBell token={token} />
     </View>
   );
@@ -223,37 +210,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  brandLogoFrame: {
-    width: 40,
-    height: 40,
-    borderRadius: storybookTheme.radius.logoFrame,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: storybookTheme.color.brandFrameBackground,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-  },
-  brandLogo: { width: 30, height: 32 },
-  brandWordmark: {
-    color: storybookTheme.color.onContent,
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    letterSpacing: 1.8,
-  },
-  brandWordmarkQ: { color: storybookTheme.color.gold },
   pressed: { opacity: 0.85 },
   greetingCard: {
     alignItems: 'stretch',
     gap: storybookTheme.spacing.xs,
-  },
-  eyebrow: {
-    // 리테마 이후 error(주황빨강)은 라벨 강조에 어울리지 않아 primary(네이비)로 교체 -
-    // 인사 카드의 "선생님" 라벨이 계정 톤과 어울리게.
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.primary,
-    letterSpacing: 0.4,
   },
   title: {
     fontSize: storybookTheme.type.lg,
@@ -293,7 +253,7 @@ const styles = StyleSheet.create({
   },
   statusInProgress: {
     fontSize: storybookTheme.type.xxs,
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.goldText,
     fontWeight: storybookTheme.type.weight.semibold,
   },
   statusCompleted: {

@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   },
   sceneCard: {
     borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    backgroundColor: storybookTheme.color.storybookCard,
     padding: 18,
     gap: 8,
     ...storybookTheme.elevation.low,

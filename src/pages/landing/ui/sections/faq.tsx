@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   },
   faqItem: {
     borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    backgroundColor: storybookTheme.color.storybookCard,
     paddingHorizontal: 18,
     paddingVertical: 16,
     gap: 10,

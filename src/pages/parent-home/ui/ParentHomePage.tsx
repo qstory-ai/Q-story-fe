@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { AppNavShell, Card, EmptyState, Icon, LoadingState, storybookTheme } from '@/shared/ui';
+import { BrandLockup, AppNavShell, Card, EmptyState, Icon, LoadingState, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
@@ -148,13 +148,12 @@ export function ParentHomePage() {
             골라 주세요"로 이미 안내하므로 카드가 중복 문구가 된다. */}
         {selectedChild ? (
           <Card variant="surface" padding="lg" style={[styles.greetingCard, isWide && styles.greetingCardWide]}>
-            <Text style={styles.eyebrow}>{timeOfDayGreeting()}</Text>
             <Text style={styles.title} accessibilityRole="header">
               {/* "님과"(존칭) 대신 아이 이름에 받침 유무로 이/와를 붙이는 애칭 톤 - 다른 화면의
                   아이 이름 개인화(child-address.ts)와 같은 방식. */}
               {selectedChild.name}{hasKoreanBatchim(selectedChild.name) ? '이와' : '와'} 오늘의 이야기
             </Text>
-            <Text style={styles.body}>{selectedChild.name}에게 딱 맞는 이야기를 골라 봤어요.</Text>
+            <Text style={styles.body}>{timeOfDayGreeting()}. {selectedChild.name}에게 딱 맞는 이야기를 골라 봤어요.</Text>
           </Card>
         ) : null}
 
@@ -268,19 +267,7 @@ export function ParentHomePage() {
 function TopBar({ token }: { token: string }) {
   return (
     <View style={styles.topBar}>
-      <View style={styles.brandRow}>
-        <View style={styles.brandLogoFrame}>
-          <Image
-            source={{ uri: '/brand/q-story-question-book-logo.svg' }}
-            resizeMode="contain"
-            style={styles.brandLogo}
-            accessibilityLabel="Q-Story 로고"
-          />
-        </View>
-        <Text style={styles.brandWordmark}>
-          <Text style={styles.brandWordmarkQ}>Q</Text>-STORY
-        </Text>
-      </View>
+      <BrandLockup size="compact" tone="onLight" />
       <NotificationBell token={token} />
     </View>
   );
@@ -317,7 +304,6 @@ function HeroRecommendation({
         ) : null}
       </View>
       <View style={styles.heroBody}>
-        <Text style={styles.heroEyebrow}>오늘의 추천</Text>
         <Text style={styles.heroTitle} accessibilityRole="header" numberOfLines={2}>
           {story.title}
         </Text>
@@ -484,25 +470,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  brandLogoFrame: {
-    width: 40,
-    height: 40,
-    borderRadius: storybookTheme.radius.logoFrame,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: storybookTheme.color.brandFrameBackground,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-  },
-  brandLogo: { width: 30, height: 32 },
-  brandWordmark: {
-    color: storybookTheme.color.onContent,
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    letterSpacing: 1.8,
-  },
-  brandWordmarkQ: { color: storybookTheme.color.gold },
   pressed: { opacity: 0.85 },
   // Card 프리미티브(padding='lg'=spacing.lg)를 쓰되 인사 카드만 maxWidth/gap을 페이지 컨텍스트에
   // 맞게 오버라이드한다. 넓은 화면에서는 dashboardCardWide(760)까지 늘어난다.
@@ -513,12 +480,6 @@ const styles = StyleSheet.create({
   },
   greetingCardWide: {
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
-  },
-  eyebrow: {
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.error,
-    letterSpacing: 0.4,
   },
   title: {
     fontSize: storybookTheme.type.lg,
@@ -577,7 +538,7 @@ const styles = StyleSheet.create({
   heroEyebrow: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.goldText,
     letterSpacing: 0.4,
   },
   heroTitle: {
@@ -600,7 +561,7 @@ const styles = StyleSheet.create({
   heroCtaLabel: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.goldText,
   },
   recentSection: {
     width: '100%',

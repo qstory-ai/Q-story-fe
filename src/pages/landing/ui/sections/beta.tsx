@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   },
   reportPreview: {
     borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    backgroundColor: storybookTheme.color.storybookCard,
     padding: 20,
     gap: 10,
   },

@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.goldText,
   },
   roleBadgeRow: { flexDirection: 'row', justifyContent: 'center' },
   name: {

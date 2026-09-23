@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     aspectRatio: 5 / 3,
   },
   storybookCaption: {
-    backgroundColor: storybookTheme.color.surfaceCard,
+    backgroundColor: storybookTheme.color.storybookCard,
     paddingHorizontal: 18,
     paddingVertical: 14,
     gap: 4,

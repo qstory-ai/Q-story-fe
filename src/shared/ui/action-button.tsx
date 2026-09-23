@@ -79,6 +79,10 @@ export function ActionButton({
       : isOutline
         ? storybookTheme.color.onDark
         : storybookTheme.color.primary;
+  // 비활성은 반투명(opacity 0.5)이 아니라 disabled 토큰으로 - 골드 버튼을 반투명으로 흐리면 라벨이
+  // 2:1 아래로 떨어져 "로그인"조차 읽기 어려웠다. 회색 채움 + 회색 라벨(4.5:1)로 상태를 말한다.
+  const isInactive = disabled && !loading;
+  const effectiveLabelColor = isInactive && isSizedVariant ? storybookTheme.color.disabledText : labelColor;
 
   return (
     <Pressable
@@ -102,18 +106,18 @@ export function ActionButton({
         variant === 'gold' && hovered && !disabled && !loading && styles.goldHovered,
         isSizedVariant && { minHeight: BUTTON_HEIGHT[resolvedSize] },
         pressed && !disabled && !loading && styles.pressed,
-        disabled && !loading && styles.disabled,
+        disabled && !loading && (isSizedVariant ? styles.disabledFilled : styles.disabled),
       ]}
     >
       {loading ? (
-        <ActivityIndicator size="small" color={labelColor} />
+        <ActivityIndicator size="small" color={effectiveLabelColor} />
       ) : (
         <>
-          {icon ? <Text style={[styles.icon, { color: labelColor }]}>{icon}</Text> : null}
+          {icon ? <Text style={[styles.icon, { color: effectiveLabelColor }]}>{icon}</Text> : null}
           <Text
             style={[
               styles.label,
-              { color: labelColor },
+              { color: effectiveLabelColor },
               isSecondary && styles.labelSecondary,
             ]}
           >
@@ -182,6 +186,11 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.9, transform: [{ scale: 0.96 }] },
   disabled: {
     opacity: 0.5,
+  },
+  disabledFilled: {
+    backgroundColor: storybookTheme.color.disabledBackground,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.disabledBorder,
   },
   icon: {
     fontSize: storybookTheme.type.xs,

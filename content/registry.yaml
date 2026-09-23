@@ -1,5 +1,13 @@
 schemaVersion: 1
 defaultBetaStoryId: HG
+# 스토리 정적 자산(삽화/내레이션)이 실제로 서빙되는 곳. 원본 파일은 assets/story/<slug>/ 에 두고
+# `npm run assets:upload` 로 이 버킷에 `<slug>/<file>` 이름으로 올린다 - 앱 번들(public/)에는 싣지 않는다.
+# 백엔드(StoryAssetUrls)도 같은 규칙으로 URL 을 만들므로 버킷 이름은 be application.yml 의
+# story-image-bucket / story-audio-bucket 기본값과 일치해야 한다.
+assetStorage:
+  publicBaseUrl: https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public
+  imageBucket: qstory-story-images
+  audioBucket: qstory-story-audio
 # Route policies live beside the stories rather than in backend code; a story names one of these
 # in its route-context.yaml routePromptVersion.
 prompts:

@@ -1,3 +1,5 @@
+import { STORY_IMAGE_ASSETS_BY_ID } from '@/entities/story/model/story-assets.generated';
+
 /**
  * 컴패니언 챗(이야기 밖에서 살짝) 상대 캐릭터. 헨젤과 그레텔 둘 다 이야기 내내 등장하는
  * 주인공 남매라 누가 뽑혀도 아이가 어색함 없이 대화할 수 있다 - 마녀/새엄마처럼 부정적인
@@ -18,7 +20,7 @@ export type CompanionCharacter = {
   avatarOffset: { left: number; top: number };
 };
 
-const AVATAR_IMAGE_URI = '/story/hansel-gretel/illustrations/hg-art-18-home-apology-v2.jpg';
+const AVATAR_IMAGE_URI = STORY_IMAGE_ASSETS_BY_ID.HG['home-promise'].uri;
 const AVATAR_RENDER_SIZE = { width: 508, height: 317 };
 
 const COMPANION_CHARACTERS: readonly CompanionCharacter[] = [

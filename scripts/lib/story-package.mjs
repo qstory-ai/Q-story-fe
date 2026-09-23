@@ -267,7 +267,32 @@ export async function loadRegistry(appDirectory) {
   ) {
     throw new Error('Content registry has duplicate ids/slugs or an invalid default story.');
   }
+  const storage = registry.assetStorage;
+  if (
+    !/^https:\/\/[^/]+\/storage\/v1\/object\/public$/.test(storage?.publicBaseUrl ?? '') ||
+    !storage.imageBucket ||
+    !storage.audioBucket
+  ) {
+    throw new Error(
+      'content/registry.yaml assetStorage needs publicBaseUrl (.../storage/v1/object/public), imageBucket, audioBucket.',
+    );
+  }
   return registry;
+}
+
+const IMAGE_CATEGORIES = new Set(['SCENE_ART', 'BRANCH_ART']);
+const AUDIO_CATEGORIES = new Set(['NARRATION', 'BRIDGE']);
+
+/** Bucket an asset category lives in - the same split the backend's StoryAssetUrls makes. */
+export function assetBucketFor(registry, category) {
+  if (IMAGE_CATEGORIES.has(category)) return registry.assetStorage.imageBucket;
+  if (AUDIO_CATEGORIES.has(category)) return registry.assetStorage.audioBucket;
+  throw new Error(`Unknown asset category ${category}`);
+}
+
+/** Public URL the app fetches an asset from: <publicBaseUrl>/<bucket>/<slug>/<file>. */
+export function publicAssetUrl(registry, slug, asset) {
+  return `${registry.assetStorage.publicBaseUrl}/${assetBucketFor(registry, asset.category)}/${slug}/${asset.file}`;
 }
 
 /**
@@ -442,12 +467,10 @@ export async function loadStoryPackageFromDirectory(
     // maintained by hand - swapping one illustration meant computing a base64 sha256 yourself and
     // pasting it in, with a failed build as the only feedback. `--fix` writes them instead.
     for (const asset of assets.assets) {
-      // This project serves static story assets from `public/` (Vite's
-      // static root) instead of the `assets/` source tree assets.json
-      // still declares paths against, so remap the prefix on disk lookup.
-      const onDiskPath = `${assets.root}${asset.file}`.replace(/^assets\//, 'public/');
+      // assets.json paths are relative to the app directory: assets/story/<slug>/... is the
+      // source tree the upload script reads from; it is not part of the Vite bundle.
       const actual = `sha256-${createHash('sha256')
-        .update(await readFile(join(assetRoot, onDiskPath)))
+        .update(await readFile(join(assetRoot, `${assets.root}${asset.file}`)))
         .digest('base64')}`;
       if (rewriteIntegrity) {
         asset.integrity = actual;
@@ -674,7 +697,7 @@ export function validateStoryPackage(source) {
   for (const visual of visuals) {
     if (!assetBySlug.has(visual.assetId)) fail(story.storyId, `unregistered image ${visual.assetId}`);
   }
-  // The reverse of the check above: art that is declared, hashed, and shipped in public/ but that
+  // The reverse of the check above: art that is declared, hashed, and uploaded to storage but that
   // no scene or fallback ever draws. Seven such files (5.4MB) had accumulated unnoticed, because
   // only the "referenced but undeclared" direction was ever checked.
   const referencedImages = new Set([

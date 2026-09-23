@@ -1,34 +1,30 @@
+import { STORY_IMAGE_ASSETS_BY_ID } from '@/entities/story/model/story-assets.generated';
 import type { IconName } from '@/shared/ui';
 
 /**
  * 마케팅 목업이 참조하던 히어로 사진(q-story-hero-question-book.webp 등)은 이 레포에 없어서,
- * 같은 장면을 가리키는 기존 「헨젤과 그레텔」 리더 일러스트로 대체했다 - public/story/에 이미
- * 있는 실제 리더 아트라서, 탭 한 번 거리로 이어지는 /demo 미리보기와 시각적으로도 어긋나지 않는다.
+ * 같은 장면을 가리키는 기존 「헨젤과 그레텔」 리더 일러스트로 대체했다 - 실제 리더 아트라서,
+ * 탭 한 번 거리로 이어지는 /demo 미리보기와 시각적으로도 어긋나지 않는다. 경로는 손으로 적지
+ * 않고 생성된 자산 맵(slug -> 스토리지 URL)에서 가져온다 - 삽화 파일이 바뀌면 여기도 같이 따라간다.
  */
+const HG_ART = STORY_IMAGE_ASSETS_BY_ID.HG;
+
 export const HERO_ILLUSTRATION = {
-  uri: '/story/hansel-gretel/illustrations/hg-art-08-candy-house-reveal.jpg',
+  uri: HG_ART['candy-house-reveal'].uri,
   label: '숲속에서 과자집을 발견한 헨젤과 그레텔',
 };
 
 export const BETA_SHOWCASE_ILLUSTRATION = {
-  uri: '/story/hansel-gretel/illustrations/hg-art-01-home-table.jpg',
+  uri: HG_ART['home-table'].uri,
   label: '헨젤과 그레텔이 아버지와 식탁에서 이야기를 나누는 장면',
 };
 
-export const FINAL_CTA_ILLUSTRATION = '/story/hansel-gretel/illustrations/hg-art-29-white-bird-leads.jpg';
+export const FINAL_CTA_ILLUSTRATION = HG_ART['white-bird-leads'].uri;
 
 export const PREVIEW_ILLUSTRATIONS = [
-  { id: 'HG-ART-01', uri: '/story/hansel-gretel/illustrations/hg-art-01-home-table.jpg', label: '저녁을 먹는 남매' },
-  {
-    id: 'HG-ART-08',
-    uri: '/story/hansel-gretel/illustrations/hg-art-08-candy-house-reveal.jpg',
-    label: '숲 속 과자로 만든 집',
-  },
-  {
-    id: 'HG-ART-11',
-    uri: '/story/hansel-gretel/illustrations/hg-art-11-witch-reveal-v3.jpg',
-    label: '집 안에서 나타난 마녀',
-  },
+  { id: 'HG-ART-01', uri: HG_ART['home-table'].uri, label: '저녁을 먹는 남매' },
+  { id: 'HG-ART-08', uri: HG_ART['candy-house-reveal'].uri, label: '숲 속 과자로 만든 집' },
+  { id: 'HG-ART-11', uri: HG_ART['witch-reveal'].uri, label: '집 안에서 나타난 마녀' },
 ] as const;
 
 export const EXPERIENCE_STEPS = [

@@ -17,7 +17,7 @@ function flagValue(args, flag) {
 
 async function syncStory(appDirectory, slug, write) {
   const assetsPath = join(appDirectory, 'content', 'stories', slug, 'assets.json');
-  const audioDirectory = join(appDirectory, 'public', 'story', slug, 'audio');
+  const audioDirectory = join(appDirectory, 'assets', 'story', slug, 'audio');
   const assets = JSON.parse(await readFile(assetsPath, 'utf8'));
 
   const files = (await readdir(audioDirectory)).filter((name) => name.endsWith('.mp3')).sort();

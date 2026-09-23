@@ -14,8 +14,18 @@ import {
   hanselGretelManifest,
   hanselGretelPresentation,
 } from './manifest';
-import { branchInteractionEntries } from './branch-interaction-copy';
 import { buildCaptionTrack } from '@/entities/narration';
+import packageData from './story-package.generated.json';
+
+// 분기 진입 브릿지 대사는 route-context.yaml의 acknowledgementText/bridgeAudioId가 단일 원본이다
+// (예전에는 branch-interaction-copy.ts에 같은 14줄이 손으로 한 번 더 적혀 있었다).
+const branchInteractionEntries = Object.values(packageData.routeContext.anchors).flatMap(
+  (anchor) =>
+    anchor.actionFamilies.map((family) => ({
+      audioId: family.bridgeAudioId,
+      text: family.acknowledgementText,
+    })),
+);
 
 test('Master Spec content generates the complete fixed story package', () => {
   assert.equal(hanselGretelPresentation.scenes.length, 10);
@@ -489,7 +499,7 @@ test('all visual beats use registered assets and one-breath fixed captions', () 
 
 test('all versioned master illustrations and every fixed narration clip are packaged', () => {
   const audioDirectory = fileURLToPath(
-    new URL('../../../../public/story/hansel-gretel/audio/', import.meta.url),
+    new URL('../../../../assets/story/hansel-gretel/audio/', import.meta.url),
   );
   // Driven by assets.json instead of a second, hand-written copy of it. The previous version
   // listed all 47 illustration paths by number, so every added, renamed, or retired asset had to
@@ -506,8 +516,7 @@ test('all versioned master illustrations and every fixed narration clip are pack
     ),
   );
   const appRoot = fileURLToPath(new URL('../../../../', import.meta.url));
-  const onDisk = (relativePath: string) =>
-    `${appRoot}${relativePath.replace(/^assets\//, 'public/')}`;
+  const onDisk = (relativePath: string) => `${appRoot}${relativePath}`;
 
   for (const asset of packagedAssets.assets) {
     assert.ok(

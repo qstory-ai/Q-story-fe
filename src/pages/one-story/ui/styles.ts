@@ -70,12 +70,6 @@ export const styles = StyleSheet.create({
   // 휴대폰: 로고를 줄이고 워드마크 없이 회차 캡션 한 줄만 - 오른쪽 버튼 묶음이 먼저 자리를
   // 잡고 남는 폭을 이 락업이 flex:1로 받는다(numberOfLines=1로 잘림).
   brandLockupNarrow: { flex: 1, gap: 8, minWidth: 0 },
-  // 상단 바 왼쪽 묶음(홈 버튼 + 브랜드 락업). 폰에서는 오른쪽 버튼 묶음이 먼저 자리를 잡고 남는
-  // 폭을 이 묶음이 받는다.
-  topLeft: { flexDirection: 'row', alignItems: 'center', flexShrink: 1, minWidth: 0 },
-  topLeftNarrow: { flex: 1 },
-  // 상단 바 맨 왼쪽의 홈 버튼 - 브랜드 락업과의 간격만 준다(버튼 모양은 topControlButton 그대로).
-  homeButtonLeft: { marginRight: 8, flexShrink: 0 },
   brandLogoFrameNarrow: {
     width: 34,
     height: 36,

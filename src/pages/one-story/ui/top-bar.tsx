@@ -60,23 +60,6 @@ export function TopBar({
       ]}
     >
       <View style={styles.topBarRow}>
-      {/* 왼쪽 묶음 = 홈 버튼 + 브랜드 락업. topBarRow가 space-between이라 홈 버튼을 락업의 형제로
-          두면 락업이 가운데로 밀리므로 하나로 감싼다. */}
-      <View style={[styles.topLeft, compactLockup && styles.topLeftNarrow]}>
-      {/* 홈 버튼은 상단 바 맨 왼쪽 - 오른쪽 컨트롤 묶음(챕터·대화·재생) 사이에 끼어 있으면 아이가
-          "나가기"를 찾기 어렵다는 피드백. 동작은 그대로 홈 메뉴(계속 듣기 / 잠시 나가기)를 연다. */}
-      {inStory && (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="이야기 홈 메뉴"
-          style={[styles.topControlButton, styles.homeButtonLeft]}
-          hitSlop={TOP_CONTROL_HIT_SLOP}
-          onPress={openHomeMenu}
-        >
-          <Icon name="home" size={16} color={TOP_ICON_COLOR} />
-          {isWide && <Text style={styles.topControlText}>홈</Text>}
-        </Pressable>
-      )}
       {/* 폰에서는 이 락업이 상단 바 왼쪽 절반(flex:1)을 차지한다 - 재생 중에 여기를 건드려 곧장
           홈으로 튕기면 이야기 세션이 확인 없이 버려지므로, 폰의 이야기 화면에서는 홈 메뉴(계속 듣기 /
           잠시 나가기)를 연다. 넓은 화면·idle 화면에서는 예전대로 서재로 간다. */}
@@ -135,8 +118,21 @@ export function TopBar({
           </View>
         )}
       </Pressable>
-      </View>
       <View style={styles.topRight}>
+        {/* 홈은 오른쪽 버튼 묶음의 맨 왼쪽(챕터 앞) - 재생 컨트롤 사이에 끼어 있으면 아이가
+            "나가기"를 찾기 어렵다는 피드백. 동작은 그대로 홈 메뉴(계속 듣기 / 잠시 나가기)를 연다. */}
+        {inStory && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="이야기 홈 메뉴"
+            style={styles.topControlButton}
+            hitSlop={TOP_CONTROL_HIT_SLOP}
+            onPress={openHomeMenu}
+          >
+            <Icon name="home" size={16} color={TOP_ICON_COLOR} />
+            {isWide && <Text style={styles.topControlText}>홈</Text>}
+          </Pressable>
+        )}
         {inStory && onOpenChapters && (
           <Pressable
             accessibilityRole="button"

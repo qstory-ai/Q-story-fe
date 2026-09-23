@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, RadioGroup, SafeAreaView, TextField, TextareaField, storybookTheme } from '@/shared/ui';
+import { BirthYearChips } from '@/entities/child';
 import { messageForError } from '@/shared/api';
 import { useAuth } from '@/entities/auth';
 import {
@@ -16,7 +17,6 @@ import { TutorClassPicker, type TutorClassSelection } from '@/features/tutor-cla
 
 type WizardStep = 'info' | 'invite';
 
-const AGE_BANDS = ['6세', '7세', '8세', '9세'];
 
 /**
  * "새 학생 등록" 2단계(학생 정보 → 부모 연결) - q-story-flow-prototype.tsx의
@@ -63,7 +63,8 @@ export function TutorStudentNewPage() {
 
 function InfoStep({ token, onCreated }: { token: string; onCreated: (student: TutorStudent) => void }) {
   const [name, setName] = useState('');
-  const [ageBand, setAgeBand] = useState('7세');
+  // 나이 대신 출생연도 - 서버가 "N세"를 계산한다. 기본은 7세에 해당하는 해.
+  const [birthYear, setBirthYear] = useState<number>(() => new Date().getFullYear() - 7);
   const [classType, setClassType] = useState('가정 방문 독서 수업');
   const [prepNote, setPrepNote] = useState('');
   // 개인 레슨 / 반 수업 - 반이면 반까지 골라야 등록된다(BE도 CLASS + classGroupId 없음을 거절).
@@ -78,7 +79,7 @@ function InfoStep({ token, onCreated }: { token: string; onCreated: (student: Tu
     try {
       const created = await createTutorStudent(token, {
         name: name.trim(),
-        ageBand,
+        birthYear,
         classType: classType.trim() || undefined,
         prepNote: prepNote.trim() || undefined,
         lessonType: classSel.lessonType,
@@ -90,19 +91,14 @@ function InfoStep({ token, onCreated }: { token: string; onCreated: (student: Tu
     } finally {
       setSubmitting(false);
     }
-  }, [token, name, ageBand, classType, prepNote, classSel, onCreated]);
+  }, [token, name, birthYear, classType, prepNote, classSel, onCreated]);
 
   return (
     <>
       <Text style={styles.stepLabel}>새 학생 등록 · 1 / 2</Text>
       <Text style={styles.title} accessibilityRole="header">아이 이름 또는 별명을 알려주세요</Text>
       <TextField label="아이 이름 또는 별명" value={name} onChangeText={setName} placeholder="예: 민서" />
-      <RadioGroup
-        accessibilityLabel="연령대"
-        options={AGE_BANDS.map((band) => ({ value: band, label: band }))}
-        value={ageBand}
-        onChange={setAgeBand}
-      />
+      <BirthYearChips value={birthYear} onChange={setBirthYear} minAge={5} maxAge={10} tone="content" />
       <Text style={styles.fieldHeading}>수업 형태</Text>
       <TutorClassPicker token={token} value={classSel} onChange={setClassSel} />
       <TextField label="수업 방식 메모 · 선택" value={classType} onChangeText={setClassType} placeholder="예: 가정 방문 독서 수업" />

@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, BrandLockup, Checkbox, ErrorState, LoadingState, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
-import { ageBandFromLabel } from '@/entities/child';
+import { ageBandFromLabel, formatStudentAge } from '@/entities/child';
 import {
   createOrganization,
   homePathFor,
@@ -170,7 +170,7 @@ export function OnboardingFlow({
     [navigate],
   );
   const parentOnboardingState = tutorPreview
-    ? { prefill: { name: tutorPreview.studentName, ageBand: ageBandFromLabel(tutorPreview.ageBand) } }
+    ? { prefill: { name: tutorPreview.studentName, ageBand: ageBandFromLabel(tutorPreview.ageBand), birthYear: tutorPreview.birthYear ?? undefined } }
     : undefined;
 
   // 로그인은 매번 곧장 홈으로 - 계정을 통틀어 처음 만들어질 때만 거치는 흐름이 아니다.
@@ -557,7 +557,7 @@ function TutorPreviewStep({
       <Text style={styles.eyebrow}>{preview.tutorDisplayName}이 보낸 안전한 초대 링크</Text>
       <Text style={styles.welcomeTitle}>{preview.studentName}의 오늘 이야기 기록이{'\n'}도착했어요</Text>
       <View style={styles.previewCard}>
-        <Text style={styles.previewName}>{preview.studentName} · {preview.ageBand}</Text>
+        <Text style={styles.previewName}>{preview.studentName} · {formatStudentAge(preview)}</Text>
         <Text style={styles.previewNote}>{preview.tutorDisplayName}이 전달한 정보예요.</Text>
       </View>
       <View style={styles.welcomeCard}>

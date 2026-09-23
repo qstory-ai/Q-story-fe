@@ -28,6 +28,8 @@ export type TutorStudent = {
   lessonType: TutorLessonType;
   classGroupId: string | null;
   classGroupName: string | null;
+  /** ~년생. ageBand("N세")는 서버가 이 값으로 매번 계산한다. 예전 학생은 null. */
+  birthYear: number | null;
   linkedParentUserId: string | null;
   /** 부모가 초대를 수락하며 연결(또는 생성)한 부모 쪽 아이 프로필 id. 수락 전이면 null. */
   childId: string | null;
@@ -59,6 +61,7 @@ export type TutorInvite = {
 export type TutorInvitePreview = {
   studentName: string;
   ageBand: string;
+  birthYear: number | null;
   tutorDisplayName: string;
 };
 
@@ -94,7 +97,10 @@ export function createTutorStudent(
   token: string,
   input: {
     name: string;
-    ageBand: string;
+    /** 출생연도. 있으면 서버가 "N세"를 계산한다. */
+    birthYear?: number;
+    /** 예전 클라이언트 호환 - birthYear가 없을 때만 필요. */
+    ageBand?: string;
     classType?: string;
     prepNote?: string;
     /** 기본 INDIVIDUAL. CLASS면 classGroupId 필수(listTutorClasses의 반). */
@@ -123,6 +129,7 @@ export function updateTutorStudent(
     /** INDIVIDUAL로 바꾸면 반 연결이 지워진다. CLASS면 classGroupId(또는 이미 붙은 반)가 필요하다. */
     lessonType?: TutorLessonType;
     classGroupId?: string | null;
+    birthYear?: number;
   },
   options?: RequestOptions,
 ): Promise<TutorStudent> {

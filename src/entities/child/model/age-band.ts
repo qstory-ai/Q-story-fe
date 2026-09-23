@@ -38,3 +38,49 @@ export const AGE_BAND_CATEGORY_HINTS: Record<AgeBand, readonly string[]> = {
   '10-11': ['성장', '탐구', '고전'],
   '12+': ['고전', '성장'],
 };
+
+/* -------------------------------------------------------------- 출생연도(~년생) */
+
+/** 연 나이 = 올해 - 출생연도. 생일을 받지 않으므로 만 나이 대신 이 값을 쓴다(서버 ChildAge와 같은 규칙). */
+export function ageFromBirthYear(birthYear: number): number {
+  return Math.max(0, new Date().getFullYear() - birthYear);
+}
+
+export function ageBandFromBirthYear(birthYear: number): AgeBand {
+  const age = ageFromBirthYear(birthYear);
+  if (age <= 5) return '4-5';
+  if (age <= 7) return '6-7';
+  if (age <= 9) return '8-9';
+  if (age <= 11) return '10-11';
+  return '12+';
+}
+
+/** 선택 칩에 쓸 출생연도 목록 - 어린 순(올해-minAge)부터. */
+export function birthYearOptions(minAge = 4, maxAge = 12): number[] {
+  const year = new Date().getFullYear();
+  const years: number[] = [];
+  for (let age = minAge; age <= maxAge; age += 1) years.push(year - age);
+  return years;
+}
+
+/** "2019년생 · 7세" */
+export function formatBirthYear(birthYear: number): string {
+  return `${birthYear}년생 · ${ageFromBirthYear(birthYear)}세`;
+}
+
+/** 출생연도가 있으면 그것으로, 없는 예전 프로필은 저장된 연령대/라벨로 표시한다. */
+export function formatChildAge(child: { birthYear?: number | null; ageBand: AgeBand }): string {
+  return child.birthYear ? formatBirthYear(child.birthYear) : AGE_BAND_LABELS[child.ageBand];
+}
+
+export function formatStudentAge(student: { birthYear?: number | null; ageBand: string }): string {
+  return student.birthYear ? formatBirthYear(student.birthYear) : student.ageBand;
+}
+
+/** 출생연도가 없는 예전 프로필을 편집할 때 칩의 초기 선택 - 연령대 구간의 가운데 나이로. */
+export function defaultBirthYearForBand(band?: AgeBand | string | null): number {
+  const year = new Date().getFullYear();
+  const match = band?.match(/\d+/);
+  const age = match ? Number(match[0]) : 7;
+  return year - Math.min(Math.max(age, 4), 12);
+}

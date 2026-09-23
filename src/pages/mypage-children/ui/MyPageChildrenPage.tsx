@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ActionButton, AppNavShell, EmptyState, ErrorState, Icon, LoadingState, Modal, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
-import { AGE_BAND_LABELS, findChildAvatar, useChildren, type Child } from '@/entities/child';
+import { findChildAvatar, formatChildAge, useChildren, type Child } from '@/entities/child';
 import { AddChildModal } from '@/features/child-selector';
 
 /**
@@ -132,7 +132,7 @@ function ChildRow({
       </View>
       <View style={styles.rowBody}>
         <Text style={styles.rowName} numberOfLines={1}>{child.name}</Text>
-        <Text style={styles.rowMeta} numberOfLines={1}>{AGE_BAND_LABELS[child.ageBand]}</Text>
+        <Text style={styles.rowMeta} numberOfLines={1}>{formatChildAge(child)}</Text>
       </View>
       <View style={styles.rowActions}>
         <Pressable

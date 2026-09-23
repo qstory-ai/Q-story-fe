@@ -6,8 +6,9 @@ import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/
 import { messageForError } from '@/shared/api';
 import { homePathFor, useAuth } from '@/entities/auth';
 import {
-  AGE_BANDS,
-  AGE_BAND_LABELS,
+  BirthYearChips,
+  ageBandFromBirthYear,
+  defaultBirthYearForBand,
   CHILD_AVATARS,
   useChildren,
   type AgeBand,
@@ -20,7 +21,7 @@ type Step = 'child' | 'consent' | 'done';
 
 /** 선생님 초대로 가입한 부모에게 OnboardingFlow가 navigate state로 넘겨주는 미리 채움 값 -
  *  초대 미리보기에 이미 있던 아이 이름/연령대를 여기서 다시 타이핑하지 않게 한다. */
-type ParentOnboardingPrefill = { name?: string; ageBand?: AgeBand };
+type ParentOnboardingPrefill = { name?: string; ageBand?: AgeBand; birthYear?: number };
 
 function readPrefill(state: unknown): ParentOnboardingPrefill {
   const prefill = (state as { prefill?: ParentOnboardingPrefill } | null)?.prefill;
@@ -42,7 +43,7 @@ export function OnboardingParentPage() {
 
   const [rawStep, setStep] = useState<Step>('child');
   const [name, setName] = useState(prefill.name ?? '');
-  const [ageBand, setAgeBand] = useState<AgeBand>(prefill.ageBand ?? '6-7');
+  const [birthYear, setBirthYear] = useState<number>(() => prefill.birthYear ?? defaultBirthYearForBand(prefill.ageBand));
   const [avatarKey, setAvatarKey] = useState<ChildAvatarKey>(CHILD_AVATARS[0].key);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +76,7 @@ export function OnboardingParentPage() {
     setSubmitting(true);
     setError(null);
     try {
-      await addChild({ name: name.trim(), ageBand, avatarKey });
+      await addChild({ name: name.trim(), birthYear, ageBand: ageBandFromBirthYear(birthYear), avatarKey });
       setStep('consent');
     } catch (failure: unknown) {
       const message = messageForError(failure, '아이 프로필을 만들지 못했어요.');
@@ -124,8 +125,8 @@ export function OnboardingParentPage() {
             <Text style={styles.title} accessibilityRole="header">아이 프로필을 만들어 주세요</Text>
             <Text style={styles.body}>
               {prefill.name
-                ? '선생님 초대에 있던 아이 이름과 연령대를 미리 채워 뒀어요. 맞는지 확인하고 아바타만 골라 주세요.'
-                : '이야기 속에서 부를 이름과 아이의 연령대, 아바타를 골라 주세요. 언제든 마이페이지에서 바꿀 수 있어요.'}
+                ? '선생님 초대에 있던 아이 이름과 출생연도를 미리 채워 뒀어요. 맞는지 확인하고 아바타만 골라 주세요.'
+                : '이야기 속에서 부를 이름과 아이의 출생연도, 아바타를 골라 주세요. 나이는 자동으로 계산돼요. 언제든 마이페이지에서 바꿀 수 있어요.'}
             </Text>
 
             <TextField
@@ -136,27 +137,7 @@ export function OnboardingParentPage() {
               maxLength={40}
             />
 
-            <View style={styles.group}>
-              <Text style={styles.groupLabel}>연령대</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-                {AGE_BANDS.map((band) => {
-                  const selected = band === ageBand;
-                  return (
-                    <Pressable
-                      key={band}
-                      accessibilityRole="radio"
-                      accessibilityState={{ selected }}
-                      onPress={() => setAgeBand(band)}
-                      style={({ pressed }) => [styles.chip, selected && styles.chipSelected, pressed && styles.chipPressed]}
-                    >
-                      <Text style={[styles.chipLabel, selected && styles.chipLabelSelected]}>
-                        {AGE_BAND_LABELS[band]}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-            </View>
+            <BirthYearChips value={birthYear} onChange={setBirthYear} />
 
             <View style={styles.group}>
               <Text style={styles.groupLabel}>아바타</Text>

@@ -1,14 +1,14 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Modal, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import {
-  AGE_BANDS,
-  AGE_BAND_LABELS,
+  BirthYearChips,
   CHILD_AVATARS,
+  ageBandFromBirthYear,
+  defaultBirthYearForBand,
   useChildren,
-  type AgeBand,
   type Child,
   type ChildAvatarKey,
 } from '@/entities/child';
@@ -25,7 +25,7 @@ type Props = {
 
 /**
  * 아이 프로필 등록/편집 시트 - 홈(ChildSelector), 마이페이지의 "아이 관리" 두 곳에서 재사용한다.
- * 필드는 IA의 "아이 등록/수정" 스텝을 그대로 가져왔다: 이름 · 연령대 · 아바타(성별은 아직 표시 전용).
+ * 필드는 IA의 "아이 등록/수정" 스텝을 그대로 가져왔다: 이름 · 출생연도(나이는 계산) · 아바타(성별은 아직 표시 전용).
  * 부모 계정 소유임은 ChildrenProvider가 이미 보장하므로 여기선 caller가 PARENT인지 다시 확인하지 않는다.
  *
  * <p>편집 대상이 바뀔 때 폼을 다시 채우는 것은 내부 <ChildFormBody /> 컴포넌트에 key로
@@ -57,7 +57,8 @@ function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: (
   const isEdit = editing !== null;
 
   const [name, setName] = useState(editing?.name ?? '');
-  const [ageBand, setAgeBand] = useState<AgeBand>(editing?.ageBand ?? '6-7');
+  // 나이 대신 출생연도 - 예전 프로필(출생연도 없음)은 저장된 연령대 가운데 나이로 초기 선택.
+  const [birthYear, setBirthYear] = useState<number>(() => editing?.birthYear ?? defaultBirthYearForBand(editing?.ageBand));
   const [avatarKey, setAvatarKey] = useState<ChildAvatarKey>(
     (editing?.avatarKey as ChildAvatarKey) ?? CHILD_AVATARS[0].key,
   );
@@ -72,9 +73,9 @@ function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: (
     setError(null);
     try {
       if (isEdit && editing) {
-        await editChild(editing.id, { name: name.trim(), ageBand, avatarKey });
+        await editChild(editing.id, { name: name.trim(), birthYear, ageBand: ageBandFromBirthYear(birthYear), avatarKey });
       } else {
-        await addChild({ name: name.trim(), ageBand, avatarKey });
+        await addChild({ name: name.trim(), birthYear, ageBand: ageBandFromBirthYear(birthYear), avatarKey });
       }
       onClose();
     } catch (submitError: unknown) {
@@ -95,27 +96,7 @@ function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: (
         maxLength={40}
       />
 
-      <View style={styles.group}>
-        <Text style={styles.groupLabel}>연령대</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-          {AGE_BANDS.map((band) => {
-            const selected = band === ageBand;
-            return (
-              <Pressable
-                key={band}
-                accessibilityRole="radio"
-                accessibilityState={{ selected }}
-                onPress={() => setAgeBand(band)}
-                style={({ pressed }) => [styles.chip, selected && styles.chipSelected, pressed && styles.chipPressed]}
-              >
-                <Text style={[styles.chipLabel, selected && styles.chipLabelSelected]}>
-                  {AGE_BAND_LABELS[band]}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-      </View>
+      <BirthYearChips value={birthYear} onChange={setBirthYear} />
 
       <View style={styles.group}>
         <Text style={styles.groupLabel}>아바타</Text>

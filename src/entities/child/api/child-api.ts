@@ -10,7 +10,10 @@ import { requestJson, type PublicRequestOptions as RequestOptions } from '@/shar
 export type Child = {
   id: string;
   name: string;
+  /** 서버가 birthYear로 매번 다시 계산한다(예전 프로필은 저장값). 추천 이야기 필터에 쓴다. */
   ageBand: AgeBand;
+  /** ~년생. 예전 프로필은 null. */
+  birthYear: number | null;
   avatarKey: string;
   gender: 'FEMALE' | 'MALE' | null;
   createdAt: string;
@@ -26,7 +29,10 @@ export type AgeBand = (typeof AGE_BANDS)[number];
 
 export type CreateChildInput = {
   name: string;
-  ageBand: AgeBand;
+  /** 출생연도. 있으면 서버가 연령대를 계산한다. */
+  birthYear?: number;
+  /** 예전 클라이언트 호환 - birthYear가 없을 때만 필요. */
+  ageBand?: AgeBand;
   avatarKey: string;
   gender?: 'FEMALE' | 'MALE' | null;
 };

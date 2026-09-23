@@ -8,6 +8,7 @@ import { createLesson, updateLesson, type Lesson } from '@/entities/lesson';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { createTutorStudent, listTutorStudents, type TutorStudent } from '@/entities/tutor';
 import { TutorClassPicker } from '@/features/tutor-class-picker';
+import { BirthYearChips } from '@/entities/child';
 
 type Props = {
   visible: boolean;
@@ -52,7 +53,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
   const [classGroupId, setClassGroupId] = useState<string | null>(() => editing?.classGroupId ?? null);
   // 반을 만든 김에 그 반의 학생을 이 자리에서 여러 명 등록한다 - 등록 화면을 오가지 않게. 제출 시
   // 이름이 있는 줄마다 학생을 만들어(반 수업, 보호자 연결 대기) 참여 학생에 넣는다.
-  const [quickStudents, setQuickStudents] = useState<{ name: string; ageBand: string }[]>([]);
+  const [quickStudents, setQuickStudents] = useState<{ name: string; birthYear: number }[]>([]);
   // 수업 형태 - 신규 생성 시 기본값은 '정기'(사용자 관행 상 대부분 반복). 편집 모드는 강제
   // '단발성'(=단일 Lesson 하나 수정)만 지원. 정기 → 단발 변환은 데이터 손실이 있어 UI에서 잠금.
   const [kind, setKind] = useState<'RECURRING' | 'ONE_OFF'>(() =>
@@ -133,7 +134,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
         if (!draftName) continue;
         const created = await createTutorStudent(state.token, {
           name: draftName,
-          ageBand: draft.ageBand,
+          birthYear: draft.birthYear,
           lessonType: classGroupId ? 'CLASS' : 'INDIVIDUAL',
           classGroupId: classGroupId ?? undefined,
         });
@@ -490,24 +491,15 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
                         maxLength={60}
                       />
                     </View>
-                    <View style={styles.kindRow}>
-                      {QUICK_AGE_BANDS.map((band) => {
-                        const selected = draft.ageBand === band;
-                        return (
-                          <Pressable
-                            key={band}
-                            accessibilityRole="radio"
-                            accessibilityState={{ selected }}
-                            onPress={() =>
-                              setQuickStudents((prev) => prev.map((row, i) => (i === index ? { ...row, ageBand: band } : row)))
-                            }
-                            style={({ pressed }) => [styles.kindOption, selected && styles.kindOptionSelected, pressed && styles.chipPressed]}
-                          >
-                            <Text style={[styles.kindOptionLabel, selected && styles.kindOptionLabelSelected]}>{band}</Text>
-                          </Pressable>
-                        );
-                      })}
-                    </View>
+                    <BirthYearChips
+                      value={draft.birthYear}
+                      onChange={(birthYear) =>
+                        setQuickStudents((prev) => prev.map((row, i) => (i === index ? { ...row, birthYear } : row)))
+                      }
+                      minAge={5}
+                      maxAge={10}
+                      tone="content"
+                    />
                     <Pressable
                       accessibilityRole="button"
                       accessibilityLabel={`학생 ${index + 1} 줄 지우기`}
@@ -520,7 +512,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
                 ))}
                 <Pressable
                   accessibilityRole="button"
-                  onPress={() => setQuickStudents((prev) => [...prev, { name: '', ageBand: '7세' }])}
+                  onPress={() => setQuickStudents((prev) => [...prev, { name: '', birthYear: new Date().getFullYear() - 7 }])}
                   style={({ pressed }) => [styles.quickAddButton, pressed && styles.chipPressed]}
                 >
                   <Text style={styles.quickAddButtonLabel}>+ 학생 추가</Text>
@@ -598,8 +590,6 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
 }
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const;
-/** 학생 등록 화면(TutorStudentNewPage)과 같은 한 살 단위 연령대. */
-const QUICK_AGE_BANDS = ['6세', '7세', '8세', '9세'] as const;
 
 /**
  * 정기 수업의 실제 회차(datetime 목록)를 계산한다. startDate 이후로 하루씩 넘기며,

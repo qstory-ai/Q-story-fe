@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, Modal, StatusBanner, TextField, TextareaField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { TutorClassPicker, type TutorClassSelection } from '@/features/tutor-class-picker';
+import { formatStudentAge } from '@/entities/child';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
   createTutorInvite,
@@ -202,7 +203,7 @@ export function TutorStudentDetailPage() {
               <View style={styles.headerRow}>
                 <View style={styles.headerText}>
                   <Text style={styles.title} accessibilityRole="header">{effective.student.name}</Text>
-                  <Text style={styles.subtitle}>{effective.student.ageBand}</Text>
+                  <Text style={styles.subtitle}>{formatStudentAge(effective.student)}</Text>
                 </View>
                 <ParentConnectionBadge status={effective.student.status} />
               </View>

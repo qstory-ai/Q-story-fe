@@ -29,6 +29,9 @@ export type Lesson = {
   updatedAt: string;
   /** null이면 단발성 수업. 정기 수업 생성 시 같은 제출에서 만든 형제 lesson들이 이 값을 공유한다. */
   seriesId: string | null;
+  /** 반 수업이면 반 id/이름. 학생을 직접 고른 수업은 null. */
+  classGroupId: string | null;
+  classGroupName: string | null;
 };
 
 export type CreateLessonInput = {
@@ -40,6 +43,8 @@ export type CreateLessonInput = {
   /** 정기 수업 생성 시 호출부가 crypto.randomUUID()로 한 번 만들어 N번의 create 호출 전체에
    * 같은 값을 실어 보낸다 - 나중에 "향후 모든 수업 수정"으로 형제들을 함께 찾기 위함. */
   seriesId?: string;
+  /** 반 수업이면 반 id. studentIds를 비워 보내면 그 반의 학생이 참여 학생으로 채워진다. */
+  classGroupId?: string;
 };
 
 export type UpdateLessonInput = Partial<CreateLessonInput> & {

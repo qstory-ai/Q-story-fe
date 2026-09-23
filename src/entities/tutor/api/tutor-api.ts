@@ -5,6 +5,19 @@ import type { StoryCompletionSummary } from '@/entities/story-completion';
 
 export type TutorStudentStatus = 'PENDING_PARENT' | 'CONFIRMED';
 
+/** INDIVIDUAL = 1:1 개인 레슨, CLASS = 반 수업(classGroupId가 채워진다). */
+export type TutorLessonType = 'INDIVIDUAL' | 'CLASS';
+
+/** 선생님이 볼 수 있는 반 - 내가 만든 반(tutorId = 나) + 소속 기관의 반. 기관 반이면 organizationId. */
+export type TutorClass = {
+  id: string;
+  organizationId: string | null;
+  tutorId: string | null;
+  name: string;
+  joinCode: string;
+  createdAt: string;
+};
+
 export type TutorStudent = {
   id: string;
   name: string;
@@ -12,6 +25,9 @@ export type TutorStudent = {
   classType: string | null;
   prepNote: string | null;
   status: TutorStudentStatus;
+  lessonType: TutorLessonType;
+  classGroupId: string | null;
+  classGroupName: string | null;
   linkedParentUserId: string | null;
   /** 부모가 초대를 수락하며 연결(또는 생성)한 부모 쪽 아이 프로필 id. 수락 전이면 null. */
   childId: string | null;
@@ -76,7 +92,15 @@ function request<T>(
 
 export function createTutorStudent(
   token: string,
-  input: { name: string; ageBand: string; classType?: string; prepNote?: string },
+  input: {
+    name: string;
+    ageBand: string;
+    classType?: string;
+    prepNote?: string;
+    /** 기본 INDIVIDUAL. CLASS면 classGroupId 필수(listTutorClasses의 반). */
+    lessonType?: TutorLessonType;
+    classGroupId?: string;
+  },
   options?: RequestOptions,
 ): Promise<TutorStudent> {
   return request('/v1/tutor-students', { method: 'POST', body: JSON.stringify(input) }, token, options);
@@ -93,7 +117,13 @@ export function getTutorStudent(token: string, studentId: string, options?: Requ
 export function updateTutorStudent(
   token: string,
   studentId: string,
-  input: { classType?: string | null; prepNote?: string | null },
+  input: {
+    classType?: string | null;
+    prepNote?: string | null;
+    /** INDIVIDUAL로 바꾸면 반 연결이 지워진다. CLASS면 classGroupId(또는 이미 붙은 반)가 필요하다. */
+    lessonType?: TutorLessonType;
+    classGroupId?: string | null;
+  },
   options?: RequestOptions,
 ): Promise<TutorStudent> {
   return request(`/v1/tutor-students/${studentId}`, { method: 'PATCH', body: JSON.stringify(input) }, token, options);
@@ -232,4 +262,20 @@ export function createTutorLessonPlan(
 export function removeTutorLessonPlan(token: string, planId: string, options?: RequestOptions): Promise<void> {
   // 서버는 204를 반환한다 - requestJson()이 204를 자동으로 undefined로 처리한다.
   return request(`/v1/tutor-lesson-plans/${planId}`, { method: 'DELETE' }, token, options);
+}
+
+/* -------------------------------------------------------------- classes */
+
+/** 내가 만든 반 + 소속 기관의 반. 학생 등록·수업 생성의 반 선택지가 된다. */
+export function listTutorClasses(token: string, options?: RequestOptions): Promise<TutorClass[]> {
+  return request('/v1/tutor-classes', { method: 'GET' }, token, options);
+}
+
+/** organizationId를 주면 그 기관(소속돼 있어야 함) 안의 반으로 만들어져 기관 관리자의 반 목록에도 보인다. */
+export function createTutorClass(
+  token: string,
+  input: { name: string; organizationId?: string },
+  options?: RequestOptions,
+): Promise<TutorClass> {
+  return request('/v1/tutor-classes', { method: 'POST', body: JSON.stringify(input) }, token, options);
 }

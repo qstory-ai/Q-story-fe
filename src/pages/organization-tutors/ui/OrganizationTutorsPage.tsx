@@ -170,11 +170,16 @@ export function OrganizationTutorsPage() {
             <View style={styles.list}>
               {tutors.tutors.map((tutor) => (
                 <View key={tutor.id} style={styles.tutorRow}>
-                  <View style={styles.tutorInfo}>
+                  <Pressable
+                    accessibilityRole="link"
+                    accessibilityLabel={`${tutor.tutorDisplayName} 선생님의 학생·수업 보기`}
+                    onPress={() => navigate(`/organization/tutors/${tutor.tutorId}`)}
+                    style={({ pressed }) => [styles.tutorInfo, pressed && styles.pressed]}
+                  >
                     <Text style={styles.tutorName}>{tutor.tutorDisplayName}</Text>
                     {tutor.tutorEmail ? <Text style={styles.tutorMeta}>{tutor.tutorEmail}</Text> : null}
-                    <Text style={styles.tutorMeta}>합류: {formatShortDate(tutor.joinedAt)}</Text>
-                  </View>
+                    <Text style={styles.tutorMeta}>합류: {formatShortDate(tutor.joinedAt)} · 학생·수업 보기 ›</Text>
+                  </Pressable>
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={`${tutor.tutorDisplayName} 소속 해제`}

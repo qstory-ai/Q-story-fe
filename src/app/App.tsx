@@ -97,6 +97,9 @@ const TutorReportsPage = lazy(() => import('@/pages/tutor-reports').then((m) => 
 const OrganizationTutorsPage = lazy(() =>
   import('@/pages/organization-tutors').then((m) => ({ default: m.OrganizationTutorsPage })),
 );
+const OrganizationTutorDetailPage = lazy(() =>
+  import('@/pages/organization-tutor-detail').then((m) => ({ default: m.OrganizationTutorDetailPage })),
+);
 const OrganizationClassesPage = lazy(() =>
   import('@/pages/organization-classes').then((m) => ({ default: m.OrganizationClassesPage })),
 );
@@ -247,6 +250,7 @@ export function App() {
             <Route path="/tutor/reports" element={<TutorReportsPage />} />
             <Route path="/tutor/join-organization" element={<TutorJoinOrganizationPage />} />
             <Route path="/organization/tutors" element={<OrganizationTutorsPage />} />
+            <Route path="/organization/tutors/:tutorId" element={<OrganizationTutorDetailPage />} />
             <Route path="/organization/classes" element={<OrganizationClassesPage />} />
             <Route path="/organization/classes/:classId" element={<OrganizationClassDetailPage />} />
             <Route path="/organization/usage" element={<OrganizationUsagePage />} />

@@ -7,6 +7,7 @@ import { useAuth } from '@/entities/auth';
 import { createLesson, updateLesson, type Lesson } from '@/entities/lesson';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { listTutorStudents, type TutorStudent } from '@/entities/tutor';
+import { TutorClassPicker } from '@/features/tutor-class-picker';
 
 type Props = {
   visible: boolean;
@@ -46,6 +47,9 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
   const [selectedStoryIds, setSelectedStoryIds] = useState<Set<string>>(
     () => new Set(editing?.storyIds ?? []),
   );
+  // 반 수업이면 어느 반인지. 반을 고르면 그 반의 학생이 참여 학생으로 자동 선택된다(BE도 studentIds가
+  // 비어 오면 반 학생으로 채우지만, 화면에서 바로 보이게 여기서도 채운다).
+  const [classGroupId, setClassGroupId] = useState<string | null>(() => editing?.classGroupId ?? null);
   // 수업 형태 - 신규 생성 시 기본값은 '정기'(사용자 관행 상 대부분 반복). 편집 모드는 강제
   // '단발성'(=단일 Lesson 하나 수정)만 지원. 정기 → 단발 변환은 데이터 손실이 있어 UI에서 잠금.
   const [kind, setKind] = useState<'RECURRING' | 'ONE_OFF'>(() =>
@@ -123,6 +127,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
       goal: goal.trim() || null,
       studentIds: Array.from(selectedStudentIds),
       storyIds: Array.from(selectedStoryIds),
+      classGroupId: classGroupId ?? undefined,
     };
     try {
       if (editing) {
@@ -175,6 +180,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
       setScheduledAtInput('');
       setSelectedStudentIds(new Set());
       setSelectedStoryIds(new Set());
+      setClassGroupId(null);
       setApplyScope(null);
       onClose();
     } catch (failure: unknown) {
@@ -428,6 +434,27 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
                 ? `총 ${recurringPreviewCount}회의 수업이 만들어져요.`
                 : '요일/시작일/종료 조건을 확인해 주세요. 아직 만들 수 있는 수업이 없어요.'}
             </Text>
+          </View>
+        ) : null}
+
+        {state.status === 'authenticated' ? (
+          <View style={styles.group}>
+            <Text style={styles.groupLabel}>대상</Text>
+            <TutorClassPicker
+              token={state.token}
+              value={{ lessonType: classGroupId ? 'CLASS' : 'INDIVIDUAL', classGroupId }}
+              onChange={(next) => {
+                setClassGroupId(next.classGroupId);
+                if (next.classGroupId && refs.status === 'ready') {
+                  setSelectedStudentIds(
+                    new Set(refs.students.filter((student) => student.classGroupId === next.classGroupId).map((student) => student.id)),
+                  );
+                }
+              }}
+            />
+            {classGroupId ? (
+              <Text style={styles.helper}>반 학생이 참여 학생으로 자동 선택됐어요. 아래에서 빼거나 더할 수 있어요.</Text>
+            ) : null}
           </View>
         ) : null}
 

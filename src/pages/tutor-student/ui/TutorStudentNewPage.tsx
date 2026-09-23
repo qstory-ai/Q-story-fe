@@ -12,6 +12,7 @@ import {
   type TutorStudent,
 } from '@/entities/tutor';
 import { InviteCodeCard, formatInviteExpiry, tutorInviteLink, tutorInviteShareMessage } from '@/features/invite-issue';
+import { TutorClassPicker, type TutorClassSelection } from '@/features/tutor-class-picker';
 
 type WizardStep = 'info' | 'invite';
 
@@ -65,8 +66,11 @@ function InfoStep({ token, onCreated }: { token: string; onCreated: (student: Tu
   const [ageBand, setAgeBand] = useState('7세');
   const [classType, setClassType] = useState('가정 방문 독서 수업');
   const [prepNote, setPrepNote] = useState('');
+  // 개인 레슨 / 반 수업 - 반이면 반까지 골라야 등록된다(BE도 CLASS + classGroupId 없음을 거절).
+  const [classSel, setClassSel] = useState<TutorClassSelection>({ lessonType: 'INDIVIDUAL', classGroupId: null });
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const needsClass = classSel.lessonType === 'CLASS' && !classSel.classGroupId;
 
   const onSubmit = useCallback(async () => {
     setError(null);
@@ -77,6 +81,8 @@ function InfoStep({ token, onCreated }: { token: string; onCreated: (student: Tu
         ageBand,
         classType: classType.trim() || undefined,
         prepNote: prepNote.trim() || undefined,
+        lessonType: classSel.lessonType,
+        classGroupId: classSel.classGroupId ?? undefined,
       });
       onCreated(created);
     } catch (failure) {
@@ -84,7 +90,7 @@ function InfoStep({ token, onCreated }: { token: string; onCreated: (student: Tu
     } finally {
       setSubmitting(false);
     }
-  }, [token, name, ageBand, classType, prepNote, onCreated]);
+  }, [token, name, ageBand, classType, prepNote, classSel, onCreated]);
 
   return (
     <>
@@ -97,7 +103,9 @@ function InfoStep({ token, onCreated }: { token: string; onCreated: (student: Tu
         value={ageBand}
         onChange={setAgeBand}
       />
-      <TextField label="수업 형태" value={classType} onChangeText={setClassType} />
+      <Text style={styles.fieldHeading}>수업 형태</Text>
+      <TutorClassPicker token={token} value={classSel} onChange={setClassSel} />
+      <TextField label="수업 방식 메모 · 선택" value={classType} onChangeText={setClassType} placeholder="예: 가정 방문 독서 수업" />
       <TextareaField
         label="수업 준비 메모 · 선택"
         value={prepNote}
@@ -105,7 +113,13 @@ function InfoStep({ token, onCreated }: { token: string; onCreated: (student: Tu
         numberOfLines={3}
         errorText={error ?? undefined}
       />
-      <ActionButton label={submitting ? '등록 중…' : '다음'} onPress={onSubmit} loading={submitting} disabled={!name.trim()} />
+      {needsClass ? <Text style={styles.hintLeft}>반 수업이면 반을 고르거나 새 반을 만들어 주세요.</Text> : null}
+      <ActionButton
+        label={submitting ? '등록 중…' : '다음'}
+        onPress={onSubmit}
+        loading={submitting}
+        disabled={!name.trim() || needsClass}
+      />
     </>
   );
 }
@@ -211,6 +225,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
+  fieldHeading: { fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onLightHeading },
   stepLabel: { fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.primary, letterSpacing: 0.4 },
   title: { fontSize: storybookTheme.type.lg, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onLightHeading, marginBottom: storybookTheme.spacing.xs },
   hint: { fontSize: storybookTheme.type.xs, lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal, color: storybookTheme.color.onLightMuted, textAlign: 'center' },

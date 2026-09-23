@@ -1,5 +1,7 @@
 import { apiBaseUrl } from '@/shared/config';
 import { requestJson, type PublicRequestOptions as RequestOptions } from '@/shared/api';
+import type { Lesson } from '@/entities/lesson';
+import type { TutorStudent } from '@/entities/tutor';
 
 /**
  * IA "기관 관리자 > 선생님 관리" + "선생님 마이페이지 > 소속 기관"이 공유하는 REST 클라이언트.
@@ -65,6 +67,25 @@ export function listOrganizationTutors(
   options?: RequestOptions,
 ): Promise<OrganizationTutorLink[]> {
   return request(`/v1/organizations/${organizationId}/tutors`, { method: 'GET' }, token, options);
+}
+
+/** 소속 선생님이 맡은 학생 전부(제품 결정: 기관은 소속 선생님의 학생·수업을 전부 본다). 읽기 전용. */
+export function listOrganizationTutorStudents(
+  token: string,
+  organizationId: string,
+  tutorId: string,
+  options?: RequestOptions,
+): Promise<TutorStudent[]> {
+  return request(`/v1/organizations/${organizationId}/tutors/${tutorId}/students`, { method: 'GET' }, token, options);
+}
+
+export function listOrganizationTutorLessons(
+  token: string,
+  organizationId: string,
+  tutorId: string,
+  options?: RequestOptions,
+): Promise<Lesson[]> {
+  return request(`/v1/organizations/${organizationId}/tutors/${tutorId}/lessons`, { method: 'GET' }, token, options);
 }
 
 export function listOrganizationTutorInvites(

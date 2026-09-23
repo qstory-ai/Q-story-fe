@@ -98,7 +98,12 @@ export function TutorStudentsPage() {
                 </Text>
                 <Pill label={STATUS_LABEL[student.status]} />
               </View>
-              {student.classType ? <Text style={styles.cardBody}>{student.classType}</Text> : null}
+              <Text style={styles.cardBody}>
+                {student.lessonType === 'CLASS'
+                  ? `반 수업${student.classGroupName ? ` · ${student.classGroupName}` : ''}`
+                  : '개인 레슨'}
+                {student.classType ? ` · ${student.classType}` : ''}
+              </Text>
               {student.prepNote ? <Text style={styles.cardBody}>{student.prepNote}</Text> : null}
               <ActionButton
                 variant="secondaryFull"

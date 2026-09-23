@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, Modal, StatusBanner, TextField, TextareaField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
+import { TutorClassPicker, type TutorClassSelection } from '@/features/tutor-class-picker';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import {
   createTutorInvite,
@@ -45,6 +46,7 @@ export function TutorStudentDetailPage() {
   const [load, setLoad] = useState<LoadState>({ requestKey, status: 'loading' });
   const [classType, setClassType] = useState('');
   const [prepNote, setPrepNote] = useState('');
+  const [classSel, setClassSel] = useState<TutorClassSelection>({ lessonType: 'INDIVIDUAL', classGroupId: null });
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedFlag, setSavedFlag] = useState(false);
@@ -73,6 +75,7 @@ export function TutorStudentDetailPage() {
         setLoad({ requestKey, status: 'ready', student });
         setClassType(student.classType ?? '');
         setPrepNote(student.prepNote ?? '');
+        setClassSel({ lessonType: student.lessonType, classGroupId: student.classGroupId });
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
@@ -90,9 +93,15 @@ export function TutorStudentDetailPage() {
     setSaveError(null);
     setSavedFlag(false);
     try {
+      if (classSel.lessonType === 'CLASS' && !classSel.classGroupId) {
+        setSaveError('반 수업이면 반을 골라 주세요.');
+        return;
+      }
       const updated = await updateTutorStudent(state.token, studentId, {
         classType: classType.trim(),
         prepNote: prepNote.trim(),
+        lessonType: classSel.lessonType,
+        classGroupId: classSel.classGroupId,
       });
       setLoad({ requestKey, status: 'ready', student: updated });
       setSavedFlag(true);
@@ -102,7 +111,7 @@ export function TutorStudentDetailPage() {
     } finally {
       setSaving(false);
     }
-  }, [state, studentId, requestKey, classType, prepNote]);
+  }, [state, studentId, requestKey, classType, prepNote, classSel]);
 
   // 이 학생을 위해 담아둔 이야기(TutorLessonPlan) 목록 + 카탈로그를 병렬로 fetch. plan은 storyId만
   // 갖고 있어 카탈로그와 join해야 제목/커버를 표시할 수 있다.
@@ -198,15 +207,24 @@ export function TutorStudentDetailPage() {
                 <ParentConnectionBadge status={effective.student.status} />
               </View>
               <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>수업 형태</Text>
+                <Text style={styles.metaValue}>
+                  {effective.student.lessonType === 'CLASS'
+                    ? `반 수업${effective.student.classGroupName ? ` · ${effective.student.classGroupName}` : ''}`
+                    : '개인 레슨'}
+                </Text>
+              </View>
+              <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>등록일</Text>
                 <Text style={styles.metaValue}>{formatDate(effective.student.createdAt)}</Text>
               </View>
             </View>
 
             <View style={styles.card}>
-              <Text style={styles.sectionTitle}>메모 · 특이사항</Text>
+              <Text style={styles.sectionTitle}>수업 형태 · 메모</Text>
+              <TutorClassPicker token={state.token} value={classSel} onChange={setClassSel} />
               <TextField
-                label="수업 형태"
+                label="수업 방식 메모"
                 value={classType}
                 onChangeText={setClassType}
                 placeholder="예: 1:1 방문 · 화요일 오후"
@@ -219,7 +237,7 @@ export function TutorStudentDetailPage() {
               />
               {savedFlag ? <StatusBanner label="저장했어요." /> : null}
               {saveError ? <StatusBanner variant="warning" label={saveError} /> : null}
-              <ActionButton label={saving ? '저장 중…' : '메모 저장'} onPress={handleSave} loading={saving} />
+              <ActionButton label={saving ? '저장 중…' : '저장'} onPress={handleSave} loading={saving} />
             </View>
 
             <View style={styles.card}>

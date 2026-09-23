@@ -26,6 +26,8 @@ export function StoryPlayerRoute() {
   // 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 붙는다(TutorChildScreen에서 이식된
   // "오늘 추천 이야기" 진입 경로가 이 쿼리 파라미터를 실어 보낸다) - 완주 시 그대로 기록된다.
   const tutorStudentId = searchParams.get('tutorStudentId') ?? undefined;
+  // 수업 상세의 "시작"에서 왔으면 수업 id도 함께 - 완주 시 참여 학생 전원의 기록이 이 수업에 연결된다.
+  const lessonId = searchParams.get('lessonId') ?? undefined;
   const [attempt, setAttempt] = useState(0);
   const requestKey = `${storyId ?? ''}:${attempt}`;
   const [state, setState] = useState<LoadState>({ requestKey, status: 'loading' });
@@ -52,7 +54,7 @@ export function StoryPlayerRoute() {
   const effectiveState: LoadState = state.requestKey === requestKey ? state : { requestKey, status: 'loading' };
 
   if (effectiveState.status === 'ready') {
-    return <OneStoryPage storyPackage={effectiveState.storyPackage} tutorStudentId={tutorStudentId} />;
+    return <OneStoryPage storyPackage={effectiveState.storyPackage} tutorStudentId={tutorStudentId} lessonId={lessonId} />;
   }
 
   return (

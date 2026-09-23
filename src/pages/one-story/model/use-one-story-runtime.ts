@@ -86,6 +86,7 @@ export function useOneStoryRuntime(
   initialStoryPackage: StoryRuntimePackage,
   tutorStudentId?: string,
   companionConversationId?: string,
+  lessonId?: string,
 ) {
   // 실시간 새 분기 생성이 READY가 되면(폴링 effect 아래 참고) GET /v1/stories/{storyId}/content를
   // 재조회해 이 값을 교체한다 - storyPackage를 부모로부터 받은 그대로 쓰지 않고 로컬 상태로 감싸는
@@ -564,6 +565,7 @@ export function useOneStoryRuntime(
           tutorStudentId,
           childId: childIdForRecord,
           companionConversationId,
+          lessonId,
         })
           .then((saved) => {
             if (saved.companionChatSummary) {
@@ -578,6 +580,7 @@ export function useOneStoryRuntime(
     selectedChild,
     tutorStudentId,
     companionConversationId,
+    lessonId,
     parentReport.changedSceneCount,
     questionOutcomes,
     runtimeState.status,

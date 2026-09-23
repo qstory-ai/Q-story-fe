@@ -9,16 +9,23 @@ import {
   completeLesson,
   deleteLesson,
   getLesson,
+  listLessonCompletions,
   startLesson,
   type Lesson,
 } from '@/entities/lesson';
+import type { StoryCompletionSummary } from '@/entities/story-completion';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
-import { DEFAULT_BETA_STORY_ID } from '@/entities/story';
 import { LessonFormModal } from '@/features/lesson-form';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
-  | { requestKey: string; status: 'ready'; lesson: Lesson; storyById: Record<string, StoryCatalogEntry> }
+  | {
+      requestKey: string;
+      status: 'ready';
+      lesson: Lesson;
+      storyById: Record<string, StoryCatalogEntry>;
+      completions: StoryCompletionSummary[];
+    }
   | { requestKey: string; status: 'error'; message: string };
 
 /**
@@ -49,11 +56,15 @@ export function TutorLessonDetailPage() {
   useEffect(() => {
     if (state.status !== 'authenticated' || !lessonId) return;
     let cancelled = false;
-    Promise.all([getLesson(state.token, lessonId), listStories().catch(() => [])])
-      .then(([lesson, stories]) => {
+    Promise.all([
+      getLesson(state.token, lessonId),
+      listStories().catch(() => []),
+      listLessonCompletions(state.token, lessonId).catch(() => [] as StoryCompletionSummary[]),
+    ])
+      .then(([lesson, stories, completions]) => {
         if (cancelled) return;
         const storyById = Object.fromEntries(stories.map((story) => [story.storyId, story]));
-        setLoad({ requestKey, status: 'ready', lesson, storyById });
+        setLoad({ requestKey, status: 'ready', lesson, storyById, completions });
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
@@ -189,22 +200,42 @@ export function TutorLessonDetailPage() {
                         accessibilityRole="button"
                         accessibilityLabel={`${story?.title ?? storyId} 시작하기`}
                         onPress={() => {
-                          // 시작 시 첫 번째 담긴 학생이 있으면 tutorStudentId 파라미터를 붙여
-                          // story_completion이 그 학생과 연결되게 한다 - StoryPlayerRoute의
-                          // ?tutorStudentId= 관례.
+                          // lessonId를 붙여 서버가 참여 학생 전원에게 완주 기록을 남기게 한다(예전엔
+                          // 첫 학생만 tutorStudentId로 넘겨 나머지 학생의 기록이 없었고, 기본 동화는
+                          // /demo로 보내 파라미터가 통째로 버려졌다). tutorStudentId는 응답 대표 기록용.
                           const firstStudent = effective.lesson.students[0];
-                          const suffix = firstStudent ? `?tutorStudentId=${firstStudent.id}` : '';
+                          const params = new URLSearchParams({ lessonId: effective.lesson.id });
+                          if (firstStudent) params.set('tutorStudentId', firstStudent.id);
                           const targetId = story?.storyId ?? storyId;
-                          navigate(
-                            targetId === DEFAULT_BETA_STORY_ID
-                              ? `/demo${firstStudent ? `?tutorStudentId=${firstStudent.id}` : ''}`
-                              : `/stories/${targetId}/play${suffix}`,
-                          );
+                          navigate(`/stories/${targetId}/play?${params.toString()}`);
                         }}
                         style={({ pressed }) => [styles.startButton, pressed && styles.pressed]}
                       >
                         <Text style={styles.startLabel}>시작</Text>
                       </Pressable>
+                    </View>
+                  );
+                })
+              )}
+            </View>
+
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>완주 기록 {effective.completions.length}건</Text>
+              {effective.completions.length === 0 ? (
+                <Text style={styles.helper}>아직 이 수업에서 끝까지 들은 이야기가 없어요. 위 "시작"으로 진행하면 참여 학생마다 기록이 남아요.</Text>
+              ) : (
+                effective.completions.map((completion) => {
+                  const student = effective.lesson.students.find((candidate) => candidate.id === completion.tutorStudentId);
+                  const story = effective.storyById[completion.storyId];
+                  return (
+                    <View key={completion.id} style={styles.studentRow}>
+                      <View style={styles.studentInfo}>
+                        <Text style={styles.studentName}>{student?.name ?? '학생 미지정'}</Text>
+                        <Text style={styles.studentMeta}>
+                          {story?.title ?? completion.storyId} · {formatDateTime(completion.completedAt)}
+                        </Text>
+                      </View>
+                      <Pill label="완주" tone="onCard" />
                     </View>
                   );
                 })

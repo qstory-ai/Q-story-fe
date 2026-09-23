@@ -14,6 +14,10 @@ export type StoryCompletionSummary = {
   childId: string | null;
   /** 상시 대화(companion-chat) 태그 집계 스냅샷 - 완주 시점 기록. 대화 안 했으면 null. */
   companionChatSummary: CompanionChatSummary | null;
+  /** 선생님 세션이면 어느 학생의 기록인지. 이름은 수업의 students로 조인한다. 가정 세션은 null. */
+  tutorStudentId: string | null;
+  /** 수업 상세에서 시작한 세션이면 그 수업 id. */
+  lessonId: string | null;
 };
 
 export type StoryCompletionDetail = StoryCompletionSummary & {
@@ -52,6 +56,11 @@ export function recordStoryCompletion(
     childId?: string;
     /** 이 세션에서 사용한 companion-chat conversationId - 있으면 서버가 태그 집계를 스냅샷 저장. */
     companionConversationId?: string;
+    /**
+     * 수업 상세에서 시작한 세션이면 그 수업 id. 서버가 수업의 참여 학생 전원에게 완주 기록을 하나씩
+     * 남긴다(tutorStudentId는 응답으로 돌려줄 대표 기록을 고르는 데만 쓰인다).
+     */
+    lessonId?: string;
   },
   options?: RequestOptions,
 ): Promise<StoryCompletionSummary> {

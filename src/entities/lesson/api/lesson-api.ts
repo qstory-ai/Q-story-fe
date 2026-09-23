@@ -1,3 +1,4 @@
+import type { StoryCompletionSummary } from '@/entities/story-completion';
 import { apiBaseUrl } from '@/shared/config';
 import { requestJson, type PublicRequestOptions as RequestOptions } from '@/shared/api';
 
@@ -104,4 +105,13 @@ export function completeLesson(token: string, lessonId: string, options?: Reques
 export function deleteLesson(token: string, lessonId: string, options?: RequestOptions): Promise<void> {
   // 서버는 204를 반환 - requestJson()이 undefined로 처리.
   return request(`/v1/tutor-lessons/${lessonId}`, { method: 'DELETE' }, token, options);
+}
+
+/** 수업 하나의 완주 기록 - 참여 학생별로 한 행씩(tutorStudentId로 lesson.students와 조인). */
+export function listLessonCompletions(
+  token: string,
+  lessonId: string,
+  options?: RequestOptions,
+): Promise<StoryCompletionSummary[]> {
+  return request(`/v1/tutor-lessons/${lessonId}/completions`, { method: 'GET' }, token, options);
 }

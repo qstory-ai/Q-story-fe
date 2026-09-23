@@ -185,5 +185,6 @@ Capacitor가 생성한 기본 프로젝트에 아래만 추가했다. `npx cap s
 ## 버전 올리기
 
 - Android: `android/app/build.gradle`의 `versionCode`(정수, 매 배포마다 +1)와 `versionName`.
-- iOS: Xcode 타깃의 Version / Build(또는 `project.pbxproj`의 `MARKETING_VERSION`, `CURRENT_PROJECT_VERSION`).
+- iOS: Version은 `project.pbxproj`의 `MARKETING_VERSION`. Build(`CURRENT_PROJECT_VERSION`)는 CI가 워크플로 실행
+  번호로 자동으로 채운다 - TestFlight가 같은 Build를 두 번 받지 않기 때문. Mac에서 직접 올릴 때만 손으로 올린다.
 - 웹 `package.json`의 `version`은 APK 파일 이름에만 쓰인다.

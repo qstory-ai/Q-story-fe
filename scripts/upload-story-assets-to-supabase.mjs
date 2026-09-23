@@ -6,6 +6,7 @@
 //
 // 사용법: node scripts/upload-story-assets-to-supabase.mjs (--story <slug> | --all)
 //         [--kind images|audio|all] [--env <path-to-be/.env>] [--dry-run]
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -97,6 +98,10 @@ for (const entry of entries) {
 if (jobs.length === 0) throw new Error('Nothing to upload');
 
 async function uploadOne(job) {
+  // Audio originals are not kept in the repo any more - the bucket is their only copy - so a job
+  // whose file is missing is reported and skipped instead of aborting the whole run. Only files
+  // that exist locally (today: illustrations, or a freshly re-recorded clip) are (re)uploaded.
+  if (!existsSync(job.onDiskPath)) return { ...job, ok: true, skipped: true, bytes: 0 };
   const bytes = await readFile(job.onDiskPath);
   if (dryRun) return { ...job, ok: true, bytes: bytes.length };
   const response = await fetch(`${supabaseUrl}/storage/v1/object/${job.bucket}/${job.objectName}`, {
@@ -131,11 +136,14 @@ async function worker() {
 await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
 const failed = results.filter((r) => !r.ok);
-const totalBytes = results.filter((r) => r.ok).reduce((sum, r) => sum + r.bytes, 0);
+const skipped = results.filter((r) => r.skipped);
+const uploaded = results.filter((r) => r.ok && !r.skipped);
+const totalBytes = uploaded.reduce((sum, r) => sum + r.bytes, 0);
 const byBucket = new Map();
-for (const r of results.filter((r) => r.ok)) byBucket.set(r.bucket, (byBucket.get(r.bucket) ?? 0) + 1);
+for (const r of uploaded) byBucket.set(r.bucket, (byBucket.get(r.bucket) ?? 0) + 1);
 console.log(
-  `${dryRun ? 'would upload' : 'uploaded'} ${results.length - failed.length}/${results.length} files (${(totalBytes / 1024 / 1024).toFixed(1)} MB)`,
+  `${dryRun ? 'would upload' : 'uploaded'} ${uploaded.length}/${results.length} files (${(totalBytes / 1024 / 1024).toFixed(1)} MB)`
+    + (skipped.length ? `, skipped ${skipped.length} not on disk (bucket copy kept as-is)` : ''),
 );
 for (const [bucket, count] of byBucket) console.log(`  ${bucket}: ${count}`);
 if (failed.length > 0) {

@@ -25,7 +25,6 @@
     "content:fix": "tsx scripts/generate-story-package.mjs --all --fix",
     "content:check": "tsx scripts/generate-story-package.mjs --all --check",
     "content:import": "node scripts/import-story-to-backend.mjs --all",
-    "content:sync-audio": "node scripts/sync-audio-assets.mjs --all --write",
     "assets:upload": "node scripts/upload-story-assets-to-supabase.mjs --all"
   },
   "dependencies": {

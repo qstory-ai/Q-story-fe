@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -469,8 +470,16 @@ export async function loadStoryPackageFromDirectory(
     for (const asset of assets.assets) {
       // assets.json paths are relative to the app directory: assets/story/<slug>/... is the
       // source tree the upload script reads from; it is not part of the Vite bundle.
+      // Audio originals are no longer kept in the repo (the Supabase bucket is the only copy;
+      // assets.json carries the sha256 recorded at upload time), so a file that is not on disk
+      // is skipped rather than failing the build. `--fix` still needs the file to recompute.
+      const onDisk = join(assetRoot, `${assets.root}${asset.file}`);
+      if (!existsSync(onDisk)) {
+        if (rewriteIntegrity) fail(story.storyId, `cannot recompute integrity: ${asset.slug} is not on disk`);
+        continue;
+      }
       const actual = `sha256-${createHash('sha256')
-        .update(await readFile(join(assetRoot, `${assets.root}${asset.file}`)))
+        .update(await readFile(onDisk))
         .digest('base64')}`;
       if (rewriteIntegrity) {
         asset.integrity = actual;

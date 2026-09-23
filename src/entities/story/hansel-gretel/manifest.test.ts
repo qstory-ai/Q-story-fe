@@ -518,7 +518,13 @@ test('all versioned master illustrations and every fixed narration clip are pack
   const appRoot = fileURLToPath(new URL('../../../../', import.meta.url));
   const onDisk = (relativePath: string) => `${appRoot}${relativePath}`;
 
+  // Only illustration originals live in the repo. Narration/bridge audio originals were removed
+  // (the Supabase bucket is their only copy - see scripts/upload-story-assets-to-supabase.mjs),
+  // so on-disk existence is asserted for images only; audio completeness is checked below
+  // against fixed-narration-metadata.json instead.
+  const LOCAL_CATEGORIES = new Set(['SCENE_ART', 'BRANCH_ART']);
   for (const asset of packagedAssets.assets) {
+    if (!LOCAL_CATEGORIES.has(asset.category)) continue;
     assert.ok(
       existsSync(onDisk(`${packagedAssets.root}${asset.file}`)),
       `${asset.slug} file is missing`,
@@ -616,12 +622,16 @@ test('all versioned master illustrations and every fixed narration clip are pack
       ),
     ),
   );
-  assert.ok(
-    narrationMetadata.clips.every((clip) => {
-      const filePath = `${audioDirectory}${clip.fileName}`;
-      return existsSync(filePath) && statSync(filePath).size > 1_000;
-    }),
-  );
+  // The mp3 originals are not on disk any more (bucket-only), so instead of stat-ing files we
+  // assert that every clip the metadata knows about is registered in assets.json - that is what
+  // the runtime and the upload script actually read.
+  const packagedAudioFiles = new Set(audioFileBySlug.values());
+  for (const clip of narrationMetadata.clips) {
+    assert.ok(
+      packagedAudioFiles.has(`assets/story/hansel-gretel/audio/${clip.fileName}`),
+      `${clip.clipId} (${clip.fileName}) is in fixed-narration-metadata.json but not in assets.json`,
+    );
+  }
   assert.equal(narrationMetadata.castVersion, 'hg-gemini-tts-cast-v2');
   const expectedVoiceBySpeaker = {
     NARRATOR: 'Sulafat',

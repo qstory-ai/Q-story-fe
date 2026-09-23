@@ -13,6 +13,8 @@ export type TutorStudent = {
   prepNote: string | null;
   status: TutorStudentStatus;
   linkedParentUserId: string | null;
+  /** 부모가 초대를 수락하며 연결(또는 생성)한 부모 쪽 아이 프로필 id. 수락 전이면 null. */
+  childId: string | null;
   createdAt: string;
 };
 
@@ -143,7 +145,15 @@ export function previewTutorInviteByCode(shortCode: string, options?: RequestOpt
  */
 export function acceptTutorInvite(
   rawToken: string,
-  input: { token?: string | null; loginId?: string; email?: string; password?: string; displayName?: string },
+  input: {
+    token?: string | null;
+    loginId?: string;
+    email?: string;
+    password?: string;
+    displayName?: string;
+    /** 이미 로그인된 학부모가 기존 아이 프로필을 이 학생에 붙이고 싶을 때. 없으면 서버가 같은 이름의 아이를 찾거나 새로 만든다. */
+    childId?: string;
+  },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   const { token, ...body } = input;
@@ -153,7 +163,15 @@ export function acceptTutorInvite(
 /** short_code 기반 수락 - 후속 흐름은 acceptTutorInvite와 동일. 조회 경로만 다르다. */
 export function acceptTutorInviteByCode(
   shortCode: string,
-  input: { token?: string | null; loginId?: string; email?: string; password?: string; displayName?: string },
+  input: {
+    token?: string | null;
+    loginId?: string;
+    email?: string;
+    password?: string;
+    displayName?: string;
+    /** 이미 로그인된 학부모가 기존 아이 프로필을 이 학생에 붙이고 싶을 때. 없으면 서버가 같은 이름의 아이를 찾거나 새로 만든다. */
+    childId?: string;
+  },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   const { token, ...body } = input;

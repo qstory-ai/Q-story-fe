@@ -37,10 +37,10 @@ export function OnboardingParentPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { state } = useAuth();
-  const { addChild } = useChildren();
+  const { addChild, children, load } = useChildren();
   const [prefill] = useState(() => readPrefill(location.state));
 
-  const [step, setStep] = useState<Step>('child');
+  const [rawStep, setStep] = useState<Step>('child');
   const [name, setName] = useState(prefill.name ?? '');
   const [ageBand, setAgeBand] = useState<AgeBand>(prefill.ageBand ?? '6-7');
   const [avatarKey, setAvatarKey] = useState<ChildAvatarKey>(CHILD_AVATARS[0].key);
@@ -55,6 +55,17 @@ export function OnboardingParentPage() {
       navigate('/', { replace: true });
     }
   }, [state, navigate]);
+
+  // 선생님 초대로 만든 계정은 초대를 수락한 순간 서버가 아이 프로필(초대의 이름·연령대)을 이미
+  // 만들어 두었다. 그 아이가 목록에 있으면 같은 아이를 또 만들지 않도록 프로필 단계를 건너뛰고
+  // 동의 단계로 바로 간다. 프로필 수정(아바타 등)은 홈의 아이 관리에서 할 수 있다.
+  const invitedChildExists = useMemo(() => {
+    const wanted = prefill.name?.replace(/\s+/g, '').toLowerCase();
+    if (!wanted || load.status !== 'ready') return false;
+    return children.some((child) => child.name.replace(/\s+/g, '').toLowerCase() === wanted);
+  }, [children, load.status, prefill.name]);
+  // 상태를 effect에서 바꾸지 않고 파생값으로 건너뛴다 - 아이가 이미 있으면 'child' 단계는 'consent'로 읽힌다.
+  const step: Step = rawStep === 'child' && invitedChildExists ? 'consent' : rawStep;
 
   const canCreateChild = useMemo(() => name.trim().length > 0 && !submitting, [name, submitting]);
   const canConfirmConsent = consentAudio && consentReport;

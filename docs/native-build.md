@@ -75,6 +75,36 @@ keyPassword=...
 `app/build.gradle`이 이 파일이 있을 때만 release에 서명한다. **키를 잃으면 같은 앱으로 업데이트할 수
 없으니** 안전한 곳에 백업한다. Play 스토어 배포 시엔 `./gradlew bundleRelease`로 AAB를 만든다.
 
+## 갤럭시탭 - 테스터에게 나눠주기 (Firebase App Distribution)
+
+iOS의 TestFlight에 해당하는 것. Play 개발자 계정 없이 무료로, 테스터 이메일에 설치 링크를 보내고
+테스터는 Firebase "App Tester" 앱에서 설치·업데이트한다. 워크플로(`native-tablet-builds`)의 Android 잡
+끝에 붙어 있고, 아래 시크릿 두 개가 있을 때만 동작한다(없으면 Artifacts 다운로드까지만).
+
+한 번만 하는 설정:
+
+1. https://console.firebase.google.com 에서 프로젝트를 만든다(구글 계정이면 됨, 무료 Spark 플랜).
+2. 프로젝트 설정 > 일반 > "앱 추가" > Android. 패키지 이름 `kr.ai.qstory`(capacitor.config.ts의 appId).
+   `google-services.json`은 내려받지 않아도 된다 - 배포에만 쓰고 앱 코드에 SDK를 넣지 않는다.
+   등록 후 앱 목록에 보이는 **앱 ID**(`1:123456789:android:abcdef...`)를 복사한다.
+3. 왼쪽 메뉴 출시 및 모니터링 > App Distribution > 시작하기. "테스터 및 그룹" 탭에서 그룹을 만들고
+   alias를 `tablet-testers`로 둔다(워크플로 기본값). 테스터 이메일을 그룹에 추가한다.
+4. 서비스 계정: 프로젝트 설정 > 서비스 계정 > "Google Cloud에서 서비스 계정 관리" > 서비스 계정 만들기,
+   역할은 **Firebase App Distribution 관리자 SDK 서비스 에이전트**(또는 Firebase App Distribution Admin).
+   키 > 새 키(JSON)를 내려받는다.
+5. GitHub 저장소 Settings > Secrets and variables > Actions:
+   - `FIREBASE_ANDROID_APP_ID` = 2의 앱 ID
+   - `FIREBASE_SERVICE_ACCOUNT_JSON` = 4의 JSON 파일 내용 전체
+
+배포하기: Actions > native-tablet-builds > Run workflow. `release_notes`에 한 줄 메모(비우면 커밋
+메시지), `tester_groups`에 그룹 alias(기본 `tablet-testers`). 끝나면 그룹의 테스터에게 메일이 간다.
+서명 키 시크릿(`ANDROID_KEYSTORE_*`)이 있으면 서명된 release APK를, 없으면 debug APK를 올린다 -
+둘 다 설치되지만 debug와 release는 서명이 달라 서로 덮어쓰기 설치가 안 되니 한쪽으로 통일한다.
+
+테스터 쪽: 초대 메일의 "시작하기" > 구글 계정으로 수락 > App Tester 앱 설치 > 목록에서 Q-Story 설치.
+갤럭시탭에서 "출처를 알 수 없는 앱" 허용은 App Tester에 한 번 해 주면 된다. 이후 새 빌드는 앱 안에서
+알림으로 받는다.
+
 ## 아이패드
 
 Windows에서는 iOS 빌드가 불가능하다(Xcode·코드 서명 모두 macOS 전용). 두 가지 길이 있다.

@@ -15,10 +15,22 @@
 #   ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
 #   IOS_CERTIFICATE_P12_BASE64, IOS_CERTIFICATE_PASSWORD, IOS_PROVISIONING_PROFILE_BASE64,
 #   IOS_TEAM_ID, IOS_EXPORT_METHOD (ad-hoc | app-store | development, 기본 ad-hoc)
+#   FIREBASE_ANDROID_APP_ID, FIREBASE_SERVICE_ACCOUNT_JSON : 둘 다 있으면 Android APK를 Firebase App
+#     Distribution으로 테스터 그룹에 배포한다(안드로이드판 TestFlight). 설정 절차는 docs/native-build.md
+#     "갤럭시탭 - 테스터에게 나눠주기" 참고. 없으면 Artifacts 다운로드만 된다.
 name: native-tablet-builds
 
 on:
   workflow_dispatch:
+    inputs:
+      release_notes:
+        description: '테스터에게 보낼 한 줄 메모 (Firebase App Distribution). 비우면 커밋 메시지'
+        required: false
+        default: ''
+      tester_groups:
+        description: 'Firebase 테스터 그룹 alias (쉼표 구분)'
+        required: false
+        default: 'tablet-testers'
   push:
     tags: ['tablet-v*']
 
@@ -34,6 +46,7 @@ jobs:
     env:
       # step의 if 조건에서는 secrets 컨텍스트를 직접 못 쓴다 - job env로 한 번 옮겨서 판단한다.
       HAS_ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      HAS_FIREBASE: ${{ secrets.FIREBASE_ANDROID_APP_ID != '' && secrets.FIREBASE_SERVICE_ACCOUNT_JSON != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -48,7 +61,7 @@ jobs:
       - name: Install deps
         run: npm ci --no-audit --no-fund
       - name: Build web (native mode) and sync
-        run: npm run cap:sync
+        run: npm run cap:sync:android
       - name: Restore release keystore (optional)
         if: env.HAS_ANDROID_KEYSTORE == 'true'
         run: |
@@ -79,6 +92,36 @@ jobs:
           name: qstory-tablet-android
           path: build-output/*.apk
           if-no-files-found: error
+      # --- Firebase App Distribution (안드로이드판 TestFlight) -----------------------------
+      # 서명된 release가 있으면 그것을, 없으면 debug APK를 올린다 - 둘 다 갤럭시탭에 설치된다.
+      # 테스터는 초대 메일의 링크로 Firebase "App Tester" 앱을 깔고 거기서 설치·업데이트한다.
+      - name: Pick APK to distribute
+        if: env.HAS_FIREBASE == 'true'
+        id: pick
+        run: |
+          if [ -f build-output/qstory-tablet-android-release.apk ]; then
+            echo "file=build-output/qstory-tablet-android-release.apk" >> "$GITHUB_OUTPUT"
+          else
+            echo "file=build-output/qstory-tablet-android-debug.apk" >> "$GITHUB_OUTPUT"
+          fi
+          notes="${{ github.event.inputs.release_notes }}"
+          if [ -z "$notes" ]; then
+            notes="$(git log -1 --pretty=%s) ($(git rev-parse --short HEAD))"
+          fi
+          {
+            echo "notes<<EOF"
+            echo "$notes"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+      - name: Distribute to testers (Firebase App Distribution)
+        if: env.HAS_FIREBASE == 'true'
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          groups: ${{ github.event.inputs.tester_groups || 'tablet-testers' }}
+          file: ${{ steps.pick.outputs.file }}
+          releaseNotes: ${{ steps.pick.outputs.notes }}
 
   ios:
     name: iOS (아이패드)

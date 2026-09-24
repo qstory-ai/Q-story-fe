@@ -45,6 +45,9 @@ export function OneStoryPage({
     storyId: storyPackage.storyId,
     sceneId: scene?.id ?? null,
     conversationId: companionConversationIdRef.current,
+    childId: runtime.conversationAttribution.childId,
+    tutorStudentId,
+    lessonId,
   });
   const [chaptersOpen, setChaptersOpen] = useState(false);
   // 사이드바의 Escape 리스너·되감기 핸들러가 이 콜백에 의존한다 - 렌더마다 새 함수를 주면 리스너가

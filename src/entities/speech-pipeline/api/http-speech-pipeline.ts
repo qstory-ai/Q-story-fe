@@ -7,6 +7,7 @@ import type {
 import type { StoryRuntimePackage } from '@/entities/story';
 
 import type {
+  ConversationAttributionInput,
   SpeechPipeline,
   SpeechPipelineDiagnostics,
   SpeechPipelineInput,
@@ -14,6 +15,28 @@ import type {
   TextQuestionPipelineInput,
   TranscriptionOutput,
 } from './types';
+
+/** 원시 오디오 업로드(/v1/transcriptions)는 본문이 바이트라 귀속 식별자도 헤더로 보낸다. */
+function attributionHeaders(input: ConversationAttributionInput): Record<string, string> {
+  const headers: Record<string, string> = {};
+  if (input.sessionId) headers['x-qstory-session-id'] = input.sessionId;
+  if (input.childId) headers['x-qstory-child-id'] = input.childId;
+  if (input.tutorStudentId) headers['x-qstory-tutor-student-id'] = input.tutorStudentId;
+  if (input.lessonId) headers['x-qstory-lesson-id'] = input.lessonId;
+  if (input.inputMode) headers['x-qstory-input-mode'] = input.inputMode;
+  return headers;
+}
+
+/** JSON 본문 라우트는 같은 식별자를 필드로 싣는다(undefined는 JSON.stringify가 생략). */
+function attributionFields(input: ConversationAttributionInput): ConversationAttributionInput {
+  return {
+    sessionId: input.sessionId,
+    childId: input.childId,
+    tutorStudentId: input.tutorStudentId,
+    lessonId: input.lessonId,
+    inputMode: input.inputMode,
+  };
+}
 
 type ServerSuccess = {
   ok: true;
@@ -250,6 +273,7 @@ export class HttpSpeechPipeline implements SpeechPipeline {
       'x-qstory-scene-id': input.sceneId,
       'x-qstory-anchor-id': input.anchorId,
       'x-qstory-question-round': String(input.questionRound),
+      ...attributionHeaders(input),
     };
     const useJsonAudioUpload = this.baseUrl.startsWith('/');
     let uploadUrl = `${this.baseUrl}/v1/transcriptions`;
@@ -271,6 +295,7 @@ export class HttpSpeechPipeline implements SpeechPipeline {
           sceneId: input.sceneId,
           anchorId: input.anchorId,
           questionRound: input.questionRound,
+          ...attributionFields(input),
         });
       } catch (error) {
         if (signal.aborted) {

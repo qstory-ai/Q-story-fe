@@ -36,9 +36,15 @@ export function useCompanionChat(params: {
   storyId: string;
   sceneId: string | null;
   conversationId: string;
+  /** 대화 원장 귀속(BE conversation_record) - use-one-story-runtime의 conversationAttribution과 같은 규칙. */
+  childId?: string;
+  tutorStudentId?: string;
+  lessonId?: string;
 }) {
-  const { storyId, sceneId, conversationId } = params;
+  const { storyId, sceneId, conversationId, childId, tutorStudentId, lessonId } = params;
   const conversationIdRef = useRef<string>(conversationId);
+  // 마지막으로 STT가 채워 넣은 문장. 아이가 그걸 고치지 않고 그대로 보내면 VOICE, 아니면 TEXT.
+  const lastTranscribedRef = useRef<string | null>(null);
   const [character] = useState(pickRandomCompanionCharacter);
   const [open, setOpen] = useState(false);
   const [turns, setTurns] = useState<CompanionChatTurn[]>([]);
@@ -94,6 +100,10 @@ export function useCompanionChat(params: {
             conversationId: conversationIdRef.current,
             transcript: text,
             speakerId: character.speakerId,
+            inputMode: lastTranscribedRef.current === text ? 'VOICE' : 'TEXT',
+            childId,
+            tutorStudentId,
+            lessonId,
           },
           controller.signal,
         );
@@ -128,7 +138,7 @@ export function useCompanionChat(params: {
         );
       }
     },
-    [character.speakerId, sceneId, sending, storyId],
+    [character.speakerId, childId, lessonId, sceneId, sending, storyId, tutorStudentId],
   );
 
   const startVoiceInput = useCallback(async () => {
@@ -163,9 +173,14 @@ export function useCompanionChat(params: {
           sceneId,
           audioBlob: recording.uploadBlob,
           mimeType: recording.mimeType,
+          sessionId: conversationIdRef.current,
+          childId,
+          tutorStudentId,
+          lessonId,
         },
         controller.signal,
       );
+      lastTranscribedRef.current = transcript.slice(0, 160);
       setDraft(transcript.slice(0, 160));
     } catch (error) {
       if (controller.signal.aborted) return;
@@ -177,7 +192,7 @@ export function useCompanionChat(params: {
     } finally {
       setTranscribing(false);
     }
-  }, [recorder, sceneId, storyId]);
+  }, [childId, lessonId, recorder, sceneId, storyId, tutorStudentId]);
 
   const close = useCallback(() => {
     abortRef.current?.abort();

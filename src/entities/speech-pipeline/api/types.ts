@@ -9,6 +9,21 @@ import type {
   StoryId,
 } from '@/entities/story-runtime';
 
+/**
+ * 백엔드 대화 원장(conversation_record - 아이의 말과 캐릭터의 답 원문을 열람 API 없이 남기는
+ * append-only 테이블)에 "누구의, 어느 세션의" 발화인지 적어 보내는 선택 식별자. 전부 없어도
+ * 요청은 그대로 처리되고 기록만 익명으로 남는다(/demo). 서버는 검증 없이 적기만 한다.
+ */
+export type ConversationAttributionInput = {
+  /** 이야기 세션당 하나인 conversationId - 질문·상시대화·완주 기록을 한 세션으로 묶는다. */
+  sessionId?: string;
+  childId?: string;
+  tutorStudentId?: string;
+  lessonId?: string;
+  /** VOICE = STT를 거친 문장, TEXT = 글로 입력. 안 보내면 서버가 라우트별 기본값을 쓴다. */
+  inputMode?: 'VOICE' | 'TEXT';
+};
+
 export type SpeechPipelineInput = {
   recording: LocalRecordingArtifact;
   /** 이미 캡처된 웹 오디오. 임시 blob URL을 다시 읽지 않기 위함이다. */
@@ -17,7 +32,7 @@ export type SpeechPipelineInput = {
   sceneId: SceneId;
   anchorId: QuestionAnchorId;
   questionRound: number;
-};
+} & ConversationAttributionInput;
 
 export type TextQuestionPipelineInput = Omit<
   SpeechPipelineInput,

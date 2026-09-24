@@ -124,6 +124,20 @@ export function useOneStoryRuntime(
   const recorder = useAudioRecorderAdapter();
   const { state: authState } = useAuth();
   const { selectedChild } = useChildren();
+  // 대화 원장(BE conversation_record) 귀속 - 아이는 완주 기록과 같은 규칙으로 정한다: 선생님
+  // 세션은 tutorStudentId만, 부모 세션은 홈에서 고른 아이. 세션 id는 상시대화와 같은 conversationId.
+  const conversationAttribution = useMemo(
+    () => ({
+      sessionId: companionConversationId,
+      childId:
+        !tutorStudentId && authState.status === 'authenticated' && authState.user.role === 'PARENT'
+          ? selectedChild?.id
+          : undefined,
+      tutorStudentId,
+      lessonId,
+    }),
+    [companionConversationId, tutorStudentId, lessonId, authState, selectedChild?.id],
+  );
   const {
     speak: speakNarration,
     stop: stopNarration,
@@ -868,6 +882,8 @@ export function useOneStoryRuntime(
           sceneId: state.sceneId,
           anchorId: state.anchorId,
           questionRound: state.questionRound,
+          ...conversationAttribution,
+          inputMode: 'VOICE',
         },
         controller.signal,
       );
@@ -903,7 +919,7 @@ export function useOneStoryRuntime(
         processingAbortRef.current = null;
       }
     }
-  }, [commitEvent, speechPipeline, storyManifest.storyId]);
+  }, [commitEvent, conversationAttribution, speechPipeline, storyManifest.storyId]);
 
   const finishQuestion = useCallback(async () => {
     const recording = await recorder.stopRecording();
@@ -980,6 +996,9 @@ export function useOneStoryRuntime(
           sceneId: state.sceneId,
           anchorId: state.anchorId,
           questionRound: state.questionRound,
+          ...conversationAttribution,
+          // 글로 쓴 질문은 processTypedQuestion이 text/plain으로 만든다 - 나머지는 STT를 거친 문장.
+          inputMode: confirmedSpeech.normalizedMimeType === 'text/plain' ? 'TEXT' : 'VOICE',
           consecutiveSafetyFailures: state.consecutiveSafetyFailures,
           priorActionFamilyIds,
           guaranteeAgencyChoice:
@@ -1153,6 +1172,7 @@ export function useOneStoryRuntime(
     }
   }, [
     commitEvent,
+    conversationAttribution,
     childName,
     isRoutingQuestion,
     pendingTranscription,
@@ -1961,6 +1981,7 @@ export function useOneStoryRuntime(
     selectedChildName: selectedChild?.name ?? null,
     questionMode,
     typedQuestion,
+    conversationAttribution,
     setTypedQuestion,
     recorder,
     pendingTranscription,

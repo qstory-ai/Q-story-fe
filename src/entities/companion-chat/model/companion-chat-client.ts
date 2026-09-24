@@ -74,8 +74,18 @@ async function blobToBase64(blob: Blob): Promise<string> {
  * 컴패니언 챗에는 anchor/questionRound가 없으므로 백엔드도 /v1/companion-chat/transcriptions/base64로
  * 분리된 엔드포인트를 쓴다(음성 답변 라우팅과 무관하게 텍스트만 돌려준다).
  */
+/**
+ * 백엔드 대화 원장(conversation_record) 귀속용 선택 식별자 - 질문 파이프라인의
+ * ConversationAttributionInput과 같은 뜻. 없으면 익명으로 기록된다.
+ */
+export type CompanionChatAttribution = {
+  childId?: string;
+  tutorStudentId?: string;
+  lessonId?: string;
+};
+
 export async function transcribeCompanionChatAudio(
-  input: { storyId: string; sceneId: string; audioBlob: Blob; mimeType: string },
+  input: { storyId: string; sceneId: string; audioBlob: Blob; mimeType: string; sessionId?: string } & CompanionChatAttribution,
   signal?: AbortSignal,
 ): Promise<string> {
   if (!speechApiUrl) {
@@ -90,6 +100,10 @@ export async function transcribeCompanionChatAudio(
       mimeType: input.mimeType,
       storyId: input.storyId,
       sceneId: input.sceneId,
+      sessionId: input.sessionId,
+      childId: input.childId,
+      tutorStudentId: input.tutorStudentId,
+      lessonId: input.lessonId,
     }),
   });
 
@@ -116,7 +130,9 @@ export async function sendCompanionChatMessage(
      * 내레이터로 정한다(구버전 동작).
      */
     speakerId?: string;
-  },
+    /** VOICE = 방금 STT로 받아 적은 문장을 그대로 보냄, TEXT = 글로 입력. */
+    inputMode?: 'VOICE' | 'TEXT';
+  } & CompanionChatAttribution,
   signal?: AbortSignal,
 ): Promise<CompanionChatReply> {
   if (!speechApiUrl) {

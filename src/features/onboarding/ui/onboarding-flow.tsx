@@ -620,7 +620,7 @@ function TutorConsentStep({
           <Text key={item} style={styles.consentItemBlocked}>· {item}</Text>
         ))}
       </View>
-      <Text style={styles.formNote}>연결해도 선생님은 가정 구독 정보나 다른 이야기 기록을 볼 수 없어요. 아이의 질문 음성은 음성 인식 개선을 위해 90일간 비공개로 보관해요. 연결은 마이페이지에서 언제든 끊을 수 있어요.</Text>
+      <Text style={styles.formNote}>연결해도 선생님은 가정 구독 정보나 다른 이야기 기록을 볼 수 없어요. 아이의 질문 음성은 음성 인식 개선을 위해 90일간, 아이가 말한 문장은 서비스 개선을 위해 1년간 비공개로 보관해요. 연결은 마이페이지에서 언제든 끊을 수 있어요.</Text>
       <View style={styles.consentCheckRow}>
         <Checkbox checked={confirmed} onChange={setConfirmed} label="위 내용을 확인했고, 연결에 동의해요" />
       </View>

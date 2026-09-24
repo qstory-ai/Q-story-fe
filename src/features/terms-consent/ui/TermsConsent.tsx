@@ -51,7 +51,7 @@ export function TermsConsent({ value, onChange, onOpenDoc }: Props) {
       />
       <ConsentRow
         label="[필수] 개인정보 수집·이용 동의"
-        description="아이의 질문 음성과 확인된 문장을 음성 인식 개선을 위해 90일간 비공개로 보관해요. 이름·연락처는 가려서 저장해요."
+        description="아이의 질문 음성은 음성 인식 개선을 위해 90일간, 아이가 말하거나 쓴 문장과 캐릭터의 답은 서비스 개선을 위해 1년간 비공개로 보관해요. 이름·연락처는 가려서 저장해요."
         checked={value.privacy}
         onChange={(next) => onChange({ ...value, privacy: next })}
         onOpenDoc={() => onOpenDoc?.('privacy')}

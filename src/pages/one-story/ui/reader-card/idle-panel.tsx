@@ -60,7 +60,7 @@ export function IdlePanel({ runtime }: { runtime: OneStoryRuntime }) {
       <ActionButton variant="primary" label="이야기 시작하기" onPress={startStory} />
       <Text style={styles.parentHint}>
         목소리는 문장으로 바뀐 뒤 한 번 확인하고 질문으로 전송돼요. 확인한
-        질문 문장은 이름·연락처를 가리고 서비스 개선을 위해 90일 보관해요.
+        질문 문장은 이름·연락처를 가리고 서비스 개선을 위해 1년 보관해요.
       </Text>
     </View>
   );

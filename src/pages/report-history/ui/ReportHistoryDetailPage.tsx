@@ -38,10 +38,12 @@ export function ReportHistoryDetailPage() {
     }
   }, [state.status, canView, navigate]);
 
+  const token = state.status === 'authenticated' ? state.token : null;
+
   useEffect(() => {
-    if (state.status !== 'authenticated' || !completionId) return;
+    if (!token || !completionId) return;
     let cancelled = false;
-    getStoryCompletion(state.token, completionId)
+    getStoryCompletion(token, completionId)
       .then(async (detail) => {
         // 캐시 우회 - 같은 탭에서 이 이야기를 먼저 플레이했다면 loadStoryPackage()의 세션
         // 캐시가 방금 완료된 실시간 브랜치 삽화(GENERATED_BRANCH_ASSET)를 영영 못 보게 막는다.
@@ -66,7 +68,7 @@ export function ReportHistoryDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, completionId, requestKey]);
+  }, [token, completionId, requestKey]);
 
   if (!canView) return null;
 

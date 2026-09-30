@@ -38,15 +38,27 @@ export function TutorStudentsPage() {
     if (state.status === 'loading') return;
     if (state.status !== 'authenticated' || state.user.role !== 'TUTOR') {
       navigate('/', { replace: true });
-      return;
     }
-    listTutorStudents(state.token)
-      .then((students) => setLoad({ status: 'ready', students }))
-      .catch((failure: unknown) => setLoad({
-        status: 'error',
-        message: messageForError(failure, '학생 목록을 불러오지 못했어요.'),
-      }));
-  }, [state, navigate, reloadKey]);
+  }, [state, navigate]);
+
+  const tutorToken = state.status === 'authenticated' && state.user.role === 'TUTOR' ? state.token : null;
+
+  useEffect(() => {
+    if (!tutorToken) return;
+    let cancelled = false;
+    listTutorStudents(tutorToken)
+      .then((students) => {
+        if (!cancelled) setLoad({ status: 'ready', students });
+      })
+      .catch((failure: unknown) => {
+        if (!cancelled) {
+          setLoad({ status: 'error', message: messageForError(failure, '학생 목록을 불러오지 못했어요.') });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [tutorToken, reloadKey]);
 
   const refresh = () => setReloadKey((n) => n + 1);
 
@@ -108,8 +120,7 @@ export function TutorStudentsPage() {
                 {student.classType ? ` · ${student.classType}` : ''}
               </Text>
               {student.prepNote ? <Text style={styles.cardBody}>{student.prepNote}</Text> : null}
-              {/* 카드마다 세로로 쌓인 전폭 버튼 셋은 목록을 세 배로 길게 만들고 무엇이 주 동작인지도
-                  흐렸다 - 한 줄에 놓고 "이야기 시작"만 채움 버튼으로 둔다. */}
+              {/* 한 줄에 놓고 주 동작인 "이야기 시작"만 채움 버튼으로 둔다. */}
               <View style={styles.actions}>
                 <ActionButton
                   variant="primary"

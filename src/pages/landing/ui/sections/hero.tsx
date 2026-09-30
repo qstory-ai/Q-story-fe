@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.xxl,
-    lineHeight: 42, // lineHeight preserved
+    lineHeight: 42,
     fontWeight: storybookTheme.type.weight.bold,
   },
   heroLead: {

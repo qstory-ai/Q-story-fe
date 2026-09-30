@@ -26,14 +26,24 @@ export function StaffHomePage() {
     }
   }, [state, navigate]);
 
+  const isStaff = state.status === 'authenticated' && state.user.role === 'STAFF';
+
   useEffect(() => {
-    if (state.status !== 'authenticated' || state.user.role !== 'STAFF') return;
+    if (!isStaff) return;
+    let cancelled = false;
     listStories()
-      .then((stories) => setLoad({ status: 'ready', stories }))
-      .catch((failure: unknown) =>
-        setLoad({ status: 'error', message: failure instanceof StoryApiError ? failure.message : '이야기 목록을 불러오지 못했어요.' }),
-      );
-  }, [state]);
+      .then((stories) => {
+        if (!cancelled) setLoad({ status: 'ready', stories });
+      })
+      .catch((failure: unknown) => {
+        if (!cancelled) {
+          setLoad({ status: 'error', message: failure instanceof StoryApiError ? failure.message : '이야기 목록을 불러오지 못했어요.' });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isStaff]);
 
   if (state.status !== 'authenticated' || state.user.role !== 'STAFF') return null;
 

@@ -68,7 +68,7 @@ export function OnboardingParentPage() {
   // 상태를 effect에서 바꾸지 않고 파생값으로 건너뛴다 - 아이가 이미 있으면 'child' 단계는 'consent'로 읽힌다.
   const step: Step = rawStep === 'child' && invitedChildExists ? 'consent' : rawStep;
 
-  const canCreateChild = useMemo(() => name.trim().length > 0 && !submitting, [name, submitting]);
+  const canCreateChild = name.trim().length > 0 && !submitting;
   const canConfirmConsent = consentAudio && consentReport;
 
   async function submitChild() {
@@ -220,16 +220,6 @@ export function OnboardingParentPage() {
   );
 }
 
-/** 부모 온보딩이 완료됐는지(재진입 시 자동 스킵할지) 판단. 서버 저장 없이 브라우저 로컬 마크만. */
-export function hasCompletedParentOnboarding(userId: string): boolean {
-  if (typeof window === 'undefined') return true;
-  try {
-    return window.localStorage.getItem(`${ONBOARDING_DONE_KEY_PREFIX}${userId}`) === '1';
-  } catch {
-    return true;
-  }
-}
-
 /* -------------------------------------------------------------- helpers */
 
 function ProgressPip({ filled }: { filled: boolean }) {
@@ -329,30 +319,11 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onContentMuted,
   },
-  chipRow: { gap: 8, paddingVertical: 2 },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: storybookTheme.radius.pill,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
-  },
-  chipSelected: {
-    backgroundColor: storybookTheme.color.primary,
-    borderColor: storybookTheme.color.primary,
-  },
   chipPressed: { opacity: 0.85 },
-  chipLabel: {
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onContentMuted,
-  },
-  chipLabelSelected: { color: storybookTheme.color.background },
   avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   avatarChoice: {
     width: 56,
     height: 56,
-    // 56/2 = 28 - 원형 아바타. radius.pill(999)를 써도 시각적으로 같지만 의도(정원)을 명시.
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',

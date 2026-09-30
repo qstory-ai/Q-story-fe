@@ -67,10 +67,12 @@ export function TutorStudentDetailPage() {
     }
   }, [state, navigate]);
 
+  const token = state.status === 'authenticated' ? state.token : null;
+
   useEffect(() => {
-    if (state.status !== 'authenticated' || !studentId) return;
+    if (!token || !studentId) return;
     let cancelled = false;
-    getTutorStudent(state.token, studentId)
+    getTutorStudent(token, studentId)
       .then((student) => {
         if (cancelled) return;
         setLoad({ requestKey, status: 'ready', student });
@@ -86,10 +88,10 @@ export function TutorStudentDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, studentId, requestKey]);
+  }, [token, studentId, requestKey]);
 
   const handleSave = useCallback(async () => {
-    if (state.status !== 'authenticated' || !studentId) return;
+    if (!token || !studentId) return;
     setSaving(true);
     setSaveError(null);
     setSavedFlag(false);
@@ -98,7 +100,7 @@ export function TutorStudentDetailPage() {
         setSaveError('반 수업이면 반을 골라 주세요.');
         return;
       }
-      const updated = await updateTutorStudent(state.token, studentId, {
+      const updated = await updateTutorStudent(token, studentId, {
         classType: classType.trim(),
         prepNote: prepNote.trim(),
         lessonType: classSel.lessonType,
@@ -112,14 +114,14 @@ export function TutorStudentDetailPage() {
     } finally {
       setSaving(false);
     }
-  }, [state, studentId, requestKey, classType, prepNote, classSel]);
+  }, [token, studentId, requestKey, classType, prepNote, classSel]);
 
   // 이 학생을 위해 담아둔 이야기(TutorLessonPlan) 목록 + 카탈로그를 병렬로 fetch. plan은 storyId만
   // 갖고 있어 카탈로그와 join해야 제목/커버를 표시할 수 있다.
   useEffect(() => {
-    if (state.status !== 'authenticated' || !studentId) return;
+    if (!token || !studentId) return;
     let cancelled = false;
-    Promise.all([listStudentLessonPlans(state.token, studentId), listStories()])
+    Promise.all([listStudentLessonPlans(token, studentId), listStories()])
       .then(([plans, stories]) => {
         if (cancelled) return;
         const storyById = Object.fromEntries(stories.map((s) => [s.storyId, s]));
@@ -135,10 +137,10 @@ export function TutorStudentDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, studentId]);
+  }, [token, studentId]);
 
   const handleRemovePlan = useCallback(async (planId: string) => {
-    if (state.status !== 'authenticated') return;
+    if (!token) return;
     // 낙관적 제거 - 목록에서 즉시 빼고, 실패해도 그대로 둔다(다음 방문 시 재조회로 원복 가능).
     setRemovingPlanId(planId);
     setPlansLoad((prev) => {
@@ -146,20 +148,20 @@ export function TutorStudentDetailPage() {
       return { ...prev, plans: prev.plans.filter((p) => p.id !== planId) };
     });
     try {
-      await removeTutorLessonPlan(state.token, planId);
+      await removeTutorLessonPlan(token, planId);
     } catch {
       // 무시 - 사용자는 성공한 것처럼 보이고, 실제 실패는 다음 조회에서 드러난다.
     } finally {
       setRemovingPlanId(null);
     }
-  }, [state]);
+  }, [token]);
 
   const handleDeleteStudent = useCallback(async () => {
-    if (state.status !== 'authenticated' || !studentId) return;
+    if (!token || !studentId) return;
     setDeleteInFlight(true);
     setDeleteError(null);
     try {
-      await deleteTutorStudent(state.token, studentId);
+      await deleteTutorStudent(token, studentId);
       // 성공 - 학생 목록으로 replace 이동 (뒤로가기로 삭제된 학생 상세로 돌아가지 못하게).
       navigate('/tutor/students', { replace: true });
     } catch (failure: unknown) {
@@ -167,14 +169,14 @@ export function TutorStudentDetailPage() {
       setDeleteInFlight(false);
       // 실패해도 모달은 열어두어 사용자가 재시도하거나 취소할 수 있게 한다.
     }
-  }, [state, studentId, navigate]);
+  }, [token, studentId, navigate]);
 
   const handleIssueInvite = useCallback(async () => {
-    if (state.status !== 'authenticated' || !studentId) return;
+    if (!token || !studentId) return;
     setIssuing(true);
     setIssueError(null);
     try {
-      const invite = await createTutorInvite(state.token, studentId, { method: 'LINK' });
+      const invite = await createTutorInvite(token, studentId, { method: 'LINK' });
       setIssuedInvite(invite);
     } catch (failure: unknown) {
       const message = messageForError(failure, '초대를 만들지 못했어요.');
@@ -182,7 +184,7 @@ export function TutorStudentDetailPage() {
     } finally {
       setIssuing(false);
     }
-  }, [state, studentId]);
+  }, [token, studentId]);
 
   if (state.status !== 'authenticated') return null;
 
@@ -383,8 +385,11 @@ function ParentConnectionBadge({ status }: { status: TutorStudent['status'] }) {
     </View>
   );
 }
+
+const DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+
 function formatDate(iso: string) {
-  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(iso));
+  return DATE_FORMAT.format(new Date(iso));
 }
 
 const styles = StyleSheet.create({
@@ -501,7 +506,6 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.pillBackground,
   },
   planRemovePressed: { opacity: 0.7 },
-  // 학생 삭제 링크 - 파괴적 액션이라 카드 밖 얇은 하단 링크. 확인 모달이 실제 방어막.
   deleteLink: {
     alignSelf: 'center',
     paddingVertical: storybookTheme.spacing.sm,

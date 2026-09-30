@@ -13,14 +13,7 @@ type Slide = {
   bullets?: string[];
 };
 
-/**
- * IA "튜토리얼" - 방문자가 앱을 처음 열 때 뜨는 3화면 안내. 건너뛰기는 언제든 가능하고, 완료
- * 하면 localStorage에 seen 마크가 남아 이후 재진입에는 뜨지 않는다(RootRedirect 참고).
- *
- * 부모/선생님 두 역할에서 공유하는 소개이므로 문구는 역할 구분 없이 두었다 - 역할별 세부
- * 소개(선생님용 "학생 리포트/보호자 연결")는 온보딩 안에서 이어진다. 튜토리얼은 서비스 자체를
- * 처음 만난 사람에게 서비스 컨셉을 짧게 전달하는 데만 집중한다.
- */
+// 부모/선생님 공용 소개라 문구에 역할 구분을 두지 않는다 - 역할별 세부 소개는 온보딩에서 이어진다.
 const SLIDES: Slide[] = [
   {
     eyebrow: '1 · Q-Story 소개',
@@ -44,19 +37,23 @@ const SLIDES: Slide[] = [
   },
 ];
 
+/**
+ * IA "튜토리얼" - 방문자가 앱을 처음 열 때 뜨는 3화면 안내. 건너뛰기는 언제든 가능하고, 완료
+ * 하면 localStorage에 seen 마크가 남아 이후 재진입에는 뜨지 않는다(HomePage의 hasSeenTutorial 참고).
+ */
 export function TutorialPage() {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
   const slide = SLIDES[index];
   const isLast = index === SLIDES.length - 1;
 
-  function complete() {
+  function completeTo(path: string) {
     try {
       if (typeof window !== 'undefined') window.localStorage.setItem(TUTORIAL_SEEN_KEY, '1');
     } catch {
       // 프라이빗 모드 등에서 실패해도 튜토리얼은 이미 본 상태로 앱을 계속 쓸 수 있어야 한다.
     }
-    navigate('/');
+    navigate(path);
   }
 
   return (
@@ -74,7 +71,7 @@ export function TutorialPage() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="튜토리얼 건너뛰기"
-          onPress={complete}
+          onPress={() => completeTo('/')}
           hitSlop={8}
         >
           <Text style={styles.skipLabel}>건너뛰기</Text>
@@ -97,10 +94,10 @@ export function TutorialPage() {
       <View style={styles.footer}>
         {isLast ? (
           <>
-            <ActionButton variant="gold" label="회원가입하기" onPress={() => { complete(); navigate('/signup'); }} />
+            <ActionButton variant="gold" label="회원가입하기" onPress={() => completeTo('/signup')} />
             <Pressable
               accessibilityRole="link"
-              onPress={() => { complete(); navigate('/login'); }}
+              onPress={() => completeTo('/login')}
               style={styles.footerLink}
             >
               <Text style={styles.footerLinkText}>이미 계정이 있어요</Text>

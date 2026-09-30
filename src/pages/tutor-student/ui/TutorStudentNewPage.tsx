@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,17 +17,9 @@ import { TutorClassPicker, type TutorClassSelection } from '@/features/tutor-cla
 
 type WizardStep = 'info' | 'invite';
 
-
 /**
- * "새 학생 등록" 2단계(학생 정보 → 부모 연결) - q-story-flow-prototype.tsx의
- * TutorStudentNewScreen→TutorParentConnectSetupScreen 순서를 그대로 따른다. 각 단계가 실제로
- * 서버에 저장한다(학생 생성 → 초대 발급).
- *
- * 예전엔 3단계 끝에 정기 수업 시간(TutorSchedule)까지 여기서 만들었지만, 홈 화면 캘린더가
- * TutorSchedule 대신 Lesson을 데이터 소스로 쓰도록 이미 바뀌어 있었고(TutorHomePage 참고)
- * /tutor/schedule도 어디서도 링크되지 않는 죽은 라우트였다 - 수업 생성 자체는 "수업" 탭의
- * LessonFormModal 하나로 이미 일원화돼 있었던 것. 그래서 이 마법사는 학생 등록/부모 연결까지만
- * 책임지고, 수업(일정) 생성은 등록 후 "수업" 탭에서 하도록 분리했다.
+ * "새 학생 등록" 2단계(학생 정보 → 부모 연결). 각 단계가 실제로 서버에 저장한다(학생 생성 → 초대
+ * 발급). 수업(일정) 생성은 "수업" 탭의 LessonFormModal이 맡는다.
  */
 export function TutorStudentNewPage() {
   const navigate = useNavigate();
@@ -47,8 +39,7 @@ export function TutorStudentNewPage() {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      {/* 폼 + 초대 카드가 폰 세로 화면보다 길어질 수 있어 ScrollView - 예전엔 View라 아래쪽
-          버튼이 화면 밖으로 잘린 채 닿지 않았다. */}
+      {/* 폼 + 초대 카드가 폰 세로 화면보다 길어질 수 있어 ScrollView. */}
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {step === 'info' && (
           <InfoStep token={token} onCreated={(created) => { setStudent(created); setStep('invite'); }} />
@@ -121,15 +112,12 @@ function InfoStep({ token, onCreated }: { token: string; onCreated: (student: Tu
 }
 
 function InviteStep({ token, student, onDone }: { token: string; student: TutorStudent; onDone: () => void }) {
-  // 기본은 LINK - 문자 발송은 아직 연결돼 있지 않아서(번호만 저장) SMS를 기본으로 두면 번호를
-  // 입력하게 만든 뒤 "사실 직접 전달하세요"라고 하는 꼴이었다.
+  // 기본은 LINK - 문자 발송은 아직 연결돼 있지 않다(번호만 저장).
   const [method, setMethod] = useState<'SMS' | 'LINK'>('LINK');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [invite, setInvite] = useState<TutorInvite | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-
-  const inviteUrl = useMemo(() => (invite ? tutorInviteLink(invite.token) : null), [invite]);
 
   const onSubmit = useCallback(async () => {
     setError(null);
@@ -194,11 +182,9 @@ function InviteStep({ token, student, onDone }: { token: string; student: TutorS
         </>
       ) : (
         <>
-          {/* 학생 목록/상세 화면과 같은 InviteCodeCard - 예전엔 여기만 복사 버튼도 짧은 코드도
-              없는 손수 만든 카드를 써서, 선생님이 등록 직후엔 긴 토큰 URL을 손으로 긁어 복사해야 했다. */}
           <InviteCodeCard
             shortCode={invite.shortCode}
-            link={inviteUrl ?? ''}
+            link={tutorInviteLink(invite.token)}
             expiresLabel={formatInviteExpiry(invite.expiresAt)}
             shareMessage={tutorInviteShareMessage(student.name)}
           />

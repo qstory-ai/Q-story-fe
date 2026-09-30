@@ -18,8 +18,7 @@ import { PreviewStripSection } from './sections/preview-strip';
 import { TrustSection } from './sections/trust';
 
 /**
- * 공개 대문 화면. 이전에는 화면을 가득 채우는 일러스트 위 카드 하나짜리 히어로였지만,
- * 이제는 체험 흐름(듣기->말하기->장면 변화), 안심 설계, 베타 안내, FAQ까지 아우르는
+ * 공개 대문 화면. 체험 흐름(듣기->말하기->장면 변화), 안심 설계, 베타 안내, FAQ까지 아우르는
  * 풀 페이지 마케팅 레이아웃이다. 상단 내비게이션 칩은 섹션 DOM 노드의 scrollIntoView로
  * 스크롤한다 (registerSection 참고) - RN 쪽에는 DOM #anchor가 없어서다.
  */
@@ -30,9 +29,7 @@ export function LandingPage() {
   const isWide = width >= 860;
   const [activeSection, setActiveSection] = useState<SectionKey>('experience');
 
-  // 로그인된 사용자는 무료 체험(데모)이 아니라 자신의 정식 플레이 화면으로 바로 들어가야
-  // 한다 - 이미 가입한 학부모/튜터에게 다시 데모를 보여주는 건 되돌아가는 경험이다.
-  // 비로그인 방문자에게는 기존과 동일하게 데모로 안내한다.
+  // 로그인된 사용자는 데모가 아니라 자신의 역할 홈으로 보낸다.
   const goToDemo = () => {
     if (authState.status === 'authenticated') {
       navigate(homePathFor(authState.user));
@@ -48,9 +45,7 @@ export function LandingPage() {
    * ScrollView ref의 scrollTo({y})가 아니라, 각 섹션 DOM 노드의 scrollIntoView를 쓴다.
    * View의 웹 ref는 실제 DOM 엘리먼트를 그대로 가리킨다.
    *
-   * 섹션마다 고정된 useRef를 직접 ref에 붙인다 (렌더 중 클로저를 새로 만들어 반환하는
-   * 팩토리 함수를 ref로 넘기면 eslint-plugin-react-hooks의 refs 규칙이 "렌더 중 ref를
-   * 읽을 수 있다"고 경고한다 - NAV_SECTIONS가 고정된 5개뿐이라 각각 이름 붙은 useRef로 둔다).
+   * 섹션마다 고정된 useRef를 둔다 (ref 팩토리 함수는 react-hooks refs 규칙에 걸린다).
    */
   const experienceRef = useRef<HTMLElement | null>(null);
   const differenceRef = useRef<HTMLElement | null>(null);
@@ -67,11 +62,8 @@ export function LandingPage() {
     }),
     [experienceRef, differenceRef, trustRef, betaRef, faqRef],
   );
-  // 클릭으로 scrollToSection이 activeSection을 즉시 세팅한 뒤에도, smooth-scroll이 진행되는
-  // 동안 중간에 지나치는 다른 섹션들이 IntersectionObserver를 계속 건드려 nav 칩 하이라이트가
-  // 깜빡였다 - 두 쓰기 주체(클릭, observer)가 조율 없이 같은 state를 건드린 게 원인. 클릭
-  // 직후엔 observer의 쓰기를 잠깐 무시하는 걸로 막는다. scrollend 대신 고정 지연을 쓰는 이유는
-  // 이미 활성화된 칩을 다시 눌러 스크롤 거리가 0인 경우 scrollend 자체가 안 터질 수 있어서다.
+  // 클릭 후 smooth-scroll 중에 지나치는 섹션들이 observer로 칩 하이라이트를 깜빡이게 하므로, 클릭
+  // 직후엔 observer 쓰기를 잠깐 무시한다. 스크롤 거리가 0이면 scrollend가 안 터질 수 있어 고정 지연을 쓴다.
   const suppressObserverRef = useRef(false);
   const suppressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollToSection = (key: SectionKey) => {
@@ -105,6 +97,13 @@ export function LandingPage() {
     });
     return () => observer.disconnect();
   }, [sectionRefs]);
+
+  useEffect(
+    () => () => {
+      if (suppressTimeoutRef.current !== null) clearTimeout(suppressTimeoutRef.current);
+    },
+    [],
+  );
 
   const navigationItems = NAV_SECTIONS.map((item) => {
     const active = activeSection === item.key;

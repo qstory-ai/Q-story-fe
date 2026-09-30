@@ -1,1 +1,1 @@
-export { OnboardingTutorPage, hasCompletedTutorOnboarding } from './ui/OnboardingTutorPage';
+export { OnboardingTutorPage } from './ui/OnboardingTutorPage';

@@ -79,14 +79,15 @@ export function LibraryPage() {
     };
   }, [catalogReload]);
 
+  const token = state.status === 'authenticated' ? state.token : null;
+  const selectedChildId = selectedChild?.id ?? null;
   useEffect(() => {
-    if (state.status !== 'authenticated') return;
+    if (!token) return;
     let cancelled = false;
-    // 선택된 아이가 있으면 그 아이 완주만, 없으면(=아이 미등록) 전체 완주. 아이 선택기에서
-    // 다른 아이로 바꾸면 '읽은 작품' 탭도 그 아이 기준으로 자동 갱신된다. legacy 기록
-    // (childId 없음)은 특정 아이 필터에서 제외 - 리포트 페이지와 같은 규약.
-    const filters = selectedChild ? { childId: selectedChild.id } : undefined;
-    listStoryCompletions(state.token, filters)
+    // 선택된 아이가 있으면 그 아이 완주만, 없으면(=아이 미등록) 전체 완주. childId 없는 legacy
+    // 기록은 특정 아이 필터에서 제외 - 리포트 페이지와 같은 규약.
+    const filters = selectedChildId ? { childId: selectedChildId } : undefined;
+    listStoryCompletions(token, filters)
       .then((list) => {
         if (!cancelled) setCompletions({ status: 'ready', completions: list });
       })
@@ -97,10 +98,9 @@ export function LibraryPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, selectedChild]);
+  }, [token, selectedChildId]);
 
-  // catalog.status === 'ready' ? catalog.stories : [] 를 그대로 쓰면 매 렌더마다 새로운 빈 배열
-  // 참조가 만들어져 아래 useMemo들의 dep가 계속 바뀐다 - useMemo 하나로 안정 참조를 뽑는다.
+  // 빈 배열 참조를 안정적으로 유지해 아래 useMemo들이 매 렌더 다시 계산되지 않게 한다.
   const allStories = useMemo(
     () => (catalog.status === 'ready' ? catalog.stories : []),
     [catalog],
@@ -115,7 +115,7 @@ export function LibraryPage() {
 
   const bookmarkedStoryIds = useMemo(
     () => new Set(bookmarks.bookmarks.map((b) => b.storyId)),
-    [bookmarks],
+    [bookmarks.bookmarks],
   );
 
   const filtered = useMemo(() => {
@@ -352,9 +352,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    // wideMaxWidth(1040, 그리드 전용)였는데, 같은 사이드바 레이아웃을 공유하는 형제 탭들
-    // (ParentHomePage/ReportHistoryPage)은 dashboardCardWideMaxWidth(760)를 쓰고 있어서 서재
-    // 탭만 유독 좌우 여백이 좁아 보였다 - 리포트 탭 기준으로 통일한다.
+    // 사이드바 레이아웃을 공유하는 형제 탭(ParentHomePage/ReportHistoryPage)과 같은 폭.
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     gap: 16,
@@ -376,6 +374,5 @@ const styles = StyleSheet.create({
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onContentMuted,
   },
-  // 빈 상태 카드 - 텍스트 아래 CTA 버튼 사이에 여유 확보.
   emptyCard: { gap: storybookTheme.spacing.ms },
 });

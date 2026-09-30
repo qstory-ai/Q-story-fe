@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
@@ -42,9 +42,10 @@ type LoadState =
     }
   | { status: 'error'; message: string };
 
+const COMPLETED_AT_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
 function formatCompletedAt(iso: string) {
-  const date = new Date(iso);
-  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(date);
+  return COMPLETED_AT_FORMAT.format(new Date(iso));
 }
 
 /**
@@ -74,21 +75,23 @@ export function ReportHistoryPage() {
     }
   }, [state.status, canView, navigate]);
 
+  const token = state.status === 'authenticated' ? state.token : null;
+
   useEffect(() => {
-    if (state.status !== 'authenticated') return;
+    if (!token) return;
     let cancelled = false;
     const filters = childFilterId ? { childId: childFilterId } : undefined;
     Promise.all([
-      listStoryCompletions(state.token, filters),
+      listStoryCompletions(token, filters),
       listStories(),
       // 종합/트렌드 카드는 부가 기능이므로, 이 두 호출이 실패해도(예: 구버전 백엔드) 목록 자체는
       // 계속 동작해야 한다 - 실패를 빈 배열로 흡수해 각각 조용히 null/empty가 되게 한다.
-      listRecentStoryCompletions(state.token, COMPREHENSIVE_LIMIT, filters).catch(
+      listRecentStoryCompletions(token, COMPREHENSIVE_LIMIT, filters).catch(
         () => [] as StoryCompletionDetail[],
       ),
       // 선생님 수업 리포트는 개별 연결의 부가 데이터다. 구버전 서버에 아직 없거나 일시적으로
       // 실패해도 가정 리포트 전체가 막히지 않도록 빈 목록으로 다룬다.
-      listParentTutorReports(state.token).catch(() => [] as TutorReportSummary[]),
+      listParentTutorReports(token).catch(() => [] as TutorReportSummary[]),
     ])
       .then(([completions, stories, recentDetailed, tutorReports]) => {
         if (cancelled) return;
@@ -115,14 +118,12 @@ export function ReportHistoryPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, childFilterId, reloadKey]);
+  }, [token, childFilterId, reloadKey]);
 
-  const emptyMessageForTab = useMemo(() => {
-    if (tab === 'comprehensive') {
-      return '아직 종합 리포트에 담을 완주 기록이 없어요. 이야기를 두세 편 마치면 요약이 채워져요.';
-    }
-    return '아직 마친 이야기가 없어요. 이야기를 끝까지 읽으면 여기에 기록이 남아요.';
-  }, [tab]);
+  const emptyMessageForTab =
+    tab === 'comprehensive'
+      ? '아직 종합 리포트에 담을 완주 기록이 없어요. 이야기를 두세 편 마치면 요약이 채워져요.'
+      : '아직 마친 이야기가 없어요. 이야기를 끝까지 읽으면 여기에 기록이 남아요.';
 
   if (!canView) return null;
 
@@ -497,9 +498,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    // contentMaxWidth(420)는 로그인/가입 같은 단일 폼 페이지 폭 - 이 탭의 형제인
-    // ParentHomePage/ClassDashboardPage는 진작에 dashboardCardWideMaxWidth(760)로 옮겨가서,
-    // 이 페이지만 420에 남아 같은 사이드바 레이아웃 안에서 유독 좁고 여백이 크게 떠 있었다.
+    // 사이드바 레이아웃을 공유하는 형제 탭(ParentHomePage/LibraryPage)과 같은 폭.
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,

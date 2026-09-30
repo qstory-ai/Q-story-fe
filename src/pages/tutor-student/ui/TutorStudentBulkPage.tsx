@@ -13,8 +13,7 @@ import { BULK_STUDENT_LIMIT, parseStudentNames } from '../lib/parse-student-name
 
 /**
  * "여러 명 한 번에 등록" - 반 명단을 붙여넣으면 학생을 전부 등록하고 학생마다 부모 초대(코드·링크)를 한
- * 화면에서 받는다. 한 명씩 등록 마법사(TutorStudentNewPage)를 반 인원만큼 반복하던 걸 대체한다.
- * 서버는 전부 성공하거나 전부 실패하므로 "어디까지 됐지?"가 생기지 않는다.
+ * 화면에서 받는다. 서버는 전부 성공하거나 전부 실패하므로 "어디까지 됐지?"가 생기지 않는다.
  */
 export function TutorStudentBulkPage() {
   const navigate = useNavigate();

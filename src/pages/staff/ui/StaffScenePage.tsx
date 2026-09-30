@@ -34,14 +34,16 @@ export function StaffScenePage() {
     }
   }, [state, navigate]);
 
+  const staffToken = state.status === 'authenticated' && state.user.role === 'STAFF' ? state.token : null;
+
   const reload = useCallback(() => {
-    if (state.status !== 'authenticated' || state.user.role !== 'STAFF' || !storyId || !sceneId) return;
-    listSegments(state.token, storyId, sceneId)
+    if (!staffToken || !storyId || !sceneId) return;
+    listSegments(staffToken, storyId, sceneId)
       .then((response) => setLoad({ status: 'ready', revision: response.revision, segments: response.segments }))
       .catch((failure: unknown) =>
         setLoad({ status: 'error', message: failure instanceof StoryAdminApiError ? failure.message : '문장을 불러오지 못했어요.' }),
       );
-  }, [state, storyId, sceneId]);
+  }, [staffToken, storyId, sceneId]);
 
   useEffect(reload, [reload]);
 

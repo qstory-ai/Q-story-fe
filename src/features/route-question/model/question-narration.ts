@@ -1,6 +1,7 @@
 import type { QuestionAnchor, StoryId } from '@/entities/story-runtime';
 import { speechApiUrl } from '@/entities/speech-pipeline';
-import { sanitizeNarrationText } from '@/entities/narration';
+
+import { fetchBufferedNarration } from './narration-request';
 import type { BufferedResponseAudio } from './response-audio';
 
 export type GeneratedNarrationAudio = BufferedResponseAudio;
@@ -19,17 +20,21 @@ type PreloadQuestionNarrationOptions = {
   ) => Promise<GeneratedNarrationAudio | null>;
 };
 
-type NarrationResponse = {
-  ok?: boolean;
-  audio?: GeneratedNarrationAudio;
-};
-
 const narrationCache = new Map<
   string,
   Promise<GeneratedNarrationAudio | null>
 >();
 
 const DEFAULT_NARRATION_REQUEST_TIMEOUT_MS = 14_000;
+
+export function questionNarrationFields(input: QuestionNarrationInput) {
+  return {
+    storyId: input.storyId,
+    anchorId: input.anchor.id,
+    speakerId: input.anchor.promptSpeakerId,
+    text: input.text,
+  };
+}
 
 function cacheKey(input: QuestionNarrationInput) {
   return [input.storyId, input.anchor.id, input.anchor.promptSpeakerId, input.text]
@@ -45,40 +50,13 @@ export async function fetchQuestionNarration(
   if (!baseUrl) {
     return null;
   }
-  const controller = new AbortController();
-  const timeoutId = setTimeout(
-    () => controller.abort('narration-request-timeout'),
+  return fetchBufferedNarration(
+    questionNarrationFields(input),
+    fetchImpl,
+    baseUrl,
     timeoutMs,
+    'narration-request-timeout',
   );
-  try {
-    const response = await fetchImpl(`${baseUrl}/v1/narrations`, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        storyId: input.storyId,
-        anchorId: input.anchor.id,
-        speakerId: input.anchor.promptSpeakerId,
-        text: sanitizeNarrationText(input.text),
-      }),
-    });
-    if (!response.ok) {
-      return null;
-    }
-    const payload = (await response.json()) as NarrationResponse;
-    if (
-      payload.ok !== true ||
-      !payload.audio?.mimeType ||
-      !payload.audio.dataBase64
-    ) {
-      return null;
-    }
-    return payload.audio;
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timeoutId);
-  }
 }
 
 export function getQuestionNarration(

@@ -83,17 +83,9 @@ export function useDeviceSpeechNarration() {
         if (settled || generationRef.current !== generation) {
           return;
         }
-        settled = true;
-        const message = '기기 낭독 완료 신호를 기다리는 시간이 초과됐어요.';
-        setState({
-          activeRequestId: null,
-          isSpeaking: false,
-          isPaused: false,
-          error: message,
-          progress: 0,
-        });
+        // finish가 먼저 settled를 세워야 cancel이 부르는 onerror('canceled')가 무시된다.
+        finish(new Error('기기 낭독 완료 신호를 기다리는 시간이 초과됐어요.'));
         window.speechSynthesis.cancel();
-        reject(new Error(message));
       }, timeoutMillis);
 
       const finish = (error?: Error) => {

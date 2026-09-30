@@ -12,7 +12,17 @@ type OnboardingEntry = {
   step: 'welcome' | 'sign-up' | 'sign-in' | 'tutor-preview';
   role?: 'PARENT' | 'DIRECTOR' | 'TUTOR';
   tutorInvite?: TutorInviteRef;
+  /** 반 초대 링크(/join?code=)에서 "계정 만들기"로 왔을 때 학부모 가입 폼에 미리 채울 반 코드. */
+  classCode?: string;
+  /** 반 초대 링크에서 "로그인"으로 왔을 때 로그인 뒤 돌아갈 앱 내부 경로. */
+  next?: string;
 };
+
+/** 로그인 뒤 돌아갈 경로는 앱 내부 경로만 받는다 - 외부 주소로 튕기는 오픈 리다이렉트를 막는다. */
+function safeNextPath(value: string | null): string | undefined {
+  // "/\evil.com"은 브라우저가 "//evil.com"으로 읽고, 탭·줄바꿈은 지워진다 - 백슬래시와 공백 문자도 거절한다.
+  return value && /^\/(?![/\\])[^\\\s]*$/.test(value) ? value : undefined;
+}
 
 /**
  * `?flow=sign-in|sign-up|welcome|tutor-invite` + 선택적 `?role=parent|organization|tutor` +
@@ -34,7 +44,7 @@ function readOnboardingParams(params: URLSearchParams): OnboardingEntry | null {
     return { step: 'tutor-preview', role: 'PARENT', tutorInvite };
   }
   if (flow !== 'sign-in' && flow !== 'sign-up' && flow !== 'welcome') return null;
-  if (flow === 'sign-in') return { step: 'sign-in' };
+  if (flow === 'sign-in') return { step: 'sign-in', next: safeNextPath(params.get('next')) };
   if (flow === 'welcome') return { step: 'welcome' };
   const roleParam = params.get('role');
   const role: OnboardingEntry['role'] =
@@ -45,7 +55,8 @@ function readOnboardingParams(params: URLSearchParams): OnboardingEntry | null {
         : roleParam === 'parent'
           ? 'PARENT'
           : undefined;
-  return role ? { step: 'sign-up', role } : { step: 'welcome' };
+  const classCode = params.get('classCode')?.trim().toUpperCase() || undefined;
+  return role ? { step: 'sign-up', role, classCode } : { step: 'welcome' };
 }
 
 // IA의 회원 유형 분류에 맞춘 표기 - 기관 소속 여부와 무관하게 모두 "선생님"으로 표기하고,
@@ -108,6 +119,8 @@ export function HomePage() {
           initialStep={onboarding.step}
           initialRole={onboarding.role}
           initialTutorInvite={onboarding.tutorInvite}
+          initialClassCode={onboarding.classCode}
+          signInNext={onboarding.next}
           // URL 파라미터로 들어온 경우엔 state를 비워도 paramEntry가 계속 이기므로 파라미터 없는
           // "/"로 실제로 이동한다.
           onExit={() => {

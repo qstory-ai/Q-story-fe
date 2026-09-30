@@ -273,10 +273,27 @@ export function joinClass(
   return request('/v1/classes/join', { method: 'POST', body: JSON.stringify(input) }, options);
 }
 
-/** 이미 계정이 있는 학부모가 반 코드로 아이를 한 명 더 올린다 - 아이마다 한 번씩 호출한다. */
+/** 반 초대 링크(/join?code=)를 연 학부모가 가입·로그인 전에 보는 정보. */
+export type ClassPreview = {
+  classCode: string;
+  className: string;
+  /** 기관 없이 선생님이 운영하는 반이면 null. */
+  organizationName: string | null;
+  /** 담임이 아직 없는 기관 반이면 null. */
+  tutorDisplayName: string | null;
+};
+
+export function previewClassByCode(classCode: string, options?: RequestOptions): Promise<ClassPreview> {
+  return request(`/v1/classes/by-code/${encodeURIComponent(classCode)}`, { method: 'GET' }, options);
+}
+
+/**
+ * 이미 계정이 있는 학부모가 반 코드로 아이를 한 명 더 올린다 - 아이마다 한 번씩 호출한다. 이미 등록한 아이는
+ * childId로 고르고(이름·출생연도는 그 아이 것), 새 아이는 childName·childBirthYear를 보낸다.
+ */
 export function joinExistingClass(
   token: string,
-  input: { classCode: string; childName: string; childBirthYear: number },
+  input: { classCode: string; childId: string } | { classCode: string; childName: string; childBirthYear: number },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request(

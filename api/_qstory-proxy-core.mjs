@@ -85,6 +85,7 @@ const DYNAMIC_ROUTES = [
   { method: 'POST', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/classes$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/classes$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/classes/by-code/${SHORT_CODE_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/students$`) },
   { method: 'PUT', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/homeroom$`) },
   { method: 'DELETE', pattern: new RegExp(`^v1/classes/memberships/${UUID_SEGMENT}$`) },

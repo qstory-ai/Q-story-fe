@@ -10,7 +10,42 @@ type ReportContentProps = {
   parentReport: ParentReport;
   isWide: boolean;
   illustrationForAssetId: (assetId: string) => ImageSource;
+  /**
+   * child: 한 아이의 기록(집에서 읽은 기록, 선생님 개별 수업). class: 반 수업 - 여러 아이가 함께 읽어 누가 말했는지
+   * 모르는 기록이라 "우리 아이가 한 말"처럼 보이지 않게 문구를 반 기준으로 바꾼다.
+   */
+  audience?: ReportAudience;
 };
+
+export type ReportAudience = 'child' | 'class';
+
+const REPORT_COPY = {
+  child: {
+    heroTitle: '오늘의 질문 기록',
+    heroBody: '점수가 아니라, 오늘 아이가 무엇을 궁금해하고 어떤 이야기 길을 만들었는지 담았어요.',
+    questionStat: '아이 질문',
+    questionsTitle: '아이가 실제로 만든 질문과 선택',
+    questionsBody: '원본 음성이나 전사 전문 대신, 아이가 확인한 질문의 뜻과 그 생각으로 달라진 이야기 길을 보여드려요.',
+    branchCaption: '아이가 고른 선택으로 이어진 캐시 장면',
+    originCaption: '아이의 질문이 나온 원래 장면',
+    coachBody: '아이가 남긴 질문과 선택을 바탕으로 오늘의 관찰을 정리했어요.',
+    coachNote: '오늘 하루의 모습이에요 - 아이의 성격이나 발달을 판단하는 진단은 아니에요.',
+    followUpBody: '정답을 알려주기보다, 아이의 생각을 한 번 더 들어보세요.',
+  },
+  class: {
+    heroTitle: '우리 반 수업 기록',
+    heroBody:
+      '오늘 반 친구들이 함께 읽으며 어떤 질문을 하고 어떤 이야기 길을 만들었는지 담았어요. 여러 아이가 함께 만든 기록이라 우리 아이 한 명의 말은 아니에요.',
+    questionStat: '반에서 나온 질문',
+    questionsTitle: '우리 반이 함께 만든 질문과 선택',
+    questionsBody: '원본 음성이나 전사 전문 대신, 반에서 나온 질문의 뜻과 그 생각으로 달라진 이야기 길을 보여드려요.',
+    branchCaption: '반이 고른 선택으로 이어진 캐시 장면',
+    originCaption: '질문이 나온 원래 장면',
+    coachBody: '반에서 나온 질문과 선택을 바탕으로 오늘 수업의 흐름을 정리했어요.',
+    coachNote: '오늘 수업 전체의 모습이에요 - 특정 아이를 판단하는 진단은 아니에요.',
+    followUpBody: '유치원에서 읽은 이야기를 떠올리며, 이번에는 우리 아이의 생각을 들어보세요.',
+  },
+} as const;
 
 /** 상시 대화 요약의 태그별 횟수 칩 묶음 - 태그가 하나도 없으면 그리지 않는다. */
 function TagCountChips({
@@ -45,24 +80,22 @@ function TagCountChips({
  * 부모가 과거 리포트를 다시 볼 때 표시되는 report-history 상세 페이지에서 공유된다 -
  * 둘 다 buildParentReport()로 동일한 방식으로 만들어진 ParentReport를 이 컴포넌트에 전달한다.
  */
-export function ReportContent({ parentReport, isWide, illustrationForAssetId }: ReportContentProps) {
+export function ReportContent({ parentReport, isWide, illustrationForAssetId, audience = 'child' }: ReportContentProps) {
+  const copy = REPORT_COPY[audience];
   return (
     <>
       <View style={styles.reportHero}>
         <Text style={styles.reportEyebrow}>Q-STORY PARENT REPORT</Text>
-        <Text style={styles.reportHeroTitle}>오늘의 질문 기록</Text>
+        <Text style={styles.reportHeroTitle}>{copy.heroTitle}</Text>
         <View style={styles.reportStoryPill}>
           <Text style={styles.reportStoryPillText}>
             {parentReport.storyTitle}
           </Text>
         </View>
-        <Text style={styles.reportHeroBody}>
-          점수가 아니라, 오늘 아이가 무엇을 궁금해하고 어떤 이야기 길을
-          만들었는지 담았어요.
-        </Text>
+        <Text style={styles.reportHeroBody}>{copy.heroBody}</Text>
         <View style={[styles.reportStats, isWide && styles.reportStatsWide]}>
           {[
-            { value: String(parentReport.questionCount), label: '아이 질문' },
+            { value: String(parentReport.questionCount), label: copy.questionStat },
             {
               value: String(parentReport.changedSceneCount),
               label: '달라진 장면',
@@ -81,13 +114,8 @@ export function ReportContent({ parentReport, isWide, illustrationForAssetId }: 
       </View>
 
       <View style={styles.reportPanel}>
-        <Text style={styles.reportPanelTitle}>
-          아이가 실제로 만든 질문과 선택
-        </Text>
-        <Text style={styles.reportPanelDescription}>
-          원본 음성이나 전사 전문 대신, 아이가 확인한 질문의 뜻과 그 생각으로
-          달라진 이야기 길을 보여드려요.
-        </Text>
+        <Text style={styles.reportPanelTitle}>{copy.questionsTitle}</Text>
+        <Text style={styles.reportPanelDescription}>{copy.questionsBody}</Text>
 
         {parentReport.questionRecords.length > 0 ? (
           <View style={styles.reportQuestionList}>
@@ -128,8 +156,8 @@ export function ReportContent({ parentReport, isWide, illustrationForAssetId }: 
                   <View style={styles.reportSceneCaption}>
                     <Text style={styles.reportSceneCaptionText}>
                       {record.imageRef.kind === 'GENERATED_BRANCH_ASSET'
-                        ? '아이가 고른 선택으로 이어진 캐시 장면'
-                        : '아이의 질문이 나온 원래 장면'}{' '}
+                        ? copy.branchCaption
+                        : copy.originCaption}{' '}
                       · {record.sceneTitle}
                     </Text>
                   </View>
@@ -172,9 +200,7 @@ export function ReportContent({ parentReport, isWide, illustrationForAssetId }: 
 
       <View style={styles.reportCoachPanel}>
         <Text style={styles.reportPanelTitle}>AI 질문 코치의 오늘 관찰</Text>
-        <Text style={styles.reportPanelDescription}>
-          아이가 남긴 질문과 선택을 바탕으로 오늘의 관찰을 정리했어요.
-        </Text>
+        <Text style={styles.reportPanelDescription}>{copy.coachBody}</Text>
         <View style={styles.reportCoachSummary}>
           <Text style={styles.reportCoachSummaryText}>
             {parentReport.coachObservation}
@@ -209,10 +235,7 @@ export function ReportContent({ parentReport, isWide, illustrationForAssetId }: 
               </View>
             ))}
           </View>
-          <Text style={styles.reportFocusNote}>
-            오늘 하루의 모습이에요 - 아이의 성격이나 발달을 판단하는 진단은
-            아니에요.
-          </Text>
+          <Text style={styles.reportFocusNote}>{copy.coachNote}</Text>
         </View>
       </View>
 
@@ -238,9 +261,7 @@ export function ReportContent({ parentReport, isWide, illustrationForAssetId }: 
 
       <View style={styles.reportPanel}>
         <Text style={styles.reportPanelTitle}>오늘 밤 이어갈 질문</Text>
-        <Text style={styles.reportPanelDescription}>
-          정답을 알려주기보다, 아이의 생각을 한 번 더 들어보세요.
-        </Text>
+        <Text style={styles.reportPanelDescription}>{copy.followUpBody}</Text>
         <View style={styles.reportFollowUpList}>
           {parentReport.followUpQuestions.map((question, index) => (
             <View key={question} style={styles.reportFollowUpCard}>

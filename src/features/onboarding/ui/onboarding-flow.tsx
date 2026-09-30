@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, BrandLockup, Checkbox, ErrorState, LoadingState, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
-import { BirthYearChips, ageBandFromLabel, formatStudentAge } from '@/entities/child';
+import { ActionButton, BrandLockup, Checkbox, ErrorState, LoadingState, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { BirthYearChips, ageBandFromLabel, formatStudentAge, listChildren, type Child } from '@/entities/child';
 import {
   createOrganization,
   homePathFor,
@@ -67,6 +67,10 @@ type OnboardingFlowProps = {
   /** 선생님의 부모 초대(코드/토큰)로 들어올 때 - PARENT role로 잠기고 tutor-preview부터 시작해서
    *  미리보기 → (로그인 또는 가입) → 동의 → 연결 완료까지 이 흐름 안에서 전부 처리한다. */
   initialTutorInvite?: TutorInviteRef;
+  /** 반 초대 링크에서 가입하러 왔을 때 학부모 가입 폼에 미리 채울 반 코드. */
+  initialClassCode?: string;
+  /** 로그인 뒤 역할 홈 대신 돌아갈 앱 내부 경로(반 초대 링크 등). */
+  signInNext?: string;
   /** "← 처음으로"로 닫을 때 - HomePage가 평소 화면으로 되돌아간다. */
   onExit: () => void;
   /** 이 흐름 안에서 세션이 만들어졌을 때(가입·초대 수락 직후). HomePage가 이걸 보고 역할 홈
@@ -112,6 +116,8 @@ export function OnboardingFlow({
   initialStep = 'welcome',
   initialRole,
   initialTutorInvite,
+  initialClassCode,
+  signInNext,
   onExit,
   onSessionCreated,
 }: OnboardingFlowProps) {
@@ -142,6 +148,8 @@ export function OnboardingFlow({
   const [tutorAccepting, setTutorAccepting] = useState(false);
   // 미리보기 재조회 트리거 - 만료/오타 코드로 ErrorState가 떴을 때 "다시 시도"가 이걸 올린다.
   const [tutorPreviewAttempt, setTutorPreviewAttempt] = useState(0);
+  // 이미 계정이 있는 학부모가 초대를 수락할 때 연결할 기존 아이(없으면 서버가 이름으로 찾거나 새로 만든다).
+  const [tutorChildId, setTutorChildId] = useState<string | null>(null);
 
   // 선생님 초대로 만든 새 학부모 계정은 /onboarding/parent의 아이 프로필 폼에 초대가 이미 알고
   // 있는 아이 이름/연령대를 미리 채워 준다 - 방금 미리보기에서 본 정보를 또 타이핑하게 하지 않도록.
@@ -157,9 +165,9 @@ export function OnboardingFlow({
   const onSignedIn: OnAuthed = useCallback(
     (token, user) => {
       setSession(token, user);
-      goHome(homePathFor(user));
+      goHome(signInNext ?? homePathFor(user));
     },
-    [setSession, goHome],
+    [setSession, goHome, signInNext],
   );
 
   // 가입 직후 홈으로 보내기 전에 가치 제안 캐러셀을 한 번 보여주고, 이어서 역할별 온보딩
@@ -216,7 +224,7 @@ export function OnboardingFlow({
     try {
       const body =
         pendingTutorAccept.kind === 'token'
-          ? { token: pendingTutorAccept.token }
+          ? { token: pendingTutorAccept.token, childId: tutorChildId ?? undefined }
           : {
               loginId: pendingTutorAccept.loginId,
               email: pendingTutorAccept.email,
@@ -248,7 +256,7 @@ export function OnboardingFlow({
     } finally {
       setTutorAccepting(false);
     }
-  }, [initialTutorInvite, pendingTutorAccept, tutorAuthMode, setSession, go, onSessionCreated]);
+  }, [initialTutorInvite, pendingTutorAccept, tutorChildId, tutorAuthMode, setSession, go, onSessionCreated]);
 
   // 캐러셀엔 자체 "건너뛰기"가 있고, 연결 완료 뒤엔 되돌아갈 단계가 없어 상단 링크를 숨긴다.
   const hideTopLink = step === 'value-onboarding' || step === 'tutor-linked';
@@ -304,6 +312,7 @@ export function OnboardingFlow({
             role={role}
             tutorInvite={initialTutorInvite ?? null}
             tutorPreview={tutorPreview}
+            initialClassCode={initialClassCode}
             // 동의 화면에서 "← 이전"으로 돌아오면 폼이 다시 마운트되므로, 모아 둔 값을 되돌려 준다.
             initial={pendingTutorAccept?.kind === 'new-account' ? pendingTutorAccept : undefined}
             onAuthed={onSignedUp}
@@ -371,6 +380,9 @@ export function OnboardingFlow({
         {step === 'tutor-consent' && (
           <TutorConsentStep
             preview={tutorPreview}
+            existingAccountToken={pendingTutorAccept?.kind === 'token' ? pendingTutorAccept.token : null}
+            childId={tutorChildId}
+            onChildChange={setTutorChildId}
             submitting={tutorAccepting}
             error={tutorAcceptError}
             onAccept={onTutorAccept}
@@ -523,13 +535,18 @@ function TutorPreviewStep({
       </View>
     );
   }
+  const where = inviteWhere(preview);
   return (
     <View style={styles.welcome}>
-      <Text style={styles.eyebrow}>{preview.tutorDisplayName}이 보낸 안전한 초대 링크</Text>
-      <Text style={styles.welcomeTitle}>{preview.studentName}의 오늘 이야기 기록이{'\n'}도착했어요</Text>
+      <Text style={styles.eyebrow}>{preview.tutorDisplayName} 선생님이 보낸 안전한 초대 링크</Text>
+      <Text style={styles.welcomeTitle}>
+        {where ? `${where}에서\n` : ''}
+        {preview.studentName}의 수업 기록을 보내 드려요
+      </Text>
       <View style={styles.previewCard}>
+        {where ? <Text style={styles.previewNote}>{where}</Text> : null}
         <Text style={styles.previewName}>{preview.studentName} · {formatStudentAge(preview)}</Text>
-        <Text style={styles.previewNote}>{preview.tutorDisplayName}이 전달한 정보예요.</Text>
+        <Text style={styles.previewNote}>{preview.tutorDisplayName} 선생님이 전달한 정보예요.</Text>
       </View>
       <View style={styles.welcomeCard}>
         {blockedRole ? (
@@ -560,13 +577,25 @@ function TutorPreviewStep({
 }
 
 /** 초대 수락 전 공유 범위 확인 단계. */
+/** "무지개 유치원 햇님반" - 초대 학생의 기관·반. 둘 다 없으면(선생님 개별 학생) null. */
+function inviteWhere(preview: TutorInvitePreview): string | null {
+  return [preview.organizationName, preview.className].filter(Boolean).join(' ') || null;
+}
+
 function TutorConsentStep({
   preview,
+  existingAccountToken,
+  childId,
+  onChildChange,
   submitting,
   error,
   onAccept,
 }: {
   preview: TutorInvitePreview | null;
+  /** 이미 있는 학부모 계정으로 수락할 때 - 그 계정의 아이 중 누구와 연결할지 고르게 한다. */
+  existingAccountToken: string | null;
+  childId: string | null;
+  onChildChange: (childId: string | null) => void;
   submitting: boolean;
   error: string | null;
   onAccept: () => void;
@@ -590,6 +619,14 @@ function TutorConsentStep({
           <Text key={item} style={styles.consentItemBlocked}>· {item}</Text>
         ))}
       </View>
+      {existingAccountToken ? (
+        <ExistingChildChoice
+          token={existingAccountToken}
+          studentName={preview?.studentName ?? null}
+          childId={childId}
+          onChange={onChildChange}
+        />
+      ) : null}
       <Text style={styles.formNote}>연결해도 선생님은 가정 구독 정보나 다른 이야기 기록을 볼 수 없어요. 아이의 질문 음성은 음성 인식 개선을 위해 90일간, 아이가 말한 문장은 서비스 개선을 위해 1년간 비공개로 보관해요. 연결은 마이페이지에서 언제든 끊을 수 있어요.</Text>
       <View style={styles.consentCheckRow}>
         <Checkbox checked={confirmed} onChange={setConfirmed} label="위 내용을 확인했고, 연결에 동의해요" />
@@ -601,6 +638,63 @@ function TutorConsentStep({
         onPress={onAccept}
         loading={submitting}
         disabled={!confirmed || submitting}
+      />
+    </View>
+  );
+}
+
+const NEW_CHILD_CHOICE = 'new';
+
+/**
+ * 기존 학부모 계정의 아이 중 초대 학생과 이을 아이를 고른다. 이름이 같은 아이를 먼저 골라 두고, 아이가 없으면
+ * 아무것도 보이지 않는다(서버가 초대 이름으로 새 아이를 만든다). 같은 이름의 아이가 여럿이라 서버가 거절하던
+ * 경우(CHILD_SELECTION_REQUIRED)도 여기서 미리 고르게 된다.
+ */
+function ExistingChildChoice({
+  token,
+  studentName,
+  childId,
+  onChange,
+}: {
+  token: string;
+  studentName: string | null;
+  childId: string | null;
+  onChange: (childId: string | null) => void;
+}) {
+  const [children, setChildren] = useState<Child[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    listChildren(token)
+      .then((list) => {
+        if (cancelled) return;
+        setChildren(list);
+        const wanted = studentName?.replace(/\s+/g, '').toLowerCase();
+        const match = list.find((child) => child.name.replace(/\s+/g, '').toLowerCase() === wanted);
+        onChange(match?.id ?? (list.length === 1 ? list[0].id : null));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+    // onChange는 부모의 setState라 고정이다 - 토큰·학생이 바뀔 때만 다시 불러온다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, studentName]);
+  if (children.length === 0) return null;
+  return (
+    <View style={styles.consentCard}>
+      <Text style={styles.consentGroupLabel}>어느 아이와 연결할까요?</Text>
+      <RadioGroup
+        accessibilityLabel="선생님 초대와 연결할 아이"
+        value={childId ?? NEW_CHILD_CHOICE}
+        onChange={(value) => onChange(value === NEW_CHILD_CHOICE ? null : value)}
+        options={[
+          ...children.map((child) => ({
+            value: child.id,
+            label: child.name,
+            description: child.birthYear ? `${child.birthYear}년생` : undefined,
+          })),
+          { value: NEW_CHILD_CHOICE, label: studentName ? `새 아이로 등록 (${studentName})` : '새 아이로 등록' },
+        ]}
       />
     </View>
   );
@@ -651,6 +745,7 @@ function SignUpStep({
   role,
   tutorInvite,
   tutorPreview,
+  initialClassCode,
   initial,
   onAuthed,
   onCollectForTutorInvite,
@@ -660,6 +755,7 @@ function SignUpStep({
    *  올려보내고, 실제 계정 생성+초대 수락은 tutor-consent에서 한 번에 처리한다. */
   tutorInvite: TutorInviteRef | null;
   tutorPreview: TutorInvitePreview | null;
+  initialClassCode?: string;
   /** 동의 단계에서 되돌아올 때 되살릴 값(선생님 초대 경로에서만). */
   initial?: { loginId: string; email: string; password: string; displayName: string; marketing: boolean };
   onAuthed: OnAuthed;
@@ -672,7 +768,7 @@ function SignUpStep({
   }) => void;
 }) {
   const [hasClass, setHasClass] = useState(true);
-  const [classCode, setClassCode] = useState('');
+  const [classCode, setClassCode] = useState(initialClassCode ?? '');
   const [childName, setChildName] = useState('');
   const [childBirthYear, setChildBirthYear] = useState<number>(() => new Date().getFullYear() - 7);
   const [orgName, setOrgName] = useState('');
@@ -886,7 +982,8 @@ function SignUpStep({
         onPress={onSubmit}
         disabled={submitting || !canSubmit}
       />
-      {!tutorInvite && <SocialLoginButtons role={role} onAuthed={onAuthed} />}
+      {/* 소셜 가입은 초대·반 코드를 싣지 못해 아이가 반에 연결되지 않는다 - 그 경로에서는 숨긴다. */}
+      {!tutorInvite && !initialClassCode && <SocialLoginButtons role={role} onAuthed={onAuthed} />}
     </View>
   );
 }

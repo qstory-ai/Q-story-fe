@@ -14,7 +14,7 @@ import { AGE_BAND_CATEGORY_HINTS, AGE_BAND_LABELS, useChildren, type AgeBand } f
 import { hasKoreanBatchim } from '@/entities/narration';
 import { loadLocalStoryProgress, type LocalStoryProgress } from '@/entities/analytics';
 import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
-import { listParentTutorReports, type TutorReportSummary } from '@/entities/tutor';
+import { listParentTutorReports, tutorReportSource, type TutorReportSummary } from '@/entities/tutor';
 import { formatReportDuration } from '@/pages/one-story';
 
 /**
@@ -241,9 +241,7 @@ export function ParentHomePage() {
                 <RecentActivityRow
                   key={item.entry.id}
                   entry={item.entry}
-                  onPress={() => {
-                    if (item.entry.kind === 'completion') navigate(`/reports/${item.entry.id}`);
-                  }}
+                  onPress={() => navigate(`/reports/${item.entry.id}`)}
                 />
               )}
             />
@@ -353,7 +351,7 @@ function RecentActivityRow({
   const iconName = entry.kind === 'completion' ? 'sparkles' : 'users';
   return (
     <Pressable
-      accessibilityRole={entry.kind === 'completion' ? 'link' : 'text'}
+      accessibilityRole="link"
       onPress={onPress}
       style={({ pressed }) => [styles.recentRow, pressed && styles.pressed]}
     >
@@ -364,9 +362,7 @@ function RecentActivityRow({
         <Text style={styles.recentLabel} numberOfLines={1}>{entry.label}</Text>
         <Text style={styles.recentMeta} numberOfLines={1}>{entry.meta}</Text>
       </View>
-      {entry.kind === 'completion' ? (
-        <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
-      ) : null}
+      <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
     </Pressable>
   );
 }
@@ -432,7 +428,7 @@ function mergeRecentActivity(
   const tutorEntries: RecentActivityEntry[] = tutorReports.map((report) => ({
     id: report.id,
     kind: 'tutor-report' as const,
-    label: `${report.tutorDisplayName} · ${report.studentName}`,
+    label: `${stories.find((s) => s.storyId === report.storyId)?.title ?? report.storyId} · ${tutorReportSource(report)}`,
     meta: `${formatDate(report.completedAt)} · ${formatReportDuration(report.durationSeconds)}`,
     iso: report.completedAt,
   }));

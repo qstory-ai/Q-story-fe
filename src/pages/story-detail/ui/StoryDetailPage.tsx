@@ -8,10 +8,8 @@ import { messageForError } from '@/shared/api';
 import { useAuth } from '@/entities/auth';
 import { useBookmarks } from '@/entities/bookmark';
 import { useChildren } from '@/entities/child';
-import { listTutorStudents, type TutorStudent } from '@/entities/tutor';
 import { ChildPickerModal } from '@/features/child-picker';
-import { LessonPlanPickerModal } from '@/features/lesson-plan-picker';
-import { TutorStudentPickerModal } from '@/features/tutor-student-picker';
+import { ClassLessonStartModal } from '@/features/class-lesson-start';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -39,34 +37,14 @@ export function StoryDetailPage() {
   const [load, setLoad] = useState<LoadState>({ requestKey, status: 'loading' });
   const [bookmarkPending, setBookmarkPending] = useState(false);
   const [bookmarkError, setBookmarkError] = useState<string | null>(null);
-  const [lessonPickerOpen, setLessonPickerOpen] = useState(false);
-  const [lessonToast, setLessonToast] = useState<string | null>(null);
   const [childPickerOpen, setChildPickerOpen] = useState(false);
-  const [tutorStudentPickerOpen, setTutorStudentPickerOpen] = useState(false);
-  // 튜터가 페이지에 들어오는 순간 학생 목록을 미리 fetch해 두면 "이야기 시작하기" 눌렀을 때
-  // 학생 수를 즉시 판단할 수 있다. null=아직 로드 안 됨(그 사이 클릭하면 그냥 picker 열어 로드
-  // 상태를 사용자가 봄), 배열=로드됨.
-  const [tutorStudents, setTutorStudents] = useState<TutorStudent[] | null>(null);
+  const [classPickerOpen, setClassPickerOpen] = useState(false);
 
   const isAuthenticated = state.status === 'authenticated';
   const isTutor = isAuthenticated && state.user.role === 'TUTOR';
   const isParent = isAuthenticated && state.user.role === 'PARENT';
   const tutorToken = isTutor ? state.token : null;
-
-  useEffect(() => {
-    if (!tutorToken) return;
-    let cancelled = false;
-    listTutorStudents(tutorToken)
-      .then((list) => {
-        if (!cancelled) setTutorStudents(list);
-      })
-      .catch(() => {
-        if (!cancelled) setTutorStudents([]); // 실패 시엔 빈 목록으로 취급 - picker 안에서 오류가 다시 뜬다.
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [tutorToken]);
+  const tutorId = isTutor ? state.user.id : null;
 
   useEffect(() => {
     if (!storyId) return;
@@ -109,12 +87,12 @@ export function StoryDetailPage() {
   }, [storyId, isAuthenticated, bookmarks, navigate]);
 
   /**
-   * "이야기 시작하기"를 눌렀을 때 다중 프로필/학생 상황이면 명시적으로 고르게 인터럽트한다 -
+   * "이야기 시작하기"를 눌렀을 때 다중 프로필 상황이면 명시적으로 고르게 인터럽트한다 -
    * 홈에서 selectedChild를 바꾸지 않고 시작해 다른 아이 세션으로 잘못 기록되는 걸 막는다.
    *
    * 부모: 아이 2+명이면 picker, 0명이면 picker의 등록 CTA, 1명이면 곧바로.
-   * 선생님: 학생 2+명이면 picker, 0명이면 picker의 등록 CTA, 1명이면 그 학생 id를 붙여
-   *   곧바로 시작.
+   * 선생님: 언제나 반을 고르게 한다 - 고른 반으로 수업을 만들고 그 수업으로 시작한다
+   *   (선생님은 반 단위로만 일한다. 반이 하나여도 새 수업 기록이 생기므로 확인을 받는다).
    */
   const startPlay = useCallback((targetStoryId: string) => {
     if (isParent && children.length !== 1) {
@@ -122,16 +100,11 @@ export function StoryDetailPage() {
       return;
     }
     if (isTutor) {
-      // 아직 학생 목록이 안 왔거나 2+명이거나 0명이면 picker를 띄운다. 1명일 때만 곧장 이동.
-      if (tutorStudents !== null && tutorStudents.length === 1) {
-        navigate(`/stories/${targetStoryId}/play?tutorStudentId=${tutorStudents[0].id}`);
-        return;
-      }
-      setTutorStudentPickerOpen(true);
+      setClassPickerOpen(true);
       return;
     }
     navigate(`/stories/${targetStoryId}/play`);
-  }, [isParent, isTutor, children.length, tutorStudents, navigate]);
+  }, [isParent, isTutor, children.length, navigate]);
 
   // 마지막으로 커밋된 로드 이후 storyId/attempt가 바뀌었다 - setState-in-effect 없이
   // 로딩 중인 것처럼 렌더링한다 (react-hooks/set-state-in-effect 참고).
@@ -197,33 +170,11 @@ export function StoryDetailPage() {
                   {bookmarks.isBookmarked(effectiveLoad.story.storyId) ? '저장됨' : '저장하기'}
                 </Text>
               </Pressable>
-              {isTutor ? (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="수업에 사용하기"
-                  onPress={() => setLessonPickerOpen(true)}
-                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
-                >
-                  <Icon name="graduationCap" size={16} color={storybookTheme.color.primary} />
-                  <Text style={styles.secondaryLabel}>수업에 사용하기</Text>
-                </Pressable>
-              ) : null}
             </View>
             {bookmarkError ? <Text style={styles.actionError}>{bookmarkError}</Text> : null}
-            {lessonToast ? <Text style={styles.actionInfo}>{lessonToast}</Text> : null}
           </Card>
         </View>
       )}
-
-      {effectiveLoad.status === 'ready' && isTutor ? (
-        <LessonPlanPickerModal
-          visible={lessonPickerOpen}
-          storyId={effectiveLoad.story.storyId}
-          storyTitle={effectiveLoad.story.title}
-          onClose={() => setLessonPickerOpen(false)}
-          onSuccess={(studentName) => setLessonToast(`${studentName} 수업에 담았어요.`)}
-        />
-      ) : null}
 
       {effectiveLoad.status === 'ready' && isParent ? (
         <ChildPickerModal
@@ -238,16 +189,14 @@ export function StoryDetailPage() {
         />
       ) : null}
 
-      {effectiveLoad.status === 'ready' && isTutor && tutorToken ? (
-        <TutorStudentPickerModal
-          visible={tutorStudentPickerOpen}
+      {effectiveLoad.status === 'ready' && tutorToken && tutorId ? (
+        <ClassLessonStartModal
+          visible={classPickerOpen}
           token={tutorToken}
-          subtitle={`${effectiveLoad.story.title}을(를) 어떤 학생과 시작할까요?`}
-          onClose={() => setTutorStudentPickerOpen(false)}
-          onSelected={(student) => {
-            setTutorStudentPickerOpen(false);
-            navigate(`/stories/${effectiveLoad.story.storyId}/play?tutorStudentId=${student.id}`);
-          }}
+          tutorId={tutorId}
+          storyId={effectiveLoad.story.storyId}
+          storyTitle={effectiveLoad.story.title}
+          onClose={() => setClassPickerOpen(false)}
         />
       ) : null}
     </SafeAreaView>
@@ -360,11 +309,5 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.error,
     textAlign: 'center',
-  },
-  actionInfo: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.primary,
-    textAlign: 'center',
-    fontWeight: storybookTheme.type.weight.bold,
   },
 });

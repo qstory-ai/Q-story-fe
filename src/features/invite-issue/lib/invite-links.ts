@@ -5,10 +5,6 @@ import { webOrigin } from '@/shared/config';
  * 태블릿 앱(Capacitor)에서는 페이지 출처가 실제 웹 주소가 아니라서, 거기서 만든 링크를 부모가 열면
  * 존재하지 않는 호스트로 갔다.
  */
-export function tutorInviteLink(token: string) {
-  return `${webOrigin()}/tutor-invite/${token}`;
-}
-
 export function organizationTutorInviteLink(token: string) {
   return `${webOrigin()}/org-invite/${token}`;
 }
@@ -21,10 +17,6 @@ export function classInviteLink(joinCode: string) {
 export function classInviteShareMessage(className: string, organizationName?: string | null) {
   const where = organizationName ? `${organizationName} ${className}` : className;
   return `${where} 부모님, Q-Story 반 초대예요. 아래 링크로 들어와 아이 이름을 확인해 주시면 반 수업 리포트를 받아 보실 수 있어요.`;
-}
-
-export function tutorInviteShareMessage(studentName: string) {
-  return `${studentName} 부모님, Q-Story 수업 연결 초대예요. 아래 코드나 링크로 들어와 주세요.`;
 }
 
 // Intl.DateTimeFormat 생성은 로케일 데이터를 읽는 비싼 작업이라 모듈 수준에서 한 번만 만든다.

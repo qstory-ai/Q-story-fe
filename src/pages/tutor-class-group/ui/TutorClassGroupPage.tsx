@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
+import { AppNavShell, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import {
   dashboardNavItems,
@@ -89,15 +89,7 @@ export function TutorClassGroupPage() {
             />
 
             <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.sectionTitle}>학생 명단</Text>
-                <ActionButton
-                  variant="outline"
-                  size="sm"
-                  label="명단 미리 올리기 (선택)"
-                  onPress={() => navigate(`/tutor/students/bulk?classId=${encodeURIComponent(classId ?? '')}`)}
-                />
-              </View>
+              <Text style={styles.sectionTitle}>학생 명단</Text>
               {effective.students.length === 0 ? (
                 <Text style={styles.body}>
                   아직 들어온 아이가 없어요. 위 반 초대 링크를 보내면 부모님이 아이를 연결할 때 명단에 자동으로 올라가요. 수업은 명단이 비어 있어도 먼저 만들 수 있어요.
@@ -158,13 +150,6 @@ const styles = StyleSheet.create({
     borderColor: storybookTheme.color.contentPanelBorder,
     padding: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.sm,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: storybookTheme.spacing.sm,
-    flexWrap: 'wrap',
   },
   sectionTitle: {
     fontSize: storybookTheme.type.md,

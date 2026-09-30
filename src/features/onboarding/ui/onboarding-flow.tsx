@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, BrandLockup, Checkbox, ErrorState, LoadingState, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
-import { ageBandFromLabel, formatStudentAge, listChildren, type Child } from '@/entities/child';
+import { ActionButton, BrandLockup, Checkbox, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
   createOrganization,
   homePathFor,
@@ -21,13 +20,6 @@ import {
 import { messageForError } from '@/shared/api';
 import { updateNotificationSettings } from '@/entities/notification-settings';
 import {
-  acceptTutorInvite,
-  acceptTutorInviteByCode,
-  previewTutorInvite,
-  previewTutorInviteByCode,
-  type TutorInvitePreview,
-} from '@/entities/tutor';
-import {
   EMPTY_TERMS_CONSENT,
   TermsConsent,
   termsConsentIsValid,
@@ -44,37 +36,21 @@ type OnboardingStep =
   | 'value-onboarding'
   | 'role'
   | 'sign-up'
-  | 'sign-in'
-  | 'tutor-preview'
-  | 'tutor-consent'
-  | 'tutor-linked';
+  | 'sign-in';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/** 선생님이 부모에게 보낸 초대(코드 또는 토큰) - previewTutorInvite(By Code)/acceptTutorInvite(By Code)
- * 중 어느 걸 부를지는 isCode로 가른다. */
-export type TutorInviteRef = { value: string; isCode: boolean };
-
-/** tutor-consent 단계에서 실제로 acceptTutorInvite(By Code)에 실어 보낼 본문 - 이미 로그인된
- * 계정이면 token 하나, 새 계정이면 가입 필드 전부(백엔드가 계정 생성과 초대 수락을 한 번에 한다). */
-type PendingTutorAccept =
-  | { kind: 'token'; token: string }
-  | { kind: 'new-account'; loginId: string; email: string; password: string; displayName: string; marketing: boolean };
 
 type OnboardingFlowProps = {
   /** HomePage의 원장님/학부모님 역할 카드나 "로그인" 링크에서 곧장 들어올 때 해당 단계로 시작한다. */
   initialStep?: OnboardingStep;
   initialRole?: OnboardingRole;
-  /** 선생님의 부모 초대(코드/토큰)로 들어올 때 - PARENT role로 잠기고 tutor-preview부터 시작해서
-   *  미리보기 → (로그인 또는 가입) → 동의 → 연결 완료까지 이 흐름 안에서 전부 처리한다. */
-  initialTutorInvite?: TutorInviteRef;
   /** 반 초대 링크에서 가입하러 왔을 때 학부모 가입 폼에 미리 채울 반 코드. */
   initialClassCode?: string;
   /** 로그인 뒤 역할 홈 대신 돌아갈 앱 내부 경로(반 초대 링크 등). */
   signInNext?: string;
   /** "← 처음으로"로 닫을 때 - HomePage가 평소 화면으로 되돌아간다. */
   onExit: () => void;
-  /** 이 흐름 안에서 세션이 만들어졌을 때(가입·초대 수락 직후). HomePage가 이걸 보고 역할 홈
+  /** 이 흐름 안에서 세션이 만들어졌을 때(가입 직후). HomePage가 이걸 보고 역할 홈
    *  리다이렉트를 보류한다 - 아니면 캐러셀·아이 등록 단계 전에 홈으로 튕긴다. */
   onSessionCreated?: () => void;
 };
@@ -100,72 +76,39 @@ const VALUE_SLIDES = [
 const ROLE_CARDS: Array<{ role: OnboardingRole; eyebrow: string; title: string; description: string }> = [
   { role: 'PARENT', eyebrow: '가정에서', title: '학부모님', description: '아이와 함께 이야기 서재를 쓰고, 완주 리포트를 받아요.' },
   { role: 'DIRECTOR', eyebrow: '유치원·학원·기관에서', title: '기관 및 단체', description: '반을 만들고 여러 아이가 함께 듣는 수업을 준비해요.' },
-  { role: 'TUTOR', eyebrow: '수업에서', title: '선생님', description: '만나는 아이별로 수업을 준비하고 부모님께 리포트를 전달해요. 기관 소속·독립 활동 모두 가능해요.' },
+  { role: 'TUTOR', eyebrow: '수업에서', title: '선생님', description: '반을 만들어 수업을 준비하고 부모님께 리포트를 전달해요. 1:1 과외도 아이 한 명짜리 반으로 시작해요. 기관 소속·독립 활동 모두 가능해요.' },
 ];
-
-const TUTOR_CONSENT_SHARED_ITEMS = ['선생님이 진행한 질문·장면·리포트'];
-const TUTOR_CONSENT_HIDDEN_ITEMS = ['가정 구독·결제·다른 이야기', '음성 원본과 아이의 성향 평가'];
 
 /**
  * 환영→역할선택→가입/로그인 순차 온보딩(로컬 step 상태머신). 가치제안 캐러셀은 첫 가입 직후
  * 홈으로 가기 전에만 한 번 보인다.
  *
- * <p>선생님 초대(tutor-preview/tutor-consent)도 같은 상태머신 안에 있다. sign-up/sign-in 스텝을
- * 재사용해 계정 정보만 모아 두고, tutor-consent에서 동의를 받은 뒤 계정 생성+초대 수락을 한 번에 부른다.
+ * <p>선생님과의 연결은 언제나 반 초대 링크(/join?code=)로 이뤄진다 - 학생별 선생님 초대 단계는 두지 않는다.
  */
 export function OnboardingFlow({
   initialStep = 'welcome',
   initialRole,
-  initialTutorInvite,
   initialClassCode,
   signInNext,
   onExit,
   onSessionCreated,
 }: OnboardingFlowProps) {
   const navigate = useNavigate();
-  const { state: authState, setSession, logout } = useAuth();
+  const { setSession } = useAuth();
   const [step, setStep] = useState<OnboardingStep>(initialStep);
-  // 선생님 초대는 학부모만 받는 개념이라 role이 PARENT로 잠긴다.
-  const [role, setRole] = useState<OnboardingRole | null>(initialTutorInvite ? 'PARENT' : (initialRole ?? null));
+  const [role, setRole] = useState<OnboardingRole | null>(initialRole ?? null);
   // 방금 가입한 계정을 어디로 보낼지 - 캐러셀을 다 보거나 건너뛴 뒤에 이동한다.
   const [pendingHomePath, setPendingHomePath] = useState<string | null>(null);
   // 부모 온보딩(아이 프로필)을 마친 뒤 이어서 갈 곳 - 반 코드로 가입했으면 그 반에 아이를 고르는 화면.
   const [pendingNext, setPendingNext] = useState<string | null>(null);
   const go = setStep;
 
-  // ---- 선생님 초대(tutor-preview/tutor-consent) 전용 상태 ----
-  const [tutorPreviewLoading, setTutorPreviewLoading] = useState(Boolean(initialTutorInvite));
-  const [tutorPreview, setTutorPreview] = useState<TutorInvitePreview | null>(null);
-  const [tutorPreviewError, setTutorPreviewError] = useState<string | null>(null);
-  const [pendingTutorAccept, setPendingTutorAccept] = useState<PendingTutorAccept | null>(null);
-  // 초대 수락 후 신규 가입 취급(캐러셀 경유)할지 로그인 취급(곧장 홈)할지, "← 이전"이 어디로
-  // 돌아갈지 가른다('token' = 기존 계정, 'new-account' = 새 계정).
-  const tutorAuthMode: 'sign-up' | 'sign-in' | null =
-    pendingTutorAccept === null ? null : pendingTutorAccept.kind === 'token' ? 'sign-in' : 'sign-up';
-  // 링크에 token/code가 아예 없는 경우(잘린 공유 문구 등) - 조회할 것도 없이 오류로 보여 준다.
-  const invalidTutorInvite = Boolean(initialTutorInvite) && !initialTutorInvite?.value;
-  // 이미 로그인된 계정이 학부모가 아니면(선생님이 자기 초대 링크를 눌러 본 경우 등) 백엔드가 403을
-  // 내므로, "연결하기"를 보여 주는 대신 로그아웃하고 학부모 계정으로 오라고 안내한다.
-  const authenticatedRole = authState.status === 'authenticated' ? authState.user.role : null;
-  const [tutorAcceptError, setTutorAcceptError] = useState<string | null>(null);
-  const [tutorAccepting, setTutorAccepting] = useState(false);
-  // 미리보기 재조회 트리거 - 만료/오타 코드로 ErrorState가 떴을 때 "다시 시도"가 이걸 올린다.
-  const [tutorPreviewAttempt, setTutorPreviewAttempt] = useState(0);
-  // 이미 계정이 있는 학부모가 초대를 수락할 때 연결할 기존 아이(없으면 서버가 이름으로 찾거나 새로 만든다).
-  const [tutorChildId, setTutorChildId] = useState<string | null>(null);
-
-  // 선생님 초대로 만든 새 학부모 계정은 /onboarding/parent의 아이 프로필 폼에 초대가 이미 알고
-  // 있는 아이 이름/연령대를 미리 채워 준다 - 방금 미리보기에서 본 정보를 또 타이핑하게 하지 않도록.
   const goHome = useCallback(
     (path: string, state?: unknown) => navigate(path, { replace: true, state }),
     [navigate],
   );
-  const parentOnboardingState = {
-    ...(tutorPreview
-      ? { prefill: { name: tutorPreview.studentName, ageBand: ageBandFromLabel(tutorPreview.ageBand), birthYear: tutorPreview.birthYear ?? undefined } }
-      : {}),
-    ...(pendingNext ? { next: pendingNext } : {}),
-  };
+  // /onboarding/parent에 넘기는 상태 - 아이 프로필을 만든 뒤 이어서 갈 곳(반 코드로 가입했으면 반 연결 화면)만 싣는다.
+  const parentOnboardingState = pendingNext ? { next: pendingNext } : {};
 
   // 로그인은 매번 곧장 홈으로 - 계정을 통틀어 처음 만들어질 때만 거치는 흐름이 아니다.
   const onSignedIn: OnAuthed = useCallback(
@@ -194,99 +137,22 @@ export function OnboardingFlow({
     [setSession, go, onSessionCreated],
   );
 
-  useEffect(() => {
-    if (!initialTutorInvite || !initialTutorInvite.value) return;
-    let cancelled = false;
-    const previewPromise = initialTutorInvite.isCode
-      ? previewTutorInviteByCode(initialTutorInvite.value)
-      : previewTutorInvite(initialTutorInvite.value);
-    previewPromise
-      .then((response) => {
-        if (cancelled) return;
-        setTutorPreview(response);
-        setTutorPreviewLoading(false);
-      })
-      .catch((failure: unknown) => {
-        if (cancelled) return;
-        setTutorPreviewError(
-          messageForError(
-            failure,
-            initialTutorInvite.isCode ? '초대 코드를 확인하지 못했어요.' : '초대 링크를 확인하지 못했어요.',
-          ),
-        );
-        setTutorPreviewLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-    // initialTutorInvite는 HomePage가 URL에서 매번 새로 만들어 넘기므로 .value/.isCode로 좁힌다 -
-    // 객체 identity로 의존하면 부모 리렌더마다 이 effect가 불필요하게 다시 돈다.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialTutorInvite?.value, initialTutorInvite?.isCode, tutorPreviewAttempt]);
-
-  const onTutorAccept = useCallback(async () => {
-    if (!initialTutorInvite || !pendingTutorAccept) return;
-    setTutorAcceptError(null);
-    setTutorAccepting(true);
-    try {
-      const body =
-        pendingTutorAccept.kind === 'token'
-          ? { token: pendingTutorAccept.token, childId: tutorChildId ?? undefined }
-          : {
-              loginId: pendingTutorAccept.loginId,
-              email: pendingTutorAccept.email,
-              password: pendingTutorAccept.password,
-              displayName: pendingTutorAccept.displayName,
-            };
-      const response = initialTutorInvite.isCode
-        ? await acceptTutorInviteByCode(initialTutorInvite.value, body)
-        : await acceptTutorInvite(initialTutorInvite.value, body);
-      // 마케팅 동의 값을 알림 설정에 즉시 반영 - 일반 학부모 가입과 같은 처리(실패해도 연결
-      // 자체는 완료된 상태라 조용히 넘긴다).
-      if (pendingTutorAccept.kind === 'new-account') {
-        void updateNotificationSettings(response.token, { marketingEnabled: pendingTutorAccept.marketing }).catch(() => {});
-      }
-      // 연결 여부를 부모가 확인할 수 있게 "연결됐어요" 화면(tutor-linked)을 한 번 거친다.
-      // 세션은 여기서 바로 만들고, 다음 목적지만 pendingHomePath에 둔다.
-      onSessionCreated?.();
-      setSession(response.token, response.user);
-      setPendingHomePath(
-        tutorAuthMode === 'sign-in'
-          ? homePathFor(response.user)
-          : response.user.role === 'PARENT'
-            ? '/onboarding/parent'
-            : homePathFor(response.user),
-      );
-      go('tutor-linked');
-    } catch (failure) {
-      setTutorAcceptError(messageForError(failure, '연결을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.'));
-    } finally {
-      setTutorAccepting(false);
-    }
-  }, [initialTutorInvite, pendingTutorAccept, tutorChildId, tutorAuthMode, setSession, go, onSessionCreated]);
-
-  // 캐러셀엔 자체 "건너뛰기"가 있고, 연결 완료 뒤엔 되돌아갈 단계가 없어 상단 링크를 숨긴다.
-  const hideTopLink = step === 'value-onboarding' || step === 'tutor-linked';
+  // 캐러셀엔 자체 "건너뛰기"가 있어 상단 링크를 숨긴다.
+  const hideTopLink = step === 'value-onboarding';
 
   return (
     <View style={styles.screen}>
       {hideTopLink ? (
         <View style={styles.backLink} />
-      ) : step !== 'welcome' && step !== 'tutor-preview' ? (
+      ) : step !== 'welcome' ? (
         <Pressable
           accessibilityRole="link"
           hitSlop={8}
           style={styles.backLink}
           onPress={() => {
             if (step === 'role') go('welcome');
-            else if (step === 'sign-up') go(initialTutorInvite ? 'tutor-preview' : 'role');
-            else if (step === 'sign-in') go(initialTutorInvite ? 'tutor-preview' : 'welcome');
-            else if (step === 'tutor-consent') {
-              // 이미 로그인된 채로 들어와 preview에서 곧장 넘어온 경우엔 다시 채울 로그인
-              // 폼이 없다 - preview로 돌아간다.
-              if (authState.status === 'authenticated') go('tutor-preview');
-              else go(tutorAuthMode === 'sign-in' ? 'sign-in' : 'sign-up');
-            }
+            else if (step === 'sign-up') go('role');
+            else if (step === 'sign-in') go('welcome');
           }}
         >
           <Text style={styles.backLinkText}>← 이전</Text>
@@ -317,32 +183,15 @@ export function OnboardingFlow({
         {step === 'sign-up' && role && (
           <SignUpStep
             role={role}
-            tutorInvite={initialTutorInvite ?? null}
-            tutorPreview={tutorPreview}
             initialClassCode={initialClassCode}
-            // 동의 화면에서 "← 이전"으로 돌아오면 폼이 다시 마운트되므로, 모아 둔 값을 되돌려 준다.
-            initial={pendingTutorAccept?.kind === 'new-account' ? pendingTutorAccept : undefined}
             onAuthed={onSignedUp}
-            onCollectForTutorInvite={(fields) => {
-              setPendingTutorAccept({ kind: 'new-account', ...fields });
-              go('tutor-consent');
-            }}
           />
         )}
         {step === 'sign-in' && (
           <SignInStep
             onAuthed={onSignedIn}
-            onGoSignUp={() => go(initialTutorInvite ? 'tutor-preview' : 'role')}
+            onGoSignUp={() => go('role')}
             onGoResetPassword={(loginId) => navigate('/reset-password', { state: { loginId } })}
-            tutorInvite={initialTutorInvite ?? null}
-            onCollectTokenForTutorInvite={(token, user) => {
-              // 로그인은 성공했으니 세션을 바로 만든다 - 뒤이은 초대 수락이 실패해도(만료 등) 부모가
-              // 로그아웃 상태로 남아 비밀번호를 다시 치게 하지 않기 위해서.
-              onSessionCreated?.();
-              setSession(token, user);
-              setPendingTutorAccept({ kind: 'token', token });
-              go('tutor-consent');
-            }}
           />
         )}
         {step === 'value-onboarding' && (
@@ -351,60 +200,6 @@ export function OnboardingFlow({
               if (pendingHomePath) {
                 goHome(pendingHomePath, pendingHomePath === '/onboarding/parent' ? parentOnboardingState : undefined);
               }
-            }}
-          />
-        )}
-        {step === 'tutor-preview' && initialTutorInvite && (
-          <TutorPreviewStep
-            // 세션 복원이 끝나기 전엔 "로그인됐는지"를 모른다 - 그동안 계정 만들기/로그인 버튼을
-            // 보여줬다가 한 박자 뒤 "연결하기" 하나로 바뀌면 깜빡임처럼 보여서, 로딩으로 묶는다.
-            loading={!invalidTutorInvite && (tutorPreviewLoading || authState.status === 'loading')}
-            preview={tutorPreview}
-            error={invalidTutorInvite ? '초대 링크 또는 코드가 올바르지 않아요.' : tutorPreviewError}
-            // 로딩/에러 상태는 이벤트 핸들러에서 되돌리고, effect는 attempt 변화에 따라
-            // 다시 조회만 한다(effect 본문의 setState는 lint가 막는다).
-            onRetry={() => {
-              setTutorPreviewLoading(true);
-              setTutorPreviewError(null);
-              setTutorPreviewAttempt((n) => n + 1);
-            }}
-            onExit={onExit}
-            // 이미 로그인된 채로 이 초대를 열었다면(예: 마이페이지 > 수업 연결에서 링크를 붙여넣은
-            // 경우) 계정을 또 만들거나 다시 로그인할 필요가 없다 - 지금 세션의 토큰을 그대로
-            // 들고 동의 단계로 간다.
-            alreadyAuthenticated={authenticatedRole === 'PARENT'}
-            blockedRole={authenticatedRole && authenticatedRole !== 'PARENT' ? authenticatedRole : null}
-            onLogout={logout}
-            onContinue={() => go('sign-up')}
-            onSignIn={() => go('sign-in')}
-            onContinueAuthenticated={() => {
-              if (authState.status !== 'authenticated') return;
-              setPendingTutorAccept({ kind: 'token', token: authState.token });
-              go('tutor-consent');
-            }}
-          />
-        )}
-        {step === 'tutor-consent' && (
-          <TutorConsentStep
-            preview={tutorPreview}
-            existingAccountToken={pendingTutorAccept?.kind === 'token' ? pendingTutorAccept.token : null}
-            childId={tutorChildId}
-            onChildChange={setTutorChildId}
-            submitting={tutorAccepting}
-            error={tutorAcceptError}
-            onAccept={onTutorAccept}
-          />
-        )}
-        {step === 'tutor-linked' && (
-          <TutorLinkedStep
-            preview={tutorPreview}
-            newAccount={tutorAuthMode !== 'sign-in'}
-            onDone={() => {
-              if (!pendingHomePath) return;
-              // 새 계정은 가치 소개 캐러셀을 한 번 거친 뒤 아이 프로필 온보딩으로, 기존 계정은
-              // 곧장 홈으로 - onSignedUp/onSignedIn이 하던 구분 그대로.
-              if (tutorAuthMode === 'sign-in') goHome(pendingHomePath);
-              else go('value-onboarding');
             }}
           />
         )}
@@ -491,307 +286,30 @@ function RoleStep({ onSelect }: { onSelect: (role: OnboardingRole) => void }) {
   );
 }
 
-/**
- * 선생님 초대 링크/코드로 들어왔을 때 첫 화면 - 누가, 어떤 아이 앞으로 보낸 초대인지 계정을
- * 만들거나 로그인하기 전에 먼저 보여준다("내 아이가 맞나?" 확인).
- */
-function TutorPreviewStep({
-  loading,
-  preview,
-  error,
-  onRetry,
-  onExit,
-  alreadyAuthenticated,
-  blockedRole,
-  onLogout,
-  onContinue,
-  onSignIn,
-  onContinueAuthenticated,
-}: {
-  loading: boolean;
-  preview: TutorInvitePreview | null;
-  error: string | null;
-  onRetry: () => void;
-  onExit: () => void;
-  /** 이미 로그인된 세션으로 이 초대를 열었는지 - 마이페이지 > 수업 연결에서 링크를 붙여넣은
-   *  경우가 대표적이다. true면 계정 만들기/로그인 선택 대신 "연결하기" 버튼 하나만 보인다. */
-  alreadyAuthenticated: boolean;
-  /** 로그인은 돼 있지만 학부모가 아닌 역할 - 연결 대신 로그아웃 안내를 보여 준다. */
-  blockedRole: string | null;
-  onLogout: () => void;
-  onContinue: () => void;
-  onSignIn: () => void;
-  onContinueAuthenticated: () => void;
-}) {
-  if (loading) {
-    return (
-      <View style={styles.tutorPreviewLoading}>
-        <LoadingState label="초대를 확인하는 중이에요…" />
-      </View>
-    );
-  }
-  if (error || !preview) {
-    // 만료·오타 코드로 들어온 부모가 막다른 길에 서지 않게 재시도와 나가는 길을 둘 다 준다.
-    return (
-      <View style={styles.welcome}>
-        <ErrorState message={error ?? '초대 정보를 불러오지 못했어요.'} onRetry={onRetry} />
-        <Text style={styles.formNote}>
-          초대가 만료됐거나 코드가 다를 수 있어요. 선생님께 새 초대를 요청해 주세요.
-        </Text>
-        <ActionButton variant="secondaryFull" label="서재로 돌아가기" onPress={onExit} />
-      </View>
-    );
-  }
-  const where = inviteWhere(preview);
-  return (
-    <View style={styles.welcome}>
-      <Text style={styles.eyebrow}>{preview.tutorDisplayName} 선생님이 보낸 안전한 초대 링크</Text>
-      <Text style={styles.welcomeTitle}>
-        {where ? `${where}에서\n` : ''}
-        {preview.studentName}의 수업 기록을 보내 드려요
-      </Text>
-      <View style={styles.previewCard}>
-        {where ? <Text style={styles.previewNote}>{where}</Text> : null}
-        <Text style={styles.previewName}>{preview.studentName} · {formatStudentAge(preview)}</Text>
-        <Text style={styles.previewNote}>{preview.tutorDisplayName} 선생님이 전달한 정보예요.</Text>
-      </View>
-      <View style={styles.welcomeCard}>
-        {blockedRole ? (
-          <>
-            <Text style={styles.welcomeCardTitle}>학부모 계정으로만 연결할 수 있어요</Text>
-            <Text style={styles.welcomeCardBody}>
-              지금은 {blockedRole === 'TUTOR' ? '선생님' : blockedRole === 'DIRECTOR' ? '기관' : '다른 역할'} 계정으로
-              로그인돼 있어요. 로그아웃한 뒤 학부모 계정을 만들거나 로그인해서 연결해 주세요.
-            </Text>
-            <ActionButton variant="gold" label="로그아웃하고 학부모로 계속" onPress={onLogout} />
-            <ActionButton variant="secondaryFull" label="서재로 돌아가기" onPress={onExit} />
-          </>
-        ) : alreadyAuthenticated ? (
-          <>
-            <Text style={styles.welcomeCardTitle}>지금 로그인된 계정으로 연결할게요</Text>
-            <ActionButton variant="gold" label="연결하기" onPress={onContinueAuthenticated} />
-          </>
-        ) : (
-          <>
-            <Text style={styles.welcomeCardTitle}>내 아이 기록이 맞다면 계속할게요</Text>
-            <ActionButton variant="gold" label="처음이에요 · 계정 만들고 연결하기" onPress={onContinue} />
-            <ActionButton variant="secondaryFull" label="이미 계정이 있어요 · 로그인하고 연결하기" onPress={onSignIn} />
-          </>
-        )}
-      </View>
-    </View>
-  );
-}
-
-/** 초대 수락 전 공유 범위 확인 단계. */
-/** "무지개 유치원 햇님반" - 초대 학생의 기관·반. 둘 다 없으면(선생님 개별 학생) null. */
-function inviteWhere(preview: TutorInvitePreview): string | null {
-  return [preview.organizationName, preview.className].filter(Boolean).join(' ') || null;
-}
-
-function TutorConsentStep({
-  preview,
-  existingAccountToken,
-  childId,
-  onChildChange,
-  submitting,
-  error,
-  onAccept,
-}: {
-  preview: TutorInvitePreview | null;
-  /** 이미 있는 학부모 계정으로 수락할 때 - 그 계정의 아이 중 누구와 연결할지 고르게 한다. */
-  existingAccountToken: string | null;
-  childId: string | null;
-  onChildChange: (childId: string | null) => void;
-  submitting: boolean;
-  error: string | null;
-  onAccept: () => void;
-}) {
-  // 부모 온보딩(OnboardingParentPage)의 동의 화면과 같은 방식 - 버튼 하나로 "동의"를 갈음하지
-  // 않고 확인 체크를 한 번 받는다. 이 동의는 아이 기록을 제3자(선생님)와 잇는 결정이라서.
-  const [confirmed, setConfirmed] = useState(false);
-  return (
-    <View style={styles.welcome}>
-      <Text style={styles.eyebrow}>연결 전 마지막 확인</Text>
-      <Text style={styles.welcomeTitle}>
-        {preview ? `${preview.tutorDisplayName} 선생님과\n${preview.studentName}의 기록을 나눠요` : '부모님이 확인할 내용'}
-      </Text>
-      <View style={styles.consentCard}>
-        <Text style={styles.consentGroupLabel}>부모가 받음</Text>
-        {TUTOR_CONSENT_SHARED_ITEMS.map((item) => (
-          <Text key={item} style={styles.consentItemAllowed}>· {item}</Text>
-        ))}
-        <Text style={styles.consentGroupLabel}>공유 안 됨</Text>
-        {TUTOR_CONSENT_HIDDEN_ITEMS.map((item) => (
-          <Text key={item} style={styles.consentItemBlocked}>· {item}</Text>
-        ))}
-      </View>
-      {existingAccountToken ? (
-        <ExistingChildChoice
-          token={existingAccountToken}
-          studentName={preview?.studentName ?? null}
-          childId={childId}
-          onChange={onChildChange}
-        />
-      ) : null}
-      <Text style={styles.formNote}>연결해도 선생님은 가정 구독 정보나 다른 이야기 기록을 볼 수 없어요. 아이의 질문 음성은 음성 인식 개선을 위해 90일간, 아이가 말한 문장은 서비스 개선을 위해 1년간 비공개로 보관해요. 연결은 마이페이지에서 언제든 끊을 수 있어요.</Text>
-      <View style={styles.consentCheckRow}>
-        <Checkbox checked={confirmed} onChange={setConfirmed} label="위 내용을 확인했고, 연결에 동의해요" />
-      </View>
-      {error ? <StatusBanner variant="warning" label={error} /> : null}
-      <ActionButton
-        variant="gold"
-        label={submitting ? '연결하는 중…' : '동의하고 연결 완료'}
-        onPress={onAccept}
-        loading={submitting}
-        disabled={!confirmed || submitting}
-      />
-    </View>
-  );
-}
-
-const NEW_CHILD_CHOICE = 'new';
-
-/**
- * 기존 학부모 계정의 아이 중 초대 학생과 이을 아이를 고른다. 이름이 같은 아이를 먼저 골라 두고, 아이가 없으면
- * 아무것도 보이지 않는다(서버가 초대 이름으로 새 아이를 만든다). 같은 이름의 아이가 여럿이라 서버가 거절하던
- * 경우(CHILD_SELECTION_REQUIRED)도 여기서 미리 고르게 된다.
- */
-function ExistingChildChoice({
-  token,
-  studentName,
-  childId,
-  onChange,
-}: {
-  token: string;
-  studentName: string | null;
-  childId: string | null;
-  onChange: (childId: string | null) => void;
-}) {
-  const [children, setChildren] = useState<Child[]>([]);
-  useEffect(() => {
-    let cancelled = false;
-    listChildren(token)
-      .then((list) => {
-        if (cancelled) return;
-        setChildren(list);
-        const wanted = studentName?.replace(/\s+/g, '').toLowerCase();
-        const match = list.find((child) => child.name.replace(/\s+/g, '').toLowerCase() === wanted);
-        onChange(match?.id ?? (list.length === 1 ? list[0].id : null));
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-    // onChange는 부모의 setState라 고정이다 - 토큰·학생이 바뀔 때만 다시 불러온다.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, studentName]);
-  if (children.length === 0) return null;
-  return (
-    <View style={styles.consentCard}>
-      <Text style={styles.consentGroupLabel}>어느 아이와 연결할까요?</Text>
-      <RadioGroup
-        accessibilityLabel="선생님 초대와 연결할 아이"
-        value={childId ?? NEW_CHILD_CHOICE}
-        onChange={(value) => onChange(value === NEW_CHILD_CHOICE ? null : value)}
-        options={[
-          ...children.map((child) => ({
-            value: child.id,
-            label: child.name,
-            description: child.birthYear ? `${child.birthYear}년생` : undefined,
-          })),
-          { value: NEW_CHILD_CHOICE, label: studentName ? `새 아이로 등록 (${studentName})` : '새 아이로 등록' },
-        ]}
-      />
-    </View>
-  );
-}
-
-/**
- * 연결이 실제로 끝난 뒤의 확인 화면 - 누구와, 어떤 아이가 이어졌는지와 앞으로 무엇이 오는지를
- * 한 번 보여준다. 새 계정이면 다음에 아이 프로필(이미 채워진 상태)로, 기존 계정이면 홈으로.
- */
-function TutorLinkedStep({
-  preview,
-  newAccount,
-  onDone,
-}: {
-  preview: TutorInvitePreview | null;
-  newAccount: boolean;
-  onDone: () => void;
-}) {
-  return (
-    <View style={styles.welcome}>
-      <View style={styles.linkedBadge}>
-        <Text style={styles.linkedBadgeMark}>✓</Text>
-      </View>
-      <Text style={styles.welcomeTitle}>
-        {preview ? `${preview.tutorDisplayName} 선생님과\n연결됐어요` : '선생님과 연결됐어요'}
-      </Text>
-      <Text style={styles.welcomeLead}>
-        {preview
-          ? `${preview.studentName}의 수업 리포트가 도착하면 알려드릴게요.\n선생님이 진행한 질문과 달라진 장면을 그대로 볼 수 있어요.`
-          : '선생님이 진행한 수업 리포트가 도착하면 알려드릴게요.'}
-      </Text>
-      <View style={styles.welcomeCard}>
-        <Text style={styles.welcomeCardTitle}>
-          {newAccount ? '이제 아이 프로필만 확인하면 끝이에요' : '홈에서 리포트를 기다려 주세요'}
-        </Text>
-        <Text style={styles.welcomeCardBody}>
-          {newAccount
-            ? '초대에 있던 아이 이름과 연령대를 미리 채워 뒀어요. 확인만 하면 돼요.'
-            : '연결된 선생님과 아이는 마이페이지 > 수업 연결에서 볼 수 있어요.'}
-        </Text>
-        <ActionButton variant="gold" label={newAccount ? '다음' : '홈으로 가기'} onPress={onDone} />
-      </View>
-    </View>
-  );
-}
-
 function SignUpStep({
   role,
-  tutorInvite,
-  tutorPreview,
   initialClassCode,
-  initial,
   onAuthed,
-  onCollectForTutorInvite,
 }: {
   role: OnboardingRole;
-  /** 있으면 이 스텝은 계정 생성 API를 직접 부르지 않는다 - 필드만 모아 onCollectForTutorInvite로
-   *  올려보내고, 실제 계정 생성+초대 수락은 tutor-consent에서 한 번에 처리한다. */
-  tutorInvite: TutorInviteRef | null;
-  tutorPreview: TutorInvitePreview | null;
   initialClassCode?: string;
-  /** 동의 단계에서 되돌아올 때 되살릴 값(선생님 초대 경로에서만). */
-  initial?: { loginId: string; email: string; password: string; displayName: string; marketing: boolean };
   onAuthed: OnAuthed;
-  onCollectForTutorInvite: (fields: {
-    loginId: string;
-    email: string;
-    password: string;
-    displayName: string;
-    marketing: boolean;
-  }) => void;
 }) {
   const [hasClass, setHasClass] = useState(true);
   const [classCode, setClassCode] = useState(initialClassCode ?? '');
   const [orgName, setOrgName] = useState('');
-  const [loginId, setLoginId] = useState(initial?.loginId ?? '');
-  const [email, setEmail] = useState(initial?.email ?? '');
-  const [password, setPassword] = useState(initial?.password ?? '');
-  const [confirmPassword, setConfirmPassword] = useState(initial?.password ?? '');
-  const [displayName, setDisplayName] = useState(initial?.displayName ?? '');
+  const [loginId, setLoginId] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  // 되돌아온 경우 필수 약관은 이미 동의한 상태였다(그래야 "다음"이 눌렸다).
-  const [terms, setTerms] = useState<TermsConsentState>(
-    initial ? { service: true, privacy: true, marketing: initial.marketing } : EMPTY_TERMS_CONSENT,
-  );
+  const [terms, setTerms] = useState<TermsConsentState>(EMPTY_TERMS_CONSENT);
 
   // 반 코드로 가입하면 계정만 먼저 만들고, 아이 프로필을 만든 뒤 반 연결 화면(/join?code=)에서 그 아이를 고른다 -
-  // 아이 이름·출생연도를 여기서 따로 적지 않는다. 선생님 초대(tutorInvite)는 동의 단계에서 가입과 수락을 한 번에 한다.
-  const useJoinFlow = role === 'PARENT' && !tutorInvite && hasClass;
+  // 아이 이름·출생연도를 여기서 따로 적지 않는다.
+  const useJoinFlow = role === 'PARENT' && hasClass;
   const showOrgNameField = role === 'DIRECTOR';
   const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword;
   // 입력을 시작한 뒤에만 인라인으로 지적한다 - 빈 필드에 처음부터 빨간 글씨를 띄우진 않는다.
@@ -815,18 +333,6 @@ function SignUpStep({
       return;
     }
     setError(null);
-    // 선생님 초대는 계정을 여기서 만들지 않는다 - tutor-consent에서 동의를 받은 뒤 초대 수락
-    // API가 계정 생성까지 한 번에 처리한다.
-    if (tutorInvite) {
-      onCollectForTutorInvite({
-        loginId: loginId.trim(),
-        email: email.trim(),
-        password,
-        displayName: displayName.trim(),
-        marketing: terms.marketing,
-      });
-      return;
-    }
     setSubmitting(true);
     try {
       const input = { loginId: loginId.trim(), email: email.trim(), password, displayName: displayName.trim() };
@@ -864,8 +370,6 @@ function SignUpStep({
     }
   }, [
     role,
-    tutorInvite,
-    onCollectForTutorInvite,
     useJoinFlow,
     classCode,
     orgName,
@@ -886,13 +390,7 @@ function SignUpStep({
         {role === 'PARENT' ? '학부모' : role === 'DIRECTOR' ? '기관 및 단체' : '선생님'} 홈을 준비할게요.
       </Text>
 
-      {tutorInvite && (
-        <Text style={styles.formNote}>
-          {tutorPreview?.tutorDisplayName ? `${tutorPreview.tutorDisplayName} 선생님의 초대로 연결돼요.` : '선생님의 초대로 연결돼요.'}
-        </Text>
-      )}
-
-      {role === 'PARENT' && !tutorInvite && (
+      {role === 'PARENT' && (
         <>
           <Checkbox checked={hasClass} onChange={setHasClass} label="우리 아이 반이 있어요" />
           {hasClass ? (
@@ -973,12 +471,12 @@ function SignUpStep({
       {error ? <StatusBanner variant="warning" label={error} /> : null}
       <ActionButton
         variant="gold"
-        label={submitting ? '가입 중…' : tutorInvite ? '다음' : '가입하기'}
+        label={submitting ? '가입 중…' : '가입하기'}
         onPress={onSubmit}
         disabled={submitting || !canSubmit}
       />
-      {/* 소셜 가입은 초대·반 코드를 싣지 못해 아이가 반에 연결되지 않는다 - 그 경로에서는 숨긴다. */}
-      {!tutorInvite && !initialClassCode && <SocialLoginButtons role={role} onAuthed={onAuthed} />}
+      {/* 소셜 가입은 반 코드를 싣지 못해 아이가 반에 연결되지 않는다 - 그 경로에서는 숨긴다. */}
+      {!initialClassCode && <SocialLoginButtons role={role} onAuthed={onAuthed} />}
     </View>
   );
 }
@@ -987,16 +485,11 @@ function SignInStep({
   onAuthed,
   onGoSignUp,
   onGoResetPassword,
-  tutorInvite,
-  onCollectTokenForTutorInvite,
 }: {
   onAuthed: OnAuthed;
   onGoSignUp: () => void;
   /** 입력 중이던 아이디를 넘겨 재설정 화면에서 다시 타이핑하지 않게 한다. */
   onGoResetPassword: (loginId: string) => void;
-  /** 있으면 로그인 성공 뒤 곧장 onAuthed(홈 이동)로 가지 않고, 얻은 세션을 tutor-consent로 넘긴다. */
-  tutorInvite: TutorInviteRef | null;
-  onCollectTokenForTutorInvite: (token: string, user: UserSummary) => void;
 }) {
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
@@ -1010,17 +503,13 @@ function SignInStep({
     setSubmitting(true);
     try {
       const response = await login({ loginId: loginId.trim(), password });
-      if (tutorInvite) {
-        onCollectTokenForTutorInvite(response.token, response.user);
-        return;
-      }
       onAuthed(response.token, response.user);
     } catch (failure) {
       setError(messageForError(failure, '로그인하지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }
-  }, [loginId, password, tutorInvite, onCollectTokenForTutorInvite, onAuthed]);
+  }, [loginId, password, onAuthed]);
 
   return (
     <View style={styles.form}>
@@ -1029,7 +518,7 @@ function SignInStep({
       </View>
       <Text style={styles.carouselTitle}>로그인</Text>
       <Text style={[styles.welcomeLead, styles.formLead]}>
-        {tutorInvite ? '로그인하면 바로 이 초대를 연결할게요.' : '가입할 때 만든 아이디와 비밀번호로 들어와요.'}
+        가입할 때 만든 아이디와 비밀번호로 들어와요.
       </Text>
       <TextField
         label="아이디"
@@ -1060,7 +549,7 @@ function SignInStep({
         onPress={onSubmit}
         disabled={!canSubmit}
       />
-      {!tutorInvite && <SocialLoginButtons onAuthed={onAuthed} />}
+      <SocialLoginButtons onAuthed={onAuthed} />
       <Pressable accessibilityRole="link" hitSlop={4} onPress={onGoSignUp} style={styles.signInSignUpRow}>
         <Text style={styles.formNote}>아직 계정이 없으신가요? </Text>
         <Text style={styles.signInInlineLinkText}>회원가입</Text>
@@ -1094,24 +583,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: 20,
     paddingBottom: 32,
-  },
-  consentCheckRow: { width: '100%', marginTop: 4 },
-  linkedBadge: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: storybookTheme.semantic.positive.background,
-    borderWidth: 2,
-    borderColor: storybookTheme.semantic.positive.border,
-    marginTop: 12,
-  },
-  linkedBadgeMark: {
-    color: storybookTheme.semantic.positive.text,
-    fontSize: storybookTheme.type.xl,
-    fontWeight: storybookTheme.type.weight.black,
-    lineHeight: storybookTheme.type.xl,
   },
   pressed: { opacity: 0.9 },
   eyebrow: {
@@ -1159,30 +630,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   welcomeCardBody: { color: storybookTheme.color.onCardBody, fontSize: storybookTheme.type.sm, lineHeight: 20, textAlign: 'center', marginBottom: 4 },
-
-  // 선생님 초대 미리보기/동의
-  tutorPreviewLoading: { paddingTop: 40 },
-  previewCard: {
-    width: '100%',
-    gap: 4,
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderRadius: storybookTheme.radius.card,
-    padding: 16,
-  },
-  previewName: { fontSize: storybookTheme.type.md, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onCardTitle },
-  previewNote: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
-  consentCard: {
-    width: '100%',
-    gap: 4,
-    backgroundColor: storybookTheme.color.contentPanel,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
-    borderRadius: storybookTheme.radius.card,
-    padding: 16,
-  },
-  consentGroupLabel: { fontSize: storybookTheme.type.xxs, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.primary, marginTop: 8, letterSpacing: 0.4 },
-  consentItemAllowed: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onContent },
-  consentItemBlocked: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onContentMuted },
 
   // Carousel / role / form shared title
   carouselTop: { alignItems: 'flex-end', marginBottom: 4 },

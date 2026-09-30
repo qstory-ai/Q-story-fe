@@ -2,29 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, Modal, StatusBanner, TextField, TextareaField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, StatusBanner, TextField, TextareaField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { TutorClassPicker, type TutorClassSelection } from '@/features/tutor-class-picker';
 import { formatStudentAge } from '@/entities/child';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
-import {
-  createTutorInvite,
-  deleteTutorStudent,
-  getTutorStudent,
-  listStudentLessonPlans,
-  removeTutorLessonPlan,
-  updateTutorStudent,
-  type TutorInvite,
-  type TutorLessonPlan,
-  type TutorStudent,
-} from '@/entities/tutor';
-import { listStories, type StoryCatalogEntry } from '@/entities/story';
-import { InviteCodeCard, formatInviteExpiry, tutorInviteLink, tutorInviteShareMessage } from '@/features/invite-issue';
-
-type PlansLoad =
-  | { status: 'loading' }
-  | { status: 'ready'; plans: TutorLessonPlan[]; storyById: Record<string, StoryCatalogEntry> }
-  | { status: 'error'; message: string };
+import { deleteTutorStudent, getTutorStudent, updateTutorStudent, type TutorStudent } from '@/entities/tutor';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -32,8 +14,11 @@ type LoadState =
   | { requestKey: string; status: 'error'; message: string };
 
 /**
- * IA "[3] 수업 상세 > 학생 상세" 화면. 기본 정보(이름/연령대/수업 형태) + 메모 편집 +
- * 보호자 연결 상태 뱃지(연결됨 녹색 / 대기 빨간색) + 부모 초대 코드 발급 링크.
+ * IA "[3] 수업 상세 > 학생 상세" 화면. 기본 정보(이름/연령대/반) + 메모 편집 +
+ * 보호자 연결 상태 뱃지(연결됨 녹색 / 대기 빨간색).
+ *
+ * <p>선생님은 반 단위로만 일한다 - 학생은 부모님이 반 초대 링크로 아이를 연결할 때 명단에 올라오므로,
+ * 여기서 반을 바꾸거나 학생별 부모 초대를 보내지 않는다. 메모만 편집한다.
  *
  * <p>학생 이름/연령대는 정체성이라 편집을 지원하지 않는다 - BE UpdateTutorStudentRequest도
  * 그렇게 정해져 있다. 필요해지면 별도 필드로 열어 준다.
@@ -47,15 +32,9 @@ export function TutorStudentDetailPage() {
   const [load, setLoad] = useState<LoadState>({ requestKey, status: 'loading' });
   const [classType, setClassType] = useState('');
   const [prepNote, setPrepNote] = useState('');
-  const [classSel, setClassSel] = useState<TutorClassSelection>({ lessonType: 'INDIVIDUAL', classGroupId: null });
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedFlag, setSavedFlag] = useState(false);
-  const [issuedInvite, setIssuedInvite] = useState<TutorInvite | null>(null);
-  const [issuing, setIssuing] = useState(false);
-  const [issueError, setIssueError] = useState<string | null>(null);
-  const [plansLoad, setPlansLoad] = useState<PlansLoad>({ status: 'loading' });
-  const [removingPlanId, setRemovingPlanId] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteInFlight, setDeleteInFlight] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -78,7 +57,6 @@ export function TutorStudentDetailPage() {
         setLoad({ requestKey, status: 'ready', student });
         setClassType(student.classType ?? '');
         setPrepNote(student.prepNote ?? '');
-        setClassSel({ lessonType: student.lessonType, classGroupId: student.classGroupId });
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
@@ -96,15 +74,10 @@ export function TutorStudentDetailPage() {
     setSaveError(null);
     setSavedFlag(false);
     try {
-      if (classSel.lessonType === 'CLASS' && !classSel.classGroupId) {
-        setSaveError('반 수업이면 반을 골라 주세요.');
-        return;
-      }
+      // 메모만 보낸다 - 반 소속은 부모님이 반 초대 링크로 연결할 때 정해지고 여기서 바꾸지 않는다.
       const updated = await updateTutorStudent(token, studentId, {
         classType: classType.trim(),
         prepNote: prepNote.trim(),
-        lessonType: classSel.lessonType,
-        classGroupId: classSel.classGroupId,
       });
       setLoad({ requestKey, status: 'ready', student: updated });
       setSavedFlag(true);
@@ -114,47 +87,7 @@ export function TutorStudentDetailPage() {
     } finally {
       setSaving(false);
     }
-  }, [token, studentId, requestKey, classType, prepNote, classSel]);
-
-  // 이 학생을 위해 담아둔 이야기(TutorLessonPlan) 목록 + 카탈로그를 병렬로 fetch. plan은 storyId만
-  // 갖고 있어 카탈로그와 join해야 제목/커버를 표시할 수 있다.
-  useEffect(() => {
-    if (!token || !studentId) return;
-    let cancelled = false;
-    Promise.all([listStudentLessonPlans(token, studentId), listStories()])
-      .then(([plans, stories]) => {
-        if (cancelled) return;
-        const storyById = Object.fromEntries(stories.map((s) => [s.storyId, s]));
-        setPlansLoad({ status: 'ready', plans, storyById });
-      })
-      .catch((failure: unknown) => {
-        if (cancelled) return;
-        setPlansLoad({
-          status: 'error',
-          message: messageForError(failure, '담아둔 이야기를 불러오지 못했어요.'),
-        });
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [token, studentId]);
-
-  const handleRemovePlan = useCallback(async (planId: string) => {
-    if (!token) return;
-    // 낙관적 제거 - 목록에서 즉시 빼고, 실패해도 그대로 둔다(다음 방문 시 재조회로 원복 가능).
-    setRemovingPlanId(planId);
-    setPlansLoad((prev) => {
-      if (prev.status !== 'ready') return prev;
-      return { ...prev, plans: prev.plans.filter((p) => p.id !== planId) };
-    });
-    try {
-      await removeTutorLessonPlan(token, planId);
-    } catch {
-      // 무시 - 사용자는 성공한 것처럼 보이고, 실제 실패는 다음 조회에서 드러난다.
-    } finally {
-      setRemovingPlanId(null);
-    }
-  }, [token]);
+  }, [token, studentId, requestKey, classType, prepNote]);
 
   const handleDeleteStudent = useCallback(async () => {
     if (!token || !studentId) return;
@@ -170,21 +103,6 @@ export function TutorStudentDetailPage() {
       // 실패해도 모달은 열어두어 사용자가 재시도하거나 취소할 수 있게 한다.
     }
   }, [token, studentId, navigate]);
-
-  const handleIssueInvite = useCallback(async () => {
-    if (!token || !studentId) return;
-    setIssuing(true);
-    setIssueError(null);
-    try {
-      const invite = await createTutorInvite(token, studentId, { method: 'LINK' });
-      setIssuedInvite(invite);
-    } catch (failure: unknown) {
-      const message = messageForError(failure, '초대를 만들지 못했어요.');
-      setIssueError(message);
-    } finally {
-      setIssuing(false);
-    }
-  }, [token, studentId]);
 
   if (state.status !== 'authenticated') return null;
 
@@ -210,12 +128,8 @@ export function TutorStudentDetailPage() {
                 <ParentConnectionBadge status={effective.student.status} />
               </View>
               <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>수업 형태</Text>
-                <Text style={styles.metaValue}>
-                  {effective.student.lessonType === 'CLASS'
-                    ? `반 수업${effective.student.classGroupName ? ` · ${effective.student.classGroupName}` : ''}`
-                    : '개인 레슨'}
-                </Text>
+                <Text style={styles.metaLabel}>반</Text>
+                <Text style={styles.metaValue}>{effective.student.classGroupName ?? '반 없음'}</Text>
               </View>
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>등록일</Text>
@@ -224,8 +138,7 @@ export function TutorStudentDetailPage() {
             </View>
 
             <View style={styles.card}>
-              <Text style={styles.sectionTitle}>수업 형태 · 메모</Text>
-              <TutorClassPicker token={state.token} value={classSel} onChange={setClassSel} />
+              <Text style={styles.sectionTitle}>메모</Text>
               <TextField
                 label="수업 방식 메모"
                 value={classType}
@@ -250,84 +163,9 @@ export function TutorStudentDetailPage() {
                   보호자와 연결이 완료됐어요. 이 학생과 진행한 수업 리포트는 보호자 앱에 자동으로 전달돼요.
                 </Text>
               ) : (
-                <>
-                  <Text style={styles.body}>
-                    아직 보호자 연결이 되지 않았어요. 초대 코드나 링크를 발급해 보호자에게 전달해 주세요.
-                  </Text>
-                  <ActionButton
-                    label={issuing ? '초대 만드는 중…' : '부모 초대 코드 발급'}
-                    onPress={handleIssueInvite}
-                    disabled={issuing}
-                  />
-                  {issueError ? <StatusBanner variant="warning" label={issueError} /> : null}
-                  {issuedInvite ? (
-                    <InviteCodeCard
-                      shortCode={issuedInvite.shortCode}
-                      link={tutorInviteLink(issuedInvite.token)}
-                      expiresLabel={formatInviteExpiry(issuedInvite.expiresAt)}
-                      shareMessage={tutorInviteShareMessage(effective.student.name)}
-                      onDismiss={() => setIssuedInvite(null)}
-                    />
-                  ) : null}
-                </>
-              )}
-            </View>
-
-            <View style={styles.card}>
-              <View style={styles.planHeaderRow}>
-                <Text style={styles.sectionTitle}>이 학생을 위한 이야기</Text>
-                <ActionButton
-                  variant="secondary"
-                  label="이야기 담기"
-                  onPress={() => navigate('/tutor/library')}
-                />
-              </View>
-              {plansLoad.status === 'loading' ? (
-                <LoadingState compact label="담아둔 이야기를 불러오는 중이에요…" />
-              ) : plansLoad.status === 'error' ? (
-                <StatusBanner variant="warning" label={plansLoad.message} />
-              ) : plansLoad.plans.length === 0 ? (
                 <Text style={styles.body}>
-                  아직 담아둔 이야기가 없어요. 서재에서 마음에 드는 작품을 골라 “수업에 사용하기”로 담아 보세요.
+                  아직 보호자 연결이 되지 않았어요. 반 초대 링크로 부모님이 아이를 연결하면 자동으로 연결돼요.
                 </Text>
-              ) : (
-                <View style={styles.planList}>
-                  {plansLoad.plans.map((plan) => {
-                    const story = plansLoad.storyById[plan.storyId];
-                    return (
-                      <View key={plan.id} style={styles.planRow}>
-                        <View style={styles.planBody}>
-                          <Text style={styles.planTitle} numberOfLines={1}>
-                            {story?.title ?? '삭제됐거나 회수된 이야기'}
-                          </Text>
-                          {story?.category ? (
-                            <Text style={styles.planMeta}>{story.category}</Text>
-                          ) : null}
-                        </View>
-                        <View style={styles.planActions}>
-                          {story ? (
-                            <ActionButton
-                              variant="secondary"
-                              label="이야기 시작"
-                              onPress={() =>
-                                navigate(`/stories/${plan.storyId}/play?tutorStudentId=${effective.student.id}`)
-                              }
-                            />
-                          ) : null}
-                          <Pressable
-                            accessibilityRole="button"
-                            accessibilityLabel={`${story?.title ?? '이야기'} 목록에서 빼기`}
-                            onPress={() => handleRemovePlan(plan.id)}
-                            disabled={removingPlanId === plan.id}
-                            style={({ pressed }) => [styles.planRemove, pressed && styles.planRemovePressed]}
-                          >
-                            <Icon name="close" size={14} color={storybookTheme.color.onCardMuted} />
-                          </Pressable>
-                        </View>
-                      </View>
-                    );
-                  })}
-                </View>
               )}
             </View>
 
@@ -468,44 +306,6 @@ const styles = StyleSheet.create({
   },
   badgeTextConfirmed: { color: storybookTheme.semantic.positive.text },
   badgeTextPending: { color: storybookTheme.semantic.danger.text },
-  // 이 학생을 위한 이야기 섹션
-  planHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: storybookTheme.spacing.sm,
-    flexWrap: 'wrap',
-  },
-  planList: { gap: storybookTheme.spacing.sm },
-  planRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: storybookTheme.spacing.sm,
-    paddingVertical: storybookTheme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
-  },
-  planBody: { flex: 1, gap: 2 },
-  planTitle: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
-  },
-  planMeta: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onCardMuted,
-  },
-  planActions: { flexDirection: 'row', alignItems: 'center', gap: storybookTheme.spacing.xs },
-  planRemove: {
-    width: 28,
-    height: 28,
-    borderRadius: storybookTheme.radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: storybookTheme.color.pillBackground,
-  },
-  planRemovePressed: { opacity: 0.7 },
   deleteLink: {
     alignSelf: 'center',
     paddingVertical: storybookTheme.spacing.sm,

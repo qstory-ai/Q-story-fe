@@ -22,8 +22,8 @@ type LoadState =
  *   1. 상단 바 - 브랜드 라벨 + 알림 벨.
  *   2. 인사말 카드.
  *   3. 캘린더 - 월 그리드, 일자별 dot, 선택된 일자의 수업 목록.
- *   4. CTA - 새 학생 등록 / 학생 관리 / 수업 관리 (홈에서 원터치 진입점을 늘림).
- *   5. 부모 연결 대기 학생 - 아직 부모 초대가 수락되지 않은 학생 목록.
+ *   4. CTA - 새 반 만들기 / 학생 관리 / 수업 관리 (홈에서 원터치 진입점을 늘림).
+ *   5. 부모 연결 대기 학생 - 아직 부모님이 반 초대 링크로 연결하지 않은 학생 목록.
  */
 export function TutorHomePage() {
   const navigate = useNavigate();
@@ -126,7 +126,7 @@ export function TutorHomePage() {
 
         {/* 튜터의 주 액션을 캘린더 바로 아래에 모아 원터치로 진입하게 한다. */}
         <View style={styles.ctaRow}>
-          <ActionButton label="새 학생 등록" onPress={() => navigate('/tutor/students/new')} />
+          <ActionButton label="새 반 만들기" onPress={() => navigate('/tutor/class-groups/new')} />
           <View style={styles.linkRow}>
             <Pressable
               accessibilityRole="link"

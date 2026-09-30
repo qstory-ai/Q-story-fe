@@ -26,7 +26,7 @@ export function Checkbox({ checked, onChange, label, description, disabled }: Ch
         style={[
           styles.box,
           checked && styles.boxChecked,
-          disabled && (checked ? styles.boxCheckedDisabled : styles.boxDisabled),
+          disabled && styles.boxDisabled,
         ]}
       >
         {checked ? (
@@ -69,10 +69,6 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.primary,
   },
   boxDisabled: {
-    borderColor: storybookTheme.color.disabledBorder,
-    backgroundColor: storybookTheme.color.disabledBackground,
-  },
-  boxCheckedDisabled: {
     borderColor: storybookTheme.color.disabledBorder,
     backgroundColor: storybookTheme.color.disabledBackground,
   },

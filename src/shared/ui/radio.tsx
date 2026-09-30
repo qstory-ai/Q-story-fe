@@ -27,7 +27,7 @@ export function Radio({ selected, onSelect, label, description, disabled }: Radi
         style={[
           styles.circle,
           selected && styles.circleSelected,
-          disabled && (selected ? styles.circleSelectedDisabled : styles.circleDisabled),
+          disabled && styles.circleDisabled,
         ]}
       >
         {selected ? <View style={[styles.dot, disabled && styles.dotDisabled]} /> : null}
@@ -61,10 +61,6 @@ const styles = StyleSheet.create({
   },
   circleSelected: { borderColor: storybookTheme.color.primary },
   circleDisabled: {
-    borderColor: storybookTheme.color.disabledBorder,
-    backgroundColor: storybookTheme.color.disabledBackground,
-  },
-  circleSelectedDisabled: {
     borderColor: storybookTheme.color.disabledBorder,
     backgroundColor: storybookTheme.color.disabledBackground,
   },

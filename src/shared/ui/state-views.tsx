@@ -5,11 +5,8 @@ import { ActionButton } from './action-button';
 import { storybookTheme } from './theme';
 
 /**
- * 리스트/데이터 화면의 세 가지 상태(loading / empty / error)를 통일된 표현으로 렌더한다.
- * 이전에는 페이지마다 spinner 색·유무·placement가 제각각이었고("불러오는 중이에요" 텍스트만
- * 있는 곳도, spinner만 있는 곳도, 둘 다 있는 곳도, 어떤 곳은 centered box이고 어떤 곳은
- * inline이고), 에러 상태에는 "다시 시도" 버튼이 아예 없어 사용자가 매번 새로고침해야 했다.
- * 세 컴포넌트로 통일해 페이지가 각자 재발명하지 않도록 한다.
+ * 리스트/데이터 화면의 세 가지 상태(loading / empty / error)를 통일된 표현으로 렌더한다 -
+ * 페이지가 각자 재발명하지 않도록 한다.
  */
 
 const styles = StyleSheet.create({
@@ -86,7 +83,7 @@ type LoadingStateProps = {
 
 export function LoadingState({ label = '불러오는 중이에요…', compact = false }: LoadingStateProps) {
   return (
-      <View style={[styles.loadingBox, compact && styles.loadingBoxCompact]} accessibilityLiveRegion="polite">
+    <View style={[styles.loadingBox, compact && styles.loadingBoxCompact]} accessibilityLiveRegion="polite">
       <ActivityIndicator color={storybookTheme.color.primary} />
       {label ? <Text style={styles.loadingLabel}>{label}</Text> : null}
     </View>

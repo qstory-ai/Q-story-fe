@@ -19,11 +19,8 @@ export type StoryCardProps = {
   /** 잠긴 카드 아래 보여줄 안내 문구 - 비로그인/로그인·미결제 상황마다 다른 문구를 쓸 수 있게 호출자가 넘긴다. */
   lockedCaption?: string;
   /**
-   * 'default' - 기존 그리드용 전체 폭 카드(설명·카테고리 pill 포함).
+   * 'default' - 그리드용 전체 폭 카드(설명·카테고리 pill 포함).
    * 'mini' - 홈 화면의 가로 스크롤 스트립용 축소 카드(고정 폭·설명 생략).
-   * 홈에서 여러 섹션을 좁은 화면에 가로로 나열해야 하는 IA 요구가 새로 생겨서
-   * 아예 별도 컴포넌트를 만드는 대신 여기 variant로 얹었다 - 표지·제목·잠금 처리 등
-   * 기능이 완전히 같아 코드 중복이 크다.
    */
   size?: 'default' | 'mini';
   /**
@@ -33,15 +30,15 @@ export type StoryCardProps = {
   progress?: number;
   /**
    * 표지 우상단에 얹히는 작은 × 오버레이 버튼. "저장한 작품" 탭이 카드 자체 클릭(상세 열기)과
-   * 별개로 즉시 저장 해제할 수 있게 한다. 이 Pressable은 카드 onPress가 함께 발동되지 않도록
-   * stopPropagation으로 이벤트를 잡는다.
+   * 별개로 즉시 저장 해제할 수 있게 한다. 카드 Pressable의 자식이 아니라 형제라 카드 onPress가
+   * 함께 발동되지 않는다.
    */
   onRemove?: () => void;
   /** onRemove 버튼의 accessibilityLabel - "저장 해제" 같은 상황별 라벨을 호출자가 정한다. */
   removeLabel?: string;
 };
 
-/** 홈 서재의 그리드 아이템 - 어두운 배경 위에 떠 있는 크림색 카드로, 리더 자체의 reader-card 모티프와 맞춘다. */
+/** 서재/홈의 이야기 카드 - 표지 + 제목, 잠금/진행률/저장 해제 오버레이를 얹을 수 있다. */
 export function StoryCard({
   title,
   coverImageUrl,
@@ -57,9 +54,6 @@ export function StoryCard({
 }: StoryCardProps) {
   const isMini = size === 'mini';
   const accessibilityLabel = locked ? `잠김, ${title}` : category ? `${category}, ${title}` : title;
-  const handleRemove = () => {
-    onRemove?.();
-  };
   return (
     <View style={[styles.card, isMini && styles.cardMini]}>
       <Pressable
@@ -121,7 +115,7 @@ export function StoryCard({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={removeLabel ?? '삭제'}
-          onPress={handleRemove}
+          onPress={onRemove}
           style={({ pressed }) => [styles.removeBadge, pressed && styles.removeBadgePressed]}
         >
           <View style={styles.removeBadgeFrame}>
@@ -156,8 +150,7 @@ const styles = StyleSheet.create({
     width: 160,
   },
   cardPressed: {
-    // 지침(make-interfaces-feel-better): scale on press는 0.96 표준. 0.98은 눌린 것 같지도
-    // 않게 미미하다는 것이 리뷰 결론.
+    // press 피드백 표준 scale(0.96).
     opacity: 0.92,
     transform: [{ scale: 0.96 }],
   },
@@ -217,12 +210,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(18, 10, 30, 0.7)',
   },
   removeBadgePressed: { opacity: 0.7 },
-  /**
-   * Figma "Simple Design System"의 Card 컴포넌트는 Body2(텍스트 그룹+버튼 그룹) 사이는
-   * space-400(16), Text 그룹 안(제목-설명)은 space-200(8)로 구분한다 - 지금까지는 pill/제목/
-   * 설명/잠금 안내를 전부 gap:6 하나로 뭉뚱그려서, 이 카드가 실제로 "eyebrow + 제목·설명 묶음"
-   * 두 단계라는 게 spacing만으로는 드러나지 않았다.
-   */
+  /** 블록 사이는 16, 텍스트 그룹 안(제목-설명)은 8로 "eyebrow + 제목·설명 묶음" 두 단계를 드러낸다. */
   body: {
     padding: 16,
     gap: storybookTheme.spacing.md,

@@ -70,19 +70,24 @@ function QuoteSection({ quote }: { quote: OrganizationQuote }) {
     return <StatusBanner variant="warning" label="결제 금액이 아직 설정되지 않아 지금은 결제할 수 없어요." />;
   }
   if (quote.studentCount === 0) {
-    return <StatusBanner variant="warning" label="반에 학생이 들어온 뒤에 결제할 수 있어요." />;
+    return <StatusBanner variant="warning" label="학부모가 연결된 학생이 생긴 뒤에 결제할 수 있어요." />;
   }
   const overSeats = quote.currentSeats !== null && quote.studentCount > quote.currentSeats;
   return (
     <>
       <Text style={styles.body}>
-        학생 {quote.studentCount}명 × {quote.unitAmount.toLocaleString('ko-KR')}원 = {quote.amount.toLocaleString('ko-KR')}원 ({quote.accessDays}일)
+        학부모가 연결된 학생 {quote.studentCount}명 × {quote.unitAmount.toLocaleString('ko-KR')}원 = {quote.amount.toLocaleString('ko-KR')}원 ({quote.accessDays}일)
       </Text>
+      {quote.rosterStudentCount > quote.studentCount ? (
+        <Text style={styles.body}>
+          명단의 {quote.rosterStudentCount - quote.studentCount}명은 아직 학부모가 연결되지 않아 결제 대상에서 빠졌어요.
+        </Text>
+      ) : null}
       {quote.currentSeats !== null ? <Text style={styles.body}>지금 결제된 인원 · {quote.currentSeats}명</Text> : null}
       {overSeats ? (
         <StatusBanner
           variant="warning"
-          label={`학생이 결제된 인원보다 ${quote.studentCount - (quote.currentSeats ?? 0)}명 많아요. 나중에 등록된 학생의 학부모는 이용권이 적용되지 않아요. 다시 결제하면 현재 학생 수로 맞춰져요.`}
+          label={`학부모가 연결된 학생이 결제된 인원보다 ${quote.studentCount - (quote.currentSeats ?? 0)}명 많아요. 나중에 연결된 학생의 학부모는 이용권이 적용되지 않아요. 다시 결제하면 현재 인원으로 맞춰져요.`}
         />
       ) : null}
       <Text style={styles.body}>선생님은 인원과 관계없이 기관 이용권으로 전체 이야기를 이용할 수 있어요.</Text>

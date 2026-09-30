@@ -3,7 +3,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Modal, ModalBody, TextField, storybookTheme } from '@/shared/ui';
 import type { ChildGender } from '@/entities/launch-notification';
-import { useAuth } from '@/entities/auth';
 
 import { useLaunchNotificationGate } from '../model/use-launch-notification-gate';
 
@@ -20,9 +19,7 @@ const GENDER_OPTIONS: { value: ChildGender; label: string }[] = [
  * 정보 없이 지나치는 경로를 막는다.
  */
 export function LaunchNotificationGate({ children }: { children: ReactNode }) {
-  const { state: auth } = useAuth();
-  const accountId = auth.status === 'authenticated' ? auth.user.id : null;
-  const form = useLaunchNotificationGate(accountId);
+  const form = useLaunchNotificationGate();
   // 미완성 상태로 한 번 누른 뒤부터 어떤 항목이 비었는지 각 필드 아래 보여준다.
   const [showValidation, setShowValidation] = useState(false);
 

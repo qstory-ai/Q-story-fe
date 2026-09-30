@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { homePathFor, useAuth } from '@/entities/auth';
+import { hasCompletedOnboarding, homePathFor, markOnboardingDone, useAuth } from '@/entities/auth';
 import {
   BirthYearChips,
   ageBandFromBirthYear,
@@ -15,7 +15,6 @@ import {
   type ChildAvatarKey,
 } from '@/entities/child';
 
-const ONBOARDING_DONE_KEY_PREFIX = 'qstory.onboarding.parent.done.';
 
 type Step = 'child' | 'consent' | 'done';
 
@@ -31,7 +30,7 @@ function readPrefill(state: unknown): ParentOnboardingPrefill {
 /**
  * IA "부모 온보딩" - 회원가입 성공 직후 자동 진입. IA의 네 스텝(보호자 정보/아이 등록/필수
  * 동의/완료) 중 보호자 정보는 signup 폼에서 이미 받았으므로 여기선 아이 등록 → 필수 동의 →
- * 완료 세 스텝만 다룬다. 완료 마크는 localStorage에 남기고, 사용자가 "나중에" 링크를 누르면
+ * 완료 세 스텝만 다룬다. 마친 계정이 다시 들어오면 홈으로 보내고, 사용자가 "나중에" 링크를 누르면
  * 아이 없이도 홈으로 진입할 수 있다(이후 마이페이지에서 언제든 아이 등록 가능).
  */
 export function OnboardingParentPage() {
@@ -54,6 +53,8 @@ export function OnboardingParentPage() {
     if (state.status === 'loading') return;
     if (state.status !== 'authenticated' || state.user.role !== 'PARENT') {
       navigate('/', { replace: true });
+    } else if (hasCompletedOnboarding('parent', state.user.id)) {
+      navigate(homePathFor(state.user), { replace: true });
     }
   }, [state, navigate]);
 
@@ -88,13 +89,7 @@ export function OnboardingParentPage() {
 
   function markDoneAndGoHome() {
     if (state.status !== 'authenticated') return;
-    try {
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(`${ONBOARDING_DONE_KEY_PREFIX}${state.user.id}`, '1');
-      }
-    } catch {
-      // 프라이빗 모드 등에서 실패해도 홈 진입은 그대로 - 다음 로그인에 온보딩이 다시 뜨는 정도.
-    }
+    markOnboardingDone('parent', state.user.id);
     navigate(homePathFor(state.user), { replace: true });
   }
 

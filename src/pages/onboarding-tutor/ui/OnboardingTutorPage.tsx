@@ -4,9 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
-import { homePathFor, useAuth } from '@/entities/auth';
-
-const ONBOARDING_DONE_KEY_PREFIX = 'qstory.onboarding.tutor.done.';
+import { hasCompletedOnboarding, homePathFor, markOnboardingDone, useAuth } from '@/entities/auth';
 
 type Choice = 'independent' | 'organization';
 
@@ -27,18 +25,14 @@ export function OnboardingTutorPage() {
     if (state.status === 'loading') return;
     if (state.status !== 'authenticated' || state.user.role !== 'TUTOR') {
       navigate('/', { replace: true });
+    } else if (hasCompletedOnboarding('tutor', state.user.id)) {
+      navigate(homePathFor(state.user), { replace: true });
     }
   }, [state, navigate]);
 
   function markDone() {
     if (state.status !== 'authenticated') return;
-    try {
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(`${ONBOARDING_DONE_KEY_PREFIX}${state.user.id}`, '1');
-      }
-    } catch {
-      // 실패해도 홈 진입은 그대로.
-    }
+    markOnboardingDone('tutor', state.user.id);
   }
 
   function finish() {

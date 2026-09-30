@@ -39,10 +39,11 @@ export function MyPageNotificationsPage() {
     }
   }, [state, navigate]);
 
+  const authToken = state.status === 'authenticated' ? state.token : null;
   useEffect(() => {
-    if (state.status !== 'authenticated') return;
+    if (!authToken) return;
     let cancelled = false;
-    getNotificationSettings(state.token)
+    getNotificationSettings(authToken)
       .then((settings) => {
         if (!cancelled) setLoad({ status: 'ready', settings });
       })
@@ -54,7 +55,7 @@ export function MyPageNotificationsPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, reloadKey]);
+  }, [authToken, reloadKey]);
 
   async function toggle(key: keyof NotificationSettings, next: boolean) {
     if (state.status !== 'authenticated' || load.status !== 'ready') return;

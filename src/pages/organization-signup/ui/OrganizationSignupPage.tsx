@@ -22,12 +22,8 @@ const SUBSCRIPTION_LABEL: Record<EntitlementResponse['subscriptionStatus'], stri
 };
 
 /**
- * 인증 상태에 따라 구동되는 두 단계(organization -> classes)임 - 두 개의 라우트가 아닌 이유는,
- * 원장은 항상 이 고정된 순서로 진행하며 한 단계를 지나면 이전 단계로 돌아갈 필요가 없기 때문.
- * 가입 자체는 이제 통합된 /signup 화면에 있으며, 여기서 인증되지 않은 방문자는 그곳으로
- * 리다이렉트된다.
- *
- * 두 단계 모두 DIRECTOR의 실제 홈("/organization")이라 다른 역할 홈과 같은 AppNavShell을 쓴다.
+ * DIRECTOR 홈("/organization"). 기관이 없으면 기관 등록, 있으면 대시보드를 보여 준다 - 한 방향으로만
+ * 진행하는 두 단계라 라우트를 나누지 않았다. 비로그인 방문자는 /signup?role=organization으로 보낸다.
  */
 export function OrganizationSignupPage() {
   const { state } = useAuth();
@@ -101,12 +97,7 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
   );
 }
 
-/**
- * DIRECTOR가 조직을 만든 이후의 홈("/organization")은 IA "기관 관리자"가 요구하는 네 축(반/학생,
- * 선생님, 이용 현황, 결제/라이선스)의 진입점 카드를 모아 놓은 대시보드다. 이전엔 이 화면 안에
- * '반 관리'가 인라인으로 있었지만, 소속 선생님·이용 현황 등이 더해지면서 각 축을 별도 페이지로
- * 옮기고 여기선 링크만 제공한다.
- */
+/** 기관 등록 이후의 대시보드 - IA "기관 관리자"의 각 화면으로 가는 진입점 카드만 모은다. */
 function ClassManagementStep({
   token,
   organizationId,
@@ -152,13 +143,8 @@ function ClassManagementStep({
           <Text style={styles.body}>
             반과 학생, 소속 선생님, 이용 현황을 이곳에서 한눈에 관리해요.
           </Text>
-          {/*
-            entitlement.grantsAccess=false는 requiresEntitlement=true인 작품만 막는다
-            (EntitlementService.assertAccessible) - 지금 카탈로그의 유일한 작품(HG)은
-            requiresEntitlement=false라서 구독 여부와 무관하게 무료 데모로 계속 열려 있다.
-            "이야기를 아예 시작할 수 없다"는 예전 문구는 사실이 아니었다 - 구독은 데모 이후의
-            전체 작품에만 걸리는 것이라고 정확히 말해야 한다.
-          */}
+          {/* grantsAccess=false여도 requiresEntitlement=false인 무료 데모는 계속 열린다
+              (EntitlementService.assertAccessible) - 그래서 "구독 후 전체 이야기"라고만 안내한다. */}
           {entitlement ? (
             <StatusBanner
               variant={entitlement.grantsAccess ? 'info' : 'warning'}
@@ -178,8 +164,7 @@ function ClassManagementStep({
         </Card>
 
         <View style={styles.dashboardGrid}>
-          {/* 반/학생 관리는 가장 자주 쓰는 액션이라 primary emphasis (금색 액센트 + eyebrow)로
-              시각적 우선순위를 준다. 나머지 셋은 동일한 outlined variant. */}
+          {/* 가장 자주 쓰는 반/학생 관리만 primary로 강조한다. */}
           <DashboardCard
             title="반/학생 관리"
             body="반을 만들고 담임 선생님을 배정하고 학생 명단을 확인해요."
@@ -295,10 +280,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: storybookTheme.color.surfaceCardBorder,
   },
-  // 대시보드에서 가장 자주 쓰이는 액션에 gold border + tint로 시각 우선순위를 준다.
-  // 다른 셋은 모두 동일한 톤이라 이 하나만 눈에 먼저 들어오도록.
-  // 가장 자주 쓰는 카드 하나만 네이비 테두리로 먼저 읽히게 - 골드 테두리+라벨은 콘솔 세계에서
-  // 경고 배너처럼 보였다.
+  // 가장 자주 쓰는 카드 하나만 primary 테두리로 먼저 읽히게 한다(골드는 경고 배너처럼 보여서 쓰지 않는다).
   dashboardCardPrimary: {
     borderColor: storybookTheme.color.primary,
     borderWidth: 2,

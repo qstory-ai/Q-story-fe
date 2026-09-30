@@ -145,15 +145,6 @@ export function deleteTutorStudent(
   return request(`/v1/tutor-students/${studentId}`, { method: 'DELETE' }, token, options);
 }
 
-export function createTutorSchedule(
-  token: string,
-  studentId: string,
-  input: { weekday: string; startTime: string; endTime: string; startDate: string; location: string; reminderEnabled?: boolean },
-  options?: RequestOptions,
-): Promise<TutorSchedule> {
-  return request(`/v1/tutor-students/${studentId}/schedule`, { method: 'POST', body: JSON.stringify(input) }, token, options);
-}
-
 export function listTutorSchedules(token: string, options?: RequestOptions): Promise<TutorSchedule[]> {
   return request('/v1/tutor-schedules', { method: 'GET' }, token, options);
 }
@@ -197,21 +188,23 @@ export function previewTutorInviteByCode(shortCode: string, options?: RequestOpt
   return request(`/v1/tutor-invites/by-code/${encodeURIComponent(shortCode)}`, { method: 'GET' }, null, options);
 }
 
+export type AcceptTutorInviteInput = {
+  token?: string | null;
+  loginId?: string;
+  email?: string;
+  password?: string;
+  displayName?: string;
+  /** 이미 로그인된 학부모가 기존 아이 프로필을 이 학생에 붙이고 싶을 때. 없으면 서버가 같은 이름의 아이를 찾거나 새로 만든다. */
+  childId?: string;
+};
+
 /**
  * token이 있으면(이미 로그인된 학부모) 그 계정에 바로 연결한다. 없으면 loginId/email/password/
  * displayName로 새 학부모 계정을 만들며 연결한다 - joinClass()와 같은 "초대 수락이 곧 회원가입"인 경우.
  */
 export function acceptTutorInvite(
   rawToken: string,
-  input: {
-    token?: string | null;
-    loginId?: string;
-    email?: string;
-    password?: string;
-    displayName?: string;
-    /** 이미 로그인된 학부모가 기존 아이 프로필을 이 학생에 붙이고 싶을 때. 없으면 서버가 같은 이름의 아이를 찾거나 새로 만든다. */
-    childId?: string;
-  },
+  input: AcceptTutorInviteInput,
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   const { token, ...body } = input;
@@ -221,15 +214,7 @@ export function acceptTutorInvite(
 /** short_code 기반 수락 - 후속 흐름은 acceptTutorInvite와 동일. 조회 경로만 다르다. */
 export function acceptTutorInviteByCode(
   shortCode: string,
-  input: {
-    token?: string | null;
-    loginId?: string;
-    email?: string;
-    password?: string;
-    displayName?: string;
-    /** 이미 로그인된 학부모가 기존 아이 프로필을 이 학생에 붙이고 싶을 때. 없으면 서버가 같은 이름의 아이를 찾거나 새로 만든다. */
-    childId?: string;
-  },
+  input: AcceptTutorInviteInput,
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   const { token, ...body } = input;
@@ -258,7 +243,6 @@ export function listParentTutorReports(token: string, options?: RequestOptions):
  * BE의 tutor_lesson_plan 테이블 한 행이 여기서 TutorLessonPlan 하나로 매핑된다 - 서재의
  * "수업에 사용하기" 버튼이 create를 호출하고, 선생님 수업 상세에서 list/remove를 쓴다.
  */
-
 export type TutorLessonPlan = {
   id: string;
   tutorStudentId: string;
@@ -266,10 +250,6 @@ export type TutorLessonPlan = {
   storyId: string;
   addedAt: string;
 };
-
-export function listTutorLessonPlans(token: string, options?: RequestOptions): Promise<TutorLessonPlan[]> {
-  return request('/v1/tutor-lesson-plans', { method: 'GET' }, token, options);
-}
 
 export function listStudentLessonPlans(
   token: string,

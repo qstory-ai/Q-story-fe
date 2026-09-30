@@ -10,9 +10,8 @@ export type CompanionChatReply = {
 };
 
 /**
- * 백엔드의 실패 응답 형태는 auth-api.ts의 것({ok:false, failure:{code, safeDetail}})과 동일하지만,
- * 공유 헬퍼 대신 이 도메인만의 작은 클라이언트로 따로 둔다 - 이 코드베이스는 공유 request<T>()
- * 추상화보다 도메인별로 파일 하나씩 두는 방식을 선호한다 (story-api.ts와 같은 이유).
+ * shared/api의 requestJson()을 쓰지 않는다 - 이 엔드포인트는 실패를 HTTP 200 + {ok:false} 봉투로도
+ * 돌려주고 retryable을 함께 실어 보내서, 아래 readBody()가 직접 판별한다.
  */
 export class CompanionChatError extends Error {
   constructor(
@@ -69,12 +68,6 @@ async function blobToBase64(blob: Blob): Promise<string> {
 }
 
 /**
- * 앵커 기반 질문 흐름의 http-speech-pipeline.ts가 쓰는 base64 업로드 방식을 그대로 따른다 -
- * speechApiUrl은 항상 same-origin 프록시 경로(/api/qstory)라 raw binary 업로드는 필요 없다.
- * 컴패니언 챗에는 anchor/questionRound가 없으므로 백엔드도 /v1/companion-chat/transcriptions/base64로
- * 분리된 엔드포인트를 쓴다(음성 답변 라우팅과 무관하게 텍스트만 돌려준다).
- */
-/**
  * 백엔드 대화 원장(conversation_record) 귀속용 선택 식별자 - 질문 파이프라인의
  * ConversationAttributionInput과 같은 뜻. 없으면 익명으로 기록된다.
  */
@@ -84,6 +77,11 @@ export type CompanionChatAttribution = {
   lessonId?: string;
 };
 
+/**
+ * 질문 흐름의 http-speech-pipeline.ts와 같은 base64 업로드 방식이다 - speechApiUrl은 항상
+ * same-origin 프록시 경로라 raw binary 업로드가 필요 없다. 컴패니언 챗에는 anchor/questionRound가
+ * 없어 전용 엔드포인트를 쓰고, 텍스트만 돌려받는다.
+ */
 export async function transcribeCompanionChatAudio(
   input: { storyId: string; sceneId: string; audioBlob: Blob; mimeType: string; sessionId?: string } & CompanionChatAttribution,
   signal?: AbortSignal,
@@ -127,7 +125,7 @@ export async function sendCompanionChatMessage(
      * 아이가 대화 중인 캐릭터(companion-character.ts가 고른 헨젤/그레텔의 speakerId). 백엔드는 이
      * 값으로 story_persona(personas.yaml 임포트본)의 페르소나와 TTS 보이스를 고르므로, 화면의
      * 아바타와 답변의 말투·목소리가 같은 인물이 된다. 안 보내면 백엔드가 장면의 앵커 화자나
-     * 내레이터로 정한다(구버전 동작).
+     * 내레이터로 정한다.
      */
     speakerId?: string;
     /** VOICE = 방금 STT로 받아 적은 문장을 그대로 보냄, TEXT = 글로 입력. */

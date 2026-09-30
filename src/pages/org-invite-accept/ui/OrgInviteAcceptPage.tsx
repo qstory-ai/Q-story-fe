@@ -16,10 +16,9 @@ import {
 type Stage = 'loading' | 'preview' | 'error' | 'success';
 
 /**
- * IA "기관 관리자 → 선생님 초대 → 선생님 수락" 흐름의 수락 페이지. ParentLinkAcceptPage와 달리
- * 여기는 "새 계정을 만들며 수락" 흐름을 지원하지 않는다 - 기관 소속은 이미 TUTOR로 활동 중인
- * 선생님이 자기 계정에 붙이는 일이라(BE OrganizationTutorService.consumeInvite 주석 참조),
- * 비로그인 접근은 /signup?role=tutor로 안내한다.
+ * IA "기관 관리자 → 선생님 초대 → 선생님 수락" 흐름의 수락 페이지. "새 계정을 만들며 수락"은
+ * 지원하지 않는다 - 이미 TUTOR로 활동 중인 선생님이 자기 계정에 붙이는 일이라(BE
+ * OrganizationTutorService.consumeInvite 참조), 비로그인 접근은 /signup?role=tutor로 안내한다.
  *
  * <p>라우트는 /org-invite/:token 과 /org-invite/code/:code 두 형태 모두 이 컴포넌트로 붙는다.
  */
@@ -37,20 +36,26 @@ export function OrgInviteAcceptPage() {
 
   useEffect(() => {
     if (!identifier) return;
+    let cancelled = false;
     const previewPromise = isCodeFlow
       ? previewOrganizationTutorInviteByCode(identifier)
       : previewOrganizationTutorInvite(identifier);
     previewPromise
       .then((response) => {
+        if (cancelled) return;
         setPreview(response);
         setStage('preview');
       })
       .catch((failure: unknown) => {
+        if (cancelled) return;
         setErrorMessage(
           messageForError(failure, isCodeFlow ? '초대 코드를 확인하지 못했어요.' : '초대 링크를 확인하지 못했어요.'),
         );
         setStage('error');
       });
+    return () => {
+      cancelled = true;
+    };
   }, [identifier, isCodeFlow]);
 
   // 파라미터 자체가 없으면 파생 상태로 오류 렌더 - setState를 effect에서 즉시 부르면 cascading

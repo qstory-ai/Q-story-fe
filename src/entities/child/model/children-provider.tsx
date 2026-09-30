@@ -168,12 +168,11 @@ export function ChildrenProvider({ children: node }: { children: ReactNode }) {
       const created = await apiCreateChild(token, input);
       // childName 백필 부작용 방지: 첫 아이가 만들어졌으니 이 계정은 백필 대상이 아님으로 표시.
       if (parentUserId) markBackfilled(parentUserId);
-      // 첫 아이라면 곧바로 선택시킨다 - useEffect의 자동 보정에 맡기지 않고 명시적으로 밀어넣어
-      // "추가 → 곧바로 홈 리렌더" 흐름이 시각적으로 지연 없이 이어지도록.
+      // 새로 만든 아이를 곧바로 선택한다.
       setChildren((prev) => [...prev, created]);
       if (state.status === 'authenticated' && !state.user.childName) {
-        // 기존 childName이 비어 있던 계정에는 첫 아이 이름을 childName에도 반영 - 리포트 카피 등에서
-        // 여전히 user.childName을 쓰는 자리가 남아 있어서다(다음 세션에 완전 제거 예정).
+        // childName이 비어 있던 계정에는 첫 아이 이름을 childName에도 반영 - 리포트 카피 등에서
+        // 아직 user.childName을 쓴다.
         updateUser({ ...state.user, childName: created.name });
       }
       selectChild(created.id);
@@ -198,7 +197,7 @@ export function ChildrenProvider({ children: node }: { children: ReactNode }) {
       await apiDeleteChild(token, childId);
       setChildren((prev) => prev.filter((child) => child.id !== childId));
       if (selectedId === childId) {
-        // 다음 렌더에서 useEffect가 다음 아이를 자동 선택하지만, 삭제 순간에도 selectedId가 존재하지 않게 비운다.
+        // 선택을 비우면 value 계산에서 첫 아이가 자동 선택된다.
         setSelectedId(null);
         writeStoredSelectedId(null);
       }

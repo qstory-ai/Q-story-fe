@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, TextareaField, storybookTheme } from '@/shared/ui';
 import { BirthYearChips } from '@/entities/child';
@@ -20,7 +20,12 @@ export function TutorStudentBulkPage() {
   const { state } = useAuth();
   const [raw, setRaw] = useState('');
   const [birthYear, setBirthYear] = useState<number>(() => new Date().getFullYear() - 7);
-  const [classSel, setClassSel] = useState<TutorClassSelection>({ lessonType: 'CLASS', classGroupId: null });
+  const [searchParams] = useSearchParams();
+  // 반 화면의 "여러 명 한 번에 등록"에서 오면 그 반이 미리 골라져 있다.
+  const [classSel, setClassSel] = useState<TutorClassSelection>(() => ({
+    lessonType: 'CLASS',
+    classGroupId: searchParams.get('classId'),
+  }));
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [results, setResults] = useState<BulkTutorStudentResult[] | null>(null);

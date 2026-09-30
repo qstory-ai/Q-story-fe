@@ -58,12 +58,13 @@ export function OnboardingParentPage() {
     }
   }, [state, navigate]);
 
-  // 선생님 초대로 만든 계정은 초대를 수락한 순간 서버가 아이 프로필(초대의 이름·연령대)을 이미
-  // 만들어 두었다. 그 아이가 목록에 있으면 같은 아이를 또 만들지 않도록 프로필 단계를 건너뛰고
-  // 동의 단계로 바로 간다. 프로필 수정(아바타 등)은 홈의 아이 관리에서 할 수 있다.
+  // 선생님 초대나 반 코드로 만든 계정은 가입하는 순간 서버가 아이 프로필을 이미 만들어 두었다. 그 아이가
+  // 목록에 있으면(반 코드 가입은 prefill 없이 아이가 이미 있는 경우) 같은 아이를 또 만들지 않도록 프로필
+  // 단계를 건너뛰고 동의 단계로 바로 간다. 프로필 수정(아바타 등)은 홈의 아이 관리에서 할 수 있다.
   const invitedChildExists = useMemo(() => {
+    if (load.status !== 'ready') return false;
     const wanted = prefill.name?.replace(/\s+/g, '').toLowerCase();
-    if (!wanted || load.status !== 'ready') return false;
+    if (!wanted) return children.length > 0;
     return children.some((child) => child.name.replace(/\s+/g, '').toLowerCase() === wanted);
   }, [children, load.status, prefill.name]);
   // 상태를 effect에서 바꾸지 않고 파생값으로 건너뛴다 - 아이가 이미 있으면 'child' 단계는 'consent'로 읽힌다.

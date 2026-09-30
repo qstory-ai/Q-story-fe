@@ -25,6 +25,7 @@ const OnboardingTutorPage = lazy(() =>
 );
 const OneStoryPage = lazy(() => import('@/pages/one-story').then((m) => ({ default: m.OneStoryPage })));
 const LoginPage = lazy(() => import('@/pages/login').then((m) => ({ default: m.LoginPage })));
+const TutorClassGroupPage = lazy(() => import('@/pages/tutor-class-group').then((m) => ({ default: m.TutorClassGroupPage })));
 const JoinClassPage = lazy(() => import('@/pages/join-class').then((m) => ({ default: m.JoinClassPage })));
 const SignupPage = lazy(() => import('@/pages/signup').then((m) => ({ default: m.SignupPage })));
 const OrganizationSignupPage = lazy(() =>
@@ -241,6 +242,7 @@ export function App() {
             <Route path="/tutor" element={<TutorHomePage />} />
             <Route path="/tutor/library" element={<TutorLibraryPage />} />
             <Route path="/tutor/classes" element={<TutorClassesPage />} />
+            <Route path="/tutor/class-groups/:classId" element={<TutorClassGroupPage />} />
             <Route path="/tutor/reports" element={<TutorReportsPage />} />
             <Route path="/tutor/join-organization" element={<TutorJoinOrganizationPage />} />
             <Route path="/organization/tutors" element={<OrganizationTutorsPage />} />

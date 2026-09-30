@@ -191,8 +191,8 @@ export function TutorLessonDetailPage() {
                         accessibilityRole="button"
                         accessibilityLabel={`${story?.title ?? storyId} 시작하기`}
                         onPress={() => {
-                          // lessonId를 붙여 서버가 참여 학생 전원에게 완주 기록을 남기게 한다.
-                          // tutorStudentId는 응답 대표 기록용.
+                          // lessonId를 붙여 서버가 참여 학생 전원을 한 기록으로 묶게 한다(반 수업이면 반 수업 리포트).
+                          // 개별 수업은 tutorStudentId의 학생 기록이 된다.
                           const firstStudent = effective.lesson.students[0];
                           const params = new URLSearchParams({ lessonId: effective.lesson.id });
                           if (firstStudent) params.set('tutorStudentId', firstStudent.id);
@@ -211,21 +211,30 @@ export function TutorLessonDetailPage() {
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>완주 기록 {effective.completions.length}건</Text>
               {effective.completions.length === 0 ? (
-                <Text style={styles.helper}>아직 이 수업에서 끝까지 들은 이야기가 없어요. 위 "시작"으로 진행하면 참여 학생마다 기록이 남아요.</Text>
+                <Text style={styles.helper}>아직 이 수업에서 끝까지 들은 이야기가 없어요. 위 "시작"으로 진행하면 기록이 남고, 연결된 부모님께 리포트가 전달돼요.</Text>
               ) : (
                 effective.completions.map((completion) => {
                   const student = effective.lesson.students.find((candidate) => candidate.id === completion.tutorStudentId);
                   const story = effective.storyById[completion.storyId];
+                  const who =
+                    completion.sessionKind === 'CLASS'
+                      ? `반 수업 · ${completion.participantCount}명 참여`
+                      : (student?.name ?? '학생 미지정');
                   return (
-                    <View key={completion.id} style={styles.studentRow}>
+                    <Pressable
+                      key={completion.id}
+                      accessibilityRole="link"
+                      onPress={() => navigate(`/reports/${completion.id}`)}
+                      style={({ pressed }) => [styles.studentRow, pressed && styles.pressed]}
+                    >
                       <View style={styles.studentInfo}>
-                        <Text style={styles.studentName}>{student?.name ?? '학생 미지정'}</Text>
+                        <Text style={styles.studentName}>{who}</Text>
                         <Text style={styles.studentMeta}>
                           {story?.title ?? completion.storyId} · {formatDateTime(completion.completedAt)}
                         </Text>
                       </View>
                       <Pill label="완주" tone="onCard" />
-                    </View>
+                    </Pressable>
                   );
                 })
               )}

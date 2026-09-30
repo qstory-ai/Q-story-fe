@@ -21,7 +21,7 @@ import {
   type StoryCompletionDetail,
   type StoryCompletionSummary,
 } from '@/entities/story-completion';
-import { listParentTutorReports, type TutorReportSummary } from '@/entities/tutor';
+import { listParentTutorReports, tutorReportSource, type TutorReportSummary } from '@/entities/tutor';
 
 /** 종합 리포트에 넘길 최근 회차 수 - listRecentStoryCompletions()가 outcomes를 함께 실어 오는 유일한 경로. */
 const COMPREHENSIVE_LIMIT = 20;
@@ -257,7 +257,7 @@ function TutorReportView({
   return (
     <>
       <Text style={styles.classReportNote}>
-        선생님과 진행한 수업 기록이에요. 집에서 직접 읽은 기록은 작품별 리포트에서 확인할 수 있어요.
+        유치원·선생님과 진행한 수업 기록이에요. 반 수업은 반 전체가 함께 읽은 기록이고, 집에서 직접 읽은 기록은 종합·작품별 리포트에서 따로 확인할 수 있어요.
       </Text>
       {reports.map((report) => (
         <Pressable
@@ -267,7 +267,7 @@ function TutorReportView({
           style={({ pressed }) => [styles.reportCard, pressed && styles.reportCardPressed]}
         >
           <Text style={styles.reportCardTitle}>{titleByStoryId[report.storyId] ?? report.storyId}</Text>
-          <Text style={styles.classReportTeacher}>{report.tutorDisplayName} 선생님 · {report.studentName}</Text>
+          <Text style={styles.classReportTeacher}>{tutorReportSource(report)}</Text>
           <Text style={styles.reportCardMeta}>
             {formatCompletedAt(report.completedAt)} · {formatReportDuration(report.durationSeconds)}
           </Text>

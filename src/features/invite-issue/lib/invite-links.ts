@@ -13,6 +13,16 @@ export function organizationTutorInviteLink(token: string) {
   return `${webOrigin()}/org-invite/${token}`;
 }
 
+/** 반 초대 링크 하나 - 알림장·단체방에 그대로 올리면 부모님마다 자기 아이를 골라 반에 들어온다. */
+export function classInviteLink(joinCode: string) {
+  return `${webOrigin()}/join?code=${encodeURIComponent(joinCode)}`;
+}
+
+export function classInviteShareMessage(className: string, organizationName?: string | null) {
+  const where = organizationName ? `${organizationName} ${className}` : className;
+  return `${where} 부모님, Q-Story 반 초대예요. 아래 링크로 들어와 아이 이름을 확인해 주시면 반 수업 리포트를 받아 보실 수 있어요.`;
+}
+
 export function tutorInviteShareMessage(studentName: string) {
   return `${studentName} 부모님, Q-Story 수업 연결 초대예요. 아래 코드나 링크로 들어와 주세요.`;
 }

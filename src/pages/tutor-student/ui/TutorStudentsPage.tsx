@@ -6,7 +6,7 @@ import { ActionButton, AppNavShell, EmptyState, ErrorState, LoadingState, Pill, 
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { DEFAULT_BETA_STORY_ID } from '@/entities/story';
-import { createTutorInvite, listTutorStudents, type TutorInvite, type TutorStudent } from '@/entities/tutor';
+import { createTutorInvite, listTutorClasses, listTutorStudents, type TutorClass, type TutorInvite, type TutorStudent } from '@/entities/tutor';
 import { InviteCodeCard, formatInviteExpiry, tutorInviteLink, tutorInviteShareMessage } from '@/features/invite-issue';
 
 type LoadState =
@@ -33,6 +33,8 @@ export function TutorStudentsPage() {
   const [issuingStudentId, setIssuingStudentId] = useState<string | null>(null);
   const [issueError, setIssueError] = useState<Record<string, string>>({});
   const [reloadKey, setReloadKey] = useState(0);
+  // 담임인 반 - 반마다 초대 링크 하나와 부모 연결 현황을 보는 반 화면으로 간다. 부가 정보라 실패해도 목록은 보인다.
+  const [homeroomClasses, setHomeroomClasses] = useState<TutorClass[]>([]);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -42,10 +44,16 @@ export function TutorStudentsPage() {
   }, [state, navigate]);
 
   const tutorToken = state.status === 'authenticated' && state.user.role === 'TUTOR' ? state.token : null;
+  const tutorId = state.status === 'authenticated' ? state.user.id : null;
 
   useEffect(() => {
     if (!tutorToken) return;
     let cancelled = false;
+    listTutorClasses(tutorToken)
+      .then((classes) => {
+        if (!cancelled) setHomeroomClasses(classes.filter((classGroup) => classGroup.tutorId === tutorId));
+      })
+      .catch(() => {});
     listTutorStudents(tutorToken)
       .then((students) => {
         if (!cancelled) setLoad({ status: 'ready', students });
@@ -58,7 +66,7 @@ export function TutorStudentsPage() {
     return () => {
       cancelled = true;
     };
-  }, [tutorToken, reloadKey]);
+  }, [tutorToken, tutorId, reloadKey]);
 
   const refresh = () => setReloadKey((n) => n + 1);
 
@@ -93,6 +101,23 @@ export function TutorStudentsPage() {
             <ActionButton label="새 학생 등록" icon="+" size="sm" onPress={() => navigate('/tutor/students/new')} />
           </View>
         </View>
+
+        {homeroomClasses.length > 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>내 반</Text>
+            <Text style={styles.cardBody}>반 초대 링크 하나를 알림장에 올리고, 어느 아이 부모님이 들어왔는지 반별로 확인해요.</Text>
+            <View style={styles.actions}>
+              {homeroomClasses.map((classGroup) => (
+                <ActionButton
+                  key={classGroup.id}
+                  variant="secondary"
+                  label={`${classGroup.name} 초대·명단`}
+                  onPress={() => navigate(`/tutor/class-groups/${classGroup.id}`)}
+                />
+              ))}
+            </View>
+          </View>
+        ) : null}
 
         {load.status === 'loading' && <LoadingState label="학생 목록을 불러오는 중이에요…" />}
 

@@ -18,10 +18,23 @@ export type StoryCompletionSummary = {
   tutorStudentId: string | null;
   /** 수업 상세에서 시작한 세션이면 그 수업 id. */
   lessonId: string | null;
+  sessionKind: StorySessionKind;
+  /** 선생님 세션에 참여한 학생 수 - 반 수업이면 반 전체, 개별 수업이면 1, 가정 세션은 0. */
+  participantCount: number;
 };
+
+/**
+ * CLASS: 반 수업 - 여러 아이가 함께 읽은 세션 하나(누가 말했는지 모르는 단체 기록).
+ * TUTOR: 선생님과 한 아이의 개별 수업. HOME: 집에서 부모와 읽은 기록.
+ */
+export type StorySessionKind = 'CLASS' | 'TUTOR' | 'HOME';
 
 export type StoryCompletionDetail = StoryCompletionSummary & {
   outcomes: QuestionOutcome[];
+  /** 리포트 머리말용 - 반 수업이면 반 이름, 기관 반이면 기관 이름, 선생님 세션이면 진행한 선생님. */
+  className: string | null;
+  organizationName: string | null;
+  tutorDisplayName: string | null;
 };
 
 export class StoryCompletionApiError extends Error {
@@ -56,10 +69,7 @@ export function recordStoryCompletion(
     childId?: string;
     /** 이 세션에서 사용한 companion-chat conversationId - 있으면 서버가 태그 집계를 스냅샷 저장. */
     companionConversationId?: string;
-    /**
-     * 수업 상세에서 시작한 세션이면 그 수업 id. 서버가 수업의 참여 학생 전원에게 완주 기록을 하나씩
-     * 남긴다(tutorStudentId는 응답으로 돌려줄 대표 기록을 고르는 데만 쓰인다).
-     */
+    /** 수업 상세에서 시작한 세션이면 그 수업 id. 반 수업이면 서버가 참여 학생 전원을 묶어 기록 한 건으로 남긴다. */
     lessonId?: string;
   },
   options?: RequestOptions,

@@ -51,6 +51,9 @@ export type TutorInvitePreview = {
   ageBand: string;
   birthYear: number | null;
   tutorDisplayName: string;
+  /** 반 학생이면 반 이름, 기관 반이면 기관 이름 - "어느 유치원 어느 반"의 초대인지 보여 준다. */
+  className: string | null;
+  organizationName: string | null;
 };
 
 export type TutorReportSummary = {
@@ -58,9 +61,23 @@ export type TutorReportSummary = {
   storyId: string;
   completedAt: string;
   durationSeconds: number | null;
+  /** 참여한 학생 중 이 부모의 아이 이름(둘 이상이면 쉼표로). */
   studentName: string;
   tutorDisplayName: string;
+  /** CLASS면 반이 함께 읽은 기록(반 수업 리포트), TUTOR면 선생님과 우리 아이의 개별 수업. */
+  sessionKind: 'CLASS' | 'TUTOR';
+  className: string | null;
+  organizationName: string | null;
 };
+
+/** 수업 리포트 목록 한 줄의 출처 - "햇님반 수업 · 김선생 선생님" / "김선생 선생님 · 민서". */
+export function tutorReportSource(report: TutorReportSummary): string {
+  if (report.sessionKind === 'CLASS') {
+    const where = [report.organizationName, report.className].filter(Boolean).join(' ');
+    return `${where ? `${where} ` : ''}반 수업 · ${report.tutorDisplayName} 선생님`;
+  }
+  return `${report.tutorDisplayName} 선생님 · ${report.studentName}`;
+}
 
 export class TutorApiError extends Error {
   constructor(

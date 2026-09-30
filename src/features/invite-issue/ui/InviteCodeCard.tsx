@@ -18,6 +18,8 @@ type Props = {
   expiresLabel?: string;
   /** 공유 시트/복사에 실릴 안내 문장 - 예: "민서 부모님, Q-Story 수업 연결 초대예요." */
   shareMessage?: string;
+  /** 반 코드처럼 여러 번 쓰는 초대 - "한 번만 사용" 안내 대신 반 전체에 공유하라고 안내한다. */
+  reusable?: boolean;
   onDismiss?: () => void;
 };
 
@@ -33,7 +35,7 @@ async function copy(value: string) {
 
 const COPIED_FEEDBACK_MS = 1600;
 
-export function InviteCodeCard({ shortCode, link, expiresLabel, shareMessage, onDismiss }: Props) {
+export function InviteCodeCard({ shortCode, link, expiresLabel, shareMessage, reusable = false, onDismiss }: Props) {
   const canCopy = typeof navigator !== 'undefined' && Boolean(navigator.clipboard);
   const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
   const shareText = `${shareMessage ? `${shareMessage}\n` : ''}초대 코드: ${shortCode}\n${link}`;
@@ -52,9 +54,11 @@ export function InviteCodeCard({ shortCode, link, expiresLabel, shareMessage, on
 
   return (
     <View style={styles.card}>
-      <Text style={styles.eyebrow}>발급된 초대</Text>
+      <Text style={styles.eyebrow}>{reusable ? '반 초대' : '발급된 초대'}</Text>
       <Text style={styles.description}>
-        아래 코드 또는 링크를 상대방에게 전달해 주세요. 한 번만 사용할 수 있고, 사용된 뒤에는 다시 쓸 수 없어요.
+        {reusable
+          ? '알림장이나 단체방에 이 링크 하나만 올리면 돼요. 부모님마다 자기 아이를 골라 반에 들어오고, 여러 번 쓸 수 있어요.'
+          : '아래 코드 또는 링크를 상대방에게 전달해 주세요. 한 번만 사용할 수 있고, 사용된 뒤에는 다시 쓸 수 없어요.'}
       </Text>
 
       <View style={styles.row}>

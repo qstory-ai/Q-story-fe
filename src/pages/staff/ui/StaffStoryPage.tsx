@@ -22,10 +22,10 @@ type LoadState =
   | { status: 'ready'; revision: number; scenes: SceneView[]; stale: StaleLine[]; revisions: RevisionView[] }
   | { status: 'error'; message: string };
 
+const REVISION_DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
 function formatDate(iso: string) {
-  return new Intl.DateTimeFormat('ko-KR', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(
-    new Date(iso),
-  );
+  return REVISION_DATE_FORMAT.format(new Date(iso));
 }
 
 /** STAFF의 이야기별 저작 화면 - 하나의 이야기에 국한된 장면, 오래된(대본과 어긋난) 내레이션, 편집 기록을 모두 다룬다. */
@@ -46,12 +46,14 @@ export function StaffStoryPage() {
     }
   }, [state, navigate]);
 
+  const staffToken = state.status === 'authenticated' && state.user.role === 'STAFF' ? state.token : null;
+
   const reload = useCallback(() => {
-    if (state.status !== 'authenticated' || state.user.role !== 'STAFF' || !storyId) return;
+    if (!staffToken || !storyId) return;
     Promise.all([
-      listScenes(state.token, storyId),
-      listStaleNarration(state.token, storyId),
-      listRevisions(state.token, storyId),
+      listScenes(staffToken, storyId),
+      listStaleNarration(staffToken, storyId),
+      listRevisions(staffToken, storyId),
     ])
       .then(([scenesResponse, stale, revisions]) =>
         setLoad({ status: 'ready', revision: scenesResponse.revision, scenes: scenesResponse.scenes, stale, revisions }),
@@ -59,7 +61,7 @@ export function StaffStoryPage() {
       .catch((failure: unknown) =>
         setLoad({ status: 'error', message: failure instanceof StoryAdminApiError ? failure.message : '이야기를 불러오지 못했어요.' }),
       );
-  }, [state, storyId]);
+  }, [staffToken, storyId]);
 
   useEffect(reload, [reload]);
 

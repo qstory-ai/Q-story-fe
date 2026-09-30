@@ -51,10 +51,12 @@ export function TutorReportsPage() {
     }
   }, [state, navigate]);
 
+  const token = state.status === 'authenticated' ? state.token : null;
+
   useEffect(() => {
-    if (state.status !== 'authenticated') return;
+    if (!token) return;
     let cancelled = false;
-    Promise.all([listTutorStudents(state.token), listStories().catch(() => [])])
+    Promise.all([listTutorStudents(token), listStories().catch(() => [])])
       .then(([students, stories]) => {
         if (cancelled) return;
         setStudentsLoad({ status: 'ready', students });
@@ -70,17 +72,17 @@ export function TutorReportsPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, reloadKey]);
+  }, [token, reloadKey]);
 
   // 학생별 세션 목록은 학생 목록 확정 후 병렬로 페치 - 한 학생의 실패가 다른 학생을 막지 않게
   // 각 카드가 자기 로딩/에러 상태를 갖는다. 초기 loading 표시는 아래 orderedSections에서
   // "없으면 loading으로 채우는" 파생 로직으로 처리하므로 여기서는 setState를 부르지 않는다.
   useEffect(() => {
-    if (state.status !== 'authenticated') return;
+    if (!token) return;
     if (studentsLoad.status !== 'ready') return;
     let cancelled = false;
     for (const student of studentsLoad.students) {
-      listTutorStudentCompletions(state.token, student.id)
+      listTutorStudentCompletions(token, student.id)
         .then((completions) => {
           if (cancelled) return;
           setSessionsByStudent((prev) => ({
@@ -100,7 +102,7 @@ export function TutorReportsPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, studentsLoad]);
+  }, [token, studentsLoad]);
 
   const orderedSections = useMemo(() => {
     if (studentsLoad.status !== 'ready') return [] as StudentSessions[];
@@ -204,9 +206,10 @@ function StudentSection({
   );
 }
 
+const COMPLETED_AT_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
 function formatCompletedAt(iso: string) {
-  const date = new Date(iso);
-  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(date);
+  return COMPLETED_AT_FORMAT.format(new Date(iso));
 }
 
 const styles = StyleSheet.create({

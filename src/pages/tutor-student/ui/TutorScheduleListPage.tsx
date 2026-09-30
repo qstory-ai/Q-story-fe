@@ -12,11 +12,7 @@ const WEEKDAY_LABEL: Record<TutorSchedule['weekday'], string> = {
   MON: '월', TUE: '화', WED: '수', THU: '목', FRI: '금', SAT: '토',
 };
 
-/**
- * 주간 일정 - q-story-flow-prototype.tsx의 TutorScheduleListScreen을 이식. 프로토타입의
- * "관리" 버튼(단건 시간 변경/휴강/반복 수정)은 카피로만 존재하고 실제 구현이 없었다 - 이번
- * 범위도 목록 조회까지만이고, 개별 수정/취소는 다음 단계로 미룬다.
- */
+/** 주간 일정 목록(조회 전용). 개별 수정/취소는 아직 없다. */
 export function TutorScheduleListPage() {
   const navigate = useNavigate();
   const { state } = useAuth();
@@ -26,12 +22,25 @@ export function TutorScheduleListPage() {
     if (state.status === 'loading') return;
     if (state.status !== 'authenticated' || state.user.role !== 'TUTOR') {
       navigate('/', { replace: true });
-      return;
     }
-    listTutorSchedules(state.token)
-      .then((schedules) => setLoad({ status: 'ready', schedules }))
-      .catch(() => setLoad({ status: 'error' }));
   }, [state, navigate]);
+
+  const tutorToken = state.status === 'authenticated' && state.user.role === 'TUTOR' ? state.token : null;
+
+  useEffect(() => {
+    if (!tutorToken) return;
+    let cancelled = false;
+    listTutorSchedules(tutorToken)
+      .then((schedules) => {
+        if (!cancelled) setLoad({ status: 'ready', schedules });
+      })
+      .catch(() => {
+        if (!cancelled) setLoad({ status: 'error' });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [tutorToken]);
 
   if (state.status !== 'authenticated') return null;
 

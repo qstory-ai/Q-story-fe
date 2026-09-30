@@ -2,12 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { BrandLockup, AppNavShell, Card, EmptyState, Icon, LoadingState, storybookTheme } from '@/shared/ui';
+import { BrandLockup, AppNavShell, Card, EmptyState, Icon, LoadingState, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
-import { StoryCard } from '@/shared/ui/story-card';
 import { HomeSection } from '@/features/home-section';
 import { ChildSelector } from '@/features/child-selector';
 import { MonthCalendar } from '@/features/month-calendar';
@@ -19,11 +18,9 @@ import { listParentTutorReports, type TutorReportSummary } from '@/entities/tuto
 import { formatReportDuration } from '@/pages/one-story';
 
 /**
- * 부모 홈("/parent") - IA "[1] 홈" 섹션을 실제로 반영한 화면. 예전에는 브랜드 헤더 + 인사말
- * 카드 + StoryLibraryGrid(전체 카탈로그) + 최근 완주 카드 하나뿐이었는데, 이번엔 IA의
- * "아이 중심 큐레이션" 요구에 맞춰 다음 순서로 재구성했다:
+ * 부모 홈("/parent") - IA "[1] 홈"의 아이 중심 큐레이션 화면:
  *
- *   1. 상단 바 - 브랜드 + 알림 벨(현재는 스텁; 눌러도 안내만).
+ *   1. 상단 바 - 브랜드 + 알림 벨.
  *   2. 아이 선택 - 넷플릭스식 아바타 로우. 이 컴포넌트가 selectedChild를 바꿔 놓으면 아래
  *      섹션들이 그 아이 기준으로 다시 계산된다.
  *   3. 메인 추천 히어로 - 아이 연령대에 맞는 대표 이야기 한 편(크게). 매칭 규칙은 아래 함수
@@ -31,10 +28,9 @@ import { formatReportDuration } from '@/pages/one-story';
  *   4. 이어서 읽기 - 브라우저 하나당 최대 1개인 LocalStoryProgress를 그대로 카드화.
  *   5. 아이에게 추천하는 작품 - 아이 연령대 카테고리 힌트로 필터한 스토리 리스트.
  *   6. 새로운 작품 - contentVersion 내림차순.
- *   7. 최근 활동 - 완주 기록 + 선생님 리포트 병합, 시간 내림차순.
+ *   7. 이 달의 활동 - 완주 기록 + 선생님 리포트 병합 캘린더.
  *
- * 전체 카탈로그(StoryLibraryGrid)는 이 화면에서 제거되어 새 /library 탭으로 이전됐다 - 홈이
- * "탐색 그리드"가 아니라 "오늘의 큐레이션" 역할을 하도록.
+ * 전체 카탈로그는 /library 탭이 맡는다.
  */
 export function ParentHomePage() {
   const navigate = useNavigate();
@@ -82,16 +78,18 @@ export function ParentHomePage() {
     };
   }, []);
 
+  const token = state.status === 'authenticated' ? state.token : null;
+  const selectedChildId = selectedChild?.id ?? null;
+  const selectedAgeBand = selectedChild?.ageBand ?? null;
+
   useEffect(() => {
-    if (state.status !== 'authenticated') return;
+    if (!token) return;
     let cancelled = false;
-    // 선택된 아이가 있으면 그 아이 완주만, 없으면(=아이 미등록) 전체 완주. 아이 선택기에서
-    // 다른 아이로 바꾸면 최근 활동 카드도 자연스럽게 그 아이 기준으로 갱신된다.
-    const filters = selectedChild ? { childId: selectedChild.id } : undefined;
-    // 요청 시작 시점의 key를 캡처해, finally에서 그 key로 응답 완료 표시를 남긴다. 위의
-    // completionsRequestKey와 이 responseKey가 일치할 때만 completionsDone=true로 도출된다.
-    const requestKey = selectedChild?.id ?? 'all';
-    listStoryCompletions(state.token, filters)
+    // 선택된 아이가 있으면 그 아이 완주만, 없으면(=아이 미등록) 전체 완주.
+    const filters = selectedChildId ? { childId: selectedChildId } : undefined;
+    // 요청 시점의 key로 응답 완료를 표시해, 아이 전환 직후엔 다시 "불러오는 중"으로 도출되게 한다.
+    const requestKey = selectedChildId ?? 'all';
+    listStoryCompletions(token, filters)
       .then((list) => {
         if (!cancelled) setCompletions(list);
       })
@@ -104,12 +102,12 @@ export function ParentHomePage() {
     return () => {
       cancelled = true;
     };
-  }, [state, selectedChild]);
+  }, [token, selectedChildId]);
 
   useEffect(() => {
-    if (state.status !== 'authenticated') return;
+    if (!token) return;
     let cancelled = false;
-    listParentTutorReports(state.token)
+    listParentTutorReports(token)
       .then((list) => {
         if (!cancelled) setTutorReports(list);
       })
@@ -122,12 +120,12 @@ export function ParentHomePage() {
     return () => {
       cancelled = true;
     };
-  }, [state]);
+  }, [token]);
 
-  const hero = useMemo(() => pickHero(stories ?? [], selectedChild?.ageBand ?? null), [stories, selectedChild]);
+  const hero = useMemo(() => pickHero(stories ?? [], selectedAgeBand), [stories, selectedAgeBand]);
   const forChild = useMemo(
-    () => pickForChild(stories ?? [], selectedChild?.ageBand ?? null, hero?.storyId),
-    [stories, selectedChild, hero],
+    () => pickForChild(stories ?? [], selectedAgeBand, hero?.storyId),
+    [stories, selectedAgeBand, hero],
   );
   const newStories = useMemo(() => pickNew(stories ?? [], hero?.storyId), [stories, hero]);
   const recentActivity = useMemo(
@@ -226,9 +224,7 @@ export function ParentHomePage() {
           </View>
         ) : null}
 
-        {/* 활동 캘린더 - 예전엔 최근 6개를 평면 리스트로 보여줬는데, 부모가 "이 달에 몇 번이나
-            읽었지?"를 한눈에 파악하기 어려웠다. 애플 캘린더식 월 그리드에 완주/리포트를 dot으로
-            표시하고, 특정 일자를 탭하면 그 아래 목록이 뜬다. */}
+        {/* 월 그리드에 완주/리포트를 dot으로 표시하고, 일자를 탭하면 그 날 목록이 뜬다. */}
         <Card variant="panel" padding="md" title="이 달의 활동" style={styles.calendarPanel}>
           {activityLoading ? (
             <LoadingState compact label="활동 기록을 불러오는 중이에요…" />
@@ -404,7 +400,7 @@ function pickForChild(
   if (!ageBand) return filtered.slice(0, 8);
   const hints = AGE_BAND_CATEGORY_HINTS[ageBand];
   const matches = filtered.filter((story) => story.category && hints.includes(story.category));
-  // 매칭이 부족할 땐 나머지로 채워서 최소 5장은 확보한다 - 빈 캐러셀보다는 큐레이션 완화가 낫다.
+  // 매칭이 부족할 땐 나머지로 채운다 - 빈 캐러셀보다는 큐레이션 완화가 낫다.
   const rest = filtered.filter((story) => !matches.includes(story));
   return [...matches, ...rest].slice(0, 8);
 }
@@ -440,16 +436,16 @@ function mergeRecentActivity(
     meta: `${formatDate(report.completedAt)} · ${formatReportDuration(report.durationSeconds)}`,
     iso: report.completedAt,
   }));
-  // 캘린더가 이 달 전체의 dot을 그리려면 최근 6개로 자르면 안 된다 - 지금은 60개까지 남긴다
-  // (한 달에 60회면 어차피 화면 상 dot 하나로 뭉치므로 상한만 있으면 됨). 위 매핑이 이미
-  // 최신순 정렬이라 오래된 것부터 잘려나간다.
+  // 캘린더가 이 달 전체의 dot을 그리도록 넉넉한 상한(60)만 둔다 - 최신순 정렬 후 오래된 것부터 잘린다.
   return [...completionEntries, ...tutorEntries]
     .sort((a, b) => (b.iso > a.iso ? 1 : -1))
     .slice(0, 60);
 }
 
+const MONTH_DAY_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric' });
+
 function formatDate(iso: string) {
-  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric' }).format(new Date(iso));
+  return MONTH_DAY_FORMAT.format(new Date(iso));
 }
 
 const styles = StyleSheet.create({
@@ -507,8 +503,7 @@ const styles = StyleSheet.create({
     borderColor: storybookTheme.color.surfaceCardBorder,
     overflow: 'hidden',
   },
-  // 히어로 자리에 카탈로그가 아직 안 왔을 때 잠깐 뜨는 loading placeholder - hero와 같은
-  // 가로 폭을 잡되 세로는 spinner + 여백만 있는 얇은 카드.
+  // 카탈로그 로딩 중 히어로 자리 placeholder.
   heroLoader: {
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
@@ -535,12 +530,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(18, 10, 30, 0.6)',
   },
   heroBody: { padding: 22, gap: 6 },
-  heroEyebrow: {
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.goldText,
-    letterSpacing: 0.4,
-  },
   heroTitle: {
     fontSize: storybookTheme.type.xl,
     lineHeight: storybookTheme.type.xl * storybookTheme.lineHeight.tight,
@@ -562,11 +551,6 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.goldText,
-  },
-  recentSection: {
-    width: '100%',
-    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
-    alignSelf: 'center',
   },
   calendarPanel: {
     width: '100%',

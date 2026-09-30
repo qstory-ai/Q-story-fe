@@ -138,16 +138,6 @@ export function OnboardingTutorPage() {
   );
 }
 
-/** 선생님 온보딩이 완료됐는지 판단. 서버 저장 없이 브라우저 로컬 마크만. */
-export function hasCompletedTutorOnboarding(userId: string): boolean {
-  if (typeof window === 'undefined') return true;
-  try {
-    return window.localStorage.getItem(`${ONBOARDING_DONE_KEY_PREFIX}${userId}`) === '1';
-  } catch {
-    return true;
-  }
-}
-
 /* -------------------------------------------------------------- helpers */
 
 function ChoiceCard({

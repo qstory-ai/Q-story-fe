@@ -65,10 +65,12 @@ export function TutorLibraryPage() {
     };
   }, [catalogReload]);
 
+  const token = state.status === 'authenticated' ? state.token : null;
+
   useEffect(() => {
-    if (state.status !== 'authenticated') return;
+    if (!token) return;
     let cancelled = false;
-    listStoryCompletions(state.token)
+    listStoryCompletions(token)
       .then((list) => {
         if (!cancelled) setCompletions({ status: 'ready', completions: list });
       })
@@ -78,10 +80,9 @@ export function TutorLibraryPage() {
     return () => {
       cancelled = true;
     };
-  }, [state]);
+  }, [token]);
 
-  // catalog.status 분기가 매 렌더마다 새 빈 배열을 만들지 않도록 안정 참조로 뽑는다 -
-  // useMemo dep가 흔들리면 아래 여러 파생값이 매번 다시 계산된다.
+  // 빈 배열 참조를 안정적으로 유지해 아래 useMemo들이 매 렌더 다시 계산되지 않게 한다.
   const allStories = useMemo(
     () => (catalog.status === 'ready' ? catalog.stories : []),
     [catalog],
@@ -89,7 +90,7 @@ export function TutorLibraryPage() {
   const availableCategories = useMemo(() => uniqueCategories(allStories), [allStories]);
   const storyById = useMemo(() => Object.fromEntries(allStories.map((s) => [s.storyId, s])), [allStories]);
 
-  const bookmarkedIds = useMemo(() => new Set(bookmarks.bookmarks.map((b) => b.storyId)), [bookmarks]);
+  const bookmarkedIds = useMemo(() => new Set(bookmarks.bookmarks.map((b) => b.storyId)), [bookmarks.bookmarks]);
   const recentIds = useMemo(() => {
     if (completions.status !== 'ready') return [] as string[];
     // 완료 기록을 최신순으로 정렬해 dedupe하되 첫 등장 순서를 유지 - "가장 최근에 본" 순서.
@@ -222,11 +223,8 @@ function StoryCardWithLink({
           navigate('/mypage/subscription');
           return;
         }
-        // /demo(DemoStoryRoute)는 비로그인 익명 체험용이라 tutorStudentId를 모른다 - 서재에서
-        // 곧장 거기로 보내면 튜터가 시작한 세션이 어떤 학생 것인지 기록되지 않아 완주해도 그
-        // 학생 리포트에도, 그 부모 화면에도 나타나지 않았다. 튜터에게는 베타 스토리도 다른
-        // 스토리와 똑같이 상세 페이지로 보내 StoryDetailPage의 TutorStudentPickerModal
-        // 흐름(학생 선택 -> /stories/{id}/play?tutorStudentId=...)을 그대로 타게 한다.
+        // 베타 스토리도 /demo가 아니라 상세로 보낸다 - /demo는 tutorStudentId를 모르므로 학생
+        // 선택(StoryDetailPage의 TutorStudentPickerModal)을 거쳐야 완주 기록이 학생에게 남는다.
         navigate(`/stories/${story.storyId}`);
       }}
     />
@@ -252,9 +250,7 @@ function EmptyForTab({
     tab === 'saved' ? '저장한 이야기가 없어요. 마음에 드는 작품 상세에서 “저장하기”를 눌러 담아 보세요.' :
     tab === 'recent' ? '최근에 사용한 이야기가 없어요. 학생과 함께 이야기를 진행하면 여기에 쌓여요.' :
     '이야기가 없어요.';
-  // LibraryPage와 동일 정책: 필터 걸린 상태는 "필터 해제"로, 필터 없는 서브탭 빈 상태는
-  // "전체 이야기 보기"로 유도. '전체'가 완전히 비어 있을 땐 카탈로그 자체가 비어 CTA가 의미
-  // 없어 캡션만.
+  // LibraryPage와 동일 정책: 필터 걸린 상태는 "필터 해제", 필터 없는 서브탭은 "전체 이야기 보기".
   const showClearFilters = filtered;
   const showGoToAll = !filtered && tab !== 'all';
   return (

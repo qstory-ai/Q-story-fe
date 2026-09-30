@@ -12,19 +12,15 @@ type LoadState =
   | { requestKey: string; status: 'error' };
 
 /**
- * 이야기 상세 페이지("/stories/:storyId/play")에서 도달하는 범용 story-id 플레이어 라우트.
- * App.tsx의 DemoStoryRoute와 공유/파라미터화된 컴포넌트로 합치지 않고 의도적으로 별도
- * 컴포넌트로 뒀다 - 그 라우트는 "/"의 무료 익명 데모용으로 "지금 그대로 정확히 계속 동작해야
- * 한다"고 명시적으로 문서화되어 있고, 이 코드베이스는 이미 공유 추상화보다 라우트별 작은
- * 컴포넌트를 선호한다(ParentHomePage/ClassDashboardPage의 거의 동일하지만 분리된 가드
- * 블록 참고).
+ * 이야기 상세 페이지에서 도달하는 범용 story-id 플레이어 라우트("/stories/:storyId/play").
+ * App.tsx의 DemoStoryRoute(무료 익명 데모)와는 의도적으로 분리해 둔다 - 데모 경로의 동작을
+ * 건드리지 않기 위해서다.
  */
 export function StoryPlayerRoute() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  // 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 붙는다(TutorChildScreen에서 이식된
-  // "오늘 추천 이야기" 진입 경로가 이 쿼리 파라미터를 실어 보낸다) - 완주 시 그대로 기록된다.
+  // 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 붙는다 - 완주 시 그대로 기록된다.
   const tutorStudentId = searchParams.get('tutorStudentId') ?? undefined;
   // 수업 상세의 "시작"에서 왔으면 수업 id도 함께 - 완주 시 참여 학생 전원의 기록이 이 수업에 연결된다.
   const lessonId = searchParams.get('lessonId') ?? undefined;

@@ -27,9 +27,7 @@ const SUBSCRIPTION_LABEL: Record<EntitlementResponse['subscriptionStatus'], stri
  * 가입 자체는 이제 통합된 /signup 화면에 있으며, 여기서 인증되지 않은 방문자는 그곳으로
  * 리다이렉트된다.
  *
- * 두 단계 모두 DIRECTOR의 실제 홈("/organization")이라 PARENT/CLASS_ACCOUNT/TUTOR 홈과 같은
- * AppNavShell을 쓴다 - 예전엔 AccountLinkRow + 라이트 셸을 혼자 쓰고 있어서 역할 홈마다
- * 헤더가 다르게 보였다.
+ * 두 단계 모두 DIRECTOR의 실제 홈("/organization")이라 다른 역할 홈과 같은 AppNavShell을 쓴다.
  */
 export function OrganizationSignupPage() {
   const { state } = useAuth();
@@ -184,7 +182,7 @@ function ClassManagementStep({
               시각적 우선순위를 준다. 나머지 셋은 동일한 outlined variant. */}
           <DashboardCard
             title="반/학생 관리"
-            body="반을 만들고 반에 참여한 부모(학생) 목록을 확인해요."
+            body="반을 만들고 담임 선생님을 배정하고 학생 명단을 확인해요."
             onPress={() => navigate('/organization/classes')}
             primary
           />

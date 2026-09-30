@@ -8,7 +8,7 @@ export type OrganizationReport = {
   classes: Array<{
     classId: string;
     className: string;
-    parentCount: number;
+    studentCount: number;
     completionCount: number;
     questionCount: number;
     lastActivityAt: string | null;

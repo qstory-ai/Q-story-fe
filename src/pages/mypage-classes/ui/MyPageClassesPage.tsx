@@ -5,42 +5,44 @@ import { useNavigate } from 'react-router-dom';
 import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, Pill, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
-import { AuthApiError, dashboardNavItems, joinExistingClass, leaveClassMembership, useAuth } from '@/entities/auth';
+import {
+  dashboardNavItems,
+  joinExistingClass,
+  leaveClass,
+  listClassMemberships,
+  useAuth,
+  type ClassMembershipResponse,
+} from '@/entities/auth';
 import { BirthYearChips } from '@/entities/child';
 import { listParentTutorReports, type TutorReportSummary } from '@/entities/tutor';
 
-type ReportLoad = { status: 'loading' } | { status: 'ready'; reports: TutorReportSummary[] } | { status: 'error'; message: string };
+type Load<T> = { status: 'loading' } | { status: 'ready'; items: T[] } | { status: 'error'; message: string };
 
 /**
- * IA "[4] 마이페이지 > 수업 연결" 화면. 세 가지 항목을 한 화면에 담는다.
+ * 마이페이지 > 수업 연결. 세 가지를 한 화면에 담는다.
  *
- *  1. 이미 연결된 것들 - user.classGroupId(기관)와 최근 튜터 리포트에서 뽑은 튜터 목록.
- *  2. 선생님 초대 링크 붙여넣기 - 링크나 토큰만 남기면 /tutor-invite/{token}으로 이동해
- *     홈(OnboardingFlow)의 tutor-preview 단계로 들어간다. 이미 로그인된 상태라 계정 만들기/
- *     로그인 선택 없이 곧장 "연결하기" → 동의로 이어진다.
- *  3. 기관 반 연결 - 독립 학부모도 반 코드를 입력하면 현재 계정을 그대로 연결한다. 새 계정을
- *     만들지 않고 JWT를 갱신하므로, 기존 아이·가정 이용 기록도 그대로 보존된다.
+ *  1. 아이가 들어가 있는 반 - 반 코드로 아이를 반 학생 명단에 올리고(아이마다 한 번씩), 반에서 뺄 수 있다.
+ *  2. 선생님 초대 - 코드나 링크를 넣으면 /tutor-invite/...로 이동해 연결·동의로 이어진다.
+ *  3. 연결된 선생님 - 최근 선생님 리포트에서 뽑은 (선생님, 학생) 목록.
  */
 export function MyPageClassesPage() {
   const navigate = useNavigate();
-  const { state, setSession } = useAuth();
-  const [reports, setReports] = useState<ReportLoad>({ status: 'loading' });
+  const { state } = useAuth();
+  const [memberships, setMemberships] = useState<Load<ClassMembershipResponse>>({ status: 'loading' });
+  const [reports, setReports] = useState<Load<TutorReportSummary>>({ status: 'loading' });
   const [inviteInput, setInviteInput] = useState('');
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [tutorCodeInput, setTutorCodeInput] = useState('');
   const [tutorCodeError, setTutorCodeError] = useState<string | null>(null);
   const [classCodeInput, setClassCodeInput] = useState('');
-  const [classCodeError, setClassCodeError] = useState<string | null>(null);
-  const [classJoinSuccess, setClassJoinSuccess] = useState(false);
-  // 선생님이 운영하는 반이면 서버가 CHILD_INFO_REQUIRED로 되돌려 보낸다 - 그때부터 아이 정보 칸을 보인다.
-  const [needsChildInfo, setNeedsChildInfo] = useState(false);
   const [childName, setChildName] = useState('');
   const [childBirthYear, setChildBirthYear] = useState<number>(() => new Date().getFullYear() - 7);
+  const [classCodeError, setClassCodeError] = useState<string | null>(null);
+  const [classJoinSuccess, setClassJoinSuccess] = useState(false);
   const [joiningClass, setJoiningClass] = useState(false);
-  const [leaveModalOpen, setLeaveModalOpen] = useState(false);
-  const [leavingClass, setLeavingClass] = useState(false);
-  const [classLeaveSuccess, setClassLeaveSuccess] = useState(false);
-  const [classLeaveError, setClassLeaveError] = useState<string | null>(null);
+  const [leaveTarget, setLeaveTarget] = useState<ClassMembershipResponse | null>(null);
+  const [leaving, setLeaving] = useState(false);
+  const [leaveError, setLeaveError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
@@ -50,41 +52,42 @@ export function MyPageClassesPage() {
     }
   }, [state, navigate]);
 
-  // state.token만 있으면 충분한 요청인데 [state, reloadKey]로 의존하면, 이 화면 안에서
-  // setSession()을 부르는 다른 액션(반 가입 등)이 state 객체 identity만 바꿔도 무관한 재조회가
-  // 한 번 더 나갔다 - token 문자열로 좁혀서 실제로 인증이 바뀔 때만 다시 부른다.
+  // 토큰 문자열로 좁혀서 실제로 인증이 바뀔 때만 다시 불러온다(state 객체 identity가 바뀌어도 재조회하지 않는다).
   const authToken = state.status === 'authenticated' ? state.token : null;
   useEffect(() => {
     if (!authToken) return;
     let cancelled = false;
-    listParentTutorReports(authToken)
-      .then((next) => {
-        if (!cancelled) setReports({ status: 'ready', reports: next });
+    listClassMemberships(authToken)
+      .then((items) => {
+        if (!cancelled) setMemberships({ status: 'ready', items });
       })
       .catch((error: unknown) => {
-        if (cancelled) return;
-        const message = messageForError(error, '연결된 선생님을 불러오지 못했어요.');
-        setReports({ status: 'error', message });
+        if (!cancelled) setMemberships({ status: 'error', message: messageForError(error, '아이가 들어간 반을 불러오지 못했어요.') });
+      });
+    listParentTutorReports(authToken)
+      .then((items) => {
+        if (!cancelled) setReports({ status: 'ready', items });
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setReports({ status: 'error', message: messageForError(error, '연결된 선생님을 불러오지 못했어요.') });
       });
     return () => {
       cancelled = true;
     };
   }, [authToken, reloadKey]);
 
-  // 튜터 리포트에서 (튜터명, 학생명) 페어를 뽑아 dedupe - 한 튜터가 여러 세션을 진행했어도
-  // "연결된 선생님" 리스트에는 한 번만 보여야 한다. 학생 이름별로도 구분해 두 아이가 같은
-  // 선생님에게 배우는 경우도 표현.
+  // 한 선생님이 여러 세션을 진행했어도 (선생님, 학생) 쌍은 한 번만 보여 준다.
   const tutors = useMemo(() => {
     if (reports.status !== 'ready') return [] as { key: string; tutor: string; student: string }[];
     const seen = new Set<string>();
-    const dedup: { key: string; tutor: string; student: string }[] = [];
-    for (const report of reports.reports) {
+    const unique: { key: string; tutor: string; student: string }[] = [];
+    for (const report of reports.items) {
       const key = `${report.tutorDisplayName} ${report.studentName}`;
       if (seen.has(key)) continue;
       seen.add(key);
-      dedup.push({ key, tutor: report.tutorDisplayName, student: report.studentName });
+      unique.push({ key, tutor: report.tutorDisplayName, student: report.studentName });
     }
-    return dedup;
+    return unique;
   }, [reports]);
 
   function acceptInvite() {
@@ -107,55 +110,45 @@ export function MyPageClassesPage() {
     navigate(`/tutor-invite/code/${encodeURIComponent(normalized)}`);
   }
 
-  async function joinClassWithCode() {
+  async function addChildToClass() {
     if (state.status !== 'authenticated') return;
     setClassCodeError(null);
     setClassJoinSuccess(false);
     const classCode = normalizeInviteCode(classCodeInput);
     if (!isValidInviteCode(classCode)) {
-      setClassCodeError('기관에서 받은 영문·숫자 4-16자리 반 코드를 입력해 주세요.');
+      setClassCodeError('영문·숫자 4-16자리 반 코드를 입력해 주세요.');
       return;
     }
     setJoiningClass(true);
     try {
-      // 이미 반에 속한 상태에서 코드를 넣는 건 "옮기기" - 서버가 replaceExisting 없이는 거절한다.
-      const response = await joinExistingClass(state.token, {
-        classCode,
-        replaceExisting: Boolean(state.user.classId),
-        ...(needsChildInfo ? { childName: childName.trim(), childBirthYear } : {}),
-      });
-      setSession(response.token, response.user);
+      await joinExistingClass(state.token, { classCode, childName: childName.trim(), childBirthYear });
       setClassCodeInput('');
-      setNeedsChildInfo(false);
       setChildName('');
       setClassJoinSuccess(true);
+      setReloadKey((n) => n + 1);
     } catch (error: unknown) {
-      if (error instanceof AuthApiError && error.code === 'CHILD_INFO_REQUIRED') setNeedsChildInfo(true);
-      setClassCodeError(messageForError(error, '기관 반에 연결하지 못했어요. 반 코드를 다시 확인해 주세요.'));
+      setClassCodeError(messageForError(error, '반에 연결하지 못했어요. 반 코드를 다시 확인해 주세요.'));
     } finally {
       setJoiningClass(false);
     }
   }
 
-  async function leaveCurrentClass() {
-    if (state.status !== 'authenticated') return;
-    setClassLeaveError(null);
-    setLeavingClass(true);
+  async function leaveSelectedClass() {
+    if (state.status !== 'authenticated' || !leaveTarget) return;
+    setLeaveError(null);
+    setLeaving(true);
     try {
-      const response = await leaveClassMembership(state.token);
-      setSession(response.token, response.user);
-      setLeaveModalOpen(false);
-      setClassLeaveSuccess(true);
+      await leaveClass(state.token, leaveTarget.studentId);
+      setLeaveTarget(null);
+      setReloadKey((n) => n + 1);
     } catch (error: unknown) {
-      setClassLeaveError(messageForError(error, '기관 반 연결을 해제하지 못했어요. 잠시 후 다시 시도해 주세요.'));
+      setLeaveError(messageForError(error, '반에서 빼지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
-      setLeavingClass(false);
+      setLeaving(false);
     }
   }
 
   if (state.status !== 'authenticated') return null;
-
-  const isInClass = Boolean(state.user.classId);
 
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'mypage')} onBack={() => navigate('/mypage')}>
@@ -163,74 +156,54 @@ export function MyPageClassesPage() {
         <Text style={styles.title} accessibilityRole="header">수업 연결</Text>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>기관 연결</Text>
-          {isInClass ? (
-            <>
-              <Text style={styles.body}>이미 기관 반에 참여 중이에요.</Text>
-              <View style={styles.pillRow}>
-                <Pill label="반 참여 중" />
-              </View>
-              {classLeaveError ? <StatusBanner variant="warning" label={classLeaveError} /> : null}
-              <Text style={styles.body}>다른 반으로 옮기려면 새 반 코드를 입력해 주세요. 지난 수업 기록은 그대로 남아요.</Text>
-              <TextField
-                label="새 반 코드"
-                value={classCodeInput}
-                onChangeText={(value) => {
-                  setClassCodeInput(value);
-                  if (classCodeError) setClassCodeError(null);
-                  if (classJoinSuccess) setClassJoinSuccess(false);
-                }}
-                placeholder="예: 7P3KMQ8D"
-                autoCapitalize="characters"
-                errorText={classCodeError ?? undefined}
-              />
-              {needsChildInfo ? (
-                <>
-                  <TextField label="아이 이름 또는 별명" value={childName} onChangeText={setChildName} placeholder="예: 민서" />
-                  <BirthYearChips value={childBirthYear} onChange={setChildBirthYear} minAge={4} maxAge={12} />
-                </>
-              ) : null}
-              <ActionButton
-                label="이 반으로 옮기기"
-                onPress={joinClassWithCode}
-                loading={joiningClass}
-                disabled={classCodeInput.trim().length === 0 || joiningClass || (needsChildInfo && !childName.trim())}
-              />
-              <ActionButton label="기관 반 연결 해제" variant="outline" onPress={() => setLeaveModalOpen(true)} />
-            </>
+          <Text style={styles.sectionTitle}>우리 아이가 들어간 반</Text>
+          {memberships.status === 'loading' ? (
+            <LoadingState compact label="반 목록을 불러오는 중이에요…" />
+          ) : memberships.status === 'error' ? (
+            <ErrorState message={memberships.message} onRetry={() => setReloadKey((n) => n + 1)} />
+          ) : memberships.items.length === 0 ? (
+            <Text style={styles.body}>아직 들어간 반이 없어요. 기관이나 선생님께 받은 반 코드로 아이를 올려 주세요.</Text>
           ) : (
-            <>
-              {classLeaveSuccess ? <StatusBanner label="기관 반 연결이 해제되었어요. 새 반 코드로 다시 연결할 수 있어요." /> : null}
-              <Text style={styles.body}>기관에서 받은 반 코드로 현재 계정을 연결할 수 있어요.</Text>
-              <TextField
-                label="반 코드"
-                value={classCodeInput}
-                onChangeText={(value) => {
-                  setClassCodeInput(value);
-                  if (classCodeError) setClassCodeError(null);
-                  if (classJoinSuccess) setClassJoinSuccess(false);
-                }}
-                placeholder="예: 7P3KMQ8D"
-                autoCapitalize="characters"
-                errorText={classCodeError ?? undefined}
-              />
-              {needsChildInfo ? (
-                <>
-                  <TextField label="아이 이름 또는 별명" value={childName} onChangeText={setChildName} placeholder="예: 민서" />
-                  <BirthYearChips value={childBirthYear} onChange={setChildBirthYear} minAge={4} maxAge={12} />
-                </>
-              ) : null}
-              <ActionButton
-                label="기관 반에 연결하기"
-                onPress={joinClassWithCode}
-                loading={joiningClass}
-                disabled={classCodeInput.trim().length === 0 || joiningClass || (needsChildInfo && !childName.trim())}
-              />
-            </>
+            <View style={styles.list}>
+              {memberships.items.map((membership) => (
+                <View key={membership.studentId} style={styles.row}>
+                  <View style={styles.rowInfo}>
+                    <Text style={styles.rowTitle}>{membership.studentName} · {membership.className}</Text>
+                    <Text style={styles.rowSub}>
+                      {[membership.organizationName, membership.tutorDisplayName ? `${membership.tutorDisplayName} 선생님` : '담임 선생님 배정 전']
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </Text>
+                  </View>
+                  <ActionButton label="빼기" variant="outline" size="sm" onPress={() => setLeaveTarget(membership)} />
+                </View>
+              ))}
+            </View>
           )}
-          {/* setSession()과 setClassJoinSuccess(true)가 같은 배치에서 함께 커밋되므로 이 시점엔
-              항상 isInClass 분기가 렌더되지만, 그 순서 관계에 기대지 않도록 분기 밖에 한 번만 둔다. */}
-          {classJoinSuccess ? <StatusBanner label="기관 반에 연결했어요." /> : null}
+
+          <View style={styles.divider} />
+          <Text style={styles.body}>반 코드로 아이를 반 학생 명단에 올려요. 아이가 여러 명이면 아이마다 한 번씩 올려 주세요.</Text>
+          <TextField
+            label="반 코드"
+            value={classCodeInput}
+            onChangeText={(value) => {
+              setClassCodeInput(value);
+              if (classCodeError) setClassCodeError(null);
+              if (classJoinSuccess) setClassJoinSuccess(false);
+            }}
+            placeholder="예: 7P3KMQ8D"
+            autoCapitalize="characters"
+            errorText={classCodeError ?? undefined}
+          />
+          <TextField label="아이 이름 또는 별명" value={childName} onChangeText={setChildName} placeholder="예: 민서" />
+          <BirthYearChips value={childBirthYear} onChange={setChildBirthYear} minAge={4} maxAge={12} />
+          <ActionButton
+            label="반에 올리기"
+            onPress={addChildToClass}
+            loading={joiningClass}
+            disabled={classCodeInput.trim().length === 0 || !childName.trim() || joiningClass}
+          />
+          {classJoinSuccess ? <StatusBanner label="반에 올렸어요." /> : null}
         </View>
 
         <View style={styles.card}>
@@ -274,14 +247,14 @@ export function MyPageClassesPage() {
           ) : reports.status === 'error' ? (
             <ErrorState message={reports.message} onRetry={() => setReloadKey((n) => n + 1)} />
           ) : tutors.length === 0 ? (
-            <Text style={styles.body}>아직 연결된 선생님이 없어요. 위 초대 링크를 붙여넣어 시작해 보세요.</Text>
+            <Text style={styles.body}>아직 선생님과 진행한 수업이 없어요.</Text>
           ) : (
-            <View style={styles.tutorList}>
+            <View style={styles.list}>
               {tutors.map(({ key, tutor, student }) => (
-                <View key={key} style={styles.tutorRow}>
-                  <View style={styles.tutorInfo}>
-                    <Text style={styles.tutorName}>{tutor} 선생님</Text>
-                    <Text style={styles.tutorSub}>{student}과 함께</Text>
+                <View key={key} style={styles.row}>
+                  <View style={styles.rowInfo}>
+                    <Text style={styles.rowTitle}>{tutor} 선생님</Text>
+                    <Text style={styles.rowSub}>{student}과 함께</Text>
                   </View>
                   <Pill label="연결됨" tone="onCard" />
                 </View>
@@ -291,40 +264,36 @@ export function MyPageClassesPage() {
         </View>
       </View>
       <Modal
-        visible={leaveModalOpen}
-        accessibilityLabel="기관 반 연결 해제 확인"
-        eyebrow="기관 반 연결"
-        title="현재 반 연결을 해제할까요?"
-        positiveAction={{ label: '연결 해제', onPress: leaveCurrentClass, loading: leavingClass }}
-        negativeAction={{ label: '취소', onPress: () => setLeaveModalOpen(false), disabled: leavingClass }}
+        visible={leaveTarget !== null}
+        accessibilityLabel="반에서 빼기 확인"
+        eyebrow="반 연결"
+        title={leaveTarget ? `${leaveTarget.studentName}을(를) ${leaveTarget.className}에서 뺄까요?` : ''}
+        positiveAction={{ label: '반에서 빼기', onPress: leaveSelectedClass, loading: leaving }}
+        negativeAction={{ label: '취소', onPress: () => setLeaveTarget(null), disabled: leaving }}
       >
-        <Text style={styles.modalBody}>기관 수업 기록은 보존되지만, 이 계정은 더 이상 현재 기관의 이용권을 사용하지 않아요.</Text>
+        <Text style={styles.modalBody}>지난 수업 기록은 그대로 남아요. 담임 선생님은 다시 초대하거나 명단에서 지울 수 있어요.</Text>
+        {leaveError ? <StatusBanner variant="warning" label={leaveError} /> : null}
       </Modal>
     </AppNavShell>
   );
 }
 
 /**
- * 사용자가 붙여넣은 값에서 tutor invite 토큰을 뽑아낸다. 지원 형태:
- *  - 순수 토큰 문자열 (whitespace만 트림)
- *  - "https://.../tutor-invite/<token>" 형태의 절대/상대 URL
- *  - "/tutor-invite/<token>" 형태의 경로
- * URL 파싱은 URL 생성자에 기대는데, 실패해도 정규식 fallback으로 마지막 세그먼트를 뽑는다.
+ * 붙여넣은 값에서 선생님 초대 토큰을 뽑는다. 순수 토큰 문자열, "https://.../tutor-invite/<token>"
+ * URL, "/tutor-invite/<token>" 경로를 받는다.
  */
 function extractInviteToken(raw: string): string | null {
   const trimmed = raw.trim();
   if (!trimmed) return null;
-  // URL 형태면 마지막 세그먼트를 뽑는다.
   try {
     const url = new URL(trimmed, 'https://placeholder.local');
     const match = url.pathname.match(/\/tutor-invite\/([^/?#]+)/);
     if (match) return decodeURIComponent(match[1]);
   } catch {
-    // URL 파싱 실패 - 아래 정규식 fallback으로.
+    // URL 파싱 실패 - 아래 정규식으로.
   }
   const pathMatch = trimmed.match(/tutor-invite\/([^/?#\s]+)/);
   if (pathMatch) return decodeURIComponent(pathMatch[1]);
-  // 순수 토큰 - 공백 없는 문자열이면 그대로 반환.
   if (!/\s/.test(trimmed)) return trimmed;
   return null;
 }
@@ -363,20 +332,18 @@ const styles = StyleSheet.create({
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onCardBody,
   },
-  hint: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
   modalBody: {
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onCardBody,
   },
-  pillRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   divider: {
     height: 1,
     marginVertical: 8,
     backgroundColor: storybookTheme.color.pillBorder,
   },
-  tutorList: { gap: 8 },
-  tutorRow: {
+  list: { gap: 8 },
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -385,13 +352,13 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: storybookTheme.color.pillBorder,
   },
-  tutorInfo: { gap: 2 },
-  tutorName: {
+  rowInfo: { flex: 1, gap: 2 },
+  rowTitle: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardTitle,
   },
-  tutorSub: {
+  rowSub: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onCardMuted,
   },

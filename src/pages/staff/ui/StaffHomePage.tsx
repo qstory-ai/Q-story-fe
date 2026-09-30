@@ -12,9 +12,7 @@ type LoadState =
   | { status: 'error'; message: string };
 
 /**
- * STAFF의 랜딩 화면 - 저작할 이야기를 고른다. 예전엔 AccountLinkRow + 라이트 셸을 혼자 쓰고
- * 있었는데, PARENT/CLASS_ACCOUNT/TUTOR 홈은 모두 AppNavShell(다크 스토리북 팔레트)로
- * 옮겨간 뒤였다 - 역할마다 헤더가 다르게 보이던 걸 여기서도 같은 셸로 맞춘다.
+ * STAFF의 랜딩 화면 - 저작할 이야기를 고른다. 다른 역할 홈과 같은 AppNavShell을 쓴다.
  */
 export function StaffHomePage() {
   const navigate = useNavigate();

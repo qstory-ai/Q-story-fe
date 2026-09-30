@@ -9,14 +9,8 @@ export type DashboardNavKey = 'home' | 'library' | 'classes' | 'tutors' | 'usage
 type DashboardNavIcon = 'home' | 'book' | 'graduationCap' | 'report' | 'user' | 'users' | 'calendarDays';
 
 /**
- * AppNavShell에 넣을 항목들. IA의 하단 탭 요구를 반영해 부모/선생님 모두 "서재" 탭을 갖고,
- * 선생님은 여기에 "수업" 탭이 하나 더 붙는다. "리포트"는 PARENT/CLASS_ACCOUNT만 지원한다
- * (ReportHistoryPage.canView와 같은 기준). DIRECTOR/STAFF 같은 통합 리포트가 아직 없는
- * 역할은 이 헬퍼가 아닌 각 역할 화면이 자체 항목을 구성한다.
- *
- * 좁은 화면에서 5탭이 되는 것은 TUTOR만이라 IA에서 요구한 최대치. 하단바 아이템은 flex:1
- * 이라 자동으로 균등 분할되고, 라벨 폰트는 xxs라 400px 근처에서도 잘리지 않는다(확인은
- * QA 체크리스트로 남긴다).
+ * AppNavShell에 넣을 항목들. 부모/선생님은 "서재" 탭을 갖고 선생님은 "수업" 탭이 하나 더 붙는다.
+ * 좁은 화면에서 5탭이 되는 것은 TUTOR만이다. STAFF는 각 화면이 자체 항목을 구성한다.
  */
 export function dashboardNavItems(
   user: UserSummary,
@@ -26,26 +20,21 @@ export function dashboardNavItems(
   const entries: Array<{ key: DashboardNavKey; label: string; icon: DashboardNavIcon; path: string }> = [
     { key: 'home', label: '홈', icon: 'home', path: homePathFor(user) },
   ];
-  if (user.role === 'PARENT' || user.role === 'CLASS_ACCOUNT') {
+  if (user.role === 'PARENT') {
     entries.push({ key: 'library', label: '서재', icon: 'book', path: '/library' });
+    entries.push({ key: 'reports', label: '리포트', icon: 'report', path: '/reports' });
   }
   if (user.role === 'TUTOR') {
     entries.push({ key: 'library', label: '서재', icon: 'book', path: '/tutor/library' });
     entries.push({ key: 'classes', label: '수업', icon: 'graduationCap', path: '/tutor/classes' });
   }
-  if (user.role === 'PARENT' || user.role === 'CLASS_ACCOUNT') {
-    entries.push({ key: 'reports', label: '리포트', icon: 'report', path: '/reports' });
-  }
   if (user.role === 'DIRECTOR') {
-    // 기관 관리자 - 예전엔 홈·마이페이지 두 항목뿐이라 반/선생님/이용현황/리포트를 홈 카드로만
-    // 오갈 수 있었다. 대시보드의 네 목적지를 사이드바(좁은 화면은 하단 탭)에 그대로 둔다.
     entries.push({ key: 'classes', label: '반·학생', icon: 'graduationCap', path: '/organization/classes' });
     entries.push({ key: 'tutors', label: '선생님', icon: 'users', path: '/organization/tutors' });
     entries.push({ key: 'usage', label: '이용 현황', icon: 'calendarDays', path: '/organization/usage' });
     entries.push({ key: 'reports', label: '리포트', icon: 'report', path: '/organization/reports' });
   }
   if (user.role === 'TUTOR') {
-    // 선생님용 리포트 탭 - 자기 학생 세션 완주 기록을 학생별로 묶어 본다.
     entries.push({ key: 'reports', label: '리포트', icon: 'report', path: '/tutor/reports' });
   }
   entries.push({ key: 'mypage', label: '마이페이지', icon: 'user', path: '/mypage' });

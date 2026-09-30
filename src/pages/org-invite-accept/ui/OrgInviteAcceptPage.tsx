@@ -62,7 +62,7 @@ export function OrgInviteAcceptPage() {
     if (!identifier) return;
     if (state.status !== 'authenticated') {
       // 비로그인 - 선생님 가입으로 안내. IA 상 신규 계정 만들며 수락은 지원 범위 밖.
-      navigate(`/signup?role=tutor&redirect=${encodeURIComponent(isCodeFlow ? `/org-invite/code/${identifier}` : `/org-invite/${identifier}`)}`);
+      navigate('/signup?role=tutor');
       return;
     }
     if (state.user.role !== 'TUTOR') {

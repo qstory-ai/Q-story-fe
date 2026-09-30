@@ -2,39 +2,40 @@ import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, RadioGroup, StatusBanner, storybookTheme } from '@/shared/ui';
 import {
-  createClassInvite,
+  assignClassHomeroom,
   dashboardNavItems,
   fetchClass,
-  listClassParents,
+  listClassStudents,
   useAuth,
-  type ClassMemberResponse,
   type ClassResponse,
+  type ClassStudentResponse,
 } from '@/entities/auth';
+import { listOrganizationTutors, type OrganizationTutorLink } from '@/entities/organization-tutor';
 import { messageForError } from '@/shared/api';
-import { InviteCodeCard, classInviteLink, formatInviteExpiry } from '@/features/invite-issue';
 
 type LoadState =
   | { status: 'loading' }
-  | { status: 'ready'; classGroup: ClassResponse; parents: ClassMemberResponse[] }
+  | { status: 'ready'; classGroup: ClassResponse; students: ClassStudentResponse[]; tutors: OrganizationTutorLink[] }
   | { status: 'error'; message: string };
 
 /**
- * IA "반 상세" 화면. 기본 정보(이름/반 코드) + 1회용 초대 링크 발급 + 이 반에 소속된 부모 목록.
- * 반 자체 계정(CLASS_ACCOUNT)의 로그인 정보는 여기서 노출하지 않는다 - 그건 반 계정 홈에서만.
+ * 원장의 반 상세 - 반 코드, 담임 선생님(미정이면 배정), 학생 명단. 학부모는 반 코드로 자기 아이를
+ * 이 명단에 올린다.
  */
 export function OrganizationClassDetailPage() {
   const { classId } = useParams<{ classId: string }>();
   const navigate = useNavigate();
   const { state } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
-  const [issuedInvite, setIssuedInvite] = useState<{ token: string; expiresAt: string } | null>(null);
-  const [issuing, setIssuing] = useState(false);
-  const [issueError, setIssueError] = useState<string | null>(null);
+  const [pickedTutorId, setPickedTutorId] = useState<string | null>(null);
+  const [assigning, setAssigning] = useState(false);
+  const [assignError, setAssignError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
   const canView = state.status === 'authenticated' && state.user.role === 'DIRECTOR';
+  const organizationId = state.status === 'authenticated' ? state.user.organizationId : null;
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -44,11 +45,15 @@ export function OrganizationClassDetailPage() {
   }, [state.status, canView, navigate]);
 
   useEffect(() => {
-    if (state.status !== 'authenticated' || !classId) return;
+    if (state.status !== 'authenticated' || !classId || !organizationId) return;
     let cancelled = false;
-    Promise.all([fetchClass(state.token, classId), listClassParents(state.token, classId).catch(() => [])])
-      .then(([classGroup, parents]) => {
-        if (!cancelled) setLoad({ status: 'ready', classGroup, parents });
+    Promise.all([
+      fetchClass(state.token, classId),
+      listClassStudents(state.token, classId),
+      listOrganizationTutors(state.token, organizationId),
+    ])
+      .then(([classGroup, students, tutors]) => {
+        if (!cancelled) setLoad({ status: 'ready', classGroup, students, tutors });
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
@@ -60,27 +65,27 @@ export function OrganizationClassDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, classId, reloadKey]);
+  }, [state, classId, organizationId, reloadKey]);
 
-  const onIssueInvite = useCallback(async () => {
-    if (state.status !== 'authenticated' || !classId) return;
-    setIssuing(true);
-    setIssueError(null);
+  const onAssign = useCallback(async () => {
+    if (state.status !== 'authenticated' || !classId || !pickedTutorId) return;
+    setAssigning(true);
+    setAssignError(null);
     try {
-      const invite = await createClassInvite(state.token, classId);
-      setIssuedInvite(invite);
+      await assignClassHomeroom(state.token, classId, pickedTutorId);
+      setPickedTutorId(null);
+      setReloadKey((n) => n + 1);
     } catch (failure: unknown) {
-      setIssueError(messageForError(failure, '초대 코드를 만들지 못했어요. 잠시 후 다시 시도해 주세요.'));
+      setAssignError(messageForError(failure, '담임 선생님을 배정하지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
-      setIssuing(false);
+      setAssigning(false);
     }
-  }, [state, classId]);
+  }, [state, classId, pickedTutorId]);
 
   if (!canView) return null;
 
-
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')} onBack={() => navigate('/organization/classes')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/organization/classes')}>
       <View style={styles.content}>
         {load.status === 'loading' && <LoadingState label="반 정보를 불러오는 중이에요…" />}
 
@@ -97,46 +102,59 @@ export function OrganizationClassDetailPage() {
                 <Text style={styles.metaValue}>{load.classGroup.joinCode}</Text>
               </View>
               <Text style={styles.body}>
-                반 코드는 부모가 회원가입 시 사용할 수 있는 영구 코드예요. 아래에서 1회용 초대 링크도 발급할 수 있어요.
+                학부모가 이 코드로 가입하면 아이가 아래 학생 명단에 올라가요. 코드는 여러 번 쓸 수 있어요.
               </Text>
             </View>
 
             <View style={styles.card}>
-              <Text style={styles.sectionTitle}>1회용 초대 발급</Text>
-              <Text style={styles.body}>
-                반 코드와 별개로, 특정 부모에게만 전달할 1회용 초대 링크를 발급할 수 있어요. 발급된 링크는 14일 후 만료돼요.
-              </Text>
-              <ActionButton
-                label={issuing ? '초대 만드는 중…' : '초대 링크 발급'}
-                onPress={onIssueInvite}
-                disabled={issuing}
-              />
-              {issueError ? <StatusBanner variant="warning" label={issueError} /> : null}
-              {issuedInvite ? (
-                <InviteCodeCard
-                  shortCode={issuedInvite.token.slice(0, 8).toUpperCase()}
-                  link={classInviteLink(issuedInvite.token)}
-                  expiresLabel={formatInviteExpiry(issuedInvite.expiresAt)}
-                  onDismiss={() => setIssuedInvite(null)}
-                />
-              ) : null}
+              <Text style={styles.sectionTitle}>담임 선생님</Text>
+              {load.classGroup.tutorId ? (
+                <Text style={styles.body}>
+                  {load.tutors.find((link) => link.tutorId === load.classGroup.tutorId)?.tutorDisplayName ?? '배정된 선생님'}
+                </Text>
+              ) : (
+                <>
+                  <Text style={styles.body}>
+                    아직 담임이 없어요. 배정하면 지금까지 명단에 올라온 학생이 그 선생님의 학생이 되고, 이후 수업과 리포트는 선생님 계정에서 이어져요.
+                  </Text>
+                  {load.tutors.length === 0 ? (
+                    <Text style={styles.body}>기관에 소속된 선생님이 없어요. 선생님 메뉴에서 초대해 주세요.</Text>
+                  ) : (
+                    <>
+                      <RadioGroup
+                        accessibilityLabel="담임으로 배정할 선생님"
+                        value={pickedTutorId}
+                        onChange={setPickedTutorId}
+                        options={load.tutors.map((link) => ({ value: link.tutorId, label: link.tutorDisplayName }))}
+                      />
+                      {assignError ? <StatusBanner variant="warning" label={assignError} /> : null}
+                      <ActionButton
+                        label={assigning ? '배정 중…' : '담임으로 배정'}
+                        onPress={onAssign}
+                        disabled={!pickedTutorId || assigning}
+                      />
+                    </>
+                  )}
+                </>
+              )}
             </View>
 
             <View style={styles.card}>
-              <Text style={styles.sectionTitle}>반에 속한 부모 {load.parents.length}명</Text>
-              {load.parents.length === 0 ? (
-                <Text style={styles.body}>아직 반에 참여한 부모가 없어요. 반 코드나 초대 링크를 전달해 보세요.</Text>
+              <Text style={styles.sectionTitle}>학생 {load.students.length}명</Text>
+              {load.students.length === 0 ? (
+                <Text style={styles.body}>아직 명단에 학생이 없어요. 학부모에게 반 코드를 전달해 보세요.</Text>
               ) : (
                 <View style={styles.list}>
-                  {load.parents.map((parent) => (
-                    <View key={parent.id} style={styles.parentRow}>
-                      <View style={styles.parentBody}>
-                        <Text style={styles.parentName}>
-                          {parent.displayName}
-                          {parent.childName ? ` · ${parent.childName} 보호자` : ''}
+                  {load.students.map((student) => (
+                    <View key={student.id} style={styles.studentRow}>
+                      <View style={styles.studentBody}>
+                        <Text style={styles.studentName}>{student.name} · {student.ageBand}</Text>
+                        <Text style={styles.studentMeta}>
+                          {student.parentDisplayName
+                            ? `학부모 ${student.parentDisplayName}${student.parentEmail ? ` · ${student.parentEmail}` : ''}`
+                            : '학부모 연결 대기 중'}
                         </Text>
-                        {parent.email ? <Text style={styles.parentMeta}>{parent.email}</Text> : null}
-                        <Text style={styles.parentMeta}>참여: {formatShortDate(parent.joinedAt)}</Text>
+                        <Text style={styles.studentMeta}>등록: {formatShortDate(student.createdAt)}</Text>
                       </View>
                     </View>
                   ))}
@@ -205,17 +223,17 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
   },
   list: { gap: 8 },
-  parentRow: {
+  studentRow: {
     paddingVertical: 12,
     borderTopWidth: 1,
     borderTopColor: storybookTheme.color.pillBorder,
     gap: 2,
   },
-  parentBody: { gap: 2 },
-  parentName: {
+  studentBody: { gap: 2 },
+  studentName: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardTitle,
   },
-  parentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
+  studentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
 });

@@ -12,8 +12,6 @@ type Props = {
   token: string;
   value: TutorClassSelection;
   onChange: (next: TutorClassSelection) => void;
-  /** 학생 등록/상세처럼 "개인 레슨 / 반 수업" 라디오까지 보여줄지. 수업 폼은 반 선택만 쓴다. */
-  showTypeToggle?: boolean;
 };
 
 type ClassesLoad =
@@ -26,7 +24,7 @@ type ClassesLoad =
  * (GET /v1/tutor-classes). 목록에 없으면 이 자리에서 바로 새 반을 만들 수 있고, 소속 기관이 있으면
  * 그 기관 안의 반으로 만들지 고를 수 있다(기관 관리자의 반 목록에도 함께 보인다).
  */
-export function TutorClassPicker({ token, value, onChange, showTypeToggle = true }: Props) {
+export function TutorClassPicker({ token, value, onChange }: Props) {
   const [load, setLoad] = useState<ClassesLoad>({ status: 'loading' });
   const [newClassName, setNewClassName] = useState('');
   const [newClassOrganizationId, setNewClassOrganizationId] = useState<string | null>(null);
@@ -79,21 +77,19 @@ export function TutorClassPicker({ token, value, onChange, showTypeToggle = true
 
   return (
     <View style={styles.container}>
-      {showTypeToggle ? (
-        <RadioGroup
-          accessibilityLabel="수업 형태"
-          options={[
-            { value: 'INDIVIDUAL', label: '개인 레슨', description: '아이 한 명과 1:1로 진행해요.' },
-            { value: 'CLASS', label: '반 수업', description: '같은 반 아이들과 함께 진행해요. 반 수업을 만들면 반 아이들이 자동으로 참여해요.' },
-          ]}
-          value={value.lessonType}
-          onChange={(next) =>
-            onChange({ lessonType: next as TutorLessonType, classGroupId: next === 'CLASS' ? value.classGroupId : null })
-          }
-        />
-      ) : null}
+      <RadioGroup
+        accessibilityLabel="수업 형태"
+        options={[
+          { value: 'INDIVIDUAL', label: '개인 레슨', description: '아이 한 명과 1:1로 진행해요.' },
+          { value: 'CLASS', label: '반 수업', description: '같은 반 아이들과 함께 진행해요. 반 수업을 만들면 반 아이들이 자동으로 참여해요.' },
+        ]}
+        value={value.lessonType}
+        onChange={(next) =>
+          onChange({ lessonType: next as TutorLessonType, classGroupId: next === 'CLASS' ? value.classGroupId : null })
+        }
+      />
 
-      {value.lessonType === 'CLASS' || !showTypeToggle ? (
+      {value.lessonType === 'CLASS' ? (
         <View style={styles.classBlock}>
           {load.status === 'loading' ? (
             <Text style={styles.helper}>반 목록을 불러오는 중이에요…</Text>

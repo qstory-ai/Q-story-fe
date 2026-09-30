@@ -6,7 +6,7 @@ import { messageForError } from '@/shared/api';
 import { useAuth } from '@/entities/auth';
 import { createLesson, updateLesson, type Lesson } from '@/entities/lesson';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
-import { createTutorStudent, listTutorStudents, type TutorStudent } from '@/entities/tutor';
+import { createTutorStudent, listTutorStudents, type TutorLessonType, type TutorStudent } from '@/entities/tutor';
 import { TutorClassPicker } from '@/features/tutor-class-picker';
 import { BirthYearChips } from '@/entities/child';
 
@@ -47,9 +47,12 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
   const [selectedStoryIds, setSelectedStoryIds] = useState<Set<string>>(
     () => new Set(editing?.storyIds ?? []),
   );
-  // 반 수업이면 어느 반인지. 반을 고르면 그 반의 학생이 참여 학생으로 자동 선택된다(BE도 studentIds가
-  // 비어 오면 반 학생으로 채우지만, 화면에서 바로 보이게 여기서도 채운다).
+  // 수업 형태와 반. 형태를 따로 두는 이유: "반 수업"을 누른 뒤 반을 고르기 전까지는 classGroupId가 비어
+  // 있어서, classGroupId로 형태를 계산하면 라디오가 곧바로 "개인 레슨"으로 되돌아갔다. 반을 고르면 그 반의
+  // 학생이 참여 학생으로 자동 선택된다(BE도 studentIds가 비어 오면 반 학생으로 채우지만 화면에서 바로 보이게).
+  const [lessonType, setLessonType] = useState<TutorLessonType>(() => (editing?.classGroupId ? 'CLASS' : 'INDIVIDUAL'));
   const [classGroupId, setClassGroupId] = useState<string | null>(() => editing?.classGroupId ?? null);
+  const needsClass = lessonType === 'CLASS' && !classGroupId;
   // 반을 만든 김에 그 반의 학생을 이 자리에서 여러 명 등록한다 - 등록 화면을 오가지 않게. 제출 시
   // 이름이 있는 줄마다 학생을 만들어(반 수업, 보호자 연결 대기) 참여 학생에 넣는다.
   const [quickStudents, setQuickStudents] = useState<{ name: string; birthYear: number }[]>([]);
@@ -92,8 +95,9 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
     if (name.trim().length === 0) return false;
     if (kind === 'RECURRING' && recurringPreviewCount === 0) return false;
     if (isSeriesEdit && applyScope === null) return false;
+    if (needsClass) return false;
     return true;
-  }, [name, submitting, kind, recurringPreviewCount, isSeriesEdit, applyScope]);
+  }, [name, submitting, kind, recurringPreviewCount, isSeriesEdit, applyScope, needsClass]);
 
   // auth state 객체 전체가 아니라 token에만 의존해야 프로필 갱신 등으로 목록을 다시 받지 않는다.
   useEffect(() => {
@@ -386,8 +390,9 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
             <Text style={styles.groupLabel}>대상</Text>
             <TutorClassPicker
               token={state.token}
-              value={{ lessonType: classGroupId ? 'CLASS' : 'INDIVIDUAL', classGroupId }}
+              value={{ lessonType, classGroupId }}
               onChange={(next) => {
+                setLessonType(next.lessonType);
                 setClassGroupId(next.classGroupId);
                 if (next.classGroupId && refs.status === 'ready') {
                   setSelectedStudentIds(
@@ -396,7 +401,9 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
                 }
               }}
             />
-            {classGroupId ? (
+            {needsClass ? (
+              <Text style={styles.helper}>반 수업이면 반을 고르거나 새 반을 만들어 주세요.</Text>
+            ) : classGroupId ? (
               <Text style={styles.helper}>반 학생이 참여 학생으로 자동 선택됐어요. 아래에서 빼거나 더할 수 있어요.</Text>
             ) : null}
             {!isEdit ? (

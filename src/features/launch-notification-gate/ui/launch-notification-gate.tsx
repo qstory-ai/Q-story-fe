@@ -14,26 +14,16 @@ const GENDER_OPTIONS: { value: ChildGender; label: string }[] = [
 ];
 
 /**
- * 무료 데모("/demo")에 들어가기 전 반드시 거쳐야 하는 연락처 수집 모달 - DemoStoryRoute
- * 전용이다(StoryPlayerRoute의 정식 플레이 경로에는 걸지 않는다 - 그쪽은 이미 가입을 거친
- * 사용자라 다시 물을 이유가 없고, 이 코드베이스는 라우트별로 다른 관문을 두는 걸 선호한다 -
- * StoryPlayerRoute.tsx 참고). "연락 받고 싶어요"와 "괜찮아요" 둘 다 같은 필드를 요구하며,
- * 둘 다 정보를 동일하게 서버로 보낸다 - 차이는 wantsContact 플래그뿐이다(괜찮아요는
- * 능동적으로 연락하지 않겠다는 의미일 뿐, 신청 자체를 건너뛰는 게 아니다). 필수 항목이 비어
- * 있으면 버튼은 눌러도 제출되지 않고 대신 어떤 항목이 비었는지 각 필드 아래 보여준다(그냥
- * 조용히 막기만 하면 왜 안 되는지 알 수 없다). Modal에 linkAction/scrim 닫기를 주지 않아
- * 아무 정보도 없이 그냥 지나치는 경로만 구조적으로 없앴다.
- *
- * 통과 여부는 로그인 상태면 계정 단위로, 익명이면 기존처럼 브라우저 단위로 기억한다 -
- * 브라우저 하나로만 묶으면 한 계정(혹은 익명 상태)에서 한 번 통과한 뒤로는 다른 계정으로
- * 로그인해도 다시는 뜨지 않는 문제가 있었다.
+ * 무료 데모("/demo")에 들어가기 전 거치는 연락처 수집 모달 - DemoStoryRoute 전용(정식 플레이
+ * 경로는 이미 가입한 사용자라 걸지 않는다). "연락 받고 싶어요"/"괜찮아요" 둘 다 같은 필드를
+ * 요구하고 서버에 보내며, 차이는 wantsContact 플래그뿐이다. linkAction/scrim 닫기를 주지 않아
+ * 정보 없이 지나치는 경로를 막는다.
  */
 export function LaunchNotificationGate({ children }: { children: ReactNode }) {
   const { state: auth } = useAuth();
   const accountId = auth.status === 'authenticated' ? auth.user.id : null;
   const form = useLaunchNotificationGate(accountId);
-  // 필드가 비었어도 버튼은 그냥 눌리지 않기만 할 뿐 아무 설명이 없었다 - 한 번이라도 눌러
-  // 보면(canSubmit이 false인 채로) 그때부터 어떤 항목이 비었는지 각 필드 아래 보여준다.
+  // 미완성 상태로 한 번 누른 뒤부터 어떤 항목이 비었는지 각 필드 아래 보여준다.
   const [showValidation, setShowValidation] = useState(false);
 
   if (form.passed) return <>{children}</>;
@@ -48,6 +38,7 @@ export function LaunchNotificationGate({ children }: { children: ReactNode }) {
 
   const fieldError = (valid: boolean, message: string) =>
     showValidation && !valid ? message : undefined;
+  const genderError = fieldError(form.childGender !== null, '아이 성별을 선택해 주세요.');
 
   return (
     <Modal
@@ -119,9 +110,7 @@ export function LaunchNotificationGate({ children }: { children: ReactNode }) {
             </Pressable>
           ))}
         </View>
-        {fieldError(form.childGender !== null, '아이 성별을 선택해 주세요.') ? (
-          <Text style={styles.fieldErrorText}>아이 성별을 선택해 주세요.</Text>
-        ) : null}
+        {genderError ? <Text style={styles.fieldErrorText}>{genderError}</Text> : null}
       </View>
 
       <TextField

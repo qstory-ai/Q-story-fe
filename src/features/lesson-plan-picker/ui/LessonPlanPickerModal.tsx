@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Modal, storybookTheme } from '@/shared/ui';
@@ -35,12 +35,14 @@ export function LessonPlanPickerModal({ visible, storyId, storyTitle, onClose, o
   const [savingStudentId, setSavingStudentId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const canFetch = visible && state.status === 'authenticated' && state.user.role === 'TUTOR';
+  const tutorToken = state.status === 'authenticated' && state.user.role === 'TUTOR' ? state.token : null;
+  const isNonTutor = state.status === 'authenticated' && state.user.role !== 'TUTOR';
 
+  // auth state 객체 전체가 아니라 token에만 의존해 불필요한 재요청을 막는다.
   useEffect(() => {
-    if (!canFetch || state.status !== 'authenticated') return;
+    if (!visible || !tutorToken) return;
     let cancelled = false;
-    listTutorStudents(state.token)
+    listTutorStudents(tutorToken)
       .then((list) => {
         if (!cancelled) setStudents({ status: 'ready', students: list });
       })
@@ -52,15 +54,12 @@ export function LessonPlanPickerModal({ visible, storyId, storyTitle, onClose, o
     return () => {
       cancelled = true;
     };
-  }, [canFetch, state]);
+  }, [visible, tutorToken]);
 
-  // 미인증 사용자용 파생 뷰 - fetch 상태에는 저장하지 않고 렌더 시점에만 계산한다.
-  const effectiveStudents = useMemo<StudentsLoad>(
-    () => (visible && state.status === 'authenticated' && state.user.role !== 'TUTOR'
-      ? { status: 'error', message: '선생님 계정으로 로그인해야 이용할 수 있어요.' }
-      : students),
-    [visible, state, students],
-  );
+  // 선생님이 아닌 계정용 파생 뷰 - fetch 상태에는 저장하지 않고 렌더 시점에만 계산한다.
+  const effectiveStudents: StudentsLoad = visible && isNonTutor
+    ? { status: 'error', message: '선생님 계정으로 로그인해야 이용할 수 있어요.' }
+    : students;
 
   async function assign(student: TutorStudent) {
     if (state.status !== 'authenticated') return;

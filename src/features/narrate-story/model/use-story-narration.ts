@@ -359,10 +359,7 @@ export function useStoryNarration(
       setFixedPaused(true);
       return true;
     }
-    // 'live'(고정 오디오 없이 그 자리에서 만든 TTS)도 일시정지할 수 있어야 한다 - "OO에게
-    // 물어보기"를 누르면 재생 중인 낭독이 실제로 멎어야 하는데, 이 소스는 그동안 pause()가
-    // 아무것도 안 하고 false만 돌려줘서(모달은 그래도 열리니) 뒤에서 계속 재생되고 있었다.
-    // pauseActivePlayback()이 재생 자체(공유 <audio>/AudioContext)를 실제로 멈춘다.
+    // 'live' TTS는 공유 <audio>/AudioContext 재생을 pauseActivePlayback()으로 직접 멈춘다.
     if (activeSource === 'live' && liveSpeaking && !livePaused) {
       const paused = pauseActivePlayback();
       if (paused) {

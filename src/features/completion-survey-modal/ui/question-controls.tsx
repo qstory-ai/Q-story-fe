@@ -2,6 +2,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { TextField, storybookTheme } from '@/shared/ui';
 
+import { OTHER_CHOICE } from '../model/use-completion-survey';
+
 function QuestionLabel({ label, errorText }: { label: string; errorText?: string }) {
   return (
     <View style={styles.labelRow}>
@@ -52,7 +54,7 @@ export function SingleChoiceQuestion({
   onOtherChange?: (value: string) => void;
   errorText?: string;
 }) {
-  const isOtherSelected = allowOther && value === '기타';
+  const isOtherSelected = allowOther && value === OTHER_CHOICE;
   return (
     <View style={styles.field}>
       <QuestionLabel label={label} errorText={errorText} />
@@ -66,7 +68,7 @@ export function SingleChoiceQuestion({
           />
         ))}
         {allowOther ? (
-          <Chip label="기타" selected={!!isOtherSelected} onPress={() => onChange('기타')} />
+          <Chip label={OTHER_CHOICE} selected={!!isOtherSelected} onPress={() => onChange(OTHER_CHOICE)} />
         ) : null}
       </View>
       {isOtherSelected ? (
@@ -101,7 +103,7 @@ export function MultiChoiceQuestion({
   onOtherChange?: (value: string) => void;
   errorText?: string;
 }) {
-  const isOtherSelected = allowOther && values.includes('기타');
+  const isOtherSelected = allowOther && values.includes(OTHER_CHOICE);
   return (
     <View style={styles.field}>
       <QuestionLabel label={label} errorText={errorText} />
@@ -115,7 +117,7 @@ export function MultiChoiceQuestion({
           />
         ))}
         {allowOther ? (
-          <Chip label="기타" selected={!!isOtherSelected} onPress={() => onToggle('기타')} />
+          <Chip label={OTHER_CHOICE} selected={!!isOtherSelected} onPress={() => onToggle(OTHER_CHOICE)} />
         ) : null}
       </View>
       {isOtherSelected ? (

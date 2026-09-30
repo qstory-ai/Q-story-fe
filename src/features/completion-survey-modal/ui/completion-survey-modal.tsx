@@ -23,11 +23,8 @@ function toggle(values: string[], option: string) {
 }
 
 /**
- * 완주 후 부모 리포트 화면의 "1분 체험 후기 남기기"가 여는 인앱 설문 - 기존에는 같은 문항을
- * 외부 Google Form으로 리다이렉트해서 받았다(entities/analytics/model/beta-events.ts의
- * getCompletionSurveyUrl 참고). 문항 구성은 그 Form과 동일하게 유지한다 - 이미 쌓인 응답과
- * 비교할 수 있어야 하기 때문이다. LaunchNotificationGate와 달리 선택 사항이라 linkAction으로
- * 건너뛸 수 있다.
+ * 완주 후 부모 리포트 화면의 "1분 체험 후기 남기기"가 여는 인앱 설문. 문항은 기존 Google Form과
+ * 동일하게 유지한다 - 이미 쌓인 응답과 비교할 수 있어야 하기 때문이다. 선택 사항이라 건너뛸 수 있다.
  */
 export function CompletionSurveyModal({
   visible,
@@ -39,8 +36,7 @@ export function CompletionSurveyModal({
   onClose: () => void;
 }) {
   const form = useCompletionSurvey(storyId);
-  // 필수 항목이 비어있어도 "후기 보내기"는 그냥 눌리지 않기만 할 뿐 설명이 없으면 안 되므로,
-  // 한 번이라도 눌러보면(canSubmit이 false인 채로) 그때부터 각 필드 아래 무엇이 비었는지 보여준다.
+  // 미완성 상태로 "후기 보내기"를 한 번 누른 뒤부터 각 필드 아래 무엇이 비었는지 보여준다.
   const [showValidation, setShowValidation] = useState(false);
 
   if (!visible) return null;
@@ -134,11 +130,7 @@ export function CompletionSurveyModal({
         allowOther
         otherValue={form.childReactionsOtherText}
         onOtherChange={form.setChildReactionsOtherText}
-        errorText={fieldError(
-          form.childReactions.length > 0 &&
-            (!form.childReactionsOtherOn || form.childReactionsOtherText.trim().length > 0),
-          '아이가 보인 반응을 선택해 주세요.',
-        )}
+        errorText={fieldError(form.childReactionsValid, '아이가 보인 반응을 선택해 주세요.')}
       />
       <MultiChoiceQuestion
         label="체험 중 불편하거나 흐름이 끊긴 순간이 있었나요? 모두 골라주세요."
@@ -163,12 +155,7 @@ export function CompletionSurveyModal({
         allowOther
         otherValue={form.bestAspectOtherText}
         onOtherChange={form.setBestAspectOtherText}
-        errorText={fieldError(
-          form.bestAspectOtherOn
-            ? form.bestAspectOtherText.trim().length > 0
-            : form.bestAspect.length > 0,
-          '가장 좋았던 점을 선택해 주세요.',
-        )}
+        errorText={fieldError(form.bestAspectValid, '가장 좋았던 점을 선택해 주세요.')}
       />
       <TextField
         label="가장 먼저 고쳤으면 하는 점이 있다면 한 가지만 적어주세요. (선택)"

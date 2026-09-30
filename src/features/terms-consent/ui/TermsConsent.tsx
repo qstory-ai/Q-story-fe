@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Checkbox, storybookTheme } from '@/shared/ui';
@@ -31,7 +30,7 @@ type Props = {
 };
 
 export function TermsConsent({ value, onChange, onOpenDoc }: Props) {
-  const allChecked = useMemo(() => value.service && value.privacy && value.marketing, [value]);
+  const allChecked = value.service && value.privacy && value.marketing;
 
   function toggleAll(next: boolean) {
     onChange({ service: next, privacy: next, marketing: next });

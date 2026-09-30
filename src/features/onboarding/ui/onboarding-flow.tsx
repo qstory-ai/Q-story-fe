@@ -65,16 +65,12 @@ type OnboardingFlowProps = {
   initialStep?: OnboardingStep;
   initialRole?: OnboardingRole;
   /** 선생님의 부모 초대(코드/토큰)로 들어올 때 - PARENT role로 잠기고 tutor-preview부터 시작해서
-   *  미리보기 → (로그인 또는 가입) → 동의 → 연결 완료까지 이 흐름 안에서 전부 처리한다.
-   *  예전엔 /tutor-invite/:token이 ParentLinkAcceptPage라는 별도 화면·스타일·상태머신으로 완전히
-   *  분리돼 있었다 - 기관 반코드 매칭(이 컴포넌트 안에 통합돼 있음)과 겪는 경험이 달랐던 걸
-   *  하나로 합쳤다. */
+   *  미리보기 → (로그인 또는 가입) → 동의 → 연결 완료까지 이 흐름 안에서 전부 처리한다. */
   initialTutorInvite?: TutorInviteRef;
   /** "← 처음으로"로 닫을 때 - HomePage가 평소 화면으로 되돌아간다. */
   onExit: () => void;
-  /** 이 흐름 안에서 세션이 만들어졌을 때(가입 직후, 초대 수락 직후). HomePage가 이걸 보고 "로그인된
-   *  사용자는 역할 홈으로" 리다이렉트를 잠시 보류한다 - 아니면 가입 직후 캐러셀·아이 등록 단계로 가기
-   *  전에 홈으로 튕긴다. */
+  /** 이 흐름 안에서 세션이 만들어졌을 때(가입·초대 수락 직후). HomePage가 이걸 보고 역할 홈
+   *  리다이렉트를 보류한다 - 아니면 캐러셀·아이 등록 단계 전에 홈으로 튕긴다. */
   onSessionCreated?: () => void;
 };
 
@@ -106,14 +102,11 @@ const TUTOR_CONSENT_SHARED_ITEMS = ['선생님이 진행한 질문·장면·리�
 const TUTOR_CONSENT_HIDDEN_ITEMS = ['가정 구독·결제·다른 이야기', '음성 원본과 아이의 성향 평가'];
 
 /**
- * 환영→역할선택→가입/로그인으로 이어지는 순차 온보딩. 가치제안 캐러셀(ValueOnboardingStep)은 가입
- * 전이 아니라 "방금 가입해 세션은 생겼지만 아직 홈으로 가지 않은" 순간에 한 번만 끼워 넣는다 - 첫 가입
- * 직후에만 보이고 이후 로그인(onSignedIn)에서는 다시 나오지 않는다. 이 화면들은 순수 클라이언트 UI
- * 단계라 auth 상태로 유도할 수 없어서 로컬 step state + go(step)를 쓰는 작은 상태머신으로 뒀다.
+ * 환영→역할선택→가입/로그인 순차 온보딩(로컬 step 상태머신). 가치제안 캐러셀은 첫 가입 직후
+ * 홈으로 가기 전에만 한 번 보인다.
  *
- * <p>선생님 초대(tutor-preview/tutor-consent)도 같은 상태머신 안에 산다. tutor-preview에서 미리보기를
- * 보여준 뒤 기존 sign-up/sign-in 스텝을 재사용하고(계정 정보만 모아두고 API는 아직 안 부름),
- * tutor-consent에서 공유 범위를 확인받은 다음에야 계정 생성+초대 수락을 한 번에 부른다.
+ * <p>선생님 초대(tutor-preview/tutor-consent)도 같은 상태머신 안에 있다. sign-up/sign-in 스텝을
+ * 재사용해 계정 정보만 모아 두고, tutor-consent에서 동의를 받은 뒤 계정 생성+초대 수락을 한 번에 부른다.
  */
 export function OnboardingFlow({
   initialStep = 'welcome',
@@ -129,16 +122,15 @@ export function OnboardingFlow({
   const [role, setRole] = useState<OnboardingRole | null>(initialTutorInvite ? 'PARENT' : (initialRole ?? null));
   // 방금 가입한 계정을 어디로 보낼지 - 캐러셀을 다 보거나 건너뛴 뒤에 이동한다.
   const [pendingHomePath, setPendingHomePath] = useState<string | null>(null);
-  const go = useCallback((next: OnboardingStep) => setStep(next), []);
+  const go = setStep;
 
   // ---- 선생님 초대(tutor-preview/tutor-consent) 전용 상태 ----
   const [tutorPreviewLoading, setTutorPreviewLoading] = useState(Boolean(initialTutorInvite));
   const [tutorPreview, setTutorPreview] = useState<TutorInvitePreview | null>(null);
   const [tutorPreviewError, setTutorPreviewError] = useState<string | null>(null);
   const [pendingTutorAccept, setPendingTutorAccept] = useState<PendingTutorAccept | null>(null);
-  // sign-up으로 왔는지 sign-in으로 왔는지 - tutor-consent에서 성공했을 때 신규 가입 취급(캐러셀
-  // 경유)할지 로그인 취급(곧장 홈)할지, 그리고 "← 이전"이 어디로 돌아갈지 가른다. 별도 상태가 아니라
-  // pendingTutorAccept.kind에서 그대로 나온다('token' = 기존 계정, 'new-account' = 새 계정).
+  // 초대 수락 후 신규 가입 취급(캐러셀 경유)할지 로그인 취급(곧장 홈)할지, "← 이전"이 어디로
+  // 돌아갈지 가른다('token' = 기존 계정, 'new-account' = 새 계정).
   const tutorAuthMode: 'sign-up' | 'sign-in' | null =
     pendingTutorAccept === null ? null : pendingTutorAccept.kind === 'token' ? 'sign-in' : 'sign-up';
   // 링크에 token/code가 아예 없는 경우(잘린 공유 문구 등) - 조회할 것도 없이 오류로 보여 준다.
@@ -170,10 +162,8 @@ export function OnboardingFlow({
     [setSession, goHome],
   );
 
-  // 방금 가입해 세션은 이미 생겼지만, 홈으로 보내기 전에 가치 제안 캐러셀을 한 번 보여준다 -
-  // 이 계정이 존재하는 한 다시 로그인해도 나오지 않는, 통틀어 딱 한 번뿐인 순간이다.
-  // 캐러셀이 끝나면 역할별 온보딩(부모 아이 등록, 선생님 소속 설정)으로 이어지고, 온보딩이
-  // 끝나면 그때 각 역할의 실제 홈으로 진입한다.
+  // 가입 직후 홈으로 보내기 전에 가치 제안 캐러셀을 한 번 보여주고, 이어서 역할별 온보딩
+  // (부모 아이 등록, 선생님 소속 설정)으로 보낸다.
   const onSignedUp: OnAuthed = useCallback(
     (token, user) => {
       onSessionCreated?.();
@@ -241,9 +231,8 @@ export function OnboardingFlow({
       if (pendingTutorAccept.kind === 'new-account') {
         void updateNotificationSettings(response.token, { marketingEnabled: pendingTutorAccept.marketing }).catch(() => {});
       }
-      // 곧장 홈/캐러셀로 보내지 않고 "연결됐어요" 확인 화면(tutor-linked)을 한 번 거친다 - 예전엔
-      // 동의 버튼을 누르자마자 마케팅 캐러셀이나 부모 홈으로 튕겨서, 연결이 실제로 됐는지 부모가
-      // 확인할 순간이 없었다. 세션은 여기서 바로 만들고, 다음 목적지만 pendingHomePath에 둔다.
+      // 연결 여부를 부모가 확인할 수 있게 "연결됐어요" 화면(tutor-linked)을 한 번 거친다.
+      // 세션은 여기서 바로 만들고, 다음 목적지만 pendingHomePath에 둔다.
       onSessionCreated?.();
       setSession(response.token, response.user);
       setPendingHomePath(
@@ -261,9 +250,7 @@ export function OnboardingFlow({
     }
   }, [initialTutorInvite, pendingTutorAccept, tutorAuthMode, setSession, go, onSessionCreated]);
 
-  // 캐러셀(value-onboarding)엔 자체 "건너뛰기"가 있고, 연결 완료(tutor-linked)는 되돌아갈 이전
-  // 단계가 없다(이미 계정이 만들어지고 연결까지 끝난 뒤) - 두 화면에선 상단 링크를 아예 숨긴다.
-  // 예전엔 캐러셀의 "← 이전"이 실제로는 홈으로 *앞서* 가는 버튼이었다.
+  // 캐러셀엔 자체 "건너뛰기"가 있고, 연결 완료 뒤엔 되돌아갈 단계가 없어 상단 링크를 숨긴다.
   const hideTopLink = step === 'value-onboarding' || step === 'tutor-linked';
 
   return (
@@ -295,9 +282,8 @@ export function OnboardingFlow({
         </Pressable>
       )}
 
-      {/* ScrollView - 가입 폼(입력 5개 + 약관 카드 + 소셜 버튼)은 폰 세로 화면보다 길어서, 평범한
-          View였을 땐 아래쪽 버튼이 화면 밖으로 잘린 채 닿지 않았다. keyboardShouldPersistTaps로
-          입력 중 버튼 탭이 키보드 닫기에 먹히지 않게 한다. */}
+      {/* 가입 폼은 폰 세로 화면보다 길어 스크롤한다. keyboardShouldPersistTaps로 입력 중 버튼 탭이
+          키보드 닫기에 먹히지 않게 한다. */}
       <ScrollView
         style={styles.bodyScroll}
         contentContainerStyle={styles.body}
@@ -488,8 +474,7 @@ function RoleStep({ onSelect }: { onSelect: (role: OnboardingRole) => void }) {
 
 /**
  * 선생님 초대 링크/코드로 들어왔을 때 첫 화면 - 누가, 어떤 아이 앞으로 보낸 초대인지 계정을
- * 만들거나 로그인하기 전에 먼저 보여준다("내 아이가 맞나?" 확인). 예전 ParentLinkAcceptPage의
- * 'preview' 스테이지와 같은 역할.
+ * 만들거나 로그인하기 전에 먼저 보여준다("내 아이가 맞나?" 확인).
  */
 function TutorPreviewStep({
   loading,
@@ -527,8 +512,7 @@ function TutorPreviewStep({
     );
   }
   if (error || !preview) {
-    // 예전엔 메시지만 있고 버튼이 없어서, 만료됐거나 잘못 적힌 코드로 들어온 부모는 여기서
-    // 막다른 길이었다 - 재시도와 나가는 길을 둘 다 준다.
+    // 만료·오타 코드로 들어온 부모가 막다른 길에 서지 않게 재시도와 나가는 길을 둘 다 준다.
     return (
       <View style={styles.welcome}>
         <ErrorState message={error ?? '초대 정보를 불러오지 못했어요.'} onRetry={onRetry} />
@@ -575,8 +559,7 @@ function TutorPreviewStep({
   );
 }
 
-/** 예전 ParentLinkAcceptPage의 'consent' 스테이지 - 문구/항목은 그대로, 스타일만 이 온보딩
- * 흐름의 공유 톤(styles.title/welcomeCard 등)에 맞췄다. */
+/** 초대 수락 전 공유 범위 확인 단계. */
 function TutorConsentStep({
   preview,
   submitting,
@@ -732,7 +715,7 @@ function SignUpStep({
     }
     setError(null);
     // 선생님 초대는 계정을 여기서 만들지 않는다 - tutor-consent에서 동의를 받은 뒤 초대 수락
-    // API가 계정 생성까지 한 번에 처리한다(ParentLinkAcceptPage.onAccept와 같은 계약).
+    // API가 계정 생성까지 한 번에 처리한다.
     if (tutorInvite) {
       onCollectForTutorInvite({
         loginId: loginId.trim(),
@@ -747,8 +730,7 @@ function SignUpStep({
     try {
       const input = { loginId: loginId.trim(), email: email.trim(), password, displayName: displayName.trim() };
       if (role === 'DIRECTOR') {
-        // 계정 생성 직후 같은 화면에서 받은 기관명으로 바로 기관을 만들어, 예전처럼
-        // "가입 -> /organization에서 기관명 다시 입력" 두 단계로 나뉘지 않게 한다.
+        // 계정 생성 직후 같은 화면에서 받은 기관명으로 바로 기관을 만든다.
         const signupResponse = await signupOrganizationOwner(input);
         const orgResponse = await createOrganization(signupResponse.token, {
           name: orgName.trim(),
@@ -978,8 +960,7 @@ function SignInStep({
       <Pressable accessibilityRole="link" hitSlop={4} onPress={() => onGoResetPassword(loginId.trim())} style={styles.signInInlineLink}>
         <Text style={styles.signInInlineLinkText}>비밀번호를 잊으셨나요?</Text>
       </Pressable>
-      {/* 가입 폼과 같은 배너 - 예전엔 로그인 실패 메시지가 비밀번호 필드의 errorText로만 떠서
-          "비밀번호가 틀렸다"처럼 읽혔다(실제론 아이디가 없거나 서버 오류일 수도 있다). */}
+      {/* 필드 errorText가 아니라 배너 - 실패 원인이 비밀번호만은 아니라서. */}
       {error ? <StatusBanner variant="warning" label={error} /> : null}
       <ActionButton
         variant="gold"
@@ -1087,7 +1068,7 @@ const styles = StyleSheet.create({
   },
   welcomeCardBody: { color: storybookTheme.color.onCardBody, fontSize: storybookTheme.type.sm, lineHeight: 20, textAlign: 'center', marginBottom: 4 },
 
-  // 선생님 초대 미리보기/동의 - ParentLinkAcceptPage에서 옮겨온 카드 스타일.
+  // 선생님 초대 미리보기/동의
   tutorPreviewLoading: { paddingTop: 40 },
   previewCard: {
     width: '100%',
@@ -1151,10 +1132,9 @@ const styles = StyleSheet.create({
   formNote: { color: storybookTheme.color.onContentMuted, fontSize: storybookTheme.type.sm },
   signInInlineLink: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center' },
   formBrand: { alignItems: 'center', marginBottom: storybookTheme.spacing.xs },
-  // 폼 제목(왼쪽 정렬) 아래 lead가 가운데 정렬로 어긋나 있던 것을 맞춘다.
+  // 폼 제목(왼쪽 정렬)에 맞춰 lead도 왼쪽 정렬.
   formLead: { textAlign: 'left' },
   signInInlineLinkText: {
-    // 라이트 배경 위 링크 - 예전 linkOnDark(연보라)는 흰 배경에서 2:1도 안 됐다.
     color: storybookTheme.color.linkOnLight,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,

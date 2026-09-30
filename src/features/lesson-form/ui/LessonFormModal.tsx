@@ -33,10 +33,9 @@ type RefsLoad =
  */
 export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved }: Props) {
   const { state } = useAuth();
+  const token = state.status === 'authenticated' ? state.token : null;
   const [refs, setRefs] = useState<RefsLoad>({ status: 'loading' });
-  // 초기값을 editing prop에서 lazy-init으로 뽑는다 - useEffect로 prop을 state에 sync하면
-  // react-hooks/set-state-in-effect에 걸리기 때문. 편집 대상이 바뀔 때는 부모가 `key={lessonId}`
-  // 로 이 컴포넌트를 remount 시켜 initial state를 다시 계산하도록 한다(부모 호출부에 명시).
+  // 초기값은 editing에서 lazy-init - 편집 대상이 바뀌면 부모가 key로 remount시킨다.
   const [name, setName] = useState(() => editing?.name ?? '');
   const [goal, setGoal] = useState(() => editing?.goal ?? '');
   const [scheduledAtInput, setScheduledAtInput] = useState(() =>
@@ -59,16 +58,9 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
   const [kind, setKind] = useState<'RECURRING' | 'ONE_OFF'>(() =>
     editing != null ? 'ONE_OFF' : 'RECURRING',
   );
-  // 편집 대상이 정기 수업의 한 회차(seriesId 있음)일 때만 의미 있는 선택 - "이 수업만" 저장하면
-  // 이 Lesson 하나만, "향후 모든 수업"이면 같은 시리즈에서 아직 예정 상태이고 이 수업과 같거나
-  // 이후 시각인 형제들에도 이름/목표/학생/이야기 변경과 시각 이동량을 함께 반영한다(BE의
-  // LessonService.applyToFutureSiblings 참고).
-  //
-  // 처음엔 'THIS'를 기본값으로 뒀는데, 정기 수업은 회차마다 별도 Lesson 행이라 "이 수업만"으로
-  // 저장한 학생 추가는 그 회차에만 반영되고 목록의 다른 회차들엔 안 보인다 - 토글이 있는 줄
-  // 모르고 그냥 저장한 사용자에게는 "분명 추가했는데 다른 회차엔 없다"는 혼란으로 이어졌다.
-  // null로 시작해 명시적으로 고르기 전엔 저장 자체를 막아(canSubmit 참고), 조용한 기본값 대신
-  // 매번 실제로 선택하게 한다.
+  // 정기 수업 회차(seriesId 있음) 편집 시 적용 범위 - "향후 모든 수업"이면 같은 시리즈의 이후
+  // 예정 회차에도 변경을 반영한다(BE LessonService.applyToFutureSiblings). 회차마다 별도 Lesson이라
+  // 조용한 기본값은 혼란을 주므로 null로 시작해 명시적으로 고르기 전엔 저장을 막는다.
   const [applyScope, setApplyScope] = useState<'THIS' | 'FUTURE' | null>(null);
   // 정기 수업: 다중 요일 선택 (0=일 ... 6=토). 기본은 오늘 요일 하나만.
   const [weekdays, setWeekdays] = useState<Set<number>>(() => new Set([new Date().getDay()]));
@@ -103,11 +95,11 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
     return true;
   }, [name, submitting, kind, recurringPreviewCount, isSeriesEdit, applyScope]);
 
+  // auth state 객체 전체가 아니라 token에만 의존해야 프로필 갱신 등으로 목록을 다시 받지 않는다.
   useEffect(() => {
-    if (!visible) return;
-    if (state.status !== 'authenticated') return;
+    if (!visible || !token) return;
     let cancelled = false;
-    Promise.all([listTutorStudents(state.token), listStories()])
+    Promise.all([listTutorStudents(token), listStories()])
       .then(([students, stories]) => {
         if (!cancelled) setRefs({ status: 'ready', students, stories });
       })
@@ -119,7 +111,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
     return () => {
       cancelled = true;
     };
-  }, [visible, state]);
+  }, [visible, token]);
 
   async function handleSubmit() {
     if (!canSubmit || state.status !== 'authenticated') return;
@@ -190,8 +182,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
         // 부모는 이 콜백 이후 listLessons를 다시 호출해 전체를 새로 받는다.
         if (lastCreated) onCreated?.(lastCreated);
       }
-      // 성공 시 폼 초기화하고 닫는다. editing 모드에서도 리셋 - 다음 열림에서 useEffect가 다시
-      // 값을 채우거나 비운다.
+      // 같은 인스턴스로 다시 열 때를 위해 폼을 비우고 닫는다.
       setName('');
       setGoal('');
       setScheduledAtInput('');
@@ -212,30 +203,6 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
       setSubmitting(false);
       setSubmitProgress(null);
     }
-  }
-
-  function toggleWeekday(day: number) {
-    setWeekdays((prev) => {
-      const next = new Set(prev);
-      if (next.has(day)) next.delete(day); else next.add(day);
-      return next;
-    });
-  }
-
-  function toggleStudent(id: string) {
-    setSelectedStudentIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  }
-
-  function toggleStory(id: string) {
-    setSelectedStoryIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
   }
 
   return (
@@ -278,57 +245,29 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
         {!isEdit ? (
           <View style={styles.group}>
             <Text style={styles.groupLabel}>수업 형태</Text>
-            <View style={styles.kindRow}>
-              {(['RECURRING', 'ONE_OFF'] as const).map((option) => {
-                const selected = kind === option;
-                const label = option === 'RECURRING' ? '정기 수업' : '단발성 수업';
-                return (
-                  <Pressable
-                    key={option}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected }}
-                    onPress={() => setKind(option)}
-                    style={({ pressed }) => [
-                      styles.kindOption,
-                      selected && styles.kindOptionSelected,
-                      pressed && styles.chipPressed,
-                    ]}
-                  >
-                    <Text style={[styles.kindOptionLabel, selected && styles.kindOptionLabelSelected]}>{label}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+            <ChoiceRow
+              options={[
+                { value: 'RECURRING', label: '정기 수업' },
+                { value: 'ONE_OFF', label: '단발성 수업' },
+              ]}
+              value={kind}
+              onChange={setKind}
+            />
           </View>
         ) : null}
 
-        {/* 정기 수업의 한 회차를 편집할 때만 - 단발성 수업이나 시리즈 없는 편집엔 의미가 없다.
-            applyScope가 null인 동안은 저장 버튼이 비활성(canSubmit) - 토글 존재를 모르고
-            지나쳐 "이 수업만"이 조용히 적용되는 걸 막는다. */}
+        {/* 정기 수업의 한 회차를 편집할 때만. applyScope가 null이면 저장 비활성(canSubmit). */}
         {isSeriesEdit ? (
           <View style={styles.group}>
             <Text style={styles.groupLabel}>적용 범위 (선택 필요)</Text>
-            <View style={styles.kindRow}>
-              {(['THIS', 'FUTURE'] as const).map((option) => {
-                const selected = applyScope === option;
-                const label = option === 'THIS' ? '이 수업만' : '이 수업과 향후 모든 수업';
-                return (
-                  <Pressable
-                    key={option}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected }}
-                    onPress={() => setApplyScope(option)}
-                    style={({ pressed }) => [
-                      styles.kindOption,
-                      selected && styles.kindOptionSelected,
-                      pressed && styles.chipPressed,
-                    ]}
-                  >
-                    <Text style={[styles.kindOptionLabel, selected && styles.kindOptionLabelSelected]}>{label}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+            <ChoiceRow
+              options={[
+                { value: 'THIS', label: '이 수업만' },
+                { value: 'FUTURE', label: '이 수업과 향후 모든 수업' },
+              ]}
+              value={applyScope}
+              onChange={setApplyScope}
+            />
             {applyScope === null ? (
               <Text style={styles.helper}>
                 정기 수업은 회차마다 따로 저장돼요. 학생·이야기 변경을 앞으로의 다른 회차에도
@@ -345,7 +284,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
           </View>
         ) : null}
 
-        {/* 단발성: 예전 그대로 단일 datetime 입력. 편집도 이 분기 사용. */}
+        {/* 단발성과 편집: 단일 datetime 입력. */}
         {isEdit || kind === 'ONE_OFF' ? (
           <TextField
             label="수업 일정 (선택)"
@@ -369,7 +308,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
                       key={day}
                       accessibilityRole="checkbox"
                       accessibilityState={{ checked: selected }}
-                      onPress={() => toggleWeekday(day)}
+                      onPress={() => setWeekdays((prev) => toggleInSet(prev, day))}
                       style={({ pressed }) => [
                         styles.weekdayChip,
                         selected && styles.weekdayChipSelected,
@@ -407,27 +346,14 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
             />
             <View style={styles.group}>
               <Text style={styles.groupLabel}>종료 조건</Text>
-              <View style={styles.kindRow}>
-                {(['COUNT', 'DATE'] as const).map((option) => {
-                  const selected = endMode === option;
-                  const label = option === 'COUNT' ? '횟수 지정' : '종료일 지정';
-                  return (
-                    <Pressable
-                      key={option}
-                      accessibilityRole="radio"
-                      accessibilityState={{ selected }}
-                      onPress={() => setEndMode(option)}
-                      style={({ pressed }) => [
-                        styles.kindOption,
-                        selected && styles.kindOptionSelected,
-                        pressed && styles.chipPressed,
-                      ]}
-                    >
-                      <Text style={[styles.kindOptionLabel, selected && styles.kindOptionLabelSelected]}>{label}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
+              <ChoiceRow
+                options={[
+                  { value: 'COUNT', label: '횟수 지정' },
+                  { value: 'DATE', label: '종료일 지정' },
+                ]}
+                value={endMode}
+                onChange={setEndMode}
+              />
             </View>
             {endMode === 'COUNT' ? (
               <TextField
@@ -544,7 +470,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
                     key={student.id}
                     accessibilityRole="checkbox"
                     accessibilityState={{ checked: selected }}
-                    onPress={() => toggleStudent(student.id)}
+                    onPress={() => setSelectedStudentIds((prev) => toggleInSet(prev, student.id))}
                     style={({ pressed }) => [styles.chip, selected && styles.chipSelected, pressed && styles.chipPressed]}
                   >
                     <Text style={[styles.chipLabel, selected && styles.chipLabelSelected]}>
@@ -572,7 +498,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
                     key={story.storyId}
                     accessibilityRole="checkbox"
                     accessibilityState={{ checked: selected }}
-                    onPress={() => toggleStory(story.storyId)}
+                    onPress={() => setSelectedStoryIds((prev) => toggleInSet(prev, story.storyId))}
                     style={({ pressed }) => [styles.chip, selected && styles.chipSelected, pressed && styles.chipPressed]}
                   >
                     <Text style={[styles.chipLabel, selected && styles.chipLabelSelected]}>{story.title}</Text>
@@ -590,6 +516,39 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
 }
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const;
+
+function ChoiceRow<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: T; label: string }[];
+  value: T | null;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <View style={styles.kindRow}>
+      {options.map((option) => {
+        const selected = value === option.value;
+        return (
+          <Pressable
+            key={option.value}
+            accessibilityRole="radio"
+            accessibilityState={{ selected }}
+            onPress={() => onChange(option.value)}
+            style={({ pressed }) => [
+              styles.kindOption,
+              selected && styles.kindOptionSelected,
+              pressed && styles.chipPressed,
+            ]}
+          >
+            <Text style={[styles.kindOptionLabel, selected && styles.kindOptionLabelSelected]}>{option.label}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
 
 /**
  * 정기 수업의 실제 회차(datetime 목록)를 계산한다. startDate 이후로 하루씩 넘기며,
@@ -649,15 +608,15 @@ function parseHourMinute(raw: string): [number, number] | [null, null] {
   return [hh, mm];
 }
 
+const pad2 = (n: number) => String(n).padStart(2, '0');
+
 function formatDateOnly(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
 }
 
 /**
- * "YYYY-MM-DD HH:MM" 형태를 ISO 문자열로 변환. 빈 값이면 null. 파싱 실패도 null(BE가 null로
- * 받으면 "일정 미정"으로 저장하므로 사용자를 막지 않는다) - 다만 조금 나은 UX를 위해 앞으로
- * 일정 입력을 정식 date-picker로 교체할 예정.
+ * "YYYY-MM-DD HH:MM" 형태를 ISO 문자열로 변환. 빈 값이나 파싱 실패는 null - BE가 "일정 미정"으로
+ * 저장하므로 사용자를 막지 않는다.
  */
 function parseDateTime(raw: string): string | null {
   const trimmed = raw.trim();
@@ -668,16 +627,17 @@ function parseDateTime(raw: string): string | null {
   return date.toISOString();
 }
 
-/**
- * ISO 문자열(BE 응답)을 편집 입력 placeholder 형식("YYYY-MM-DD HH:MM")으로 되돌린다 -
- * parseDateTime의 역함수. Date를 로컬 타임존 기준으로 formatting해서 저장했던 그대로의
- * 시각을 사용자가 다시 보게 한다.
- */
+/** ISO 문자열을 로컬 시각 기준 "YYYY-MM-DD HH:MM" 입력 형식으로 되돌린다 - parseDateTime의 역함수. */
 function formatDateTimeForInput(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return '';
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  return `${formatDateOnly(date)} ${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+}
+
+function toggleInSet<T>(prev: Set<T>, value: T): Set<T> {
+  const next = new Set(prev);
+  if (next.has(value)) next.delete(value); else next.add(value);
+  return next;
 }
 
 const styles = StyleSheet.create({

@@ -102,22 +102,23 @@ export function TutorStudentsPage() {
           </View>
         </View>
 
-        {homeroomClasses.length > 0 ? (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>내 반</Text>
-            <Text style={styles.cardBody}>반 초대 링크 하나를 알림장에 올리고, 어느 아이 부모님이 들어왔는지 반별로 확인해요.</Text>
-            <View style={styles.actions}>
-              {homeroomClasses.map((classGroup) => (
-                <ActionButton
-                  key={classGroup.id}
-                  variant="secondary"
-                  label={`${classGroup.name} 초대·명단`}
-                  onPress={() => navigate(`/tutor/class-groups/${classGroup.id}`)}
-                />
-              ))}
-            </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>내 반</Text>
+          <Text style={styles.cardBody}>
+            학생을 미리 등록하지 않아도 돼요. 반 초대 링크 하나를 알림장에 올리면 부모님이 아이를 연결할 때 명단에 자동으로 올라가요.
+          </Text>
+          <View style={styles.actions}>
+            {homeroomClasses.map((classGroup) => (
+              <ActionButton
+                key={classGroup.id}
+                variant="secondary"
+                label={`${classGroup.name} 초대·명단`}
+                onPress={() => navigate(`/tutor/class-groups/${classGroup.id}`)}
+              />
+            ))}
+            <ActionButton variant="outline" size="sm" label="+ 새 반 만들기" onPress={() => navigate('/tutor/class-groups/new')} />
           </View>
-        ) : null}
+        </View>
 
         {load.status === 'loading' && <LoadingState label="학생 목록을 불러오는 중이에요…" />}
 

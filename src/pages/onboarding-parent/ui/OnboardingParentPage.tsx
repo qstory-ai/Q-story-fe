@@ -22,6 +22,12 @@ type Step = 'child' | 'consent' | 'done';
  *  초대 미리보기에 이미 있던 아이 이름/연령대를 여기서 다시 타이핑하지 않게 한다. */
 type ParentOnboardingPrefill = { name?: string; ageBand?: AgeBand; birthYear?: number };
 
+/** 온보딩을 마친 뒤 갈 앱 내부 경로 - 반 코드로 가입했으면 그 반에 아이를 연결하는 화면(/join?code=). */
+function readNext(state: unknown): string | null {
+  const next = (state as { next?: unknown } | null)?.next;
+  return typeof next === 'string' && /^\/(?![/\\])[^\\\s]*$/.test(next) ? next : null;
+}
+
 function readPrefill(state: unknown): ParentOnboardingPrefill {
   const prefill = (state as { prefill?: ParentOnboardingPrefill } | null)?.prefill;
   return prefill && typeof prefill === 'object' ? prefill : {};
@@ -39,6 +45,7 @@ export function OnboardingParentPage() {
   const { state } = useAuth();
   const { addChild, children, load } = useChildren();
   const [prefill] = useState(() => readPrefill(location.state));
+  const [next] = useState(() => readNext(location.state));
 
   const [rawStep, setStep] = useState<Step>('child');
   const [name, setName] = useState(prefill.name ?? '');
@@ -54,9 +61,9 @@ export function OnboardingParentPage() {
     if (state.status !== 'authenticated' || state.user.role !== 'PARENT') {
       navigate('/', { replace: true });
     } else if (hasCompletedOnboarding('parent', state.user.id)) {
-      navigate(homePathFor(state.user), { replace: true });
+      navigate(next ?? homePathFor(state.user), { replace: true });
     }
-  }, [state, navigate]);
+  }, [state, navigate, next]);
 
   // 선생님 초대나 반 코드로 만든 계정은 가입하는 순간 서버가 아이 프로필을 이미 만들어 두었다. 그 아이가
   // 목록에 있으면(반 코드 가입은 prefill 없이 아이가 이미 있는 경우) 같은 아이를 또 만들지 않도록 프로필
@@ -91,7 +98,7 @@ export function OnboardingParentPage() {
   function markDoneAndGoHome() {
     if (state.status !== 'authenticated') return;
     markOnboardingDone('parent', state.user.id);
-    navigate(homePathFor(state.user), { replace: true });
+    navigate(next ?? homePathFor(state.user), { replace: true });
   }
 
   if (state.status !== 'authenticated') return null;
@@ -208,7 +215,7 @@ export function OnboardingParentPage() {
             <Text style={styles.body}>
               지금부터 아이와 함께 이야기를 시작해 보세요. 홈에서 오늘의 이야기와 지난 리포트를 확인할 수 있어요.
             </Text>
-            <ActionButton variant="gold" label="홈으로" onPress={markDoneAndGoHome} />
+            <ActionButton variant="gold" label={next ? '반에 아이 연결하기' : '홈으로'} onPress={markDoneAndGoHome} />
           </>
         )}
       </ScrollView>

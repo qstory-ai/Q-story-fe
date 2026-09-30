@@ -94,13 +94,13 @@ export function TutorClassGroupPage() {
                 <ActionButton
                   variant="outline"
                   size="sm"
-                  label="여러 명 한 번에 등록"
+                  label="명단 미리 올리기 (선택)"
                   onPress={() => navigate(`/tutor/students/bulk?classId=${encodeURIComponent(classId ?? '')}`)}
                 />
               </View>
               {effective.students.length === 0 ? (
                 <Text style={styles.body}>
-                  아직 명단이 비어 있어요. 학생 이름을 미리 올려 두면 부모님이 반 링크로 들어와 같은 이름을 고를 때 바로 연결돼요.
+                  아직 들어온 아이가 없어요. 위 반 초대 링크를 보내면 부모님이 아이를 연결할 때 명단에 자동으로 올라가요. 수업은 명단이 비어 있어도 먼저 만들 수 있어요.
                 </Text>
               ) : (
                 effective.students.map((student) => (

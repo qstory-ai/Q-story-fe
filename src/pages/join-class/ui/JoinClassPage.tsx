@@ -236,9 +236,13 @@ function ChildPicker({
             label: child.name,
             description: child.birthYear ? `${child.birthYear}년생` : undefined,
           })),
-          { value: NEW_CHILD, label: children.length > 0 ? '다른 아이 새로 등록' : '아이 등록하기' },
+          // 아이 프로필이 있으면 그중에서만 고른다 - 이름·출생연도를 다시 적지 않게. 없을 때만 여기서 등록한다.
+          ...(children.length === 0 ? [{ value: NEW_CHILD, label: '아이 등록하기' }] : []),
         ]}
       />
+      {children.length > 0 ? (
+        <Text style={styles.note}>다른 아이는 마이페이지 &gt; 아이 관리에서 먼저 등록한 뒤 이 링크를 다시 열어 주세요.</Text>
+      ) : null}
       {isNew ? (
         <>
           <TextField label="아이 이름 또는 별명" value={childName} onChangeText={setChildName} placeholder="예: 민서" />

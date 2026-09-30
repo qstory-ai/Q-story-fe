@@ -406,7 +406,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
             {needsClass ? (
               <Text style={styles.helper}>반 수업이면 반을 고르거나 새 반을 만들어 주세요.</Text>
             ) : classGroupId ? (
-              <Text style={styles.helper}>반 학생이 참여 학생으로 자동 선택됐어요. 아래에서 빼거나 더할 수 있어요.</Text>
+              <Text style={styles.helper}>반 학생이 참여 학생으로 자동 선택됐어요. 학생을 미리 넣지 않아도, 반 초대 링크로 들어온 아이는 수업에 함께 기록돼요.</Text>
             ) : null}
             {!isEdit ? (
               <View style={styles.quickAddBlock}>

@@ -40,9 +40,9 @@ const sources = [];
 for (const entry of entries) {
   sources.push(await loadStoryPackage(appDirectory, entry, { rewriteIntegrity: fix }));
 }
-const prompts = await loadPrompts(appDirectory);
+const prompts = await loadPrompts(appDirectory, registry);
 const languageRules = await loadLanguageRules(appDirectory);
-// A story naming a policy nobody ships is the drift this move exists to stop, so it fails here.
+// A story naming a route policy that no prompt file ships fails here.
 const promptVersions = new Set(prompts.map((prompt) => prompt.version));
 for (const source of sources) {
   const named = source.routeContext.routePromptVersion;
@@ -98,9 +98,7 @@ function packageData(source, prompts, languageRules) {
     reportCopy: source.reportCopy,
     release: source.release,
     evaluation: source.evaluation,
-    // Authoring metadata that used to live only as files: the QA contract was never even read, and
-    // the reference packs never reached the backend, so the DB could not describe how a story is
-    // meant to be checked or generated.
+    // Authoring metadata, so the DB can describe how a story is meant to be checked and generated.
     qaContract: source.qaContract,
     references: source.references,
     // Character/location/prop/style appearance-consistency facts for image generation, reused
@@ -163,9 +161,11 @@ function renderAppAssets(allSources) {
   return `${lines.join('\n')}\n`;
 }
 
+// The asset map covers every story; reuse the packages already loaded above instead of re-parsing.
+const sourceByEntry = new Map(entries.map((entry, index) => [entry, sources[index]]));
 const allSources = [];
 for (const entry of registry.stories) {
-  allSources.push(await loadStoryPackage(appDirectory, entry));
+  allSources.push(sourceByEntry.get(entry) ?? (await loadStoryPackage(appDirectory, entry)));
 }
 
 const outputs = [];

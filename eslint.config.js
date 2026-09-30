@@ -34,9 +34,8 @@ export default tseslint.config(
     },
   },
   {
-    // These Node-test-runner files predate this ESLint setup and use
-    // `@ts-nocheck` deliberately (Node test-runner types are kept out of
-    // the browser type-check), plus one legitimate `this`-binding test.
+    // Node-test-runner files use `@ts-nocheck` deliberately (Node test-runner types are kept out
+    // of the browser type-check), plus one legitimate `this`-binding test.
     files: ['**/*.test.ts'],
     rules: {
       '@typescript-eslint/ban-ts-comment': 'off',

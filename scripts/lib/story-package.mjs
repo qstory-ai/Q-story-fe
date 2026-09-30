@@ -19,7 +19,7 @@ function isPlainObject(value) {
  * need to look assets up by slug and by family, so those indexes are derived here rather than
  * being a second thing to keep in sync in the file.
  */
-export function indexAssets(storyId, assets) {
+function indexAssets(storyId, assets) {
   const bySlug = new Map(assets.assets.map((asset) => [asset.slug, asset]));
   if (bySlug.size !== assets.assets.length) fail(storyId, 'duplicate asset slug');
   return {
@@ -336,11 +336,10 @@ function validateStages(version, stages) {
 
 /**
  * Route policies, keyed by the version a story's route-context.yaml names. Loaded separately from
- * stories because one policy can serve several stories - and because it is the text the backend
- * used to hardcode, which is what let the policy and its version label drift apart.
+ * stories because one policy can serve several stories.
  */
-export async function loadPrompts(appDirectory) {
-  const registry = await loadRegistry(appDirectory);
+export async function loadPrompts(appDirectory, registry) {
+  registry ??= await loadRegistry(appDirectory);
   const prompts = [];
   for (const entry of registry.prompts ?? []) {
     const parsed = parseYaml(
@@ -413,17 +412,6 @@ export async function loadLanguageRules(appDirectory) {
 
 export async function loadStoryPackage(appDirectory, entry, { rewriteIntegrity = false } = {}) {
   const directory = join(appDirectory, 'content', 'stories', entry.slug);
-  return loadStoryPackageFromDirectory(directory, entry, {
-    assetRoot: appDirectory,
-    rewriteIntegrity,
-  });
-}
-
-export async function loadStoryPackageFromDirectory(
-  directory,
-  entry,
-  { assetRoot = null, rewriteIntegrity = false } = {},
-) {
   const names = [
     'story.yaml',
     'script.qstory',
@@ -463,34 +451,28 @@ export async function loadStoryPackageFromDirectory(
   })) {
     if (value?.storyId !== story.storyId) fail(story.storyId, `${label} storyId does not match`);
   }
-  if (assetRoot) {
-    // rewriteIntegrity: recompute rather than compare. Every hash in assets.json used to be
-    // maintained by hand - swapping one illustration meant computing a base64 sha256 yourself and
-    // pasting it in, with a failed build as the only feedback. `--fix` writes them instead.
-    for (const asset of assets.assets) {
-      // assets.json paths are relative to the app directory: assets/story/<slug>/... is the
-      // source tree the upload script reads from; it is not part of the Vite bundle.
-      // Audio originals are no longer kept in the repo (the Supabase bucket is the only copy;
-      // assets.json carries the sha256 recorded at upload time), so a file that is not on disk
-      // is skipped in both modes: `--check` trusts the recorded hash and `--fix` keeps it as-is,
-      // recomputing only for files that are actually present (today: illustrations).
-      const onDisk = join(assetRoot, `${assets.root}${asset.file}`);
-      if (!existsSync(onDisk)) continue;
-      const actual = `sha256-${createHash('sha256')
-        .update(await readFile(onDisk))
-        .digest('base64')}`;
-      if (rewriteIntegrity) {
-        asset.integrity = actual;
-      } else if (asset.integrity !== actual) {
-        fail(story.storyId, `integrity mismatch for ${asset.slug}`);
-      }
-    }
+  // rewriteIntegrity (`--fix`) recomputes the hashes instead of comparing them.
+  for (const asset of assets.assets) {
+    // assets.json paths are relative to the app directory: assets/story/<slug>/... is the source
+    // tree the upload script reads from; it is not part of the Vite bundle. Audio originals are not
+    // kept in the repo (the Supabase bucket is the only copy; assets.json carries the sha256
+    // recorded at upload time), so a file that is not on disk is skipped in both modes.
+    const onDisk = join(appDirectory, `${assets.root}${asset.file}`);
+    if (!existsSync(onDisk)) continue;
+    const actual = `sha256-${createHash('sha256')
+      .update(await readFile(onDisk))
+      .digest('base64')}`;
     if (rewriteIntegrity) {
-      await writeFile(
-        join(directory, 'assets.json'),
-        `${JSON.stringify(assets, null, 2)}\n`,
-      );
+      asset.integrity = actual;
+    } else if (asset.integrity !== actual) {
+      fail(story.storyId, `integrity mismatch for ${asset.slug}`);
     }
+  }
+  if (rewriteIntegrity) {
+    await writeFile(
+      join(directory, 'assets.json'),
+      `${JSON.stringify(assets, null, 2)}\n`,
+    );
   }
   const scenes = splitBlocks(byName['script.qstory'], 'SCENE').map((block) =>
     parseSceneBlock(story.storyId, block),
@@ -525,9 +507,8 @@ export async function loadStoryPackageFromDirectory(
 }
 
 /**
- * qa-contract.yaml states, per action family, where it rejoins and how many pictures it shows.
- * Nothing read the file until now - it was authored, committed, and never compared against the
- * fallbacks it describes, so it could disagree with them indefinitely.
+ * qa-contract.yaml states, per action family, where it rejoins and how many pictures it shows;
+ * this checks it against the fallbacks it describes.
  */
 function validateQaContract(source) {
   const { storyId } = source.story;
@@ -670,7 +651,7 @@ function validateVisualProvenance(source) {
   }
 }
 
-export function validateStoryPackage(source) {
+function validateStoryPackage(source) {
   const { bySlug: assetBySlug, artSlugs, branchArtByFamily } = indexAssets(
     source.story.storyId,
     source.assets,
@@ -705,8 +686,7 @@ export function validateStoryPackage(source) {
     if (!assetBySlug.has(visual.assetId)) fail(story.storyId, `unregistered image ${visual.assetId}`);
   }
   // The reverse of the check above: art that is declared, hashed, and uploaded to storage but that
-  // no scene or fallback ever draws. Seven such files (5.4MB) had accumulated unnoticed, because
-  // only the "referenced but undeclared" direction was ever checked.
+  // no scene or fallback ever draws.
   const referencedImages = new Set([
     ...visuals.map((visual) => visual.assetId),
     ...Object.values(branchArtByFamily),
@@ -718,8 +698,6 @@ export function validateStoryPackage(source) {
   if (unusedImages.length > 0) {
     fail(story.storyId, `image assets declared but never shown: ${unusedImages.join(', ')}`);
   }
-  // No count reconciliation any more: integrity lives on the asset record, so a hash cannot be
-  // missing for a declared asset or left behind for a deleted one.
   for (const asset of assets.assets) {
     if (!/^sha256-[A-Za-z0-9+/]+={0,2}$/.test(asset.integrity ?? '')) {
       fail(story.storyId, `missing integrity for ${asset.slug}`);

@@ -15,7 +15,8 @@ import { assetBucketFor, loadRegistry } from './lib/story-package.mjs';
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const appDirectory = dirname(scriptDirectory);
-const repoRoot = dirname(dirname(appDirectory));
+// fe/와 be/는 같은 작업 디렉터리 아래의 형제 체크아웃이다.
+const workspaceRoot = dirname(appDirectory);
 
 function flagValue(args, flag) {
   const index = args.indexOf(flag);
@@ -32,7 +33,7 @@ if (!requestedSlug && !all) throw new Error('Use --story <slug> or --all');
 if (!['images', 'audio', 'all'].includes(kind)) throw new Error('--kind must be images, audio or all');
 
 // 프로젝트 URL 과 service role key 는 백엔드 .env 에서 읽는다(브라우저에는 절대 싣지 않는다).
-const envPath = envPathArg ?? join(repoRoot, 'be', 'q-story-backend', '.env');
+const envPath = envPathArg ?? join(workspaceRoot, 'be', '.env');
 const envText = await readFile(envPath, 'utf8');
 const env = Object.fromEntries(
   envText
@@ -98,9 +99,8 @@ for (const entry of entries) {
 if (jobs.length === 0) throw new Error('Nothing to upload');
 
 async function uploadOne(job) {
-  // Audio originals are not kept in the repo any more - the bucket is their only copy - so a job
-  // whose file is missing is reported and skipped instead of aborting the whole run. Only files
-  // that exist locally (today: illustrations, or a freshly re-recorded clip) are (re)uploaded.
+  // Audio originals are not kept in the repo (the bucket is their only copy), so a missing file is
+  // reported and skipped instead of aborting the run. Only files present locally are (re)uploaded.
   if (!existsSync(job.onDiskPath)) return { ...job, ok: true, skipped: true, bytes: 0 };
   const bytes = await readFile(job.onDiskPath);
   if (dryRun) return { ...job, ok: true, bytes: bytes.length };

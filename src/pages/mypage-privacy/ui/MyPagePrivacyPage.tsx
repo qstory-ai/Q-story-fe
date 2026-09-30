@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { AppNavShell, Icon, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 
+import { VoiceResearchConsentSection } from './VoiceResearchConsentSection';
+
 type Section = {
   title: string;
   body: string;
@@ -18,7 +20,8 @@ type Section = {
  * IA "[4] 마이페이지 > 개인정보 및 데이터" 화면. 실제 약관/정책 문서 URL은 서비스 오픈 시점에
  * 확정되므로 지금은 "곧 공개" pill로 자리를 지키고, 이미 동작하는 계정 삭제·데이터 요청 흐름
  * 으로의 링크는 실제 링크로 둔다. 문서 URL이 결정되면 아래 TERMS_URL/PRIVACY_URL을 채우고
- * makeSection이 자동으로 pendingLabel 대신 action을 붙여 준다.
+ * makeSection이 자동으로 pendingLabel 대신 action을 붙여 준다. 보호자 계정에는 음성 연구 저장
+ * 동의를 보고 철회·재동의하는 카드(VoiceResearchConsentSection)를 함께 보여 준다.
  */
 
 // TODO: 정식 URL이 확정되면 여기를 채우면 자동으로 클릭 가능한 링크로 바뀐다.
@@ -120,6 +123,9 @@ export function MyPagePrivacyPage() {
             ) : null}
           </View>
         ))}
+
+        {/* 음성 연구 동의는 보호자 동의라 보호자 계정에만 보인다(BE도 PARENT만 받는다). */}
+        {state.user.role === 'PARENT' ? <VoiceResearchConsentSection token={state.token} /> : null}
       </View>
     </AppNavShell>
   );

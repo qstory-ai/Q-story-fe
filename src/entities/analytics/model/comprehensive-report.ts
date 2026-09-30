@@ -1,12 +1,12 @@
 import type { RouteKind } from '@/entities/story-runtime';
 
-import type { QuestionOutcome } from './parent-report';
+import type { QuestionOutcome, ReportCopyByStoryId } from './parent-report';
 import {
   NOT_MEANINGFUL_ROUTES,
   QUESTION_TYPE_BY_ROUTE,
-  STRATEGY_BY_FAMILY,
   isMeaningfulOutcome as isMeaningful,
   strategyLabelsOf,
+  strategyVocabularyOf,
   tallyByLabel,
 } from './report-labels';
 
@@ -21,6 +21,10 @@ import {
  * <p>outcome-level 필드 이상은 계산하지 않는다 - QuestionOutcome이 anchorId를 갖긴 하지만
  * anchor 메타(scene, topic 등)는 스토리 팩이 있어야 알 수 있어서, 스토리 없이 부를 수 있는
  * 종합 지표에만 국한한다.
+ *
+ * <p>예외로 "생각 전략"은 이야기마다 family → 전략 표(reportCopy.strategyByFamily)가 다르므로,
+ * 호출부가 세션들의 이야기 reportCopy를 storyId별로 넘긴다. 넘기지 못한 이야기(불러오기 실패 등)나
+ * 전략 표가 없는 이야기는 라우트 종류로 전략을 추정한다(report-labels 참고).
  */
 
 export type QuestionAnalysis = {
@@ -64,7 +68,11 @@ export type ComprehensiveReport = {
   hexStats: HexStat[];
 };
 
-type Session = { completedAt: string; outcomes: readonly QuestionOutcome[] };
+type Session = { storyId?: string; completedAt: string; outcomes: readonly QuestionOutcome[] };
+
+function strategySourceOf(session: Session, reportCopyByStoryId: ReportCopyByStoryId) {
+  return session.storyId ? reportCopyByStoryId[session.storyId] : null;
+}
 
 function analyzeQuestions(sessions: readonly Session[]): QuestionAnalysis {
   const allMeaningful = sessions.flatMap((session) => session.outcomes.filter(isMeaningful));
@@ -104,9 +112,15 @@ function analyzeInterest(sessions: readonly Session[]): InterestAnalysis {
   return { topExpressions, recentExpressions };
 }
 
-function analyzeThought(sessions: readonly Session[]): ThoughtAnalysis {
-  const strategyLabels = strategyLabelsOf(
-    sessions.flatMap((session) => session.outcomes.filter(isMeaningful)),
+function analyzeThought(
+  sessions: readonly Session[],
+  reportCopyByStoryId: ReportCopyByStoryId,
+): ThoughtAnalysis {
+  const strategyLabels = sessions.flatMap((session) =>
+    strategyLabelsOf(
+      session.outcomes.filter(isMeaningful),
+      strategySourceOf(session, reportCopyByStoryId),
+    ),
   );
   const strategies = tallyByLabel(strategyLabels);
   return {
@@ -116,13 +130,16 @@ function analyzeThought(sessions: readonly Session[]): ThoughtAnalysis {
   };
 }
 
-function analyzeGrowth(sessions: readonly Session[]): GrowthTrend | null {
+function analyzeGrowth(
+  sessions: readonly Session[],
+  reportCopyByStoryId: ReportCopyByStoryId,
+): GrowthTrend | null {
   if (sessions.length < 4) return null;
   const sorted = [...sessions].sort((a, b) => (a.completedAt < b.completedAt ? -1 : 1));
   const mid = Math.floor(sorted.length / 2);
   const early = sorted.slice(0, mid);
   const recent = sorted.slice(mid);
-  const diversity = (subset: Session[]) => analyzeThought(subset).diversity;
+  const diversity = (subset: Session[]) => analyzeThought(subset, reportCopyByStoryId).diversity;
   const earlyDiv = diversity(early);
   const recentDiv = diversity(recent);
   const broadening = recentDiv === earlyDiv ? null : recentDiv > earlyDiv;
@@ -140,7 +157,24 @@ const MEANINGFUL_QUESTION_TYPE_COUNT = new Set(
     .filter(([route]) => !NOT_MEANINGFUL_ROUTES.has(route as RouteKind))
     .map(([, label]) => label),
 ).size;
-const STRATEGY_LABEL_COUNT = new Set(Object.values(STRATEGY_BY_FAMILY)).size;
+
+/** 이 세션들의 이야기에서 나올 수 있는 전략 라벨 수(이야기별 전략 표의 합집합) - "생각 전략" 분모. */
+function strategyLabelCount(
+  sessions: readonly Session[],
+  reportCopyByStoryId: ReportCopyByStoryId,
+): number {
+  const labels = new Set<string>();
+  const seenStories = new Set<string | undefined>();
+  for (const session of sessions) {
+    if (seenStories.has(session.storyId)) continue;
+    seenStories.add(session.storyId);
+    for (const label of strategyVocabularyOf(strategySourceOf(session, reportCopyByStoryId))) {
+      labels.add(label);
+    }
+  }
+  // 세션이 없으면 다양성도 0이라 점수는 0 - 0으로 나누지 않도록 분모만 1로 둔다.
+  return Math.max(1, labels.size);
+}
 /** 이 정도 빈도부터 "질문을 아주 활발히 한다"로 본다 - 완주 기록 데이터를 보고 고른 캡. */
 const QUESTION_FREQUENCY_CAP = 3;
 
@@ -157,6 +191,7 @@ function analyzeHexStats(
   question: QuestionAnalysis,
   thought: ThoughtAnalysis,
   growth: GrowthTrend | null,
+  strategyCount: number,
 ): HexStat[] {
   const meaningful = sessions.flatMap((session) => session.outcomes).filter(isMeaningful);
   const total = meaningful.length;
@@ -172,7 +207,7 @@ function analyzeHexStats(
     { label: '질문 빈도', value: clampScore((question.averagePerSession / QUESTION_FREQUENCY_CAP) * 100) },
     { label: '질문 다양성', value: clampScore((question.byType.length / MEANINGFUL_QUESTION_TYPE_COUNT) * 100) },
     { label: '관심 표현', value: clampScore(total > 0 ? (expressedCount / total) * 100 : 0) },
-    { label: '생각 전략', value: clampScore((thought.diversity / STRATEGY_LABEL_COUNT) * 100) },
+    { label: '생각 전략', value: clampScore((thought.diversity / strategyCount) * 100) },
     { label: '적극적 행동', value: clampScore(total > 0 ? (proactiveCount / total) * 100 : 0) },
     {
       label: '성장 추세',
@@ -187,15 +222,24 @@ function analyzeHexStats(
  * 완료 기록이 하나도 없으면 빈 값들이 채워진 형태로 돌아오므로 - null-check 없이 호출부에서
  * 각 배열/카운트가 0인지만 보고 empty state를 표시하면 된다.
  */
-export function buildComprehensiveReport(sessions: readonly Session[]): ComprehensiveReport {
+export function buildComprehensiveReport(
+  sessions: readonly Session[],
+  reportCopyByStoryId: ReportCopyByStoryId = {},
+): ComprehensiveReport {
   const question = analyzeQuestions(sessions);
-  const thought = analyzeThought(sessions);
-  const growth = analyzeGrowth(sessions);
+  const thought = analyzeThought(sessions, reportCopyByStoryId);
+  const growth = analyzeGrowth(sessions, reportCopyByStoryId);
   return {
     question,
     interest: analyzeInterest(sessions),
     thought,
     growth,
-    hexStats: analyzeHexStats(sessions, question, thought, growth),
+    hexStats: analyzeHexStats(
+      sessions,
+      question,
+      thought,
+      growth,
+      strategyLabelCount(sessions, reportCopyByStoryId),
+    ),
   };
 }

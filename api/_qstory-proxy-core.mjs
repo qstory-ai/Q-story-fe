@@ -72,6 +72,8 @@ const INVITE_TOKEN_SEGMENT = '[A-Za-z0-9_-]{16,64}';
 const SHORT_CODE_SEGMENT = '[A-Z0-9]{4,16}';
 const DYNAMIC_ROUTES = [
   { method: 'GET', pattern: new RegExp(`^v1/stories/${STORY_ID_SEGMENT}/content$`) },
+  // 종합 리포트가 이야기별 전략 표(strategyByFamily)를 읽는 가벼운 경로(entities/story/api/story-api.ts).
+  { method: 'GET', pattern: new RegExp(`^v1/stories/${STORY_ID_SEGMENT}/report-copy$`) },
   { method: 'GET', pattern: new RegExp(`^v1/stories/${STORY_ID_SEGMENT}$`) },
   // NEW_CHOICES 실시간 생성 job 폴링(entities/live-branch/api/live-branch-api.ts) - jobId는 UUID.
   { method: 'GET', pattern: new RegExp(`^v1/live-branch/${UUID_SEGMENT}$`) },

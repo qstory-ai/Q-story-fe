@@ -1,6 +1,8 @@
 import { apiBaseUrl } from '@/shared/config';
 import { requestJson, type PublicRequestOptions } from '@/shared/api';
 
+import type { StoryReportCopy } from '../model/story-package-types';
+
 export type StoryCatalogEntry = {
   storyId: string;
   slug: string;
@@ -32,6 +34,15 @@ function request<T>(path: string, options: PublicRequestOptions = {}): Promise<T
 /** GET /v1/stories - 홈 라이브러리 그리드용으로, RETIRED가 아닌 모든 스토리의 카탈로그 메타데이터를 가져온다. */
 export function listStories(options?: PublicRequestOptions): Promise<StoryCatalogEntry[]> {
   return request('/v1/stories', options);
+}
+
+/**
+ * GET /v1/stories/{storyId}/report-copy - 이야기의 리포트 문구 팩(report-copy.yaml)만 가져온다.
+ * 여러 이야기의 기록을 모아 보는 종합 리포트가 이야기별 전략 표(strategyByFamily)를 쓰려고 부른다 -
+ * 전체 콘텐츠(/content)를 이야기마다 받지 않도록 따로 둔 가벼운 경로다.
+ */
+export function fetchStoryReportCopy(storyId: string, options?: PublicRequestOptions): Promise<StoryReportCopy> {
+  return request(`/v1/stories/${storyId}/report-copy`, options);
 }
 
 /** GET /v1/stories/{storyId} - 스토리 상세 페이지용으로, 단일 스토리의 카탈로그 메타데이터를 가져온다. */

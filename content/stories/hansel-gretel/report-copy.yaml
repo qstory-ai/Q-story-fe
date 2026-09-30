@@ -33,3 +33,23 @@ anchors:
     sceneTitle: 오븐 앞 탈출 장면
     reportImageAssetId: witch-demonstrates-oven
     followUpQuestion: 그레텔이 안전하게 움직이려면 가장 먼저 확인하거나 준비해야 할 것은 뭐라고 생각했어?
+# 리포트 "생각 전략" 라벨 - route-context.yaml의 action family id마다 하나. 여기 없는 family는
+# 전략 집계에서 빠진다. 이 항목을 통째로 생략한 이야기는 라우트 종류로 전략을 추정한다.
+strategyByFamily:
+  A_OBSERVE_BIRD: 단서를 관찰하고 확인하기
+  A_SPEAK_TO_BIRD: 질문으로 정보 얻기
+  A_CHECK_SURROUNDINGS: 단서를 관찰하고 확인하기
+  A_TRY_OTHER_PATH: 다른 가능성을 시험하기
+  B_ASK_OLD_WOMAN: 질문으로 정보 얻기
+  B_CHECK_KEYS: 단서를 관찰하고 확인하기
+  B_CHECK_HOUSE: 단서를 관찰하고 확인하기
+  B_STEP_BACK_MARK_EXIT: 미리 계획하고 안전 확보하기
+  B_MAKE_SIBLING_SIGNAL: 함께 움직일 방법 정하기
+  C_ASK_DEMONSTRATION: 질문으로 정보 얻기
+  C_DISTRACT_AND_TAKE_KEYS: 상황에 맞게 해결 방법 바꾸기
+  C_USE_SIGNAL: 함께 움직일 방법 정하기
+  C_CHECK_LOCK_FROM_DISTANCE: 단서를 관찰하고 확인하기
+  C_BLOCK_PURSUIT_SAFELY: 미리 계획하고 안전 확보하기
+companionChat:
+  title: 헨젤·그레텔과 나눈 이야기
+  description: 아이가 상시 대화창에서 헨젤과 그레텔에게 물어본 말과 감정을 태그로만 남겼어요 - 원문 발화는 저장하지 않아요.

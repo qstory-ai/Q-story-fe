@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, Modal, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { createLesson } from '@/entities/lesson';
+import { createLesson, listLessons, type Lesson } from '@/entities/lesson';
 import { listTutorClasses, type TutorClass } from '@/entities/tutor';
 
 type Props = {
@@ -54,7 +54,9 @@ export function ClassLessonStartModal({ visible, token, tutorId, storyId, storyT
     setStartingClassId(classGroup.id);
     setStartError(null);
     try {
-      const lesson = await createLesson(token, {
+      // 플레이어에서 바로 나왔다가 다시 시작해도 수업이 하나씩 쌓이지 않게 - 오늘 같은 반·같은 이야기로 연 수업을 잇는다.
+      const reusable = await findTodaysLesson(token, classGroup.id, storyId);
+      const lesson = reusable ?? await createLesson(token, {
         name: storyTitle,
         classGroupId: classGroup.id,
         storyIds: [storyId],
@@ -117,6 +119,23 @@ export function ClassLessonStartModal({ visible, token, tutorId, storyId, storyT
         {startError ? <Text style={[styles.helper, styles.errorText]}>{startError}</Text> : null}
       </View>
     </Modal>
+  );
+}
+
+async function findTodaysLesson(token: string, classGroupId: string, storyId: string): Promise<Lesson | null> {
+  const today = new Date().toDateString();
+  const [inProgress, scheduled] = await Promise.all([
+    listLessons(token, { status: 'IN_PROGRESS' }),
+    listLessons(token, { status: 'SCHEDULED' }),
+  ]);
+  return (
+    [...inProgress, ...scheduled].find(
+      (lesson) =>
+        lesson.classGroupId === classGroupId &&
+        lesson.storyIds.includes(storyId) &&
+        lesson.scheduledAt != null &&
+        new Date(lesson.scheduledAt).toDateString() === today,
+    ) ?? null
   );
 }
 

@@ -395,13 +395,15 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
             <Text style={styles.helper}>학생 목록을 불러오는 중이에요…</Text>
           ) : refs.status === 'error' ? (
             <Text style={styles.errorText}>{refs.message}</Text>
-          ) : refs.students.length === 0 ? (
+          ) : !classGroupId ? (
+            <Text style={styles.helper}>반을 고르면 그 반의 아이들이 참여 학생으로 선택돼요.</Text>
+          ) : refs.students.every((student) => student.classGroupId !== classGroupId) ? (
             <Text style={styles.helper}>
               아직 반에 들어온 아이가 없어요. 반 초대 링크로 부모님이 아이를 연결하면 이 수업에 자동으로 참여해요.
             </Text>
           ) : (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-              {refs.students.map((student) => {
+              {refs.students.filter((student) => student.classGroupId === classGroupId).map((student) => {
                 const selected = selectedStudentIds.has(student.id);
                 return (
                   <Pressable

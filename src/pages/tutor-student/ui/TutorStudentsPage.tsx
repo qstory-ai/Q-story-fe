@@ -94,11 +94,11 @@ export function TutorStudentsPage() {
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor')}>
       <View style={styles.content}>
+        {/* 유치원 반 수업은 반만 만들어 초대 링크를 보내면 된다 - 학생을 한 명씩 등록하는 건 1:1 과외용이라 아래로 내린다. */}
         <View style={styles.headerRow}>
-          <Text style={styles.title} accessibilityRole="header">등록된 학생</Text>
+          <Text style={styles.title} accessibilityRole="header">반과 학생</Text>
           <View style={styles.headerActions}>
-            <ActionButton label="여러 명 한 번에" variant="outline" size="sm" onPress={() => navigate('/tutor/students/bulk')} />
-            <ActionButton label="새 학생 등록" icon="+" size="sm" onPress={() => navigate('/tutor/students/new')} />
+            <ActionButton label="새 반 만들기" icon="+" size="sm" onPress={() => navigate('/tutor/class-groups/new')} />
           </View>
         </View>
 
@@ -116,17 +116,30 @@ export function TutorStudentsPage() {
                 onPress={() => navigate(`/tutor/class-groups/${classGroup.id}`)}
               />
             ))}
-            <ActionButton variant="outline" size="sm" label="+ 새 반 만들기" onPress={() => navigate('/tutor/class-groups/new')} />
+          </View>
+          {homeroomClasses.length === 0 ? (
+            <Text style={styles.cardBody}>아직 만든 반이 없어요. 위 "새 반 만들기"로 시작해 보세요.</Text>
+          ) : null}
+        </View>
+
+        <View style={styles.headerRow}>
+          <Text style={styles.cardTitle}>학생 목록 · 1:1 과외 학생 등록</Text>
+          <View style={styles.headerActions}>
+            <ActionButton label="여러 명 한 번에" variant="outline" size="sm" onPress={() => navigate('/tutor/students/bulk')} />
+            <ActionButton label="1:1 과외 학생 등록" variant="outline" size="sm" onPress={() => navigate('/tutor/students/new')} />
           </View>
         </View>
+        <Text style={styles.cardBody}>
+          반 초대 링크로 들어온 아이도 여기에 함께 보여요. 반 없이 1:1로 만나는 학생만 직접 등록하고 학생별 초대 코드를 보내 주세요.
+        </Text>
 
         {load.status === 'loading' && <LoadingState label="학생 목록을 불러오는 중이에요…" />}
 
         {load.status === 'ready' && load.students.length === 0 && (
           <EmptyState
-            title="아직 등록된 학생이 없어요"
-            body="첫 학생을 등록하고 부모 초대를 시작해 보세요."
-            cta={{ label: '새 학생 등록하기', onPress: () => navigate('/tutor/students/new') }}
+            title="아직 학생이 없어요"
+            body="반을 만들어 초대 링크를 보내면 부모님이 아이를 연결할 때 여기에 올라와요."
+            cta={{ label: '새 반 만들기', onPress: () => navigate('/tutor/class-groups/new') }}
           />
         )}
 

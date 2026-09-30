@@ -125,7 +125,8 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
     try {
       // 새 학생 줄이 있으면 먼저 만들고 참여 학생에 합친다. 반이 있으면 반 수업 학생으로.
       const createdStudentIds: string[] = [];
-      for (const draft of quickStudents) {
+      // 반 수업은 "학생 바로 등록"을 보이지 않는다 - 개인 레슨에서 적다가 반 수업으로 바꿨으면 그 줄은 버린다.
+      for (const draft of lessonType === 'INDIVIDUAL' ? quickStudents : []) {
         const draftName = draft.name.trim();
         if (!draftName) continue;
         const created = await createTutorStudent(state.token, {
@@ -408,11 +409,9 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
             ) : classGroupId ? (
               <Text style={styles.helper}>반 학생이 참여 학생으로 자동 선택됐어요. 학생을 미리 넣지 않아도, 반 초대 링크로 들어온 아이는 수업에 함께 기록돼요.</Text>
             ) : null}
-            {!isEdit ? (
+            {!isEdit && lessonType === 'INDIVIDUAL' ? (
               <View style={styles.quickAddBlock}>
-                <Text style={styles.groupLabel}>
-                  {classGroupId ? '이 반에 학생 바로 등록' : '새 학생 바로 등록'} · 선택
-                </Text>
+                <Text style={styles.groupLabel}>새 학생 바로 등록 · 선택</Text>
                 {quickStudents.map((draft, index) => (
                   <View key={index} style={styles.quickAddRow}>
                     <View style={styles.quickAddName}>
@@ -469,7 +468,11 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
           ) : refs.status === 'error' ? (
             <Text style={styles.errorText}>{refs.message}</Text>
           ) : refs.students.length === 0 ? (
-            <Text style={styles.helper}>등록된 학생이 없어요. 학생을 먼저 등록해 주세요.</Text>
+            <Text style={styles.helper}>
+              {lessonType === 'CLASS'
+                ? '아직 반에 들어온 아이가 없어요. 반 초대 링크로 부모님이 아이를 연결하면 이 수업에 자동으로 참여해요.'
+                : '등록된 학생이 없어요. 위 "새 학생 바로 등록"으로 함께 등록할 수 있어요.'}
+            </Text>
           ) : (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
               {refs.students.map((student) => {

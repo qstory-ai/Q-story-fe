@@ -213,7 +213,9 @@ export function OnboardingParentPage() {
             <Text style={styles.eyebrow}>3 · 완료</Text>
             <Text style={styles.title} accessibilityRole="header">준비가 끝났어요</Text>
             <Text style={styles.body}>
-              지금부터 아이와 함께 이야기를 시작해 보세요. 홈에서 오늘의 이야기와 지난 리포트를 확인할 수 있어요.
+              {next
+                ? '이제 반에 연결할 아이를 고르면 끝이에요. 반 수업 리포트도 여기서 받아 볼 수 있어요.'
+                : '지금부터 아이와 함께 이야기를 시작해 보세요. 홈에서 오늘의 이야기와 지난 리포트를 확인할 수 있어요.'}
             </Text>
             <ActionButton variant="gold" label={next ? '반에 아이 연결하기' : '홈으로'} onPress={markDoneAndGoHome} />
           </>

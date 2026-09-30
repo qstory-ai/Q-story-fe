@@ -36,7 +36,7 @@ export function MyPageClassesPage() {
   const [tutorCodeInput, setTutorCodeInput] = useState('');
   const [tutorCodeError, setTutorCodeError] = useState<string | null>(null);
   const [classCodeInput, setClassCodeInput] = useState('');
-  const { children } = useChildren();
+  const { children, load: childrenLoad, reload: reloadChildren } = useChildren();
   // 반에 올릴 아이 - 이름·출생연도를 다시 적지 않고 등록한 아이 프로필 중에서 고른다. 한 명뿐이면 그 아이.
   const [pickedChildId, setPickedChildId] = useState<string | null>(null);
   const selectedChild = children.find((child) => child.id === pickedChildId) ?? (children.length === 1 ? children[0] : null);
@@ -211,7 +211,11 @@ export function MyPageClassesPage() {
             autoCapitalize="characters"
             errorText={classCodeError ?? undefined}
           />
-          {children.length === 0 ? (
+          {childrenLoad.status === 'loading' ? (
+            <LoadingState compact label="아이 목록을 불러오는 중이에요…" />
+          ) : childrenLoad.status === 'error' ? (
+            <ErrorState message="아이 목록을 불러오지 못했어요." onRetry={() => void reloadChildren()} />
+          ) : children.length === 0 ? (
             <View style={styles.list}>
               <Text style={styles.body}>반에 올릴 아이 프로필이 아직 없어요. 아이를 먼저 등록해 주세요.</Text>
               <ActionButton label="아이 등록하러 가기" variant="outline" size="sm" onPress={() => navigate('/mypage/children')} />

@@ -14,7 +14,7 @@ import {
 } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { homePathFor, joinExistingClass, previewClassByCode, useAuth, type ClassPreview } from '@/entities/auth';
-import { BirthYearChips, listChildren, type Child } from '@/entities/child';
+import { BirthYearChips, listChildren, useChildren, type Child } from '@/entities/child';
 import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
 
 const NEW_CHILD = 'new';
@@ -141,6 +141,7 @@ function ChildPicker({
   onJoined: (homePath: string) => void;
 }) {
   const { setSession } = useAuth();
+  const { reload: reloadChildren } = useChildren();
   const [children, setChildren] = useState<Child[] | null>(null);
   // 목록을 못 불러왔는데 "아이 없음"으로 보면 이미 있는 아이를 또 만들게 된다 - 오류로 보이고 다시 시도하게 한다.
   const [childrenError, setChildrenError] = useState<string | null>(null);
@@ -213,6 +214,7 @@ function ChildPicker({
       );
       // 반 소속으로 기관 이용권이 생길 수 있어 응답의 사용자 정보로 세션을 갱신한다.
       setSession(response.token, response.user);
+      if (isNew) void reloadChildren();
       const name = isNew ? childName.trim() : (children?.find((child) => child.id === selected)?.name ?? '아이');
       setJoined({ childName: name, homePath: homePathFor(response.user) });
     } catch (failure) {

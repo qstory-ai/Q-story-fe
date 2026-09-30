@@ -34,7 +34,8 @@ export function TutorStudentsPage() {
   const [issueError, setIssueError] = useState<Record<string, string>>({});
   const [reloadKey, setReloadKey] = useState(0);
   // 담임인 반 - 반마다 초대 링크 하나와 부모 연결 현황을 보는 반 화면으로 간다. 부가 정보라 실패해도 목록은 보인다.
-  const [homeroomClasses, setHomeroomClasses] = useState<TutorClass[]>([]);
+  // null = 아직 불러오는 중이거나 실패 - 그동안 "아직 만든 반이 없어요"를 보이지 않는다.
+  const [homeroomClasses, setHomeroomClasses] = useState<TutorClass[] | null>(null);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -108,7 +109,7 @@ export function TutorStudentsPage() {
             학생을 미리 등록하지 않아도 돼요. 반 초대 링크 하나를 알림장에 올리면 부모님이 아이를 연결할 때 명단에 자동으로 올라가요.
           </Text>
           <View style={styles.actions}>
-            {homeroomClasses.map((classGroup) => (
+            {(homeroomClasses ?? []).map((classGroup) => (
               <ActionButton
                 key={classGroup.id}
                 variant="secondary"
@@ -117,16 +118,16 @@ export function TutorStudentsPage() {
               />
             ))}
           </View>
-          {homeroomClasses.length === 0 ? (
+          {homeroomClasses?.length === 0 ? (
             <Text style={styles.cardBody}>아직 만든 반이 없어요. 위 "새 반 만들기"로 시작해 보세요.</Text>
           ) : null}
         </View>
 
         <View style={styles.headerRow}>
-          <Text style={styles.cardTitle}>학생 목록 · 1:1 과외 학생 등록</Text>
+          <Text style={styles.cardTitle} accessibilityRole="header">학생 목록 · 1:1 과외 학생 등록</Text>
           <View style={styles.headerActions}>
             <ActionButton label="여러 명 한 번에" variant="outline" size="sm" onPress={() => navigate('/tutor/students/bulk')} />
-            <ActionButton label="1:1 과외 학생 등록" variant="outline" size="sm" onPress={() => navigate('/tutor/students/new')} />
+            <ActionButton label="1:1 학생 등록" variant="outline" size="sm" onPress={() => navigate('/tutor/students/new')} />
           </View>
         </View>
         <Text style={styles.cardBody}>
@@ -217,7 +218,7 @@ const styles = StyleSheet.create({
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
   },
-  headerActions: { flexDirection: 'row', gap: storybookTheme.spacing.sm, flexWrap: 'wrap' },
+  headerActions: { flexDirection: 'row', gap: storybookTheme.spacing.sm, flexWrap: 'wrap', flexShrink: 1 },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',

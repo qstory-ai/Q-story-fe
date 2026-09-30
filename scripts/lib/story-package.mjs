@@ -802,6 +802,30 @@ function validateStoryPackage(source) {
   ) {
     fail(story.storyId, 'report copy or release availability is invalid');
   }
+  // 이야기별 리포트 메타데이터(선택) - 없으면 앱이 라우트 종류/이야기 제목으로 일반 문구를 만든다.
+  const isNonEmptyText = (value) => typeof value === 'string' && value.trim().length > 0;
+  if (reportCopy.strategyByFamily !== undefined) {
+    if (!isPlainObject(reportCopy.strategyByFamily)) {
+      fail(story.storyId, 'report copy strategyByFamily must be a map of family id to label');
+    }
+    for (const [familyId, label] of Object.entries(reportCopy.strategyByFamily)) {
+      if (!declaredFamilyIds.has(familyId)) {
+        fail(story.storyId, `report copy strategyByFamily names unknown family ${familyId}`);
+      }
+      if (!isNonEmptyText(label)) {
+        fail(story.storyId, `report copy strategyByFamily.${familyId} must be a non-empty label`);
+      }
+    }
+  }
+  if (reportCopy.defaultFollowUpQuestion !== undefined && !isNonEmptyText(reportCopy.defaultFollowUpQuestion)) {
+    fail(story.storyId, 'report copy defaultFollowUpQuestion must be non-empty text');
+  }
+  if (
+    reportCopy.companionChat !== undefined &&
+    !(isNonEmptyText(reportCopy.companionChat?.title) && isNonEmptyText(reportCopy.companionChat?.description))
+  ) {
+    fail(story.storyId, 'report copy companionChat needs a title and a description');
+  }
   const packs = references.packs ?? {};
   if (!Object.values(packs).every((ids) => Array.isArray(ids) && ids.length > 0)) {
     fail(story.storyId, 'reference packs must be non-empty');

@@ -1,0 +1,1248 @@
+{
+  "parentReports": {
+    "noQuestions:plain": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "이번에는 질문을 건너뛰고 이야기를 끝까지 감상했어요.",
+      "questionCount": 0,
+      "changedSceneCount": 0,
+      "durationSeconds": null,
+      "questionRecords": [],
+      "curiosityTopics": [
+        "이야기의 처음부터 결말까지 차분히 따라가기"
+      ],
+      "changedMoments": [
+        "이야기의 큰 줄기를 바꾸지 않고 원래 결말까지 함께 갔어요."
+      ],
+      "coachObservation": "이번에는 질문을 건너뛰고 이야기의 처음과 끝을 차분히 따라갔어요. 다음에 기억에 남은 장면 하나부터 이야기해 보면 자연스럽게 생각을 들을 수 있어요.",
+      "coachEvidence": [],
+      "coachInterpretations": [
+        "질문을 하지 않은 것도 자연스러운 참여 방식이에요. 기억에 남은 장면을 말할 때 어떤 인물·사건·감정을 먼저 꺼내는지 들어보세요."
+      ],
+      "focusTopics": [
+        "이야기 완주",
+        "기억에 남은 장면"
+      ],
+      "conversationTopics": [
+        "끝까지 이야기를 들으며 가장 기억에 남은 장면",
+        "길을 잃거나 걱정될 때 도움을 요청하는 방법"
+      ],
+      "followUpQuestions": [
+        "이야기에서 가장 기억에 남은 장면은 어디였어? 왜 그랬어?",
+        "헨젤과 그레텔에게 한 가지 말을 해 줄 수 있다면 뭐라고 하고 싶어?",
+        "이야기에서 한 장면을 바꿀 수 있다면 어디를 어떻게 바꾸고 싶어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "종이에 숲길을 짧게 그리고, 길을 잃었을 때 도움을 받을 수 있는 장소나 사람을 함께 표시해 보세요."
+      },
+      "companionChat": null
+    },
+    "noQuestions:branch": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "이번에는 질문을 건너뛰고 이야기를 끝까지 감상했어요.",
+      "questionCount": 0,
+      "changedSceneCount": 0,
+      "durationSeconds": 305,
+      "questionRecords": [],
+      "curiosityTopics": [
+        "이야기의 처음부터 결말까지 차분히 따라가기"
+      ],
+      "changedMoments": [
+        "이야기의 큰 줄기를 바꾸지 않고 원래 결말까지 함께 갔어요."
+      ],
+      "coachObservation": "이번에는 질문을 건너뛰고 이야기의 처음과 끝을 차분히 따라갔어요. 다음에 기억에 남은 장면 하나부터 이야기해 보면 자연스럽게 생각을 들을 수 있어요.",
+      "coachEvidence": [],
+      "coachInterpretations": [
+        "질문을 하지 않은 것도 자연스러운 참여 방식이에요. 기억에 남은 장면을 말할 때 어떤 인물·사건·감정을 먼저 꺼내는지 들어보세요."
+      ],
+      "focusTopics": [
+        "이야기 완주",
+        "기억에 남은 장면"
+      ],
+      "conversationTopics": [
+        "끝까지 이야기를 들으며 가장 기억에 남은 장면",
+        "길을 잃거나 걱정될 때 도움을 요청하는 방법"
+      ],
+      "followUpQuestions": [
+        "이야기에서 가장 기억에 남은 장면은 어디였어? 왜 그랬어?",
+        "헨젤과 그레텔에게 한 가지 말을 해 줄 수 있다면 뭐라고 하고 싶어?",
+        "이야기에서 한 장면을 바꿀 수 있다면 어디를 어떻게 바꾸고 싶어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "종이에 숲길을 짧게 그리고, 길을 잃었을 때 도움을 받을 수 있는 장소나 사람을 함께 표시해 보세요."
+      },
+      "companionChat": {
+        "turnCount": 4,
+        "topics": [
+          {
+            "label": "길 찾기",
+            "count": 2
+          }
+        ],
+        "tones": [
+          {
+            "label": "호기심",
+            "count": 3
+          }
+        ],
+        "values": [
+          {
+            "label": "협력",
+            "count": 1
+          }
+        ]
+      }
+    },
+    "skippedOnly:plain": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "이번에는 질문을 건너뛰고 이야기를 끝까지 감상했어요.",
+      "questionCount": 0,
+      "changedSceneCount": 0,
+      "durationSeconds": null,
+      "questionRecords": [],
+      "curiosityTopics": [
+        "이야기의 처음부터 결말까지 차분히 따라가기"
+      ],
+      "changedMoments": [
+        "이야기의 큰 줄기를 바꾸지 않고 원래 결말까지 함께 갔어요."
+      ],
+      "coachObservation": "이번에는 질문을 건너뛰고 이야기의 처음과 끝을 차분히 따라갔어요. 다음에 기억에 남은 장면 하나부터 이야기해 보면 자연스럽게 생각을 들을 수 있어요.",
+      "coachEvidence": [],
+      "coachInterpretations": [
+        "질문을 하지 않은 것도 자연스러운 참여 방식이에요. 기억에 남은 장면을 말할 때 어떤 인물·사건·감정을 먼저 꺼내는지 들어보세요."
+      ],
+      "focusTopics": [
+        "이야기 완주",
+        "기억에 남은 장면"
+      ],
+      "conversationTopics": [
+        "끝까지 이야기를 들으며 가장 기억에 남은 장면",
+        "길을 잃거나 걱정될 때 도움을 요청하는 방법"
+      ],
+      "followUpQuestions": [
+        "이야기에서 가장 기억에 남은 장면은 어디였어? 왜 그랬어?",
+        "헨젤과 그레텔에게 한 가지 말을 해 줄 수 있다면 뭐라고 하고 싶어?",
+        "이야기에서 한 장면을 바꿀 수 있다면 어디를 어떻게 바꾸고 싶어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "종이에 숲길을 짧게 그리고, 길을 잃었을 때 도움을 받을 수 있는 장소나 사람을 함께 표시해 보세요."
+      },
+      "companionChat": null
+    },
+    "skippedOnly:branch": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "이번에는 질문을 건너뛰고 이야기를 끝까지 감상했어요.",
+      "questionCount": 0,
+      "changedSceneCount": 0,
+      "durationSeconds": 305,
+      "questionRecords": [],
+      "curiosityTopics": [
+        "이야기의 처음부터 결말까지 차분히 따라가기"
+      ],
+      "changedMoments": [
+        "이야기의 큰 줄기를 바꾸지 않고 원래 결말까지 함께 갔어요."
+      ],
+      "coachObservation": "이번에는 질문을 건너뛰고 이야기의 처음과 끝을 차분히 따라갔어요. 다음에 기억에 남은 장면 하나부터 이야기해 보면 자연스럽게 생각을 들을 수 있어요.",
+      "coachEvidence": [],
+      "coachInterpretations": [
+        "질문을 하지 않은 것도 자연스러운 참여 방식이에요. 기억에 남은 장면을 말할 때 어떤 인물·사건·감정을 먼저 꺼내는지 들어보세요."
+      ],
+      "focusTopics": [
+        "이야기 완주",
+        "기억에 남은 장면"
+      ],
+      "conversationTopics": [
+        "끝까지 이야기를 들으며 가장 기억에 남은 장면",
+        "길을 잃거나 걱정될 때 도움을 요청하는 방법"
+      ],
+      "followUpQuestions": [
+        "이야기에서 가장 기억에 남은 장면은 어디였어? 왜 그랬어?",
+        "헨젤과 그레텔에게 한 가지 말을 해 줄 수 있다면 뭐라고 하고 싶어?",
+        "이야기에서 한 장면을 바꿀 수 있다면 어디를 어떻게 바꾸고 싶어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "종이에 숲길을 짧게 그리고, 길을 잃었을 때 도움을 받을 수 있는 장소나 사람을 함께 표시해 보세요."
+      },
+      "companionChat": {
+        "turnCount": 4,
+        "topics": [
+          {
+            "label": "길 찾기",
+            "count": 2
+          }
+        ],
+        "tones": [
+          {
+            "label": "호기심",
+            "count": 3
+          }
+        ],
+        "values": [
+          {
+            "label": "협력",
+            "count": 1
+          }
+        ]
+      }
+    },
+    "oneDirectNoFamily:plain": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "아이는 1개의 장면에서 질문하거나 생각을 이야기했어요.",
+      "questionCount": 1,
+      "changedSceneCount": 1,
+      "durationSeconds": null,
+      "questionRecords": [
+        {
+          "anchorId": "HG-Q-A",
+          "questionMeaning": "하얀 새에게 길을 물어보고 싶다.",
+          "questionTypeLabel": "생각을 행동으로 옮긴 질문",
+          "sceneTitle": "하얀 새를 만난 숲",
+          "selectedPathTitle": "아이의 생각을 바로 해보기",
+          "selectedPathSummary": "좋아. 새에게 물어보자.",
+          "storyDevelopmentSummary": "좋아. 새에게 물어보자.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "white-bird-leads",
+            "uri": null,
+            "alt": "하얀 새를 만난 숲에서 아이의 생각이 반영된 이야기 장면"
+          }
+        }
+      ],
+      "curiosityTopics": [
+        "하얀 새의 행동과 길 찾기"
+      ],
+      "changedMoments": [
+        "하얀 새를 만난 숲에서 아이의 생각인 ‘하얀 새에게 길을 물어보고 싶다.’이 실제 행동으로 이어졌어요."
+      ],
+      "coachObservation": "1개 질문 장면에서 아이가 궁금해한 내용과 고른 방법을 함께 살펴봤어요.",
+      "coachEvidence": [
+        "하얀 새를 만난 숲: ‘하얀 새에게 길을 물어보고 싶다.’ → ‘아이의 생각을 바로 해보기’"
+      ],
+      "coachInterpretations": [
+        "이번에는 선택보다 이야기의 흐름을 따라가는 모습이 기록됐어요.",
+        "한 편의 세 질문에서 나온 관찰이므로, 같은 접근이 다른 이야기에서도 반복되는지 더 지켜보면 관심의 방향을 더 정확히 알 수 있어요."
+      ],
+      "focusTopics": [
+        "하얀 새의 행동"
+      ],
+      "conversationTopics": [
+        "아이의 생각: 하얀 새에게 길을 물어보고 싶다.",
+        "길을 잃거나 걱정될 때 도움을 요청하는 방법"
+      ],
+      "followUpQuestions": [
+        "하얀 새의 행동과 숲의 단서 중에서 어떤 것이 네 방법을 고르는 데 가장 중요했어?",
+        "‘아이의 생각을 바로 해보기’ 말고 다른 방법을 골랐다면 이야기가 어떻게 달라졌을까?",
+        "그 장면에서 아이의 생각을 바로 해보기을 고른 뒤 가장 마음에 든 변화는 뭐였어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "종이에 숲길을 짧게 그리고, 길을 잃었을 때 도움을 받을 수 있는 장소나 사람을 함께 표시해 보세요."
+      },
+      "companionChat": null
+    },
+    "oneDirectNoFamily:branch": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "아이는 1개의 장면에서 질문하거나 생각을 이야기했어요.",
+      "questionCount": 1,
+      "changedSceneCount": 1,
+      "durationSeconds": 305,
+      "questionRecords": [
+        {
+          "anchorId": "HG-Q-A",
+          "questionMeaning": "하얀 새에게 길을 물어보고 싶다.",
+          "questionTypeLabel": "생각을 행동으로 옮긴 질문",
+          "sceneTitle": "하얀 새를 만난 숲",
+          "selectedPathTitle": "아이의 생각을 바로 해보기",
+          "selectedPathSummary": "좋아. 새에게 물어보자.",
+          "storyDevelopmentSummary": "좋아. 새에게 물어보자.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "white-bird-leads",
+            "uri": null,
+            "alt": "하얀 새를 만난 숲에서 아이의 생각이 반영된 이야기 장면"
+          }
+        }
+      ],
+      "curiosityTopics": [
+        "하얀 새의 행동과 길 찾기"
+      ],
+      "changedMoments": [
+        "하얀 새를 만난 숲에서 아이의 생각인 ‘하얀 새에게 길을 물어보고 싶다.’이 실제 행동으로 이어졌어요."
+      ],
+      "coachObservation": "1개 질문 장면에서 아이가 궁금해한 내용과 고른 방법을 함께 살펴봤어요.",
+      "coachEvidence": [
+        "하얀 새를 만난 숲: ‘하얀 새에게 길을 물어보고 싶다.’ → ‘아이의 생각을 바로 해보기’"
+      ],
+      "coachInterpretations": [
+        "이번에는 선택보다 이야기의 흐름을 따라가는 모습이 기록됐어요.",
+        "한 편의 세 질문에서 나온 관찰이므로, 같은 접근이 다른 이야기에서도 반복되는지 더 지켜보면 관심의 방향을 더 정확히 알 수 있어요."
+      ],
+      "focusTopics": [
+        "하얀 새의 행동"
+      ],
+      "conversationTopics": [
+        "아이의 생각: 하얀 새에게 길을 물어보고 싶다.",
+        "길을 잃거나 걱정될 때 도움을 요청하는 방법"
+      ],
+      "followUpQuestions": [
+        "하얀 새의 행동과 숲의 단서 중에서 어떤 것이 네 방법을 고르는 데 가장 중요했어?",
+        "‘아이의 생각을 바로 해보기’ 말고 다른 방법을 골랐다면 이야기가 어떻게 달라졌을까?",
+        "그 장면에서 아이의 생각을 바로 해보기을 고른 뒤 가장 마음에 든 변화는 뭐였어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "종이에 숲길을 짧게 그리고, 길을 잃었을 때 도움을 받을 수 있는 장소나 사람을 함께 표시해 보세요."
+      },
+      "companionChat": {
+        "turnCount": 4,
+        "topics": [
+          {
+            "label": "길 찾기",
+            "count": 2
+          }
+        ],
+        "tones": [
+          {
+            "label": "호기심",
+            "count": 3
+          }
+        ],
+        "values": [
+          {
+            "label": "협력",
+            "count": 1
+          }
+        ]
+      }
+    },
+    "oneSelectedOption:plain": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "아이는 1개의 장면에서 질문하거나 생각을 이야기했어요.",
+      "questionCount": 1,
+      "changedSceneCount": 1,
+      "durationSeconds": null,
+      "questionRecords": [
+        {
+          "anchorId": "HG-Q-B",
+          "questionMeaning": "어떻게 안전을 확인할지 궁금하다.",
+          "questionTypeLabel": "여러 가능성을 비교한 질문",
+          "sceneTitle": "과자집 문 앞",
+          "selectedPathTitle": "출구 표시하기",
+          "selectedPathSummary": "한 걸음 물러나 안전한 출구 위치를 표시한다.",
+          "storyDevelopmentSummary": "한 걸음 물러나 안전한 출구 위치를 표시한다.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "old-woman-door",
+            "uri": null,
+            "alt": "과자집 문 앞에서 아이의 생각이 반영된 이야기 장면"
+          }
+        }
+      ],
+      "curiosityTopics": [
+        "낯선 친절과 집의 단서 살피기"
+      ],
+      "changedMoments": [
+        "과자집 문 앞에서 아이의 생각인 ‘한 걸음 물러나 안전한 출구 위치를 표시한다.’이 실제 행동으로 이어졌어요."
+      ],
+      "coachObservation": "1개 질문 장면에서 아이가 궁금해한 내용과 고른 방법을 함께 살펴봤어요.",
+      "coachEvidence": [
+        "과자집 문 앞: ‘어떻게 안전을 확인할지 궁금하다.’ → ‘출구 표시하기’"
+      ],
+      "coachInterpretations": [
+        "이번 장면에서는 ‘미리 계획하고 안전 확보하기’ 접근을 선택했어요.",
+        "한 편의 세 질문에서 나온 관찰이므로, 같은 접근이 다른 이야기에서도 반복되는지 더 지켜보면 관심의 방향을 더 정확히 알 수 있어요."
+      ],
+      "focusTopics": [
+        "낯선 친절"
+      ],
+      "conversationTopics": [
+        "아이의 생각: 어떻게 안전을 확인할지 궁금하다.",
+        "친절한 사람을 만났을 때도 안전을 확인하는 방법"
+      ],
+      "followUpQuestions": [
+        "처음 만난 사람이 친절하게 다가오면 누구와 먼저 상의하면 좋을까?",
+        "‘출구 표시하기’ 말고 다른 방법을 골랐다면 이야기가 어떻게 달라졌을까?",
+        "그 장면에서 출구 표시하기을 고른 뒤 가장 마음에 든 변화는 뭐였어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "집 안에서 “안전한 단서”와 “조심해야 할 단서”를 하나씩 찾아 서로 이유를 말해 보세요."
+      },
+      "companionChat": null
+    },
+    "oneSelectedOption:branch": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "아이는 1개의 장면에서 질문하거나 생각을 이야기했어요.",
+      "questionCount": 1,
+      "changedSceneCount": 1,
+      "durationSeconds": 305,
+      "questionRecords": [
+        {
+          "anchorId": "HG-Q-B",
+          "questionMeaning": "어떻게 안전을 확인할지 궁금하다.",
+          "questionTypeLabel": "여러 가능성을 비교한 질문",
+          "sceneTitle": "과자집 문 앞",
+          "selectedPathTitle": "출구 표시하기",
+          "selectedPathSummary": "한 걸음 물러나 안전한 출구 위치를 표시한다.",
+          "storyDevelopmentSummary": "남매는 돌아갈 표시를 남겼지만 길이 과자집 주위를 도는 것을 알았고 마녀의 함정 속에서도 그 표시를 기억했어요.",
+          "imageRef": {
+            "kind": "GENERATED_BRANCH_ASSET",
+            "assetId": "b-step-back-mark-exit-01",
+            "uri": null,
+            "alt": "과자집 문 앞에서 아이의 생각이 반영된 이야기 장면"
+          }
+        }
+      ],
+      "curiosityTopics": [
+        "낯선 친절과 집의 단서 살피기"
+      ],
+      "changedMoments": [
+        "과자집 문 앞에서 아이가 ‘한 걸음 물러나 안전한 출구 위치를 표시한다.’을 골랐고, 남매는 돌아갈 표시를 남겼지만 길이 과자집 주위를 도는 것을 알았고 마녀의 함정 속에서도 그 표시를 기억했어요."
+      ],
+      "coachObservation": "1개 질문 장면에서 아이가 궁금해한 내용과 고른 방법을 함께 살펴봤어요.",
+      "coachEvidence": [
+        "과자집 문 앞: ‘어떻게 안전을 확인할지 궁금하다.’ → ‘출구 표시하기’"
+      ],
+      "coachInterpretations": [
+        "이번 장면에서는 ‘미리 계획하고 안전 확보하기’ 접근을 선택했어요.",
+        "한 편의 세 질문에서 나온 관찰이므로, 같은 접근이 다른 이야기에서도 반복되는지 더 지켜보면 관심의 방향을 더 정확히 알 수 있어요."
+      ],
+      "focusTopics": [
+        "낯선 친절"
+      ],
+      "conversationTopics": [
+        "아이의 생각: 어떻게 안전을 확인할지 궁금하다.",
+        "친절한 사람을 만났을 때도 안전을 확인하는 방법"
+      ],
+      "followUpQuestions": [
+        "처음 만난 사람이 친절하게 다가오면 누구와 먼저 상의하면 좋을까?",
+        "‘출구 표시하기’ 말고 다른 방법을 골랐다면 이야기가 어떻게 달라졌을까?",
+        "그 장면에서 출구 표시하기을 고른 뒤 가장 마음에 든 변화는 뭐였어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "집 안에서 “안전한 단서”와 “조심해야 할 단서”를 하나씩 찾아 서로 이유를 말해 보세요."
+      },
+      "companionChat": {
+        "turnCount": 4,
+        "topics": [
+          {
+            "label": "길 찾기",
+            "count": 2
+          }
+        ],
+        "tones": [
+          {
+            "label": "호기심",
+            "count": 3
+          }
+        ],
+        "values": [
+          {
+            "label": "협력",
+            "count": 1
+          }
+        ]
+      }
+    },
+    "twoMixed:plain": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "아이는 2개의 장면에서 질문하거나 생각을 이야기했어요.",
+      "questionCount": 2,
+      "changedSceneCount": 2,
+      "durationSeconds": null,
+      "questionRecords": [
+        {
+          "anchorId": "HG-Q-A",
+          "questionMeaning": "새가 보는 방향이 궁금하다.",
+          "questionTypeLabel": "생각을 행동으로 옮긴 질문",
+          "sceneTitle": "하얀 새를 만난 숲",
+          "selectedPathTitle": "아이의 생각을 바로 해보기",
+          "selectedPathSummary": "새를 살펴보자.",
+          "storyDevelopmentSummary": "새를 살펴보자.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "white-bird-leads",
+            "uri": null,
+            "alt": "하얀 새를 만난 숲에서 아이의 생각이 반영된 이야기 장면"
+          }
+        },
+        {
+          "anchorId": "HG-Q-C",
+          "questionMeaning": "헨젤과 신호를 맞추고 싶다.",
+          "questionTypeLabel": "여러 가능성을 비교한 질문",
+          "sceneTitle": "오븐 앞 탈출 장면",
+          "selectedPathTitle": "헨젤에게 신호 보내기",
+          "selectedPathSummary": "작업대를 두 번 두드려 헨젤에게 준비하라는 신호를 보낸다.",
+          "storyDevelopmentSummary": "작업대를 두 번 두드려 헨젤에게 준비하라는 신호를 보낸다.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "witch-demonstrates-oven",
+            "uri": null,
+            "alt": "오븐 앞 탈출 장면에서 아이의 생각이 반영된 이야기 장면"
+          }
+        }
+      ],
+      "curiosityTopics": [
+        "하얀 새의 행동과 길 찾기",
+        "수상한 명령 속에서 안전하게 행동하기"
+      ],
+      "changedMoments": [
+        "하얀 새를 만난 숲에서 아이의 생각인 ‘새가 보는 방향이 궁금하다.’이 실제 행동으로 이어졌어요.",
+        "오븐 앞 탈출 장면에서 아이의 생각인 ‘작업대를 두 번 두드려 헨젤에게 준비하라는 신호를 보낸다.’이 실제 행동으로 이어졌어요."
+      ],
+      "coachObservation": "2개 질문 장면에서 아이가 궁금해한 내용과 고른 방법을 함께 살펴봤어요.",
+      "coachEvidence": [
+        "하얀 새를 만난 숲: ‘새가 보는 방향이 궁금하다.’ → ‘아이의 생각을 바로 해보기’",
+        "오븐 앞 탈출 장면: ‘헨젤과 신호를 맞추고 싶다.’ → ‘헨젤에게 신호 보내기’"
+      ],
+      "coachInterpretations": [
+        "이번 기록에서는 단서를 관찰하고 확인하기, 함께 움직일 방법 정하기처럼 장면에 따라 서로 다른 접근이 나타났어요.",
+        "한 편의 세 질문에서 나온 관찰이므로, 같은 접근이 다른 이야기에서도 반복되는지 더 지켜보면 관심의 방향을 더 정확히 알 수 있어요."
+      ],
+      "focusTopics": [
+        "하얀 새의 행동",
+        "수상한 명령"
+      ],
+      "conversationTopics": [
+        "아이의 생각: 새가 보는 방향이 궁금하다.",
+        "길을 잃거나 걱정될 때 도움을 요청하는 방법"
+      ],
+      "followUpQuestions": [
+        "하얀 새의 행동과 숲의 단서 중에서 어떤 것이 네 방법을 고르는 데 가장 중요했어?",
+        "그레텔이 안전하게 움직이려면 가장 먼저 확인하거나 준비해야 할 것은 뭐라고 생각했어?",
+        "하얀 새를 만난 숲과 오븐 앞 탈출 장면에서 고른 방법에는 어떤 공통점과 차이가 있었어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "종이에 숲길을 짧게 그리고, 길을 잃었을 때 도움을 받을 수 있는 장소나 사람을 함께 표시해 보세요."
+      },
+      "companionChat": null
+    },
+    "twoMixed:branch": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "아이는 2개의 장면에서 질문하거나 생각을 이야기했어요.",
+      "questionCount": 2,
+      "changedSceneCount": 2,
+      "durationSeconds": 305,
+      "questionRecords": [
+        {
+          "anchorId": "HG-Q-A",
+          "questionMeaning": "새가 보는 방향이 궁금하다.",
+          "questionTypeLabel": "생각을 행동으로 옮긴 질문",
+          "sceneTitle": "하얀 새를 만난 숲",
+          "selectedPathTitle": "아이의 생각을 바로 해보기",
+          "selectedPathSummary": "새를 살펴보자.",
+          "storyDevelopmentSummary": "남매는 거리를 둔 채 새의 시선과 단 냄새를 확인하고 손을 잡은 채 새를 따라갔어요.",
+          "imageRef": {
+            "kind": "GENERATED_BRANCH_ASSET",
+            "assetId": "a-observe-bird-01",
+            "uri": null,
+            "alt": "하얀 새를 만난 숲에서 아이의 생각이 반영된 이야기 장면"
+          }
+        },
+        {
+          "anchorId": "HG-Q-C",
+          "questionMeaning": "헨젤과 신호를 맞추고 싶다.",
+          "questionTypeLabel": "여러 가능성을 비교한 질문",
+          "sceneTitle": "오븐 앞 탈출 장면",
+          "selectedPathTitle": "헨젤에게 신호 보내기",
+          "selectedPathSummary": "작업대를 두 번 두드려 헨젤에게 준비하라는 신호를 보낸다.",
+          "storyDevelopmentSummary": "그레텔은 과자집 문 앞에서 나눈 약속을 떠올리고, 헨젤과 빈손으로 탁, 탁 신호를 주고받아 마녀의 시선을 돌린 뒤 함께 탈출했어요.",
+          "imageRef": {
+            "kind": "GENERATED_BRANCH_ASSET",
+            "assetId": "c-use-signal-01",
+            "uri": null,
+            "alt": "오븐 앞 탈출 장면에서 아이의 생각이 반영된 이야기 장면"
+          }
+        }
+      ],
+      "curiosityTopics": [
+        "하얀 새의 행동과 길 찾기",
+        "수상한 명령 속에서 안전하게 행동하기"
+      ],
+      "changedMoments": [
+        "하얀 새를 만난 숲에서 아이가 ‘새가 보는 방향이 궁금하다.’을 골랐고, 남매는 거리를 둔 채 새의 시선과 단 냄새를 확인하고 손을 잡은 채 새를 따라갔어요.",
+        "오븐 앞 탈출 장면에서 아이가 ‘작업대를 두 번 두드려 헨젤에게 준비하라는 신호를 보낸다.’을 골랐고, 그레텔은 과자집 문 앞에서 나눈 약속을 떠올리고, 헨젤과 빈손으로 탁, 탁 신호를 주고받아 마녀의 시선을 돌린 뒤 함께 탈출했어요."
+      ],
+      "coachObservation": "2개 질문 장면에서 아이가 궁금해한 내용과 고른 방법을 함께 살펴봤어요.",
+      "coachEvidence": [
+        "하얀 새를 만난 숲: ‘새가 보는 방향이 궁금하다.’ → ‘아이의 생각을 바로 해보기’",
+        "오븐 앞 탈출 장면: ‘헨젤과 신호를 맞추고 싶다.’ → ‘헨젤에게 신호 보내기’"
+      ],
+      "coachInterpretations": [
+        "이번 기록에서는 단서를 관찰하고 확인하기, 함께 움직일 방법 정하기처럼 장면에 따라 서로 다른 접근이 나타났어요.",
+        "한 편의 세 질문에서 나온 관찰이므로, 같은 접근이 다른 이야기에서도 반복되는지 더 지켜보면 관심의 방향을 더 정확히 알 수 있어요."
+      ],
+      "focusTopics": [
+        "하얀 새의 행동",
+        "수상한 명령"
+      ],
+      "conversationTopics": [
+        "아이의 생각: 새가 보는 방향이 궁금하다.",
+        "길을 잃거나 걱정될 때 도움을 요청하는 방법"
+      ],
+      "followUpQuestions": [
+        "하얀 새의 행동과 숲의 단서 중에서 어떤 것이 네 방법을 고르는 데 가장 중요했어?",
+        "그레텔이 안전하게 움직이려면 가장 먼저 확인하거나 준비해야 할 것은 뭐라고 생각했어?",
+        "하얀 새를 만난 숲과 오븐 앞 탈출 장면에서 고른 방법에는 어떤 공통점과 차이가 있었어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "종이에 숲길을 짧게 그리고, 길을 잃었을 때 도움을 받을 수 있는 장소나 사람을 함께 표시해 보세요."
+      },
+      "companionChat": {
+        "turnCount": 4,
+        "topics": [
+          {
+            "label": "길 찾기",
+            "count": 2
+          }
+        ],
+        "tones": [
+          {
+            "label": "호기심",
+            "count": 3
+          }
+        ],
+        "values": [
+          {
+            "label": "협력",
+            "count": 1
+          }
+        ]
+      }
+    },
+    "threeRepeatedStrategy:plain": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "아이는 3개의 장면에서 질문하거나 생각을 이야기했어요.",
+      "questionCount": 3,
+      "changedSceneCount": 3,
+      "durationSeconds": null,
+      "questionRecords": [
+        {
+          "anchorId": "HG-Q-A",
+          "questionMeaning": "새 주변 흔적이 궁금하다.",
+          "questionTypeLabel": "생각을 행동으로 옮긴 질문",
+          "sceneTitle": "하얀 새를 만난 숲",
+          "selectedPathTitle": "아이의 생각을 바로 해보기",
+          "selectedPathSummary": "흔적을 찾아보자.",
+          "storyDevelopmentSummary": "흔적을 찾아보자.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "white-bird-leads",
+            "uri": null,
+            "alt": "하얀 새를 만난 숲에서 아이의 생각이 반영된 이야기 장면"
+          }
+        },
+        {
+          "anchorId": "HG-Q-B",
+          "questionMeaning": "집이 안전한지 궁금하다.",
+          "questionTypeLabel": "생각을 행동으로 옮긴 질문",
+          "sceneTitle": "과자집 문 앞",
+          "selectedPathTitle": "아이의 생각을 바로 해보기",
+          "selectedPathSummary": "열쇠를 살펴보자.",
+          "storyDevelopmentSummary": "열쇠를 살펴보자.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "old-woman-door",
+            "uri": null,
+            "alt": "과자집 문 앞에서 아이의 생각이 반영된 이야기 장면"
+          }
+        },
+        {
+          "anchorId": "HG-Q-C",
+          "questionMeaning": "그레텔이 안전할 방법이 궁금하다.",
+          "questionTypeLabel": "생각을 행동으로 옮긴 질문",
+          "sceneTitle": "오븐 앞 탈출 장면",
+          "selectedPathTitle": "아이의 생각을 바로 해보기",
+          "selectedPathSummary": "멀리서 잠금을 확인하자.",
+          "storyDevelopmentSummary": "멀리서 잠금을 확인하자.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "witch-demonstrates-oven",
+            "uri": null,
+            "alt": "오븐 앞 탈출 장면에서 아이의 생각이 반영된 이야기 장면"
+          }
+        }
+      ],
+      "curiosityTopics": [
+        "하얀 새의 행동과 길 찾기",
+        "낯선 친절과 집의 단서 살피기",
+        "수상한 명령 속에서 안전하게 행동하기"
+      ],
+      "changedMoments": [
+        "하얀 새를 만난 숲에서 아이의 생각인 ‘새 주변 흔적이 궁금하다.’이 실제 행동으로 이어졌어요.",
+        "과자집 문 앞에서 아이의 생각인 ‘집이 안전한지 궁금하다.’이 실제 행동으로 이어졌어요.",
+        "오븐 앞 탈출 장면에서 아이의 생각인 ‘그레텔이 안전할 방법이 궁금하다.’이 실제 행동으로 이어졌어요."
+      ],
+      "coachObservation": "3개 질문 장면에서 아이가 궁금해한 내용과 고른 방법을 함께 살펴봤어요.",
+      "coachEvidence": [
+        "하얀 새를 만난 숲: ‘새 주변 흔적이 궁금하다.’ → ‘아이의 생각을 바로 해보기’",
+        "과자집 문 앞: ‘집이 안전한지 궁금하다.’ → ‘아이의 생각을 바로 해보기’",
+        "오븐 앞 탈출 장면: ‘그레텔이 안전할 방법이 궁금하다.’ → ‘아이의 생각을 바로 해보기’"
+      ],
+      "coachInterpretations": [
+        "이번 체험에서는 ‘단서를 관찰하고 확인하기’ 접근이 3개 장면에서 반복해서 나타났어요.",
+        "한 편의 세 질문에서 나온 관찰이므로, 같은 접근이 다른 이야기에서도 반복되는지 더 지켜보면 관심의 방향을 더 정확히 알 수 있어요."
+      ],
+      "focusTopics": [
+        "하얀 새의 행동",
+        "낯선 친절",
+        "수상한 명령"
+      ],
+      "conversationTopics": [
+        "아이의 생각: 새 주변 흔적이 궁금하다.",
+        "친절한 사람을 만났을 때도 안전을 확인하는 방법"
+      ],
+      "followUpQuestions": [
+        "하얀 새의 행동과 숲의 단서 중에서 어떤 것이 네 방법을 고르는 데 가장 중요했어?",
+        "처음 만난 사람이 친절하게 다가오면 누구와 먼저 상의하면 좋을까?",
+        "그레텔이 안전하게 움직이려면 가장 먼저 확인하거나 준비해야 할 것은 뭐라고 생각했어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "집 안에서 “안전한 단서”와 “조심해야 할 단서”를 하나씩 찾아 서로 이유를 말해 보세요."
+      },
+      "companionChat": null
+    },
+    "threeRepeatedStrategy:branch": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "아이는 3개의 장면에서 질문하거나 생각을 이야기했어요.",
+      "questionCount": 3,
+      "changedSceneCount": 3,
+      "durationSeconds": 305,
+      "questionRecords": [
+        {
+          "anchorId": "HG-Q-A",
+          "questionMeaning": "새 주변 흔적이 궁금하다.",
+          "questionTypeLabel": "생각을 행동으로 옮긴 질문",
+          "sceneTitle": "하얀 새를 만난 숲",
+          "selectedPathTitle": "아이의 생각을 바로 해보기",
+          "selectedPathSummary": "흔적을 찾아보자.",
+          "storyDevelopmentSummary": "남매는 빵 부스러기·발자국·깃털과 단 냄새를 함께 확인한 뒤 걸어갈 방향을 정했어요.",
+          "imageRef": {
+            "kind": "GENERATED_BRANCH_ASSET",
+            "assetId": "a-check-surroundings-01",
+            "uri": null,
+            "alt": "하얀 새를 만난 숲에서 아이의 생각이 반영된 이야기 장면"
+          }
+        },
+        {
+          "anchorId": "HG-Q-B",
+          "questionMeaning": "집이 안전한지 궁금하다.",
+          "questionTypeLabel": "생각을 행동으로 옮긴 질문",
+          "sceneTitle": "과자집 문 앞",
+          "selectedPathTitle": "아이의 생각을 바로 해보기",
+          "selectedPathSummary": "열쇠를 살펴보자.",
+          "storyDevelopmentSummary": "그레텔은 검은 열쇠와 설탕 무늬가 함께 반응하는 것을 발견해 헨젤에게 알려줬어요.",
+          "imageRef": {
+            "kind": "GENERATED_BRANCH_ASSET",
+            "assetId": "b-check-keys-01",
+            "uri": null,
+            "alt": "과자집 문 앞에서 아이의 생각이 반영된 이야기 장면"
+          }
+        },
+        {
+          "anchorId": "HG-Q-C",
+          "questionMeaning": "그레텔이 안전할 방법이 궁금하다.",
+          "questionTypeLabel": "생각을 행동으로 옮긴 질문",
+          "sceneTitle": "오븐 앞 탈출 장면",
+          "selectedPathTitle": "아이의 생각을 바로 해보기",
+          "selectedPathSummary": "멀리서 잠금을 확인하자.",
+          "storyDevelopmentSummary": "그레텔은 긴 빵 주걱으로 잠금 무늬와 철문이 연결된 것을 알아내고 마녀에게 먼저 시범을 요청했어요.",
+          "imageRef": {
+            "kind": "GENERATED_BRANCH_ASSET",
+            "assetId": "c-check-lock-from-distance-01",
+            "uri": null,
+            "alt": "오븐 앞 탈출 장면에서 아이의 생각이 반영된 이야기 장면"
+          }
+        }
+      ],
+      "curiosityTopics": [
+        "하얀 새의 행동과 길 찾기",
+        "낯선 친절과 집의 단서 살피기",
+        "수상한 명령 속에서 안전하게 행동하기"
+      ],
+      "changedMoments": [
+        "하얀 새를 만난 숲에서 아이가 ‘새 주변 흔적이 궁금하다.’을 골랐고, 남매는 빵 부스러기·발자국·깃털과 단 냄새를 함께 확인한 뒤 걸어갈 방향을 정했어요.",
+        "과자집 문 앞에서 아이가 ‘집이 안전한지 궁금하다.’을 골랐고, 그레텔은 검은 열쇠와 설탕 무늬가 함께 반응하는 것을 발견해 헨젤에게 알려줬어요.",
+        "오븐 앞 탈출 장면에서 아이가 ‘그레텔이 안전할 방법이 궁금하다.’을 골랐고, 그레텔은 긴 빵 주걱으로 잠금 무늬와 철문이 연결된 것을 알아내고 마녀에게 먼저 시범을 요청했어요."
+      ],
+      "coachObservation": "3개 질문 장면에서 아이가 궁금해한 내용과 고른 방법을 함께 살펴봤어요.",
+      "coachEvidence": [
+        "하얀 새를 만난 숲: ‘새 주변 흔적이 궁금하다.’ → ‘아이의 생각을 바로 해보기’",
+        "과자집 문 앞: ‘집이 안전한지 궁금하다.’ → ‘아이의 생각을 바로 해보기’",
+        "오븐 앞 탈출 장면: ‘그레텔이 안전할 방법이 궁금하다.’ → ‘아이의 생각을 바로 해보기’"
+      ],
+      "coachInterpretations": [
+        "이번 체험에서는 ‘단서를 관찰하고 확인하기’ 접근이 3개 장면에서 반복해서 나타났어요.",
+        "한 편의 세 질문에서 나온 관찰이므로, 같은 접근이 다른 이야기에서도 반복되는지 더 지켜보면 관심의 방향을 더 정확히 알 수 있어요."
+      ],
+      "focusTopics": [
+        "하얀 새의 행동",
+        "낯선 친절",
+        "수상한 명령"
+      ],
+      "conversationTopics": [
+        "아이의 생각: 새 주변 흔적이 궁금하다.",
+        "친절한 사람을 만났을 때도 안전을 확인하는 방법"
+      ],
+      "followUpQuestions": [
+        "하얀 새의 행동과 숲의 단서 중에서 어떤 것이 네 방법을 고르는 데 가장 중요했어?",
+        "처음 만난 사람이 친절하게 다가오면 누구와 먼저 상의하면 좋을까?",
+        "그레텔이 안전하게 움직이려면 가장 먼저 확인하거나 준비해야 할 것은 뭐라고 생각했어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "집 안에서 “안전한 단서”와 “조심해야 할 단서”를 하나씩 찾아 서로 이유를 말해 보세요."
+      },
+      "companionChat": {
+        "turnCount": 4,
+        "topics": [
+          {
+            "label": "길 찾기",
+            "count": 2
+          }
+        ],
+        "tones": [
+          {
+            "label": "호기심",
+            "count": 3
+          }
+        ],
+        "values": [
+          {
+            "label": "협력",
+            "count": 1
+          }
+        ]
+      }
+    },
+    "threeDiverseWithUnknownFamily:plain": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "아이는 4개의 장면에서 질문하거나 생각을 이야기했어요.",
+      "questionCount": 4,
+      "changedSceneCount": 2,
+      "durationSeconds": null,
+      "questionRecords": [
+        {
+          "anchorId": "HG-Q-A",
+          "questionMeaning": "새가 어디로 가는지 궁금하다.",
+          "questionTypeLabel": "이야기 속 정보를 궁금해한 질문",
+          "sceneTitle": "하얀 새를 만난 숲",
+          "selectedPathTitle": "이야기 속 답을 더 들어보기",
+          "selectedPathSummary": "새를 좀 더 지켜보자.",
+          "storyDevelopmentSummary": "새를 좀 더 지켜보자.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "white-bird-leads",
+            "uri": null,
+            "alt": "하얀 새를 만난 숲에서 아이의 생각이 반영된 이야기 장면"
+          }
+        },
+        {
+          "anchorId": "HG-Q-B",
+          "questionMeaning": "할머니에게 물어보고 싶다.",
+          "questionTypeLabel": "새로운 장면을 상상한 질문",
+          "sceneTitle": "과자집 문 앞",
+          "selectedPathTitle": "아이의 상상으로 장면 바꾸기",
+          "selectedPathSummary": "할머니께 여쭤보자.",
+          "storyDevelopmentSummary": "할머니께 여쭤보자.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "old-woman-door",
+            "uri": null,
+            "alt": "과자집 문 앞에서 아이의 생각이 반영된 이야기 장면"
+          }
+        },
+        {
+          "anchorId": "HG-Q-C",
+          "questionMeaning": "다른 길로 도망치고 싶다.",
+          "questionTypeLabel": "다른 이야기 길을 찾아본 질문",
+          "sceneTitle": "오븐 앞 탈출 장면",
+          "selectedPathTitle": "다른 길로 가서 이야기와 다시 만나기",
+          "selectedPathSummary": "다른 길을 찾아보자.",
+          "storyDevelopmentSummary": "다른 길을 찾아보자.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "witch-demonstrates-oven",
+            "uri": null,
+            "alt": "오븐 앞 탈출 장면에서 아이의 생각이 반영된 이야기 장면"
+          }
+        },
+        {
+          "anchorId": "HG-Q-C",
+          "questionMeaning": "추격을 막고 싶다.",
+          "questionTypeLabel": "안전한 방향으로 이어간 질문",
+          "sceneTitle": "오븐 앞 탈출 장면",
+          "selectedPathTitle": "안전한 방법으로 다시 생각해 보기",
+          "selectedPathSummary": "안전하게 늦춰 보자.",
+          "storyDevelopmentSummary": "안전하게 늦춰 보자.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "witch-demonstrates-oven",
+            "uri": null,
+            "alt": "오븐 앞 탈출 장면에서 아이의 생각이 반영된 이야기 장면"
+          }
+        }
+      ],
+      "curiosityTopics": [
+        "하얀 새의 행동과 길 찾기",
+        "낯선 친절과 집의 단서 살피기",
+        "수상한 명령 속에서 안전하게 행동하기"
+      ],
+      "changedMoments": [
+        "과자집 문 앞에서 아이의 생각인 ‘할머니에게 물어보고 싶다.’이 실제 행동으로 이어졌어요.",
+        "오븐 앞 탈출 장면에서 아이의 생각인 ‘다른 길로 도망치고 싶다.’이 실제 행동으로 이어졌어요."
+      ],
+      "coachObservation": "4개 질문 장면에서 아이가 궁금해한 내용과 고른 방법을 함께 살펴봤어요.",
+      "coachEvidence": [
+        "하얀 새를 만난 숲: ‘새가 어디로 가는지 궁금하다.’ → ‘이야기 속 답을 더 들어보기’",
+        "과자집 문 앞: ‘할머니에게 물어보고 싶다.’ → ‘아이의 상상으로 장면 바꾸기’",
+        "오븐 앞 탈출 장면: ‘다른 길로 도망치고 싶다.’ → ‘다른 길로 가서 이야기와 다시 만나기’",
+        "오븐 앞 탈출 장면: ‘추격을 막고 싶다.’ → ‘안전한 방법으로 다시 생각해 보기’"
+      ],
+      "coachInterpretations": [
+        "이번 기록에서는 질문으로 정보 얻기, 미리 계획하고 안전 확보하기처럼 장면에 따라 서로 다른 접근이 나타났어요.",
+        "한 편의 세 질문에서 나온 관찰이므로, 같은 접근이 다른 이야기에서도 반복되는지 더 지켜보면 관심의 방향을 더 정확히 알 수 있어요."
+      ],
+      "focusTopics": [
+        "하얀 새의 행동",
+        "낯선 친절",
+        "수상한 명령"
+      ],
+      "conversationTopics": [
+        "아이의 생각: 새가 어디로 가는지 궁금하다.",
+        "친절한 사람을 만났을 때도 안전을 확인하는 방법"
+      ],
+      "followUpQuestions": [
+        "하얀 새의 행동과 숲의 단서 중에서 어떤 것이 네 방법을 고르는 데 가장 중요했어?",
+        "처음 만난 사람이 친절하게 다가오면 누구와 먼저 상의하면 좋을까?",
+        "그레텔이 안전하게 움직이려면 가장 먼저 확인하거나 준비해야 할 것은 뭐라고 생각했어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "집 안에서 “안전한 단서”와 “조심해야 할 단서”를 하나씩 찾아 서로 이유를 말해 보세요."
+      },
+      "companionChat": null
+    },
+    "threeDiverseWithUnknownFamily:branch": {
+      "storyTitle": "헨젤과 그레텔",
+      "completedStory": "헨젤과 그레텔 한 편을 끝까지 완주했어요.",
+      "participationSummary": "아이는 4개의 장면에서 질문하거나 생각을 이야기했어요.",
+      "questionCount": 4,
+      "changedSceneCount": 2,
+      "durationSeconds": 305,
+      "questionRecords": [
+        {
+          "anchorId": "HG-Q-A",
+          "questionMeaning": "새가 어디로 가는지 궁금하다.",
+          "questionTypeLabel": "이야기 속 정보를 궁금해한 질문",
+          "sceneTitle": "하얀 새를 만난 숲",
+          "selectedPathTitle": "이야기 속 답을 더 들어보기",
+          "selectedPathSummary": "새를 좀 더 지켜보자.",
+          "storyDevelopmentSummary": "새를 좀 더 지켜보자.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "white-bird-leads",
+            "uri": null,
+            "alt": "하얀 새를 만난 숲에서 아이의 생각이 반영된 이야기 장면"
+          }
+        },
+        {
+          "anchorId": "HG-Q-B",
+          "questionMeaning": "할머니에게 물어보고 싶다.",
+          "questionTypeLabel": "새로운 장면을 상상한 질문",
+          "sceneTitle": "과자집 문 앞",
+          "selectedPathTitle": "아이의 상상으로 장면 바꾸기",
+          "selectedPathSummary": "할머니께 여쭤보자.",
+          "storyDevelopmentSummary": "노파는 질문에 얼버무리면서도 열쇠고리를 꼭 잡았고 남매는 그 수상한 단서를 기억했어요.",
+          "imageRef": {
+            "kind": "GENERATED_BRANCH_ASSET",
+            "assetId": "b-ask-old-woman-01",
+            "uri": null,
+            "alt": "과자집 문 앞에서 아이의 생각이 반영된 이야기 장면"
+          }
+        },
+        {
+          "anchorId": "HG-Q-C",
+          "questionMeaning": "다른 길로 도망치고 싶다.",
+          "questionTypeLabel": "다른 이야기 길을 찾아본 질문",
+          "sceneTitle": "오븐 앞 탈출 장면",
+          "selectedPathTitle": "다른 길로 가서 이야기와 다시 만나기",
+          "selectedPathSummary": "다른 길을 찾아보자.",
+          "storyDevelopmentSummary": "다른 길을 찾아보자.",
+          "imageRef": {
+            "kind": "FIXED_STORY_ASSET",
+            "assetId": "witch-demonstrates-oven",
+            "uri": null,
+            "alt": "오븐 앞 탈출 장면에서 아이의 생각이 반영된 이야기 장면"
+          }
+        },
+        {
+          "anchorId": "HG-Q-C",
+          "questionMeaning": "추격을 막고 싶다.",
+          "questionTypeLabel": "안전한 방향으로 이어간 질문",
+          "sceneTitle": "오븐 앞 탈출 장면",
+          "selectedPathTitle": "안전한 방법으로 다시 생각해 보기",
+          "selectedPathSummary": "안전하게 늦춰 보자.",
+          "storyDevelopmentSummary": "남매는 열쇠로 헨젤을 풀고 큰 철문을 내려 마녀의 추격을 늦춘 뒤 함께 달아났어요.",
+          "imageRef": {
+            "kind": "GENERATED_BRANCH_ASSET",
+            "assetId": "c-block-pursuit-safely-01",
+            "uri": null,
+            "alt": "오븐 앞 탈출 장면에서 아이의 생각이 반영된 이야기 장면"
+          }
+        }
+      ],
+      "curiosityTopics": [
+        "하얀 새의 행동과 길 찾기",
+        "낯선 친절과 집의 단서 살피기",
+        "수상한 명령 속에서 안전하게 행동하기"
+      ],
+      "changedMoments": [
+        "과자집 문 앞에서 아이가 ‘할머니에게 물어보고 싶다.’을 골랐고, 노파는 질문에 얼버무리면서도 열쇠고리를 꼭 잡았고 남매는 그 수상한 단서를 기억했어요.",
+        "오븐 앞 탈출 장면에서 아이의 생각인 ‘다른 길로 도망치고 싶다.’이 실제 행동으로 이어졌어요."
+      ],
+      "coachObservation": "4개 질문 장면에서 아이가 궁금해한 내용과 고른 방법을 함께 살펴봤어요.",
+      "coachEvidence": [
+        "하얀 새를 만난 숲: ‘새가 어디로 가는지 궁금하다.’ → ‘이야기 속 답을 더 들어보기’",
+        "과자집 문 앞: ‘할머니에게 물어보고 싶다.’ → ‘아이의 상상으로 장면 바꾸기’",
+        "오븐 앞 탈출 장면: ‘다른 길로 도망치고 싶다.’ → ‘다른 길로 가서 이야기와 다시 만나기’",
+        "오븐 앞 탈출 장면: ‘추격을 막고 싶다.’ → ‘안전한 방법으로 다시 생각해 보기’"
+      ],
+      "coachInterpretations": [
+        "이번 기록에서는 질문으로 정보 얻기, 미리 계획하고 안전 확보하기처럼 장면에 따라 서로 다른 접근이 나타났어요.",
+        "한 편의 세 질문에서 나온 관찰이므로, 같은 접근이 다른 이야기에서도 반복되는지 더 지켜보면 관심의 방향을 더 정확히 알 수 있어요."
+      ],
+      "focusTopics": [
+        "하얀 새의 행동",
+        "낯선 친절",
+        "수상한 명령"
+      ],
+      "conversationTopics": [
+        "아이의 생각: 새가 어디로 가는지 궁금하다.",
+        "친절한 사람을 만났을 때도 안전을 확인하는 방법"
+      ],
+      "followUpQuestions": [
+        "하얀 새의 행동과 숲의 단서 중에서 어떤 것이 네 방법을 고르는 데 가장 중요했어?",
+        "처음 만난 사람이 친절하게 다가오면 누구와 먼저 상의하면 좋을까?",
+        "그레텔이 안전하게 움직이려면 가장 먼저 확인하거나 준비해야 할 것은 뭐라고 생각했어?"
+      ],
+      "togetherActivity": {
+        "title": "3분 함께하기",
+        "description": "집 안에서 “안전한 단서”와 “조심해야 할 단서”를 하나씩 찾아 서로 이유를 말해 보세요."
+      },
+      "companionChat": {
+        "turnCount": 4,
+        "topics": [
+          {
+            "label": "길 찾기",
+            "count": 2
+          }
+        ],
+        "tones": [
+          {
+            "label": "호기심",
+            "count": 3
+          }
+        ],
+        "values": [
+          {
+            "label": "협력",
+            "count": 1
+          }
+        ]
+      }
+    }
+  },
+  "recentTrend": {
+    "sessionCount": 5,
+    "questionSessionCount": 4,
+    "repeatedApproach": {
+      "label": "단서를 관찰하고 확인하기",
+      "count": 4
+    },
+    "otherApproaches": [
+      "미리 계획하고 안전 확보하기",
+      "함께 움직일 방법 정하기"
+    ]
+  },
+  "recentTrendAll": {
+    "sessionCount": 6,
+    "questionSessionCount": 5,
+    "repeatedApproach": {
+      "label": "단서를 관찰하고 확인하기",
+      "count": 4
+    },
+    "otherApproaches": [
+      "미리 계획하고 안전 확보하기",
+      "함께 움직일 방법 정하기",
+      "질문으로 정보 얻기"
+    ]
+  },
+  "comprehensive": {
+    "question": {
+      "totalQuestions": 11,
+      "sessionCount": 6,
+      "averagePerSession": 1.8,
+      "byType": [
+        {
+          "label": "생각을 행동으로 옮긴 질문",
+          "count": 5
+        },
+        {
+          "label": "여러 가능성을 비교한 질문",
+          "count": 2
+        },
+        {
+          "label": "이야기 속 정보를 궁금해한 질문",
+          "count": 1
+        },
+        {
+          "label": "새로운 장면을 상상한 질문",
+          "count": 1
+        },
+        {
+          "label": "다른 이야기 길을 찾아본 질문",
+          "count": 1
+        },
+        {
+          "label": "안전한 방향으로 이어간 질문",
+          "count": 1
+        }
+      ]
+    },
+    "interest": {
+      "topExpressions": [],
+      "recentExpressions": [
+        "추격을 막고 싶다.",
+        "다른 길로 도망치고 싶다.",
+        "할머니에게 물어보고 싶다.",
+        "새가 어디로 가는지 궁금하다.",
+        "그레텔이 안전할 방법이 궁금하다.",
+        "집이 안전한지 궁금하다."
+      ]
+    },
+    "thought": {
+      "strategies": [
+        {
+          "label": "단서를 관찰하고 확인하기",
+          "count": 4
+        },
+        {
+          "label": "미리 계획하고 안전 확보하기",
+          "count": 2
+        },
+        {
+          "label": "함께 움직일 방법 정하기",
+          "count": 1
+        },
+        {
+          "label": "질문으로 정보 얻기",
+          "count": 1
+        }
+      ],
+      "diversity": 4,
+      "totalWithStrategy": 8
+    },
+    "growth": {
+      "early": {
+        "sessionCount": 3,
+        "diversity": 1
+      },
+      "recent": {
+        "sessionCount": 3,
+        "diversity": 4
+      },
+      "broadening": true
+    },
+    "hexStats": [
+      {
+        "label": "질문 빈도",
+        "value": 60
+      },
+      {
+        "label": "질문 다양성",
+        "value": 100
+      },
+      {
+        "label": "관심 표현",
+        "value": 100
+      },
+      {
+        "label": "생각 전략",
+        "value": 67
+      },
+      {
+        "label": "적극적 행동",
+        "value": 64
+      },
+      {
+        "label": "성장 추세",
+        "value": 86
+      }
+    ]
+  },
+  "comprehensiveEmpty": {
+    "question": {
+      "totalQuestions": 0,
+      "sessionCount": 0,
+      "averagePerSession": 0,
+      "byType": []
+    },
+    "interest": {
+      "topExpressions": [],
+      "recentExpressions": []
+    },
+    "thought": {
+      "strategies": [],
+      "diversity": 0,
+      "totalWithStrategy": 0
+    },
+    "growth": null,
+    "hexStats": [
+      {
+        "label": "질문 빈도",
+        "value": 0
+      },
+      {
+        "label": "질문 다양성",
+        "value": 0
+      },
+      {
+        "label": "관심 표현",
+        "value": 0
+      },
+      {
+        "label": "생각 전략",
+        "value": 0
+      },
+      {
+        "label": "적극적 행동",
+        "value": 0
+      },
+      {
+        "label": "성장 추세",
+        "value": 50
+      }
+    ]
+  }
+}

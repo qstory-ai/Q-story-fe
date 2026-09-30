@@ -209,10 +209,10 @@ test('recent approach trend surfaces a strategy repeated across sessions', () =>
   };
 
   const trend = buildRecentApproachTrend([
-    { outcomes: [checkKeysOutcome] },
-    { outcomes: [checkKeysOutcome, markExitOutcome] },
-    { outcomes: [noQuestionOutcome] },
-  ]);
+    { storyId: 'HG', outcomes: [checkKeysOutcome] },
+    { storyId: 'HG', outcomes: [checkKeysOutcome, markExitOutcome] },
+    { storyId: 'HG', outcomes: [noQuestionOutcome] },
+  ], { HG: reportCopy });
 
   assert.equal(trend.sessionCount, 3);
   assert.equal(trend.questionSessionCount, 2);
@@ -223,6 +223,7 @@ test('recent approach trend surfaces a strategy repeated across sessions', () =>
 test('recent approach trend has no repeated approach when nothing recurs', () => {
   const trend = buildRecentApproachTrend([
     {
+      storyId: 'HG',
       outcomes: [
         {
           anchorId: questionAnchorId('HG-Q-A'),
@@ -233,8 +234,8 @@ test('recent approach trend has no repeated approach when nothing recurs', () =>
         },
       ],
     },
-    { outcomes: [] },
-  ]);
+    { storyId: 'HG', outcomes: [] },
+  ], { HG: reportCopy });
 
   assert.equal(trend.sessionCount, 2);
   assert.equal(trend.questionSessionCount, 1);

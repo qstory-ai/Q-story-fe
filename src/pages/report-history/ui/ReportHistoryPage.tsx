@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppNavShell, EmptyState, ErrorState, HexagonStatChart, LoadingState, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, useAuth } from '@/entities/auth';
 import { findChildAvatar, useChildren } from '@/entities/child';
-import { listStories } from '@/entities/story';
+import { fetchStoryReportCopy, listStories, type StoryReportCopy } from '@/entities/story';
 import { messageForError } from '@/shared/api';
 import { formatReportDuration } from '@/pages/one-story';
 import {
@@ -13,6 +13,7 @@ import {
   buildRecentApproachTrend,
   type ComprehensiveReport,
   type RecentApproachTrend,
+  type ReportCopyByStoryId,
 } from '@/entities/analytics';
 import {
   listRecentStoryCompletions,
@@ -26,6 +27,19 @@ import { listParentTutorReports, type TutorReportSummary } from '@/entities/tuto
 const COMPREHENSIVE_LIMIT = 20;
 /** 트렌드 카드가 내려다보는 최근 회차 수 - 1~2회로는 "반복"이라 부르기 애매해 최소 2회 겹쳐야 표시한다. */
 const RECENT_TREND_LIMIT = 5;
+
+/**
+ * 종합/트렌드 카드의 "생각 전략"은 이야기마다 전략 표(reportCopy.strategyByFamily)가 달라서, 최근
+ * 기록에 나온 이야기들의 reportCopy를 모아 둔다. 하나가 실패해도 그 이야기만 라우트 기준 전략으로
+ * 추정되게 두고(report-labels 참고) 화면 전체는 막지 않는다.
+ */
+async function loadReportCopies(storyIds: readonly string[]): Promise<ReportCopyByStoryId> {
+  const unique = [...new Set(storyIds)];
+  const copies = await Promise.all(
+    unique.map((storyId) => fetchStoryReportCopy(storyId).catch(() => null as StoryReportCopy | null)),
+  );
+  return Object.fromEntries(unique.map((storyId, index) => [storyId, copies[index]]));
+}
 
 type Tab = 'comprehensive' | 'by-story' | 'class';
 
@@ -93,7 +107,8 @@ export function ReportHistoryPage() {
       // 실패해도 가정 리포트 전체가 막히지 않도록 빈 목록으로 다룬다.
       listParentTutorReports(token).catch(() => [] as TutorReportSummary[]),
     ])
-      .then(([completions, stories, recentDetailed, tutorReports]) => {
+      .then(async ([completions, stories, recentDetailed, tutorReports]) => {
+        const reportCopyByStoryId = await loadReportCopies(recentDetailed.map((detail) => detail.storyId));
         if (cancelled) return;
         setLoad({
           status: 'ready',
@@ -101,9 +116,9 @@ export function ReportHistoryPage() {
           titleByStoryId: Object.fromEntries(stories.map((story) => [story.storyId, story.title])),
           recentTrend:
             recentDetailed.length >= 2
-              ? buildRecentApproachTrend(recentDetailed.slice(0, RECENT_TREND_LIMIT))
+              ? buildRecentApproachTrend(recentDetailed.slice(0, RECENT_TREND_LIMIT), reportCopyByStoryId)
               : null,
-          comprehensive: buildComprehensiveReport(recentDetailed),
+          comprehensive: buildComprehensiveReport(recentDetailed, reportCopyByStoryId),
           comprehensiveSessionCount: recentDetailed.length,
           tutorReports,
         });

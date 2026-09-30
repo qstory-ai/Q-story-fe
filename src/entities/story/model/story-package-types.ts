@@ -132,8 +132,20 @@ export type StoryReportCopy = {
   noQuestionCuriosityTopic: string;
   noQuestionFocusTopics: string[];
   defaultConversationTopic: string;
-  defaultFollowUpQuestion: string;
+  /**
+   * 질문이 하나도 없던 회차의 후속 질문 3개 중 가운데 문항 - 이야기 인물에게 건네는 말.
+   * 없으면 이야기 제목으로 만든 일반 문장을 쓴다(buildParentReport 참고).
+   */
+  defaultFollowUpQuestion?: string;
   defaultActivity: { title: string; description: string };
+  /**
+   * 리포트 "생각 전략" 라벨 - action family id → 전략 이름. 정의돼 있으면 이 표가 유일한 기준이라
+   * 표에 없는 family(실시간 생성 family 등)는 전략 집계에서 빠진다. 정의가 없는 이야기는 라우트
+   * 종류(DIRECT_ACTION 등)로 전략을 추정한다(report-labels의 STRATEGY_BY_ROUTE).
+   */
+  strategyByFamily?: Record<string, string>;
+  /** 상시 대화 요약 패널의 제목·설명 - 없으면 "이야기 속 인물" 기준의 일반 문구를 쓴다. */
+  companionChat?: { title: string; description: string };
   anchors: Record<
     string,
     {

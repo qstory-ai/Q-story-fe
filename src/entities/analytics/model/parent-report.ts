@@ -73,7 +73,13 @@ export type ParentReport = {
     description: string;
   };
   companionChat: CompanionChatSummary | null;
+  /** 상시 대화 요약 패널의 제목·설명 - 이야기의 reportCopy.companionChat, 없으면 일반 문구. */
+  companionChatTitle: string;
+  companionChatDescription: string;
 };
+
+/** 이야기별 reportCopy - storyId로 찾는다. 불러오지 못한 이야기는 빠져 있을 수 있다. */
+export type ReportCopyByStoryId = Readonly<Record<string, StoryReportCopy | null | undefined>>;
 
 const CHANGE_ROUTES = new Set<RouteKind>([
   'DIRECT_ACTION',
@@ -90,13 +96,14 @@ export type RecentApproachTrend = {
 };
 
 /**
- * 최근 N회 세션의 outcomes를 가로질러 반복되는 접근(report-labels의 STRATEGY_BY_FAMILY 라벨)을 집계한다.
- * report-history 목록 화면의 누적 트렌드 카드용 - 단일 세션 리포트(buildParentReport)와 달리
- * reportCopy 없이 계산되므로, 이야기별 관심 주제(curiosityTopics)는 다루지 않고 선택 전략만 본다.
- * STRATEGY_BY_FAMILY에 없는 actionFamilyId(다른 이야기의 것 등)는 조용히 걸러진다.
+ * 최근 N회 세션의 outcomes를 가로질러 반복되는 접근(전략 라벨)을 집계한다.
+ * report-history 목록 화면의 누적 트렌드 카드용 - 이야기별 관심 주제(curiosityTopics)는 다루지 않고
+ * 선택 전략만 본다. 전략은 세션마다 그 이야기의 reportCopy.strategyByFamily로 정하고, 이야기가
+ * 전략 표를 적지 않았거나 reportCopy를 불러오지 못했으면 라우트 종류로 추정한다(report-labels 참고).
  */
 export function buildRecentApproachTrend(
-  sessions: readonly { outcomes: readonly QuestionOutcome[] }[],
+  sessions: readonly { storyId?: string; outcomes: readonly QuestionOutcome[] }[],
+  reportCopyByStoryId: ReportCopyByStoryId = {},
 ): RecentApproachTrend {
   const meaningfulBySession = sessions.map((session) =>
     session.outcomes.filter(isMeaningfulOutcome),
@@ -104,7 +111,14 @@ export function buildRecentApproachTrend(
   const questionSessionCount = meaningfulBySession.filter(
     (meaningful) => meaningful.length > 0,
   ).length;
-  const ranked = tallyByLabel(strategyLabelsOf(meaningfulBySession.flat()));
+  const ranked = tallyByLabel(
+    sessions.flatMap((session, index) =>
+      strategyLabelsOf(
+        meaningfulBySession[index],
+        session.storyId ? reportCopyByStoryId[session.storyId] : null,
+      ),
+    ),
+  );
   const top = ranked[0];
   const repeatedApproach = top && top.count >= 2 ? top : null;
   const remaining = repeatedApproach ? ranked.slice(1) : ranked;
@@ -128,6 +142,13 @@ export function hasExperiencedStoryAgency(
 
 function unique(values: string[]) {
   return Array.from(new Set(values));
+}
+
+const KOREAN_COUNT_WORDS = ['한', '두', '세', '네', '다섯', '여섯', '일곱', '여덟', '아홉', '열'];
+
+/** "세 질문"처럼 관형사로 쓰는 수 - 열을 넘으면 숫자로 쓴다. */
+function countWord(count: number) {
+  return KOREAN_COUNT_WORDS[count - 1] ?? String(count);
 }
 
 function pathTitle(outcome: QuestionOutcome) {
@@ -255,7 +276,7 @@ export function buildParentReport(
     (record) =>
       `${record.sceneTitle}: ‘${record.questionMeaning}’ → ‘${record.selectedPathTitle}’`,
   );
-  const strategies = strategyLabelsOf(meaningful);
+  const strategies = strategyLabelsOf(meaningful, reportCopy);
   const repeatedStrategy = tallyByLabel(strategies)[0];
   const strategyObservation =
     repeatedStrategy && repeatedStrategy.count >= 2
@@ -290,7 +311,8 @@ export function buildParentReport(
             ]
           : [
               '이야기에서 가장 기억에 남은 장면은 어디였어? 왜 그랬어?',
-              '헨젤과 그레텔에게 한 가지 말을 해 줄 수 있다면 뭐라고 하고 싶어?',
+              reportCopy.defaultFollowUpQuestion ??
+                `‘${reportCopy.storyTitle}’ 속 인물에게 한 가지 말을 해 줄 수 있다면 뭐라고 하고 싶어?`,
               '이야기에서 한 장면을 바꿀 수 있다면 어디를 어떻게 바꾸고 싶어?',
             ];
 
@@ -316,7 +338,7 @@ export function buildParentReport(
       questionRecords.length > 0
         ? [
             strategyObservation,
-            '한 편의 세 질문에서 나온 관찰이므로, 같은 접근이 다른 이야기에서도 반복되는지 더 지켜보면 관심의 방향을 더 정확히 알 수 있어요.',
+            `한 편의 ${countWord(Object.keys(reportCopy.anchors).length)} 질문에서 나온 관찰이므로, 같은 접근이 다른 이야기에서도 반복되는지 더 지켜보면 관심의 방향을 더 정확히 알 수 있어요.`,
           ]
         : [
             '질문을 하지 않은 것도 자연스러운 참여 방식이에요. 기억에 남은 장면을 말할 때 어떤 인물·사건·감정을 먼저 꺼내는지 들어보세요.',
@@ -332,5 +354,9 @@ export function buildParentReport(
         .map((outcome) => reportCopy.anchors[outcome.anchorId]?.activity)
         .find(Boolean) ?? reportCopy.defaultActivity,
     companionChat: options.companionChat ?? null,
+    companionChatTitle: reportCopy.companionChat?.title ?? '이야기 속 인물들과 나눈 이야기',
+    companionChatDescription:
+      reportCopy.companionChat?.description ??
+      '아이가 상시 대화창에서 이야기 속 인물들에게 물어본 말과 감정을 태그로만 남겼어요 - 원문 발화는 저장하지 않아요.',
   };
 }

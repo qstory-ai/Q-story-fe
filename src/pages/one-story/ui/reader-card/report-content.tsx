@@ -218,10 +218,9 @@ export function ReportContent({ parentReport, isWide, illustrationForAssetId }: 
 
       {parentReport.companionChat && parentReport.companionChat.turnCount > 0 && (
         <View style={styles.reportPanel}>
-          <Text style={styles.reportPanelTitle}>헨젤·그레텔과 나눈 이야기</Text>
+          <Text style={styles.reportPanelTitle}>{parentReport.companionChatTitle}</Text>
           <Text style={styles.reportPanelDescription}>
-            아이가 상시 대화창에서 헨젤과 그레텔에게 물어본 말과 감정을 태그로만 남겼어요 -
-            원문 발화는 저장하지 않아요.
+            {parentReport.companionChatDescription}
           </Text>
           <View style={styles.reportStats}>
             <View style={styles.reportStatCard}>

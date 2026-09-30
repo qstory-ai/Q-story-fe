@@ -15,6 +15,7 @@ import {
 import { messageForError } from '@/shared/api';
 import { homePathFor, joinExistingClass, previewClassByCode, useAuth, type ClassPreview } from '@/entities/auth';
 import { BirthYearChips, listChildren, type Child } from '@/entities/child';
+import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
 
 const NEW_CHILD = 'new';
 
@@ -150,6 +151,7 @@ function ChildPicker({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [joined, setJoined] = useState<{ childName: string; homePath: string } | null>(null);
+  const [rosterSelection, setRosterSelection] = useState<RosterSelection>({ kind: 'not-needed' });
 
   useEffect(() => {
     let cancelled = false;
@@ -191,7 +193,10 @@ function ChildPicker({
   }
 
   const isNew = selected === NEW_CHILD;
-  const canSubmit = !submitting && (!isNew || childName.trim().length > 0);
+  // 명단과 비교할 이름 - 새 아이면 적은 이름, 이미 등록한 아이면 그 아이 이름.
+  const nameForRoster = isNew ? childName : (children.find((child) => child.id === selected)?.name ?? '');
+  const canSubmit =
+    !submitting && (!isNew || childName.trim().length > 0) && !rosterSelectionBlocksSubmit(rosterSelection);
 
   async function submit() {
     setError(null);
@@ -199,9 +204,12 @@ function ChildPicker({
     try {
       const response = await joinExistingClass(
         token,
-        isNew
-          ? { classCode: preview.classCode, childName: childName.trim(), childBirthYear }
-          : { classCode: preview.classCode, childId: selected },
+        {
+          ...(isNew
+            ? { classCode: preview.classCode, childName: childName.trim(), childBirthYear }
+            : { classCode: preview.classCode, childId: selected }),
+          rosterStudentId: rosterSelection.kind === 'student' ? rosterSelection.id : undefined,
+        },
       );
       // 반 소속으로 기관 이용권이 생길 수 있어 응답의 사용자 정보로 세션을 갱신한다.
       setSession(response.token, response.user);
@@ -217,7 +225,7 @@ function ChildPicker({
   return (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>어느 아이를 반에 연결할까요?</Text>
-      <Text style={styles.note}>선생님 명단에 있는 이름과 같으면 그 학생과 바로 이어져요. 아이가 여럿이면 한 명씩 연결해 주세요.</Text>
+      <Text style={styles.note}>선생님 명단에 있는 이름과 같으면 그 학생과 바로 이어지고, 다르면 명단에서 골라 주세요. 아이가 여럿이면 한 명씩 연결해 주세요.</Text>
       <RadioGroup
         accessibilityLabel="반에 연결할 아이"
         value={selected}
@@ -237,6 +245,7 @@ function ChildPicker({
           <BirthYearChips value={childBirthYear} onChange={setChildBirthYear} minAge={3} maxAge={12} />
         </>
       ) : null}
+      <RosterStudentPicker classCode={preview.classCode} childName={nameForRoster} onChange={setRosterSelection} />
       {error ? <StatusBanner variant="warning" label={error} /> : null}
       <ActionButton
         variant="gold"

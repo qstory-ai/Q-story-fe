@@ -267,6 +267,8 @@ export function joinClass(
     displayName: string;
     childName: string;
     childBirthYear: number;
+    /** 이름이 명단과 달라도 명단의 이 학생과 잇는다(listClassRosterByCode의 id). */
+    rosterStudentId?: string;
   },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
@@ -287,13 +289,23 @@ export function previewClassByCode(classCode: string, options?: RequestOptions):
   return request(`/v1/classes/by-code/${encodeURIComponent(classCode)}`, { method: 'GET' }, options);
 }
 
+/** 반 명단 중 아직 학부모가 없는 학생(이름만) - 아이 이름이 명단과 다를 때 학부모가 우리 아이를 고른다. */
+export type ClassRosterEntry = { id: string; name: string };
+
+export function listClassRosterByCode(classCode: string, options?: RequestOptions): Promise<ClassRosterEntry[]> {
+  return request(`/v1/classes/by-code/${encodeURIComponent(classCode)}/roster`, { method: 'GET' }, options);
+}
+
 /**
  * 이미 계정이 있는 학부모가 반 코드로 아이를 한 명 더 올린다 - 아이마다 한 번씩 호출한다. 이미 등록한 아이는
  * childId로 고르고(이름·출생연도는 그 아이 것), 새 아이는 childName·childBirthYear를 보낸다.
  */
 export function joinExistingClass(
   token: string,
-  input: { classCode: string; childId: string } | { classCode: string; childName: string; childBirthYear: number },
+  input: ({ classCode: string; childId: string } | { classCode: string; childName: string; childBirthYear: number }) & {
+    /** 이름이 명단과 달라도 명단의 이 학생과 잇는다(listClassRosterByCode의 id). */
+    rosterStudentId?: string;
+  },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request(

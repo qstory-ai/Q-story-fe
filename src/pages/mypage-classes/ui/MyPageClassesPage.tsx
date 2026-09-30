@@ -15,6 +15,7 @@ import {
 } from '@/entities/auth';
 import { BirthYearChips } from '@/entities/child';
 import { listParentTutorReports, type TutorReportSummary } from '@/entities/tutor';
+import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
 
 type Load<T> = { status: 'loading' } | { status: 'ready'; items: T[] } | { status: 'error'; message: string };
 
@@ -38,6 +39,7 @@ export function MyPageClassesPage() {
   const [childName, setChildName] = useState('');
   const [childBirthYear, setChildBirthYear] = useState<number>(() => new Date().getFullYear() - 7);
   const [classCodeError, setClassCodeError] = useState<string | null>(null);
+  const [rosterSelection, setRosterSelection] = useState<RosterSelection>({ kind: 'not-needed' });
   const [classJoinSuccess, setClassJoinSuccess] = useState(false);
   const [joiningClass, setJoiningClass] = useState(false);
   const [leaveTarget, setLeaveTarget] = useState<ClassMembershipResponse | null>(null);
@@ -122,7 +124,12 @@ export function MyPageClassesPage() {
     setJoiningClass(true);
     try {
       // 아이가 기관 반에 들어가면 기관 이용권이 적용될 수 있어 응답의 사용자 정보(grantsAccess)로 세션을 갱신한다.
-      const response = await joinExistingClass(state.token, { classCode, childName: childName.trim(), childBirthYear });
+      const response = await joinExistingClass(state.token, {
+        classCode,
+        childName: childName.trim(),
+        childBirthYear,
+        rosterStudentId: rosterSelection.kind === 'student' ? rosterSelection.id : undefined,
+      });
       setSession(response.token, response.user);
       setClassCodeInput('');
       setChildName('');
@@ -201,11 +208,18 @@ export function MyPageClassesPage() {
           />
           <TextField label="아이 이름 또는 별명" value={childName} onChangeText={setChildName} placeholder="예: 민서" />
           <BirthYearChips value={childBirthYear} onChange={setChildBirthYear} minAge={4} maxAge={12} />
+          <RosterStudentPicker
+            classCode={normalizeInviteCode(classCodeInput)}
+            childName={childName}
+            onChange={setRosterSelection}
+          />
           <ActionButton
             label="반에 올리기"
             onPress={addChildToClass}
             loading={joiningClass}
-            disabled={classCodeInput.trim().length === 0 || !childName.trim() || joiningClass}
+            disabled={
+              classCodeInput.trim().length === 0 || !childName.trim() || rosterSelectionBlocksSubmit(rosterSelection) || joiningClass
+            }
           />
           {classJoinSuccess ? <StatusBanner label="반에 올렸어요." /> : null}
         </View>
@@ -275,7 +289,7 @@ export function MyPageClassesPage() {
         positiveAction={{ label: '반에서 빼기', onPress: leaveSelectedClass, loading: leaving }}
         negativeAction={{ label: '취소', onPress: () => setLeaveTarget(null), disabled: leaving }}
       >
-        <Text style={styles.modalBody}>지난 수업 기록은 그대로 남아요. 담임 선생님은 다시 초대하거나 명단에서 지울 수 있어요.</Text>
+        <Text style={styles.modalBody}>지난 수업 리포트는 계속 볼 수 있어요. 반 소속으로 받던 이용권은 끊기고, 담임 선생님은 다시 초대하거나 명단에서 지울 수 있어요.</Text>
         {leaveError ? <StatusBanner variant="warning" label={leaveError} /> : null}
       </Modal>
     </AppNavShell>

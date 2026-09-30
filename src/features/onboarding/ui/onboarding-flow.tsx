@@ -34,6 +34,7 @@ import {
   type TermsConsentState,
 } from '@/features/terms-consent';
 import { SocialLoginButtons } from '@/features/oauth-login';
+import { RosterStudentPicker, type RosterSelection } from '@/features/class-roster-pick';
 
 type OnAuthed = (token: string, user: UserSummary) => void;
 
@@ -771,6 +772,7 @@ function SignUpStep({
   const [classCode, setClassCode] = useState(initialClassCode ?? '');
   const [childName, setChildName] = useState('');
   const [childBirthYear, setChildBirthYear] = useState<number>(() => new Date().getFullYear() - 7);
+  const [rosterSelection, setRosterSelection] = useState<RosterSelection>({ kind: 'not-needed' });
   const [orgName, setOrgName] = useState('');
   const [loginId, setLoginId] = useState(initial?.loginId ?? '');
   const [email, setEmail] = useState(initial?.email ?? '');
@@ -801,7 +803,9 @@ function SignUpStep({
     password === confirmPassword &&
     Boolean(displayName.trim()) &&
     termsConsentIsValid(terms) &&
-    (useJoinFlow ? classCode.trim().length > 0 && childName.trim().length > 0 : true) &&
+    (useJoinFlow
+      ? classCode.trim().length > 0 && childName.trim().length > 0 && rosterSelection.kind !== 'pending'
+      : true) &&
     (showOrgNameField ? orgName.trim().length > 0 : true);
 
   const onSubmit = useCallback(async () => {
@@ -843,6 +847,7 @@ function SignUpStep({
                 classCode: classCode.trim().toUpperCase(),
                 childName: childName.trim(),
                 childBirthYear,
+                rosterStudentId: rosterSelection.kind === 'student' ? rosterSelection.id : undefined,
               })
             : await signupParent(input);
       // 마케팅 동의 값을 알림 설정에 즉시 반영 - 실패해도 회원가입 자체는 완료된 상태라 조용히
@@ -872,6 +877,7 @@ function SignUpStep({
     classCode,
     childName,
     childBirthYear,
+    rosterSelection,
     orgName,
     loginId,
     email,
@@ -910,6 +916,7 @@ function SignUpStep({
               />
               <TextField label="아이 이름 또는 별명" value={childName} onChangeText={setChildName} placeholder="예: 민서" />
               <BirthYearChips value={childBirthYear} onChange={setChildBirthYear} minAge={4} maxAge={12} />
+              <RosterStudentPicker classCode={classCode} childName={childName} onChange={setRosterSelection} />
             </>
           ) : (
             <Text style={styles.formNote}>반 코드 없이 학부모 계정만 만들어요.</Text>

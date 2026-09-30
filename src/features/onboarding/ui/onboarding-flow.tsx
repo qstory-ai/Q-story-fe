@@ -3,8 +3,9 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, BrandLockup, Checkbox, ErrorState, LoadingState, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
-import { ageBandFromLabel, formatStudentAge } from '@/entities/child';
+import { BirthYearChips, ageBandFromLabel, formatStudentAge } from '@/entities/child';
 import {
+  AuthApiError,
   createOrganization,
   homePathFor,
   isPasswordLongEnough,
@@ -705,6 +706,10 @@ function SignUpStep({
 }) {
   const [hasClass, setHasClass] = useState(true);
   const [classCode, setClassCode] = useState('');
+  // 선생님이 운영하는 반이면 서버가 CHILD_INFO_REQUIRED로 되돌려 보낸다 - 그때부터 아이 정보 칸을 보인다.
+  const [needsChildInfo, setNeedsChildInfo] = useState(false);
+  const [childName, setChildName] = useState('');
+  const [childBirthYear, setChildBirthYear] = useState<number>(() => new Date().getFullYear() - 7);
   const [orgName, setOrgName] = useState('');
   const [loginId, setLoginId] = useState(initial?.loginId ?? '');
   const [email, setEmail] = useState(initial?.email ?? '');
@@ -738,6 +743,7 @@ function SignUpStep({
     Boolean(displayName.trim()) &&
     termsConsentIsValid(terms) &&
     (showClassCodeField ? classCode.trim().length > 0 : true) &&
+    (needsChildInfo && useJoinFlow ? childName.trim().length > 0 : true) &&
     (showOrgNameField ? orgName.trim().length > 0 : true);
 
   const onSubmit = useCallback(async () => {
@@ -778,6 +784,7 @@ function SignUpStep({
             ? await joinClass({
                 ...(inviteToken ? { inviteToken } : { classCode: classCode.trim().toUpperCase() }),
                 ...input,
+                ...(needsChildInfo ? { childName: childName.trim(), childBirthYear } : {}),
               })
             : await signupParent(input);
       // 마케팅 동의 값을 알림 설정에 즉시 반영 - 실패해도 회원가입 자체는 완료된 상태라 조용히
@@ -787,6 +794,7 @@ function SignUpStep({
       }
       onAuthed(response.token, response.user);
     } catch (failure) {
+      if (failure instanceof AuthApiError && failure.code === 'CHILD_INFO_REQUIRED') setNeedsChildInfo(true);
       const fallback =
         role === 'DIRECTOR'
           ? '기관 관리자 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
@@ -806,6 +814,9 @@ function SignUpStep({
     onCollectForTutorInvite,
     useJoinFlow,
     classCode,
+    needsChildInfo,
+    childName,
+    childBirthYear,
     orgName,
     loginId,
     email,
@@ -849,6 +860,14 @@ function SignUpStep({
             )}
           </>
         )
+      )}
+
+      {role === 'PARENT' && !tutorInvite && useJoinFlow && needsChildInfo && (
+        <>
+          <Text style={styles.formNote}>선생님이 운영하는 반이라 아이 정보가 필요해요.</Text>
+          <TextField label="아이 이름 또는 별명" value={childName} onChangeText={setChildName} placeholder="예: 민서" />
+          <BirthYearChips value={childBirthYear} onChange={setChildBirthYear} minAge={4} maxAge={12} />
+        </>
       )}
 
       {role === 'DIRECTOR' && (

@@ -264,6 +264,9 @@ export function joinClass(
     email: string;
     password: string;
     displayName: string;
+    /** 선생님이 운영하는 반일 때만 - 서버가 CHILD_INFO_REQUIRED로 요구한다. */
+    childName?: string;
+    childBirthYear?: number;
   },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
@@ -277,7 +280,14 @@ export function joinClass(
 export function joinExistingClass(
   token: string,
   /** replaceExisting: 이미 속한 반에서 새 반으로 옮길 때 true. */
-  input: { classCode?: string; inviteToken?: string; replaceExisting?: boolean },
+  input: {
+    classCode?: string;
+    inviteToken?: string;
+    replaceExisting?: boolean;
+    /** 선생님이 운영하는 반일 때만 - 서버가 CHILD_INFO_REQUIRED로 요구한다. */
+    childName?: string;
+    childBirthYear?: number;
+  },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request(

@@ -11,9 +11,8 @@ import type { QuestionOutcome } from '@/entities/analytics';
 /**
  * 챕터 사이드바 되감기가 질문 기록(QuestionOutcome)에 미치는 영향을 나눈다 - 되감기 대상 장면
  * "이전" 장면의 앵커에서 나온 기록은 그대로 유지하고(kept), 대상 장면부터 그 이후 장면의 앵커에서
- * 나온 기록은 버린다(discarded). 예전엔 되감을 때 기록을 통째로 비웠는데, 7화로 되감는다고
- * 4화에서 한 질문까지 사라지는 건 "되감은 지점 이후의 기록은 초기화된다"는 약속보다 과했다 -
- * 그 질문 장면은 다시 재생되지도 않으니 부모 리포트에서 사라질 이유가 없다.
+ * 나온 기록은 버린다(discarded). 대상보다 앞선 장면은 다시 재생되지 않으니 그 기록은 부모
+ * 리포트에 남긴다.
  *
  * 사이드바는 이 결과의 discarded 개수로 "확인 모달을 띄울지"를 정하고(0개면 바로 되감기), 런타임
  * 훅은 kept를 새 questionOutcomes로 쓴다 - 같은 함수를 공유해야 "모달이 사라진다고 한 개수"와
@@ -56,10 +55,8 @@ export function formatReportDuration(durationSeconds: number | null) {
 }
 
 /**
- * commitEvent()의 이야기 상태 전이 실패 - 예전엔 `INVALID_TRANSITION_playing-fixed_...`
- * 같은 기술 코드를 그대로 부모 메시지로 노출했다. 코드는 analytics로 보내되, 화면에는
- * 상황 카피만 붙이도록 이 함수가 대신한다. 다양한 code가 있지만 사용자 관점에서 굳이
- * 갈라 안내할 만한 종류가 아직 없어(공통 "다시 시도" 패턴), 한 문장으로 통일한다.
+ * commitEvent()의 이야기 상태 전이 실패 카피 - `INVALID_TRANSITION_...` 같은 기술 코드는 화면에
+ * 노출하지 않는다. 사용자에게 갈라 안내할 만한 code 종류가 아직 없어 한 문장으로 통일한다.
  */
 export function runtimeTransitionFailureCopy(_code: string) {
   return '이야기 흐름을 이어가지 못했어요. 잠시 뒤 다시 시도해 주세요.';
@@ -131,7 +128,7 @@ export function getSceneIndex(state: StoryRuntimeState, storyPackage: StoryRunti
   );
 }
 
-export function getAnchorVisualId(state: StoryRuntimeState, storyPackage: StoryRuntimePackage) {
+function getAnchorVisualId(state: StoryRuntimeState, storyPackage: StoryRuntimePackage) {
   if (!('anchorId' in state) || !state.anchorId) {
     return null;
   }

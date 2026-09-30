@@ -4,8 +4,8 @@ import { LoadingPanel } from './loading-panel';
 /**
  * "generating-branch" 상태 전용 로딩 화면 - 아이의 질문이 기존 선택지 어디에도 맞지 않아
  * 백엔드가 실시간으로 새 분기(대본+삽화)를 만드는 동안 보여준다 (use-one-story-runtime.ts의
- * 폴링 effect가 GET /v1/live-branch/{jobId}를 확인하는 중). 최대 60초 안에 READY(새 분기 재생)
- * 또는 FAILED/타임아웃(안전하게 이야기 계속)으로 항상 끝나므로, processing-panel과 달리
+ * 폴링이 GET /v1/live-branch/{jobId}를 확인하는 중). LIVE_BRANCH_POLL_TIMEOUT_MS 안에 READY(세 갈래
+ * 선택지) 또는 FAILED/타임아웃(안전하게 이야기 계속)으로 항상 끝나므로, processing-panel과 달리
  * "질문 다시 하기/건너뛰기" 같은 탈출 버튼을 두지 않는다.
  */
 export function GeneratingBranchPanel({ runtime }: { runtime: OneStoryRuntime }) {

@@ -13,8 +13,7 @@ import { styles } from '../styles';
  * 무관하게 독립적으로 닫힌다(use-companion-chat.ts 자체의 open/close 상태 참고).
  *
  * homeMenuOpen이 true인 동안은 open이어도 표시하지 않는다 - Solid 2.0의 "팝업 위에 또 다른
- * 팝업을 쓰지 않는다" 규칙을 지키기 위한 방어용 가드 (지금은 홈 메뉴의 전체 화면 스크림이
- * TopBar를 가려 우연히 안 겹치지만, 명시적으로 보장해 둔다).
+ * 팝업을 쓰지 않는다" 규칙을 명시적으로 보장하는 가드.
  */
 export function CompanionChatModal({
   chat,

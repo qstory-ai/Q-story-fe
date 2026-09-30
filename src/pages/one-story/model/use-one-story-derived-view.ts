@@ -88,11 +88,17 @@ export function useOneStoryDerivedView({
   const spokenText = currentClip
     ? personalizeStoryText(currentClip.transcript, childName)
     : '';
-  const captionClip = narrationState.captionRequestId
-    ? (storyManifest.audioGroups
-        .flatMap((group) => group.clips)
-        .find((clip) => clip.id === narrationState.captionRequestId) ?? null)
-    : null;
+  // 재생 진행률이 갱신될 때마다 다시 렌더되므로 전체 클립 탐색은 captionRequestId가 바뀔 때만 한다.
+  const captionRequestId = narrationState.captionRequestId;
+  const captionClip = useMemo(
+    () =>
+      captionRequestId
+        ? (storyManifest.audioGroups
+            .flatMap((group) => group.clips)
+            .find((clip) => clip.id === captionRequestId) ?? null)
+        : null,
+    [captionRequestId, storyManifest.audioGroups],
+  );
   const captionSpeaker = captionClip
     ? storyManifest.speakers.find(
         (candidate) => candidate.id === captionClip.speakerId,
@@ -159,7 +165,6 @@ export function useOneStoryDerivedView({
     displayedSubtitle,
     branchCaptionSpeaker,
     displayedBranchSubtitle,
-    visualAssetId,
     illustration,
   };
 }

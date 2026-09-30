@@ -18,8 +18,7 @@ export type PlaybackControl = {
 
 /**
  * 재생 컨트롤 네 개의 단일 정의 - TopBar(넓은 화면, 가로 배치)와 PlaybackDock(폰, 하단 도크)이 이
- * 목록을 각자의 레이아웃으로만 그린다. 예전엔 두 파일에 따로 적혀 있어 접근성 라벨이 "자막 숨기기" /
- * "자막 끄기"로 갈리는 식으로 이미 어긋나 있었다.
+ * 목록을 각자의 레이아웃으로만 그린다(라벨·접근성 문구가 두 곳에서 어긋나지 않게).
  */
 export function playbackControls(runtime: OneStoryRuntime): PlaybackControl[] {
   const {

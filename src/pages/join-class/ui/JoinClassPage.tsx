@@ -14,7 +14,7 @@ import {
 } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { homePathFor, joinExistingClass, previewClassByCode, useAuth, type ClassPreview } from '@/entities/auth';
-import { BirthYearChips, listChildren, type Child } from '@/entities/child';
+import { BirthYearChips, listChildren, useChildren, type Child } from '@/entities/child';
 import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
 
 const NEW_CHILD = 'new';
@@ -141,6 +141,7 @@ function ChildPicker({
   onJoined: (homePath: string) => void;
 }) {
   const { setSession } = useAuth();
+  const { reload: reloadChildren } = useChildren();
   const [children, setChildren] = useState<Child[] | null>(null);
   // 목록을 못 불러왔는데 "아이 없음"으로 보면 이미 있는 아이를 또 만들게 된다 - 오류로 보이고 다시 시도하게 한다.
   const [childrenError, setChildrenError] = useState<string | null>(null);
@@ -213,6 +214,7 @@ function ChildPicker({
       );
       // 반 소속으로 기관 이용권이 생길 수 있어 응답의 사용자 정보로 세션을 갱신한다.
       setSession(response.token, response.user);
+      if (isNew) void reloadChildren();
       const name = isNew ? childName.trim() : (children?.find((child) => child.id === selected)?.name ?? '아이');
       setJoined({ childName: name, homePath: homePathFor(response.user) });
     } catch (failure) {
@@ -236,9 +238,13 @@ function ChildPicker({
             label: child.name,
             description: child.birthYear ? `${child.birthYear}년생` : undefined,
           })),
-          { value: NEW_CHILD, label: children.length > 0 ? '다른 아이 새로 등록' : '아이 등록하기' },
+          // 아이 프로필이 있으면 그중에서만 고른다 - 이름·출생연도를 다시 적지 않게. 없을 때만 여기서 등록한다.
+          ...(children.length === 0 ? [{ value: NEW_CHILD, label: '아이 등록하기' }] : []),
         ]}
       />
+      {children.length > 0 ? (
+        <Text style={styles.note}>다른 아이는 마이페이지 &gt; 아이 관리에서 먼저 등록한 뒤 이 링크를 다시 열어 주세요.</Text>
+      ) : null}
       {isNew ? (
         <>
           <TextField label="아이 이름 또는 별명" value={childName} onChangeText={setChildName} placeholder="예: 민서" />

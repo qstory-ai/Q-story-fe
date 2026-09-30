@@ -3,12 +3,12 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, BrandLockup, Checkbox, ErrorState, LoadingState, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
-import { BirthYearChips, ageBandFromLabel, formatStudentAge, listChildren, type Child } from '@/entities/child';
+import { ageBandFromLabel, formatStudentAge, listChildren, type Child } from '@/entities/child';
 import {
   createOrganization,
   homePathFor,
   isPasswordLongEnough,
-  joinClass,
+  previewClassByCode,
   login,
   PASSWORD_RULE_HINT,
   PASSWORD_TOO_SHORT_MESSAGE,
@@ -34,9 +34,9 @@ import {
   type TermsConsentState,
 } from '@/features/terms-consent';
 import { SocialLoginButtons } from '@/features/oauth-login';
-import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
 
-type OnAuthed = (token: string, user: UserSummary) => void;
+/** next: 가입 직후 온보딩을 마친 뒤 이어서 갈 앱 내부 경로(반 코드로 가입하면 그 반의 연결 화면). */
+type OnAuthed = (token: string, user: UserSummary, next?: string) => void;
 
 type OnboardingRole = 'PARENT' | 'DIRECTOR' | 'TUTOR';
 type OnboardingStep =
@@ -129,6 +129,8 @@ export function OnboardingFlow({
   const [role, setRole] = useState<OnboardingRole | null>(initialTutorInvite ? 'PARENT' : (initialRole ?? null));
   // 방금 가입한 계정을 어디로 보낼지 - 캐러셀을 다 보거나 건너뛴 뒤에 이동한다.
   const [pendingHomePath, setPendingHomePath] = useState<string | null>(null);
+  // 부모 온보딩(아이 프로필)을 마친 뒤 이어서 갈 곳 - 반 코드로 가입했으면 그 반에 아이를 고르는 화면.
+  const [pendingNext, setPendingNext] = useState<string | null>(null);
   const go = setStep;
 
   // ---- 선생님 초대(tutor-preview/tutor-consent) 전용 상태 ----
@@ -158,9 +160,12 @@ export function OnboardingFlow({
     (path: string, state?: unknown) => navigate(path, { replace: true, state }),
     [navigate],
   );
-  const parentOnboardingState = tutorPreview
-    ? { prefill: { name: tutorPreview.studentName, ageBand: ageBandFromLabel(tutorPreview.ageBand), birthYear: tutorPreview.birthYear ?? undefined } }
-    : undefined;
+  const parentOnboardingState = {
+    ...(tutorPreview
+      ? { prefill: { name: tutorPreview.studentName, ageBand: ageBandFromLabel(tutorPreview.ageBand), birthYear: tutorPreview.birthYear ?? undefined } }
+      : {}),
+    ...(pendingNext ? { next: pendingNext } : {}),
+  };
 
   // 로그인은 매번 곧장 홈으로 - 계정을 통틀어 처음 만들어질 때만 거치는 흐름이 아니다.
   const onSignedIn: OnAuthed = useCallback(
@@ -174,9 +179,10 @@ export function OnboardingFlow({
   // 가입 직후 홈으로 보내기 전에 가치 제안 캐러셀을 한 번 보여주고, 이어서 역할별 온보딩
   // (부모 아이 등록, 선생님 소속 설정)으로 보낸다.
   const onSignedUp: OnAuthed = useCallback(
-    (token, user) => {
+    (token, user, next) => {
       onSessionCreated?.();
       setSession(token, user);
+      setPendingNext(next ?? null);
       const nextAfterCarousel = user.role === 'PARENT'
         ? '/onboarding/parent'
         : user.role === 'TUTOR'
@@ -770,9 +776,6 @@ function SignUpStep({
 }) {
   const [hasClass, setHasClass] = useState(true);
   const [classCode, setClassCode] = useState(initialClassCode ?? '');
-  const [childName, setChildName] = useState('');
-  const [childBirthYear, setChildBirthYear] = useState<number>(() => new Date().getFullYear() - 7);
-  const [rosterSelection, setRosterSelection] = useState<RosterSelection>({ kind: 'not-needed' });
   const [orgName, setOrgName] = useState('');
   const [loginId, setLoginId] = useState(initial?.loginId ?? '');
   const [email, setEmail] = useState(initial?.email ?? '');
@@ -786,8 +789,8 @@ function SignUpStep({
     initial ? { service: true, privacy: true, marketing: initial.marketing } : EMPTY_TERMS_CONSENT,
   );
 
-  // 반 코드로 가입하면 아이를 그 반의 학생 명단에 올리므로 아이 이름·출생연도가 함께 필요하다. 선생님
-  // 초대(tutorInvite)는 joinClass를 부르지 않는다(동의 단계에서 계정 생성과 수락을 한 번에 한다).
+  // 반 코드로 가입하면 계정만 먼저 만들고, 아이 프로필을 만든 뒤 반 연결 화면(/join?code=)에서 그 아이를 고른다 -
+  // 아이 이름·출생연도를 여기서 따로 적지 않는다. 선생님 초대(tutorInvite)는 동의 단계에서 가입과 수락을 한 번에 한다.
   const useJoinFlow = role === 'PARENT' && !tutorInvite && hasClass;
   const showOrgNameField = role === 'DIRECTOR';
   const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword;
@@ -803,9 +806,7 @@ function SignUpStep({
     password === confirmPassword &&
     Boolean(displayName.trim()) &&
     termsConsentIsValid(terms) &&
-    (useJoinFlow
-      ? classCode.trim().length > 0 && childName.trim().length > 0 && !rosterSelectionBlocksSubmit(rosterSelection)
-      : true) &&
+    (useJoinFlow ? classCode.trim().length > 0 : true) &&
     (showOrgNameField ? orgName.trim().length > 0 : true);
 
   const onSubmit = useCallback(async () => {
@@ -838,24 +839,16 @@ function SignUpStep({
         onAuthed(orgResponse.token, orgResponse.user);
         return;
       }
-      const response =
-        role === 'TUTOR'
-          ? await signupTutor(input)
-          : useJoinFlow
-            ? await joinClass({
-                ...input,
-                classCode: classCode.trim().toUpperCase(),
-                childName: childName.trim(),
-                childBirthYear,
-                rosterStudentId: rosterSelection.kind === 'student' ? rosterSelection.id : undefined,
-              })
-            : await signupParent(input);
+      // 반 코드가 틀렸으면 계정을 만들기 전에 알린다.
+      const joinCode = useJoinFlow ? classCode.trim().toUpperCase() : null;
+      if (joinCode) await previewClassByCode(joinCode);
+      const response = role === 'TUTOR' ? await signupTutor(input) : await signupParent(input);
       // 마케팅 동의 값을 알림 설정에 즉시 반영 - 실패해도 회원가입 자체는 완료된 상태라 조용히
       // 넘긴다(사용자가 마이페이지 알림 설정에서 다시 조정할 수 있다).
       if (response.user.role === 'PARENT' || response.user.role === 'TUTOR') {
         void updateNotificationSettings(response.token, { marketingEnabled: terms.marketing }).catch(() => {});
       }
-      onAuthed(response.token, response.user);
+      onAuthed(response.token, response.user, joinCode ? `/join?code=${encodeURIComponent(joinCode)}` : undefined);
     } catch (failure) {
       const fallback =
         role === 'DIRECTOR'
@@ -863,7 +856,7 @@ function SignUpStep({
           : role === 'TUTOR'
             ? '선생님 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
             : useJoinFlow
-              ? '반 코드로 가입하지 못했어요. 반 코드와 입력값을 확인해 주세요.'
+              ? '가입하지 못했어요. 반 코드와 입력값을 확인해 주세요.'
               : '학부모 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.';
       setError(messageForError(failure, fallback));
     } finally {
@@ -875,9 +868,6 @@ function SignUpStep({
     onCollectForTutorInvite,
     useJoinFlow,
     classCode,
-    childName,
-    childBirthYear,
-    rosterSelection,
     orgName,
     loginId,
     email,
@@ -914,9 +904,7 @@ function SignUpStep({
                 autoCapitalize="characters"
                 placeholder="선생님께 받은 코드"
               />
-              <TextField label="아이 이름 또는 별명" value={childName} onChangeText={setChildName} placeholder="예: 민서" />
-              <BirthYearChips value={childBirthYear} onChange={setChildBirthYear} minAge={4} maxAge={12} />
-              <RosterStudentPicker classCode={classCode} childName={childName} onChange={setRosterSelection} />
+              <Text style={styles.formNote}>가입하고 아이 프로필을 만들면 이 반에 연결할 아이를 고를 수 있어요.</Text>
             </>
           ) : (
             <Text style={styles.formNote}>반 코드 없이 학부모 계정만 만들어요.</Text>

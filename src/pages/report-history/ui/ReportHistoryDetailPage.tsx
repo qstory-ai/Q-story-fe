@@ -112,6 +112,7 @@ export function ReportHistoryDetailPage() {
 }
 
 function readAgainLabel(detail: StoryCompletionDetail): string {
+  if (detail.sessionKind === 'CLASS') return '집에서 다시 플레이하기';
   return detail.sessionKind === 'HOME' ? '이 이야기 다시 읽기' : '아이랑 다시 읽어보기';
 }
 

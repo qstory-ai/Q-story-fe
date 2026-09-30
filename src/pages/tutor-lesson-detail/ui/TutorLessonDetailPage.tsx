@@ -242,6 +242,15 @@ export function TutorLessonDetailPage() {
 
             {transitionError ? <StatusBanner variant="warning" label={transitionError} /> : null}
 
+            {effective.lesson.classGroupId ? (
+              // 반 수업은 학생을 따로 넣지 않아도 된다 - 반 초대 링크로 들어온 아이가 수업에 함께 기록된다.
+              <ActionButton
+                variant="secondaryFull"
+                label="반 초대 링크·명단 보기"
+                onPress={() => navigate(`/tutor/class-groups/${effective.lesson.classGroupId}`)}
+              />
+            ) : null}
+
             <View style={styles.actionCard}>
               {effective.lesson.status !== 'COMPLETED' ? (
                 <ActionButton

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, EmptyState, ErrorState, HexagonStatChart, LoadingState, storybookTheme } from '@/shared/ui';
-import { dashboardNavItems, homePathFor, useAuth } from '@/entities/auth';
+import { dashboardNavItems, homePathFor, listClassMemberships, useAuth } from '@/entities/auth';
 import { findChildAvatar, useChildren } from '@/entities/child';
 import { fetchStoryReportCopy, listStories, type StoryReportCopy } from '@/entities/story';
 import { messageForError } from '@/shared/api';
@@ -41,7 +41,10 @@ async function loadReportCopies(storyIds: readonly string[]): Promise<ReportCopy
   return Object.fromEntries(unique.map((storyId, index) => [storyId, copies[index]]));
 }
 
-type Tab = 'comprehensive' | 'by-story' | 'class';
+/** 우리 아이 리포트(집에서 읽은 기록) 안의 보기 - 종합 / 작품별. */
+type Tab = 'comprehensive' | 'by-story';
+/** 리포트 탭의 큰 구분 - 우리 아이 개별 리포트와 반·수업 리포트를 섞지 않는다. */
+type Section = 'child' | 'class';
 
 type LoadState =
   | { status: 'loading' }
@@ -53,6 +56,8 @@ type LoadState =
       comprehensive: ComprehensiveReport;
       comprehensiveSessionCount: number;
       tutorReports: TutorReportSummary[];
+      /** 반에 연결된 아이가 있는지 - 아직 반 리포트가 없어도 반·수업 리포트 구분을 보여 준다. */
+      hasClassMembership: boolean;
     }
   | { status: 'error'; message: string };
 
@@ -76,6 +81,7 @@ export function ReportHistoryPage() {
   const { children } = useChildren();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [tab, setTab] = useState<Tab>('comprehensive');
+  const [section, setSection] = useState<Section>('child');
   // null = "전체 아이" 필터. children이 하나뿐일 땐 UI에서도 그 아이가 자동 선택된 것처럼 취급.
   const [childFilterId, setChildFilterId] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -106,8 +112,9 @@ export function ReportHistoryPage() {
       // 선생님 수업 리포트는 개별 연결의 부가 데이터다. 구버전 서버에 아직 없거나 일시적으로
       // 실패해도 가정 리포트 전체가 막히지 않도록 빈 목록으로 다룬다.
       listParentTutorReports(token).catch(() => [] as TutorReportSummary[]),
+      listClassMemberships(token).then((items) => items.length > 0).catch(() => false),
     ])
-      .then(async ([completions, stories, recentDetailed, tutorReports]) => {
+      .then(async ([completions, stories, recentDetailed, tutorReports, hasClassMembership]) => {
         const reportCopyByStoryId = await loadReportCopies(recentDetailed.map((detail) => detail.storyId));
         if (cancelled) return;
         setLoad({
@@ -121,6 +128,7 @@ export function ReportHistoryPage() {
           comprehensive: buildComprehensiveReport(recentDetailed, reportCopyByStoryId),
           comprehensiveSessionCount: recentDetailed.length,
           tutorReports,
+          hasClassMembership,
         });
       })
       .catch((failure: unknown) => {
@@ -141,14 +149,27 @@ export function ReportHistoryPage() {
       : '아직 마친 이야기가 없어요. 이야기를 끝까지 읽으면 여기에 기록이 남아요.';
 
   if (!canView) return null;
+  // 반에 연결된 아이가 있거나 수업 리포트가 하나라도 있으면 "반·수업 리포트"를 따로 보여 준다.
+  const showClassSection = load.status === 'ready' && (load.hasClassMembership || load.tutorReports.length > 0);
 
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'reports')} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">리포트</Text>
-        <Text style={styles.subtitle}>아이의 요즘 흐름을 종합해 보고, 개별 이야기 기록도 다시 볼 수 있어요.</Text>
+        <Text style={styles.subtitle}>
+          {section === 'child'
+            ? '집에서 우리 아이와 읽은 기록이에요. 요즘 흐름을 종합해 보고, 이야기별 기록도 다시 볼 수 있어요.'
+            : '유치원·선생님과 함께 읽은 수업 기록이에요. 반별로 모아 보여 드려요.'}
+        </Text>
 
-        {children.length > 0 ? (
+        {showClassSection ? (
+          <View style={styles.sectionRow} accessibilityRole="tablist">
+            <SectionButton label="우리 아이 리포트" active={section === 'child'} onPress={() => setSection('child')} />
+            <SectionButton label="반·수업 리포트" active={section === 'class'} onPress={() => setSection('class')} />
+          </View>
+        ) : null}
+
+        {section === 'child' && children.length > 0 ? (
           <View style={styles.childFilterRow}>
             <ChildFilterChip
               label="전체 아이"
@@ -166,19 +187,18 @@ export function ReportHistoryPage() {
           </View>
         ) : null}
 
-        {childFilterId ? (
+        {section === 'child' && childFilterId ? (
           <Text style={styles.filterNote}>
             선택된 아이로 진행한 기록만 표시 중이에요. 아이 프로필이 지정되지 않은 이전 기록은 &lsquo;전체 아이&rsquo;에서 볼 수 있어요.
           </Text>
         ) : null}
 
-        <View style={styles.tabRow} accessibilityRole="tablist">
-          <TabButton label="종합 리포트" active={tab === 'comprehensive'} onPress={() => setTab('comprehensive')} />
-          <TabButton label="작품별 리포트" active={tab === 'by-story'} onPress={() => setTab('by-story')} />
-          {load.status === 'ready' && load.tutorReports.length > 0 ? (
-            <TabButton label="수업 리포트" active={tab === 'class'} onPress={() => setTab('class')} />
-          ) : null}
-        </View>
+        {section === 'child' ? (
+          <View style={styles.tabRow} accessibilityRole="tablist">
+            <TabButton label="종합 리포트" active={tab === 'comprehensive'} onPress={() => setTab('comprehensive')} />
+            <TabButton label="작품별 리포트" active={tab === 'by-story'} onPress={() => setTab('by-story')} />
+          </View>
+        ) : null}
 
         {load.status === 'loading' && <LoadingState label="리포트를 불러오는 중이에요…" />}
 
@@ -186,7 +206,7 @@ export function ReportHistoryPage() {
           <ErrorState message={load.message} onRetry={() => setReloadKey((n) => n + 1)} />
         )}
 
-        {load.status === 'ready' && tab === 'comprehensive' && (
+        {load.status === 'ready' && section === 'child' && tab === 'comprehensive' && (
           <ComprehensiveView
             report={load.comprehensive}
             sessionCount={load.comprehensiveSessionCount}
@@ -196,7 +216,7 @@ export function ReportHistoryPage() {
           />
         )}
 
-        {load.status === 'ready' && tab === 'by-story' && (
+        {load.status === 'ready' && section === 'child' && tab === 'by-story' && (
           <>
             {load.completions.length === 0 ? (
               <EmptyState
@@ -224,7 +244,7 @@ export function ReportHistoryPage() {
           </>
         )}
 
-        {load.status === 'ready' && tab === 'class' && (
+        {load.status === 'ready' && section === 'class' && (
           <TutorReportView
             reports={load.tutorReports}
             titleByStoryId={load.titleByStoryId}
@@ -248,8 +268,8 @@ function TutorReportView({
   if (reports.length === 0) {
     return (
       <EmptyState
-        title="도착한 수업 리포트가 없어요"
-        body="연결된 선생님과 이야기를 마치면 여기에 수업 기록이 도착해요."
+        title="아직 도착한 반 리포트가 없어요"
+        body="반 수업이 끝나면 우리 반이 읽은 동화와 나눈 이야기가 여기에 도착해요."
       />
     );
   }
@@ -257,21 +277,27 @@ function TutorReportView({
   return (
     <>
       <Text style={styles.classReportNote}>
-        유치원·선생님과 진행한 수업 기록이에요. 반 수업은 반 전체가 함께 읽은 기록이고, 집에서 직접 읽은 기록은 종합·작품별 리포트에서 따로 확인할 수 있어요.
+        반 수업은 반 전체가 함께 읽은 기록이라 우리 아이 한 명의 말로 나누지 않았어요. 리포트를 열면 같은 동화를 집에서 다시 플레이할 수 있어요.
       </Text>
-      {reports.map((report) => (
-        <Pressable
-          key={report.id}
-          onPress={() => onOpen(report.id)}
-          accessibilityRole="button"
-          style={({ pressed }) => [styles.reportCard, pressed && styles.reportCardPressed]}
-        >
-          <Text style={styles.reportCardTitle}>{titleByStoryId[report.storyId] ?? report.storyId}</Text>
-          <Text style={styles.classReportTeacher}>{tutorReportSource(report)}</Text>
-          <Text style={styles.reportCardMeta}>
-            {formatCompletedAt(report.completedAt)} · {formatReportDuration(report.durationSeconds)}
-          </Text>
-        </Pressable>
+      {groupTutorReports(reports).map((group) => (
+        <View key={group.key} style={styles.reportGroup}>
+          <Text style={styles.sectionEyebrow}>{group.eyebrow}</Text>
+          <Text style={styles.sectionTitle}>{group.title}</Text>
+          {group.reports.map((report) => (
+            <Pressable
+              key={report.id}
+              onPress={() => onOpen(report.id)}
+              accessibilityRole="button"
+              style={({ pressed }) => [styles.reportCard, pressed && styles.reportCardPressed]}
+            >
+              <Text style={styles.reportCardTitle}>{titleByStoryId[report.storyId] ?? report.storyId}</Text>
+              <Text style={styles.classReportTeacher}>{tutorReportSource(report)}</Text>
+              <Text style={styles.reportCardMeta}>
+                {formatCompletedAt(report.completedAt)} · {formatReportDuration(report.durationSeconds)}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
       ))}
     </>
   );
@@ -479,6 +505,41 @@ function MiniRow({ label, count }: { label: string; count: number }) {
 
 /* -------------------------------------------------------------- tabs UI */
 
+type TutorReportGroup = { key: string; eyebrow: string; title: string; reports: TutorReportSummary[] };
+
+/** 반 수업은 반별로, 선생님 개별 수업은 선생님별로 묶는다. 목록이 최신순이라 가장 최근에 수업한 묶음이 먼저 온다. */
+function groupTutorReports(reports: TutorReportSummary[]): TutorReportGroup[] {
+  const groups = new Map<string, TutorReportGroup>();
+  for (const report of reports) {
+    const isClass = report.sessionKind === 'CLASS';
+    const key = isClass
+      ? `class:${report.organizationName ?? ''}:${report.className ?? ''}`
+      : `tutor:${report.tutorDisplayName}`;
+    let group = groups.get(key);
+    if (!group) {
+      group = isClass
+        ? { key, eyebrow: report.organizationName ?? '반 수업', title: report.className ?? '반 수업', reports: [] }
+        : { key, eyebrow: '선생님 개별 수업', title: `${report.tutorDisplayName} 선생님`, reports: [] };
+      groups.set(key, group);
+    }
+    group.reports.push(report);
+  }
+  return [...groups.values()];
+}
+
+function SectionButton({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  return (
+    <Pressable
+      accessibilityRole="tab"
+      accessibilityState={{ selected: active }}
+      onPress={onPress}
+      style={({ pressed }) => [styles.section, active && styles.sectionActive, pressed && styles.tabPressed]}
+    >
+      <Text style={[styles.sectionLabel, active && styles.sectionLabelActive]}>{label}</Text>
+    </Pressable>
+  );
+}
+
 function TabButton({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
   return (
     <Pressable
@@ -531,6 +592,29 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContentMuted,
   },
   tabRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 4 },
+  sectionRow: {
+    flexDirection: 'row',
+    borderRadius: storybookTheme.radius.card,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.surfaceCardBorder,
+    backgroundColor: storybookTheme.color.surfaceCard,
+    padding: 4,
+    gap: 4,
+  },
+  section: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderRadius: storybookTheme.radius.card,
+  },
+  sectionActive: { backgroundColor: storybookTheme.color.primary },
+  sectionLabel: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.onCardBody,
+  },
+  sectionLabelActive: { color: storybookTheme.color.background },
+  reportGroup: { gap: 8, marginTop: 8 },
   childFilterRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   childFilterChip: {
     paddingHorizontal: 12,

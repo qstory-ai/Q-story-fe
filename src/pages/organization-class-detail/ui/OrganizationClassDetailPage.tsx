@@ -8,7 +8,7 @@ import {
   dashboardNavItems,
   fetchClass,
   listClassStudents,
-  useAuth,
+  useDirectorSession,
   type ClassResponse,
   type ClassStudentResponse,
 } from '@/entities/auth';
@@ -27,30 +27,23 @@ type LoadState =
 export function OrganizationClassDetailPage() {
   const { classId } = useParams<{ classId: string }>();
   const navigate = useNavigate();
-  const { state } = useAuth();
+  const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [pickedTutorId, setPickedTutorId] = useState<string | null>(null);
   const [assigning, setAssigning] = useState(false);
   const [assignError, setAssignError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
-  const canView = state.status === 'authenticated' && state.user.role === 'DIRECTOR';
-  const organizationId = state.status === 'authenticated' ? state.user.organizationId : null;
+  const token = director?.token ?? null;
+  const organizationId = director?.organizationId ?? null;
 
   useEffect(() => {
-    if (state.status === 'loading') return;
-    if (!canView) {
-      navigate('/', { replace: true });
-    }
-  }, [state.status, canView, navigate]);
-
-  useEffect(() => {
-    if (state.status !== 'authenticated' || !classId || !organizationId) return;
+    if (!token || !classId || !organizationId) return;
     let cancelled = false;
     Promise.all([
-      fetchClass(state.token, classId),
-      listClassStudents(state.token, classId),
-      listOrganizationTutors(state.token, organizationId),
+      fetchClass(token, classId),
+      listClassStudents(token, classId),
+      listOrganizationTutors(token, organizationId),
     ])
       .then(([classGroup, students, tutors]) => {
         if (!cancelled) setLoad({ status: 'ready', classGroup, students, tutors });
@@ -65,14 +58,14 @@ export function OrganizationClassDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, classId, organizationId, reloadKey]);
+  }, [token, classId, organizationId, reloadKey]);
 
   const onAssign = useCallback(async () => {
-    if (state.status !== 'authenticated' || !classId || !pickedTutorId) return;
+    if (!token || !classId || !pickedTutorId) return;
     setAssigning(true);
     setAssignError(null);
     try {
-      await assignClassHomeroom(state.token, classId, pickedTutorId);
+      await assignClassHomeroom(token, classId, pickedTutorId);
       setPickedTutorId(null);
       setReloadKey((n) => n + 1);
     } catch (failure: unknown) {
@@ -80,12 +73,12 @@ export function OrganizationClassDetailPage() {
     } finally {
       setAssigning(false);
     }
-  }, [state, classId, pickedTutorId]);
+  }, [token, classId, pickedTutorId]);
 
-  if (!canView) return null;
+  if (!director) return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/organization/classes')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, 'classes')} onBack={() => navigate('/organization/classes')}>
       <View style={styles.content}>
         {load.status === 'loading' && <LoadingState label="반 정보를 불러오는 중이에요…" />}
 

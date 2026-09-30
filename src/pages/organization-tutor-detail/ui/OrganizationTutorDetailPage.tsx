@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { dashboardNavItems, useDirectorSession } from '@/entities/auth';
 import {
   listOrganizationTutorLessons,
   listOrganizationTutorStudents,
@@ -38,25 +38,20 @@ const LESSON_STATUS_LABEL: Record<Lesson['status'], string> = {
 export function OrganizationTutorDetailPage() {
   const { tutorId } = useParams<{ tutorId: string }>();
   const navigate = useNavigate();
-  const { state } = useAuth();
+  const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<Load>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
 
-  const canView = state.status === 'authenticated' && state.user.role === 'DIRECTOR' && Boolean(state.user.organizationId);
-  const organizationId = state.status === 'authenticated' ? state.user.organizationId : null;
+  const token = director?.token ?? null;
+  const organizationId = director?.organizationId ?? null;
 
   useEffect(() => {
-    if (state.status === 'loading') return;
-    if (!canView) navigate('/', { replace: true });
-  }, [state.status, canView, navigate]);
-
-  useEffect(() => {
-    if (state.status !== 'authenticated' || !organizationId || !tutorId) return;
+    if (!token || !organizationId || !tutorId) return;
     let cancelled = false;
     Promise.all([
-      listOrganizationTutors(state.token, organizationId),
-      listOrganizationTutorStudents(state.token, organizationId, tutorId),
-      listOrganizationTutorLessons(state.token, organizationId, tutorId),
+      listOrganizationTutors(token, organizationId),
+      listOrganizationTutorStudents(token, organizationId, tutorId),
+      listOrganizationTutorLessons(token, organizationId, tutorId),
     ])
       .then(([tutors, students, lessons]) => {
         if (cancelled) return;
@@ -74,7 +69,7 @@ export function OrganizationTutorDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, organizationId, tutorId, reloadKey]);
+  }, [token, organizationId, tutorId, reloadKey]);
 
   const upcomingLessons = useMemo(
     () => (load.status === 'ready' ? load.lessons.filter((lesson) => lesson.status !== 'COMPLETED') : []),
@@ -85,10 +80,10 @@ export function OrganizationTutorDetailPage() {
     [load],
   );
 
-  if (!canView) return null;
+  if (!director) return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')} onBack={() => navigate('/organization/tutors')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, 'home')} onBack={() => navigate('/organization/tutors')}>
       <View style={styles.content}>
         {load.status === 'loading' ? (
           <LoadingState label="선생님 정보를 불러오는 중이에요…" />

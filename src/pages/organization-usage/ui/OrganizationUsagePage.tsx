@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, LoadingState, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { dashboardNavItems, useDirectorSession } from '@/entities/auth';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import {
   getOrganizationUsage,
@@ -23,25 +23,18 @@ type LoadState =
  */
 export function OrganizationUsagePage() {
   const navigate = useNavigate();
-  const { state } = useAuth();
+  const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
 
-  const canView = state.status === 'authenticated' && state.user.role === 'DIRECTOR' && Boolean(state.user.organizationId);
-  const organizationId = state.status === 'authenticated' ? state.user.organizationId : null;
+  const token = director?.token ?? null;
+  const organizationId = director?.organizationId ?? null;
 
   useEffect(() => {
-    if (state.status === 'loading') return;
-    if (!canView) {
-      navigate('/', { replace: true });
-    }
-  }, [state.status, canView, navigate]);
-
-  useEffect(() => {
-    if (state.status !== 'authenticated' || !organizationId) return;
+    if (!token || !organizationId) return;
     let cancelled = false;
     Promise.all([
-      getOrganizationUsage(state.token, organizationId),
+      getOrganizationUsage(token, organizationId),
       listStories().catch(() => [] as StoryCatalogEntry[]),
     ])
       .then(([usage, stories]) => {
@@ -62,12 +55,12 @@ export function OrganizationUsagePage() {
     return () => {
       cancelled = true;
     };
-  }, [state, organizationId, reloadKey]);
+  }, [token, organizationId, reloadKey]);
 
-  if (!canView) return null;
+  if (!director) return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')} onBack={() => navigate('/organization')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, 'home')} onBack={() => navigate('/organization')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">이용 현황</Text>
         <Text style={styles.subtitle}>기관 전체의 요약 지표와 최근 완주 활동을 확인해요.</Text>

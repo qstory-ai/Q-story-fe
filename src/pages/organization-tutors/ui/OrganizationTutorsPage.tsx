@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { dashboardNavItems, useDirectorSession } from '@/entities/auth';
 import {
   createOrganizationTutorInvite,
   listOrganizationTutorInvites,
@@ -26,7 +26,7 @@ type InvitesLoad = { status: 'loading' } | { status: 'ready'; invites: Organizat
  */
 export function OrganizationTutorsPage() {
   const navigate = useNavigate();
-  const { state } = useAuth();
+  const director = useDirectorSession(navigate);
   const [tutors, setTutors] = useState<TutorsLoad>({ status: 'loading' });
   const [invites, setInvites] = useState<InvitesLoad>({ status: 'loading' });
   const [issuing, setIssuing] = useState(false);
@@ -36,22 +36,15 @@ export function OrganizationTutorsPage() {
   const [issueError, setIssueError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
-  const canView = state.status === 'authenticated' && state.user.role === 'DIRECTOR' && Boolean(state.user.organizationId);
-  const organizationId = state.status === 'authenticated' ? state.user.organizationId : null;
+  const token = director?.token ?? null;
+  const organizationId = director?.organizationId ?? null;
 
   useEffect(() => {
-    if (state.status === 'loading') return;
-    if (!canView) {
-      navigate('/', { replace: true });
-    }
-  }, [state.status, canView, navigate]);
-
-  useEffect(() => {
-    if (state.status !== 'authenticated' || !organizationId) return;
+    if (!token || !organizationId) return;
     let cancelled = false;
     Promise.all([
-      listOrganizationTutors(state.token, organizationId),
-      listOrganizationTutorInvites(state.token, organizationId).catch(() => [] as OrganizationTutorInviteSummary[]),
+      listOrganizationTutors(token, organizationId),
+      listOrganizationTutorInvites(token, organizationId).catch(() => [] as OrganizationTutorInviteSummary[]),
     ])
       .then(([linkedTutors, inviteSummaries]) => {
         if (cancelled) return;
@@ -67,17 +60,17 @@ export function OrganizationTutorsPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, organizationId, reloadKey]);
+  }, [token, organizationId, reloadKey]);
 
   async function issueInvite() {
-    if (state.status !== 'authenticated' || !organizationId) return;
+    if (!token || !organizationId) return;
     setIssueError(null);
     setIssuing(true);
     try {
-      const invite = await createOrganizationTutorInvite(state.token, organizationId);
+      const invite = await createOrganizationTutorInvite(token, organizationId);
       setFreshInvite(invite);
       // 발급 이력 리스트도 방금 것 반영을 위해 재조회 - 실패해도 방금 발급된 카드는 그대로 보인다.
-      listOrganizationTutorInvites(state.token, organizationId)
+      listOrganizationTutorInvites(token, organizationId)
         .then((summaries) => setInvites({ status: 'ready', invites: summaries }))
         .catch(() => { /* 이미 있는 이력은 그대로 유지 */ });
     } catch (failure: unknown) {
@@ -89,10 +82,10 @@ export function OrganizationTutorsPage() {
   }
 
   async function confirmUnlink() {
-    if (!unlinkTarget || state.status !== 'authenticated' || !organizationId) return;
+    if (!unlinkTarget || !token || !organizationId) return;
     setUnlinkInFlight(true);
     try {
-      await unlinkOrganizationTutor(state.token, organizationId, unlinkTarget.tutorId);
+      await unlinkOrganizationTutor(token, organizationId, unlinkTarget.tutorId);
       setTutors((prev) => prev.status === 'ready'
         ? { status: 'ready', tutors: prev.tutors.filter((tutor) => tutor.id !== unlinkTarget.id) }
         : prev);
@@ -105,14 +98,14 @@ export function OrganizationTutorsPage() {
     }
   }
 
-  if (!canView) return null;
+  if (!director) return null;
 
   const activeInvites = invites.status === 'ready'
     ? invites.invites.filter((invite) => invite.usedAt === null && new Date(invite.expiresAt) > new Date())
     : [];
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')} onBack={() => navigate('/organization')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, 'home')} onBack={() => navigate('/organization')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">선생님 관리</Text>
         <Text style={styles.subtitle}>

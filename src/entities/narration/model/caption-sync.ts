@@ -166,10 +166,6 @@ export function buildCaptionTrack(text: string): CaptionTrack {
   return { transcript, cues };
 }
 
-export function buildCaptionCues(text: string) {
-  return buildCaptionTrack(text).cues.map((cue) => cue.text);
-}
-
 export function estimateNarrationDurationSeconds(text: string) {
   const track = buildCaptionTrack(text);
   const totalWeight = track.cues.reduce(
@@ -179,18 +175,8 @@ export function estimateNarrationDurationSeconds(text: string) {
   return Math.max(1.5, totalWeight / 7);
 }
 
-export function captionCueAtProgress(
-  trackOrCues: CaptionTrack | string[],
-  progress: number,
-) {
-  const cues = Array.isArray(trackOrCues)
-    ? trackOrCues.map((text, index) => ({
-        id: `legacy-${index}`,
-        text,
-        startRatio: index / Math.max(1, trackOrCues.length),
-        endRatio: (index + 1) / Math.max(1, trackOrCues.length),
-      }))
-    : trackOrCues.cues;
+export function captionCueAtProgress(track: CaptionTrack, progress: number) {
+  const { cues } = track;
   if (cues.length === 0) {
     return '';
   }

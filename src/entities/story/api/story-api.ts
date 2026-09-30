@@ -15,8 +15,6 @@ export type StoryCatalogEntry = {
   requiresEntitlement: boolean;
 };
 
-export type RequestOptions = PublicRequestOptions;
-
 export class StoryApiError extends Error {
   constructor(
     message: string,
@@ -27,16 +25,16 @@ export class StoryApiError extends Error {
   }
 }
 
-function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+function request<T>(path: string, options: PublicRequestOptions = {}): Promise<T> {
   return requestJson(StoryApiError, path, {}, { baseUrl: apiBaseUrl, ...options });
 }
 
 /** GET /v1/stories - 홈 라이브러리 그리드용으로, RETIRED가 아닌 모든 스토리의 카탈로그 메타데이터를 가져온다. */
-export function listStories(options?: RequestOptions): Promise<StoryCatalogEntry[]> {
+export function listStories(options?: PublicRequestOptions): Promise<StoryCatalogEntry[]> {
   return request('/v1/stories', options);
 }
 
 /** GET /v1/stories/{storyId} - 스토리 상세 페이지용으로, 단일 스토리의 카탈로그 메타데이터를 가져온다. */
-export function fetchStoryEntry(storyId: string, options?: RequestOptions): Promise<StoryCatalogEntry> {
+export function fetchStoryEntry(storyId: string, options?: PublicRequestOptions): Promise<StoryCatalogEntry> {
   return request(`/v1/stories/${storyId}`, options);
 }

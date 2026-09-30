@@ -77,6 +77,9 @@ const StaffStoryPage = lazy(() => import('@/pages/staff').then((m) => ({ default
 const StaffScenePage = lazy(() => import('@/pages/staff').then((m) => ({ default: m.StaffScenePage })));
 const LandingPage = lazy(() => import('@/pages/landing').then((m) => ({ default: m.LandingPage })));
 const TutorHomePage = lazy(() => import('@/pages/tutor-home').then((m) => ({ default: m.TutorHomePage })));
+const TutorStudentBulkPage = lazy(() =>
+  import('@/pages/tutor-student').then((m) => ({ default: m.TutorStudentBulkPage })),
+);
 const TutorStudentNewPage = lazy(() =>
   import('@/pages/tutor-student').then((m) => ({ default: m.TutorStudentNewPage })),
 );
@@ -259,6 +262,7 @@ export function App() {
             <Route path="/org-invite/:token" element={<OrgInviteAcceptPage />} />
             <Route path="/org-invite/code/:code" element={<OrgInviteAcceptPage />} />
             <Route path="/tutor/students/new" element={<TutorStudentNewPage />} />
+            <Route path="/tutor/students/bulk" element={<TutorStudentBulkPage />} />
             <Route path="/tutor/students" element={<TutorStudentsPage />} />
             <Route path="/tutor/students/:studentId" element={<TutorStudentDetailPage />} />
             <Route path="/tutor/lessons/:lessonId" element={<TutorLessonDetailPage />} />

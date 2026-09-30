@@ -113,7 +113,8 @@ export function MyPageClassesPage() {
     }
     setJoiningClass(true);
     try {
-      const response = await joinExistingClass(state.token, { classCode });
+      // 이미 반에 속한 상태에서 코드를 넣는 건 "옮기기" - 서버가 replaceExisting 없이는 거절한다.
+      const response = await joinExistingClass(state.token, { classCode, replaceExisting: Boolean(state.user.classId) });
       setSession(response.token, response.user);
       setClassCodeInput('');
       setClassJoinSuccess(true);
@@ -158,8 +159,26 @@ export function MyPageClassesPage() {
                 <Pill label="반 참여 중" />
               </View>
               {classLeaveError ? <StatusBanner variant="warning" label={classLeaveError} /> : null}
+              <Text style={styles.body}>다른 반으로 옮기려면 새 반 코드를 입력해 주세요. 지난 수업 기록은 그대로 남아요.</Text>
+              <TextField
+                label="새 반 코드"
+                value={classCodeInput}
+                onChangeText={(value) => {
+                  setClassCodeInput(value);
+                  if (classCodeError) setClassCodeError(null);
+                  if (classJoinSuccess) setClassJoinSuccess(false);
+                }}
+                placeholder="예: 7P3KMQ8D"
+                autoCapitalize="characters"
+                errorText={classCodeError ?? undefined}
+              />
+              <ActionButton
+                label="이 반으로 옮기기"
+                onPress={joinClassWithCode}
+                loading={joiningClass}
+                disabled={classCodeInput.trim().length === 0 || joiningClass}
+              />
               <ActionButton label="기관 반 연결 해제" variant="outline" onPress={() => setLeaveModalOpen(true)} />
-              <Text style={styles.hint}>해제한 뒤 새 반 코드를 입력하면 같은 계정으로 반을 변경할 수 있어요.</Text>
             </>
           ) : (
             <>

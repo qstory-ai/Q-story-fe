@@ -1,15 +1,10 @@
-import type {
-  FailureReason,
-  FallbackPlan,
-  ResponsePlan,
-  SpeechResult,
-} from '@/entities/story-runtime';
+import type { FallbackPlan } from '@/entities/story-runtime';
 import type { StoryRuntimePackage } from '@/entities/story';
 
+import { defaultFallbackFamilyFor } from './default-fallback';
 import type {
   ConversationAttributionInput,
   SpeechPipeline,
-  SpeechPipelineDiagnostics,
   SpeechPipelineInput,
   SpeechPipelineOutput,
   TextQuestionPipelineInput,
@@ -38,27 +33,9 @@ function attributionFields(input: ConversationAttributionInput): ConversationAtt
   };
 }
 
-type ServerSuccess = {
-  ok: true;
-  speech: Extract<SpeechResult, { status: 'speech' }>;
-  plan: ResponsePlan;
-  audioText: string;
-  diagnostics?: SpeechPipelineDiagnostics;
-  audio?: {
-    mimeType: string;
-    dataBase64: string;
-  };
-};
-
-type ServerFallback = {
-  ok: false;
-  failure: FailureReason;
-  fallback: FallbackPlan;
-};
-
 const MAX_AUDIO_UPLOAD_BYTES = Math.floor(2.5 * 1024 * 1024);
 
-function isServerOutput(value: unknown): value is ServerSuccess | ServerFallback {
+function isServerOutput(value: unknown): value is SpeechPipelineOutput {
   if (!value || typeof value !== 'object' || !('ok' in value)) {
     return false;
   }
@@ -189,20 +166,7 @@ export class HttpSpeechPipeline implements SpeechPipeline {
     code: string,
     safeDetail: string,
   ): SpeechPipelineOutput {
-    const anchor = this.storyPackage.manifest.questionAnchors.find(
-      (candidate) =>
-        candidate.id === input.anchorId && candidate.sceneId === input.sceneId,
-    );
-    const fallback = anchor
-      ? this.storyPackage.manifest.fallbackFamilies.find(
-          (candidate) => candidate.id === anchor.defaultFallbackFamilyId,
-        )
-      : null;
-    if (!fallback) {
-      throw new Error(
-        `No package fallback for ${input.storyId}/${input.sceneId}/${input.anchorId}`,
-      );
-    }
+    const fallback = defaultFallbackFamilyFor(this.storyPackage, input);
     return {
       ok: false,
       failure: {

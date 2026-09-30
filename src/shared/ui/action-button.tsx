@@ -3,12 +3,11 @@ import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 import { storybookTheme } from './theme';
 
 /**
- * 버튼 variant 카탈로그. Toss식 정돈에서 변경된 부분:
- *  - `primary`: 브랜드 보라 채움. 로그인/회원가입 등 인증 흐름의 주된 CTA.
+ * 버튼 variant 카탈로그:
+ *  - `primary`: 브랜드 네이비 채움. 로그인/회원가입 등 인증 흐름의 주된 CTA.
  *  - `gold`: 골드 채움. 이야기 시작·구독 등 앱 안에서 가장 강조하고 싶은 액션.
- *  - `secondary` / `secondaryFull`: 낮은 채도의 배경만. secondary는 자연 폭, secondaryFull은
- *    full width로 명확히 갈랐다.
- *  - `outline`: 새로 추가. 다크 배경 위에서 취소·해제 같은 낮은 위계 액션에 쓴다.
+ *  - `secondary` / `secondaryFull`: 낮은 채도의 배경만. secondary는 자연 폭, secondaryFull은 full width.
+ *  - `outline`: 다크 배경 위에서 취소·해제 같은 낮은 위계 액션에 쓴다.
  *  - `record`/`stop`: 이야기 녹음/중지 전용 - 색과 크기가 특수해 별도 유지.
  */
 export type ActionButtonVariant =
@@ -20,12 +19,7 @@ export type ActionButtonVariant =
   | 'stop'
   | 'gold';
 
-/**
- * 높이 스케일 - 예전엔 variant마다 52/44/48을 각자 하드코딩해서, 화면마다 버튼 높이가 미묘하게
- * 어긋나 있었다(Figma 커뮤니티 디자인 시스템의 Button 크기 스케일 구조를 참고해 도입).
- * record/stop은 이 스케일에 포함하지 않는다 - 위 주석대로 "색과 크기가 특수해 별도 유지"하는
- * 전용 컨트롤이라, 일반 라벨 버튼과 같은 사다리에 두면 의미가 없다.
- */
+/** 높이 스케일. record/stop은 자기 높이를 따로 갖는 전용 컨트롤이라 포함하지 않는다. */
 export type ActionButtonSize = 'sm' | 'md' | 'lg';
 
 const BUTTON_HEIGHT: Record<ActionButtonSize, number> = {
@@ -34,8 +28,7 @@ const BUTTON_HEIGHT: Record<ActionButtonSize, number> = {
   lg: 56,
 };
 
-/** size를 명시하지 않았을 때 variant별 기본 크기 - 가장 가까운 기존 값에 맞춰 골랐다
- * (primary/gold 52→lg 56, outline 48→md 48, secondary류 44→sm 40). */
+/** size를 명시하지 않았을 때 variant별 기본 크기. */
 const DEFAULT_SIZE_BY_VARIANT: Partial<Record<ActionButtonVariant, ActionButtonSize>> = {
   primary: 'lg',
   gold: 'lg',
@@ -55,10 +48,7 @@ type ActionButtonProps = {
   loading?: boolean;
 };
 
-/**
- * 앱 전역 CTA. 라운드/높이는 theme.radius.button, theme.spacing 등 토큰만 참조한다 -
- * 예전엔 각 variant가 17/15/18 등 다른 라운드를 하드코딩하고 있어서 페이지마다 톤이 달랐다.
- */
+/** 앱 전역 CTA. 라운드/높이는 theme.radius.button, theme.spacing 등 토큰만 참조한다. */
 export function ActionButton({
   label,
   onPress,
@@ -80,7 +70,7 @@ export function ActionButton({
         ? storybookTheme.color.onDark
         : storybookTheme.color.primary;
   // 비활성은 반투명(opacity 0.5)이 아니라 disabled 토큰으로 - 골드 버튼을 반투명으로 흐리면 라벨이
-  // 2:1 아래로 떨어져 "로그인"조차 읽기 어려웠다. 회색 채움 + 회색 라벨(4.5:1)로 상태를 말한다.
+  // 2:1 아래로 떨어진다. 회색 채움 + 회색 라벨(4.5:1)로 상태를 말한다.
   const isInactive = disabled && !loading;
   const effectiveLabelColor = isInactive && isSizedVariant ? storybookTheme.color.disabledText : labelColor;
 
@@ -130,8 +120,7 @@ export function ActionButton({
 }
 
 const styles = StyleSheet.create({
-  // minHeight는 더 이상 여기 없다 - BUTTON_HEIGHT[resolvedSize]가 유일한 출처다
-  // (record/stop만 예외로 아래에서 자기 높이를 직접 갖는다).
+  // minHeight는 BUTTON_HEIGHT[resolvedSize]가 유일한 출처다(record/stop만 자기 높이를 직접 갖는다).
   base: {
     borderRadius: storybookTheme.radius.button,
     alignItems: 'center',
@@ -181,8 +170,7 @@ const styles = StyleSheet.create({
   goldHovered: {
     backgroundColor: storybookTheme.semantic.accent.hover,
   },
-  // opacity만 있던 press 피드백에 지침 표준 scale(0.96)을 함께. 프레스가 튐 없이
-  // 손끝에 붙는 감이 살아난다 - 0.95 미만은 과장돼 보인다는 지침 따라 0.96 고정.
+  // press 피드백 표준 scale(0.96) - 0.95 미만은 과장돼 보인다.
   pressed: { opacity: 0.9, transform: [{ scale: 0.96 }] },
   disabled: {
     opacity: 0.5,

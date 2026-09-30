@@ -1,14 +1,13 @@
 import { readEnv } from '@/shared/config';
 
+import { UUID_PATTERN, createUuid, isHttpUrl } from './endpoint-utils';
+
 export const VOICE_RESEARCH_CONSENT_VERSION =
   'voice-research-v2-shadow-family';
-export const VOICE_RESEARCH_RETENTION_DAYS = 90;
-export const VOICE_RESEARCH_CONSENTS_STORAGE_KEY =
+const VOICE_RESEARCH_CONSENTS_STORAGE_KEY =
   'qstory.voice-research.consents.v2';
 
 const DEFAULT_ENDPOINT = readEnv('VITE_QSTORY_VOICE_RESEARCH_URL');
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export type VoiceResearchConsent = {
   consentId: string;
@@ -44,27 +43,6 @@ type RequestOptions = {
   endpoint?: string;
   fetchImpl?: typeof fetch;
 };
-
-function createUuid() {
-  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (character) => {
-    const random = Math.floor(Math.random() * 16);
-    const value = character === 'x' ? random : (random & 0x3) | 0x8;
-    return value.toString(16);
-  });
-}
-
-function isHttpUrl(value: string) {
-  try {
-    // 동일 출처(same-origin) 프록시 경로(예: `/api/qstory/v1/voice-research`)는 그 자체로는 스킴이 없으므로,
-    // 스킴을 확인하기 전에 현재 origin을 기준으로 해석(resolve)한다.
-    const base = typeof window === 'undefined' ? undefined : window.location.origin;
-    const url = new URL(value, base);
-    return url.protocol === 'https:' || url.protocol === 'http:';
-  } catch {
-    return false;
-  }
-}
 
 function readStoredConsents(): VoiceResearchConsent[] {
   try {
@@ -109,10 +87,6 @@ export function createVoiceResearchConsent(): VoiceResearchConsent {
   };
   writeStoredConsents([...readStoredConsents(), consent]);
   return consent;
-}
-
-export function getStoredVoiceResearchConsents() {
-  return readStoredConsents();
 }
 
 export async function storeVoiceResearchSample(

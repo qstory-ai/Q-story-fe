@@ -247,13 +247,6 @@ export function buildStoryRuntimePackage({
           addUtteranceGroup({ scene, segment, segmentIndex, stem: localId(scene.id), positionKey: scene.id }),
         );
       }
-      if (segment.kind === 'anchor') {
-        const targetIndex = nextUtteranceIndex(scene.segments, segmentIndex);
-        const group = groupByPosition.get(`${scene.id}:${targetIndex}`);
-        if (group) {
-          targetGroupByAnchor.set(segment.id, { sceneId: scene.id, groupId: group });
-        }
-      }
     });
     scenes.push({
       id: sceneId(scene.id),
@@ -276,6 +269,7 @@ export function buildStoryRuntimePackage({
     });
   }
 
+  // 앵커는 자기 뒤의 첫 발화 그룹을 가리키므로, 모든 씬의 발화 그룹이 등록된 뒤에 매핑한다.
   for (const scene of generatedContent.scenes) {
     scene.segments.forEach((segment, segmentIndex) => {
       if (segment.kind !== 'anchor') return;

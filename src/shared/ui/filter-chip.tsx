@@ -3,16 +3,13 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { storybookTheme } from './theme';
 
 /**
- * 카테고리 필터·탭 등에서 반복되던 pill 형태의 토글 컨트롤. 다크 배경 위에서만 쓴다.
+ * 카테고리 필터·탭 등에 쓰는 pill 형태의 토글 컨트롤(라이트 배경용).
  *
  * 두 tone:
- *  - `outline`: 배경 없이 테두리만. 선택 시 옅은 패널 배경 + gold 테두리. 여러 개를 나열해도
+ *  - `outline`: 배경 없이 테두리만. 선택 시 옅은 pill 배경 + primary 테두리. 여러 개를 나열해도
  *    시각적 무게가 가벼워 카테고리 필터처럼 다수 선택지에 적합.
- *  - `filled`: 선택 시 gold 배경 + 어두운 텍스트. 강조가 커 탭처럼 활성 상태를 뚜렷이
- *    보여줘야 하는 곳에 적합.
- *
- * LibraryPage/TutorLibraryPage가 각자 CategoryChip 컴포넌트와 tab Pressable 스타일을
- * 복제해 두던 것을 이 프리미티브로 흡수한다.
+ *  - `filled`: 선택 시 primary(네이비) 채움 + 흰 텍스트. 탭처럼 활성 상태를 뚜렷이 보여줘야
+ *    하는 곳에 적합.
  */
 export type FilterChipTone = 'outline' | 'filled';
 
@@ -74,7 +71,6 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
   },
-  // 라이트 리테마: 흰 배경 위 chip은 outlined = 라이트 hairline, filled(active) = primary(네이비) 채움.
   outline: {
     paddingHorizontal: storybookTheme.spacing.ms,
     paddingVertical: 6,
@@ -93,13 +89,11 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.primary,
     borderColor: storybookTheme.color.primary,
   },
-  // 지침 표준 scale(0.96) 추가. FilterChip은 탭 선택을 반복적으로 만지는 컨트롤이라 tactile
-  // 피드백이 특히 중요.
+  // press 피드백 표준 scale(0.96).
   pressed: { opacity: 0.9, transform: [{ scale: 0.96 }] },
   label: {
     fontSize: storybookTheme.type.xs,
   },
-  // 라이트 리테마: 라이트 배경 위 chip 라벨은 다크 텍스트.
   outlineLabel: {
     fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onContentMuted,
@@ -124,7 +118,7 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.bold,
   },
-  // 라이트 리테마 뱃지 4가지 조합.
+  // 뱃지 4가지 조합.
   badgeBgOutlineIdle: { backgroundColor: storybookTheme.color.pillBackground },
   badgeFgOutlineIdle: { color: storybookTheme.color.onContentMuted },
   badgeBgOutlineActive: { backgroundColor: storybookTheme.color.pillBackground },

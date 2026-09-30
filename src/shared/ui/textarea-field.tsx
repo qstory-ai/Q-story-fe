@@ -12,7 +12,7 @@ type TextareaFieldProps = TextInputProps & {
 };
 
 /** 여러 줄 입력 - Figma "Textarea Field". TextField와 상태/토큰을 공유한다. */
-export function TextareaField({ label, description, errorText, style, editable, accessibilityLabel, ...rest }: TextareaFieldProps) {
+export function TextareaField({ label, description, errorText, style, editable, accessibilityLabel, onFocus, onBlur, ...rest }: TextareaFieldProps) {
   const [isFocused, setIsFocused] = useState(false);
   const isDisabled = editable === false;
   const state = isDisabled ? 'disabled' : errorText ? 'error' : 'default';
@@ -32,8 +32,14 @@ export function TextareaField({ label, description, errorText, style, editable, 
         editable={editable}
         accessibilityLabel={accessibilityLabel ?? label}
         {...rest}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        onFocus={(event) => {
+          setIsFocused(true);
+          onFocus?.(event);
+        }}
+        onBlur={(event) => {
+          setIsFocused(false);
+          onBlur?.(event);
+        }}
       />
       {errorText ? <FieldError>{errorText}</FieldError> : null}
     </View>

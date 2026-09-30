@@ -23,8 +23,8 @@ type AppNavShellProps = {
 
 // StoryLibraryGrid의 3열 전환 기준(860)과 맞춘다 - 이 폭부터 "웹처럼" 고정 사이드바를 쓴다.
 const WIDE_BREAKPOINT = 860;
-// bottomBarItem의 minHeight(56)과 맞춘다 - narrowMain의 paddingBottom 계산에 재사용해서
-// 고정된 하단바에 콘텐츠 마지막 줄이 가려지지 않게 한다.
+// bottomBarItem의 minHeight이자 narrowMain의 paddingBottom 계산 기준 - 고정된 하단바에
+// 콘텐츠 마지막 줄이 가려지지 않게 한다.
 const BOTTOM_BAR_HEIGHT = 56;
 // sidebar의 width와 맞춘다 - wideMain의 paddingRight/토글 버튼 위치 계산에 재사용한다.
 const SIDEBAR_WIDTH = 220;
@@ -47,24 +47,20 @@ function transition(property: string) {
 /**
  * 로그인 후 대시보드형 화면(홈/보고서/마이페이지)들이 공유하는 페이지 이동 셸.
  * 넓은 화면(웹)에서는 오른쪽에 고정된 사이드바로, 좁은 화면(앱 크기)에서는 상단바
- * (좌: 뒤로가기, 우: 홈)와 하단 탭바로 같은 세 목적지를 보여준다 - 예전엔 각 페이지가
- * 제각각 "← 마이페이지로" 같은 단발성 뒤로가기 링크 하나만 갖고 있어서, 마이페이지가
- * 만들어져 있어도 거기로 가는 링크가 없는 화면이 있었다(ParentHomePage/ClassDashboardPage).
+ * (좌: 뒤로가기, 우: 홈)와 하단 탭바로 같은 목적지들을 보여준다.
  */
 export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
   const { width } = useWindowDimensions();
   const isWide = width >= WIDE_BREAKPOINT;
   const homeItem = items.find((item) => item.key === 'home') ?? items[0];
-  // 기본은 열림 - 예전(토글 없던 시절)과 같은 화면으로 시작하고, 햄버거로 접을 수만 있게 한다.
+  // 기본은 열림 - 햄버거로 접을 수만 있게 한다.
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   if (isWide) {
     return (
       <SafeAreaView edges={['top', 'right', 'bottom', 'left']} style={styles.root}>
         <View style={styles.wideRow}>
-          {/* Lighthouse의 "main landmark 없음" 접근성 경고 - RN엔 <main> 태그도, accessibilityRole
-              'main'도 없어서(RN AccessibilityRole enum엔 landmark 개념 자체가 없다) raw aria role을
-              얹는다. 이 셸을 쓰는 모든 대시보드 페이지(홈/서재/리포트/마이페이지 등)가 한 번에 해당된다. */}
+          {/* main landmark - RN AccessibilityRole엔 landmark 개념이 없어 raw aria role을 얹는다. */}
           <View
             style={[styles.wideMain, !sidebarOpen && styles.wideMainCollapsed]}
             {...({ role: 'main' } as any)}
@@ -84,10 +80,8 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
             {/* 'close'(X)는 화면을 닫는 것처럼 읽혀서 - 접힘 방향을 가리키는 chevron으로. */}
             <Icon name={sidebarOpen ? 'chevronRight' : 'menu'} size={18} color={storybookTheme.color.onContent} />
           </Pressable>
-          {/* position:fixed - 예전엔 그냥 flex row의 형제라 페이지가 길면 스크롤할 때 같이
-              밀려 올라갔다(하단바와 같은 문제, app-nav-shell 좁은 화면 분기 참고). 뷰포트
-              우측에 고정하고, 열고 닫는 건 translateX 트랜지션으로 우측에서 슬라이드
-              들어오고 나가는 느낌만 준다 - 스크롤 여부와는 완전히 무관하다. */}
+          {/* position:fixed로 뷰포트 우측에 고정해 스크롤과 무관하게 보이게 하고, 열고 닫는 건
+              translateX 트랜지션으로만 표현한다. */}
           <View
             style={[styles.sidebar, !sidebarOpen && styles.sidebarClosed]}
             nativeID="app-nav-sidebar"
@@ -146,10 +140,8 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
         </Pressable>
       </View>
       <View style={styles.narrowMain} {...({ role: 'main' } as any)}>{children}</View>
-      {/* 예전엔 이 하단바가 그냥 마지막 flex 자식이라, 콘텐츠가 길면 스크롤할 때 화면 밖으로
-          같이 밀려 올라갔다(뷰포트에 고정된 게 아니라 문서 흐름의 일부였다) - position:fixed로
-          뷰포트 바닥에 붙여 스크롤과 무관하게 항상 보이게 한다. narrowMain의 paddingBottom이
-          이 높이만큼 콘텐츠를 밀어줘서 마지막 줄이 하단바에 가려지지 않는다. */}
+      {/* position:fixed로 뷰포트 바닥에 붙여 스크롤과 무관하게 항상 보이게 한다. narrowMain의
+          paddingBottom이 이 높이만큼 콘텐츠를 밀어줘서 마지막 줄이 하단바에 가려지지 않는다. */}
       <SafeAreaView edges={['bottom']} style={styles.bottomBarFixed}>
         <View style={styles.bottomBar}>
           {items.map((item) => (
@@ -178,7 +170,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
 }
 
 const styles = StyleSheet.create({
-  // 라이트 리테마: root=라이트 배경, 사이드바(우측)는 여전히 다크. 상/하단 nav는 라이트 배경 + 다크 텍스트.
+  // root=라이트 배경, 사이드바(우측)는 다크. 상/하단 nav는 라이트 배경 + 다크 텍스트.
   root: { flex: 1, backgroundColor: storybookTheme.color.background },
   wideRow: { flex: 1, flexDirection: 'row' },
   wideMain: {
@@ -278,7 +270,7 @@ const styles = StyleSheet.create({
   },
   bottomBarItem: {
     flex: 1,
-    minHeight: 56,
+    minHeight: BOTTOM_BAR_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 2,

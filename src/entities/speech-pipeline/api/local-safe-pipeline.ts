@@ -1,8 +1,7 @@
-import {
-  type FallbackPlan,
-} from '@/entities/story-runtime';
+import type { FallbackPlan } from '@/entities/story-runtime';
 import type { StoryRuntimePackage } from '@/entities/story';
 
+import { defaultFallbackFamilyFor } from './default-fallback';
 import type {
   SpeechPipeline,
   SpeechPipelineInput,
@@ -15,20 +14,7 @@ function defaultForInput(
   input: Pick<SpeechPipelineInput, 'storyId' | 'sceneId' | 'anchorId'>,
   storyPackage: StoryRuntimePackage,
 ): FallbackPlan {
-  const anchor = storyPackage.manifest.questionAnchors.find(
-    (candidate) =>
-      candidate.id === input.anchorId && candidate.sceneId === input.sceneId,
-  );
-  const fallback = anchor
-    ? storyPackage.manifest.fallbackFamilies.find(
-        (candidate) => candidate.id === anchor.defaultFallbackFamilyId,
-      )
-    : null;
-  if (!fallback) {
-    throw new Error(
-      `No package fallback for ${input.storyId}/${input.sceneId}/${input.anchorId}`,
-    );
-  }
+  const fallback = defaultFallbackFamilyFor(storyPackage, input);
   return {
     kind: 'fallback',
     familyId: fallback.id,

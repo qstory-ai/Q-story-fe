@@ -11,8 +11,8 @@ type TextFieldProps = TextInputProps & {
   errorText?: string;
 };
 
-/** 이 코드베이스에서 첫 번째 폼 입력 프리미티브 - 로그인/회원가입 폼이 이것을 필요로 하는 첫 기능이다. */
-export function TextField({ label, description, errorText, style, editable, accessibilityLabel, ...rest }: TextFieldProps) {
+/** 라벨/설명/에러 텍스트가 딸린 한 줄 입력 필드. */
+export function TextField({ label, description, errorText, style, editable, accessibilityLabel, onFocus, onBlur, ...rest }: TextFieldProps) {
   const [isFocused, setIsFocused] = useState(false);
   const isDisabled = editable === false;
   const state = isDisabled ? 'disabled' : errorText ? 'error' : 'default';
@@ -32,8 +32,14 @@ export function TextField({ label, description, errorText, style, editable, acce
         editable={editable}
         accessibilityLabel={accessibilityLabel ?? label}
         {...rest}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        onFocus={(event) => {
+          setIsFocused(true);
+          onFocus?.(event);
+        }}
+        onBlur={(event) => {
+          setIsFocused(false);
+          onBlur?.(event);
+        }}
       />
       {errorText ? <FieldError>{errorText}</FieldError> : null}
     </View>
@@ -45,8 +51,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   input: {
-    // Toss식 정돈: 입력창 높이를 52로 올려 CTA(52)와 나란히 정렬되게 하고, 라운드도 radius.input
-    // 토큰(12)으로 명시. paddingHorizontal은 ml(20)로 넉넉하게.
     minHeight: 52,
     borderRadius: storybookTheme.radius.input,
     borderWidth: 1,

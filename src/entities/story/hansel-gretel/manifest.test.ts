@@ -17,8 +17,7 @@ import {
 import { buildCaptionTrack } from '@/entities/narration';
 import packageData from './story-package.generated.json';
 
-// 분기 진입 브릿지 대사는 route-context.yaml의 acknowledgementText/bridgeAudioId가 단일 원본이다
-// (예전에는 branch-interaction-copy.ts에 같은 14줄이 손으로 한 번 더 적혀 있었다).
+// 분기 진입 브릿지 대사는 route-context.yaml의 acknowledgementText/bridgeAudioId가 단일 원본이다.
 const branchInteractionEntries = Object.values(packageData.routeContext.anchors).flatMap(
   (anchor) =>
     anchor.actionFamilies.map((family) => ({
@@ -159,13 +158,6 @@ test('question anchors derive curiosity prompts from the tagged Master script', 
   );
   assert.ok(prompts.every((prompt) => prompt.length <= 85));
 });
-
-// `one-story-product-screen.tsx`에서 특정 부분 문자열을 grep해서 (그 4300줄짜리 단일
-// 파일 안에 프롬프트 카피가 중복되거나 죽은 코드가 있는지 방지하던) 업스트림 테스트 두
-// 개는 q-story-web으로 옮기면서 제거했다: 그 화면이 `pages/`, `widgets/`,
-// `features/` 모듈로 쪼개지면서 "파일 하나, X의 사본 하나"라는 전제가 더 이상 grep할
-// 단일 소스 파일에 대응되지 않기 때문이다. 그 테스트들이 지켜주던 동작들은 이제 모듈
-// 경계 자체가 강제한다.
 
 test('generated story manifest passes shared contract validation', () => {
   const result = validateStoryManifest(hanselGretelManifest);
@@ -501,9 +493,7 @@ test('all versioned master illustrations and every fixed narration clip are pack
   const audioDirectory = fileURLToPath(
     new URL('../../../../assets/story/hansel-gretel/audio/', import.meta.url),
   );
-  // Driven by assets.json instead of a second, hand-written copy of it. The previous version
-  // listed all 47 illustration paths by number, so every added, renamed, or retired asset had to
-  // be mirrored here by hand - and it went on asserting six files that nothing shows any more.
+  // Driven by assets.json rather than a hand-written copy of it.
   const packagedAssets = JSON.parse(
     readFileSync(
       fileURLToPath(

@@ -13,8 +13,7 @@ type BrandLockupProps = {
 };
 
 /**
- * Q-Story 로고 마크 + 워드마크. 리더의 상단바(pages/one-story/ui/top-bar.tsx)와
- * 새 home/player 화면들 사이에서 공유된다 - 이전에는 HomePage와 top-bar에 그대로 중복되어 있었다.
+ * Q-Story 로고 마크 + 워드마크. 홈/랜딩/플레이어/온보딩 등 여러 화면이 공유한다.
  */
 export function BrandLockup({ size = 'default', tone = 'onDark' }: BrandLockupProps) {
   const compact = size === 'compact';

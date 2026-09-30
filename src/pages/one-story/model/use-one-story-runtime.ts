@@ -561,7 +561,7 @@ export function useOneStoryRuntime(
         question_count: questionOutcomes.length,
         changed_scene_count: parentReport.changedSceneCount,
       });
-      // 로그인한 부모/반 계정에게만 저장 - 익명 데모(/demo)는 계정이 없어 남길 곳이 없다.
+      // 로그인한 부모에게만 저장 - 익명 데모(/demo)는 계정이 없어 남길 곳이 없다.
       // 리포트 저장 실패는 화면에 드러내지 않는다: 다시 시도할 뚜렷한 방법이 없고, 지금 보고
       // 있는 리포트 자체는 이미 완성된 상태라 아이/부모 경험에 영향을 주지 않는다.
       if (authState.status === 'authenticated') {

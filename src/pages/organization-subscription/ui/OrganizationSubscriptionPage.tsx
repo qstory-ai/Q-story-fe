@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, fetchEntitlement, useAuth, type EntitlementResponse } from '@/entities/auth';
+import { getOrganizationQuote, type OrganizationQuote } from '@/entities/payment';
 import { messageForError } from '@/shared/api';
 
 type LoadState =
   | { status: 'loading' }
-  | { status: 'ready'; entitlement: EntitlementResponse }
+  | { status: 'ready'; entitlement: EntitlementResponse; quote: OrganizationQuote }
   | { status: 'error'; message: string };
 
 const LABEL: Record<EntitlementResponse['subscriptionStatus'], string> = {
@@ -29,8 +30,8 @@ export function OrganizationSubscriptionPage() {
   useEffect(() => {
     if (state.status !== 'authenticated' || !organizationId) return;
     let cancelled = false;
-    fetchEntitlement(state.token, organizationId)
-      .then((entitlement) => { if (!cancelled) setLoad({ status: 'ready', entitlement }); })
+    Promise.all([fetchEntitlement(state.token, organizationId), getOrganizationQuote(state.token)])
+      .then(([entitlement, quote]) => { if (!cancelled) setLoad({ status: 'ready', entitlement, quote }); })
       .catch((error: unknown) => { if (!cancelled) setLoad({ status: 'error', message: messageForError(error, '이용권 정보를 불러오지 못했어요.') }); });
     return () => { cancelled = true; };
   }, [state, organizationId]);
@@ -50,11 +51,46 @@ export function OrganizationSubscriptionPage() {
               variant={load.entitlement.grantsAccess ? 'info' : 'warning'}
             />
             {load.entitlement.subscriptionExpiresAt ? <Text style={styles.body}>이용권 만료일 · {formatDate(load.entitlement.subscriptionExpiresAt)}</Text> : null}
-            <ActionButton label={load.entitlement.grantsAccess ? '기관 이용권 연장하기' : '기관 이용권 결제'} onPress={() => navigate('/payment/checkout?target=ORGANIZATION')} />
+            <QuoteSection quote={load.quote} />
+            <ActionButton
+              label={load.entitlement.grantsAccess ? '기관 이용권 연장하기' : '기관 이용권 결제'}
+              onPress={() => navigate('/payment/checkout?target=ORGANIZATION')}
+              disabled={!canPay(load.quote)}
+            />
           </View>
         ) : null}
       </View>
     </AppNavShell>
+  );
+}
+
+function canPay(quote: OrganizationQuote) {
+  return quote.unitAmount > 0 && quote.studentCount > 0;
+}
+
+/** 학생 수 x 학생당 금액 = 결제 금액, 그리고 지금 결제된 인원 대비 학생 수. */
+function QuoteSection({ quote }: { quote: OrganizationQuote }) {
+  if (quote.unitAmount <= 0) {
+    return <StatusBanner variant="warning" label="결제 금액이 아직 설정되지 않아 지금은 결제할 수 없어요." />;
+  }
+  if (quote.studentCount === 0) {
+    return <StatusBanner variant="warning" label="반에 학생이 들어온 뒤에 결제할 수 있어요." />;
+  }
+  const overSeats = quote.currentSeats !== null && quote.studentCount > quote.currentSeats;
+  return (
+    <>
+      <Text style={styles.body}>
+        학생 {quote.studentCount}명 × {quote.unitAmount.toLocaleString('ko-KR')}원 = {quote.amount.toLocaleString('ko-KR')}원 ({quote.accessDays}일)
+      </Text>
+      {quote.currentSeats !== null ? <Text style={styles.body}>지금 결제된 인원 · {quote.currentSeats}명</Text> : null}
+      {overSeats ? (
+        <StatusBanner
+          variant="warning"
+          label={`학생이 결제된 인원보다 ${quote.studentCount - (quote.currentSeats ?? 0)}명 많아요. 나중에 등록된 학생의 학부모는 이용권이 적용되지 않아요. 다시 결제하면 현재 학생 수로 맞춰져요.`}
+        />
+      ) : null}
+      <Text style={styles.body}>선생님은 인원과 관계없이 기관 이용권으로 전체 이야기를 이용할 수 있어요.</Text>
+    </>
   );
 }
 

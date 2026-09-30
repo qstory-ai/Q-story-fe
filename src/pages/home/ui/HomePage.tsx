@@ -11,14 +11,13 @@ import { hasSeenTutorial } from '@/pages/tutorial';
 type OnboardingEntry = {
   step: 'welcome' | 'sign-up' | 'sign-in' | 'tutor-preview';
   role?: 'PARENT' | 'DIRECTOR' | 'TUTOR';
-  invite?: string;
   tutorInvite?: TutorInviteRef;
 };
 
 /**
  * `?flow=sign-in|sign-up|welcome|tutor-invite` + 선택적 `?role=parent|organization|tutor` +
- * 선택적 `?invite=<token>` (기관 반코드 초대) + `flow=tutor-invite`일 때 `?token=<rawToken>` 또는
- * `?code=<shortCode>` (선생님-학부모 초대)를 OnboardingEntry로 정규화한다. `/login`, `/signup`,
+ * `flow=tutor-invite`일 때 `?token=<rawToken>` 또는 `?code=<shortCode>` (선생님-학부모 초대)를
+ * OnboardingEntry로 정규화한다. `/login`, `/signup`,
  * `/join`, `/tutor-invite/...` 얇은 리다이렉트가 이 파라미터들을 붙여 홈으로 보낸다 - 여러 경로가
  * 별도 페이지가 아니라 홈의 온보딩 흐름 안으로 흡수되도록.
  */
@@ -37,19 +36,16 @@ function readOnboardingParams(params: URLSearchParams): OnboardingEntry | null {
   if (flow !== 'sign-in' && flow !== 'sign-up' && flow !== 'welcome') return null;
   if (flow === 'sign-in') return { step: 'sign-in' };
   if (flow === 'welcome') return { step: 'welcome' };
-  const invite = params.get('invite');
   const roleParam = params.get('role');
   const role: OnboardingEntry['role'] =
-    invite
-      ? 'PARENT'
-      : roleParam === 'organization'
-        ? 'DIRECTOR'
-        : roleParam === 'tutor'
-          ? 'TUTOR'
-          : roleParam === 'parent'
-            ? 'PARENT'
-            : undefined;
-  return role ? { step: 'sign-up', role, invite: invite ?? undefined } : { step: 'welcome' };
+    roleParam === 'organization'
+      ? 'DIRECTOR'
+      : roleParam === 'tutor'
+        ? 'TUTOR'
+        : roleParam === 'parent'
+          ? 'PARENT'
+          : undefined;
+  return role ? { step: 'sign-up', role } : { step: 'welcome' };
 }
 
 // IA의 회원 유형 분류에 맞춘 표기 - 기관 소속 여부와 무관하게 모두 "선생님"으로 표기하고,
@@ -123,7 +119,6 @@ export function HomePage() {
         <OnboardingFlow
           initialStep={onboarding.step}
           initialRole={onboarding.role}
-          initialInvite={onboarding.invite}
           initialTutorInvite={onboarding.tutorInvite}
           // URL 파라미터(/login, /join, 초대 링크)로 들어온 경우엔 state를 비워도 paramEntry가
           // 계속 이기므로 "← 서재로"가 아무 일도 안 했다 - 파라미터 없는 "/"로 실제로 이동한다.
@@ -182,10 +177,8 @@ export function HomePage() {
                 </Pressable>
               ))}
             </View>
-            {/* 기관 소속 선생님(class account)은 원장이 발급한 반 아이디로 로그인하므로 여기서 별도
-                가입 카드는 만들지 않는다 - 안내 문구로만 존재를 알려 준다. */}
             <Text style={styles.panelNote}>
-              기관 소속 선생님은 관리자에게 받은 반 아이디로 로그인해 주세요.
+              기관 소속 선생님은 선생님으로 가입한 뒤, 관리자에게 받은 초대 코드로 기관에 연결해 주세요.
             </Text>
           </View>
         )}

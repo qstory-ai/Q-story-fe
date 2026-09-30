@@ -1,10 +1,9 @@
 import { webOrigin } from '@/shared/config';
 
 /**
- * 초대 코드·링크 카드 세 곳(학생 등록 마법사, 학생 목록, 학생 상세)과 기관 초대 두 곳이 각자
- * 하드코딩하던 링크 조립·공유 문구·만료 표기. 링크의 출처는 window.location.origin이 아니라
- * webOrigin()이다 - 태블릿 앱(Capacitor)에서는 페이지 출처가 실제 웹 주소가 아니라서, 거기서 만든
- * 링크를 부모가 열면 존재하지 않는 호스트로 갔다.
+ * 초대 링크 조립·공유 문구·만료 표기. 링크의 출처는 window.location.origin이 아니라 webOrigin()이다 -
+ * 태블릿 앱(Capacitor)에서는 페이지 출처가 실제 웹 주소가 아니라서, 거기서 만든 링크를 부모가 열면
+ * 존재하지 않는 호스트로 갔다.
  */
 export function tutorInviteLink(token: string) {
   return `${webOrigin()}/tutor-invite/${token}`;
@@ -12,10 +11,6 @@ export function tutorInviteLink(token: string) {
 
 export function organizationTutorInviteLink(token: string) {
   return `${webOrigin()}/org-invite/${token}`;
-}
-
-export function classInviteLink(token: string) {
-  return `${webOrigin()}/signup?invite=${token}`;
 }
 
 export function tutorInviteShareMessage(studentName: string) {

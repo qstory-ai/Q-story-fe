@@ -3,7 +3,7 @@ import { requestJson, type PublicRequestOptions as RequestOptions } from '@/shar
 
 /**
  * IA "기관 관리자 > 이용 현황 관리"의 요약 응답. DIRECTOR 대시보드가 필요로 하는 최소 지표
- * 몇 개(선생님/반/부모/반 계정/완주 수)와 최근 활동 리스트를 담는다.
+ * 몇 개(선생님/반/학생/학부모/완주 수)와 최근 활동 리스트를 담는다.
  */
 
 export type OrganizationUsageRecentActivity = {
@@ -16,8 +16,8 @@ export type OrganizationUsageRecentActivity = {
 export type OrganizationUsage = {
   tutorCount: number;
   classCount: number;
+  studentCount: number;
   parentCount: number;
-  classAccountCount: number;
   completionCount: number;
   recentActivity: OrganizationUsageRecentActivity[];
 };

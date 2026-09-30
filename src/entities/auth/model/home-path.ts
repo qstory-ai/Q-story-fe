@@ -8,8 +8,6 @@ export function homePathFor(user: UserSummary): string {
   switch (user.role) {
     case 'DIRECTOR':
       return '/organization';
-    case 'CLASS_ACCOUNT':
-      return '/class';
     case 'PARENT':
       return '/parent';
     case 'TUTOR':

@@ -62,7 +62,7 @@ export function OrganizationReportPage() {
                 <View key={classGroup.classId} style={styles.row}>
                   <View style={styles.rowMain}>
                     <Text style={styles.rowTitle}>{classGroup.className}</Text>
-                    <Text style={styles.rowMeta}>보호자 {classGroup.parentCount}명 · 최근 활동 {classGroup.lastActivityAt ? formatDate(classGroup.lastActivityAt) : '없음'}</Text>
+                    <Text style={styles.rowMeta}>학생 {classGroup.studentCount}명 · 최근 활동 {classGroup.lastActivityAt ? formatDate(classGroup.lastActivityAt) : '없음'}</Text>
                   </View>
                   <Text style={styles.rowValue}>{classGroup.completionCount}회 · 질문 {classGroup.questionCount}</Text>
                 </View>

@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { ActionButton, BrandLockup, Checkbox, ErrorState, LoadingState, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { BirthYearChips, ageBandFromLabel, formatStudentAge } from '@/entities/child';
 import {
-  AuthApiError,
   createOrganization,
   homePathFor,
   isPasswordLongEnough,
@@ -65,8 +64,6 @@ type OnboardingFlowProps = {
   /** HomePage의 원장님/학부모님 역할 카드나 "로그인" 링크에서 곧장 들어올 때 해당 단계로 시작한다. */
   initialStep?: OnboardingStep;
   initialRole?: OnboardingRole;
-  /** 이메일 초대 링크나 기관 반코드 딥링크로 들어올 때 - PARENT role로 잠기고 반코드 입력 대신 초대 토큰으로 joinClass를 부른다. */
-  initialInvite?: string;
   /** 선생님의 부모 초대(코드/토큰)로 들어올 때 - PARENT role로 잠기고 tutor-preview부터 시작해서
    *  미리보기 → (로그인 또는 가입) → 동의 → 연결 완료까지 이 흐름 안에서 전부 처리한다.
    *  예전엔 /tutor-invite/:token이 ParentLinkAcceptPage라는 별도 화면·스타일·상태머신으로 완전히
@@ -109,25 +106,18 @@ const TUTOR_CONSENT_SHARED_ITEMS = ['선생님이 진행한 질문·장면·리�
 const TUTOR_CONSENT_HIDDEN_ITEMS = ['가정 구독·결제·다른 이야기', '음성 원본과 아이의 성향 평가'];
 
 /**
- * 환영→역할선택→가입/로그인으로 이어지는 순차 온보딩 - q-story-userflow-demo-main의 리뷰
- * 프로토타입(q-story-flow-prototype.tsx)이 보여주던 흐름을 이식하되, 가치제안 캐러셀
- * (ValueOnboardingStep)의 위치는 다르다: 가입 전이 아니라 "방금 가입해 세션은 이미 생겼지만
- * 아직 홈으로 가지 않은" 순간에 한 번만 끼워 넣는다 - 이 계정이 존재하는 한 통틀어 딱 한 번,
- * 첫 가입 직후에만 보이고 이후 로그인(onSignedIn)에서는 절대 다시 나오지 않는다. 이 화면들은
- * 순수 클라이언트 UI 단계라 auth 상태로 유도할 수 없어서(OrganizationSignupPage와 달리), 로컬
- * step state + go(step)를 쓰는 작은 상태머신으로 뒀다 - 이 앱에 처음 등장하는 패턴이다.
+ * 환영→역할선택→가입/로그인으로 이어지는 순차 온보딩. 가치제안 캐러셀(ValueOnboardingStep)은 가입
+ * 전이 아니라 "방금 가입해 세션은 생겼지만 아직 홈으로 가지 않은" 순간에 한 번만 끼워 넣는다 - 첫 가입
+ * 직후에만 보이고 이후 로그인(onSignedIn)에서는 다시 나오지 않는다. 이 화면들은 순수 클라이언트 UI
+ * 단계라 auth 상태로 유도할 수 없어서 로컬 step state + go(step)를 쓰는 작은 상태머신으로 뒀다.
  *
- * <p>선생님 초대(tutor-preview/tutor-consent)도 같은 상태머신 안에 산다 - 예전엔 별도 페이지
- * (ParentLinkAcceptPage)였는데, 기관 반코드 매칭은 이 흐름에 자연스럽게 녹아있는 반면 선생님
- * 매칭만 색이 다른 화면으로 튀어서 학부모가 겪는 경험이 둘 사이에 어긋났다. tutor-preview에서
- * 미리보기를 보여준 뒤 기존 sign-up/sign-in 스텝을 그대로 재사용하고(계정 정보만 모아두고 API는
- * 아직 안 부름), tutor-consent에서 공유 범위를 확인받은 다음에야 실제로 계정 생성+초대 수락을
- * 한 번에 부른다 - ParentLinkAcceptPage가 하던 순서(미리보기→계정→동의→수락) 그대로다.
+ * <p>선생님 초대(tutor-preview/tutor-consent)도 같은 상태머신 안에 산다. tutor-preview에서 미리보기를
+ * 보여준 뒤 기존 sign-up/sign-in 스텝을 재사용하고(계정 정보만 모아두고 API는 아직 안 부름),
+ * tutor-consent에서 공유 범위를 확인받은 다음에야 계정 생성+초대 수락을 한 번에 부른다.
  */
 export function OnboardingFlow({
   initialStep = 'welcome',
   initialRole,
-  initialInvite,
   initialTutorInvite,
   onExit,
   onSessionCreated,
@@ -135,11 +125,8 @@ export function OnboardingFlow({
   const navigate = useNavigate();
   const { state: authState, setSession, logout } = useAuth();
   const [step, setStep] = useState<OnboardingStep>(initialStep);
-  // 초대 토큰이 있으면 role이 PARENT로 잠긴다(ClassService.resolveClassGroup의 XOR 요구,
-  // 선생님 초대도 학부모만 받는 개념이라 마찬가지).
-  const [role, setRole] = useState<OnboardingRole | null>(
-    initialInvite || initialTutorInvite ? 'PARENT' : (initialRole ?? null),
-  );
+  // 선생님 초대는 학부모만 받는 개념이라 role이 PARENT로 잠긴다.
+  const [role, setRole] = useState<OnboardingRole | null>(initialTutorInvite ? 'PARENT' : (initialRole ?? null));
   // 방금 가입한 계정을 어디로 보낼지 - 캐러셀을 다 보거나 건너뛴 뒤에 이동한다.
   const [pendingHomePath, setPendingHomePath] = useState<string | null>(null);
   const go = useCallback((next: OnboardingStep) => setStep(next), []);
@@ -329,7 +316,6 @@ export function OnboardingFlow({
         {step === 'sign-up' && role && (
           <SignUpStep
             role={role}
-            inviteToken={initialInvite ?? null}
             tutorInvite={initialTutorInvite ?? null}
             tutorPreview={tutorPreview}
             // 동의 화면에서 "← 이전"으로 돌아오면 폼이 다시 마운트되므로, 모아 둔 값을 되돌려 준다.
@@ -680,7 +666,6 @@ function TutorLinkedStep({
 
 function SignUpStep({
   role,
-  inviteToken,
   tutorInvite,
   tutorPreview,
   initial,
@@ -688,7 +673,6 @@ function SignUpStep({
   onCollectForTutorInvite,
 }: {
   role: OnboardingRole;
-  inviteToken: string | null;
   /** 있으면 이 스텝은 계정 생성 API를 직접 부르지 않는다 - 필드만 모아 onCollectForTutorInvite로
    *  올려보내고, 실제 계정 생성+초대 수락은 tutor-consent에서 한 번에 처리한다. */
   tutorInvite: TutorInviteRef | null;
@@ -706,8 +690,6 @@ function SignUpStep({
 }) {
   const [hasClass, setHasClass] = useState(true);
   const [classCode, setClassCode] = useState('');
-  // 선생님이 운영하는 반이면 서버가 CHILD_INFO_REQUIRED로 되돌려 보낸다 - 그때부터 아이 정보 칸을 보인다.
-  const [needsChildInfo, setNeedsChildInfo] = useState(false);
   const [childName, setChildName] = useState('');
   const [childBirthYear, setChildBirthYear] = useState<number>(() => new Date().getFullYear() - 7);
   const [orgName, setOrgName] = useState('');
@@ -723,12 +705,10 @@ function SignUpStep({
     initial ? { service: true, privacy: true, marketing: initial.marketing } : EMPTY_TERMS_CONSENT,
   );
 
-  // 초대 토큰이 있으면 반코드 토글/입력은 감추고 초대 안내만 보인다 - ClassService의 XOR 규약
-  // 상 classCode/inviteToken 중 정확히 하나만 실려 나가야 한다. 선생님 초대(tutorInvite)일 땐
-  // 애초에 joinClass 자체를 안 부르니 반코드 UI가 필요 없다.
-  const showClassCodeField = role === 'PARENT' && !inviteToken && !tutorInvite && hasClass;
+  // 반 코드로 가입하면 아이를 그 반의 학생 명단에 올리므로 아이 이름·출생연도가 함께 필요하다. 선생님
+  // 초대(tutorInvite)는 joinClass를 부르지 않는다(동의 단계에서 계정 생성과 수락을 한 번에 한다).
+  const useJoinFlow = role === 'PARENT' && !tutorInvite && hasClass;
   const showOrgNameField = role === 'DIRECTOR';
-  const useJoinFlow = role === 'PARENT' && (Boolean(inviteToken) || hasClass);
   const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword;
   // 입력을 시작한 뒤에만 인라인으로 지적한다 - 빈 필드에 처음부터 빨간 글씨를 띄우진 않는다.
   const emailInvalid = email.trim().length > 0 && !EMAIL_PATTERN.test(email.trim());
@@ -742,8 +722,7 @@ function SignUpStep({
     password === confirmPassword &&
     Boolean(displayName.trim()) &&
     termsConsentIsValid(terms) &&
-    (showClassCodeField ? classCode.trim().length > 0 : true) &&
-    (needsChildInfo && useJoinFlow ? childName.trim().length > 0 : true) &&
+    (useJoinFlow ? classCode.trim().length > 0 && childName.trim().length > 0 : true) &&
     (showOrgNameField ? orgName.trim().length > 0 : true);
 
   const onSubmit = useCallback(async () => {
@@ -782,9 +761,10 @@ function SignUpStep({
           ? await signupTutor(input)
           : useJoinFlow
             ? await joinClass({
-                ...(inviteToken ? { inviteToken } : { classCode: classCode.trim().toUpperCase() }),
                 ...input,
-                ...(needsChildInfo ? { childName: childName.trim(), childBirthYear } : {}),
+                classCode: classCode.trim().toUpperCase(),
+                childName: childName.trim(),
+                childBirthYear,
               })
             : await signupParent(input);
       // 마케팅 동의 값을 알림 설정에 즉시 반영 - 실패해도 회원가입 자체는 완료된 상태라 조용히
@@ -794,7 +774,6 @@ function SignUpStep({
       }
       onAuthed(response.token, response.user);
     } catch (failure) {
-      if (failure instanceof AuthApiError && failure.code === 'CHILD_INFO_REQUIRED') setNeedsChildInfo(true);
       const fallback =
         role === 'DIRECTOR'
           ? '기관 관리자 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
@@ -809,12 +788,10 @@ function SignUpStep({
     }
   }, [
     role,
-    inviteToken,
     tutorInvite,
     onCollectForTutorInvite,
     useJoinFlow,
     classCode,
-    needsChildInfo,
     childName,
     childBirthYear,
     orgName,
@@ -842,12 +819,10 @@ function SignUpStep({
       )}
 
       {role === 'PARENT' && !tutorInvite && (
-        inviteToken ? (
-          <Text style={styles.formNote}>초대 링크로 반이 확인됐어요.</Text>
-        ) : (
-          <>
-            <Checkbox checked={hasClass} onChange={setHasClass} label="우리 아이 반이 있어요" />
-            {hasClass ? (
+        <>
+          <Checkbox checked={hasClass} onChange={setHasClass} label="우리 아이 반이 있어요" />
+          {hasClass ? (
+            <>
               <TextField
                 label="반 코드"
                 value={classCode}
@@ -855,18 +830,12 @@ function SignUpStep({
                 autoCapitalize="characters"
                 placeholder="선생님께 받은 코드"
               />
-            ) : (
-              <Text style={styles.formNote}>반 코드 없이 학부모 계정만 만들어요.</Text>
-            )}
-          </>
-        )
-      )}
-
-      {role === 'PARENT' && !tutorInvite && useJoinFlow && needsChildInfo && (
-        <>
-          <Text style={styles.formNote}>선생님이 운영하는 반이라 아이 정보가 필요해요.</Text>
-          <TextField label="아이 이름 또는 별명" value={childName} onChangeText={setChildName} placeholder="예: 민서" />
-          <BirthYearChips value={childBirthYear} onChange={setChildBirthYear} minAge={4} maxAge={12} />
+              <TextField label="아이 이름 또는 별명" value={childName} onChangeText={setChildName} placeholder="예: 민서" />
+              <BirthYearChips value={childBirthYear} onChange={setChildBirthYear} minAge={4} maxAge={12} />
+            </>
+          ) : (
+            <Text style={styles.formNote}>반 코드 없이 학부모 계정만 만들어요.</Text>
+          )}
         </>
       )}
 

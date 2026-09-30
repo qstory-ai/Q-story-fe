@@ -65,7 +65,7 @@ export function ReportHistoryPage() {
   const [childFilterId, setChildFilterId] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
-  const canView = state.status === 'authenticated' && (state.user.role === 'PARENT' || state.user.role === 'CLASS_ACCOUNT');
+  const canView = state.status === 'authenticated' && state.user.role === 'PARENT';
 
   useEffect(() => {
     if (state.status === 'loading') return;

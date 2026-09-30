@@ -3,16 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Pill, SectionHeader, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
-import { changePassword, dashboardNavItems, isPasswordLongEnough, PASSWORD_RULE_HINT, PASSWORD_TOO_SHORT_MESSAGE, type Role, useAuth } from '@/entities/auth';
+import { changePassword, dashboardNavItems, isPasswordLongEnough, PASSWORD_RULE_HINT, PASSWORD_TOO_SHORT_MESSAGE, roleLabel, useAuth } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
-
-const ROLE_LABEL: Record<Role, string> = {
-  DIRECTOR: '기관 및 단체',
-  CLASS_ACCOUNT: '반 계정',
-  PARENT: '학부모',
-  TUTOR: '선생님',
-  STAFF: '콘텐츠 운영자',
-};
 
 /** 계정 관리 - 아이디 표시 + 로그인된 상태에서 현재 비밀번호로 바로 바꾸는 폼. */
 export function MyPageAccountPage() {
@@ -85,7 +77,7 @@ export function MyPageAccountPage() {
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>회원 구분</Text>
-            <Pill label={ROLE_LABEL[user.role]} />
+            <Pill label={roleLabel(user.role)} />
           </View>
         </View>
 

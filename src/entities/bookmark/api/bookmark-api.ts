@@ -2,7 +2,7 @@ import { apiBaseUrl } from '@/shared/config';
 import { requestJson, type PublicRequestOptions as RequestOptions } from '@/shared/api';
 
 /**
- * IA "[2] 서재 > 저장한 작품"의 REST 클라이언트. 부모/선생님/반 계정 모두 같은 저장소를
+ * IA "[2] 서재 > 저장한 작품"의 REST 클라이언트. 부모/선생님 모두 같은 저장소를
  * 공유해서 소유자는 언제나 로그인한 계정 그 자체다 - 아이 프로필별로 나뉘지 않는다.
  */
 

@@ -30,9 +30,6 @@ const SignupPage = lazy(() => import('@/pages/signup').then((m) => ({ default: m
 const OrganizationSignupPage = lazy(() =>
   import('@/pages/organization-signup').then((m) => ({ default: m.OrganizationSignupPage })),
 );
-const ClassDashboardPage = lazy(() =>
-  import('@/pages/class-dashboard').then((m) => ({ default: m.ClassDashboardPage })),
-);
 const ParentHomePage = lazy(() => import('@/pages/parent-home').then((m) => ({ default: m.ParentHomePage })));
 const MyPage = lazy(() => import('@/pages/mypage').then((m) => ({ default: m.MyPage })));
 const MyPageProfilePage = lazy(() =>
@@ -160,9 +157,7 @@ function RouteLoadingFallback() {
   );
 }
 
-/** Unchanged from before the auth routes existed - the free anonymous demo must keep working
- * exactly as-is. It moved off "/" to "/demo" when the home page took the root, so anyone holding an
- * old "/" link now lands one tap away from it rather than inside it. */
+/** The free anonymous demo (no account needed) lives at "/demo". */
 function DemoStoryRoute() {
   const [state, setState] = useState<LoadState>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
@@ -244,7 +239,6 @@ export function App() {
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/organization" element={<OrganizationSignupPage />} />
-            <Route path="/class" element={<ClassDashboardPage />} />
             <Route path="/parent" element={<ParentHomePage />} />
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/tutor" element={<TutorHomePage />} />

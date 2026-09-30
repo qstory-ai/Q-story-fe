@@ -17,7 +17,7 @@ type LoadState =
   | { status: 'error'; message: string };
 
 /**
- * IA "기관 관리자 > 이용 현황 관리". 지표 카드 5개(선생님/반/부모/반 계정/누적 완주)와 최근
+ * IA "기관 관리자 > 이용 현황 관리". 지표 카드 5개(선생님/반/학생/연결된 학부모/누적 완주)와 최근
  * 활동 리스트. 최근 활동은 카탈로그와 join해 이야기 제목을 표시하되, 카탈로그 실패는 조용히
  * 흡수해 storyId 원문을 대신 노출한다.
  */
@@ -84,8 +84,8 @@ export function OrganizationUsagePage() {
               <MetricCard label="누적 완주" value={load.usage.completionCount} />
               <MetricCard label="선생님" value={load.usage.tutorCount} />
               <MetricCard label="반" value={load.usage.classCount} />
-              <MetricCard label="부모 계정" value={load.usage.parentCount} />
-              <MetricCard label="반 계정" value={load.usage.classAccountCount} />
+              <MetricCard label="학생" value={load.usage.studentCount} />
+              <MetricCard label="연결된 학부모" value={load.usage.parentCount} />
             </View>
 
             <View style={styles.card}>

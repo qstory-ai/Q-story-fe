@@ -1,19 +1,21 @@
 import { apiBaseUrl } from '@/shared/config';
 import { requestJson, type RequestOptions as SharedRequestOptions } from '@/shared/api';
 
-export type Role = 'DIRECTOR' | 'CLASS_ACCOUNT' | 'PARENT' | 'TUTOR' | 'STAFF';
+export type Role = 'DIRECTOR' | 'PARENT' | 'TUTOR' | 'STAFF';
+
+export type SubscriptionStatus = 'NONE' | 'TRIALING' | 'ACTIVE' | 'EXPIRED';
 
 export type UserSummary = {
   id: string;
   role: Role;
   loginId: string;
-  /** 로그인 식별자가 아니라 연락용 이메일 - CLASS_ACCOUNT는 이메일을 받지 않아 null일 수 있다. */
+  /** 로그인 식별자가 아니라 연락용 이메일. */
   email: string | null;
   displayName: string;
+  /** 기관 관리자(DIRECTOR)의 기관 - 다른 역할은 항상 null. */
   organizationId: string | null;
-  classId: string | null;
-  /** 학부모 개인 구독 상태(NONE/TRIALING/ACTIVE/EXPIRED) - DIRECTOR/CLASS_ACCOUNT는 항상 NONE. */
-  subscriptionStatus: 'NONE' | 'TRIALING' | 'ACTIVE' | 'EXPIRED';
+  /** 학부모 개인 구독 상태 - DIRECTOR는 항상 NONE. */
+  subscriptionStatus: SubscriptionStatus;
   /** 백엔드가 이미 기관 구독과 개인 구독을 OR로 합쳐 계산해 준 값 - 프론트에서 다시 판단하지 않는다. */
   grantsAccess: boolean;
   /** PARENT 역할에서만 의미가 있다 - 다른 역할은 항상 null. */
@@ -29,39 +31,41 @@ export type AuthResponse = {
   user: UserSummary;
 };
 
-export type OrganizationResponse = {
-  id: string;
-  name: string;
-  subscriptionStatus: 'NONE' | 'TRIALING' | 'ACTIVE' | 'EXPIRED';
-  createdAt: string;
-};
-
 export type EntitlementResponse = {
-  subscriptionStatus: OrganizationResponse['subscriptionStatus'];
+  subscriptionStatus: SubscriptionStatus;
   grantsAccess: boolean;
   subscriptionExpiresAt: string | null;
 };
 
 export type ClassResponse = {
   id: string;
-  organizationId: string;
+  organizationId: string | null;
+  /** 담임 선생님 - 기관 반에서 아직 배정하지 않았으면 null. */
+  tutorId: string | null;
   name: string;
   joinCode: string;
   createdAt: string;
 };
 
-export type ClassInviteResponse = {
-  token: string;
-  expiresAt: string;
+/** 반 상세의 학생 명단 한 줄. 학부모가 아직 연결되지 않은 학생은 parentDisplayName이 null. */
+export type ClassStudentResponse = {
+  id: string;
+  name: string;
+  ageBand: string;
+  status: 'PENDING_PARENT' | 'CONFIRMED';
+  parentDisplayName: string | null;
+  parentEmail: string | null;
+  createdAt: string;
 };
 
-/** IA "반 상세 > 반에 속한 부모(학생)" 목록 응답. childName은 PARENT 계정에서만 채워진다. */
-export type ClassMemberResponse = {
-  id: string;
-  displayName: string;
-  email: string | null;
-  childName: string | null;
-  joinedAt: string;
+/** 학부모가 "내 아이가 들어가 있는 반" 목록에서 보는 한 줄. */
+export type ClassMembershipResponse = {
+  studentId: string;
+  studentName: string;
+  classId: string | null;
+  className: string | null;
+  organizationName: string | null;
+  tutorDisplayName: string | null;
 };
 
 export type RequestOptions = SharedRequestOptions;
@@ -212,7 +216,7 @@ export function fetchEntitlement(
 export function createClass(
   token: string,
   organizationId: string,
-  input: { name: string; initialPassword: string },
+  input: { name: string; homeroomTutorId?: string },
   options?: RequestOptions,
 ): Promise<ClassResponse> {
   return request(
@@ -230,7 +234,7 @@ export function listClasses(
   return request(`/v1/organizations/${organizationId}/classes`, { method: 'GET' }, { ...options, token });
 }
 
-/** The owning DIRECTOR or that class's own CLASS_ACCOUNT - used by the class-account home to show its own joinCode. */
+/** 반을 볼 수 있는 사람은 그 기관의 원장과 담임 선생님뿐이다. */
 export function fetchClass(
   token: string,
   classId: string,
@@ -239,55 +243,48 @@ export function fetchClass(
   return request(`/v1/classes/${classId}`, { method: 'GET' }, { ...options, token });
 }
 
-export function createClassInvite(
+export function listClassStudents(
   token: string,
   classId: string,
   options?: RequestOptions,
-): Promise<ClassInviteResponse> {
-  return request(`/v1/classes/${classId}/invites`, { method: 'POST' }, { ...options, token });
+): Promise<ClassStudentResponse[]> {
+  return request(`/v1/classes/${classId}/students`, { method: 'GET' }, { ...options, token });
 }
 
-/** 반에 속한 부모 목록 - DIRECTOR나 그 반의 CLASS_ACCOUNT만 접근 가능. */
-export function listClassParents(
+/** 담임이 없는 반에 담임을 배정한다 - 그때까지 명단에 올라온 학생이 그 선생님의 학생이 된다. */
+export function assignClassHomeroom(
   token: string,
   classId: string,
+  tutorId: string,
   options?: RequestOptions,
-): Promise<ClassMemberResponse[]> {
-  return request(`/v1/classes/${classId}/parents`, { method: 'GET' }, { ...options, token });
+): Promise<ClassResponse> {
+  return request(
+    `/v1/classes/${classId}/homeroom`,
+    { method: 'PUT', body: JSON.stringify({ tutorId }) },
+    { ...options, token },
+  );
 }
 
+/** 반 코드로 학부모 계정을 만들고 아이를 그 반의 학생으로 올린다 - 아이 이름과 출생연도가 필요하다. */
 export function joinClass(
   input: {
-    classCode?: string;
-    inviteToken?: string;
+    classCode: string;
     loginId: string;
     email: string;
     password: string;
     displayName: string;
-    /** 선생님이 운영하는 반일 때만 - 서버가 CHILD_INFO_REQUIRED로 요구한다. */
-    childName?: string;
-    childBirthYear?: number;
+    childName: string;
+    childBirthYear: number;
   },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/classes/join', { method: 'POST', body: JSON.stringify(input) }, options);
 }
 
-/**
- * 이미 가입한 독립 학부모를 기관 반에 연결한다. 반 소속 정보가 JWT claim에도 들어 있으므로
- * 응답의 새 token/user를 그대로 AuthProvider에 반영해야 한다.
- */
+/** 이미 계정이 있는 학부모가 반 코드로 아이를 한 명 더 올린다 - 아이마다 한 번씩 호출한다. */
 export function joinExistingClass(
   token: string,
-  /** replaceExisting: 이미 속한 반에서 새 반으로 옮길 때 true. */
-  input: {
-    classCode?: string;
-    inviteToken?: string;
-    replaceExisting?: boolean;
-    /** 선생님이 운영하는 반일 때만 - 서버가 CHILD_INFO_REQUIRED로 요구한다. */
-    childName?: string;
-    childBirthYear?: number;
-  },
+  input: { classCode: string; childName: string; childBirthYear: number },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request(
@@ -297,7 +294,11 @@ export function joinExistingClass(
   );
 }
 
-/** Clears the current institution/class relationship and refreshes the token's organization claims. */
-export function leaveClassMembership(token: string, options?: RequestOptions): Promise<AuthResponse> {
-  return request('/v1/classes/membership', { method: 'DELETE' }, { ...options, token });
+export function listClassMemberships(token: string, options?: RequestOptions): Promise<ClassMembershipResponse[]> {
+  return request('/v1/classes/memberships', { method: 'GET' }, { ...options, token });
+}
+
+/** 아이를 반에서 뺀다 - 지난 수업 기록은 그대로 남는다. */
+export function leaveClass(token: string, studentId: string, options?: RequestOptions): Promise<void> {
+  return request(`/v1/classes/memberships/${studentId}`, { method: 'DELETE' }, { ...options, token, parseResponse: false });
 }

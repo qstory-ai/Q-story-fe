@@ -76,7 +76,10 @@ export function TutorStudentsPage() {
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title} accessibilityRole="header">등록된 학생</Text>
-          <ActionButton label="새 학생 등록" icon="+" size="sm" onPress={() => navigate('/tutor/students/new')} />
+          <View style={styles.headerActions}>
+            <ActionButton label="여러 명 한 번에" variant="outline" size="sm" onPress={() => navigate('/tutor/students/bulk')} />
+            <ActionButton label="새 학생 등록" icon="+" size="sm" onPress={() => navigate('/tutor/students/new')} />
+          </View>
         </View>
 
         {load.status === 'loading' && <LoadingState label="학생 목록을 불러오는 중이에요…" />}
@@ -164,6 +167,7 @@ const styles = StyleSheet.create({
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
   },
+  headerActions: { flexDirection: 'row', gap: storybookTheme.spacing.sm, flexWrap: 'wrap' },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',

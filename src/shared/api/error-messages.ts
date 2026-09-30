@@ -37,6 +37,7 @@ const CODE_MESSAGES: Record<string, string> = {
   // ---- invites & join
   INVALID_INVITE: '초대 링크가 만료됐거나 이미 사용됐어요. 발급한 분께 다시 요청해 주세요.',
   INVALID_JOIN_CODE: '반 코드가 올바르지 않아요. 대소문자와 오타를 확인해 주세요.',
+  CHILD_INFO_REQUIRED: '선생님이 운영하는 반이에요. 아이 이름과 출생연도를 알려 주세요.',
 
   // ---- organization / class
   ORGANIZATION_ALREADY_EXISTS: '이미 등록된 기관이 있어요.',

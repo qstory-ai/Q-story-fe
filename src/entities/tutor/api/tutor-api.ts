@@ -158,6 +158,27 @@ export function listTutorSchedules(token: string, options?: RequestOptions): Pro
   return request('/v1/tutor-schedules', { method: 'GET' }, token, options);
 }
 
+export type BulkTutorStudentResult = { student: TutorStudent; invite: TutorInvite };
+
+/**
+ * 한 반의 학생을 한 번에 등록하고 학생마다 링크 초대까지 받는다. 서버는 전부 성공하거나 전부 실패한다.
+ * 이름·출생연도만 학생별이고 수업 형태/반/메모는 전원 공통.
+ */
+export function createTutorStudentsBulk(
+  token: string,
+  input: {
+    students: { name: string; birthYear?: number }[];
+    defaultBirthYear?: number;
+    classType?: string;
+    prepNote?: string;
+    lessonType?: TutorLessonType;
+    classGroupId?: string;
+  },
+  options?: RequestOptions,
+): Promise<BulkTutorStudentResult[]> {
+  return request('/v1/tutor-students/bulk', { method: 'POST', body: JSON.stringify(input) }, token, options);
+}
+
 export function createTutorInvite(
   token: string,
   studentId: string,

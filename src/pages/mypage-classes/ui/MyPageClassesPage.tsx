@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, Pill, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
-import { dashboardNavItems, joinExistingClass, leaveClassMembership, useAuth } from '@/entities/auth';
+import { AuthApiError, dashboardNavItems, joinExistingClass, leaveClassMembership, useAuth } from '@/entities/auth';
+import { BirthYearChips } from '@/entities/child';
 import { listParentTutorReports, type TutorReportSummary } from '@/entities/tutor';
 
 type ReportLoad = { status: 'loading' } | { status: 'ready'; reports: TutorReportSummary[] } | { status: 'error'; message: string };
@@ -31,6 +32,10 @@ export function MyPageClassesPage() {
   const [classCodeInput, setClassCodeInput] = useState('');
   const [classCodeError, setClassCodeError] = useState<string | null>(null);
   const [classJoinSuccess, setClassJoinSuccess] = useState(false);
+  // 선생님이 운영하는 반이면 서버가 CHILD_INFO_REQUIRED로 되돌려 보낸다 - 그때부터 아이 정보 칸을 보인다.
+  const [needsChildInfo, setNeedsChildInfo] = useState(false);
+  const [childName, setChildName] = useState('');
+  const [childBirthYear, setChildBirthYear] = useState<number>(() => new Date().getFullYear() - 7);
   const [joiningClass, setJoiningClass] = useState(false);
   const [leaveModalOpen, setLeaveModalOpen] = useState(false);
   const [leavingClass, setLeavingClass] = useState(false);
@@ -113,11 +118,19 @@ export function MyPageClassesPage() {
     }
     setJoiningClass(true);
     try {
-      const response = await joinExistingClass(state.token, { classCode });
+      // 이미 반에 속한 상태에서 코드를 넣는 건 "옮기기" - 서버가 replaceExisting 없이는 거절한다.
+      const response = await joinExistingClass(state.token, {
+        classCode,
+        replaceExisting: Boolean(state.user.classId),
+        ...(needsChildInfo ? { childName: childName.trim(), childBirthYear } : {}),
+      });
       setSession(response.token, response.user);
       setClassCodeInput('');
+      setNeedsChildInfo(false);
+      setChildName('');
       setClassJoinSuccess(true);
     } catch (error: unknown) {
+      if (error instanceof AuthApiError && error.code === 'CHILD_INFO_REQUIRED') setNeedsChildInfo(true);
       setClassCodeError(messageForError(error, '기관 반에 연결하지 못했어요. 반 코드를 다시 확인해 주세요.'));
     } finally {
       setJoiningClass(false);
@@ -158,8 +171,32 @@ export function MyPageClassesPage() {
                 <Pill label="반 참여 중" />
               </View>
               {classLeaveError ? <StatusBanner variant="warning" label={classLeaveError} /> : null}
+              <Text style={styles.body}>다른 반으로 옮기려면 새 반 코드를 입력해 주세요. 지난 수업 기록은 그대로 남아요.</Text>
+              <TextField
+                label="새 반 코드"
+                value={classCodeInput}
+                onChangeText={(value) => {
+                  setClassCodeInput(value);
+                  if (classCodeError) setClassCodeError(null);
+                  if (classJoinSuccess) setClassJoinSuccess(false);
+                }}
+                placeholder="예: 7P3KMQ8D"
+                autoCapitalize="characters"
+                errorText={classCodeError ?? undefined}
+              />
+              {needsChildInfo ? (
+                <>
+                  <TextField label="아이 이름 또는 별명" value={childName} onChangeText={setChildName} placeholder="예: 민서" />
+                  <BirthYearChips value={childBirthYear} onChange={setChildBirthYear} minAge={4} maxAge={12} />
+                </>
+              ) : null}
+              <ActionButton
+                label="이 반으로 옮기기"
+                onPress={joinClassWithCode}
+                loading={joiningClass}
+                disabled={classCodeInput.trim().length === 0 || joiningClass || (needsChildInfo && !childName.trim())}
+              />
               <ActionButton label="기관 반 연결 해제" variant="outline" onPress={() => setLeaveModalOpen(true)} />
-              <Text style={styles.hint}>해제한 뒤 새 반 코드를 입력하면 같은 계정으로 반을 변경할 수 있어요.</Text>
             </>
           ) : (
             <>
@@ -177,11 +214,17 @@ export function MyPageClassesPage() {
                 autoCapitalize="characters"
                 errorText={classCodeError ?? undefined}
               />
+              {needsChildInfo ? (
+                <>
+                  <TextField label="아이 이름 또는 별명" value={childName} onChangeText={setChildName} placeholder="예: 민서" />
+                  <BirthYearChips value={childBirthYear} onChange={setChildBirthYear} minAge={4} maxAge={12} />
+                </>
+              ) : null}
               <ActionButton
                 label="기관 반에 연결하기"
                 onPress={joinClassWithCode}
                 loading={joiningClass}
-                disabled={classCodeInput.trim().length === 0 || joiningClass}
+                disabled={classCodeInput.trim().length === 0 || joiningClass || (needsChildInfo && !childName.trim())}
               />
             </>
           )}

@@ -36,18 +36,6 @@ export type TutorStudent = {
   createdAt: string;
 };
 
-export type TutorSchedule = {
-  id: string;
-  tutorStudentId: string;
-  studentName: string;
-  weekday: 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT';
-  startTime: string;
-  endTime: string;
-  startDate: string;
-  location: string;
-  reminderEnabled: boolean;
-};
-
 export type TutorInvite = {
   token: string;
   /**
@@ -143,10 +131,6 @@ export function deleteTutorStudent(
 ): Promise<void> {
   // 204 응답 - requestJson()이 undefined로 처리.
   return request(`/v1/tutor-students/${studentId}`, { method: 'DELETE' }, token, options);
-}
-
-export function listTutorSchedules(token: string, options?: RequestOptions): Promise<TutorSchedule[]> {
-  return request('/v1/tutor-schedules', { method: 'GET' }, token, options);
 }
 
 export type BulkTutorStudentResult = { student: TutorStudent; invite: TutorInvite };

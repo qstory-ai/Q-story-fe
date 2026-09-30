@@ -7,6 +7,10 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/beta-events', true],
   ['POST v1/voice-research', true],
   ['POST v1/voice-research/withdraw', true],
+  // 마이페이지 계정 단위 음성 연구 동의(조회/동의/철회) - 본문은 약관 버전 한 줄뿐이다.
+  ['GET v1/me/voice-research-consent', true],
+  ['POST v1/me/voice-research-consent', true],
+  ['POST v1/me/voice-research-consent/withdraw', true],
   ['POST v1/companion-chat/messages', true],
   ['POST v1/companion-chat/transcriptions/base64', true],
   ['POST v1/auth/signup/organization', true],
@@ -169,6 +173,7 @@ const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes', 'v1/tu
 function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath === 'v1/voice-research') return MAX_VOICE_RESEARCH_BODY_BYTES;
   if (upstreamPath === 'v1/beta-events') return MAX_BETA_EVENT_BODY_BYTES;
+  if (upstreamPath.startsWith('v1/me/voice-research-consent')) return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/launch-notifications') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/completion-surveys') return MAX_COMPLETION_SURVEY_BODY_BYTES;
   if (upstreamPath === 'v1/auth/me/profile-image') return MAX_PROFILE_IMAGE_BODY_BYTES;

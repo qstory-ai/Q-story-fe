@@ -22,10 +22,8 @@ export function PaymentSuccessPage() {
     if (state.status !== 'loading' && state.status !== 'authenticated') navigate('/login', { replace: true });
   }, [state.status, navigate]);
 
-  // [state, ...]로 의존하면 성공 경로의 updateUser(updatedUser)가 (current-user.tsx의 setState가
-  // 항상 새 객체를 만들어서) state의 identity를 바꿔 이 effect를 다시 돌게 만든다 - 같은
-  // paymentKey/orderId로 confirmPayment를 두 번째 호출하게 되어, 백엔드가 재확인을 거부하면
-  // 방금 성공한 화면이 바로 에러로 뒤집힌다. 실제로 쓰는 건 token 하나뿐이라 그걸로 좁힌다.
+  // state가 아니라 token에만 의존한다 - 성공 경로의 updateUser()가 state identity를 바꿔 effect가
+  // 다시 돌면 같은 주문으로 confirmPayment를 재호출하고, 백엔드가 거부하면 성공 화면이 에러로 뒤집힌다.
   const authToken = state.status === 'authenticated' ? state.token : null;
   useEffect(() => {
     if (!authToken) return;

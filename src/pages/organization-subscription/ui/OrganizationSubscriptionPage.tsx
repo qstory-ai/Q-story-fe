@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
-import { dashboardNavItems, fetchEntitlement, useAuth, type EntitlementResponse } from '@/entities/auth';
+import { dashboardNavItems, fetchEntitlement, useDirectorSession, type EntitlementResponse } from '@/entities/auth';
 import { getOrganizationQuote, type OrganizationQuote } from '@/entities/payment';
 import { messageForError } from '@/shared/api';
 
@@ -18,27 +18,23 @@ const LABEL: Record<EntitlementResponse['subscriptionStatus'], string> = {
 
 export function OrganizationSubscriptionPage() {
   const navigate = useNavigate();
-  const { state } = useAuth();
+  const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
-  const organizationId = state.status === 'authenticated' ? state.user.organizationId : null;
-  const allowed = state.status === 'authenticated' && state.user.role === 'DIRECTOR' && Boolean(organizationId);
+  const token = director?.token ?? null;
+  const organizationId = director?.organizationId ?? null;
 
   useEffect(() => {
-    if (state.status !== 'loading' && !allowed) navigate('/', { replace: true });
-  }, [state.status, allowed, navigate]);
-
-  useEffect(() => {
-    if (state.status !== 'authenticated' || !organizationId) return;
+    if (!token || !organizationId) return;
     let cancelled = false;
-    Promise.all([fetchEntitlement(state.token, organizationId), getOrganizationQuote(state.token)])
+    Promise.all([fetchEntitlement(token, organizationId), getOrganizationQuote(token)])
       .then(([entitlement, quote]) => { if (!cancelled) setLoad({ status: 'ready', entitlement, quote }); })
       .catch((error: unknown) => { if (!cancelled) setLoad({ status: 'error', message: messageForError(error, '이용권 정보를 불러오지 못했어요.') }); });
     return () => { cancelled = true; };
-  }, [state, organizationId]);
+  }, [token, organizationId]);
 
-  if (!allowed || state.status !== 'authenticated') return null;
+  if (!director) return null;
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')} onBack={() => navigate('/organization')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, 'home')} onBack={() => navigate('/organization')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">이용권 · 라이선스</Text>
         {load.status === 'loading' ? <LoadingState label="이용권 정보를 불러오는 중이에요." /> : null}

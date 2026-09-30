@@ -2,11 +2,7 @@ import { speechApiUrl } from '@/entities/speech-pipeline';
 
 export type LiveBranchJobStatus = 'QUEUED' | 'GENERATING' | 'READY' | 'FAILED';
 
-/**
- * READY일 때 돌려주는 옵션 하나. Phase 2부터는 새로 생성된 family + 모자란 자리를 채운 기존
- * family를 합쳐 항상 정확히 3개가 온다(§3 새 선택지 생성 참고) - Phase 1의 단일
- * resultFamilyId를 대체한다.
- */
+/** READY일 때 돌려주는 옵션 하나 - 새로 생성된 family와 모자란 자리를 채운 기존 family를 합쳐 항상 3개다. */
 export type LiveBranchOption = {
   familyId: string;
   label: string;

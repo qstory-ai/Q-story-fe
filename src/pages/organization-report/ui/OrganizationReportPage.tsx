@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, LoadingState, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { dashboardNavItems, useDirectorSession } from '@/entities/auth';
 import { getOrganizationReport, type OrganizationReport } from '@/entities/organization-report';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 
@@ -15,20 +15,16 @@ type LoadState =
 
 export function OrganizationReportPage() {
   const navigate = useNavigate();
-  const { state } = useAuth();
+  const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
-  const organizationId = state.status === 'authenticated' ? state.user.organizationId : null;
-  const canView = state.status === 'authenticated' && state.user.role === 'DIRECTOR' && Boolean(organizationId);
+  const token = director?.token ?? null;
+  const organizationId = director?.organizationId ?? null;
 
   useEffect(() => {
-    if (state.status !== 'loading' && !canView) navigate('/', { replace: true });
-  }, [state.status, canView, navigate]);
-
-  useEffect(() => {
-    if (state.status !== 'authenticated' || !organizationId) return;
+    if (!token || !organizationId) return;
     let cancelled = false;
-    Promise.all([getOrganizationReport(state.token, organizationId), listStories().catch(() => [] as StoryCatalogEntry[])])
+    Promise.all([getOrganizationReport(token, organizationId), listStories().catch(() => [] as StoryCatalogEntry[])])
       .then(([report, stories]) => {
         if (!cancelled) {
           setLoad({ status: 'ready', report, titleByStoryId: Object.fromEntries(stories.map((story) => [story.storyId, story.title])) });
@@ -38,12 +34,12 @@ export function OrganizationReportPage() {
         if (!cancelled) setLoad({ status: 'error', message: messageForError(error, '기관 리포트를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.') });
       });
     return () => { cancelled = true; };
-  }, [state, organizationId, reloadKey]);
+  }, [token, organizationId, reloadKey]);
 
-  if (!canView) return null;
+  if (!director) return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')} onBack={() => navigate('/organization')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, 'home')} onBack={() => navigate('/organization')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">기관 리포트</Text>
         <Text style={styles.subtitle}>반별 활동과 질문 수를 집계해 수업 운영 흐름을 확인해요.</Text>
@@ -90,8 +86,7 @@ function Metric({ label, value }: { label: string; value: number }) {
 }
 
 function formatDate(value: string) {
-  // 다른 마이페이지/구독 화면의 formatDate와 달리 year를 빼먹고 있었다 - "최근 활동"은 반이
-  // 오래 쉬면 작년 이전 날짜도 나오는데, 연도 없이 "3월 12일"만 보이면 올해 건지 헷갈린다.
+  // "최근 활동"은 작년 날짜일 수도 있어 연도까지 보여 준다.
   return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(value));
 }
 

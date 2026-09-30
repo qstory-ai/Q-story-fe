@@ -99,7 +99,7 @@ export function ReportHistoryDetailPage() {
             illustrationForAssetId={effectiveLoad.storyPackage.illustrationForAssetId}
             audience={effectiveLoad.detail.sessionKind === 'CLASS' ? 'class' : 'child'}
           />
-          {isParent && (
+          {isParent && effectiveLoad.detail.sessionKind === 'HOME' && (
             <ActionButton
               label={readAgainLabel(effectiveLoad.detail)}
               onPress={() => navigate(`/stories/${effectiveLoad.detail.storyId}/play`)}
@@ -134,11 +134,11 @@ function SessionHeader({
     detail.sessionKind === 'CLASS' ? '반 수업 리포트' : detail.sessionKind === 'TUTOR' ? '선생님 수업 리포트' : '집에서 읽은 기록';
   const description =
     detail.sessionKind === 'CLASS'
-      ? `${[where, teacher].filter(Boolean).join(' · ') || '선생님과 반 친구들'}과 함께 읽은 수업이에요${
-          detail.participantCount > 1 ? ` (${detail.participantCount}명 참여)` : ''
-        }. 반 전체의 이야기라서 우리 아이 한 명의 말로 나누지 않았어요.`
+      ? `반 친구들이 함께 읽은 수업이에요${[where, teacher].filter(Boolean).length > 0 ? ` (${[where, teacher].filter(Boolean).join(' · ')})` : ''}${
+          detail.participantCount > 1 ? ` · ${detail.participantCount}명 참여` : ''
+        }. 반 전체의 이야기라서 한 아이의 말로 나누지 않았어요.`
       : detail.sessionKind === 'TUTOR'
-        ? `${teacher ?? '선생님'}과 우리 아이가 함께 읽은 수업이에요.`
+        ? `선생님과 아이가 함께 읽은 수업이에요${teacher ? ` (${teacher})` : ''}.`
         : '집에서 우리 아이와 함께 읽은 기록이에요.';
   return (
     <View style={styles.header}>

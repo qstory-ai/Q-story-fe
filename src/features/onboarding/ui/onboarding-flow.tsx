@@ -670,7 +670,7 @@ function ExistingChildChoice({
         setChildren(list);
         const wanted = studentName?.replace(/\s+/g, '').toLowerCase();
         const match = list.find((child) => child.name.replace(/\s+/g, '').toLowerCase() === wanted);
-        onChange(match?.id ?? null);
+        onChange(match?.id ?? (list.length === 1 ? list[0].id : null));
       })
       .catch(() => {});
     return () => {
@@ -982,7 +982,8 @@ function SignUpStep({
         onPress={onSubmit}
         disabled={submitting || !canSubmit}
       />
-      {!tutorInvite && <SocialLoginButtons role={role} onAuthed={onAuthed} />}
+      {/* 소셜 가입은 초대·반 코드를 싣지 못해 아이가 반에 연결되지 않는다 - 그 경로에서는 숨긴다. */}
+      {!tutorInvite && !initialClassCode && <SocialLoginButtons role={role} onAuthed={onAuthed} />}
     </View>
   );
 }

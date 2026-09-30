@@ -64,7 +64,13 @@ function ClassInvite({ code }: { code: string }) {
   } else if (effective.status === 'error') {
     body = (
       <View style={styles.card}>
-        <ErrorState message={effective.message} onRetry={() => setAttempt((n) => n + 1)} />
+        <ErrorState
+          message={effective.message}
+          onRetry={() => {
+            setLoad({ code, status: 'loading' });
+            setAttempt((n) => n + 1);
+          }}
+        />
         <Text style={styles.note}>반 코드가 바뀌었거나 잘못 복사됐을 수 있어요. 선생님께 링크를 다시 받아 주세요.</Text>
         <ActionButton variant="secondaryFull" label="서재로 가기" onPress={() => navigate('/', { replace: true })} />
       </View>
@@ -135,6 +141,9 @@ function ChildPicker({
 }) {
   const { setSession } = useAuth();
   const [children, setChildren] = useState<Child[] | null>(null);
+  // 목록을 못 불러왔는데 "아이 없음"으로 보면 이미 있는 아이를 또 만들게 된다 - 오류로 보이고 다시 시도하게 한다.
+  const [childrenError, setChildrenError] = useState<string | null>(null);
+  const [childrenAttempt, setChildrenAttempt] = useState(0);
   const [selected, setSelected] = useState<string>(NEW_CHILD);
   const [childName, setChildName] = useState('');
   const [childBirthYear, setChildBirthYear] = useState<number>(() => new Date().getFullYear() - 6);
@@ -150,14 +159,25 @@ function ChildPicker({
         setChildren(list);
         if (list.length > 0) setSelected(list[0].id);
       })
-      .catch(() => {
-        if (!cancelled) setChildren([]);
+      .catch((failure: unknown) => {
+        if (!cancelled) setChildrenError(messageForError(failure, '아이 정보를 불러오지 못했어요.'));
       });
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, childrenAttempt]);
 
+  if (childrenError) {
+    return (
+      <ErrorState
+        message={childrenError}
+        onRetry={() => {
+          setChildrenError(null);
+          setChildrenAttempt((n) => n + 1);
+        }}
+      />
+    );
+  }
   if (children === null) return <LoadingState label="아이 정보를 불러오는 중이에요…" />;
 
   if (joined) {

@@ -53,8 +53,8 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
   const [lessonType, setLessonType] = useState<TutorLessonType>(() => (editing?.classGroupId ? 'CLASS' : 'INDIVIDUAL'));
   const [classGroupId, setClassGroupId] = useState<string | null>(() => editing?.classGroupId ?? null);
   const needsClass = lessonType === 'CLASS' && !classGroupId;
-  // 반을 만든 김에 그 반의 학생을 이 자리에서 여러 명 등록한다 - 등록 화면을 오가지 않게. 제출 시
-  // 이름이 있는 줄마다 학생을 만들어(반 수업, 보호자 연결 대기) 참여 학생에 넣는다.
+  // 개인 레슨 학생을 이 자리에서 바로 등록한다 - 등록 화면을 오가지 않게. 제출 시 이름이 있는 줄마다 학생을
+  // 만들어(보호자 연결 대기) 참여 학생에 넣는다. 반 수업은 반 초대 링크로 들어온 아이가 참여하므로 쓰지 않는다.
   const [quickStudents, setQuickStudents] = useState<{ name: string; birthYear: number }[]>([]);
   // 수업 형태 - 신규 생성 시 기본값은 '정기'(사용자 관행 상 대부분 반복). 편집 모드는 강제
   // '단발성'(=단일 Lesson 하나 수정)만 지원. 정기 → 단발 변환은 데이터 손실이 있어 UI에서 잠금.
@@ -123,16 +123,16 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
     setSubmitProgress(null);
     setError(null);
     try {
-      // 새 학생 줄이 있으면 먼저 만들고 참여 학생에 합친다. 반이 있으면 반 수업 학생으로.
+      // 새 학생 줄이 있으면 먼저 만들고 참여 학생에 합친다.
       const createdStudentIds: string[] = [];
-      for (const draft of quickStudents) {
+      // 반 수업은 "학생 바로 등록"을 보이지 않는다 - 개인 레슨에서 적다가 반 수업으로 바꿨으면 그 줄은 버린다.
+      for (const draft of lessonType === 'INDIVIDUAL' ? quickStudents : []) {
         const draftName = draft.name.trim();
         if (!draftName) continue;
         const created = await createTutorStudent(state.token, {
           name: draftName,
           birthYear: draft.birthYear,
-          lessonType: classGroupId ? 'CLASS' : 'INDIVIDUAL',
-          classGroupId: classGroupId ?? undefined,
+          lessonType: 'INDIVIDUAL',
         });
         createdStudentIds.push(created.id);
       }
@@ -408,11 +408,9 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
             ) : classGroupId ? (
               <Text style={styles.helper}>반 학생이 참여 학생으로 자동 선택됐어요. 학생을 미리 넣지 않아도, 반 초대 링크로 들어온 아이는 수업에 함께 기록돼요.</Text>
             ) : null}
-            {!isEdit ? (
+            {!isEdit && lessonType === 'INDIVIDUAL' ? (
               <View style={styles.quickAddBlock}>
-                <Text style={styles.groupLabel}>
-                  {classGroupId ? '이 반에 학생 바로 등록' : '새 학생 바로 등록'} · 선택
-                </Text>
+                <Text style={styles.groupLabel}>새 학생 바로 등록 · 선택</Text>
                 {quickStudents.map((draft, index) => (
                   <View key={index} style={styles.quickAddRow}>
                     <View style={styles.quickAddName}>
@@ -469,7 +467,13 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
           ) : refs.status === 'error' ? (
             <Text style={styles.errorText}>{refs.message}</Text>
           ) : refs.students.length === 0 ? (
-            <Text style={styles.helper}>등록된 학생이 없어요. 학생을 먼저 등록해 주세요.</Text>
+            <Text style={styles.helper}>
+              {lessonType === 'CLASS'
+                ? '아직 반에 들어온 아이가 없어요. 반 초대 링크로 부모님이 아이를 연결하면 이 수업에 자동으로 참여해요.'
+                : isEdit
+                  ? '등록된 학생이 없어요. 학생을 먼저 등록해 주세요.'
+                  : '등록된 학생이 없어요. 위 "새 학생 바로 등록"으로 함께 등록할 수 있어요.'}
+            </Text>
           ) : (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
               {refs.students.map((student) => {

@@ -1,1 +1,1 @@
-export { TutorClassPicker, type TutorClassSelection } from './ui/TutorClassPicker';
+export { TutorClassPicker } from './ui/TutorClassPicker';

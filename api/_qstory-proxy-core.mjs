@@ -34,9 +34,7 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/story-completions', true],
   ['GET v1/story-completions', true],
   ['GET v1/story-completions/recent', true],
-  ['POST v1/tutor-students', true],
   ['GET v1/tutor-students', true],
-  ['POST v1/tutor-students/bulk', true],
   ['GET v1/tutor-classes', true],
   ['POST v1/tutor-classes', true],
   ['GET v1/parents/me/tutor-reports', true],
@@ -49,8 +47,6 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/me/bookmarks', true],
   ['GET v1/tutor-lessons', true],
   ['POST v1/tutor-lessons', true],
-  ['GET v1/tutor-lesson-plans', true],
-  ['POST v1/tutor-lesson-plans', true],
   ['GET v1/tutors/me/organizations', true],
   ['GET v1/notifications', true],
   ['POST v1/notifications/read-all', true],
@@ -93,13 +89,7 @@ const DYNAMIC_ROUTES = [
   { method: 'GET', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}$`) },
   { method: 'PATCH', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}$`) },
   { method: 'DELETE', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}$`) },
-  { method: 'POST', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/invites$`) },
   { method: 'GET', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/completions$`) },
-  { method: 'GET', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/lesson-plans$`) },
-  { method: 'GET', pattern: new RegExp(`^v1/tutor-invites/${INVITE_TOKEN_SEGMENT}$`) },
-  { method: 'POST', pattern: new RegExp(`^v1/tutor-invites/${INVITE_TOKEN_SEGMENT}/accept$`) },
-  { method: 'GET', pattern: new RegExp(`^v1/tutor-invites/by-code/${SHORT_CODE_SEGMENT}$`) },
-  { method: 'POST', pattern: new RegExp(`^v1/tutor-invites/by-code/${SHORT_CODE_SEGMENT}/accept$`) },
   // ---- tutor lessons(수업 세션)
   { method: 'GET', pattern: new RegExp(`^v1/tutor-lessons/${UUID_SEGMENT}$`) },
   { method: 'PATCH', pattern: new RegExp(`^v1/tutor-lessons/${UUID_SEGMENT}$`) },
@@ -107,7 +97,6 @@ const DYNAMIC_ROUTES = [
   { method: 'POST', pattern: new RegExp(`^v1/tutor-lessons/${UUID_SEGMENT}/start$`) },
   { method: 'POST', pattern: new RegExp(`^v1/tutor-lessons/${UUID_SEGMENT}/complete$`) },
   { method: 'GET', pattern: new RegExp(`^v1/tutor-lessons/${UUID_SEGMENT}/completions$`) },
-  { method: 'DELETE', pattern: new RegExp(`^v1/tutor-lesson-plans/${UUID_SEGMENT}$`) },
   // ---- organization ↔ tutor 소속 관리
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/tutors$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/tutor-invites$`) },
@@ -164,10 +153,7 @@ const MAX_COMPLETION_SURVEY_BODY_BYTES = 16_384;
 // Matches application.yml's spring.servlet.multipart.max-file-size/max-request-size (4MB); the
 // generic AUTH_PATH_PREFIXES cap below (8KB) would 413 every real photo.
 const MAX_PROFILE_IMAGE_BODY_BYTES = 4 * 1024 * 1024;
-// Up to TutorStudentService.BULK_STUDENT_LIMIT (50) names/birth years plus a shared prep note -
-// can exceed the 8KB AUTH_PATH_PREFIXES cap that v1/tutor-students/* otherwise falls under.
-const MAX_BULK_STUDENTS_BODY_BYTES = 32_768;
-const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes', 'v1/tutor-students', 'v1/tutor-invites', 'v1/tutor-classes', 'v1/parents/', 'v1/payments/'];
+const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes', 'v1/tutor-students', 'v1/tutor-classes', 'v1/parents/', 'v1/payments/'];
 
 function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath === 'v1/voice-research') return MAX_VOICE_RESEARCH_BODY_BYTES;
@@ -176,7 +162,6 @@ function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath === 'v1/launch-notifications') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/completion-surveys') return MAX_COMPLETION_SURVEY_BODY_BYTES;
   if (upstreamPath === 'v1/auth/me/profile-image') return MAX_PROFILE_IMAGE_BODY_BYTES;
-  if (upstreamPath === 'v1/tutor-students/bulk') return MAX_BULK_STUDENTS_BODY_BYTES;
   if (AUTH_PATH_PREFIXES.some((prefix) => upstreamPath.startsWith(prefix))) return MAX_AUTH_BODY_BYTES;
   return MAX_TRANSCRIPTION_BODY_BYTES;
 }

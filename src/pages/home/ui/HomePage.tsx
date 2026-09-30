@@ -5,13 +5,12 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { homePathFor, useAuth } from '@/entities/auth';
 import { StoryLibraryGrid } from '@/features/story-library';
-import { OnboardingFlow, type TutorInviteRef } from '@/features/onboarding';
+import { OnboardingFlow } from '@/features/onboarding';
 import { hasSeenTutorial } from '@/pages/tutorial';
 
 type OnboardingEntry = {
-  step: 'welcome' | 'sign-up' | 'sign-in' | 'tutor-preview';
+  step: 'welcome' | 'sign-up' | 'sign-in';
   role?: 'PARENT' | 'DIRECTOR' | 'TUTOR';
-  tutorInvite?: TutorInviteRef;
   /** 반 초대 링크(/join?code=)에서 "계정 만들기"로 왔을 때 학부모 가입 폼에 미리 채울 반 코드. */
   classCode?: string;
   /** 반 초대 링크에서 "로그인"으로 왔을 때 로그인 뒤 돌아갈 앱 내부 경로. */
@@ -25,24 +24,12 @@ function safeNextPath(value: string | null): string | undefined {
 }
 
 /**
- * `?flow=sign-in|sign-up|welcome|tutor-invite` + 선택적 `?role=parent|organization|tutor` +
- * `flow=tutor-invite`일 때 `?token=<rawToken>` 또는 `?code=<shortCode>` (선생님-학부모 초대)를
- * OnboardingEntry로 정규화한다. `/login`, `/signup`,
- * `/join`, `/tutor-invite/...` 얇은 리다이렉트가 이 파라미터들을 붙여 홈으로 보낸다 - 여러 경로가
- * 별도 페이지가 아니라 홈의 온보딩 흐름 안으로 흡수되도록.
+ * `?flow=sign-in|sign-up|welcome` + 선택적 `?role=parent|organization|tutor` (+ `classCode`, `next`)를
+ * OnboardingEntry로 정규화한다. `/login`, `/signup`, `/join` 얇은 리다이렉트가 이 파라미터들을 붙여
+ * 홈으로 보낸다 - 여러 경로가 별도 페이지가 아니라 홈의 온보딩 흐름 안으로 흡수되도록.
  */
 function readOnboardingParams(params: URLSearchParams): OnboardingEntry | null {
   const flow = params.get('flow');
-  if (flow === 'tutor-invite') {
-    const token = params.get('token');
-    const code = params.get('code');
-    // token/code가 둘 다 없어도(잘린 공유 문구 등) 조용히 홈으로 보내지 않고 온보딩 흐름이 "올바르지
-    // 않은 초대"를 보여 주도록 빈 값을 넘긴다.
-    const tutorInvite: TutorInviteRef = token
-      ? { value: token, isCode: false }
-      : { value: code ?? '', isCode: true };
-    return { step: 'tutor-preview', role: 'PARENT', tutorInvite };
-  }
   if (flow !== 'sign-in' && flow !== 'sign-up' && flow !== 'welcome') return null;
   if (flow === 'sign-in') return { step: 'sign-in', next: safeNextPath(params.get('next')) };
   if (flow === 'welcome') return { step: 'welcome' };
@@ -63,7 +50,7 @@ function readOnboardingParams(params: URLSearchParams): OnboardingEntry | null {
 // 실제 소속은 온보딩 이후에 결정된다.
 const ROLE_OPTIONS: { role: 'DIRECTOR' | 'PARENT' | 'TUTOR'; label: string; body: string }[] = [
   { role: 'PARENT', label: '학부모님', body: '아이와 함께 이야기 서재를 시작해요' },
-  { role: 'TUTOR', label: '선생님', body: '학생을 등록하고 수업을 준비해요' },
+  { role: 'TUTOR', label: '선생님', body: '반을 만들고 수업을 준비해요' },
   // OnboardingFlow의 ROLE_CARDS와 같은 표기("기관 및 단체")를 유지한다.
   { role: 'DIRECTOR', label: '기관 및 단체', body: '유치원·기관을 등록하고 반을 만들어요' },
 ];
@@ -89,16 +76,12 @@ export function HomePage() {
   const paramEntry = useMemo(() => readOnboardingParams(searchParams), [searchParams]);
   const [manualOnboarding, setManualOnboarding] = useState<OnboardingEntry | null>(null);
   const onboarding = paramEntry ?? manualOnboarding;
-  // OnboardingFlow가 이 화면 안에서 세션을 만들었다(가입 직후 / 초대 수락 직후). 그 순간 아래
+  // OnboardingFlow가 이 화면 안에서 세션을 만들었다(가입 직후). 그 순간 아래
   // "로그인됐으면 역할 홈으로" 리다이렉트가 끼어들면 캐러셀·아이 등록 단계를 못 보고 홈으로 튕긴다 -
   // 흐름이 스스로 navigate(replace)로 떠날 때까지 리다이렉트를 보류한다.
   const [flowOwnsSession, setFlowOwnsSession] = useState(false);
 
-  // 선생님 초대(tutor-preview)는 이미 로그인된 학부모도 열 수 있어야 한다 - 마이페이지 > 수업
-  // 연결에서 링크를 붙여넣는 경우가 그렇다. 이 경우엔 역할 홈으로 튕기지 않고 온보딩 흐름 안에서
-  // 미리보기→동의까지 마치게 둔다(OnboardingFlow가 이미 인증된 세션이면 계정 단계를 건너뛰고,
-  // 학부모가 아닌 역할이면 로그아웃 안내를 보여 준다).
-  if (state.status === 'authenticated' && !flowOwnsSession && onboarding?.step !== 'tutor-preview') {
+  if (state.status === 'authenticated' && !flowOwnsSession) {
     const homePath = homePathFor(state.user);
     if (homePath !== '/') {
       return <Navigate to={homePath} replace />;
@@ -118,7 +101,6 @@ export function HomePage() {
         <OnboardingFlow
           initialStep={onboarding.step}
           initialRole={onboarding.role}
-          initialTutorInvite={onboarding.tutorInvite}
           initialClassCode={onboarding.classCode}
           signInNext={onboarding.next}
           // URL 파라미터로 들어온 경우엔 state를 비워도 paramEntry가 계속 이기므로 파라미터 없는

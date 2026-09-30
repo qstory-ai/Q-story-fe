@@ -6,9 +6,8 @@ import { messageForError } from '@/shared/api';
 import { useAuth } from '@/entities/auth';
 import { createLesson, updateLesson, type Lesson } from '@/entities/lesson';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
-import { createTutorStudent, listTutorStudents, type TutorLessonType, type TutorStudent } from '@/entities/tutor';
+import { listTutorStudents, type TutorStudent } from '@/entities/tutor';
 import { TutorClassPicker } from '@/features/tutor-class-picker';
-import { BirthYearChips } from '@/entities/child';
 
 type Props = {
   visible: boolean;
@@ -27,8 +26,9 @@ type RefsLoad =
   | { status: 'error'; message: string };
 
 /**
- * IA "새 수업 만들기" 스텝을 한 모달에 담는다: 이름/목표(선택)/일정(선택) + 참여 학생 + 사용
- * 이야기. 학생과 이야기는 각각 체크리스트로 여러 개 선택할 수 있어서, "한 수업에 여러 학생/
+ * IA "새 수업 만들기" 스텝을 한 모달에 담는다: 이름/목표(선택)/일정(선택) + 반 + 참여 학생 + 사용
+ * 이야기. 수업은 언제나 반 수업이다(1:1 과외도 아이 한 명짜리 반) - 반을 골라야 만들 수 있고,
+ * 학생은 반 초대 링크로 들어오므로 여기서 등록하지 않는다. 학생과 이야기는 각각 체크리스트로 여러 개 선택할 수 있어서, "한 수업에 여러 학생/
  * 여러 이야기" 요구를 그대로 반영. 실패 시 폼 값은 유지되고 에러만 표시.
  */
 export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved }: Props) {
@@ -47,15 +47,10 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
   const [selectedStoryIds, setSelectedStoryIds] = useState<Set<string>>(
     () => new Set(editing?.storyIds ?? []),
   );
-  // 수업 형태와 반. 형태를 따로 두는 이유: "반 수업"을 누른 뒤 반을 고르기 전까지는 classGroupId가 비어
-  // 있어서, classGroupId로 형태를 계산하면 라디오가 곧바로 "개인 레슨"으로 되돌아갔다. 반을 고르면 그 반의
-  // 학생이 참여 학생으로 자동 선택된다(BE도 studentIds가 비어 오면 반 학생으로 채우지만 화면에서 바로 보이게).
-  const [lessonType, setLessonType] = useState<TutorLessonType>(() => (editing?.classGroupId ? 'CLASS' : 'INDIVIDUAL'));
+  // 반을 고르면 그 반의 학생이 참여 학생으로 자동 선택된다(BE도 studentIds가 비어 오면 반 학생으로
+  // 채우지만 화면에서 바로 보이게). 결석한 아이는 참여 학생 칩에서 빼면 된다.
   const [classGroupId, setClassGroupId] = useState<string | null>(() => editing?.classGroupId ?? null);
-  const needsClass = lessonType === 'CLASS' && !classGroupId;
-  // 개인 레슨 학생을 이 자리에서 바로 등록한다 - 등록 화면을 오가지 않게. 제출 시 이름이 있는 줄마다 학생을
-  // 만들어(보호자 연결 대기) 참여 학생에 넣는다. 반 수업은 반 초대 링크로 들어온 아이가 참여하므로 쓰지 않는다.
-  const [quickStudents, setQuickStudents] = useState<{ name: string; birthYear: number }[]>([]);
+  const needsClass = !classGroupId;
   // 수업 형태 - 신규 생성 시 기본값은 '정기'(사용자 관행 상 대부분 반복). 편집 모드는 강제
   // '단발성'(=단일 Lesson 하나 수정)만 지원. 정기 → 단발 변환은 데이터 손실이 있어 UI에서 잠금.
   const [kind, setKind] = useState<'RECURRING' | 'ONE_OFF'>(() =>
@@ -123,31 +118,16 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
     setSubmitProgress(null);
     setError(null);
     try {
-      // 새 학생 줄이 있으면 먼저 만들고 참여 학생에 합친다.
-      const createdStudentIds: string[] = [];
-      // 반 수업은 "학생 바로 등록"을 보이지 않는다 - 개인 레슨에서 적다가 반 수업으로 바꿨으면 그 줄은 버린다.
-      for (const draft of lessonType === 'INDIVIDUAL' ? quickStudents : []) {
-        const draftName = draft.name.trim();
-        if (!draftName) continue;
-        const created = await createTutorStudent(state.token, {
-          name: draftName,
-          birthYear: draft.birthYear,
-          lessonType: 'INDIVIDUAL',
-        });
-        createdStudentIds.push(created.id);
-      }
       const baseInput = {
         name: name.trim(),
         goal: goal.trim() || null,
-        studentIds: [...Array.from(selectedStudentIds), ...createdStudentIds],
+        studentIds: Array.from(selectedStudentIds),
         storyIds: Array.from(selectedStoryIds),
         classGroupId: classGroupId ?? undefined,
       };
       if (editing) {
         const updated = await updateLesson(state.token, editing.id, {
           ...baseInput,
-          // 반 수업을 개인 수업으로 바꿀 때 - classGroupId를 비워 보내면 서버는 "그대로"로 읽는다.
-          clearClassGroup: lessonType === 'INDIVIDUAL' && editing.classGroupId != null,
           scheduledAt: parseDateTime(scheduledAtInput),
           applyToFutureInSeries: editing.seriesId != null && applyScope === 'FUTURE',
         });
@@ -195,7 +175,6 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
       setSelectedStudentIds(new Set());
       setSelectedStoryIds(new Set());
       setClassGroupId(null);
-      setQuickStudents([]);
       setApplyScope(null);
       onClose();
     } catch (failure: unknown) {
@@ -389,74 +368,24 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
 
         {state.status === 'authenticated' ? (
           <View style={styles.group}>
-            <Text style={styles.groupLabel}>대상</Text>
+            <Text style={styles.groupLabel}>반</Text>
             <TutorClassPicker
               token={state.token}
-              value={{ lessonType, classGroupId }}
-              onChange={(next) => {
-                setLessonType(next.lessonType);
-                setClassGroupId(next.classGroupId);
-                if (next.classGroupId && refs.status === 'ready') {
+              value={classGroupId}
+              onChange={(nextClassGroupId) => {
+                setClassGroupId(nextClassGroupId);
+                if (refs.status === 'ready') {
                   setSelectedStudentIds(
-                    new Set(refs.students.filter((student) => student.classGroupId === next.classGroupId).map((student) => student.id)),
+                    new Set(refs.students.filter((student) => student.classGroupId === nextClassGroupId).map((student) => student.id)),
                   );
                 }
               }}
             />
             {needsClass ? (
-              <Text style={styles.helper}>반 수업이면 반을 고르거나 새 반을 만들어 주세요.</Text>
-            ) : classGroupId ? (
+              <Text style={styles.helper}>반을 고르거나 새 반을 만들어 주세요.</Text>
+            ) : (
               <Text style={styles.helper}>반 학생이 참여 학생으로 자동 선택됐어요. 학생을 미리 넣지 않아도, 반 초대 링크로 들어온 아이는 수업에 함께 기록돼요.</Text>
-            ) : null}
-            {!isEdit && lessonType === 'INDIVIDUAL' ? (
-              <View style={styles.quickAddBlock}>
-                <Text style={styles.groupLabel}>새 학생 바로 등록 · 선택</Text>
-                {quickStudents.map((draft, index) => (
-                  <View key={index} style={styles.quickAddRow}>
-                    <View style={styles.quickAddName}>
-                      <TextField
-                        label={`학생 ${index + 1} 이름`}
-                        value={draft.name}
-                        onChangeText={(next) =>
-                          setQuickStudents((prev) => prev.map((row, i) => (i === index ? { ...row, name: next } : row)))
-                        }
-                        placeholder="예: 민서"
-                        maxLength={60}
-                      />
-                    </View>
-                    <BirthYearChips
-                      value={draft.birthYear}
-                      onChange={(birthYear) =>
-                        setQuickStudents((prev) => prev.map((row, i) => (i === index ? { ...row, birthYear } : row)))
-                      }
-                      minAge={5}
-                      maxAge={10}
-                      tone="content"
-                    />
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={`학생 ${index + 1} 줄 지우기`}
-                      onPress={() => setQuickStudents((prev) => prev.filter((_, i) => i !== index))}
-                      style={({ pressed }) => [styles.quickAddRemove, pressed && styles.chipPressed]}
-                    >
-                      <Text style={styles.quickAddRemoveLabel}>지우기</Text>
-                    </Pressable>
-                  </View>
-                ))}
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() => setQuickStudents((prev) => [...prev, { name: '', birthYear: new Date().getFullYear() - 7 }])}
-                  style={({ pressed }) => [styles.quickAddButton, pressed && styles.chipPressed]}
-                >
-                  <Text style={styles.quickAddButtonLabel}>+ 학생 추가</Text>
-                </Pressable>
-                {quickStudents.length > 0 ? (
-                  <Text style={styles.helper}>
-                    수업을 만들 때 함께 등록돼요(보호자 연결 대기). 부모 초대는 학생 목록에서 발급할 수 있어요.
-                  </Text>
-                ) : null}
-              </View>
-            ) : null}
+            )}
           </View>
         ) : null}
 
@@ -466,17 +395,15 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
             <Text style={styles.helper}>학생 목록을 불러오는 중이에요…</Text>
           ) : refs.status === 'error' ? (
             <Text style={styles.errorText}>{refs.message}</Text>
-          ) : refs.students.length === 0 ? (
+          ) : !classGroupId ? (
+            <Text style={styles.helper}>반을 고르면 그 반의 아이들이 참여 학생으로 선택돼요.</Text>
+          ) : refs.students.every((student) => student.classGroupId !== classGroupId) ? (
             <Text style={styles.helper}>
-              {lessonType === 'CLASS'
-                ? '아직 반에 들어온 아이가 없어요. 반 초대 링크로 부모님이 아이를 연결하면 이 수업에 자동으로 참여해요.'
-                : isEdit
-                  ? '등록된 학생이 없어요. 학생을 먼저 등록해 주세요.'
-                  : '등록된 학생이 없어요. 위 "새 학생 바로 등록"으로 함께 등록할 수 있어요.'}
+              아직 반에 들어온 아이가 없어요. 반 초대 링크로 부모님이 아이를 연결하면 이 수업에 자동으로 참여해요.
             </Text>
           ) : (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-              {refs.students.map((student) => {
+              {refs.students.filter((student) => student.classGroupId === classGroupId).map((student) => {
                 const selected = selectedStudentIds.has(student.id);
                 return (
                   <Pressable
@@ -706,26 +633,6 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContentMuted,
   },
   kindOptionLabelSelected: { color: storybookTheme.color.onDark },
-  // "학생 바로 등록" - recurringBlock과 같은 패널 안에 이름 + 연령 칩 + 지우기 한 줄씩.
-  quickAddBlock: {
-    gap: 10,
-    padding: 14,
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.contentPanel,
-  },
-  quickAddRow: { gap: 8, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: storybookTheme.color.contentPanelBorder },
-  quickAddName: { width: '100%' },
-  quickAddRemove: { alignSelf: 'flex-end', paddingHorizontal: 10, paddingVertical: 6 },
-  quickAddRemoveLabel: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.error, fontWeight: storybookTheme.type.weight.bold },
-  quickAddButton: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: storybookTheme.radius.pill,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.primary,
-  },
-  quickAddButtonLabel: { fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.primary },
   recurringBlock: {
     gap: 14,
     padding: 14,

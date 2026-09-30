@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -11,26 +11,16 @@ import {
   defaultBirthYearForBand,
   CHILD_AVATARS,
   useChildren,
-  type AgeBand,
   type ChildAvatarKey,
 } from '@/entities/child';
 
 
 type Step = 'child' | 'consent' | 'done';
 
-/** 선생님 초대로 가입한 부모에게 OnboardingFlow가 navigate state로 넘겨주는 미리 채움 값 -
- *  초대 미리보기에 이미 있던 아이 이름/연령대를 여기서 다시 타이핑하지 않게 한다. */
-type ParentOnboardingPrefill = { name?: string; ageBand?: AgeBand; birthYear?: number };
-
 /** 온보딩을 마친 뒤 갈 앱 내부 경로 - 반 코드로 가입했으면 그 반에 아이를 연결하는 화면(/join?code=). */
 function readNext(state: unknown): string | null {
   const next = (state as { next?: unknown } | null)?.next;
   return typeof next === 'string' && /^\/(?![/\\])[^\\\s]*$/.test(next) ? next : null;
-}
-
-function readPrefill(state: unknown): ParentOnboardingPrefill {
-  const prefill = (state as { prefill?: ParentOnboardingPrefill } | null)?.prefill;
-  return prefill && typeof prefill === 'object' ? prefill : {};
 }
 
 /**
@@ -44,12 +34,11 @@ export function OnboardingParentPage() {
   const location = useLocation();
   const { state } = useAuth();
   const { addChild, children, load } = useChildren();
-  const [prefill] = useState(() => readPrefill(location.state));
   const [next] = useState(() => readNext(location.state));
 
   const [rawStep, setStep] = useState<Step>('child');
-  const [name, setName] = useState(prefill.name ?? '');
-  const [birthYear, setBirthYear] = useState<number>(() => prefill.birthYear ?? defaultBirthYearForBand(prefill.ageBand));
+  const [name, setName] = useState('');
+  const [birthYear, setBirthYear] = useState<number>(() => defaultBirthYearForBand());
   const [avatarKey, setAvatarKey] = useState<ChildAvatarKey>(CHILD_AVATARS[0].key);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,15 +54,9 @@ export function OnboardingParentPage() {
     }
   }, [state, navigate, next]);
 
-  // 선생님 초대나 반 코드로 만든 계정은 가입하는 순간 서버가 아이 프로필을 이미 만들어 두었다. 그 아이가
-  // 목록에 있으면(반 코드 가입은 prefill 없이 아이가 이미 있는 경우) 같은 아이를 또 만들지 않도록 프로필
-  // 단계를 건너뛰고 동의 단계로 바로 간다. 프로필 수정(아바타 등)은 홈의 아이 관리에서 할 수 있다.
-  const invitedChildExists = useMemo(() => {
-    if (load.status !== 'ready') return false;
-    const wanted = prefill.name?.replace(/\s+/g, '').toLowerCase();
-    if (!wanted) return children.length > 0;
-    return children.some((child) => child.name.replace(/\s+/g, '').toLowerCase() === wanted);
-  }, [children, load.status, prefill.name]);
+  // 이미 아이 프로필이 있는 계정이면 같은 아이를 또 만들지 않도록 프로필 단계를 건너뛰고 동의 단계로
+  // 바로 간다. 프로필 수정(아바타 등)은 홈의 아이 관리에서 할 수 있다.
+  const invitedChildExists = load.status === 'ready' && children.length > 0;
   // 상태를 effect에서 바꾸지 않고 파생값으로 건너뛴다 - 아이가 이미 있으면 'child' 단계는 'consent'로 읽힌다.
   const step: Step = rawStep === 'child' && invitedChildExists ? 'consent' : rawStep;
 
@@ -127,9 +110,7 @@ export function OnboardingParentPage() {
             <Text style={styles.eyebrow}>1 · 아이 등록</Text>
             <Text style={styles.title} accessibilityRole="header">아이 프로필을 만들어 주세요</Text>
             <Text style={styles.body}>
-              {prefill.name
-                ? '선생님 초대에 있던 아이 이름과 출생연도를 미리 채워 뒀어요. 맞는지 확인하고 아바타만 골라 주세요.'
-                : '이야기 속에서 부를 이름과 아이의 출생연도, 아바타를 골라 주세요. 나이는 자동으로 계산돼요. 언제든 마이페이지에서 바꿀 수 있어요.'}
+              이야기 속에서 부를 이름과 아이의 출생연도, 아바타를 골라 주세요. 나이는 자동으로 계산돼요. 언제든 마이페이지에서 바꿀 수 있어요.
             </Text>
 
             <TextField

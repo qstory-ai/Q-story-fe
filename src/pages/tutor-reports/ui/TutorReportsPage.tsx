@@ -129,9 +129,9 @@ export function TutorReportsPage() {
 
         {studentsLoad.status === 'ready' && studentsLoad.students.length === 0 && (
           <EmptyState
-            title="등록된 학생이 아직 없어요"
-            body="학생을 먼저 등록하고 세션을 진행해 보세요."
-            cta={{ label: '새 학생 등록', onPress: () => navigate('/tutor/students/new') }}
+            title="반에 들어온 학생이 아직 없어요"
+            body="반을 만들어 초대 링크를 보내면 부모님이 아이를 연결할 때 학생이 생겨요."
+            cta={{ label: '새 반 만들기', onPress: () => navigate('/tutor/class-groups/new') }}
           />
         )}
 

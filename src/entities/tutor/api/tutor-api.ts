@@ -1,11 +1,13 @@
 import { apiBaseUrl } from '@/shared/config';
 import { requestJson, type PublicRequestOptions as RequestOptions } from '@/shared/api';
-import type { AuthResponse } from '@/entities/auth';
 import type { StoryCompletionSummary } from '@/entities/story-completion';
 
 export type TutorStudentStatus = 'PENDING_PARENT' | 'CONFIRMED';
 
-/** INDIVIDUAL = 1:1 개인 레슨, CLASS = 반 수업(classGroupId가 채워진다). */
+/**
+ * INDIVIDUAL = 1:1 개인 레슨, CLASS = 반 수업(classGroupId가 채워진다). 화면은 이제 반 수업만 만든다
+ * (1:1 과외도 아이 한 명짜리 반) - 응답 모양을 그대로 받으려고 타입만 남긴다.
+ */
 export type TutorLessonType = 'INDIVIDUAL' | 'CLASS';
 
 /** 선생님이 볼 수 있는 반 - 내가 만든 반(tutorId = 나) + 소속 기관의 반. 기관 반이면 organizationId. */
@@ -34,26 +36,6 @@ export type TutorStudent = {
   /** 부모가 초대를 수락하며 연결(또는 생성)한 부모 쪽 아이 프로필 id. 수락 전이면 null. */
   childId: string | null;
   createdAt: string;
-};
-
-export type TutorInvite = {
-  token: string;
-  /**
-   * 손으로 옮길 수 있는 짧은 코드 - 링크(token)와 같은 초대를 가리키지만 시크릿은 아니라
-   * 대시보드에서 다시 보여줘도 안전하다. 발급 응답과 함께만 넘어온다.
-   */
-  shortCode: string;
-  expiresAt: string;
-};
-
-export type TutorInvitePreview = {
-  studentName: string;
-  ageBand: string;
-  birthYear: number | null;
-  tutorDisplayName: string;
-  /** 반 학생이면 반 이름, 기관 반이면 기관 이름 - "어느 유치원 어느 반"의 초대인지 보여 준다. */
-  className: string | null;
-  organizationName: string | null;
 };
 
 export type TutorReportSummary = {
@@ -98,25 +80,6 @@ function request<T>(
   return requestJson(TutorApiError, path, init, { baseUrl: apiBaseUrl, ...options, token });
 }
 
-export function createTutorStudent(
-  token: string,
-  input: {
-    name: string;
-    /** 출생연도. 있으면 서버가 "N세"를 계산한다. */
-    birthYear?: number;
-    /** 예전 클라이언트 호환 - birthYear가 없을 때만 필요. */
-    ageBand?: string;
-    classType?: string;
-    prepNote?: string;
-    /** 기본 INDIVIDUAL. CLASS면 classGroupId 필수(listTutorClasses의 반). */
-    lessonType?: TutorLessonType;
-    classGroupId?: string;
-  },
-  options?: RequestOptions,
-): Promise<TutorStudent> {
-  return request('/v1/tutor-students', { method: 'POST', body: JSON.stringify(input) }, token, options);
-}
-
 export function listTutorStudents(token: string, options?: RequestOptions): Promise<TutorStudent[]> {
   return request('/v1/tutor-students', { method: 'GET' }, token, options);
 }
@@ -131,9 +94,6 @@ export function updateTutorStudent(
   input: {
     classType?: string | null;
     prepNote?: string | null;
-    /** INDIVIDUAL로 바꾸면 반 연결이 지워진다. CLASS면 classGroupId(또는 이미 붙은 반)가 필요하다. */
-    lessonType?: TutorLessonType;
-    classGroupId?: string | null;
     birthYear?: number;
   },
   options?: RequestOptions,
@@ -150,83 +110,6 @@ export function deleteTutorStudent(
   return request(`/v1/tutor-students/${studentId}`, { method: 'DELETE' }, token, options);
 }
 
-export type BulkTutorStudentResult = { student: TutorStudent; invite: TutorInvite };
-
-/**
- * 한 반의 학생을 한 번에 등록하고 학생마다 링크 초대까지 받는다. 서버는 전부 성공하거나 전부 실패한다.
- * 이름·출생연도만 학생별이고 수업 형태/반/메모는 전원 공통.
- */
-export function createTutorStudentsBulk(
-  token: string,
-  input: {
-    students: { name: string; birthYear?: number }[];
-    defaultBirthYear?: number;
-    classType?: string;
-    prepNote?: string;
-    lessonType?: TutorLessonType;
-    classGroupId?: string;
-  },
-  options?: RequestOptions,
-): Promise<BulkTutorStudentResult[]> {
-  return request('/v1/tutor-students/bulk', { method: 'POST', body: JSON.stringify(input) }, token, options);
-}
-
-export function createTutorInvite(
-  token: string,
-  studentId: string,
-  input: { method: 'SMS' | 'LINK'; phoneNumber?: string },
-  options?: RequestOptions,
-): Promise<TutorInvite> {
-  return request(`/v1/tutor-students/${studentId}/invites`, { method: 'POST', body: JSON.stringify(input) }, token, options);
-}
-
-export function previewTutorInvite(rawToken: string, options?: RequestOptions): Promise<TutorInvitePreview> {
-  return request(`/v1/tutor-invites/${rawToken}`, { method: 'GET' }, null, options);
-}
-
-/** short_code 기반 미리보기 - previewTutorInvite와 응답 형태는 같고 조회 경로만 다르다. */
-export function previewTutorInviteByCode(shortCode: string, options?: RequestOptions): Promise<TutorInvitePreview> {
-  return request(`/v1/tutor-invites/by-code/${encodeURIComponent(shortCode)}`, { method: 'GET' }, null, options);
-}
-
-export type AcceptTutorInviteInput = {
-  token?: string | null;
-  loginId?: string;
-  email?: string;
-  password?: string;
-  displayName?: string;
-  /** 이미 로그인된 학부모가 기존 아이 프로필을 이 학생에 붙이고 싶을 때. 없으면 서버가 같은 이름의 아이를 찾거나 새로 만든다. */
-  childId?: string;
-};
-
-/**
- * token이 있으면(이미 로그인된 학부모) 그 계정에 바로 연결한다. 없으면 loginId/email/password/
- * displayName로 새 학부모 계정을 만들며 연결한다 - joinClass()와 같은 "초대 수락이 곧 회원가입"인 경우.
- */
-export function acceptTutorInvite(
-  rawToken: string,
-  input: AcceptTutorInviteInput,
-  options?: RequestOptions,
-): Promise<AuthResponse> {
-  const { token, ...body } = input;
-  return request(`/v1/tutor-invites/${rawToken}/accept`, { method: 'POST', body: JSON.stringify(body) }, token ?? null, options);
-}
-
-/** short_code 기반 수락 - 후속 흐름은 acceptTutorInvite와 동일. 조회 경로만 다르다. */
-export function acceptTutorInviteByCode(
-  shortCode: string,
-  input: AcceptTutorInviteInput,
-  options?: RequestOptions,
-): Promise<AuthResponse> {
-  const { token, ...body } = input;
-  return request(
-    `/v1/tutor-invites/by-code/${encodeURIComponent(shortCode)}/accept`,
-    { method: 'POST', body: JSON.stringify(body) },
-    token ?? null,
-    options,
-  );
-}
-
 export function listTutorStudentCompletions(
   token: string,
   studentId: string,
@@ -239,43 +122,9 @@ export function listParentTutorReports(token: string, options?: RequestOptions):
   return request('/v1/parents/me/tutor-reports', { method: 'GET' }, token, options);
 }
 
-/**
- * 선생님이 특정 학생의 다음 수업에 쓸 이야기 리스트("수업에 사용하기"로 담긴 것들).
- * BE의 tutor_lesson_plan 테이블 한 행이 여기서 TutorLessonPlan 하나로 매핑된다 - 서재의
- * "수업에 사용하기" 버튼이 create를 호출하고, 선생님 수업 상세에서 list/remove를 쓴다.
- */
-export type TutorLessonPlan = {
-  id: string;
-  tutorStudentId: string;
-  studentName: string;
-  storyId: string;
-  addedAt: string;
-};
-
-export function listStudentLessonPlans(
-  token: string,
-  studentId: string,
-  options?: RequestOptions,
-): Promise<TutorLessonPlan[]> {
-  return request(`/v1/tutor-students/${studentId}/lesson-plans`, { method: 'GET' }, token, options);
-}
-
-export function createTutorLessonPlan(
-  token: string,
-  input: { tutorStudentId: string; storyId: string },
-  options?: RequestOptions,
-): Promise<TutorLessonPlan> {
-  return request('/v1/tutor-lesson-plans', { method: 'POST', body: JSON.stringify(input) }, token, options);
-}
-
-export function removeTutorLessonPlan(token: string, planId: string, options?: RequestOptions): Promise<void> {
-  // 서버는 204를 반환한다 - requestJson()이 204를 자동으로 undefined로 처리한다.
-  return request(`/v1/tutor-lesson-plans/${planId}`, { method: 'DELETE' }, token, options);
-}
-
 /* -------------------------------------------------------------- classes */
 
-/** 내가 만든 반 + 소속 기관의 반. 학생 등록·수업 생성의 반 선택지가 된다. */
+/** 내가 만든 반 + 소속 기관의 반. 수업 생성·이야기 시작의 반 선택지가 된다. */
 export function listTutorClasses(token: string, options?: RequestOptions): Promise<TutorClass[]> {
   return request('/v1/tutor-classes', { method: 'GET' }, token, options);
 }

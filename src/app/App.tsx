@@ -76,17 +76,8 @@ const StaffStoryPage = lazy(() => import('@/pages/staff').then((m) => ({ default
 const StaffScenePage = lazy(() => import('@/pages/staff').then((m) => ({ default: m.StaffScenePage })));
 const LandingPage = lazy(() => import('@/pages/landing').then((m) => ({ default: m.LandingPage })));
 const TutorHomePage = lazy(() => import('@/pages/tutor-home').then((m) => ({ default: m.TutorHomePage })));
-const TutorStudentBulkPage = lazy(() =>
-  import('@/pages/tutor-student').then((m) => ({ default: m.TutorStudentBulkPage })),
-);
-const TutorStudentNewPage = lazy(() =>
-  import('@/pages/tutor-student').then((m) => ({ default: m.TutorStudentNewPage })),
-);
 const TutorStudentsPage = lazy(() =>
   import('@/pages/tutor-student').then((m) => ({ default: m.TutorStudentsPage })),
-);
-const ParentLinkAcceptPage = lazy(() =>
-  import('@/pages/parent-link').then((m) => ({ default: m.ParentLinkAcceptPage })),
 );
 const StoryDetailPage = lazy(() => import('@/pages/story-detail').then((m) => ({ default: m.StoryDetailPage })));
 const LibraryPage = lazy(() => import('@/pages/library').then((m) => ({ default: m.LibraryPage })));
@@ -256,13 +247,9 @@ export function App() {
             <Route path="/organization/subscription" element={<OrganizationSubscriptionPage />} />
             <Route path="/org-invite/:token" element={<OrgInviteAcceptPage />} />
             <Route path="/org-invite/code/:code" element={<OrgInviteAcceptPage />} />
-            <Route path="/tutor/students/new" element={<TutorStudentNewPage />} />
-            <Route path="/tutor/students/bulk" element={<TutorStudentBulkPage />} />
             <Route path="/tutor/students" element={<TutorStudentsPage />} />
             <Route path="/tutor/students/:studentId" element={<TutorStudentDetailPage />} />
             <Route path="/tutor/lessons/:lessonId" element={<TutorLessonDetailPage />} />
-            <Route path="/tutor-invite/:token" element={<ParentLinkAcceptPage />} />
-            <Route path="/tutor-invite/code/:code" element={<ParentLinkAcceptPage />} />
             <Route path="/mypage" element={<MyPage />} />
             <Route path="/mypage/profile" element={<MyPageProfilePage />} />
             <Route path="/mypage/account" element={<MyPageAccountPage />} />

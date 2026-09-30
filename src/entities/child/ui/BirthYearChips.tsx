@@ -16,8 +16,8 @@ type Props = {
 
 /**
  * "~년생" 선택 칩. 나이를 직접 고르게 하지 않고 출생연도를 받아 나이는 계산한다(연 나이 = 올해 -
- * 출생연도, 서버 ChildAge와 같은 규칙). 부모 아이 프로필(AddChildModal·온보딩), 선생님 학생 등록,
- * 수업 폼의 학생 바로 등록이 같은 컴포넌트를 쓴다.
+ * 출생연도, 서버 ChildAge와 같은 규칙). 부모 아이 프로필(AddChildModal·온보딩)과 반 연결 화면이
+ * 같은 컴포넌트를 쓴다.
  */
 export function BirthYearChips({ value, onChange, label = '출생연도', minAge = 4, maxAge = 12, tone = 'card' }: Props) {
   const options = birthYearOptions(minAge, maxAge);

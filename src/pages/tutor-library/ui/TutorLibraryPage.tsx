@@ -223,8 +223,8 @@ function StoryCardWithLink({
           navigate('/mypage/subscription');
           return;
         }
-        // 베타 스토리도 /demo가 아니라 상세로 보낸다 - /demo는 tutorStudentId를 모르므로 학생
-        // 선택(StoryDetailPage의 TutorStudentPickerModal)을 거쳐야 완주 기록이 학생에게 남는다.
+        // 베타 스토리도 /demo가 아니라 상세로 보낸다 - /demo는 수업을 모르므로 반 선택
+        // (StoryDetailPage의 ClassLessonStartModal)을 거쳐 반 수업을 만들어야 완주 기록이 반에 남는다.
         navigate(`/stories/${story.storyId}`);
       }}
     />

@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, Pill, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
 import {
@@ -14,27 +14,21 @@ import {
   type ClassMembershipResponse,
 } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
-import { listParentTutorReports, type TutorReportSummary } from '@/entities/tutor';
 import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
 
 type Load<T> = { status: 'loading' } | { status: 'ready'; items: T[] } | { status: 'error'; message: string };
 
 /**
- * 마이페이지 > 수업 연결. 세 가지를 한 화면에 담는다.
+ * 마이페이지 > 수업 연결. 아이가 들어가 있는 반을 보고, 반 코드로 아이를 반 학생 명단에 올리거나
+ * (아이마다 한 번씩) 반에서 뺀다.
  *
- *  1. 아이가 들어가 있는 반 - 반 코드로 아이를 반 학생 명단에 올리고(아이마다 한 번씩), 반에서 뺄 수 있다.
- *  2. 선생님 초대 - 코드나 링크를 넣으면 /tutor-invite/...로 이동해 연결·동의로 이어진다.
- *  3. 연결된 선생님 - 최근 선생님 리포트에서 뽑은 (선생님, 학생) 목록.
+ * <p>선생님은 반 단위로만 일한다(1:1 과외도 아이 한 명짜리 반) - 선생님과의 연결은 언제나 반 코드로
+ * 이뤄지므로 학생별 선생님 초대 코드 입력란은 두지 않는다. 담임 선생님 이름은 반 목록에 함께 보인다.
  */
 export function MyPageClassesPage() {
   const navigate = useNavigate();
   const { state, setSession, refresh } = useAuth();
   const [memberships, setMemberships] = useState<Load<ClassMembershipResponse>>({ status: 'loading' });
-  const [reports, setReports] = useState<Load<TutorReportSummary>>({ status: 'loading' });
-  const [inviteInput, setInviteInput] = useState('');
-  const [inviteError, setInviteError] = useState<string | null>(null);
-  const [tutorCodeInput, setTutorCodeInput] = useState('');
-  const [tutorCodeError, setTutorCodeError] = useState<string | null>(null);
   const [classCodeInput, setClassCodeInput] = useState('');
   const { children, load: childrenLoad, reload: reloadChildren } = useChildren();
   // 반에 올릴 아이 - 이름·출생연도를 다시 적지 않고 등록한 아이 프로필 중에서 고른다. 한 명뿐이면 그 아이.
@@ -68,51 +62,10 @@ export function MyPageClassesPage() {
       .catch((error: unknown) => {
         if (!cancelled) setMemberships({ status: 'error', message: messageForError(error, '아이가 들어간 반을 불러오지 못했어요.') });
       });
-    listParentTutorReports(authToken)
-      .then((items) => {
-        if (!cancelled) setReports({ status: 'ready', items });
-      })
-      .catch((error: unknown) => {
-        if (!cancelled) setReports({ status: 'error', message: messageForError(error, '연결된 선생님을 불러오지 못했어요.') });
-      });
     return () => {
       cancelled = true;
     };
   }, [authToken, reloadKey]);
-
-  // 한 선생님이 여러 세션을 진행했어도 (선생님, 학생) 쌍은 한 번만 보여 준다.
-  const tutors = useMemo(() => {
-    if (reports.status !== 'ready') return [] as { key: string; tutor: string; student: string }[];
-    const seen = new Set<string>();
-    const unique: { key: string; tutor: string; student: string }[] = [];
-    for (const report of reports.items) {
-      const key = `${report.tutorDisplayName} ${report.studentName}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      unique.push({ key, tutor: report.tutorDisplayName, student: report.studentName });
-    }
-    return unique;
-  }, [reports]);
-
-  function acceptInvite() {
-    setInviteError(null);
-    const token = extractInviteToken(inviteInput);
-    if (!token) {
-      setInviteError('초대 링크 또는 토큰을 확인해 주세요.');
-      return;
-    }
-    navigate(`/tutor-invite/${encodeURIComponent(token)}`);
-  }
-
-  function goToTutorCode() {
-    setTutorCodeError(null);
-    const normalized = normalizeInviteCode(tutorCodeInput);
-    if (!isValidInviteCode(normalized)) {
-      setTutorCodeError('영문·숫자 4-16자리 코드를 입력해 주세요.');
-      return;
-    }
-    navigate(`/tutor-invite/code/${encodeURIComponent(normalized)}`);
-  }
 
   async function addChildToClass() {
     if (state.status !== 'authenticated') return;
@@ -247,63 +200,6 @@ export function MyPageClassesPage() {
           />
           {classJoinSuccess ? <StatusBanner label="반에 올렸어요." /> : null}
         </View>
-
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>선생님 연결</Text>
-          <Text style={styles.body}>선생님에게 받은 코드를 입력하거나, 초대 링크를 붙여넣어 주세요.</Text>
-          <TextField
-            label="선생님 초대 코드"
-            value={tutorCodeInput}
-            onChangeText={(value) => {
-              setTutorCodeInput(value);
-              if (tutorCodeError) setTutorCodeError(null);
-            }}
-            placeholder="예: 42QRKM3P"
-            autoCapitalize="characters"
-            errorText={tutorCodeError ?? undefined}
-          />
-          <ActionButton label="코드로 확인하기" onPress={goToTutorCode} disabled={tutorCodeInput.trim().length === 0} />
-          <View style={styles.divider} />
-          <TextField
-            label="초대 링크"
-            value={inviteInput}
-            onChangeText={(value) => {
-              setInviteInput(value);
-              if (inviteError) setInviteError(null);
-            }}
-            placeholder="https://... 또는 토큰 문자열"
-            errorText={inviteError ?? undefined}
-          />
-          <ActionButton
-            label="링크로 확인하기"
-            variant="secondaryFull"
-            onPress={acceptInvite}
-            disabled={inviteInput.trim().length === 0}
-          />
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>연결된 수업</Text>
-          {reports.status === 'loading' ? (
-            <LoadingState compact label="연결된 선생님을 불러오는 중이에요…" />
-          ) : reports.status === 'error' ? (
-            <ErrorState message={reports.message} onRetry={() => setReloadKey((n) => n + 1)} />
-          ) : tutors.length === 0 ? (
-            <Text style={styles.body}>아직 선생님과 진행한 수업이 없어요.</Text>
-          ) : (
-            <View style={styles.list}>
-              {tutors.map(({ key, tutor, student }) => (
-                <View key={key} style={styles.row}>
-                  <View style={styles.rowInfo}>
-                    <Text style={styles.rowTitle}>{tutor} 선생님</Text>
-                    <Text style={styles.rowSub}>{student}과 함께</Text>
-                  </View>
-                  <Pill label="연결됨" tone="onCard" />
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
       </View>
       <Modal
         visible={leaveTarget !== null}
@@ -318,26 +214,6 @@ export function MyPageClassesPage() {
       </Modal>
     </AppNavShell>
   );
-}
-
-/**
- * 붙여넣은 값에서 선생님 초대 토큰을 뽑는다. 순수 토큰 문자열, "https://.../tutor-invite/<token>"
- * URL, "/tutor-invite/<token>" 경로를 받는다.
- */
-function extractInviteToken(raw: string): string | null {
-  const trimmed = raw.trim();
-  if (!trimmed) return null;
-  try {
-    const url = new URL(trimmed, 'https://placeholder.local');
-    const match = url.pathname.match(/\/tutor-invite\/([^/?#]+)/);
-    if (match) return decodeURIComponent(match[1]);
-  } catch {
-    // URL 파싱 실패 - 아래 정규식으로.
-  }
-  const pathMatch = trimmed.match(/tutor-invite\/([^/?#\s]+)/);
-  if (pathMatch) return decodeURIComponent(pathMatch[1]);
-  if (!/\s/.test(trimmed)) return trimmed;
-  return null;
 }
 
 const styles = StyleSheet.create({

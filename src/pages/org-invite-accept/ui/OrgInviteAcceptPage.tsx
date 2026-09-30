@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
-import { homePathFor, useAuth } from '@/entities/auth';
+import { homePathFor, markOnboardingDone, useAuth } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
 import {
   acceptOrganizationTutorInvite,
@@ -83,9 +83,9 @@ export function OrgInviteAcceptPage() {
       } else {
         await acceptOrganizationTutorInvite(state.token, identifier);
       }
-      // 수락 응답은 OrganizationTutorLink일 뿐 갱신된 user를 안 담고 있다 - 지금 세션의
-      // user.organizationId가 그대로 남아 있으면 마이페이지가 계속 일반 메뉴를 보여주므로,
-      // /v1/auth/me를 다시 불러 organizationId가 반영된 user로 교체한다.
+      // 기관에 들어갔으니 선생님 온보딩(소속 설정)도 끝난 것이다.
+      markOnboardingDone('tutor', state.user.id);
+      // 수락 응답에는 갱신된 user가 없다 - 기관 구독이 이용권(grantsAccess)에 반영되도록 /v1/auth/me를 다시 읽는다.
       await refresh();
       setStage('success');
     } catch (failure: unknown) {

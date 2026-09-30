@@ -37,7 +37,7 @@ function statusDetail(consent: VoiceResearchAccountConsent) {
  * 시각을 보여 주고, 철회(저장된 녹음 삭제)와 다시 동의(이야기 화면 체크박스와 같은 문구·버전)를 한다.
  * 철회는 되돌릴 수 없는 삭제라 확인 팝업을 거친다.
  */
-export function VoiceResearchConsentSection({ token }: { token: string }) {
+export function VoiceResearchConsentSection({ token, userId }: { token: string; userId: string }) {
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
   const [confirmingWithdraw, setConfirmingWithdraw] = useState(false);
@@ -53,7 +53,7 @@ export function VoiceResearchConsentSection({ token }: { token: string }) {
         setLoad({ status: 'ready', consent });
         // 철회한 계정인데 이 기기에 지우지 못한 세션 동의가 남아 있으면(지난 철회 때 네트워크 오류 등)
         // 조용히 다시 정리한다.
-        if (!consent.enabled) void withdrawStoredVoiceResearchConsents();
+        if (!consent.enabled) void withdrawStoredVoiceResearchConsents(userId);
       })
       .catch((error: unknown) => {
         if (cancelled) return;
@@ -62,7 +62,7 @@ export function VoiceResearchConsentSection({ token }: { token: string }) {
     return () => {
       cancelled = true;
     };
-  }, [token, reloadKey]);
+  }, [token, userId, reloadKey]);
 
   async function withdraw() {
     setSaving(true);
@@ -70,7 +70,7 @@ export function VoiceResearchConsentSection({ token }: { token: string }) {
     try {
       const consent = await withdrawVoiceResearchAccountConsent(token);
       // 계정에 연결되지 않은 녹음(로그인 전에 올렸거나 예전에 올린 것)은 이 기기의 삭제 토큰으로 지운다.
-      const remaining = await withdrawStoredVoiceResearchConsents();
+      const remaining = await withdrawStoredVoiceResearchConsents(userId);
       setLoad({ status: 'ready', consent });
       setConfirmingWithdraw(false);
       setNotice(

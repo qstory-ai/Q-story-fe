@@ -125,7 +125,7 @@ export function MyPagePrivacyPage() {
         ))}
 
         {/* 음성 연구 동의는 보호자 동의라 보호자 계정에만 보인다(BE도 PARENT만 받는다). */}
-        {state.user.role === 'PARENT' ? <VoiceResearchConsentSection token={state.token} /> : null}
+        {state.user.role === 'PARENT' ? <VoiceResearchConsentSection token={state.token} userId={state.user.id} /> : null}
       </View>
     </AppNavShell>
   );

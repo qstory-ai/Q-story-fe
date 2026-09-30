@@ -146,6 +146,8 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
       if (editing) {
         const updated = await updateLesson(state.token, editing.id, {
           ...baseInput,
+          // 반 수업을 개인 수업으로 바꿀 때 - classGroupId를 비워 보내면 서버는 "그대로"로 읽는다.
+          clearClassGroup: lessonType === 'INDIVIDUAL' && editing.classGroupId != null,
           scheduledAt: parseDateTime(scheduledAtInput),
           applyToFutureInSeries: editing.seriesId != null && applyScope === 'FUTURE',
         });

@@ -156,11 +156,12 @@ test('기기에 남은 세션 동의를 모두 철회하고, 서버가 모르는
     },
   });
   try {
-    const uploaded = createVoiceResearchConsent();
+    const uploaded = createVoiceResearchConsent('owner-a');
     const neverUploaded = createVoiceResearchConsent();
-    const offline = createVoiceResearchConsent();
+    const offline = createVoiceResearchConsent('owner-a');
+    const otherAccount = createVoiceResearchConsent('owner-b');
     const withdrawnIds: string[] = [];
-    const remaining = await withdrawStoredVoiceResearchConsents({
+    const remaining = await withdrawStoredVoiceResearchConsents('owner-a', {
       endpoint: 'https://example.com/voice-research',
       fetchImpl: (async (_url, init) => {
         const { consent_id: consentId } = JSON.parse(String(init?.body)) as { consent_id: string };
@@ -170,9 +171,11 @@ test('기기에 남은 세션 동의를 모두 철회하고, 서버가 모르는
       }) as typeof fetch,
     });
 
+    // 같은 기기를 쓰는 다른 계정(owner-b)의 세션은 건드리지 않는다.
     assert.deepEqual(withdrawnIds, [uploaded.consentId, neverUploaded.consentId, offline.consentId]);
+    assert.ok(!withdrawnIds.includes(otherAccount.consentId));
     assert.equal(remaining, 1);
-    const stillStored = await withdrawStoredVoiceResearchConsents({
+    const stillStored = await withdrawStoredVoiceResearchConsents('owner-a', {
       endpoint: 'https://example.com/voice-research',
       fetchImpl: (async () => new Response(null, { status: 200 })) as typeof fetch,
     });

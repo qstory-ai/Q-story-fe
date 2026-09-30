@@ -40,6 +40,9 @@ interface UseLiveBranchPollingParams {
  *  - FAILED, 응답 모양이 어긋남(옵션이 3개가 아님), 또는 LIVE_BRANCH_POLL_TIMEOUT_MS 초과: LIVE_BRANCH_FAILED를
  *    보내 기존 GENTLE_REDIRECT 흐름으로 안전하게 이야기를 계속한다.
  */
+/** 상태 조회 한 번의 제한 시간 - 넘으면 그 요청만 끊고 다음 tick에서 다시 묻는다. */
+const LIVE_BRANCH_STATUS_REQUEST_TIMEOUT_MS = 6000;
+
 export function useLiveBranchPolling({
   runtimeState,
   storyId,
@@ -117,8 +120,13 @@ export function useLiveBranchPolling({
         return;
       }
       pollInFlight = true;
+      // 요청 하나가 응답 없이 매달리면(순간 네트워크 끊김 등) 이후 tick이 전부 건너뛰어진다 - 요청마다 제한 시간을 둔다.
+      const request = new AbortController();
+      const abortRequest = () => request.abort();
+      controller.signal.addEventListener('abort', abortRequest);
+      const requestTimeoutId = setTimeout(abortRequest, LIVE_BRANCH_STATUS_REQUEST_TIMEOUT_MS);
       try {
-        const status = await getLiveBranchJobStatus(jobId, controller.signal);
+        const status = await getLiveBranchJobStatus(jobId, request.signal);
         if (settled || controller.signal.aborted) {
           return;
         }
@@ -141,6 +149,8 @@ export function useLiveBranchPolling({
         }
         // 폴링 요청 하나가 실패해도 곧바로 포기하지 않는다 - 전체 타임아웃이 최종 안전망이다.
       } finally {
+        clearTimeout(requestTimeoutId);
+        controller.signal.removeEventListener('abort', abortRequest);
         pollInFlight = false;
       }
     };

@@ -27,7 +27,7 @@ type Load<T> = { status: 'loading' } | { status: 'ready'; items: T[] } | { statu
  */
 export function MyPageClassesPage() {
   const navigate = useNavigate();
-  const { state } = useAuth();
+  const { state, setSession, refresh } = useAuth();
   const [memberships, setMemberships] = useState<Load<ClassMembershipResponse>>({ status: 'loading' });
   const [reports, setReports] = useState<Load<TutorReportSummary>>({ status: 'loading' });
   const [inviteInput, setInviteInput] = useState('');
@@ -121,7 +121,9 @@ export function MyPageClassesPage() {
     }
     setJoiningClass(true);
     try {
-      await joinExistingClass(state.token, { classCode, childName: childName.trim(), childBirthYear });
+      // 아이가 기관 반에 들어가면 기관 이용권이 적용될 수 있어 응답의 사용자 정보(grantsAccess)로 세션을 갱신한다.
+      const response = await joinExistingClass(state.token, { classCode, childName: childName.trim(), childBirthYear });
+      setSession(response.token, response.user);
       setClassCodeInput('');
       setChildName('');
       setClassJoinSuccess(true);
@@ -139,6 +141,8 @@ export function MyPageClassesPage() {
     setLeaving(true);
     try {
       await leaveClass(state.token, leaveTarget.studentId);
+      // 반에서 빠지면 기관 이용권이 사라질 수 있다 - 서버의 grantsAccess를 다시 읽는다.
+      await refresh();
       setLeaveTarget(null);
       setReloadKey((n) => n + 1);
     } catch (error: unknown) {

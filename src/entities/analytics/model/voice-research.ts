@@ -22,6 +22,8 @@ export type VoiceResearchConsent = {
   deletionToken: string;
   consentedAt: string;
   version: typeof VOICE_RESEARCH_CONSENT_VERSION;
+  /** 이 세션을 시작한 보호자 계정 - 공용 기기에서 한 계정의 철회가 다른 계정의 녹음까지 지우지 않게. 비로그인이면 없음. */
+  ownerId?: string;
 };
 
 export type VoiceResearchRecording = {
@@ -91,12 +93,13 @@ function writeStoredConsents(consents: VoiceResearchConsent[]) {
   }
 }
 
-export function createVoiceResearchConsent(): VoiceResearchConsent {
+export function createVoiceResearchConsent(ownerId?: string | null): VoiceResearchConsent {
   const consent: VoiceResearchConsent = {
     consentId: createUuid(),
     deletionToken: createUuid(),
     consentedAt: new Date().toISOString(),
     version: VOICE_RESEARCH_CONSENT_VERSION,
+    ...(ownerId ? { ownerId } : {}),
   };
   writeStoredConsents([...readStoredConsents(), consent]);
   return consent;
@@ -207,15 +210,17 @@ export async function withdrawVoiceResearchConsent(
 }
 
 /**
- * 이 기기에 남아 있는 세션 동의를 모두 토큰으로 철회한다 - 마이페이지 철회가 계정에 연결되지 않은
- * 녹음(로그인 전에 올렸거나 계정 연결이 생기기 전에 올린 것)까지 이 기기 기준으로 함께 지우도록.
+ * 이 기기에 남아 있는 세션 동의 중 이 계정의 것과 계정 표시가 없는 것(비로그인 세션)을 토큰으로 철회한다 -
+ * 마이페이지 철회가 계정에 연결되지 않은 녹음(로그인 전에 올렸거나 계정 연결이 생기기 전에 올린 것)까지 함께
+ * 지우도록. 같은 기기를 쓰는 다른 계정의 세션은 건드리지 않는다.
  * 서버가 이미 모르는 동의(403 - 녹음 없이 끝난 세션이거나 계정 철회로 먼저 지워진 것)도 지울 것이
  * 없으므로 정리된 것으로 본다. 네트워크 오류 등으로 남은 개수를 돌려준다.
  */
 export async function withdrawStoredVoiceResearchConsents(
+  ownerId: string,
   options: RequestOptions = {},
 ): Promise<number> {
-  const stored = readStoredConsents();
+  const stored = readStoredConsents().filter((consent) => !consent.ownerId || consent.ownerId === ownerId);
   if (stored.length === 0) return 0;
   const endpoint = options.endpoint ?? DEFAULT_ENDPOINT;
   if (!isHttpUrl(endpoint)) return stored.length;
@@ -227,9 +232,7 @@ export async function withdrawStoredVoiceResearchConsents(
       settled.add(consent.consentId);
     }
   }
-  const remaining = readStoredConsents().filter(
-    (consent) => !settled.has(consent.consentId),
-  );
-  writeStoredConsents(remaining);
-  return remaining.length;
+  const kept = readStoredConsents().filter((consent) => !settled.has(consent.consentId));
+  writeStoredConsents(kept);
+  return stored.filter((consent) => !settled.has(consent.consentId)).length;
 }

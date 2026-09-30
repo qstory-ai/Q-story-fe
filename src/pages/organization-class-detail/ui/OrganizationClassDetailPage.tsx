@@ -43,7 +43,8 @@ export function OrganizationClassDetailPage() {
     Promise.all([
       fetchClass(token, classId),
       listClassStudents(token, classId),
-      listOrganizationTutors(token, organizationId),
+      // 선생님 목록은 담임 이름·배정 폼에만 쓰인다 - 이것만 실패해도 반 코드와 명단은 보여 준다.
+      listOrganizationTutors(token, organizationId).catch(() => []),
     ])
       .then(([classGroup, students, tutors]) => {
         if (!cancelled) setLoad({ status: 'ready', classGroup, students, tutors });

@@ -176,9 +176,10 @@ export function useOneStoryRuntime(
   // 로그인한 보호자의 계정 단위 음성 연구 동의(마이페이지에서 켜고 끈다). 꺼져 있으면 세션 동의를
   // 만들지 않아 원음을 올리지 않는다. 토큰은 업로드에 실어 서버가 동의를 다시 확인하고 녹음을 계정에
   // 연결하게 한다(마이페이지 철회 시 삭제 대상). 비로그인·선생님 세션은 기존처럼 익명으로 저장한다.
-  const voiceResearchAccountRef = useRef<{ token: string | null; enabled: boolean }>({
+  const voiceResearchAccountRef = useRef<{ token: string | null; enabled: boolean; ownerId: string | null }>({
     token: null,
     enabled: true,
+    ownerId: null,
   });
   // 홈에서 아이를 선택하고 들어왔으면 그 이름으로 미리 채운다. 데모(/demo)처럼 선택된 아이가
   // 없으면 빈 입력으로 남는다(IdlePanel이 이 경우에만 입력 UI를 보여준다).
@@ -264,22 +265,24 @@ export function useOneStoryRuntime(
     authState.status === 'authenticated' && authState.user.role === 'PARENT'
       ? authState.token
       : null;
+  const parentUserId =
+    authState.status === 'authenticated' && authState.user.role === 'PARENT' ? authState.user.id : null;
   useEffect(() => {
-    voiceResearchAccountRef.current = { token: parentToken, enabled: true };
+    voiceResearchAccountRef.current = { token: parentToken, enabled: true, ownerId: parentUserId };
     if (!parentToken) return;
     let cancelled = false;
     // 조회에 실패하면 켜 둔 채로 두되, 서버가 업로드 때 계정 동의를 다시 확인해 꺼진 계정은 거절한다.
     getVoiceResearchAccountConsent(parentToken)
       .then((consent) => {
         if (!cancelled) {
-          voiceResearchAccountRef.current = { token: parentToken, enabled: consent.enabled };
+          voiceResearchAccountRef.current = { token: parentToken, enabled: consent.enabled, ownerId: parentUserId };
         }
       })
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, [parentToken]);
+  }, [parentToken, parentUserId]);
 
   useEffect(() => {
     if (runtimeState.status !== 'playing-fixed') return;
@@ -651,7 +654,7 @@ export function useOneStoryRuntime(
     // 이 ref가 non-null인지로 판단하므로 세션 시작 시 채운다. 보호자가 마이페이지에서 음성 연구
     // 동의를 껐으면 만들지 않는다.
     voiceResearchConsentRef.current = voiceResearchAccountRef.current.enabled
-      ? createVoiceResearchConsent()
+      ? createVoiceResearchConsent(voiceResearchAccountRef.current.ownerId)
       : null;
     pendingVoiceResearchSampleRef.current = null;
     clearLocalStoryProgress();

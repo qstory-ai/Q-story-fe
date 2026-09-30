@@ -42,15 +42,14 @@ export function OnboardingTutorPage() {
       navigate(homePathFor(state.user), { replace: true });
       return;
     }
-    // 기관 참여 - 코드 검증 후 org-invite 흐름으로 위임. 완료 마크는 org-invite 수락 페이지가
-    // 성공하면 홈으로 리다이렉트한 다음 사용자가 다시 온보딩에 돌아오지 않아도 되게 여기서 미리 남긴다.
+    // 기관 참여 - 코드 검증 후 org-invite 흐름으로 위임한다. 완료 표시는 수락이 성공했을 때 그 화면이 남긴다 -
+    // 여기서 미리 남기면 코드가 틀려 뒤로 돌아왔을 때 온보딩으로 다시 들어올 수 없었다.
     setCodeError(null);
     const normalized = normalizeInviteCode(code);
     if (!isValidInviteCode(normalized)) {
       setCodeError('영문·숫자 4-16자리 코드를 입력해 주세요.');
       return;
     }
-    markDone();
     navigate(`/org-invite/code/${encodeURIComponent(normalized)}`);
   }
 

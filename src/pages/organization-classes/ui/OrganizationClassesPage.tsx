@@ -145,7 +145,7 @@ export function OrganizationClassesPage() {
                 <View style={styles.classBody}>
                   <Text style={styles.className}>{classGroup.name}</Text>
                   <Text style={styles.classMeta}>
-                    담임 {tutorNameById.get(classGroup.tutorId ?? '') ?? '미정'} · 반 코드 {classGroup.joinCode}
+                    담임 {classGroup.tutorId ? (tutorNameById.get(classGroup.tutorId) ?? '배정됨') : '미정'} · 반 코드 {classGroup.joinCode}
                   </Text>
                 </View>
                 <Icon name="chevronRight" size={16} color={storybookTheme.color.onCardMuted} />

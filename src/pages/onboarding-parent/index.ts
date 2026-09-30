@@ -1,1 +1,1 @@
-export { OnboardingParentPage, hasCompletedParentOnboarding } from './ui/OnboardingParentPage';
+export { OnboardingParentPage } from './ui/OnboardingParentPage';

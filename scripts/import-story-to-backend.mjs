@@ -12,9 +12,8 @@ import { loadRegistry } from './lib/story-package.mjs';
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const appDirectory = dirname(scriptDirectory);
 
-// The two variables below are declared in fe/.env, but nothing here used to read that file, so
-// every run needed them exported by hand first. Real environment variables still win - loadEnvFile
-// does not overwrite what is already set, which keeps CI and deploy targets in charge.
+// QSTORY_BACKEND_URL/QSTORY_STORY_IMPORT_TOKEN come from fe/.env. Real environment variables still
+// win - loadEnvFile does not overwrite what is already set.
 try {
   process.loadEnvFile(join(appDirectory, '.env'));
 } catch {

@@ -20,7 +20,7 @@ export function PreviewStripSection({ onGoToDemo }: PreviewStripSectionProps) {
             onPress={onGoToDemo}
             accessibilityRole="button"
             accessibilityLabel={`${item.label} - 무료로 체험 시작하기`}
-            style={({ pressed }) => [styles.previewThumb, pressed && styles.previewThumbPressed]}
+            style={({ pressed }) => [styles.previewThumb, pressed && sectionStyles.pressed]}
           >
             <Image source={{ uri: item.uri }} resizeMode="cover" style={styles.previewImage} accessibilityLabel={item.label} />
             <View style={styles.previewCaption}>
@@ -50,9 +50,6 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.contentSurface,
     borderWidth: 1,
     borderColor: storybookTheme.color.contentSurfaceBorder,
-  },
-  previewThumbPressed: {
-    opacity: 0.85,
   },
   previewImage: {
     width: '100%',

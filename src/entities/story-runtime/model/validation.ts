@@ -1,8 +1,4 @@
-import type {
-  AudioGroupId,
-  QuestionAnchorId,
-  SceneId,
-} from './ids';
+import type { SceneId } from './ids';
 import type {
   StoryCheckpoint,
   StoryManifest,
@@ -652,18 +648,4 @@ export function validateCheckpoint(
   return issues.length > 0
     ? { ok: false, issues }
     : { ok: true, value: input as StoryCheckpoint };
-}
-
-export function questionAnchorForGroup(
-  manifest: StoryManifest,
-  sceneId: SceneId,
-  audioGroupId: AudioGroupId,
-): QuestionAnchorId | null {
-  return (
-    manifest.questionAnchors.find(
-      (anchor) =>
-        anchor.sceneId === sceneId &&
-        anchor.afterAudioGroupId === audioGroupId,
-    )?.id ?? null
-  );
 }

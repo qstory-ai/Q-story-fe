@@ -22,15 +22,13 @@ export type CompanionChatTurn = {
 };
 
 /**
- * 분기 상태 머신과 의도적으로 분리되어 있다 - 이것은 앵커에 종속되지 않는 자유 채팅이며,
- * route/plan/options 개념과는 무관하므로 (이미 약 1900줄인) use-one-story-runtime.ts에는
- * 속하지 않는다. 스토리 세션당 conversationId 하나를 사용하며, 아이가 입력한 원문 텍스트는
- * 답변을 생성하는 단 한 번의 요청 이외에는 이 훅 밖으로 나가지 않는다 - 상태에는 답변
- * 텍스트만 보관한다.
+ * 앵커에 종속되지 않는 자유 채팅 - route/plan/options와 무관해서 분기 상태 머신
+ * (use-one-story-runtime)과 의도적으로 분리한다. 아이가 입력한 원문은 답변 요청 한 번 외에는
+ * 이 훅 밖으로 나가지 않는다.
  *
- * <p>conversationId는 OneStoryPage에서 하나 만들어 이 훅과 use-one-story-runtime에 같이
- * 넘긴다 - runtime이 완주를 저장할 때 서버가 그 id로 companion_chat_turn 태그를 집계해
- * story_completion에 스냅샷을 붙일 수 있어야 한다.
+ * conversationId는 OneStoryPage가 세션당 하나 만들어 이 훅과 use-one-story-runtime에 같이
+ * 넘긴다 - 완주 저장 시 서버가 그 id로 companion_chat_turn 태그를 집계해 story_completion에
+ * 스냅샷을 붙인다.
  */
 export function useCompanionChat(params: {
   storyId: string;
@@ -42,7 +40,6 @@ export function useCompanionChat(params: {
   lessonId?: string;
 }) {
   const { storyId, sceneId, conversationId, childId, tutorStudentId, lessonId } = params;
-  const conversationIdRef = useRef<string>(conversationId);
   // 마지막으로 STT가 채워 넣은 문장. 아이가 그걸 고치지 않고 그대로 보내면 VOICE, 아니면 TEXT.
   const lastTranscribedRef = useRef<string | null>(null);
   const [character] = useState(pickRandomCompanionCharacter);
@@ -70,13 +67,22 @@ export function useCompanionChat(params: {
     setTurns((prev) => [
       ...prev,
       {
-        id: `intro-${conversationIdRef.current}`,
+        id: `intro-${conversationId}`,
         childText: '',
         replyText: `안녕, 나는 ${character.displayName}이야! 이야기하다가 궁금한 게 생기면 나한테 물어봐.`,
         status: 'done',
       },
     ]);
-  }, [open, introduced, character.displayName]);
+  }, [open, introduced, character.displayName, conversationId]);
+
+  // 대화창이 열린 채로 이야기 화면을 떠나면 진행 중인 답변 요청·음성 재생·전사를 멈춘다.
+  useEffect(
+    () => () => {
+      abortRef.current?.abort();
+      transcribeAbortRef.current?.abort();
+    },
+    [],
+  );
 
   const send = useCallback(
     async (childText: string) => {
@@ -97,7 +103,7 @@ export function useCompanionChat(params: {
           {
             storyId,
             sceneId,
-            conversationId: conversationIdRef.current,
+            conversationId,
             transcript: text,
             speakerId: character.speakerId,
             inputMode: lastTranscribedRef.current === text ? 'VOICE' : 'TEXT',
@@ -138,7 +144,7 @@ export function useCompanionChat(params: {
         );
       }
     },
-    [character.speakerId, childId, lessonId, sceneId, sending, storyId, tutorStudentId],
+    [character.speakerId, childId, conversationId, lessonId, sceneId, sending, storyId, tutorStudentId],
   );
 
   const startVoiceInput = useCallback(async () => {
@@ -173,7 +179,7 @@ export function useCompanionChat(params: {
           sceneId,
           audioBlob: recording.uploadBlob,
           mimeType: recording.mimeType,
-          sessionId: conversationIdRef.current,
+          sessionId: conversationId,
           childId,
           tutorStudentId,
           lessonId,
@@ -192,7 +198,7 @@ export function useCompanionChat(params: {
     } finally {
       setTranscribing(false);
     }
-  }, [childId, lessonId, recorder, sceneId, storyId, tutorStudentId]);
+  }, [childId, conversationId, lessonId, recorder, sceneId, storyId, tutorStudentId]);
 
   const close = useCallback(() => {
     abortRef.current?.abort();
@@ -218,9 +224,6 @@ export function useCompanionChat(params: {
     transcribing,
     startVoiceInput,
     stopVoiceInput,
-    // 완주 저장 시 서버가 이 conversationId로 companion_chat_turn 태그를 집계해 스냅샷을
-    // 만든다 - use-one-story-runtime의 recordStoryCompletion 호출에 실어 보낸다.
-    conversationId: conversationIdRef.current,
   };
 }
 

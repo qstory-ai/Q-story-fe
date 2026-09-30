@@ -9,10 +9,7 @@ type StatusBannerProps = {
 };
 
 /**
- * 라이트 카드 위의 작은 상태 배너 - organization-signup의 구독 상태 카드와 staff-scene의
- * "stale" 카드가 각자 미묘하게 다른 근접값을 하드코딩하던 걸 하나로 모았다.
- * success는 theme.ts의 semantic.positive를 쓴다 - 이 앱에 성공/긍정 배너 색이 없어서
- * 새로 추가한 시맨틱 컬러 램프를 여기서 처음 실사용한다.
+ * 라이트 카드 위의 작은 상태 배너. info/warning은 theme.status, success는 theme.semantic.positive를 쓴다.
  */
 export function StatusBanner({ label, body, variant = 'info' }: StatusBannerProps) {
   const isWarning = variant === 'warning';

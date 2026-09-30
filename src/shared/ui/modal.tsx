@@ -109,9 +109,7 @@ export function Modal({
 
   const scrim = (
     <View
-      // position:'fixed'는 뷰포트 기준으로 항상 화면 전체를 덮는다 - position:'absolute'였을 땐
-      // 가장 가까운 위치 지정 조상의 높이에 얹혀서, 콘텐츠가 뷰포트보다 짧은 화면(마이페이지 등)
-      // 에서 조상 체인의 높이 전파 방식에 따라 스크림이 뷰포트 전체를 못 덮는 문제가 있었다.
+      // position:'fixed'로 조상 높이와 무관하게 항상 뷰포트 전체를 덮는다.
       // RN의 position 타입엔 'fixed'가 없어 이 한 스타일만 any로 둔다.
       style={[styles.scrim, { position: 'fixed' } as any]}
       accessibilityViewIsModal
@@ -120,10 +118,8 @@ export function Modal({
       accessibilityLabel={accessibilityLabel}
     >
       {
-        // 카드가 뷰포트보다 길어질 수 있는 폼(예: LaunchNotificationGate)이 생기면서, 그냥
-        // View + alignItems:'center'로는 넘치는 아래쪽 필드/버튼이 화면 밖으로 잘려 아예 손이
-        // 닿지 않았다 - ScrollView로 감싸 짧은 콘텐츠는 그대로 중앙 정렬되고, 뷰포트보다 긴
-        // 콘텐츠는 스크롤해서 끝까지 볼 수 있게 한다.
+        // 짧은 콘텐츠는 중앙 정렬하고, 뷰포트보다 긴 카드(예: LaunchNotificationGate 폼)는
+        // 스크롤해서 끝까지 닿을 수 있게 ScrollView로 감싼다.
       }
       <ScrollView
         style={styles.scrimScroll}
@@ -185,17 +181,10 @@ export function Modal({
     </View>
   );
 
-  // react-native-web의 모든 View는 기본 스타일에 position:'relative' + zIndex:0을 깔고 나온다
-  // (react-native-web/dist/.../View/index.js의 view$raw) - z-index:auto가 아니라 명시적 0이라
-  // "position이 static이 아니고 z-index가 auto가 아닌 요소는 새 stacking context를 만든다"는
-  // 규칙에 따라 이 앱의 View 하나하나가 전부 독립된 stacking context다. 그 결과 이 스크림을 평소
-  // 트리 안(예: ChildSelector 안)에 그냥 두면, scrim 자체의 zIndex:overlay(20)는 "그 부모 View
-  // 내부에서"만 의미가 있을 뿐 - 그 부모보다 DOM 순서상 나중에 오는 형제 섹션(예: 홈의 히어로
-  // 추천 카드, 사이드바, 달력)은 여전히 부모 자체의 z-index:0 기준으로 스크림 전체를 덮어버린다
-  // (같은 z-index:0끼리는 나중에 오는 DOM이 위에 그려지므로). 즉 이 컴포넌트 안에서 아무리
-  // z-index를 올려도 원천적으로 이 문제를 못 피한다 - 실제로 뷰포트 최상단에 뜨려면 DOM
-  // 트리에서도 벗어나야 해서, document.body에 직접 포탈로 올린다(React context는 포탈을
-  // 통과해도 그대로 유지된다).
+  // react-native-web의 View는 기본으로 position:'relative' + zIndex:0이라 View 하나하나가
+  // 독립된 stacking context다. 트리 안에 두면 scrim의 zIndex는 부모 안에서만 의미가 있어,
+  // DOM 순서상 뒤에 오는 형제 섹션이 스크림을 덮는다 - 그래서 document.body에 포탈로 올린다
+  // (React context는 포탈을 통과해도 유지된다).
   if (typeof document === 'undefined') return scrim;
   return createPortal(scrim, document.body);
 }

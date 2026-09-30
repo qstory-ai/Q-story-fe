@@ -16,7 +16,7 @@ import { splitQuestionOutcomesAtScene } from '../lib/runtime-view';
 import { styles } from './styles';
 
 /** styles.chapterSidebar/chapterScrim의 transitionDuration과 같은 값 - mount/unmount 타이밍을 맞춘다. */
-export const CHAPTER_SIDEBAR_SLIDE_MS = 220;
+const CHAPTER_SIDEBAR_SLIDE_MS = 220;
 /** 열릴 때 현재 회차가 리스트 맨 위에 딱 붙지 않고 앞 회차 하나가 살짝 보이도록 남기는 여백. */
 const CURRENT_ROW_SCROLL_MARGIN = 64;
 
@@ -39,8 +39,8 @@ type RewindTarget = {
  *   기록이면) 곧바로 되감는다 - 아이가 실수로 눌러 리포트 내용을 날리는 일은 막되, 잃을 게
  *   없을 때까지 매번 묻지는 않는다.
  * - mount/unmount는 usePresenceAnimation(모달과 같은 훅)으로 슬라이드 시간과 맞춘다. 닫힌
- *   뒤엔 DOM에서 아예 빠지므로 aria-hidden/tabIndex를 따로 관리할 필요가 없다(예전엔 화면 밖에
- *   숨겨둔 채 남아 있어 키보드 Tab이 보이지 않는 버튼들에 들어갔다).
+ *   뒤엔 DOM에서 아예 빠지므로 키보드 Tab이 숨은 버튼에 들어가지 않고, aria-hidden/tabIndex를
+ *   따로 관리할 필요가 없다.
  */
 export function ChapterSidebar({
   runtime,
@@ -111,8 +111,7 @@ export function ChapterSidebar({
   }, []);
 
   // 질문 중(녹음·입력·확인·선택지 등 playing-fixed/complete가 아닌 상태)에 되감으면 그 진행이
-  // 통째로 사라진다 - 기록이 아직 없어도 확인을 받는다. 예전엔 현재 회차 탭이 아무 일도 안 했는데,
-  // "처음부터 다시 듣기"로 바뀌면서 입력 중인 질문을 조용히 지울 수 있게 됐기 때문.
+  // 통째로 사라진다 - 기록이 아직 없어도 확인을 받는다(현재 회차 탭도 "처음부터 다시 듣기"다).
   const midInteraction = runtimeState.status !== 'playing-fixed' && runtimeState.status !== 'complete';
 
   const requestRewind = useCallback(

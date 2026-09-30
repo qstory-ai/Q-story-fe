@@ -1,7 +1,8 @@
-import { speechApiUrl } from '@/entities/speech-pipeline';
+import { apiBaseUrl } from '@/shared/config';
 
+import type { AudioSource, ImageSource } from './media-source';
 import { buildStoryRuntimePackage, type StoryRuntimePackage } from './story-package';
-import type { GeneratedStoryContent, StoryPackageData } from './story-package-types';
+import type { GeneratedStoryContent, ServedStoryAsset, StoryPackageData } from './story-package-types';
 import {
   STORY_AUDIO_ASSETS_BY_ID,
   STORY_IMAGE_ASSETS_BY_ID,
@@ -54,9 +55,9 @@ const packageCache = new Map<string, Promise<StoryRuntimePackage>>();
 
 /**
  * Fetches a story's full narrative content from the backend (GET /v1/stories/{storyId}/content -
- * see StoryContentAssemblyService) and compiles it with the same buildStoryRuntimePackage() the
- * build pipeline used to run at build time. Cached per storyId for the lifetime of the session -
- * a child mid-story should never see content change under them.
+ * see StoryContentAssemblyService) and compiles it with buildStoryRuntimePackage(). Cached per
+ * storyId for the lifetime of the session - a child mid-story should never see content change
+ * under them.
  */
 export function loadStoryPackage(
   storyId: string,
@@ -80,8 +81,7 @@ export function loadStoryPackage(
  * replaces the cached entry with the new result. Used after a live-branch generation job reports
  * READY (see use-one-story-runtime.ts's polling effect): the newly-committed family/segment/asset
  * only exists once this refetch runs, since there is no incremental-fetch endpoint. Goes through the
- * exact same fetchStoryPackage()/buildStoryRuntimePackage() parsing path as the initial load, so the
- * new content is compiled identically to build-time-authored content.
+ * exact same fetchStoryPackage()/buildStoryRuntimePackage() parsing path as the initial load.
  */
 export function refetchStoryPackage(
   storyId: string,
@@ -94,7 +94,7 @@ export function refetchStoryPackage(
 
 async function fetchStoryPackage(
   storyId: string,
-  { baseUrl = speechApiUrl, fetchImpl = fetch }: LoadStoryPackageOptions,
+  { baseUrl = apiBaseUrl, fetchImpl = fetch }: LoadStoryPackageOptions,
 ): Promise<StoryRuntimePackage> {
   if (!baseUrl) {
     throw new StoryLoadError(
@@ -110,24 +110,16 @@ async function fetchStoryPackage(
     generatedContent: GeneratedStoryContent;
     packageData: StoryPackageData;
   };
-  // Assets come with the content. They used to come from a map baked into this bundle at build
-  // time, which meant a re-recorded line or a swapped illustration could not reach a child without
-  // shipping a new frontend - the build-time maps are kept only as the offline fallback below.
+  // Assets come with the content so a re-recorded line or swapped illustration reaches a child
+  // without shipping a new frontend - the build-time maps are only the fallback for packages that
+  // predate served assets.
   const contentStoryId = body.packageData.story.storyId;
   const served = body.packageData.assets;
   const imageAssets = served
-    ? Object.fromEntries(
-        served
-          .filter((asset) => asset.category === 'SCENE_ART' || asset.category === 'BRANCH_ART')
-          .map((asset) => [asset.slug, { uri: asset.url }]),
-      )
+    ? servedAssetMap(served, ['SCENE_ART', 'BRANCH_ART'])
     : STORY_IMAGE_ASSETS_BY_ID[contentStoryId] ?? {};
   const audioAssets = served
-    ? Object.fromEntries(
-        served
-          .filter((asset) => asset.category === 'NARRATION' || asset.category === 'BRIDGE')
-          .map((asset) => [asset.slug, { uri: asset.url }]),
-      )
+    ? servedAssetMap(served, ['NARRATION', 'BRIDGE'])
     : STORY_AUDIO_ASSETS_BY_ID[contentStoryId] ?? {};
   return buildStoryRuntimePackage({
     generatedContent: body.generatedContent,
@@ -135,6 +127,17 @@ async function fetchStoryPackage(
     imageAssets,
     audioAssets,
   });
+}
+
+function servedAssetMap(
+  served: readonly ServedStoryAsset[],
+  categories: readonly ServedStoryAsset['category'][],
+): Record<string, ImageSource | AudioSource> {
+  return Object.fromEntries(
+    served
+      .filter((asset) => categories.includes(asset.category))
+      .map((asset) => [asset.slug, { uri: asset.url }]),
+  );
 }
 
 export async function getDefaultBetaStory(

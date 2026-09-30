@@ -52,6 +52,8 @@ export type UpdateLessonInput = Partial<CreateLessonInput> & {
   /** true면 같은 시리즈에서 아직 SCHEDULED이고 이 수업과 같거나 이후 시각인 형제들에도 이
    * 요청을 함께 적용한다(scheduledAt은 절대값이 아니라 이 수업의 이동량만큼 각자 이동). */
   applyToFutureInSeries?: boolean;
+  /** true면 반 수업을 개인 수업으로 바꾼다(classGroupId를 비워 보내면 서버는 "그대로"로 읽는다). */
+  clearClassGroup?: boolean;
 };
 
 export class LessonApiError extends Error {

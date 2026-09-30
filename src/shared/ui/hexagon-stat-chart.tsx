@@ -38,10 +38,10 @@ export function HexagonStatChart({ data, size = 300 }: HexagonStatChartProps) {
   const labelBand = size * 0.29;
   const radius = center - labelBand;
 
-  const valuePoints = data
-    .map((d, i) => pointAt(center, center, (radius * Math.max(0, Math.min(100, d.value))) / 100, angleFor(i, count)))
-    .map((p) => `${p.x},${p.y}`)
-    .join(' ');
+  const valueCoords = data.map((d, i) =>
+    pointAt(center, center, (radius * Math.max(0, Math.min(100, d.value))) / 100, angleFor(i, count)),
+  );
+  const valuePoints = valueCoords.map((p) => `${p.x},${p.y}`).join(' ');
 
   const summary = data.map((d) => `${d.label} ${Math.round(d.value)}점`).join(', ');
 
@@ -89,7 +89,7 @@ export function HexagonStatChart({ data, size = 300 }: HexagonStatChartProps) {
       />
 
       {data.map((d, i) => {
-        const p = pointAt(center, center, (radius * Math.max(0, Math.min(100, d.value))) / 100, angleFor(i, count));
+        const p = valueCoords[i];
         return (
           <circle
             key={d.label}

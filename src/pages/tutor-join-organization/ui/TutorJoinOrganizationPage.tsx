@@ -34,10 +34,12 @@ export function TutorJoinOrganizationPage() {
     }
   }, [state, navigate]);
 
+  const token = state.status === 'authenticated' ? state.token : null;
+
   useEffect(() => {
-    if (state.status !== 'authenticated') return;
+    if (!token) return;
     let cancelled = false;
-    listMyOrganizations(state.token)
+    listMyOrganizations(token)
       .then((organizations) => {
         if (!cancelled) setOrgs({ status: 'ready', organizations });
       })
@@ -51,7 +53,7 @@ export function TutorJoinOrganizationPage() {
     return () => {
       cancelled = true;
     };
-  }, [state]);
+  }, [token]);
 
   function goToCode() {
     setCodeError(null);
@@ -65,12 +67,12 @@ export function TutorJoinOrganizationPage() {
 
   function goToLink() {
     setInviteError(null);
-    const token = extractOrgInviteToken(inviteInput);
-    if (!token) {
+    const inviteToken = extractOrgInviteToken(inviteInput);
+    if (!inviteToken) {
       setInviteError('초대 링크 또는 토큰을 확인해 주세요.');
       return;
     }
-    navigate(`/org-invite/${encodeURIComponent(token)}`);
+    navigate(`/org-invite/${encodeURIComponent(inviteToken)}`);
   }
 
   if (state.status !== 'authenticated') return null;
@@ -160,9 +162,10 @@ function extractOrgInviteToken(raw: string): string | null {
   return null;
 }
 
+const JOINED_DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+
 function formatDate(iso: string) {
-  const date = new Date(iso);
-  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
+  return JOINED_DATE_FORMAT.format(new Date(iso));
 }
 
 const styles = StyleSheet.create({

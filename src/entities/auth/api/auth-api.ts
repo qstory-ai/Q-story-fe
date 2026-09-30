@@ -1,5 +1,5 @@
 import { apiBaseUrl } from '@/shared/config';
-import { requestJson, type RequestOptions as SharedRequestOptions } from '@/shared/api';
+import { requestJson, type RequestOptions } from '@/shared/api';
 
 export type Role = 'DIRECTOR' | 'PARENT' | 'TUTOR' | 'STAFF';
 
@@ -68,15 +68,7 @@ export type ClassMembershipResponse = {
   tutorDisplayName: string | null;
 };
 
-export type RequestOptions = SharedRequestOptions;
-
-/**
- * The backend's failure envelope is {ok:false, failure:{code, stage, retryable, safeDetail}} -
- * safeDetail is written to be shown directly to a user, so form error messages surface it as-is
- * rather than a generic "HTTP 4xx" string. story-registry.ts's StoryLoadError does the same for
- * the story load screen. requestJson() (shared/api) does the actual fetch + envelope parsing;
- * this module keeps its own error class so callers can `instanceof`-check it.
- */
+/** requestJson()(shared/api)이 실패 봉투를 파싱해 던지는 에러 - 호출부가 instanceof로 구분할 수 있게 도메인별 클래스를 둔다. */
 export class AuthApiError extends Error {
   constructor(
     message: string,

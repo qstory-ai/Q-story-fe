@@ -13,7 +13,6 @@ export type QuestionAnchorId = Brand<string, 'QuestionAnchorId'>;
 export type RejoinAnchorId = Brand<string, 'RejoinAnchorId'>;
 export type FallbackFamilyId = Brand<string, 'FallbackFamilyId'>;
 export type TraceId = Brand<string, 'TraceId'>;
-export type RecordingAssetId = Brand<string, 'RecordingAssetId'>;
 
 function createId<T extends string>(value: string, label: string): T {
   const normalized = value.trim();
@@ -46,6 +45,3 @@ export const rejoinAnchorId = (value: string) =>
   createId<RejoinAnchorId>(value, 'RejoinAnchorId');
 export const fallbackFamilyId = (value: string) =>
   createId<FallbackFamilyId>(value, 'FallbackFamilyId');
-export const traceId = (value: string) => createId<TraceId>(value, 'TraceId');
-export const recordingAssetId = (value: string) =>
-  createId<RecordingAssetId>(value, 'RecordingAssetId');

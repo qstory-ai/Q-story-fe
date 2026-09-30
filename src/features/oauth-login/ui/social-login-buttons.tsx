@@ -14,11 +14,9 @@ import {
 } from '@/entities/auth';
 
 type SocialLoginButtonsProps = {
-  /** 처음 가입하는 경우에만 쓰인다 - 이미 role이 없는 로그인 화면(SignInStep/LoginPage)에서는 생략한다. */
+  /** 처음 가입하는 경우에만 쓰인다 - 로그인 화면(SignInStep)에서는 생략한다. */
   role?: Role;
   onAuthed: (token: string, user: UserSummary) => void;
-  /** LoginPage처럼 밝은 배경 위에 놓일 때는 false - 구분선 색이 반대로 뒤집힌다. */
-  onDark?: boolean;
 };
 
 /**
@@ -30,7 +28,7 @@ type SocialLoginButtonsProps = {
  * 두 provider 모두 아직 설정 안 됐으면(client-id/JS 키 미발급) 아무것도 렌더링하지 않는다 -
  * 눌러도 실패하는 버튼을 보여주는 것보다 조용히 숨기는 편이 낫다.
  */
-export function SocialLoginButtons({ role, onAuthed, onDark = true }: SocialLoginButtonsProps) {
+export function SocialLoginButtons({ role, onAuthed }: SocialLoginButtonsProps) {
   // react-native-web의 View ref 타입(ReactNativeElement)은 그대로 쓰기 번거롭고, 아래
   // effect에서 곧바로 HTMLElement로 캐스팅해 구글 SDK에 넘길 뿐이라 any로 충분하다.
   const googleContainerRef = useRef<any>(null);
@@ -82,9 +80,9 @@ export function SocialLoginButtons({ role, onAuthed, onDark = true }: SocialLogi
   return (
     <View style={styles.group}>
       <View style={styles.dividerRow}>
-        <View style={[styles.dividerLine, onDark ? styles.dividerLineOnDark : styles.dividerLineOnLight]} />
-        <Text style={[styles.dividerText, onDark ? styles.dividerTextOnDark : styles.dividerTextOnLight]}>또는</Text>
-        <View style={[styles.dividerLine, onDark ? styles.dividerLineOnDark : styles.dividerLineOnLight]} />
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>또는</Text>
+        <View style={styles.dividerLine} />
       </View>
       {googleOAuthConfigured && <View ref={googleContainerRef} style={styles.googleContainer} />}
       {kakaoOAuthConfigured && (
@@ -106,12 +104,8 @@ export function SocialLoginButtons({ role, onAuthed, onDark = true }: SocialLogi
 const styles = StyleSheet.create({
   group: { gap: 10, marginTop: 4 },
   dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  dividerLine: { flex: 1, height: 1 },
-  dividerLineOnDark: { backgroundColor: storybookTheme.color.contentPanelBorder },
-  dividerLineOnLight: { backgroundColor: storybookTheme.color.pillBorder },
-  dividerText: { fontSize: storybookTheme.type.xs },
-  dividerTextOnDark: { color: storybookTheme.color.onContentMuted },
-  dividerTextOnLight: { color: storybookTheme.color.onLightMuted },
+  dividerLine: { flex: 1, height: 1, backgroundColor: storybookTheme.color.contentPanelBorder },
+  dividerText: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onContentMuted },
   googleContainer: { alignItems: 'center', minHeight: 44 },
   kakaoButton: {
     minHeight: 50,

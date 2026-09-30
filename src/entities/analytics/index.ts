@@ -6,3 +6,4 @@ export * from './model/local-story-progress';
 export * from './model/parent-report';
 export * from './model/comprehensive-report';
 export * from './model/voice-research';
+export * from './api/voice-research-consent-api';

@@ -1,11 +1,7 @@
 import { apiBaseUrl } from '@/shared/config';
 import { requestJson, type PublicRequestOptions as RequestOptions } from '@/shared/api';
 
-/**
- * IA에서 정의한 학부모 홈의 "아이 선택" 축을 실제로 백엔드에 저장하기 위한 REST API - 예전에는
- * app_user.child_name 단일 문자열이 이 자리를 대신했지만, 한 부모가 여러 아이를 관리한다는
- * 요구를 반영해 별도 리소스로 승격했다. 서버 스키마는 be/parent/child 패키지 참조.
- */
+/** 학부모 한 명이 여러 아이 프로필을 관리하는 REST API. 서버 스키마는 be/parent/child 패키지 참조. */
 
 export type Child = {
   id: string;

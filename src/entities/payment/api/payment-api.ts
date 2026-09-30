@@ -17,7 +17,10 @@ export type PaymentOrder = {
  * currentSeats는 지금 결제돼 있는 인원(예전 정액 구독이면 null).
  */
 export type OrganizationQuote = {
+  /** 과금 대상 - 학부모가 연결된 학생 수. */
   studentCount: number;
+  /** 반 명단 전체 학생 수(학부모 연결 대기 포함). */
+  rosterStudentCount: number;
   unitAmount: number;
   amount: number;
   currentSeats: number | null;

@@ -83,9 +83,6 @@ const TutorStudentNewPage = lazy(() =>
 const TutorStudentsPage = lazy(() =>
   import('@/pages/tutor-student').then((m) => ({ default: m.TutorStudentsPage })),
 );
-const TutorScheduleListPage = lazy(() =>
-  import('@/pages/tutor-student').then((m) => ({ default: m.TutorScheduleListPage })),
-);
 const ParentLinkAcceptPage = lazy(() =>
   import('@/pages/parent-link').then((m) => ({ default: m.ParentLinkAcceptPage })),
 );
@@ -260,7 +257,6 @@ export function App() {
             <Route path="/tutor/students" element={<TutorStudentsPage />} />
             <Route path="/tutor/students/:studentId" element={<TutorStudentDetailPage />} />
             <Route path="/tutor/lessons/:lessonId" element={<TutorLessonDetailPage />} />
-            <Route path="/tutor/schedule" element={<TutorScheduleListPage />} />
             <Route path="/tutor-invite/:token" element={<ParentLinkAcceptPage />} />
             <Route path="/tutor-invite/code/:code" element={<ParentLinkAcceptPage />} />
             <Route path="/mypage" element={<MyPage />} />

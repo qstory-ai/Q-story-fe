@@ -6,58 +6,32 @@ import {
 } from '@/entities/launch-notification';
 import { messageForError } from '@/shared/api';
 
+/**
+ * 데모 앞 연락처를 이미 남긴 브라우저인지. 계정이 아니라 브라우저 기준이다 - 같은 브라우저에서 로그인·로그아웃하거나
+ * 다른 계정으로 바꿔도(대개 같은 가정) 다시 묻지 않는다. 예전 버전이 남긴 계정별 키(`…:account:<id>`)는 항상 이
+ * 공통 키와 함께 저장됐으므로 이 키 하나만 보면 된다.
+ */
 const STORAGE_KEY = 'qstory-launch-notification-submitted';
 
-/**
- * 로그인 계정이 있으면 계정별 키를, 없으면(진짜 익명 데모) 기존 브라우저 공통 키를 쓴다 -
- * 그냥 브라우저 하나로만 묶으면, 이 브라우저에서 어느 계정으로든 한 번 통과한 뒤로는 다른
- * 계정으로 로그인해도(혹은 같은 계정이 아니어도) 다시는 안 뜬다는 문제가 있었다.
- */
-function storageKeyFor(accountId: string | null): string {
-  return accountId ? `${STORAGE_KEY}:account:${accountId}` : STORAGE_KEY;
-}
-
-/**
- * 계정 키와 익명 키 둘 다 확인한다 - 익명으로 통과한 뒤 로그인 상태로 재방문하거나(혹은 그
- * 반대) 하면 accountId 유무에 따라 storageKeyFor()가 다른 키를 가리키게 되어, 이미 한 번
- * 통과한 사용자에게 모달이 다시 뜨는 문제가 있었다. 두 키 중 하나라도 '1'이면 통과로 본다.
- */
-function readPassed(storageKey: string): boolean {
+function readPassed(): boolean {
   try {
-    return (
-      window.localStorage.getItem(storageKey) === '1' ||
-      window.localStorage.getItem(STORAGE_KEY) === '1'
-    );
+    return window.localStorage.getItem(STORAGE_KEY) === '1';
   } catch {
     return false;
   }
 }
 
-function writePassed(storageKey: string) {
+function writePassed() {
   try {
-    window.localStorage.setItem(storageKey, '1');
-    // 익명 키도 함께 남겨 두면, 이후 로그인/로그아웃으로 키가 바뀌어도 readPassed()가 찾을 수 있다.
     window.localStorage.setItem(STORAGE_KEY, '1');
   } catch {
     // localStorage를 못 쓰는 환경(사파리 프라이빗 모드 등)이면 이번 방문에서만 통과 상태를 유지한다.
   }
 }
 
-/**
- * DemoStoryRoute 전용 게이트 상태 - 한 번 제출하면 같은 브라우저/같은 계정 조합에서는 다시
- * 묻지 않는다. accountId는 로그인 상태일 때만 넘긴다(LaunchNotificationGate 참고) - auth
- * 상태가 'loading'에서 뒤늦게 확정되며 storageKey가 바뀌는 경우, effect가 아니라 렌더 중
- * 상태를 바로 잡는 React 권장 패턴(https://react.dev/learn/you-might-not-need-an-effect)으로
- * 다시 판단한다.
- */
-export function useLaunchNotificationGate(accountId: string | null) {
-  const storageKey = storageKeyFor(accountId);
-  const [passed, setPassed] = useState(() => readPassed(storageKey));
-  const [passedForKey, setPassedForKey] = useState(storageKey);
-  if (passedForKey !== storageKey) {
-    setPassedForKey(storageKey);
-    setPassed(readPassed(storageKey));
-  }
+/** DemoStoryRoute 전용 게이트 상태 - 한 번 제출하면 이 브라우저에서는 다시 묻지 않는다. */
+export function useLaunchNotificationGate() {
+  const [passed, setPassed] = useState(readPassed);
   const [parentName, setParentName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -92,7 +66,7 @@ export function useLaunchNotificationGate(accountId: string | null) {
           discoverySource: discoverySource.trim(),
           wantsContact,
         });
-        writePassed(storageKey);
+        writePassed();
         setPassed(true);
       } catch (failure) {
         setError(messageForError(failure, '신청 정보를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.'));
@@ -100,7 +74,7 @@ export function useLaunchNotificationGate(accountId: string | null) {
         setSubmittingIntent(null);
       }
     },
-    [canSubmit, parentName, email, phone, childGender, childAge, discoverySource, storageKey],
+    [canSubmit, parentName, email, phone, childGender, childAge, discoverySource],
   );
 
   return {
@@ -123,5 +97,3 @@ export function useLaunchNotificationGate(accountId: string | null) {
     submit,
   };
 }
-
-export type UseLaunchNotificationGate = ReturnType<typeof useLaunchNotificationGate>;

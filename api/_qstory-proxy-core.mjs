@@ -7,6 +7,10 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/beta-events', true],
   ['POST v1/voice-research', true],
   ['POST v1/voice-research/withdraw', true],
+  // 마이페이지 계정 단위 음성 연구 동의(조회/동의/철회) - 본문은 약관 버전 한 줄뿐이다.
+  ['GET v1/me/voice-research-consent', true],
+  ['POST v1/me/voice-research-consent', true],
+  ['POST v1/me/voice-research-consent/withdraw', true],
   ['POST v1/companion-chat/messages', true],
   ['POST v1/companion-chat/transcriptions/base64', true],
   ['POST v1/auth/signup/organization', true],
@@ -32,14 +36,13 @@ const ALLOWED_ROUTES = new Map([
   ['GET v1/story-completions/recent', true],
   ['POST v1/tutor-students', true],
   ['GET v1/tutor-students', true],
-  ['GET v1/tutor-schedules', true],
+  ['POST v1/tutor-students/bulk', true],
+  ['GET v1/tutor-classes', true],
+  ['POST v1/tutor-classes', true],
   ['GET v1/parents/me/tutor-reports', true],
-  // ---- 아래는 이후 세션들에서 추가된 것들. 새 엔드포인트가 생기면 여기 계속 append.
   ['POST v1/feedback', true],
   ['GET v1/parents/me/children', true],
   ['POST v1/parents/me/children', true],
-  ['GET v1/parents/me/notification-settings', true],
-  ['PATCH v1/parents/me/notification-settings', true],
   ['GET v1/me/notification-settings', true],
   ['PATCH v1/me/notification-settings', true],
   ['GET v1/me/bookmarks', true],
@@ -52,9 +55,10 @@ const ALLOWED_ROUTES = new Map([
   ['GET v1/notifications', true],
   ['POST v1/notifications/read-all', true],
   ['POST v1/auth/me/profile-image', true],
-  ['DELETE v1/classes/membership', true],
+  ['GET v1/classes/memberships', true],
   ['POST v1/payments/orders', true],
   ['POST v1/payments/confirm', true],
+  ['GET v1/payments/organization-quote', true],
 ]);
 
 // Routes with a path segment (story/org/class/scene/segment id) that can't be listed as a literal above.
@@ -64,29 +68,29 @@ const STORY_ID_SEGMENT = '[A-Za-z0-9_-]{1,64}';
 // bytes (ClassService.randomToken()/TutorStudentService.randomToken()) - URL-safe base64, not a UUID.
 const INVITE_TOKEN_SEGMENT = '[A-Za-z0-9_-]{16,64}';
 // The short, human-typeable code shown alongside the link (JoinCodeGenerator: 8 chars, no
-// ambiguous 0/O/1/I/L) - a different, much shorter format than the raw token above. Reusing
-// INVITE_TOKEN_SEGMENT's {16,64} minimum here rejected every real short code (see
-// shared/lib/invite-code.ts's own 4-16 char rule) with the generic allowlist error, so the
-// "by-code" routes need their own, shorter segment.
+// ambiguous 0/O/1/I/L) - much shorter than the raw token above, so the "by-code" routes use their
+// own segment (same 4-16 char rule as shared/lib/invite-code.ts).
 const SHORT_CODE_SEGMENT = '[A-Z0-9]{4,16}';
 const DYNAMIC_ROUTES = [
-  { method: 'GET', pattern: /^v1\/stories\/[A-Za-z0-9_-]{1,64}\/content$/ },
+  { method: 'GET', pattern: new RegExp(`^v1/stories/${STORY_ID_SEGMENT}/content$`) },
+  // 종합 리포트가 이야기별 전략 표(strategyByFamily)를 읽는 가벼운 경로(entities/story/api/story-api.ts).
+  { method: 'GET', pattern: new RegExp(`^v1/stories/${STORY_ID_SEGMENT}/report-copy$`) },
   { method: 'GET', pattern: new RegExp(`^v1/stories/${STORY_ID_SEGMENT}$`) },
   // NEW_CHOICES 실시간 생성 job 폴링(entities/live-branch/api/live-branch-api.ts) - jobId는 UUID.
   { method: 'GET', pattern: new RegExp(`^v1/live-branch/${UUID_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/story-completions/${UUID_SEGMENT}$`) },
-  { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/entitlement$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/usage$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/reports$`) },
   { method: 'POST', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/classes$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/classes$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}$`) },
-  { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/invites$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/students$`) },
+  { method: 'PUT', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/homeroom$`) },
+  { method: 'DELETE', pattern: new RegExp(`^v1/classes/memberships/${UUID_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}$`) },
   { method: 'PATCH', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}$`) },
   { method: 'DELETE', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}$`) },
-  { method: 'POST', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/schedule$`) },
   { method: 'POST', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/invites$`) },
   { method: 'GET', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/completions$`) },
   { method: 'GET', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/lesson-plans$`) },
@@ -100,12 +104,15 @@ const DYNAMIC_ROUTES = [
   { method: 'DELETE', pattern: new RegExp(`^v1/tutor-lessons/${UUID_SEGMENT}$`) },
   { method: 'POST', pattern: new RegExp(`^v1/tutor-lessons/${UUID_SEGMENT}/start$`) },
   { method: 'POST', pattern: new RegExp(`^v1/tutor-lessons/${UUID_SEGMENT}/complete$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/tutor-lessons/${UUID_SEGMENT}/completions$`) },
   { method: 'DELETE', pattern: new RegExp(`^v1/tutor-lesson-plans/${UUID_SEGMENT}$`) },
   // ---- organization ↔ tutor 소속 관리
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/tutors$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/tutor-invites$`) },
   { method: 'POST', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/tutor-invites$`) },
   { method: 'DELETE', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/tutors/${UUID_SEGMENT}$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/tutors/${UUID_SEGMENT}/students$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/tutors/${UUID_SEGMENT}/lessons$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organization-tutor-invites/${INVITE_TOKEN_SEGMENT}$`) },
   { method: 'POST', pattern: new RegExp(`^v1/organization-tutor-invites/${INVITE_TOKEN_SEGMENT}/accept$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organization-tutor-invites/by-code/${SHORT_CODE_SEGMENT}$`) },
@@ -137,10 +144,8 @@ function isAllowedRoute(method, upstreamPath) {
   return DYNAMIC_ROUTES.some((route) => route.method === method && route.pattern.test(upstreamPath));
 }
 
-// 리소스 컨텍스트(storyId/sceneId/anchorId/questionRound)는 모든 라우트가 JSON body로
-// 받는다 - 예전엔 x-qstory-* 헤더로 전달하는 라우트도 있었지만, 그 라우트들(/v1/transcriptions,
-// /v1/questions)은 애초에 이 프록시의 화이트리스트에 없었거나(raw 바이너리 업로드는 이 프록시를
-// 안 탄다) 지금은 body 기반으로 옮겨져서, 이 프록시가 전달해야 할 커스텀 컨텍스트 헤더가 없다.
+// 리소스 컨텍스트(storyId/sceneId/anchorId/questionRound)는 모든 라우트가 JSON body로 받으므로
+// 전달할 커스텀 헤더가 없다.
 const FORWARDED_HEADERS = ['content-type', 'authorization'];
 const MAX_RAW_AUDIO_BYTES = Math.floor(2.5 * 1024 * 1024);
 // Base64 JSON audio upload inflates the raw bytes by ~4/3.
@@ -154,19 +159,22 @@ const MAX_AUTH_BODY_BYTES = 8_192;
 // Two optional free-text fields (topPriority/oneLineReview, 500 chars each server-side) plus
 // checkbox arrays and a contact field can add up past MAX_AUTH_BODY_BYTES in the worst case.
 const MAX_COMPLETION_SURVEY_BODY_BYTES = 16_384;
-// Matches application.yml's spring.servlet.multipart.max-file-size/max-request-size (4MB) - the
-// proxy reads the whole body into memory before forwarding, so without this override the generic
-// AUTH_PATH_PREFIXES cap below (8KB, sized for JSON auth bodies) would 413 every real photo before
-// it ever reached that backend limit.
+// Matches application.yml's spring.servlet.multipart.max-file-size/max-request-size (4MB); the
+// generic AUTH_PATH_PREFIXES cap below (8KB) would 413 every real photo.
 const MAX_PROFILE_IMAGE_BODY_BYTES = 4 * 1024 * 1024;
-const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes', 'v1/tutor-students', 'v1/tutor-invites', 'v1/parents/', 'v1/payments/'];
+// Up to TutorStudentService.BULK_STUDENT_LIMIT (50) names/birth years plus a shared prep note -
+// can exceed the 8KB AUTH_PATH_PREFIXES cap that v1/tutor-students/* otherwise falls under.
+const MAX_BULK_STUDENTS_BODY_BYTES = 32_768;
+const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes', 'v1/tutor-students', 'v1/tutor-invites', 'v1/tutor-classes', 'v1/parents/', 'v1/payments/'];
 
 function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath === 'v1/voice-research') return MAX_VOICE_RESEARCH_BODY_BYTES;
   if (upstreamPath === 'v1/beta-events') return MAX_BETA_EVENT_BODY_BYTES;
+  if (upstreamPath.startsWith('v1/me/voice-research-consent')) return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/launch-notifications') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/completion-surveys') return MAX_COMPLETION_SURVEY_BODY_BYTES;
   if (upstreamPath === 'v1/auth/me/profile-image') return MAX_PROFILE_IMAGE_BODY_BYTES;
+  if (upstreamPath === 'v1/tutor-students/bulk') return MAX_BULK_STUDENTS_BODY_BYTES;
   if (AUTH_PATH_PREFIXES.some((prefix) => upstreamPath.startsWith(prefix))) return MAX_AUTH_BODY_BYTES;
   return MAX_TRANSCRIPTION_BODY_BYTES;
 }
@@ -241,9 +249,6 @@ export function createQStoryProxy({
       upstreamPath.includes('..') ||
       !isAllowedRoute(request.method.toUpperCase(), upstreamPath)
     ) {
-      // 이 프록시는 원래 음성 처리만 담당했지만 지금은 앱 전체 API를 프록싱한다 - 그래서
-      // 문구가 "음성 처리 경로"라고 하면 (수업 탭처럼) 음성과 무관한 화면에서 뜨는
-      // 이 에러가 오해를 부른다. 뭐가 잘못됐는지(=allowlist 누락)를 직접 알려주도록 수정.
       return failureResponse(
         404,
         'QSTORY_PROXY_ROUTE_NOT_ALLOWED',

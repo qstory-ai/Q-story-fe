@@ -6,26 +6,22 @@ import { storybookTheme } from './theme';
  * tone 카탈로그:
  *  - `onCard`(기본): 라이트 카드 위 옅은 primary 톤 pill - 카테고리/카운트 라벨 대부분.
  *  - `onLight`: 라이트 서피스 위 상태 라벨용 중립 톤 - "부모 연결 대기" 같은 상태 pill.
- *  - `accent`: 골드 강조 톤 - CTA 유도가 필요한 소수 위치. `onDark`의 후속 이름(호환 위해 alias 유지).
- *  - `onDark`(deprecated alias for `accent`): 다크 배경 시절 이름. 라이트 리테마 이후 골드 hue만
- *    유지된 채 `accent`와 동일하게 렌더링. 새 코드는 `accent`를 쓸 것.
+ *  - `accent`: 골드 강조 톤 - CTA 유도가 필요한 소수 위치.
  */
 type PillProps = {
   label: string;
-  tone?: 'onDark' | 'onCard' | 'onLight' | 'accent';
+  tone?: 'onCard' | 'onLight' | 'accent';
 };
 
 /** 작고 둥근 카테고리/상태 태그. */
 export function Pill({ label, tone = 'onCard' }: PillProps) {
-  // 'onDark'는 라이트 리테마 이후 'accent'로 이름을 바꿨지만 기존 호출자 호환 위해 alias로 처리.
-  const effectiveTone = tone === 'onDark' ? 'accent' : tone;
   const containerStyle =
-    effectiveTone === 'accent' ? styles.accent
-    : effectiveTone === 'onLight' ? styles.onLight
+    tone === 'accent' ? styles.accent
+    : tone === 'onLight' ? styles.onLight
     : styles.onCard;
   const textStyle =
-    effectiveTone === 'accent' ? styles.textAccent
-    : effectiveTone === 'onLight' ? styles.textOnLight
+    tone === 'accent' ? styles.textAccent
+    : tone === 'onLight' ? styles.textOnLight
     : styles.textOnCard;
   return (
     <View style={[styles.base, containerStyle]}>

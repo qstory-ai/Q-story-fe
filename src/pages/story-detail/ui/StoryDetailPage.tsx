@@ -18,15 +18,14 @@ type LoadState =
   | { requestKey: string; status: 'ready'; story: StoryCatalogEntry }
   | { requestKey: string; status: 'error'; message: string };
 
-/**
- * 홈 서재(라이브러리)와 플레이어 사이에 위치한다 - GET /v1/stories/{storyId}는 이미 익명 접근을
- * 지원하므로(StoryCatalogService.get의 callerOrNull 참고), 이 페이지는 HomePage처럼 로그인을
- * 강제하지 않는다; 이 페이지가 호출하는 백엔드 엔드포인트와 마찬가지로 공개 카탈로그 뷰다.
- */
-// 이 폭부터 표지+정보 카드를 나란히 배치한다 - AppNavShell의 WIDE_BREAKPOINT(860)와는 별개
-// 값: 이 페이지는 사이드바 셸을 안 쓰고 뷰포트 전체 폭을 그대로 받는다.
+// 이 폭부터 표지+정보 카드를 나란히 배치한다 - 사이드바 셸 없이 뷰포트 전체 폭을 받으므로
+// AppNavShell의 WIDE_BREAKPOINT(860)와는 별개 값.
 const WIDE_BREAKPOINT = 760;
 
+/**
+ * 서재와 플레이어 사이의 이야기 상세. GET /v1/stories/{storyId}가 익명 접근을 지원하므로 로그인을
+ * 강제하지 않는 공개 카탈로그 뷰다.
+ */
 export function StoryDetailPage() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
@@ -115,7 +114,7 @@ export function StoryDetailPage() {
    *
    * 부모: 아이 2+명이면 picker, 0명이면 picker의 등록 CTA, 1명이면 곧바로.
    * 선생님: 학생 2+명이면 picker, 0명이면 picker의 등록 CTA, 1명이면 그 학생 id를 붙여
-   *   곧바로 시작. 반 선생님도 "새싹반" 같은 이름의 학생 하나로 등록하면 이 흐름으로 커버된다.
+   *   곧바로 시작.
    */
   const startPlay = useCallback((targetStoryId: string) => {
     if (isParent && children.length !== 1) {
@@ -231,11 +230,9 @@ export function StoryDetailPage() {
           visible={childPickerOpen}
           subtitle={`${effectiveLoad.story.title}을(를) 어떤 아이와 함께 볼까요?`}
           onClose={() => setChildPickerOpen(false)}
-          onSelected={(child) => {
+          onSelected={() => {
             setChildPickerOpen(false);
-            // 완주 저장 시점의 useChildren().selectedChild가 이 값을 참조하도록 selectChild는
-            // ChildPickerModal 내부에서 이미 호출됐다 - 여기선 곧바로 플레이어로 이동만.
-            void child;
+            // selectChild는 ChildPickerModal 내부에서 이미 호출됐다 - 여기선 플레이어로 이동만.
             navigate(`/stories/${effectiveLoad.story.storyId}/play`);
           }}
         />
@@ -275,19 +272,12 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    // contentMaxWidth(420, 로그인/가입 폼 전용 폭)였는데, 이 페이지로 들어오는 진입점(/library,
-    // 홈 히어로)은 훨씬 넓은 폭(wideMaxWidth 1040 / dashboardCardWideMaxWidth 760)을 쓰고 있어서
-    // 넓은 화면에서 카드가 갑자기 좁아지며 뚝 끊기는 느낌이 났다.
+    // 진입점(/library, 홈 히어로)과 비슷한 폭을 유지한다.
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
   },
-  // WIDE_BREAKPOINT 이상에서만 적용 - 표지+카드를 세로로 쌓지 않고 나란히 둔다. 좁은 화면의
-  // "표지 전체 폭 + 살짝 겹치는 카드" 구성을 그대로 넓혀버리면 4:3 표지가 매우 커지고
-  // (760폭 기준 570px 높이) 그 아래 짧은 정보 카드만 왜소해 보였다 - 좌우 배치가 이 폭에서는
-  // 더 균형 잡힌 결과를 낸다. alignItems를 stretch로 둬서 표지 높이가 옆 카드의 실제 콘텐츠
-  // 높이에 맞춰지게 한다(coverFrameWide 참고) - flex-start였을 때는 표지가 자기 aspectRatio로
-  // 정해진 고정 높이(320*3/4=240px)에 머물러 있고 옆 카드는 그보다 훨씬 길어서 둘의 높이가
-  // 안 맞았다.
+  // WIDE_BREAKPOINT 이상에서는 표지+카드를 나란히 둔다(좁은 화면 구성을 넓히면 4:3 표지가 너무
+  // 커진다). stretch로 표지 높이를 옆 카드 높이에 맞춘다(coverFrameWide 참고).
   contentWide: {
     flexDirection: 'row',
     alignItems: 'stretch',
@@ -300,8 +290,7 @@ const styles = StyleSheet.create({
     aspectRatio: 4 / 3,
     backgroundColor: storybookTheme.color.coverFallback,
   },
-  // coverFrame과 별개 스타일(합치지 않음) - aspectRatio를 아예 안 줘서 부모(contentWide)의
-  // stretch가 실제로 적용되게 한다. 폭만 320으로 고정하고 높이는 옆 정보 카드에 맞춰 늘어난다.
+  // aspectRatio 없이 폭만 고정해 부모(contentWide)의 stretch로 높이가 정해지게 한다.
   coverFrameWide: {
     width: 320,
     flexShrink: 0,
@@ -320,16 +309,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Card 프리미티브가 배경/테두리/라운드/패딩/elevation을 담당. 여기선 커버 이미지 위로
-  // 살짝 겹치는 negative margin과 좌우 여백, 자식 gap, 강조 elevation만 오버라이드한다.
+  // 커버 이미지 위로 살짝 겹치는 negative margin과 강조 elevation만 오버라이드한다.
   infoCard: {
     marginTop: -28,
     marginHorizontal: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.ms,
     ...storybookTheme.elevation.high,
   },
-  // 넓은 화면은 표지와 나란히 두는 카드라 겹칠 필요가 없다 - negative margin(모바일 "표지 위로
-  // 살짝 얹힌 카드" 연출)을 지우고 flex:1로 남은 폭을 채운다.
+  // 넓은 화면은 표지와 나란히 두므로 겹침을 지우고 남은 폭을 채운다.
   infoCardWide: {
     flex: 1,
     marginTop: 0,

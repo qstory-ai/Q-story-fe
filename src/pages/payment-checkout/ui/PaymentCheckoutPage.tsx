@@ -23,7 +23,8 @@ export function PaymentCheckoutPage() {
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const requestedTarget = params.get('target');
   const target: PaymentTarget | null = requestedTarget === 'PARENT' || requestedTarget === 'ORGANIZATION' ? requestedTarget : null;
-  const session = state.status === 'authenticated' ? state : null;
+  const token = state.status === 'authenticated' ? state.token : null;
+  const userId = state.status === 'authenticated' ? state.user.id : null;
   const setupIdRef = useRef(0);
 
   const allowed = state.status === 'authenticated'
@@ -35,21 +36,24 @@ export function PaymentCheckoutPage() {
     if (state.status !== 'loading' && !allowed) navigate('/', { replace: true });
   }, [state.status, allowed, navigate]);
 
+  // state 객체 전체가 아니라 token/userId로 좁힌다 - updateUser 등으로 state identity만 바뀌어도
+  // 주문을 새로 만들고 위젯을 다시 그리지 않도록.
   useEffect(() => {
-    if (!session || !target || !allowed) return;
-    const token = session.token;
-    const customerKey = `qstory-${session.user.id}`;
+    if (!token || !userId || !target || !allowed) return;
+    const authToken = token;
+    const customerKey = `qstory-${userId}`;
     const paymentTarget = target;
     if (!clientKey) {
       void Promise.resolve().then(() => setLoad({ status: 'error', message: '결제 화면 설정이 아직 준비되지 않았어요.' }));
       return;
     }
+    const tossClientKey = clientKey;
     const setupId = ++setupIdRef.current;
     let cancelled = false;
     async function setup() {
       try {
-        const order = await createPaymentOrder(token, paymentTarget);
-        const tossPayments = await loadTossPayments(clientKey!);
+        const order = await createPaymentOrder(authToken, paymentTarget);
+        const tossPayments = await loadTossPayments(tossClientKey);
         const widgets = tossPayments.widgets({ customerKey });
         await widgets.setAmount({ currency: 'KRW', value: order.amount });
         if (cancelled || setupId !== setupIdRef.current) return;
@@ -66,10 +70,10 @@ export function PaymentCheckoutPage() {
     }
     void setup();
     return () => { cancelled = true; };
-  }, [session, target, allowed]);
+  }, [token, userId, target, allowed]);
 
-  if (!allowed || !session) return null;
-  const user = session.user;
+  if (!allowed) return null;
+  const user = state.user;
   const backPath = target === 'ORGANIZATION' ? '/organization/subscription' : '/mypage/subscription';
 
   async function requestPayment() {
@@ -93,11 +97,8 @@ export function PaymentCheckoutPage() {
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">결제하기</Text>
         {load.status === 'error' ? <ErrorState message={load.message} onRetry={() => window.location.reload()} /> : null}
-        {/* #qstory-payment-method/#qstory-payment-agreement는 status가 'ready'가 되기 전, setup()
-            안에서 widgets.renderPaymentMethods/renderAgreement가 이미 그 자리에 mount를 시도한다
-            (그 성공 자체가 'ready' 전환의 조건이라 - 순서를 바꿀 수 없다). 그래서 이 카드를 status로
-            숨기면 mount 시점에 셀렉터가 DOM에 없어서 매번 실패했다 - 카드/두 div는 항상 렌더링하고,
-            안의 내용(주문 정보/로딩 문구/버튼)만 status로 바꾼다. */}
+        {/* 위젯은 'ready' 전환 전에 setup() 안에서 두 div에 mount된다(그 성공이 'ready'의 조건).
+            그래서 카드와 두 div는 status와 무관하게 항상 렌더링하고 안의 내용만 바꾼다. */}
         <View style={styles.card}>
           {load.status === 'ready' ? (
             <>

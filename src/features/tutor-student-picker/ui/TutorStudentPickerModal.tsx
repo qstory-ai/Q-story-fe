@@ -8,7 +8,6 @@ import { listTutorStudents, type TutorStudent } from '@/entities/tutor';
 type Props = {
   visible: boolean;
   token: string;
-  title?: string;
   subtitle?: string;
   onClose: () => void;
   /** 학생을 골랐을 때 - 인자는 방금 선택된 학생. 모달 닫기는 호출자 책임. */
@@ -29,7 +28,7 @@ type Load =
  * <p>비어 있을 때(등록된 학생 0명)엔 "학생을 먼저 등록해 주세요" 안내와 등록 화면으로 가는 링크만.
  * 등록 자체는 별도 화면(/tutor/students/new)에서 진행되므로, 이 모달은 등록 폼을 품지 않는다.
  */
-export function TutorStudentPickerModal({ visible, token, title, subtitle, onClose, onSelected }: Props) {
+export function TutorStudentPickerModal({ visible, token, subtitle, onClose, onSelected }: Props) {
   const navigate = useNavigate();
   const [load, setLoad] = useState<Load>({ status: 'loading' });
 
@@ -52,7 +51,7 @@ export function TutorStudentPickerModal({ visible, token, title, subtitle, onClo
     <Modal
       visible={visible}
       eyebrow="학생 선택"
-      title={title ?? '어떤 학생과 시작할까요?'}
+      title="어떤 학생과 시작할까요?"
       accessibilityLabel="이야기 시작 전 학생 선택"
       linkAction={{ label: '취소', onPress: onClose }}
     >

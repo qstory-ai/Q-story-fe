@@ -24,9 +24,7 @@ type LoadState =
 /**
  * IA "[3] 수업" 화면. 상단 서브탭 세 개(예정/진행/완료)로 lesson.status를 필터하고, 각 카드
  * 탭 → /tutor/lessons/{id} 상세 페이지로 이동. '새 수업 만들기'는 LessonFormModal.
- *
- * <p>지난 세션의 뼈대(학생 상태 기반 근사치)를 실데이터(lesson)로 교체했다. 학생 뷰는 여전히
- * /tutor/students로 접근하고, 이 화면은 "수업" 축만 다룬다.
+ * 학생 뷰는 /tutor/students가 맡고, 이 화면은 "수업" 축만 다룬다.
  */
 export function TutorClassesPage() {
   const navigate = useNavigate();
@@ -44,13 +42,13 @@ export function TutorClassesPage() {
     }
   }, [state, navigate]);
 
+  const token = state.status === 'authenticated' ? state.token : null;
+
   useEffect(() => {
-    if (state.status !== 'authenticated') return;
+    if (!token) return;
     let cancelled = false;
-    // tab이나 reloadKey가 바뀌면 새 요청을 시작 - 이전 데이터는 그대로 두고, 응답 도착 시 갈아
-    // 낀다. 매 이펙트에서 즉시 setState({loading})으로 초기화하는 방식은 setState-in-effect
-    // 규칙에 걸려서, 대신 요청 응답 자체가 이전 상태를 덮어쓰도록 흘려 보낸다.
-    listLessons(state.token, { status: tab as LessonStatus })
+    // 이전 데이터는 그대로 두고 응답 도착 시 갈아 낀다(setState-in-effect 규칙 회피).
+    listLessons(token, { status: tab as LessonStatus })
       .then((lessons) => {
         if (!cancelled) setLoad({ status: 'ready', lessons });
       })
@@ -62,7 +60,7 @@ export function TutorClassesPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, tab, reloadKey]);
+  }, [token, tab, reloadKey]);
 
   const refresh = useCallback(() => setReloadKey((n) => n + 1), []);
 
@@ -115,9 +113,7 @@ export function TutorClassesPage() {
         />
       </View>
 
-      {/* key로 open/closed(+ 편집 대상) 상태를 걸어 매번 열 때 폼이 초기화되도록 한다 -
-          LessonFormModal이 이제 lazy useState로 초기값을 잡아, 다시 열거나 다른 수업 편집으로
-          전환될 때 이전 입력이 남지 않고 올바른 초기값으로 remount된다. */}
+      {/* key로 open/closed(+ 편집 대상)를 걸어 열 때마다 폼을 초기값으로 remount한다. */}
       <LessonFormModal
         key={editingLesson ? `edit:${editingLesson.id}:${editingLesson.updatedAt}` : formOpen ? 'open' : 'closed'}
         visible={formOpen || editingLesson != null}
@@ -126,7 +122,7 @@ export function TutorClassesPage() {
           setFormOpen(false);
           setEditingLesson(null);
         }}
-        onCreated={() => refresh()}
+        onCreated={refresh}
         onSaved={() => {
           refresh();
           setEditingLesson(null);
@@ -139,10 +135,8 @@ export function TutorClassesPage() {
 /* -------------------------------------------------------------- inner */
 
 /**
- * onEdit은 카드 onPress(상세 이동)와 별개인 트레일링 아이콘 버튼으로 얹는다. story-card.tsx의
- * onRemove와 같은 이유로 안쪽 Pressable에 중첩시키지 않고, 바깥 View 아래 형제 Pressable로
- * 뺐다 - 웹 DOM에서 Pressable을 서로 중첩하면 클릭 이벤트가 둘 다에 전달돼 편집을 누르면 상세
- * 페이지로도 함께 이동해 버린다.
+ * onEdit은 카드 Pressable과 형제인 트레일링 버튼으로 둔다 - 웹 DOM에서 Pressable을 중첩하면
+ * 클릭이 둘 다에 전달돼 편집을 누르면 상세로도 이동해 버린다.
  */
 function LessonRow({
   lesson,
@@ -206,12 +200,15 @@ function EmptyForTab({ tab, onNewLesson }: { tab: Tab; onNewLesson: () => void }
   return <EmptyState {...props} />;
 }
 
+const SHORT_DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'short', day: 'numeric' });
+const SHORT_TIME_FORMAT = new Intl.DateTimeFormat('ko-KR', { hour: 'numeric', minute: '2-digit' });
+
 function formatShortDate(iso: string) {
-  return new Intl.DateTimeFormat('ko-KR', { month: 'short', day: 'numeric' }).format(new Date(iso));
+  return SHORT_DATE_FORMAT.format(new Date(iso));
 }
 
 function formatShortTime(iso: string) {
-  return new Intl.DateTimeFormat('ko-KR', { hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
+  return SHORT_TIME_FORMAT.format(new Date(iso));
 }
 
 const styles = StyleSheet.create({
@@ -270,8 +267,6 @@ const styles = StyleSheet.create({
     borderRightColor: storybookTheme.color.contentPanelBorder,
   },
   rowLeadDay: {
-    // 리테마 이후 라이트 배경 위 gold는 워시된 것처럼 대비 낮아 primary로 교체 - 날짜 라벨은
-    // 각 수업 행의 primary anchor. 계정/브랜드 톤과도 일관.
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.primary,

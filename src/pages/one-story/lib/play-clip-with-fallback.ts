@@ -19,7 +19,7 @@ interface PlayResponseWithFallbackOptions {
 
 /**
  * 원격 오디오 재생을 시도하고, 실패하거나 준비되지 않았으면 기기 TTS로 폴백한다.
- * awaiting-choice/playing-response 두 내레이션 effect가 공유하던 로직을 추출했다.
+ * awaiting-choice/playing-response 두 내레이션 effect가 공유한다.
  */
 export async function playResponseWithFallback({
   remoteAudio,

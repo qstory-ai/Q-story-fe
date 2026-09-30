@@ -3,10 +3,8 @@ import { StyleSheet } from 'react-native';
 import { storybookTheme } from '@/shared/ui';
 
 // reader-card UI 전체가 공유하는 하나의 스타일시트. 컴포넌트별로 분리하지 않고 여기 한곳에
-// 모아둔다: 많은 키(contentGroup/questionEyebrow/secondaryButtonFull 등)가 이미 여러 패널
-// 에서 재사용되고 있어, 나누면 어느 패널이 어느 키를 소유하는지 추적하기 어렵다. 버튼 스타일은
-// 대신 shared/ui/action-button에 있다(그 마크업은 이 스타일들과 달리 약 15개의 호출 지점에
-// 그대로 중복되어 있었다).
+// 모아둔다: 많은 키(contentGroup/questionEyebrow 등)가 여러 패널에서 재사용되고 있어, 나누면
+// 어느 패널이 어느 키를 소유하는지 추적하기 어렵다. 버튼 스타일은 shared/ui/action-button에 있다.
 //
 // 색 팔레트가 넓은 이유: 리더는 씬마다 (배경/그림자/pill/CTA) 미묘하게 다른 tint를 써서 시각
 // 리듬을 만든다. 브랜드 primary/gold/error/surfaceWhite/background 계열과 리더 재사용 톤
@@ -146,7 +144,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
-  // 아이가 직접 누르는 버튼 - 38px는 44px 터치 타겟 기준(PRODUCT.md 저연령 UX)에 못 미쳤다.
+  // 아이가 직접 누르는 버튼 - 44px 터치 타겟 기준(PRODUCT.md 저연령 UX).
   topControlButton: {
     minWidth: 44,
     minHeight: 44,
@@ -163,13 +161,6 @@ export const styles = StyleSheet.create({
   topControlButtonPrimary: {
     borderColor: 'rgba(246,198,77,0.7)',
     backgroundColor: 'rgba(45, 25, 53, 0.86)',
-  },
-  topControlIcon: {
-    minWidth: 13,
-    color: storybookTheme.color.gold,
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.bold,
-    textAlign: 'center',
   },
   topControlText: {
     color: storybookTheme.color.surfaceWhite,
@@ -257,14 +248,13 @@ export const styles = StyleSheet.create({
     paddingBottom: 72,
   },
   spacer: { flex: 1, minHeight: 220 },
-  // 360px는 "삽화가 위에서 넉넉히 보이고 재생 카드가 하단에 도킹된" 데스크톱/태블릿 구도를
-  // 위한 값인데, 휴대폰(isNarrow)에서는 이 여백 + 상단 패딩만으로 뷰포트 대부분을 먹어버려서
-  // 정작 대사(캡션) 카드가 첫 화면 밖으로 밀려나 스크롤해야만 보였다. 폰에서는 훨씬 작게 줄인다.
+  // 360px는 "삽화가 위에서 넉넉히 보이고 재생 카드가 하단에 도킹된" 데스크톱/태블릿 구도용이다.
+  // 휴대폰(isNarrow)에서는 캡션 카드가 첫 화면 밖으로 밀리지 않게 훨씬 작게 줄인다.
   playbackSpacer: { minHeight: 360 },
   playbackSpacerCompact: { minHeight: 90 },
 
   // ---------------------------------------------------------------- 휴대폰 하단 재생 도크
-  // playback-dock.tsx - 상단 바에서 옮겨온 재생 컨트롤 4개. 캡션 카드 아래, 화면 맨 아래에 고정.
+  // playback-dock.tsx - 폰의 재생 컨트롤 4개. 캡션 카드 아래, 화면 맨 아래에 고정.
   // 바깥은 SafeAreaView(edges=['bottom'])가 홈 인디케이터 여백을 맡고, 안쪽 행이 버튼 패딩을 갖는다.
   playbackDock: {
     position: 'absolute',
@@ -424,7 +414,7 @@ export const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   typedQuestionCount: {
-    color: '#7A6C82', // WCAG AA 4.5:1 (원래 #85778E는 카드 배경에서 4.08:1로 미달)
+    color: '#7A6C82', // 카드 배경 대비 WCAG AA 4.5:1
     fontSize: storybookTheme.type.xxs,
     textAlign: 'right',
   },
@@ -453,21 +443,6 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 0.3,
   },
-  captionToggle: {
-    minHeight: 34,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 12,
-    backgroundColor: 'rgba(255,255,255,0.11)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-  },
-  captionToggleText: {
-    color: '#F4EEF8',
-    fontSize: storybookTheme.type.xxs,
-    fontWeight: storybookTheme.type.weight.bold,
-  },
   playbackSubtitle: {
     color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.md,
@@ -477,39 +452,6 @@ export const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.32)',
     textShadowRadius: 3,
     textShadowOffset: { width: 0, height: 1 },
-  },
-  playbackControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  playbackButton: {
-    flex: 1,
-    minHeight: 45,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-    backgroundColor: 'rgba(255,255,255,0.10)',
-    paddingHorizontal: 9,
-  },
-  playbackButtonPrimary: {
-    borderColor: 'rgba(246,198,77,0.62)',
-    backgroundColor: 'rgba(246,198,77,0.20)',
-  },
-  playbackButtonIcon: {
-    color: storybookTheme.color.gold,
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-  },
-  playbackButtonText: {
-    color: storybookTheme.color.surfaceWhite,
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    textAlign: 'center',
   },
   playingDot: {
     width: 8,
@@ -589,23 +531,6 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
   },
-  recordingSummary: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#F3EDF6',
-    borderRadius: 13,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  recordingSummaryText: { color: '#64546E', fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold },
-  previewButton: {
-    minHeight: 50,
-    borderRadius: 15,
-    backgroundColor: storybookTheme.color.gold,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  previewButtonText: { color: '#2B183F', fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.bold },
   loadingGroup: { alignItems: 'center', gap: 14, paddingVertical: 8 },
   loadingTitle: {
     color: storybookTheme.color.readerHeading,
@@ -679,31 +604,6 @@ export const styles = StyleSheet.create({
     fontSize: storybookTheme.type.lg,
     lineHeight: 33,
     fontWeight: storybookTheme.type.weight.bold,
-    textAlign: 'center',
-  },
-  branchText: {
-    color: '#55485E',
-    fontSize: storybookTheme.type.md,
-    lineHeight: 24,
-    textAlign: 'center',
-  },
-  transcriptCard: {
-    borderRadius: 15,
-    backgroundColor: '#F2ECF5',
-    padding: 13,
-    gap: 4,
-  },
-  transcriptLabel: {
-    color: '#7A687F',
-    fontSize: storybookTheme.type.xxs,
-    fontWeight: storybookTheme.type.weight.bold,
-    textAlign: 'center',
-  },
-  transcriptText: {
-    color: '#3D2850',
-    fontSize: storybookTheme.type.sm,
-    lineHeight: 21,
-    fontWeight: storybookTheme.type.weight.semibold,
     textAlign: 'center',
   },
   transcriptConfirmCard: {
@@ -810,8 +710,7 @@ export const styles = StyleSheet.create({
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 8 },
   },
-  // xl이었던 걸 lg로 - 이 제목이 카드 하나에 4번(질문/코치 관찰/오늘 밤 질문 등) 반복되는데
-  // 매번 xl+bold로 나오니 스크롤할수록 전체가 유독 크게 느껴졌다.
+  // 리포트에서 4번(질문/코치 관찰/오늘 밤 질문 등) 반복되는 제목이라 xl이 아니라 lg로 둔다.
   reportPanelTitle: {
     color: '#2D1949',
     fontSize: storybookTheme.type.lg,
@@ -849,8 +748,7 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
   },
   reportQuestionHeading: { flex: 1, alignItems: 'flex-start', gap: 9 },
-  // lg였던 걸 md로 - 이건 라벨이 아니라 아이가 실제로 물은 문장 전체를 그대로 인용한 것이라,
-  // 길면 두 줄이 넘는데 lg+bold로 두니 헤드라인처럼 무겁게 읽혔다.
+  // 라벨이 아니라 아이가 물은 문장 전체의 인용이라 길 수 있다 - 헤드라인처럼 무겁지 않게 md.
   reportQuestionText: {
     color: storybookTheme.color.readerBodyStrong,
     fontSize: storybookTheme.type.md,
@@ -1133,11 +1031,8 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   reportSecondaryActionRow: { flexDirection: 'row', gap: 9 },
-  /**
-   * modalScrim/modalCard/modalEyebrow/modalTitle은 shared/ui/modal.tsx의 Modal 컴포넌트로
-   * 옮겨갔다. modalBody/modalTextButton*는 home-menu-modal.tsx가 Modal의 고정 액션 슬롯에
-   * 안 맞는 2단계 위저드라 children으로 직접 마크업을 유지하면서 여전히 참조한다.
-   */
+  // home-menu-modal.tsx 전용 - Modal의 고정 액션 슬롯에 안 맞는 2단계 위저드라 children으로
+  // 직접 마크업한다(모달 크롬 자체는 shared/ui/modal.tsx).
   modalBody: {
     color: '#706476',
     fontSize: storybookTheme.type.sm,
@@ -1247,8 +1142,7 @@ export const styles = StyleSheet.create({
   // AppNavShell 우측 사이드바(position:fixed + translateX 트랜지션)와 같은 방식을 왼쪽에
   // 거울로 적용한다 - 다만 이 화면은 배경 삽화가 전체 폭을 쓰고 콘텐츠가 가운데 정렬이라,
   // reflow(메인 여백 밀기) 대신 오버레이 + 스크림으로 덮는 방식을 쓴다(넓은/좁은 화면 모두
-  // 같은 방식이라 분기가 필요 없다). 스크림은 패널 슬라이드와 같은 시간으로 페이드한다 -
-  // 예전엔 스크림이 즉시 나타나고 패널만 미끄러져 들어와 두 요소가 따로 노는 느낌이었다.
+  // 같은 방식이라 분기가 필요 없다). 스크림은 패널 슬라이드와 같은 시간으로 페이드한다.
   // 두 transitionDuration은 chapter-sidebar.tsx의 CHAPTER_SIDEBAR_SLIDE_MS와 같아야 한다
   // (usePresenceAnimation이 그 시간 뒤에 언마운트한다).
   chapterScrim: {

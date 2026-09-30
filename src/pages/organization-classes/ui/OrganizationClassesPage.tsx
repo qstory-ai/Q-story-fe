@@ -7,7 +7,7 @@ import {
   createClass,
   dashboardNavItems,
   listClasses,
-  useAuth,
+  useDirectorSession,
   type ClassResponse,
 } from '@/entities/auth';
 import { listOrganizationTutors, type OrganizationTutorLink } from '@/entities/organization-tutor';
@@ -26,7 +26,7 @@ const NO_HOMEROOM = '';
  */
 export function OrganizationClassesPage() {
   const navigate = useNavigate();
-  const { state } = useAuth();
+  const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [name, setName] = useState('');
   const [homeroomTutorId, setHomeroomTutorId] = useState(NO_HOMEROOM);
@@ -35,20 +35,13 @@ export function OrganizationClassesPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
-  const canView = state.status === 'authenticated' && state.user.role === 'DIRECTOR' && Boolean(state.user.organizationId);
-  const organizationId = state.status === 'authenticated' ? state.user.organizationId : null;
+  const token = director?.token ?? null;
+  const organizationId = director?.organizationId ?? null;
 
   useEffect(() => {
-    if (state.status === 'loading') return;
-    if (!canView) {
-      navigate('/', { replace: true });
-    }
-  }, [state.status, canView, navigate]);
-
-  useEffect(() => {
-    if (state.status !== 'authenticated' || !organizationId) return;
+    if (!token || !organizationId) return;
     let cancelled = false;
-    listClasses(state.token, organizationId)
+    listClasses(token, organizationId)
       .then((classes) => {
         if (!cancelled) setLoad({ status: 'ready', classes });
       })
@@ -62,12 +55,12 @@ export function OrganizationClassesPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, organizationId, reloadKey]);
+  }, [token, organizationId, reloadKey]);
 
   useEffect(() => {
-    if (state.status !== 'authenticated' || !organizationId) return;
+    if (!token || !organizationId) return;
     let cancelled = false;
-    listOrganizationTutors(state.token, organizationId)
+    listOrganizationTutors(token, organizationId)
       .then((links) => {
         if (!cancelled) setTutors(links);
       })
@@ -77,14 +70,14 @@ export function OrganizationClassesPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, organizationId]);
+  }, [token, organizationId]);
 
   const onCreate = useCallback(async () => {
-    if (state.status !== 'authenticated' || !organizationId) return;
+    if (!token || !organizationId) return;
     setFormError(null);
     setSubmitting(true);
     try {
-      await createClass(state.token, organizationId, {
+      await createClass(token, organizationId, {
         name: name.trim(),
         homeroomTutorId: homeroomTutorId || undefined,
       });
@@ -96,14 +89,14 @@ export function OrganizationClassesPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [state, organizationId, name, homeroomTutorId]);
+  }, [token, organizationId, name, homeroomTutorId]);
 
   const tutorNameById = new Map(tutors.map((link) => [link.tutorId, link.tutorDisplayName]));
 
-  if (!canView) return null;
+  if (!director) return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')} onBack={() => navigate('/organization')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, 'home')} onBack={() => navigate('/organization')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">반/학생 관리</Text>
 
@@ -152,7 +145,7 @@ export function OrganizationClassesPage() {
                 <View style={styles.classBody}>
                   <Text style={styles.className}>{classGroup.name}</Text>
                   <Text style={styles.classMeta}>
-                    담임 {tutorNameById.get(classGroup.tutorId ?? '') ?? '미정'} · 반 코드 {classGroup.joinCode}
+                    담임 {classGroup.tutorId ? (tutorNameById.get(classGroup.tutorId) ?? '배정됨') : '미정'} · 반 코드 {classGroup.joinCode}
                   </Text>
                 </View>
                 <Icon name="chevronRight" size={16} color={storybookTheme.color.onCardMuted} />

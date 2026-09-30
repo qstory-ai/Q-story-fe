@@ -10,12 +10,9 @@ let sharedPlayer: HTMLAudioElement | null = null;
 let sharedAudioContext: AudioContext | null = null;
 let cancelActivePlayback: (() => void) | null = null;
 /**
- * 지금 재생 중인 playResponseAudio() 호출 하나가(있다면) 등록해 두는 일시정지/재개 핸들 -
- * cancelActivePlayback과 같은 "현재 활성 재생을 가리키는 모듈 전역 슬롯" 패턴이다. 낭독
- * ('live' 소스, use-story-narration.ts)과 동반자 채팅 응답 음성이 둘 다 이 함수를 거치므로,
- * 둘 다 별도 배선 없이 이 핸들 하나로 일시정지된다 - "OO에게 물어보기"를 눌렀을 때 낭독이
- * 실제로 멎어야 한다는 요구사항이 바로 이걸 위해 추가됐다(재생 자체를 중단시키는 abort와
- * 달리, 일시정지는 나중에 이어들을 수 있어야 하므로 완전히 별개의 메커니즘이 필요했다).
+ * 지금 재생 중인 playResponseAudio() 호출의 일시정지/재개 핸들(cancelActivePlayback과 같은 모듈 전역
+ * 슬롯). 실시간 낭독과 동반자 채팅 응답 음성이 모두 이 함수를 거치므로 이 핸들 하나로 일시정지된다.
+ * abort와 달리 나중에 이어 들을 수 있어야 해서 별도 메커니즘이다.
  */
 let activePauseControls: { pause: () => void; resume: () => void } | null = null;
 
@@ -158,11 +155,8 @@ async function playPcmStream(
     stopSources();
   };
   cancelActivePlayback = cancel;
-  // AudioContext.suspend()는 그 컨텍스트에 예약된(scheduled) 모든 AudioBufferSourceNode의
-  // 오디오 클록 자체를 멈춘다 - 개별 source를 일시정지하는 API가 없는 대신, 재생 중이던
-  // source들은 resume() 즉시 멈췄던 지점부터 정확히 이어진다. 이 재생 경로엔 별도의 완료
-  // 타임아웃이 없어서(초기 startTimeoutId는 첫 청크 도착 전용이라 scheduledAudio=true가
-  // 되면 이미 해제됨) 아래쪽(HTMLAudioElement 경로)과 달리 타임아웃 재조정이 필요 없다.
+  // 개별 source를 일시정지하는 API가 없어 AudioContext 클록 자체를 suspend/resume한다 - 예약된
+  // source들은 멈춘 지점부터 이어진다. 이 경로엔 완료 타임아웃이 없어 재조정도 필요 없다.
   const pauseControls = {
     pause: () => {
       void context.suspend();
@@ -322,11 +316,10 @@ export function playResponseAudio(
     cancelActivePlayback?.();
     const startTimeoutId = setTimeout(() => finish(false), 4_000);
     let completionTimeoutId: ReturnType<typeof setTimeout> | null = null;
-    // finish(false)가 예정된 절대 시각 - 일시정지 중에는 clearTimeout하고 이 값만 남겨 두었다가,
-    // 재개할 때 "그때까지 남았던 만큼"만 다시 setTimeout한다(그냥 매번 원래 길이로 다시 재는 게
-    // 아니라). 안 그러면 채팅으로 오래 멈춰 있는 동안 완료 타임아웃이 그대로 흘러가 버려서,
-    // 이어 듣기를 누르자마자 곧장 "재생 실패"로 처리될 수 있다.
+    // 완료 타임아웃의 절대 시각. 일시정지하면 남은 시간만 기억해 두었다가 재개할 때 그만큼 다시
+    // 건다 - 채팅으로 오래 멈춘 사이 타임아웃이 흘러가 재개 즉시 "재생 실패"가 되지 않게.
     let completionDeadlineAt: number | null = null;
+    let pausedRemainingMs: number | null = null;
     const cleanup = () => {
       clearTimeout(startTimeoutId);
       if (completionTimeoutId) {
@@ -353,15 +346,18 @@ export function playResponseAudio(
         if (completionTimeoutId) {
           clearTimeout(completionTimeoutId);
           completionTimeoutId = null;
+          if (completionDeadlineAt !== null) {
+            pausedRemainingMs = Math.max(0, completionDeadlineAt - Date.now());
+          }
         }
         player.pause();
       },
       resume: () => {
-        if (completionDeadlineAt !== null) {
-          completionTimeoutId = setTimeout(
-            () => finish(false),
-            Math.max(1_000, completionDeadlineAt - Date.now()),
-          );
+        if (pausedRemainingMs !== null) {
+          const remainingMs = Math.max(1_000, pausedRemainingMs);
+          pausedRemainingMs = null;
+          completionDeadlineAt = Date.now() + remainingMs;
+          completionTimeoutId = setTimeout(() => finish(false), remainingMs);
         }
         void player.play().catch(() => {});
       },

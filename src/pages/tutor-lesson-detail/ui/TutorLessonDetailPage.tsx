@@ -30,8 +30,8 @@ type LoadState =
 
 /**
  * IA "[3] 수업 상세" 화면. 기본 정보(이름/목표/일정) + 참여 학생 + 사용 이야기 + 상태 전환
- * 액션(시작/완료) + 삭제. 이야기 카드는 카탈로그와 join해 제목을 표시하고, 각 학생별로 "이야기
- * 시작하기" 버튼이 학생을 선택해 스토리 플레이어로 넘기게 한다(기존 tutor-invite 파라미터 재사용).
+ * 액션(시작/완료) + 삭제. 이야기 행은 카탈로그와 join해 제목을 표시하고, "시작"은 lessonId를
+ * 붙여 스토리 플레이어로 넘긴다.
  */
 export function TutorLessonDetailPage() {
   const { lessonId } = useParams<{ lessonId: string }>();
@@ -53,13 +53,15 @@ export function TutorLessonDetailPage() {
     }
   }, [state, navigate]);
 
+  const token = state.status === 'authenticated' ? state.token : null;
+
   useEffect(() => {
-    if (state.status !== 'authenticated' || !lessonId) return;
+    if (!token || !lessonId) return;
     let cancelled = false;
     Promise.all([
-      getLesson(state.token, lessonId),
+      getLesson(token, lessonId),
       listStories().catch(() => []),
-      listLessonCompletions(state.token, lessonId).catch(() => [] as StoryCompletionSummary[]),
+      listLessonCompletions(token, lessonId).catch(() => [] as StoryCompletionSummary[]),
     ])
       .then(([lesson, stories, completions]) => {
         if (cancelled) return;
@@ -74,45 +76,34 @@ export function TutorLessonDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, lessonId, requestKey]);
+  }, [token, lessonId, requestKey]);
 
-  const doStart = useCallback(async () => {
-    if (state.status !== 'authenticated' || !lessonId) return;
-    setTransitioning(true);
-    setTransitionError(null);
-    try {
-      const updated = await startLesson(state.token, lessonId);
-      setLoad((prev) => prev.status === 'ready' && prev.requestKey === requestKey
-        ? { ...prev, lesson: updated }
-        : prev);
-    } catch (failure: unknown) {
-      setTransitionError(messageForError(failure, '수업을 시작하지 못했어요.'));
-    } finally {
-      setTransitioning(false);
-    }
-  }, [state, lessonId, requestKey]);
-
-  const doComplete = useCallback(async () => {
-    if (state.status !== 'authenticated' || !lessonId) return;
-    setTransitioning(true);
-    setTransitionError(null);
-    try {
-      const updated = await completeLesson(state.token, lessonId);
-      setLoad((prev) => prev.status === 'ready' && prev.requestKey === requestKey
-        ? { ...prev, lesson: updated }
-        : prev);
-    } catch (failure: unknown) {
-      setTransitionError(messageForError(failure, '수업을 완료 처리하지 못했어요.'));
-    } finally {
-      setTransitioning(false);
-    }
-  }, [state, lessonId, requestKey]);
+  const transition = useCallback(
+    async (action: (authToken: string, id: string) => Promise<Lesson>, fallbackMessage: string) => {
+      if (!token || !lessonId) return;
+      setTransitioning(true);
+      setTransitionError(null);
+      try {
+        const updated = await action(token, lessonId);
+        setLoad((prev) => prev.status === 'ready' && prev.requestKey === requestKey
+          ? { ...prev, lesson: updated }
+          : prev);
+      } catch (failure: unknown) {
+        setTransitionError(messageForError(failure, fallbackMessage));
+      } finally {
+        setTransitioning(false);
+      }
+    },
+    [token, lessonId, requestKey],
+  );
+  const doStart = useCallback(() => transition(startLesson, '수업을 시작하지 못했어요.'), [transition]);
+  const doComplete = useCallback(() => transition(completeLesson, '수업을 완료 처리하지 못했어요.'), [transition]);
 
   const doDelete = useCallback(async () => {
-    if (state.status !== 'authenticated' || !lessonId) return;
+    if (!token || !lessonId) return;
     setDeleteInFlight(true);
     try {
-      await deleteLesson(state.token, lessonId);
+      await deleteLesson(token, lessonId);
       navigate('/tutor/classes', { replace: true });
     } catch (failure: unknown) {
       setTransitionError(messageForError(failure, '수업을 삭제하지 못했어요.'));
@@ -120,7 +111,7 @@ export function TutorLessonDetailPage() {
       setDeleteInFlight(false);
       setDeleteOpen(false);
     }
-  }, [state, lessonId, navigate]);
+  }, [token, lessonId, navigate]);
 
   if (state.status !== 'authenticated') return null;
 
@@ -191,7 +182,7 @@ export function TutorLessonDetailPage() {
                 effective.lesson.storyIds.map((storyId) => {
                   const story = effective.storyById[storyId];
                   return (
-                    <View key={storyId} style={styles.storyRow}>
+                    <View key={storyId} style={styles.studentRow}>
                       <View style={styles.studentInfo}>
                         <Text style={styles.studentName}>{story?.title ?? storyId}</Text>
                         {story?.category ? <Text style={styles.studentMeta}>{story.category}</Text> : null}
@@ -200,14 +191,12 @@ export function TutorLessonDetailPage() {
                         accessibilityRole="button"
                         accessibilityLabel={`${story?.title ?? storyId} 시작하기`}
                         onPress={() => {
-                          // lessonId를 붙여 서버가 참여 학생 전원에게 완주 기록을 남기게 한다(예전엔
-                          // 첫 학생만 tutorStudentId로 넘겨 나머지 학생의 기록이 없었고, 기본 동화는
-                          // /demo로 보내 파라미터가 통째로 버려졌다). tutorStudentId는 응답 대표 기록용.
+                          // lessonId를 붙여 서버가 참여 학생 전원에게 완주 기록을 남기게 한다.
+                          // tutorStudentId는 응답 대표 기록용.
                           const firstStudent = effective.lesson.students[0];
                           const params = new URLSearchParams({ lessonId: effective.lesson.id });
                           if (firstStudent) params.set('tutorStudentId', firstStudent.id);
-                          const targetId = story?.storyId ?? storyId;
-                          navigate(`/stories/${targetId}/play?${params.toString()}`);
+                          navigate(`/stories/${storyId}/play?${params.toString()}`);
                         }}
                         style={({ pressed }) => [styles.startButton, pressed && styles.pressed]}
                       >
@@ -250,7 +239,7 @@ export function TutorLessonDetailPage() {
                   label={
                     effective.lesson.status === 'IN_PROGRESS'
                       ? transitioning ? '완료 처리 중…' : '수업 완료'
-                      : transitioning ? '시작 중…' : effective.lesson.status === 'SCHEDULED' ? '수업 시작' : '이어서 진행'
+                      : transitioning ? '시작 중…' : '수업 시작'
                   }
                   onPress={effective.lesson.status === 'IN_PROGRESS' ? doComplete : doStart}
                   loading={transitioning}
@@ -306,9 +295,7 @@ export function TutorLessonDetailPage() {
         </Text>
       </Modal>
 
-      {/* key로 lesson.id + updatedAt을 걸어, 다른 수업이나 새로 갱신된 값으로 전환될 때
-          LessonFormModal이 remount돼 lazy useState가 최신 값을 다시 읽는다.
-          editOpen을 함께 포함시켜 모달을 닫았다가 다시 열 때도 초기값이 재계산되게 한다. */}
+      {/* key로 lesson.id + updatedAt + editOpen을 걸어, 값이 갱신되거나 다시 열 때 폼을 최신 초기값으로 remount한다. */}
       <LessonFormModal
         key={effective.status === 'ready' ? `${effective.lesson.id}:${effective.lesson.updatedAt}:${editOpen ? 'open' : 'closed'}` : 'no-lesson'}
         visible={editOpen}
@@ -332,10 +319,12 @@ const STATUS_LABEL: Record<Lesson['status'], string> = {
   COMPLETED: '완료',
 };
 
+const DATE_TIME_FORMAT = new Intl.DateTimeFormat('ko-KR', {
+  year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
+});
+
 function formatDateTime(iso: string) {
-  return new Intl.DateTimeFormat('ko-KR', {
-    year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
-  }).format(new Date(iso));
+  return DATE_TIME_FORMAT.format(new Date(iso));
 }
 
 const styles = StyleSheet.create({
@@ -405,15 +394,6 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardTitle,
   },
   studentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
-  storyRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
-  },
   startButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,

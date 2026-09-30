@@ -1,17 +1,12 @@
 /**
- * 스토리북 팔레트 - 인증 퍼널이 쓰는 더 밝은 라벤더색 "shell" 팔레트가 아니라, 리더 자체의
- * 스타일(pages/one-story/ui/styles.ts 참고)에서 가져온 실제 Q-Story 브랜드 정체성
- * (어두운 배경, 골드 강조색, 크림색 카드)이다. 지금은 새 페이지에만 적용하고 - 기존
- * ActionButton/TextField나 기존 인증 페이지들에는 소급 적용하지 않는다.
+ * Q-Story 앱 전역 디자인 토큰. 콘솔 세계(대시보드·인증·마이페이지)는 라이트 배경 + 네이비
+ * primary, 리더(one-story)·랜딩·우측 사이드바는 다크 배경 + 골드 강조 + 크림 카드를 쓴다.
  */
 export const storybookTheme = {
   color: {
-    // ── 사용자 요청(가비아 콘솔 스타일 리테마): 메인 컨텐츠 배경은 라이트, primary는 네이비.
-    //    다크 계열 토큰(onDark, panelOnDark* 등)은 우측 사이드바가 계속 다크를 유지하므로 그대로.
-    //    페이지는 아래 content* / onContent* 신규 토큰으로 순차 마이그레이션한다.
+    // 메인 컨텐츠 배경은 라이트. 다크 계열 토큰(onDark 등)은 다크로 남는 사이드바/리더용.
     background: '#F7F8FA',
-    backgroundOverlay: 'rgba(15, 23, 42, 0.04)',
-    // ── 라이트 컨텐츠 팔레트 (신규) ────────────────────────────────────────────
+    // ── 라이트 컨텐츠 팔레트 ────────────────────────────────────────────
     /** 메인 컨텐츠 영역의 카드/시트. 순백. */
     contentSurface: '#FFFFFF',
     /** contentSurface의 경계 - 흰 배경 위에 살짝 뜨는 hairline. */
@@ -28,31 +23,22 @@ export const storybookTheme = {
     sidebarBackground: '#242D38',
     sidebarBorder: 'rgba(255, 255, 255, 0.08)',
     sidebarActive: 'rgba(255, 255, 255, 0.10)',
-    // ── 기존 서피스 토큰(리더/기존 다크 화면용, 하위 호환) ──────────────────────
-    /**
-     * 콘솔 세계(대시보드·인증·마이페이지)의 카드. 예전엔 리더의 크림 카드(rgba 255,252,245)를 그대로
-     * 썼는데, 라이트 회색 배경 위에서는 누렇게 떠 보이고 네이비 리테마와도 어긋났다. 리더·랜딩은
-     * 아래 storybookCard*로 옮겼고, 여기서는 contentSurface와 같은 순백 + hairline이다.
-     */
+    // ── 서피스 토큰 ──────────────────────────────────────────────────────
+    /** 콘솔 세계(대시보드·인증·마이페이지)의 카드 - contentSurface와 같은 순백 + hairline. */
     surfaceCard: '#FFFFFF',
     surfaceCardBorder: 'rgba(15, 23, 42, 0.08)',
     /** 리더(one-story)·랜딩 전용 - 다크 배경 위에 앉는 따뜻한 크림 카드. 콘솔 페이지에서는 쓰지 않는다. */
     storybookCard: 'rgba(255, 252, 245, 0.96)',
-    storybookCardBorder: 'rgba(255, 255, 255, 0.72)',
-    storybookCardOpaque: '#FFFCF5',
     gold: '#F6C64D',
-    /** 사용자 요청으로 브랜드 primary를 보라(#43225F)에서 네이비로 이관.
-     *  이 값은 semantic.brand.default와 함께 앱 전역의 CTA/링크/키 컬러의 밑바탕이다. */
+    /** 앱 전역 CTA/링크/키 컬러의 밑바탕(네이비). */
     primary: '#1E293B',
     onDark: '#FFFFFF',
     onDarkMuted: 'rgba(255, 255, 255, 0.72)',
-    // 카드 위 텍스트 3단 - 보라(#2B1748/#5E5367/#7A6C82) 시절 값을 네이비 슬레이트 계열로 옮겼다.
-    // onContent*와 같은 hue라 "카드 위"와 "배경 위" 텍스트가 이제 한 세계로 읽힌다. muted는 흰 카드
-    // 기준 4.8:1(AA).
+    // 카드 위 텍스트 3단 - onContent*와 같은 hue. muted는 흰 카드 기준 4.8:1(AA).
     onCardTitle: '#1E293B',
     onCardBody: '#475569',
     onCardMuted: '#64748B',
-    /** 보라 파생값이었으나 primary 네이비 이관에 맞춰 함께 이동 - 라이트 카드 위 은은한 배지 배경. */
+    /** 라이트 카드 위 은은한 배지 배경. */
     pillBackground: 'rgba(30, 41, 59, 0.06)',
     pillBorder: 'rgba(30, 41, 59, 0.14)',
     /** 스토리북 테마 페이지(landing/detail/story-card)의 모든 카드가 공유하는 shadowColor. */
@@ -65,22 +51,16 @@ export const storybookTheme = {
      * 앰버(흰 배경 5.9:1)를 쓴다. 채움·마커(캘린더 오늘, 사이드바 활성 아이콘)는 계속 gold.
      */
     goldText: '#8A6300',
-    /** 모달 뒤 배경 딤 처리 - one-story의 세 모달이 원래 하드코딩해 쓰던 값을 그대로 토큰화. */
+    /** 모달 뒤 배경 딤 처리. */
     scrim: 'rgba(15, 8, 25, 0.72)',
     /** 모달 카드처럼 배경이 완전히 비쳐 보이면 안 되는 서피스용. 콘솔 세계에서는 순백. */
     surfaceCardOpaque: '#FFFFFF',
-    /** text-field 입력창/checkbox 박스/StaffHomePage 카드가 각자 '#FFFFFF'로 하드코딩하던
-     * 순백 서피스 - 크림톤인 surfaceCardOpaque(#FFFCF5)와 구분되는 순수한 흰색이 필요한 곳. */
+    /** 입력창/체크박스 박스처럼 항상 순수한 흰색이어야 하는 서피스. */
     surfaceWhite: '#FFFFFF',
     /**
-     * 레거시 인증/대시보드 페이지들의 "라이트 셸" 계열 - storybookTheme이 처음 나올 때
-     * "기존 인증 페이지들에는 소급 적용하지 않는다"고 명시했던 바로 그 페이지들(로그인/회원가입/
-     * 대시보드/staff)을 이번에 소급 적용하면서 추가한다. onLightHeading은 값이 primary와
-     * 우연히 같지만("브랜드 버튼 채우기"가 아니라 "밝은 카드 위 제목") 의미가 달라 별도 토큰으로
-     * 둔다 - 나중에 둘이 갈라져도 여기서만 바꾸면 된다.
+     * 인증·온보딩·대시보드의 "라이트 셸" 계열. onLightHeading은 값이 primary와 같지만
+     * ("브랜드 버튼 채우기"가 아니라 "밝은 카드 위 제목") 의미가 달라 별도 토큰으로 둔다.
      */
-    // 라이트 셸 계열 - 라벤더(#F7F1FB/#E0D3EA)와 보라 텍스트(#43225F/#6B5478/#6F5D85)를 네이비 콘솔
-    // 세계로 통일했다. 인증·온보딩 화면이 대시보드와 같은 배경·같은 텍스트 hue를 쓴다.
     shellBackground: '#F7F8FA',
     onLightHeading: '#1E293B',
     onLightBody: '#475569',
@@ -89,29 +69,19 @@ export const storybookTheme = {
     linkOnDark: '#DCD1FF',
     /** 라이트 배경 위 링크 - 본문 네이비와 구분되는 한 단계 밝은 블루(흰 배경 7:1). 밑줄과 함께 쓴다. */
     linkOnLight: '#2451B2',
-    /**
-     * 에러/위험 상태 - 이전엔 토큰이 아예 없어서 파일마다 같은 값을 새로 하드코딩했다.
-     * WCAG AA 4.5:1을 만족하도록 흰 배경 기준으로 조정(원래 #E46647은 3.34:1로 미달).
-     */
+    /** 에러/위험 상태 - 흰 배경 기준 WCAG AA 4.5:1. */
     error: '#C24A2E',
-    /** brand-lockup의 로고 프레임과 리더 top-bar의 brandLogoFrame이 각자 하드코딩하던 동일한 값. */
+    /** 로고 프레임(brand-lockup, 리더 top-bar) 배경. */
     brandFrameBackground: 'rgba(255, 249, 237, 0.96)',
-    /** 어두운 배경 위의 반투명 패널 - HomePage/ParentHomePage/ClassDashboardPage가 각자 하드코딩하던 값. */
-    panelOnDarkBackground: 'rgba(255, 252, 245, 0.08)',
+    /** 어두운 배경 위 반투명 패널의 테두리. */
     panelOnDarkBorder: 'rgba(255, 252, 245, 0.16)',
-    /**
-     * 폼 필드(TextField 등)의 비활성 상태 - Figma "Simple Design System"의 중립 회색
-     * disabled 팔레트를 그대로 쓰지 않고, 라이트 셸의 보라 톤(primary #43225F)에서 파생시켜
-     * 톤을 맞췄다. pillBackground/pillBorder와 비슷한 유도 방식이다.
-     */
+    /** 폼 필드의 비활성 상태 - primary 네이비에서 파생시켜 pillBackground/pillBorder와 톤을 맞춘다. */
     disabledBackground: 'rgba(30, 41, 59, 0.06)',
     disabledBorder: 'rgba(30, 41, 59, 0.18)',
     disabledText: '#8A94A6',
     /**
-     * 리더(one-story) 전용 톤 - 리더는 씬마다 다양한 tint를 쓰기 때문에 palette가 넓지만,
-     * 아래 6개 톤은 리더 여러 화면(제목/카드/그림자/본문 3단)에서 반복적으로 나와 별도 토큰으로
-     * 뒀다. 브랜드 primary(#43225F)보다 각각 조금 어둡거나 밝은 파생이라 primary로 대체할 수
-     * 없다 - 리더의 크림 배경 위 대비를 위해 별도 톤이 필요.
+     * 리더(one-story) 전용 톤 - 리더 여러 화면(제목/카드/그림자/본문 3단)에서 반복되는 값.
+     * 리더의 크림 배경 위 대비를 위해 primary와 별도로 둔다.
      */
     readerHeading: '#28153F',     // heroTitle/panelTitle/recordingTitle/loadingTitle
     readerBodyStrong: '#2D1948',  // 리포트의 강조 본문(질문 텍스트/번호)
@@ -119,55 +89,33 @@ export const storybookTheme = {
     readerBodyMuted: '#746987',   // 리포트 hero body/panel description 등 보조 본문
     readerShadow: '#2E1948',      // 리포트 카드/topBar 전용 그림자 (전역 shadow #12091F보다 밝음)
     readerCard: '#FFF7E9',        // 리포트 카드 배경 (surfaceCardOpaque #FFFCF5보다 따뜻한 크림)
-    /** 캘린더 주말 컬러 - 국내 캘린더 관행. 어두운 배경/크림 카드 양쪽 배경에서 4.5:1 이상
-     *  대비를 확보한 파스텔 톤. MonthCalendar가 하드코딩하던 값을 토큰화. */
+    /** 캘린더 주말 컬러 - 국내 캘린더 관행. 어두운 배경/크림 카드 양쪽에서 4.5:1 이상인 파스텔 톤. */
     calendarSunday: '#FF9AA2',
     calendarSaturday: '#9EC8FF',
   },
   /**
-   * 시맨틱 컬러 램프 - Figma "Simple Design System" 커뮤니티 파일의 구조(카테고리별
-   * default/secondary/hover/on-X)를 참고해 추가했지만, 값 자체는 그 파일의 회색조 팔레트가
-   * 아니라 위 브랜드 컬러(보라 #43225F, 골드 #F6C64D, 크림 카드, 다크 배경)에서 파생시켰다.
-   * 완전히 추가적인 네임스페이스라 기존 color.* / status.* 키는 하나도 건드리지 않는다.
-   *
-   * danger는 새 색이 아니라 기존 error(#C24A2E)/status.warning과 같은 값이다 - 조사해보니
-   * status.warning의 배경/테두리/텍스트(#FBEAE3/#F0C3AE/#AC4A2A)가 실제로는 빨강 계열이라
-   * 시각적으로 "경고"보다 "위험"에 가까웠다. 이미 여러 화면이 그 의미로 쓰고 있어 status.warning
-   * 자체는 그대로 두고, 여기 danger에 같은 값을 재사용해 의미만 명확히 하고, warning에는
-   * 앱에 없던 진짜 노란 "주의" 색을 새로 만들었다. positive도 앱에 성공/긍정 색이 아직
-   * 없어서 완전히 새로 만든 값이다.
+   * 시맨틱 컬러 램프 - 카테고리별 default/secondary/hover/on-X 구조. danger는 error/status.warning과
+   * 같은 빨강 계열 값을 "위험" 의미로 재사용한다(status.warning은 이름과 달리 빨강 계열이다).
    */
   semantic: {
     brand: {
-      // 보라(#43225F) → 네이비 리브랜딩. hover는 primary보다 한 톤 어둡게.
       default: '#1E293B',
+      // primary보다 한 톤 어둡게.
       hover: '#0F172A',
       secondary: 'rgba(30, 41, 59, 0.08)',
       onBrand: '#FFFFFF',
-      onBrandMuted: 'rgba(255, 255, 255, 0.72)',
     },
-    /** 골드 CTA 전용 계열 - brand(보라)와 별개로 둔다. */
+    /** 골드 CTA 전용 계열 - brand(네이비)와 별개로 둔다. */
     accent: {
       default: '#F6C64D',
       hover: '#E8B93D',
       onAccent: '#1E293B',
-    },
-    neutral: {
-      onDark: { default: '#FFFFFF', muted: 'rgba(255, 255, 255, 0.72)' },
-      onLight: { default: '#1E293B', body: '#475569', muted: '#64748B' },
-      onCard: { title: '#1E293B', body: '#475569', muted: '#64748B' },
     },
     positive: {
       default: '#2F9E62',
       background: '#E6F6EC',
       border: '#BFE6CC',
       text: '#1F7A48',
-    },
-    warning: {
-      default: '#E8B931',
-      background: '#FFF7DA',
-      border: '#F3DE9C',
-      text: '#7A5B05',
     },
     danger: {
       default: '#C24A2E',
@@ -176,12 +124,7 @@ export const storybookTheme = {
       text: '#AC4A2A',
     },
   },
-  /**
-   * 경고/정보 배너 한 벌 - organization-signup의 구독 상태 카드, staff-scene의 "stale" 카드가
-   * 각자 미묘하게 다른 근접값을 하드코딩하고 있던 것을 하나로 수렴시킨다. warning은 두 페이지가
-   * 공유하는 값(조직가입의 경고 variant 그대로) - staff-scene의 근소하게 다른 배경색은 여기로
-   * 수렴한다.
-   */
+  /** 경고/정보 배너(StatusBanner 등) 한 벌. */
   status: {
     info: {
       background: '#E8EEF7',
@@ -190,39 +133,21 @@ export const storybookTheme = {
     warning: {
       background: '#FBEAE3',
       border: '#F0C3AE',
-      /** WCAG AA 4.5:1을 만족하도록 조정한 값(원래 #B24E2E는 배경 대비 4.47:1로 근소 미달). */
+      /** 배경 대비 WCAG AA 4.5:1. */
       text: '#AC4A2A',
     },
   },
-  /**
-   * 라운드 토큰. 처음엔 카드/모달/로고 모두 8px 하나로 통일했었지만, 토스 UI 스타일 정돈
-   * 과정에서 카드/모달의 부드러운 라운드가 다크 배경 위 크림 서피스의 무게감을 낮춰 준다는
-   * 점을 반영해 카드 = 16, 모달 = 20으로 올렸다. 입력창/버튼용 radius도 명시적으로 뒀다 -
-   * ActionButton/TextField가 각자 17/12 등을 하드코딩하던 것을 여기로 수렴시킨다. `pill`은
-   * 여전히 "완전히 둥글게" 의도라 별개, `control`(체크박스/라디오)은 그대로 4.
-   */
+  /** 라운드 토큰. `pill`은 "완전히 둥글게", `control`은 체크박스/라디오 박스 전용. */
   radius: {
     card: 16,
     pill: 999,
     logoFrame: 12,
     modalCard: 20,
-    /** 기본 버튼 radius - ActionButton primary/gold가 하드코딩하던 17을 대체한다. */
     button: 14,
-    /** 입력창 radius - TextField/SearchField가 하드코딩하던 12를 명시. */
     input: 12,
-    /** 체크박스/라디오 컨트롤 박스 전용 - Figma "Simple Design System"의 radius-100(4px). */
     control: 4,
-    /**
-     * 중첩 카드/행 전용 - 부모 Card(card=16, padding=20)에 안겨 있는 자식 서피스에 쓴다.
-     * 지침(concentric radius): outer = inner + padding. inner=8이면 outer=8+20=28에 가장 가까운데
-     * card(16)와 완전히 concentric은 어려우니, 부모의 절반 정도로 잡아 시각적 부딪힘을 줄인다.
-     */
-    innerCard: 8,
   },
-  /**
-   * 화면에 겹쳐지는 것들의 쌓임 순서. one-story 리더가 이미 쓰던 두 값(5, 20)을 그대로
-   * 이름 붙였을 뿐 - Solid 2.0처럼 5단계를 억지로 채우지 않고, 실제로 쓰는 만큼만 둔다.
-   */
+  /** 화면에 겹쳐지는 것들의 쌓임 순서 - 실제로 쓰는 만큼만 둔다. */
   zIndex: {
     sticky: 5,
     overlay: 20,
@@ -239,15 +164,9 @@ export const storybookTheme = {
       complex: 1200,
     },
   },
-  /**
-   * 파일마다 흩어져 있던 임의의 fontSize 값(12/13/14/15/17/18/22/24/25/26)을 대체하는
-   * 스케일 - 각 화면이 하나의 스케일을 공유하는 대신 "대충 비슷한" 숫자를 골라 쓰고 있어서,
-   * 같은 시스템으로 보여야 할 화면들 사이에 위계가 미묘하게 어긋나 있었다. md/lg는 Figma
-   * "Simple Design System"의 Body Medium(16)/Heading(24)에 맞춰 조정했다 - sm(14)은
-   * 이미 그 시스템의 Body Small과 일치했고, xs/xl/xxl은 대응되는 계층이 없어 그대로 둔다.
-   */
+  /** fontSize 스케일 - 화면마다 임의의 숫자를 고르지 말고 이 스케일을 공유한다. */
   type: {
-    xxs: 11, // 뱃지/키커 같은 초소형 텍스트 - HomePage/LandingPage가 11~11.5로 각자 하드코딩하던 값
+    xxs: 11, // 뱃지/키커 같은 초소형 텍스트
     xs: 12, // eyebrow/caption/pill 레이블
     sm: 14, // 보조 본문 텍스트, 작은 버튼
     md: 16, // 주요 본문 텍스트, 카드 제목
@@ -256,35 +175,24 @@ export const storybookTheme = {
     xxl: 32, // 히어로 순간에만 사용
     /** RN fontWeight는 문자열이어야 해서 숫자가 아니라 문자열 맵으로 둔다. */
     weight: {
-      /** story-card 설명문/section-header 서브타이틀이 각자 하드코딩하던 값. */
       light: '300',
       regular: '400',
       medium: '500',
       semibold: '600',
       bold: '700',
-      /** HomePage/ClassDashboardPage/ParentHomePage의 큰 강조 숫자·타이틀류가 공유하는 값. */
       black: '900',
     },
   },
-  /**
-   * Figma 시스템은 헤딩류(md/lg 이상)엔 타이트한 줄간격+음수 자간을, 본문류(xs/sm)엔
-   * 여유있는 줄간격을 쓰는 구조를 갖고 있다 - 지금까지는 화면마다 lineHeight를 따로
-   * 하드코딩했는데, 그 두 갈래를 토큰으로 명시해 둔다. 기존 숫자 fontSize 사용처는 그대로
-   * 동작하고, 이 토큰은 새로 손대는 곳부터 짝지어 적용한다.
-   */
+  /** 헤딩류(md 이상)는 타이트한 줄간격+음수 자간, 본문류(xs/sm)는 여유있는 줄간격. */
   lineHeight: {
     tight: 1.2, // 헤딩(md 이상)
     normal: 1.4, // 본문(xs/sm)
   },
   tracking: {
     heading: -0.02, // 헤딩류에 쓰는 음수 자간 (fontSize * -0.02)
-    none: 0,
   },
   /**
-   * 각 카드가 shadowOpacity/shadowRadius를 개별적으로 정하는 대신 두 단계의 elevation을 둔다.
-   * 둘 다 예전에 모든 곳에 복사되던 0.28~0.32 불투명도보다 의도적으로 더 가볍게 잡았다 -
-   * 모든 카드에 진한 드롭 섀도를 넣으면 촌스러워 보인다; 요즘 서피스는 극적인 그림자 대신
-   * 얇은 테두리와 부드럽고 낮은 들뜸(lift)에 기댄다.
+   * 카드 그림자 단계. 진한 드롭 섀도 대신 얇은 테두리와 낮은 들뜸(lift)에 기대도록 가볍게 잡았다.
    */
   elevation: {
     low: {
@@ -299,7 +207,7 @@ export const storybookTheme = {
       shadowRadius: 30,
       shadowOffset: { width: 0, height: 14 },
     },
-    /** modal.tsx가 자체적으로 하드코딩하던 카드 그림자를 그대로 옮긴 세 번째 단계 - low/high보다 진하다. */
+    /** 모달 카드 - low/high보다 진하다. */
     modal: {
       shadowColor: '#12091F',
       shadowOpacity: 0.22,
@@ -307,9 +215,7 @@ export const storybookTheme = {
       shadowOffset: { width: 0, height: 18 },
     },
   },
-  /** Figma "Simple Design System"에서 확인한 4px 배수 스케일(8/12/16/24) - sm과 md 사이,
-   * lg와 xl 사이에 있던 빈 칸(12, 20)을 채워 완전한 사다리로 만들었다. 히어로/대시보드에서
-   * 넉넉한 여백이 필요할 때 쓸 상위 두 단계(xxl=40, xxxl=56)도 함께. */
+  /** 4px 배수 스페이싱 스케일. */
   spacing: {
     xs: 4,
     sm: 8,
@@ -319,34 +225,21 @@ export const storybookTheme = {
     lg: 24,
     xl: 32,
     xxl: 40,
-    xxxl: 56,
   },
   /**
-   * 기존 인증 페이지들(login/join/organization-signup)이 이미 각자 content wrapper에
-   * `maxWidth: 420, width: '100%', alignSelf: 'center'`로 하드코딩해 둔 것과 같은 420 값이다 -
-   * 새 단일 컬럼 폼 페이지들이 비슷하지만 다른 숫자를 고르는 대신 정확히 일치시키도록 여기
-   * 중앙화했다. `wide`는 읽는 컬럼이 아니라 다중 아이템 그리드인 유일한 화면(홈 서재)을 위한
-   * 값이다.
-   *
-   * class-dashboard/parent-home는 한때 이 값을 썼지만 지금은 아래 dashboardCardWideMaxWidth로
-   * 옮겨갔다(더 넓은 대시보드 카드가 필요해서) - 로그인/가입 폼처럼 순수 단일 컬럼 입력
-   * 페이지가 아니라면 여기(420)보다는 그쪽을 기본으로 고려할 것.
+   * 페이지 콘텐츠 폭. `contentMaxWidth`는 로그인/가입처럼 순수 단일 컬럼 입력 폼 전용이고,
+   * `wideMaxWidth`는 다중 아이템 그리드(홈 서재)용이다. 그 외 대시보드형 페이지는
+   * dashboardCard*를 기본으로 고려할 것.
    */
   layout: {
     contentMaxWidth: 420,
     wideMaxWidth: 1040,
-    /** ClassDashboardPage/ParentHomePage가 각자 640/760으로 하드코딩해 둔 히어로 카드 폭 - 두
-     * 화면이 정확히 같은 값을 쓰고 있어 중앙화한다. */
+    /** 대시보드 히어로 카드 폭. */
     dashboardCardMaxWidth: 640,
     dashboardCardWideMaxWidth: 760,
-    /**
-     * 학생/일정 리스트처럼 카드 나열 위주지만 폼(420)보다는 넓고 대시보드(640)보다는 좁은
-     * 중간 밀도 페이지의 폭 - TutorStudentsPage/TutorScheduleListPage 등이 각자 560으로
-     * 하드코딩하던 값을 중앙화. */
+    /** 학생/일정 리스트처럼 폼보다 넓고 대시보드보다 좁은 중간 밀도 페이지. */
     narrowMaxWidth: 560,
-    /**
-     * 튜터 홈처럼 콘텐츠 밀도가 높지만 라이브러리 그리드(1040)만큼 넓을 필요는 없는 페이지의
-     * 폭 - TutorHomePage/TutorLessonDetailPage 등이 각자 720으로 하드코딩하던 값을 중앙화. */
+    /** 튜터 홈처럼 밀도가 높지만 라이브러리 그리드만큼 넓을 필요는 없는 페이지. */
     tabletMaxWidth: 720,
   },
 } as const;

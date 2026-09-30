@@ -69,9 +69,9 @@ export type StoryRuntimeState =
   | {
       /**
        * 안전게이트가 REDIRECT를 반환했지만 아직 3회 연속(consecutiveSafetyFailures+1 < 3)에
-       * 못 미쳤을 때 진입하는 상태 - awaiting-clarification과 완전히 같은 모양이며(재질문
-       * UI 재사용), question-invite-panel.tsx의 기존 삼항 분기에 케이스만 추가되어 있다.
-       * ASK_SELECTED/TYPE_SELECTED로 재질문을 받거나 CONTINUE_SELECTED로 건너뛸 수 있다.
+       * 못 미쳤을 때 진입하는 상태 - awaiting-clarification과 같은 모양이라 재질문 UI
+       * (question-invite-panel.tsx)를 재사용한다. ASK_SELECTED/TYPE_SELECTED로 재질문을 받거나
+       * CONTINUE_SELECTED로 건너뛸 수 있다.
        */
       status: 'awaiting-safety-retry';
       sceneId: SceneId;
@@ -153,10 +153,10 @@ export type StoryRuntimeEvent =
   | { type: 'FAILURE'; failure: FailureReason }
   | { type: 'FALLBACK_READY'; plan: FallbackPlan }
   /** GET /v1/live-branch/{jobId} 폴링이 READY를 봤고, 콘텐츠 재조회까지 끝난 뒤에 보낸다.
-   *  Phase 2부터는 항상 정확히 3개(새로 생성된 것 + 모자란 자리를 채운 기존 family)이며,
-   *  각 familyId는 재조회된 manifest.fallbackFamilies 안에 반드시 존재해야 한다. */
+   *  항상 정확히 3개(새로 생성된 것 + 모자란 자리를 채운 기존 family)이며, 각 familyId는
+   *  재조회된 manifest.fallbackFamilies 안에 반드시 존재해야 한다. */
   | { type: 'LIVE_BRANCH_READY'; options: readonly LiveBranchReadyOption[] }
-  /** 폴링이 FAILED 상태를 봤거나, 클라이언트 쪽 60초 타임아웃에 걸렸을 때 보낸다. */
+  /** 폴링이 FAILED 상태를 봤거나, 클라이언트 쪽 폴링 타임아웃에 걸렸을 때 보낸다. */
   | { type: 'LIVE_BRANCH_FAILED' };
 
 /** GET /v1/live-branch/{jobId}가 READY일 때 돌려주는 옵션 하나 - THREE_PATHS의 RouteOption과
@@ -667,8 +667,8 @@ function transitionFromGeneratingBranch(
 ): RuntimeTransition | undefined {
   if (state.status === 'generating-branch') {
     if (event.type === 'LIVE_BRANCH_READY') {
-      // Phase 2: 더 이상 family 1개를 자동재생하지 않는다 - 백엔드가 만든(부족하면 기존
-      // family로 채운) 정확히 3개를 아이가 직접 고르는 정상적인 THREE_PATHS 흐름으로 넘긴다.
+      // 백엔드가 만든(부족하면 기존 family로 채운) 정확히 3개를 아이가 직접 고르는 정상적인
+      // THREE_PATHS 흐름으로 넘긴다.
       // 호출부(use-one-story-runtime.ts)가 이 이벤트를 보내기 전에
       // GET /v1/stories/{storyId}/content를 재조회해 manifest를 이미 갈아끼웠다고
       // 가정하므로, 모든 family는 여기서 찾아져야 한다. 이후로는 아이가 방금 세 갈래

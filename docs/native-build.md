@@ -164,7 +164,7 @@ Capacitor가 생성한 기본 프로젝트에 아래만 추가했다. `npx cap s
 
 | 파일 | 변경 |
 |---|---|
-| `capacitor.config.ts` | appId/appName, `server.hostname`(WebView 출처), `androidScheme: https`, 외부 링크 허용 도메인, 스플래시 설정 |
+| `capacitor.config.ts` | appId/appName, `server.hostname`(WebView 출처), `androidScheme: https`, 스플래시 설정 (`allowNavigation`은 비워 둠 - 아래 "알려진 제약") |
 | `android/app/src/main/AndroidManifest.xml` | `RECORD_AUDIO`, `MODIFY_AUDIO_SETTINGS` 권한(아이 질문 녹음), 마이크 없는 기기 설치 허용 |
 | `android/app/build.gradle` | `keystore.properties`가 있을 때만 release 서명 |
 | `ios/App/App/Info.plist` | 마이크·카메라·사진 사용 설명(권한 창 문구). 아이패드 4방향 회전은 기본값 그대로 |

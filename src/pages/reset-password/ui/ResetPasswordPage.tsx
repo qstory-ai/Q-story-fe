@@ -15,11 +15,9 @@ import {
 import { messageForError } from '@/shared/api';
 
 /**
- * `token` 쿼리 파라미터로 갈리는 두 단계 - SignupPage의 `role`/`invite` 파라미터와 같은 형태다.
- * 토큰이 없으면 "재설정 요청" 단계(loginId를 입력받아 항상 성공 응답을 반환한다 - 이유는
- * AuthService.requestPasswordReset 참고); 토큰이 있으면 "새 비밀번호 설정" 단계(재설정 과정에서
- * 전달됐을 링크)다. 로그인 폼의 "비밀번호를 잊으셨나요?"가 여기로 오며, 그때 입력 중이던 아이디를
- * navigate state로 넘겨 받아 미리 채운다.
+ * `token` 쿼리 파라미터로 갈리는 두 단계. 토큰이 없으면 "재설정 요청" 단계(loginId를 받아 항상 성공
+ * 응답 - AuthService.requestPasswordReset 참고), 토큰이 있으면 메일 링크로 들어온 "새 비밀번호 설정"
+ * 단계다. 로그인 폼의 "비밀번호를 잊으셨나요?"가 입력 중이던 아이디를 navigate state로 넘겨 미리 채운다.
  */
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();

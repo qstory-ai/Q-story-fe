@@ -1,20 +1,29 @@
 import { readEnv } from '@/shared/config';
 
+import { UUID_PATTERN, createUuid, isHttpUrl } from './endpoint-utils';
+
 export const VOICE_RESEARCH_CONSENT_VERSION =
   'voice-research-v2-shadow-family';
-export const VOICE_RESEARCH_RETENTION_DAYS = 90;
-export const VOICE_RESEARCH_CONSENTS_STORAGE_KEY =
+const VOICE_RESEARCH_CONSENTS_STORAGE_KEY =
   'qstory.voice-research.consents.v2';
 
+/**
+ * VOICE_RESEARCH_CONSENT_VERSION에 해당하는 보호자 동의 문구 - 이 버전을 처음 받던 이야기 화면
+ * 체크박스의 문구 그대로다. 마이페이지에서 다시 동의할 때 이 문구를 보여 주고 이 버전으로 보낸다.
+ * 문구를 바꾸면 버전(여기와 BE VoiceResearchService.CONSENT_VERSION)도 함께 올려야 한다.
+ */
+export const VOICE_RESEARCH_CONSENT_TERMS =
+  '아이의 질문 원음을 Q-Story 음성 인식 개선을 위해 90일간 비공개 저장합니다. 동의하지 않아도 질문 문장으로 체험할 수 있고, 원음은 저장되지 않아요.';
+
 const DEFAULT_ENDPOINT = readEnv('VITE_QSTORY_VOICE_RESEARCH_URL');
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export type VoiceResearchConsent = {
   consentId: string;
   deletionToken: string;
   consentedAt: string;
   version: typeof VOICE_RESEARCH_CONSENT_VERSION;
+  /** 이 세션을 시작한 보호자 계정 - 공용 기기에서 한 계정의 철회가 다른 계정의 녹음까지 지우지 않게. 비로그인이면 없음. */
+  ownerId?: string;
 };
 
 export type VoiceResearchRecording = {
@@ -45,26 +54,10 @@ type RequestOptions = {
   fetchImpl?: typeof fetch;
 };
 
-function createUuid() {
-  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (character) => {
-    const random = Math.floor(Math.random() * 16);
-    const value = character === 'x' ? random : (random & 0x3) | 0x8;
-    return value.toString(16);
-  });
-}
-
-function isHttpUrl(value: string) {
-  try {
-    // 동일 출처(same-origin) 프록시 경로(예: `/api/qstory/v1/voice-research`)는 그 자체로는 스킴이 없으므로,
-    // 스킴을 확인하기 전에 현재 origin을 기준으로 해석(resolve)한다.
-    const base = typeof window === 'undefined' ? undefined : window.location.origin;
-    const url = new URL(value, base);
-    return url.protocol === 'https:' || url.protocol === 'http:';
-  } catch {
-    return false;
-  }
-}
+type UploadOptions = RequestOptions & {
+  /** 로그인한 보호자의 토큰 - 서버가 계정 동의를 확인하고 이 녹음을 계정에 연결한다(마이페이지 철회 대상). */
+  token?: string | null;
+};
 
 function readStoredConsents(): VoiceResearchConsent[] {
   try {
@@ -100,24 +93,21 @@ function writeStoredConsents(consents: VoiceResearchConsent[]) {
   }
 }
 
-export function createVoiceResearchConsent(): VoiceResearchConsent {
+export function createVoiceResearchConsent(ownerId?: string | null): VoiceResearchConsent {
   const consent: VoiceResearchConsent = {
     consentId: createUuid(),
     deletionToken: createUuid(),
     consentedAt: new Date().toISOString(),
     version: VOICE_RESEARCH_CONSENT_VERSION,
+    ...(ownerId ? { ownerId } : {}),
   };
   writeStoredConsents([...readStoredConsents(), consent]);
   return consent;
 }
 
-export function getStoredVoiceResearchConsents() {
-  return readStoredConsents();
-}
-
 export async function storeVoiceResearchSample(
   input: VoiceResearchSampleInput,
-  options: RequestOptions = {},
+  options: UploadOptions = {},
 ) {
   const endpoint = options.endpoint ?? DEFAULT_ENDPOINT;
   if (!input.consent || !isHttpUrl(endpoint)) return false;
@@ -174,10 +164,31 @@ export async function storeVoiceResearchSample(
     const response = await fetchImpl(endpoint, {
       method: 'POST',
       body: form,
+      ...(options.token ? { headers: { Authorization: `Bearer ${options.token}` } } : {}),
     });
     return response.ok;
   } catch {
     return false;
+  }
+}
+
+/** 토큰 기반 철회 요청 하나 - 네트워크 오류면 null. */
+async function postWithdraw(
+  consent: VoiceResearchConsent,
+  endpoint: string,
+  fetchImpl: typeof fetch,
+): Promise<Response | null> {
+  try {
+    return await fetchImpl(`${endpoint}/withdraw`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        consent_id: consent.consentId,
+        deletion_token: consent.deletionToken,
+      }),
+    });
+  } catch {
+    return null;
   }
 }
 
@@ -188,23 +199,40 @@ export async function withdrawVoiceResearchConsent(
   const endpoint = options.endpoint ?? DEFAULT_ENDPOINT;
   if (!isHttpUrl(endpoint)) return false;
   const fetchImpl = (options.fetchImpl ?? fetch).bind(globalThis);
-  try {
-    const response = await fetchImpl(`${endpoint}/withdraw`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        consent_id: consent.consentId,
-        deletion_token: consent.deletionToken,
-      }),
-    });
-    if (!response.ok) return false;
-    writeStoredConsents(
-      readStoredConsents().filter(
-        (stored) => stored.consentId !== consent.consentId,
-      ),
-    );
-    return true;
-  } catch {
-    return false;
+  const response = await postWithdraw(consent, endpoint, fetchImpl);
+  if (!response?.ok) return false;
+  writeStoredConsents(
+    readStoredConsents().filter(
+      (stored) => stored.consentId !== consent.consentId,
+    ),
+  );
+  return true;
+}
+
+/**
+ * 이 기기에 남아 있는 세션 동의 중 이 계정의 것과 계정 표시가 없는 것(비로그인 세션)을 토큰으로 철회한다 -
+ * 마이페이지 철회가 계정에 연결되지 않은 녹음(로그인 전에 올렸거나 계정 연결이 생기기 전에 올린 것)까지 함께
+ * 지우도록. 같은 기기를 쓰는 다른 계정의 세션은 건드리지 않는다.
+ * 서버가 이미 모르는 동의(403 - 녹음 없이 끝난 세션이거나 계정 철회로 먼저 지워진 것)도 지울 것이
+ * 없으므로 정리된 것으로 본다. 네트워크 오류 등으로 남은 개수를 돌려준다.
+ */
+export async function withdrawStoredVoiceResearchConsents(
+  ownerId: string,
+  options: RequestOptions = {},
+): Promise<number> {
+  const stored = readStoredConsents().filter((consent) => !consent.ownerId || consent.ownerId === ownerId);
+  if (stored.length === 0) return 0;
+  const endpoint = options.endpoint ?? DEFAULT_ENDPOINT;
+  if (!isHttpUrl(endpoint)) return stored.length;
+  const fetchImpl = (options.fetchImpl ?? fetch).bind(globalThis);
+  const settled = new Set<string>();
+  for (const consent of stored) {
+    const response = await postWithdraw(consent, endpoint, fetchImpl);
+    if (response && (response.ok || response.status === 403)) {
+      settled.add(consent.consentId);
+    }
   }
+  const kept = readStoredConsents().filter((consent) => !settled.has(consent.consentId));
+  writeStoredConsents(kept);
+  return stored.filter((consent) => !settled.has(consent.consentId)).length;
 }

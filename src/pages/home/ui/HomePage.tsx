@@ -53,31 +53,19 @@ function readOnboardingParams(params: URLSearchParams): OnboardingEntry | null {
 const ROLE_OPTIONS: { role: 'DIRECTOR' | 'PARENT' | 'TUTOR'; label: string; body: string }[] = [
   { role: 'PARENT', label: '학부모님', body: '아이와 함께 이야기 서재를 시작해요' },
   { role: 'TUTOR', label: '선생님', body: '학생을 등록하고 수업을 준비해요' },
-  // OnboardingFlow의 ROLE_CARDS와 같은 표기("기관 및 단체") - 예전엔 여기만 "기관 관리자"라
-  // 카드를 눌러 들어간 다음 화면에서 이름이 달라졌다.
+  // OnboardingFlow의 ROLE_CARDS와 같은 표기("기관 및 단체")를 유지한다.
   { role: 'DIRECTOR', label: '기관 및 단체', body: '유치원·기관을 등록하고 반을 만들어요' },
 ];
 
 /**
- * "/"의 서재 홈. 이전에는 히어로 카드 + 3버튼짜리 화면이었는데, StoryCard/listStories()가
- * "홈 라이브러리 그리드용"으로 이미 만들어져 있었으면서도 어디에도 안 쓰이고 있던 걸 여기
- * 연결했다 - <StoryLibraryGrid />가 실제 책장이고, 언락 여부는 entities/story의
- * unlockStateFor()가 판단한다.
+ * "/"의 서재 홈. <StoryLibraryGrid />가 책장이고, 언락 여부는 entities/story의 unlockStateFor()가
+ * 판단한다.
  *
- * 아래 auth 상태 패널(비로그인: 원장님/학부모님/선생님/로그인 링크)은 그대로 보존한다 -
- * 예전엔 /director, /join, /login으로 직접 이동했지만, 이제는 같은 목적지를
- * <OnboardingFlow/>(환영→가치제안→역할선택→가입 순차 흐름)의 해당 단계로 곧장 진입시킨다 -
- * 원장님/학부모님/선생님 카드는 역할이 이미 정해졌으니 role-select를 건너뛰고 바로
- * sign-up 단계로. 기존 라우트 중 여전히 살아있는 /join, /login, /signup, /organization은
- * 딥링크·북마크 보호를 위해 그대로 둔다 - 다만 /director는 완전히 죽은 코드였다(가입 단계가
- * 존재하지 않는 백엔드 엔드포인트를 불렀고, 인증 후에는 항상 동일한 기능의 /organization으로
- * 갔어야 했던 중복 페이지라 삭제했다 - homePathFor()도 이제 /organization을 가리킨다).
+ * 비로그인 패널의 역할 카드는 <OnboardingFlow/>의 해당 단계로 곧장 진입시킨다 - 역할이 정해진
+ * 카드는 role-select를 건너뛰고 바로 sign-up 단계로.
  *
- * 로그인된 사용자는 "/"에 들어와도 이 화면을 보지 않는다 - 역할 홈으로 즉시 리다이렉트한다.
- * homePathFor()가 "/"를 반환하는(알 수 없는 role) 경우에만 리다이렉트 루프를 막기 위해
- * 이 화면을 그대로 보여준다.
- *
- * 데모는 여전히 무료·익명이다 - 그리드의 HG 카드가 곧장 /demo로 보낸다.
+ * 로그인된 사용자는 역할 홈으로 즉시 리다이렉트한다. homePathFor()가 "/"를 반환하는(알 수 없는
+ * role) 경우에만 리다이렉트 루프를 막기 위해 이 화면을 그대로 보여준다.
  */
 export function HomePage() {
   const { state, logout } = useAuth();
@@ -120,8 +108,8 @@ export function HomePage() {
           initialStep={onboarding.step}
           initialRole={onboarding.role}
           initialTutorInvite={onboarding.tutorInvite}
-          // URL 파라미터(/login, /join, 초대 링크)로 들어온 경우엔 state를 비워도 paramEntry가
-          // 계속 이기므로 "← 서재로"가 아무 일도 안 했다 - 파라미터 없는 "/"로 실제로 이동한다.
+          // URL 파라미터로 들어온 경우엔 state를 비워도 paramEntry가 계속 이기므로 파라미터 없는
+          // "/"로 실제로 이동한다.
           onExit={() => {
             setManualOnboarding(null);
             setFlowOwnsSession(false);
@@ -149,9 +137,8 @@ export function HomePage() {
           <View style={[styles.panel, isWide && styles.panelWide]}>
             <Text style={styles.panelTitle}>가입하고 나에게 맞는 홈을 열어보세요</Text>
             <View style={styles.authButtonRow}>
-              {/* ActionButton의 secondary 변형은 흰 카드 위에서 쓰도록 만들어져 있어(연한
-                  회색 배경 + 진보라 글자) 이 패널의 어두운 배경에선 거의 안 보였다 - role
-                  카드와 같은 "어두운 배경용 반투명" 톤으로 직접 스타일링한다. */}
+              {/* ActionButton secondary는 흰 카드용이라 어두운 패널에선 안 보인다 - role 카드와
+                  같은 톤으로 직접 스타일링한다. */}
               <Pressable
                 accessibilityRole="button"
                 style={styles.loginButton}
@@ -237,9 +224,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingVertical: storybookTheme.spacing.ml,
   },
-  // StoryLibraryGrid의 section도 wideMaxWidth(1040)를 쓴다 - 위아래 블록의 실제 너비가
-  // 같아야 한 화면처럼 정렬돼 보인다(예전엔 이 패널만 760으로 좁아서 위 서재 영역보다
-  // 눈에 띄게 좁아 보였다).
+  // StoryLibraryGrid의 section과 같은 wideMaxWidth - 위아래 블록 너비를 맞춘다.
   panelWide: { maxWidth: storybookTheme.layout.wideMaxWidth },
   panelTitle: {
     fontSize: storybookTheme.type.md,
@@ -269,7 +254,6 @@ const styles = StyleSheet.create({
   role: {
     flex: 1,
     gap: storybookTheme.spacing.xs,
-    // panelOnDarkBackground(0.08)와 같은 크림 계열 - 이전엔 0.1로 미세하게 달랐다.
     backgroundColor: storybookTheme.color.contentPanel,
     borderRadius: storybookTheme.radius.card,
     paddingHorizontal: storybookTheme.spacing.md,

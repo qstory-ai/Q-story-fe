@@ -15,6 +15,8 @@
 #   ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
 #   IOS_CERTIFICATE_P12_BASE64, IOS_CERTIFICATE_PASSWORD, IOS_PROVISIONING_PROFILE_BASE64,
 #   IOS_TEAM_ID, IOS_EXPORT_METHOD (ad-hoc | app-store | development, 기본 ad-hoc)
+#   APPSTORE_API_KEY_ID, APPSTORE_API_ISSUER_ID, APPSTORE_API_KEY_P8_BASE64 : IOS_EXPORT_METHOD가
+#     app-store이고 이 셋이 있으면 IPA를 TestFlight(App Store Connect)에 바로 올린다.
 #   FIREBASE_ANDROID_APP_ID, FIREBASE_SERVICE_ACCOUNT_JSON : 둘 다 있으면 Android APK를 Firebase App
 #     Distribution으로 테스터 그룹에 배포한다(안드로이드판 TestFlight). 설정 절차는 docs/native-build.md
 #     "갤럭시탭 - 테스터에게 나눠주기" 참고. 없으면 Artifacts 다운로드만 된다.
@@ -181,7 +183,6 @@ jobs:
         working-directory: ios/App
         env:
           TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
-          EXPORT_METHOD: ${{ secrets.IOS_EXPORT_METHOD || 'ad-hoc' }}
         run: |
           # 프로파일의 내부 Name(파일명이 아니라 <key>Name</key>)을 뽑아 CODE_SIGN 오버라이드에 쓴다 -
           # pbxproj의 CODE_SIGN_STYLE=Automatic은 서버에서 프로파일을 생성/조회하려 하므로 CI에서

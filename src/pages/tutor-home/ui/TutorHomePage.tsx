@@ -16,11 +16,8 @@ type LoadState =
   | { status: 'error'; message: string };
 
 /**
- * 선생님 홈("/tutor") - IA "[1] 홈" 섹션을 반영. 예전엔 "오늘의 수업"(주 반복 요일 기반) +
- * "이번 주 일정 요약"(요일별 카운트) 두 패널로 이번 주만 봤는데, 사용자 요청으로 한 달짜리
- * 애플식 캘린더로 교체했다 - 특정 일자를 탭하면 그 아래에 그 날의 수업 목록이 뜬다.
- * 데이터 소스도 recurring TutorSchedule에서 실 스케줄이 붙는 Lesson으로 바꿨다
- * (Lesson.scheduledAt이 실제 datetime).
+ * 선생님 홈("/tutor") - IA "[1] 홈" 섹션. 캘린더는 Lesson.scheduledAt 기준 월 그리드이고,
+ * 일자를 탭하면 그 날의 수업 목록이 뜬다.
  *
  *   1. 상단 바 - 브랜드 라벨 + 알림 벨.
  *   2. 인사말 카드.
@@ -41,12 +38,14 @@ export function TutorHomePage() {
     }
   }, [state, navigate]);
 
+  const token = state.status === 'authenticated' ? state.token : null;
+
   useEffect(() => {
-    if (state.status !== 'authenticated') return;
+    if (!token) return;
     let cancelled = false;
     // 상태 필터 없이 전부 - 캘린더는 SCHEDULED만 아니라 IN_PROGRESS/COMPLETED도 dot으로
     // 표시해 지난 수업 참조가 되게 한다.
-    Promise.all([listTutorStudents(state.token), listLessons(state.token)])
+    Promise.all([listTutorStudents(token), listLessons(token)])
       .then(([students, lessons]) => {
         if (!cancelled) setLoad({ status: 'ready', students, lessons });
       })
@@ -59,7 +58,7 @@ export function TutorHomePage() {
     return () => {
       cancelled = true;
     };
-  }, [state, reloadKey]);
+  }, [token, reloadKey]);
 
   const calendarItems = useMemo(() => {
     if (load.status !== 'ready') return [] as { id: string; date: Date; lesson: Lesson }[];
@@ -125,8 +124,7 @@ export function TutorHomePage() {
           )}
         </Card>
 
-        {/* 튜터의 주 액션(새 학생/학생 관리/수업 관리)을 캘린더 바로 아래에 모아 두어 원터치
-            진입이 가능하게 한다 - 예전엔 학생 목록으로 가려면 두 번 이동해야 했다. */}
+        {/* 튜터의 주 액션을 캘린더 바로 아래에 모아 원터치로 진입하게 한다. */}
         <View style={styles.ctaRow}>
           <ActionButton label="새 학생 등록" onPress={() => navigate('/tutor/students/new')} />
           <View style={styles.linkRow}>
@@ -190,8 +188,10 @@ function StatusPill({ status }: { status: Lesson['status'] }) {
   return null;
 }
 
+const TIME_FORMAT = new Intl.DateTimeFormat('ko-KR', { hour: 'numeric', minute: '2-digit' });
+
 function formatTime(date: Date) {
-  return new Intl.DateTimeFormat('ko-KR', { hour: 'numeric', minute: '2-digit' }).format(date);
+  return TIME_FORMAT.format(date);
 }
 
 const styles = StyleSheet.create({

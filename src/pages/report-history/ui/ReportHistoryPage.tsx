@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { AppNavShell, EmptyState, ErrorState, HexagonStatChart, LoadingState, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, useAuth } from '@/entities/auth';
 import { findChildAvatar, useChildren } from '@/entities/child';
-import { listStories } from '@/entities/story';
+import { fetchStoryReportCopy, listStories, type StoryReportCopy } from '@/entities/story';
 import { messageForError } from '@/shared/api';
 import { formatReportDuration } from '@/pages/one-story';
 import {
@@ -13,6 +13,7 @@ import {
   buildRecentApproachTrend,
   type ComprehensiveReport,
   type RecentApproachTrend,
+  type ReportCopyByStoryId,
 } from '@/entities/analytics';
 import {
   listRecentStoryCompletions,
@@ -26,6 +27,19 @@ import { listParentTutorReports, type TutorReportSummary } from '@/entities/tuto
 const COMPREHENSIVE_LIMIT = 20;
 /** 트렌드 카드가 내려다보는 최근 회차 수 - 1~2회로는 "반복"이라 부르기 애매해 최소 2회 겹쳐야 표시한다. */
 const RECENT_TREND_LIMIT = 5;
+
+/**
+ * 종합/트렌드 카드의 "생각 전략"은 이야기마다 전략 표(reportCopy.strategyByFamily)가 달라서, 최근
+ * 기록에 나온 이야기들의 reportCopy를 모아 둔다. 하나가 실패해도 그 이야기만 라우트 기준 전략으로
+ * 추정되게 두고(report-labels 참고) 화면 전체는 막지 않는다.
+ */
+async function loadReportCopies(storyIds: readonly string[]): Promise<ReportCopyByStoryId> {
+  const unique = [...new Set(storyIds)];
+  const copies = await Promise.all(
+    unique.map((storyId) => fetchStoryReportCopy(storyId).catch(() => null as StoryReportCopy | null)),
+  );
+  return Object.fromEntries(unique.map((storyId, index) => [storyId, copies[index]]));
+}
 
 type Tab = 'comprehensive' | 'by-story' | 'class';
 
@@ -42,9 +56,10 @@ type LoadState =
     }
   | { status: 'error'; message: string };
 
+const COMPLETED_AT_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
 function formatCompletedAt(iso: string) {
-  const date = new Date(iso);
-  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(date);
+  return COMPLETED_AT_FORMAT.format(new Date(iso));
 }
 
 /**
@@ -74,23 +89,26 @@ export function ReportHistoryPage() {
     }
   }, [state.status, canView, navigate]);
 
+  const token = state.status === 'authenticated' ? state.token : null;
+
   useEffect(() => {
-    if (state.status !== 'authenticated') return;
+    if (!token) return;
     let cancelled = false;
     const filters = childFilterId ? { childId: childFilterId } : undefined;
     Promise.all([
-      listStoryCompletions(state.token, filters),
+      listStoryCompletions(token, filters),
       listStories(),
       // 종합/트렌드 카드는 부가 기능이므로, 이 두 호출이 실패해도(예: 구버전 백엔드) 목록 자체는
       // 계속 동작해야 한다 - 실패를 빈 배열로 흡수해 각각 조용히 null/empty가 되게 한다.
-      listRecentStoryCompletions(state.token, COMPREHENSIVE_LIMIT, filters).catch(
+      listRecentStoryCompletions(token, COMPREHENSIVE_LIMIT, filters).catch(
         () => [] as StoryCompletionDetail[],
       ),
       // 선생님 수업 리포트는 개별 연결의 부가 데이터다. 구버전 서버에 아직 없거나 일시적으로
       // 실패해도 가정 리포트 전체가 막히지 않도록 빈 목록으로 다룬다.
-      listParentTutorReports(state.token).catch(() => [] as TutorReportSummary[]),
+      listParentTutorReports(token).catch(() => [] as TutorReportSummary[]),
     ])
-      .then(([completions, stories, recentDetailed, tutorReports]) => {
+      .then(async ([completions, stories, recentDetailed, tutorReports]) => {
+        const reportCopyByStoryId = await loadReportCopies(recentDetailed.map((detail) => detail.storyId));
         if (cancelled) return;
         setLoad({
           status: 'ready',
@@ -98,9 +116,9 @@ export function ReportHistoryPage() {
           titleByStoryId: Object.fromEntries(stories.map((story) => [story.storyId, story.title])),
           recentTrend:
             recentDetailed.length >= 2
-              ? buildRecentApproachTrend(recentDetailed.slice(0, RECENT_TREND_LIMIT))
+              ? buildRecentApproachTrend(recentDetailed.slice(0, RECENT_TREND_LIMIT), reportCopyByStoryId)
               : null,
-          comprehensive: buildComprehensiveReport(recentDetailed),
+          comprehensive: buildComprehensiveReport(recentDetailed, reportCopyByStoryId),
           comprehensiveSessionCount: recentDetailed.length,
           tutorReports,
         });
@@ -115,14 +133,12 @@ export function ReportHistoryPage() {
     return () => {
       cancelled = true;
     };
-  }, [state, childFilterId, reloadKey]);
+  }, [token, childFilterId, reloadKey]);
 
-  const emptyMessageForTab = useMemo(() => {
-    if (tab === 'comprehensive') {
-      return '아직 종합 리포트에 담을 완주 기록이 없어요. 이야기를 두세 편 마치면 요약이 채워져요.';
-    }
-    return '아직 마친 이야기가 없어요. 이야기를 끝까지 읽으면 여기에 기록이 남아요.';
-  }, [tab]);
+  const emptyMessageForTab =
+    tab === 'comprehensive'
+      ? '아직 종합 리포트에 담을 완주 기록이 없어요. 이야기를 두세 편 마치면 요약이 채워져요.'
+      : '아직 마친 이야기가 없어요. 이야기를 끝까지 읽으면 여기에 기록이 남아요.';
 
   if (!canView) return null;
 
@@ -497,9 +513,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    // contentMaxWidth(420)는 로그인/가입 같은 단일 폼 페이지 폭 - 이 탭의 형제인
-    // ParentHomePage/ClassDashboardPage는 진작에 dashboardCardWideMaxWidth(760)로 옮겨가서,
-    // 이 페이지만 420에 남아 같은 사이드바 레이아웃 안에서 유독 좁고 여백이 크게 떠 있었다.
+    // 사이드바 레이아웃을 공유하는 형제 탭(ParentHomePage/LibraryPage)과 같은 폭.
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,

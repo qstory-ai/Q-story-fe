@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   finalCtaTitle: {
     color: storybookTheme.color.onDark,
     fontSize: storybookTheme.type.xl,
-    lineHeight: 34, // lineHeight preserved
+    lineHeight: 34,
     fontWeight: storybookTheme.type.weight.bold,
   },
   finalCtaLead: {

@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   createVoiceResearchConsent,
   storeVoiceResearchSample,
+  withdrawStoredVoiceResearchConsents,
   withdrawVoiceResearchConsent,
 } from './voice-research';
 
@@ -108,4 +109,79 @@ test('동의 철회는 전용 /withdraw 경로에 삭제 토큰을 포함한 요
     consent_id: consent.consentId,
     deletion_token: consent.deletionToken,
   });
+});
+
+test('로그인한 보호자의 토큰이 있으면 업로드에 Authorization 헤더를 싣는다', async () => {
+  const consent = createVoiceResearchConsent();
+  let headers: Headers | undefined;
+  await storeVoiceResearchSample(
+    {
+      consent,
+      recording: {
+        uri: 'blob:test',
+        durationMillis: 1_200,
+        mimeType: 'audio/webm',
+        uploadBlob: new Blob(['voice'], { type: 'audio/webm' }),
+      },
+      storyId: 'hansel-gretel',
+      sceneId: 'HG-F01',
+      anchorId: 'HG-Q-A',
+      questionRound: 1,
+      sttDraft: '새 저기 가',
+      confirmedTranscript: '새는 왜 저기로 가?',
+    },
+    {
+      endpoint: 'https://example.com/voice-research',
+      token: 'parent-token',
+      fetchImpl: (async (_url, init) => {
+        headers = new Headers(init?.headers);
+        return new Response(null, { status: 202 });
+      }) as typeof fetch,
+    },
+  );
+
+  assert.equal(headers?.get('Authorization'), 'Bearer parent-token');
+});
+
+test('기기에 남은 세션 동의를 모두 철회하고, 서버가 모르는 동의(403)도 정리한다', async () => {
+  // node에는 localStorage가 없어 메모리 저장소로 대신한다.
+  const memory = new Map<string, string>();
+  const previous = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  Object.defineProperty(globalThis, 'localStorage', {
+    configurable: true,
+    value: {
+      getItem: (key: string) => memory.get(key) ?? null,
+      setItem: (key: string, value: string) => memory.set(key, value),
+      removeItem: (key: string) => memory.delete(key),
+    },
+  });
+  try {
+    const uploaded = createVoiceResearchConsent('owner-a');
+    const neverUploaded = createVoiceResearchConsent();
+    const offline = createVoiceResearchConsent('owner-a');
+    const otherAccount = createVoiceResearchConsent('owner-b');
+    const withdrawnIds: string[] = [];
+    const remaining = await withdrawStoredVoiceResearchConsents('owner-a', {
+      endpoint: 'https://example.com/voice-research',
+      fetchImpl: (async (_url, init) => {
+        const { consent_id: consentId } = JSON.parse(String(init?.body)) as { consent_id: string };
+        withdrawnIds.push(consentId);
+        if (consentId === offline.consentId) throw new TypeError('network');
+        return new Response(null, { status: consentId === uploaded.consentId ? 200 : 403 });
+      }) as typeof fetch,
+    });
+
+    // 같은 기기를 쓰는 다른 계정(owner-b)의 세션은 건드리지 않는다.
+    assert.deepEqual(withdrawnIds, [uploaded.consentId, neverUploaded.consentId, offline.consentId]);
+    assert.ok(!withdrawnIds.includes(otherAccount.consentId));
+    assert.equal(remaining, 1);
+    const stillStored = await withdrawStoredVoiceResearchConsents('owner-a', {
+      endpoint: 'https://example.com/voice-research',
+      fetchImpl: (async () => new Response(null, { status: 200 })) as typeof fetch,
+    });
+    assert.equal(stillStored, 0);
+  } finally {
+    if (previous) Object.defineProperty(globalThis, 'localStorage', previous);
+    else Reflect.deleteProperty(globalThis, 'localStorage');
+  }
 });

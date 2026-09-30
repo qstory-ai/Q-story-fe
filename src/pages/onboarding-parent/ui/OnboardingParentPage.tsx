@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { homePathFor, useAuth } from '@/entities/auth';
+import { hasCompletedOnboarding, homePathFor, markOnboardingDone, useAuth } from '@/entities/auth';
 import {
   BirthYearChips,
   ageBandFromBirthYear,
@@ -15,7 +15,6 @@ import {
   type ChildAvatarKey,
 } from '@/entities/child';
 
-const ONBOARDING_DONE_KEY_PREFIX = 'qstory.onboarding.parent.done.';
 
 type Step = 'child' | 'consent' | 'done';
 
@@ -31,7 +30,7 @@ function readPrefill(state: unknown): ParentOnboardingPrefill {
 /**
  * IA "부모 온보딩" - 회원가입 성공 직후 자동 진입. IA의 네 스텝(보호자 정보/아이 등록/필수
  * 동의/완료) 중 보호자 정보는 signup 폼에서 이미 받았으므로 여기선 아이 등록 → 필수 동의 →
- * 완료 세 스텝만 다룬다. 완료 마크는 localStorage에 남기고, 사용자가 "나중에" 링크를 누르면
+ * 완료 세 스텝만 다룬다. 마친 계정이 다시 들어오면 홈으로 보내고, 사용자가 "나중에" 링크를 누르면
  * 아이 없이도 홈으로 진입할 수 있다(이후 마이페이지에서 언제든 아이 등록 가능).
  */
 export function OnboardingParentPage() {
@@ -54,6 +53,8 @@ export function OnboardingParentPage() {
     if (state.status === 'loading') return;
     if (state.status !== 'authenticated' || state.user.role !== 'PARENT') {
       navigate('/', { replace: true });
+    } else if (hasCompletedOnboarding('parent', state.user.id)) {
+      navigate(homePathFor(state.user), { replace: true });
     }
   }, [state, navigate]);
 
@@ -68,7 +69,7 @@ export function OnboardingParentPage() {
   // 상태를 effect에서 바꾸지 않고 파생값으로 건너뛴다 - 아이가 이미 있으면 'child' 단계는 'consent'로 읽힌다.
   const step: Step = rawStep === 'child' && invitedChildExists ? 'consent' : rawStep;
 
-  const canCreateChild = useMemo(() => name.trim().length > 0 && !submitting, [name, submitting]);
+  const canCreateChild = name.trim().length > 0 && !submitting;
   const canConfirmConsent = consentAudio && consentReport;
 
   async function submitChild() {
@@ -88,13 +89,7 @@ export function OnboardingParentPage() {
 
   function markDoneAndGoHome() {
     if (state.status !== 'authenticated') return;
-    try {
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(`${ONBOARDING_DONE_KEY_PREFIX}${state.user.id}`, '1');
-      }
-    } catch {
-      // 프라이빗 모드 등에서 실패해도 홈 진입은 그대로 - 다음 로그인에 온보딩이 다시 뜨는 정도.
-    }
+    markOnboardingDone('parent', state.user.id);
     navigate(homePathFor(state.user), { replace: true });
   }
 
@@ -220,16 +215,6 @@ export function OnboardingParentPage() {
   );
 }
 
-/** 부모 온보딩이 완료됐는지(재진입 시 자동 스킵할지) 판단. 서버 저장 없이 브라우저 로컬 마크만. */
-export function hasCompletedParentOnboarding(userId: string): boolean {
-  if (typeof window === 'undefined') return true;
-  try {
-    return window.localStorage.getItem(`${ONBOARDING_DONE_KEY_PREFIX}${userId}`) === '1';
-  } catch {
-    return true;
-  }
-}
-
 /* -------------------------------------------------------------- helpers */
 
 function ProgressPip({ filled }: { filled: boolean }) {
@@ -329,30 +314,11 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onContentMuted,
   },
-  chipRow: { gap: 8, paddingVertical: 2 },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: storybookTheme.radius.pill,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
-  },
-  chipSelected: {
-    backgroundColor: storybookTheme.color.primary,
-    borderColor: storybookTheme.color.primary,
-  },
   chipPressed: { opacity: 0.85 },
-  chipLabel: {
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onContentMuted,
-  },
-  chipLabelSelected: { color: storybookTheme.color.background },
   avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   avatarChoice: {
     width: 56,
     height: 56,
-    // 56/2 = 28 - 원형 아바타. radius.pill(999)를 써도 시각적으로 같지만 의도(정원)을 명시.
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',

@@ -23,6 +23,7 @@ import {
   loadLocalStoryProgress,
   saveLocalStoryProgress,
   createVoiceResearchConsent,
+  getVoiceResearchAccountConsent,
   storeVoiceResearchSample,
   trackBetaEvent,
   type BetaEventName,
@@ -172,10 +173,16 @@ export function useOneStoryRuntime(
     recording: RecordingResult;
     sttDraft: string;
   } | null>(null);
-  // 홈에서 이미 아이를 선택하고 들어온 경우(정식 플레이 경로) selectedChild.name으로 미리
-  // 채운다 - 방금 고른 이름을 이야기 시작 화면에서 또 타이핑하게 하는 게 부자연스러웠다.
-  // 데모(/demo, 비로그인)처럼 선택된 아이가 없는 경로에서는 selectedChild가 null이라 그대로
-  // 빈 입력으로 남는다(IdlePanel이 이 경우에만 입력 UI를 보여준다).
+  // 로그인한 보호자의 계정 단위 음성 연구 동의(마이페이지에서 켜고 끈다). 꺼져 있으면 세션 동의를
+  // 만들지 않아 원음을 올리지 않는다. 토큰은 업로드에 실어 서버가 동의를 다시 확인하고 녹음을 계정에
+  // 연결하게 한다(마이페이지 철회 시 삭제 대상). 비로그인·선생님 세션은 기존처럼 익명으로 저장한다.
+  const voiceResearchAccountRef = useRef<{ token: string | null; enabled: boolean; ownerId: string | null }>({
+    token: null,
+    enabled: true,
+    ownerId: null,
+  });
+  // 홈에서 아이를 선택하고 들어왔으면 그 이름으로 미리 채운다. 데모(/demo)처럼 선택된 아이가
+  // 없으면 빈 입력으로 남는다(IdlePanel이 이 경우에만 입력 UI를 보여준다).
   const [childNameInput, setChildNameInput] = useState(() => selectedChild?.name ?? '');
   const [childName, setChildName] = useState('');
   const [parentMessage, setParentMessage] = useState<string | null>(null);
@@ -183,10 +190,8 @@ export function useOneStoryRuntime(
   const [pendingTranscription, setPendingTranscription] =
     useState<TranscriptionSuccess | null>(null);
   const [isRoutingQuestion, setIsRoutingQuestion] = useState(false);
-  // "processing-question" 내부의 화면 로컬 단계 구분 - isRoutingQuestion 하나만으로는
-  // "라우팅 LLM 호출을 기다리는 중"과 "응답 TTS를 기다리는 중"을 구분할 수 없어서, 로딩
-  // 화면이 약 10초에 달하는 대기 시간 전체를 하나의 단조로운 화면으로 보여주고 있었다.
-  // pendingTranscription과 같은 관례를 따른다: 새로운 runtime state가 아니라 UI 전용 구분이다.
+  // "processing-question" 안에서 "라우팅 LLM 대기"와 "응답 TTS 대기"를 구분하는 UI 전용 상태
+  // (runtime state가 아니다) - 로딩 화면 문구를 단계별로 바꾸는 데 쓴다.
   const [isPreparingResponseAudio, setIsPreparingResponseAudio] = useState(false);
   const [pendingResponseAudio, setPendingResponseAudio] =
     useState<ResponseAudio | null>(null);
@@ -256,6 +261,29 @@ export function useOneStoryRuntime(
     }
   }, [persistCurrentProgress, runtimeState]);
 
+  const parentToken =
+    authState.status === 'authenticated' && authState.user.role === 'PARENT'
+      ? authState.token
+      : null;
+  const parentUserId =
+    authState.status === 'authenticated' && authState.user.role === 'PARENT' ? authState.user.id : null;
+  useEffect(() => {
+    voiceResearchAccountRef.current = { token: parentToken, enabled: true, ownerId: parentUserId };
+    if (!parentToken) return;
+    let cancelled = false;
+    // 조회에 실패하면 켜 둔 채로 두되, 서버가 업로드 때 계정 동의를 다시 확인해 꺼진 계정은 거절한다.
+    getVoiceResearchAccountConsent(parentToken)
+      .then((consent) => {
+        if (!cancelled) {
+          voiceResearchAccountRef.current = { token: parentToken, enabled: consent.enabled, ownerId: parentUserId };
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [parentToken, parentUserId]);
+
   useEffect(() => {
     if (runtimeState.status !== 'playing-fixed') return;
     if (trackedScenesRef.current.has(runtimeState.sceneId)) return;
@@ -297,10 +325,6 @@ export function useOneStoryRuntime(
     });
   }, [runtimeState, trackStoryEvent]);
 
-  const openExternal = useCallback(async (url: string) => {
-    window.location.assign(url);
-  }, []);
-
   const rememberQuestionOutcome = useCallback(
     (
       anchorId: QuestionAnchorId,
@@ -329,6 +353,26 @@ export function useOneStoryRuntime(
         ...current.filter((item) => item.anchorId !== anchorId),
         outcome,
       ]);
+    },
+    [],
+  );
+
+  // 선택지 초대(awaiting-choice)와 응답(playing-response) 재생 effect가 공유한다 - ref/setState만
+  // 쓰므로 identity가 고정이라 effect deps를 흔들지 않는다.
+  const markFirstResponseAudio = useCallback(() => {
+    if (
+      firstResponseAudioMsRef.current === null &&
+      questionRouteStartedAtRef.current !== null
+    ) {
+      firstResponseAudioMsRef.current =
+        Date.now() - questionRouteStartedAtRef.current;
+    }
+  }, []);
+  const setBranchCaptionProgress = useCallback(
+    (text: string, progress: number | null) => {
+      setBranchCaption((current) =>
+        current?.text === text ? { ...current, progress } : current,
+      );
     },
     [],
   );
@@ -606,10 +650,12 @@ export function useOneStoryRuntime(
   const startStory = useCallback(() => {
     primeResponseAudio();
     const normalizedName = childNameInput.trim().slice(0, 10);
-    // 보호자 동의 체크박스는 제거됐다 - 질문 원음은 항상 음성 인식 개선 연구용으로 저장한다
-    // (동의 게이팅 없이). storeVoiceResearchSample() 호출부는 여전히 이 ref가 non-null인지로
-    // 판단하므로, consent 객체 자체는 그대로 만들어 채워 둔다.
-    voiceResearchConsentRef.current = createVoiceResearchConsent();
+    // 질문 원음은 음성 인식 개선 연구용으로 저장한다(이야기 화면에 별도 동의 UI 없음) - 저장 호출부가
+    // 이 ref가 non-null인지로 판단하므로 세션 시작 시 채운다. 보호자가 마이페이지에서 음성 연구
+    // 동의를 껐으면 만들지 않는다.
+    voiceResearchConsentRef.current = voiceResearchAccountRef.current.enabled
+      ? createVoiceResearchConsent(voiceResearchAccountRef.current.ownerId)
+      : null;
     pendingVoiceResearchSampleRef.current = null;
     clearLocalStoryProgress();
     setResumeCandidate(null);
@@ -704,6 +750,33 @@ export function useOneStoryRuntime(
     firstResponseAudioMsRef.current = null;
   }, []);
 
+  /**
+   * 말/글 질문 시도 하나를 추적 ref에 반영하고 입력 모드를 바꾼다. 앵커에서 새로 시작하는
+   * 질문이면 추적을 초기화하고, 진행 중 질문에서 입력 방식만 바꾼 거면 switched로 표시한다.
+   * 반환값은 새로 시작하는 질문인지(question_started 이벤트 조건).
+   */
+  const registerQuestionAttempt = useCallback(
+    (inputMode: QuestionInputMode) => {
+      const previousQuestionState = runtimeRef.current;
+      const isFreshQuestion =
+        previousQuestionState.status === 'awaiting-question' ||
+        previousQuestionState.status === 'awaiting-clarification' ||
+        previousQuestionState.status === 'awaiting-safety-retry';
+      if (isFreshQuestion) {
+        resetQuestionAttemptTracking();
+      } else if (
+        'inputMode' in previousQuestionState &&
+        previousQuestionState.inputMode !== inputMode
+      ) {
+        questionInputSwitchedRef.current = true;
+      }
+      questionAttemptCountRef.current += 1;
+      setQuestionMode(inputMode);
+      return isFreshQuestion;
+    },
+    [resetQuestionAttemptTracking],
+  );
+
   const beginQuestion = useCallback(
     async () => {
       primeResponseAudio();
@@ -721,21 +794,7 @@ export function useOneStoryRuntime(
         );
         return;
       }
-      const previousQuestionState = runtimeRef.current;
-      const isFreshQuestion =
-        previousQuestionState.status === 'awaiting-question' ||
-        previousQuestionState.status === 'awaiting-clarification' ||
-        previousQuestionState.status === 'awaiting-safety-retry';
-      if (isFreshQuestion) {
-        resetQuestionAttemptTracking();
-      } else if (
-        'inputMode' in previousQuestionState &&
-        previousQuestionState.inputMode !== 'voice'
-      ) {
-        questionInputSwitchedRef.current = true;
-      }
-      questionAttemptCountRef.current += 1;
-      setQuestionMode('voice');
+      const isFreshQuestion = registerQuestionAttempt('voice');
       const questionState = runtimeRef.current;
       if (
         !commitEvent({
@@ -774,7 +833,7 @@ export function useOneStoryRuntime(
       commitEvent,
       discardActiveQuestionAttempt,
       recorder,
-      resetQuestionAttemptTracking,
+      registerQuestionAttempt,
       stopNarration,
       trackStoryEvent,
     ],
@@ -784,21 +843,7 @@ export function useOneStoryRuntime(
     setParentMessage(null);
     await stopNarration();
     await discardActiveQuestionAttempt();
-    const previousQuestionState = runtimeRef.current;
-    const isFreshQuestion =
-      previousQuestionState.status === 'awaiting-question' ||
-      previousQuestionState.status === 'awaiting-clarification' ||
-      previousQuestionState.status === 'awaiting-safety-retry';
-    if (isFreshQuestion) {
-      resetQuestionAttemptTracking();
-    } else if (
-      'inputMode' in previousQuestionState &&
-      previousQuestionState.inputMode !== 'text'
-    ) {
-      questionInputSwitchedRef.current = true;
-    }
-    questionAttemptCountRef.current += 1;
-    setQuestionMode('text');
+    const isFreshQuestion = registerQuestionAttempt('text');
     const questionState = runtimeRef.current;
     if (
       commitEvent({ type: 'TYPE_SELECTED' }) &&
@@ -814,7 +859,7 @@ export function useOneStoryRuntime(
   }, [
     commitEvent,
     discardActiveQuestionAttempt,
-    resetQuestionAttemptTracking,
+    registerQuestionAttempt,
     stopNarration,
     trackStoryEvent,
   ]);
@@ -1014,15 +1059,14 @@ export function useOneStoryRuntime(
             consent: voiceResearchConsentRef.current,
             recording: pendingVoiceResearchSample.recording,
             // storyManifest.storyId("HG")가 아니라 storyPackage.slug("hansel-gretel") - BE의
-            // VoiceResearchValidator가 story_id 필드를 StoryRegistry.getBySlug()로 찾는다
-            // (내부 id로는 매번 못 찾아 모든 업로드가 VALIDATION_FAILED로 실패했다).
+            // VoiceResearchValidator가 story_id를 StoryRegistry.getBySlug()로 찾는다.
             storyId: storyPackage.slug,
             sceneId: state.sceneId,
             anchorId: state.anchorId,
             questionRound: state.questionRound,
             sttDraft: pendingVoiceResearchSample.sttDraft,
             confirmedTranscript: confirmedSpeech.transcript,
-          });
+          }, { token: voiceResearchAccountRef.current.token });
         }
         setParentMessage(questionFailureCopy(result.failure).help);
         commitEvent({ type: 'FAILURE', failure: result.failure });
@@ -1064,7 +1108,7 @@ export function useOneStoryRuntime(
                 },
               }
             : {}),
-        });
+        }, { token: voiceResearchAccountRef.current.token });
       }
       void trackStoryEvent('question_result', {
         anchor_id: state.anchorId,
@@ -1216,11 +1260,8 @@ export function useOneStoryRuntime(
       setBranchCaption(null);
       activeNarrationIdRef.current = null;
 
-      // Tier 1: 선택지의 branchLine은 선택할 때마다 LLM이 새로 작성하므로(
-      // OpenRouterClient.generatePlan()의 스키마 참고), awaiting-choice 동안 이미 준비되어
-      // 있던 초대 문구(invitation text)와 달리 - 이 오디오는 아직 준비되어 있지 않다.
-      // 여기서 내레이션 호출을 한 번 수행하며, 라우팅 응답의 TTS 준비에 이미 쓰이고 있는
-      // 동일한 audioReadyWithin 경합(race)을 사용한다.
+      // 선택지의 branchLine은 LLM이 옵션마다 따로 쓴 대사라(OpenRouterClient.generatePlan() 스키마
+      // 참고) 오디오가 미리 준비되어 있지 않다 - 라우팅 응답과 같은 audioReadyWithin 경합으로 준비한다.
       if (selectedOption?.branchLine) {
         const anchor = storyManifest.questionAnchors.find(
           (candidate) => candidate.id === choiceState.anchorId,
@@ -1295,34 +1336,14 @@ export function useOneStoryRuntime(
         progress: pendingResponseAudio ? 0 : null,
       });
       const remoteAudio = pendingResponseAudio;
-      const markFirstAudio = () => {
-        if (
-          firstResponseAudioMsRef.current === null &&
-          questionRouteStartedAtRef.current !== null
-        ) {
-          firstResponseAudioMsRef.current =
-            Date.now() - questionRouteStartedAtRef.current;
-        }
-      };
       await playResponseWithFallback({
         remoteAudio,
         responseText,
         signal: controller.signal,
-        markFirstAudio,
-        onCaptionProgress: (progress) => {
-          setBranchCaption((current) =>
-            current?.text === responseText
-              ? { ...current, progress }
-              : current,
-          );
-        },
-        onFallbackStart: () => {
-          setBranchCaption((current) =>
-            current?.text === responseText
-              ? { ...current, progress: null }
-              : current,
-          );
-        },
+        markFirstAudio: markFirstResponseAudio,
+        onCaptionProgress: (progress) =>
+          setBranchCaptionProgress(responseText, progress),
+        onFallbackStart: () => setBranchCaptionProgress(responseText, null),
         speakNarration,
         speakParams: {
           id: responseId,
@@ -1370,8 +1391,10 @@ export function useOneStoryRuntime(
     };
   }, [
     childName,
+    markFirstResponseAudio,
     pendingResponseAudio,
     runtimeState,
+    setBranchCaptionProgress,
     speakNarration,
     trackStoryEvent,
   ]);
@@ -1438,12 +1461,13 @@ export function useOneStoryRuntime(
         responseState.plan.text,
         childName,
       );
+      const responseSpeakerId =
+        responseState.plan.kind === 'route'
+          ? responseState.plan.speakerId
+          : storyPackage.narratorSpeakerId;
       setBranchCaption({
         text: responseText,
-        speakerId:
-          responseState.plan.kind === 'route'
-            ? responseState.plan.speakerId
-            : storyPackage.narratorSpeakerId,
+        speakerId: responseSpeakerId,
         progress: pendingResponseAudio ? 0 : null,
       });
       if (branchVisualAssetId) {
@@ -1452,42 +1476,19 @@ export function useOneStoryRuntime(
         setActiveBranchVisualId(branchVisualAssetId);
       }
       const remoteAudio = pendingResponseAudio;
-      const markFirstAudio = () => {
-        if (
-          firstResponseAudioMsRef.current === null &&
-          questionRouteStartedAtRef.current !== null
-        ) {
-          firstResponseAudioMsRef.current =
-            Date.now() - questionRouteStartedAtRef.current;
-        }
-      };
       await playResponseWithFallback({
         remoteAudio,
         responseText,
         signal: controller.signal,
-        markFirstAudio,
-        onCaptionProgress: (progress) => {
-          setBranchCaption((current) =>
-            current?.text === responseText
-              ? { ...current, progress }
-              : current,
-          );
-        },
-        onFallbackStart: () => {
-          setBranchCaption((current) =>
-            current?.text === responseText
-              ? { ...current, progress: null }
-              : current,
-          );
-        },
+        markFirstAudio: markFirstResponseAudio,
+        onCaptionProgress: (progress) =>
+          setBranchCaptionProgress(responseText, progress),
+        onFallbackStart: () => setBranchCaptionProgress(responseText, null),
         speakNarration,
         speakParams: {
           id: narrationId,
           text: responseText,
-          speakerId:
-            responseState.plan.kind === 'route'
-              ? responseState.plan.speakerId
-              : storyPackage.narratorSpeakerId,
+          speakerId: responseSpeakerId,
           language: 'ko-KR',
         },
       });
@@ -1502,18 +1503,19 @@ export function useOneStoryRuntime(
           setActiveBranchVisualId(segment.id);
         }
         if (segment.kind === 'utterance') {
+          const segmentText = personalizeStoryText(segment.text, childName);
+          const segmentSpeakerId = storyPackage.speakerIdForTag(segment.speaker);
           setBranchCaption({
-            text: personalizeStoryText(segment.text, childName),
-            speakerId: storyPackage.speakerIdForTag(segment.speaker),
+            text: segmentText,
+            speakerId: segmentSpeakerId,
             progress: null,
           });
           await speakNarration({
-            // Must match the slug story-package.ts packaged this segment's fixed audio under
-            // (narrationUtteranceSlug) - a hand-rolled id here would never hit fixedNarrationAssets
-            // and would silently fall back to on-demand TTS for every play.
+            // story-package.ts가 이 세그먼트의 고정 오디오를 담은 slug(narrationUtteranceSlug)와
+            // 같아야 한다 - 다르면 고정 오디오를 못 찾고 매번 즉석 TTS로 폴백한다.
             id: narrationUtteranceSlug(responseBranch.id, segmentIndex),
-            text: personalizeStoryText(segment.text, childName),
-            speakerId: storyPackage.speakerIdForTag(segment.speaker),
+            text: segmentText,
+            speakerId: segmentSpeakerId,
             language: 'ko-KR',
           });
         }
@@ -1591,9 +1593,11 @@ export function useOneStoryRuntime(
   }, [
     childName,
     commitEvent,
+    markFirstResponseAudio,
     narrationAttempt,
     pendingResponseAudio,
     runtimeState,
+    setBranchCaptionProgress,
     speakNarration,
     storyPackage,
     trackStoryEvent,
@@ -1710,9 +1714,8 @@ export function useOneStoryRuntime(
    * 자체(아이 이름/음성 연구 동의/시작 시각)는 유지하되, 질문·분기·재생 관련 임시 추적 상태는
    * restartStory와 같은 항목들을 정리한다.
    *
-   * 질문 기록은 되감는 장면 "이후"의 것만 버린다(splitQuestionOutcomesAtScene) - 처음 구현은
-   * 통째로 비웠는데, 되감기 대상보다 앞선 장면의 질문은 다시 재생되지도 않으니 부모 리포트에서
-   * 지울 이유가 없었다. 사이드바가 확인 모달에 보여주는 "사라질 기록 n개"도 같은 함수로 센다.
+   * 질문 기록은 되감는 장면부터 그 이후의 것만 버린다(splitQuestionOutcomesAtScene) - 사이드바가
+   * 확인 모달에 보여주는 "사라질 기록 n개"도 같은 함수로 센다.
    */
   const jumpToScene = useCallback(
     async (sceneId: SceneId) => {
@@ -1811,8 +1814,8 @@ export function useOneStoryRuntime(
     processingAbortRef.current?.abort();
     await stopNarration();
     setHomeMenuVisible(false);
-    await openExternal(LANDING_URL);
-  }, [openExternal, persistCurrentProgress, stopNarration]);
+    window.location.assign(LANDING_URL);
+  }, [persistCurrentProgress, stopNarration]);
 
   const finishExperience = useCallback(async () => {
     processingAbortRef.current?.abort();
@@ -1851,10 +1854,7 @@ export function useOneStoryRuntime(
       } catch {
         // 종료 피드백 저장 실패로 인해 가족이 플레이어 안에 갇히는 일이 있어서는 절대 안 된다.
       }
-      // "오늘 체험 마치기"를 고르면 홈으로 나가는 게 목적이라 이 이벤트가 도착하는 걸 기다릴
-      // 이유가 없다 - 예전엔 await했는데, 그 네트워크 왕복이 끝날 때까지 화면이 그대로 멈춰
-      // 있어서 "딜레이가 심하다"는 체감으로 이어졌다. startStory()의 story_started처럼
-      // fire-and-forget으로 바꾼다.
+      // 홈으로 나가는 게 목적이라 전송 완료를 기다리지 않는다(fire-and-forget).
       void trackStoryEvent('explicit_exit', {
         reason_code: EXIT_REASON_CODES[reason],
         ...diagnostics,
@@ -1976,8 +1976,8 @@ export function useOneStoryRuntime(
     childNameInput,
     setChildNameInput,
     childName,
-    // 홈에서 이미 골라 놓은 아이 이름 - IdlePanel이 이 값이 있으면 이름 입력 UI 대신 확인 문구만
-    // 보여준다(null이면 선택된 아이가 없는 경로 = 데모 등, 기존처럼 입력 필드를 보여준다).
+    // 홈에서 이미 골라 놓은 아이 이름 - 있으면 IdlePanel이 이름 입력 대신 확인 문구만 보여준다
+    // (null이면 데모 등 선택된 아이가 없는 경로).
     selectedChildName: selectedChild?.name ?? null,
     questionMode,
     typedQuestion,

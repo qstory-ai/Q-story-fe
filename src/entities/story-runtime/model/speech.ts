@@ -1,7 +1,6 @@
 import type {
   FallbackFamilyId,
   QuestionAnchorId,
-  RecordingAssetId,
   RejoinAnchorId,
   SpeakerId,
 } from './ids';
@@ -13,12 +12,6 @@ export type LocalRecordingArtifact = {
   mimeType: string;
   byteSize?: number;
   peakMeteringDb?: number;
-};
-
-export type RecordingAsset = LocalRecordingArtifact & {
-  id: RecordingAssetId;
-  storage: 'ephemeral-device' | 'temporary-server';
-  createdAt: string;
 };
 
 export type FailureStage =
@@ -125,7 +118,7 @@ export type RoutePlan = {
    * (LiveBranchGenerationService.MAX_LIVE_FAMILIES_PER_ANCHOR)에 걸려 ANSWER_RESUME으로
    * 강등된 경우에만 true. 아이에게 보이는 대사는 다른 이유로 ANSWER_RESUME이 된 경우와
    * 구분되지 않아 UX는 동일하지만, 프런트가 이 플래그를 보고 question_result 이벤트에
-   * result='live_branch_capped'로 남겨 운영에서 캡 도달 빈도를 관측할 수 있게 한다.
+   * live_branch_capped=true로 남겨 운영에서 캡 도달 빈도를 관측할 수 있게 한다.
    */
   liveBranchCapped?: boolean;
   versions: {

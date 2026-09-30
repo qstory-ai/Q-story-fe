@@ -16,9 +16,7 @@ const TOP_CONTROL_HIT_SLOP = { top: 4, bottom: 4, left: 3, right: 3 };
 /**
  * 넓은 화면: [로고+제목+회차] … [챕터][홈][채팅] [재생 컨트롤 4개] [N / M]
  * 휴대폰(isNarrow): [작은 로고 + "N화 · 제목" 한 줄] … [챕터][홈][채팅] [N / M]
- *   - 재생 컨트롤은 PlaybackDock(하단)으로 옮겼다. 예전엔 폰에서도 이 바에 전부 욱여넣어
- *     아이콘 8개가 두 줄로 쌓였고, 질문 화면에선 브랜드 락업이 "Q-\nSTORY" / "헨젤과 그\n레텔"로
- *     줄바꿈돼 깨졌다.
+ *   - 폰에선 폭이 모자라 재생 컨트롤을 PlaybackDock(하단)이 맡는다.
  */
 export function TopBar({
   runtime,
@@ -62,7 +60,7 @@ export function TopBar({
       <View style={styles.topBarRow}>
       {/* 폰에서는 이 락업이 상단 바 왼쪽 절반(flex:1)을 차지한다 - 재생 중에 여기를 건드려 곧장
           홈으로 튕기면 이야기 세션이 확인 없이 버려지므로, 폰의 이야기 화면에서는 홈 메뉴(계속 듣기 /
-          잠시 나가기)를 연다. 넓은 화면·idle 화면에서는 예전대로 서재로 간다. */}
+          잠시 나가기)를 연다. 넓은 화면·idle 화면에서는 서재로 간다. */}
       <Pressable
         accessibilityRole={compactLockup && inStory ? 'button' : 'link'}
         // 오른쪽 "이야기 홈 메뉴" 버튼과 접근성 이름이 겹치지 않게 회차 캡션을 앞에 붙인다.
@@ -119,8 +117,8 @@ export function TopBar({
         )}
       </Pressable>
       <View style={styles.topRight}>
-        {/* 홈은 오른쪽 버튼 묶음의 맨 왼쪽(챕터 앞) - 재생 컨트롤 사이에 끼어 있으면 아이가
-            "나가기"를 찾기 어렵다는 피드백. 동작은 그대로 홈 메뉴(계속 듣기 / 잠시 나가기)를 연다. */}
+        {/* 홈은 오른쪽 버튼 묶음의 맨 왼쪽(챕터 앞) - 재생 컨트롤 사이에 끼면 아이가 "나가기"를
+            찾기 어렵다. 홈 메뉴(계속 듣기 / 잠시 나가기)를 연다. */}
         {inStory && (
           <Pressable
             accessibilityRole="button"

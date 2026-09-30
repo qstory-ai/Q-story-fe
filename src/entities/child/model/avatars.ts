@@ -25,8 +25,6 @@ export const CHILD_AVATARS: readonly ChildAvatarPreset[] = [
   { key: 'whale', label: '고래', emoji: '🐳', accent: '#4C8BAA' },
 ];
 
-export const CHILD_AVATAR_KEYS = CHILD_AVATARS.map((preset) => preset.key);
-
 export function findChildAvatar(key: string | null | undefined): ChildAvatarPreset {
   return CHILD_AVATARS.find((preset) => preset.key === key) ?? CHILD_AVATARS[0];
 }

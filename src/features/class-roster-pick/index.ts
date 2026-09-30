@@ -1,1 +1,1 @@
-export { RosterStudentPicker, type RosterSelection } from './ui/RosterStudentPicker';
+export { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from './ui/RosterStudentPicker';

@@ -34,7 +34,7 @@ import {
   type TermsConsentState,
 } from '@/features/terms-consent';
 import { SocialLoginButtons } from '@/features/oauth-login';
-import { RosterStudentPicker, type RosterSelection } from '@/features/class-roster-pick';
+import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
 
 type OnAuthed = (token: string, user: UserSummary) => void;
 
@@ -804,7 +804,7 @@ function SignUpStep({
     Boolean(displayName.trim()) &&
     termsConsentIsValid(terms) &&
     (useJoinFlow
-      ? classCode.trim().length > 0 && childName.trim().length > 0 && rosterSelection.kind !== 'pending'
+      ? classCode.trim().length > 0 && childName.trim().length > 0 && !rosterSelectionBlocksSubmit(rosterSelection)
       : true) &&
     (showOrgNameField ? orgName.trim().length > 0 : true);
 

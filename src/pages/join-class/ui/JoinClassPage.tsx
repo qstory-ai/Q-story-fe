@@ -15,7 +15,7 @@ import {
 import { messageForError } from '@/shared/api';
 import { homePathFor, joinExistingClass, previewClassByCode, useAuth, type ClassPreview } from '@/entities/auth';
 import { BirthYearChips, listChildren, type Child } from '@/entities/child';
-import { RosterStudentPicker, type RosterSelection } from '@/features/class-roster-pick';
+import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
 
 const NEW_CHILD = 'new';
 
@@ -196,7 +196,7 @@ function ChildPicker({
   // 명단과 비교할 이름 - 새 아이면 적은 이름, 이미 등록한 아이면 그 아이 이름.
   const nameForRoster = isNew ? childName : (children.find((child) => child.id === selected)?.name ?? '');
   const canSubmit =
-    !submitting && (!isNew || childName.trim().length > 0) && rosterSelection.kind !== 'pending';
+    !submitting && (!isNew || childName.trim().length > 0) && !rosterSelectionBlocksSubmit(rosterSelection);
 
   async function submit() {
     setError(null);

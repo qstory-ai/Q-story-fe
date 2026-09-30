@@ -15,7 +15,7 @@ import {
 } from '@/entities/auth';
 import { BirthYearChips } from '@/entities/child';
 import { listParentTutorReports, type TutorReportSummary } from '@/entities/tutor';
-import { RosterStudentPicker, type RosterSelection } from '@/features/class-roster-pick';
+import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
 
 type Load<T> = { status: 'loading' } | { status: 'ready'; items: T[] } | { status: 'error'; message: string };
 
@@ -218,7 +218,7 @@ export function MyPageClassesPage() {
             onPress={addChildToClass}
             loading={joiningClass}
             disabled={
-              classCodeInput.trim().length === 0 || !childName.trim() || rosterSelection.kind === 'pending' || joiningClass
+              classCodeInput.trim().length === 0 || !childName.trim() || rosterSelectionBlocksSubmit(rosterSelection) || joiningClass
             }
           />
           {classJoinSuccess ? <StatusBanner label="반에 올렸어요." /> : null}

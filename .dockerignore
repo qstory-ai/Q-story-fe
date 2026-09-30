@@ -15,3 +15,10 @@ npm-debug.log*
 
 .DS_Store
 README.md
+
+# Not part of the web image: native shells, CI, docs and local APK output.
+android
+ios
+.github
+docs
+build-output

@@ -6,7 +6,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
  * 프록시(/api/qstory)가 없으므로, `npm run build:native`가 .env.native의 절대 백엔드 URL로
  * 빌드한다. WebView의 출처는 아래 server.hostname으로 고정돼 Android는 https://app.qstory.ai.kr,
  * iOS는 capacitor://app.qstory.ai.kr 이고, 백엔드는 이 둘을 qstory.native-origins로 항상 허용한다
- * (be/q-story-backend application.yml + SecurityConfig). hostname을 바꾸면 백엔드 쪽도 같이 바꾼다.
+ * (be application.yml + SecurityConfig). hostname을 바꾸면 백엔드 쪽도 같이 바꾼다.
  *
  * 빌드 순서: npm run build:native → npx cap sync → (android) npm run android:apk
  *                                              → (ios) macOS에서 npx cap open ios 또는 CI(.github/workflows/native-tablet-builds.yml)
@@ -25,7 +25,7 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
     // allowNavigation은 "WebView 안에서 열어도 되는 호스트" 목록이다(외부 브라우저로 보내는 목록이
     // 아니다). 비워 두면 랜딩(잠시 나가기)·약관 같은 외부 링크는 전부 시스템 브라우저로 열리고, 앱은
-    // 그대로 남는다 - 처음엔 qstory.ai.kr을 넣었다가 랜딩이 앱 안에서 열려 돌아올 길이 없었다.
+    // 그대로 남는다. 랜딩 도메인을 넣으면 랜딩이 앱 안에서 열려 돌아올 길이 없어진다.
   },
   android: {
     // 마이크 녹음(getUserMedia)은 Capacitor가 RECORD_AUDIO 권한을 확인한 뒤 WebView에 허용한다.
@@ -36,8 +36,7 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: 'automatic',
     backgroundColor: '#F7F8FA',
-    // 자막 오디오가 무음 스위치 상태에서도 나오게 - 동화 낭독이 핵심 기능이라서.
-    // (실제 오디오 세션 카테고리는 AppDelegate에서 playback으로 잡는다.)
+    // 무음 스위치 상태에서도 낭독이 들리게 하는 오디오 세션(playAndRecord)은 AppDelegate.swift에서 잡는다.
     allowsLinkPreview: false,
   },
   plugins: {

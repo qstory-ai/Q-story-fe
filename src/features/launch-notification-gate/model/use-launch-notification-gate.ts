@@ -8,19 +8,14 @@ import { messageForError } from '@/shared/api';
 
 const STORAGE_KEY = 'qstory-launch-notification-submitted';
 
-/**
- * 로그인 계정이 있으면 계정별 키를, 없으면(진짜 익명 데모) 기존 브라우저 공통 키를 쓴다 -
- * 그냥 브라우저 하나로만 묶으면, 이 브라우저에서 어느 계정으로든 한 번 통과한 뒤로는 다른
- * 계정으로 로그인해도(혹은 같은 계정이 아니어도) 다시는 안 뜬다는 문제가 있었다.
- */
+/** 로그인 상태면 계정별 키, 익명 데모면 브라우저 공통 키. */
 function storageKeyFor(accountId: string | null): string {
   return accountId ? `${STORAGE_KEY}:account:${accountId}` : STORAGE_KEY;
 }
 
 /**
- * 계정 키와 익명 키 둘 다 확인한다 - 익명으로 통과한 뒤 로그인 상태로 재방문하거나(혹은 그
- * 반대) 하면 accountId 유무에 따라 storageKeyFor()가 다른 키를 가리키게 되어, 이미 한 번
- * 통과한 사용자에게 모달이 다시 뜨는 문제가 있었다. 두 키 중 하나라도 '1'이면 통과로 본다.
+ * 계정 키와 익명 키 중 하나라도 '1'이면 통과 - 익명↔로그인 전환으로 키가 바뀌어도
+ * 이미 통과한 사용자에게 다시 뜨지 않게 한다.
  */
 function readPassed(storageKey: string): boolean {
   try {
@@ -44,11 +39,8 @@ function writePassed(storageKey: string) {
 }
 
 /**
- * DemoStoryRoute 전용 게이트 상태 - 한 번 제출하면 같은 브라우저/같은 계정 조합에서는 다시
- * 묻지 않는다. accountId는 로그인 상태일 때만 넘긴다(LaunchNotificationGate 참고) - auth
- * 상태가 'loading'에서 뒤늦게 확정되며 storageKey가 바뀌는 경우, effect가 아니라 렌더 중
- * 상태를 바로 잡는 React 권장 패턴(https://react.dev/learn/you-might-not-need-an-effect)으로
- * 다시 판단한다.
+ * DemoStoryRoute 전용 게이트 상태 - 한 번 제출하면 다시 묻지 않는다. auth가 뒤늦게 확정되며
+ * storageKey가 바뀌면 effect 대신 렌더 중에 통과 여부를 다시 읽는다.
  */
 export function useLaunchNotificationGate(accountId: string | null) {
   const storageKey = storageKeyFor(accountId);
@@ -123,5 +115,3 @@ export function useLaunchNotificationGate(accountId: string | null) {
     submit,
   };
 }
-
-export type UseLaunchNotificationGate = ReturnType<typeof useLaunchNotificationGate>;

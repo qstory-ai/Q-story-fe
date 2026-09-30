@@ -67,8 +67,6 @@ function toneColors(tone: Presentation['tone']): { background: string; icon: str
 
 type Props = {
   token: string;
-  /** 다크 배경 위에 놓이는 벨 스타일(홈 상단바). 다른 곳에 쓸 일이 생기면 여기서 tone 옵션을 확장. */
-  onDark?: boolean;
 };
 
 /**
@@ -78,17 +76,16 @@ type Props = {
  *  - 마운트 즉시 목록을 fetch해 unread 뱃지를 미리 계산한다(뱃지가 열기 전에도 보여야 정보가치가 있다).
  *  - 열기(open) 순간에 다시 fetch해 최신화(첫 로드 이후 새 알림이 왔을 수 있음).
  *  - 항목 클릭 → mark-read 호출 + href가 있으면 이동(모달 닫음). href가 없으면 읽음만 표시.
- *  - "모두 읽음"은 부가 액션으로 lawyer 링크에 둔다 - 대량 unread 상황에서 한 번에 처리.
+ *  - "모두 읽음"은 부가 액션으로 모달의 링크 액션에 둔다 - 대량 unread 상황에서 한 번에 처리.
  *
  * 인증되지 않은 사용자에게는 호출되지 않는다(호출부가 token 존재 여부를 판단).
  */
-export function NotificationBell({ token, onDark = true }: Props) {
+export function NotificationBell({ token }: Props) {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
-  // loading의 initial=true - 첫 fetch가 끝나기 전까지 드로어를 열면 "불러오는 중" 상태를 본다.
-  // setLoading(true)를 사용자 액션(refresh) 외에서 부르지 않아야 setState-in-effect를 피할 수 있다.
+  // 첫 fetch 전 드로어를 열면 "불러오는 중"을 보도록 true로 시작한다.
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -105,8 +102,8 @@ export function NotificationBell({ token, onDark = true }: Props) {
       .finally(() => setLoading(false));
   }, [token]);
 
+  // refresh를 재사용하지 않는 이유: effect 안에서 setLoading(true)를 동기 호출하지 않기 위해.
   useEffect(() => {
-    // 초기 fetch는 effect 안에서 setState를 동기 호출하지 않도록 async 콜백에서만 상태 갱신.
     let cancelled = false;
     listNotifications(token)
       .then((response) => {
@@ -178,13 +175,9 @@ export function NotificationBell({ token, onDark = true }: Props) {
         accessibilityRole="button"
         accessibilityLabel={unreadCount > 0 ? `알림 (${unreadCount}개 읽지 않음)` : '알림'}
         onPress={openDrawer}
-        style={({ pressed }) => [
-          styles.bellButton,
-          onDark ? styles.bellButtonDark : styles.bellButtonLight,
-          pressed && styles.pressed,
-        ]}
+        style={({ pressed }) => [styles.bellButton, pressed && styles.pressed]}
       >
-        <Icon name="bell" size={18} color={onDark ? storybookTheme.color.onContent : storybookTheme.color.primary} />
+        <Icon name="bell" size={18} color={storybookTheme.color.onContent} />
         {unreadCount > 0 ? <View style={styles.badge} /> : null}
       </Pressable>
 
@@ -246,6 +239,8 @@ export function NotificationBell({ token, onDark = true }: Props) {
   );
 }
 
+const MONTH_DAY_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric' });
+
 /** "3분 전 / 2시간 전 / 어제 / 3월 12일" 정도의 대략 상대 시간. 정확도는 벨 목록 UX에 충분. */
 function formatRelative(iso: string): string {
   const then = new Date(iso).getTime();
@@ -258,7 +253,7 @@ function formatRelative(iso: string): string {
   const diffDays = Math.floor(diffHours / 24);
   if (diffDays === 1) return '어제';
   if (diffDays < 7) return `${diffDays}일 전`;
-  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric' }).format(new Date(iso));
+  return MONTH_DAY_FORMAT.format(new Date(iso));
 }
 
 const styles = StyleSheet.create({
@@ -269,14 +264,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-  },
-  bellButtonDark: {
     backgroundColor: storybookTheme.color.contentPanel,
     borderColor: storybookTheme.color.contentPanelBorder,
-  },
-  bellButtonLight: {
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderColor: storybookTheme.color.lightCardBorder,
   },
   pressed: { opacity: 0.85 },
   badge: {
@@ -298,9 +287,7 @@ const styles = StyleSheet.create({
   },
   list: { maxHeight: 360 },
   listContent: { gap: storybookTheme.spacing.sm },
-  // 바깥 컨테이너 - 본문(rowMain, 클릭 → mark-read + 이동)과 삭제 버튼(rowDeleteButton)을
-  // 나란히 두는 shell. 예전엔 row 전체가 하나의 Pressable이었지만 x 버튼이 추가되면서 두
-  // 조각으로 분리됐다. 배경/padding은 여기 컨테이너가 담당.
+  // 본문(rowMain)과 삭제 버튼(rowDeleteButton)을 나란히 두는 컨테이너 - 배경/padding 담당.
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -334,8 +321,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // 오른쪽 unread 점 - 열 자리에 있던 예전 dot을 대체. 아이콘 프레임이 좌측 신호를 담당하고,
-  // 이 점은 "아직 안 읽음"을 명확히 알려 주는 이중 시그널.
   rowUnreadDot: {
     width: 8,
     height: 8,

@@ -68,13 +68,11 @@ export const WANTS_NEXT_STORIES_OPTIONS = ['네, 안내받을 연락처를 남�
 export const CONTACT_CONSENT_OPTIONS = ['동의합니다', '연락처를 남기지 않았습니다'];
 
 /** "기타" 칩을 고르면 직접 입력한 텍스트가 최종 값이 된다 - Google Form의 "기타" 응답과 동일한 동작. */
-const OTHER_CHOICE = '기타';
+export const OTHER_CHOICE = '기타';
 
 /**
- * 완주 후 부모 리포트에서 남기는 "1분 체험 후기" - 기존 외부 Google Form과 동일한 문항을 인앱
- * 모달로 받는다(use-one-story-runtime.ts의 openCompletionSurvey 참고). 열고 닫을 때마다 답을
- * 새로 받는다 - 한 세션에서 여러 이야기를 완주할 수 있어 이전 답을 남겨두면 다음 후기에 섞여
- * 들어갈 수 있기 때문이다.
+ * 완주 후 부모 리포트에서 남기는 "1분 체험 후기" - 외부 Google Form과 같은 문항을 인앱 모달로 받는다.
+ * 건너뛰면 reset으로 답을 비운다 - 한 세션에서 여러 이야기를 완주할 수 있어 이전 답이 섞이지 않게.
  */
 export function useCompletionSurvey(storyId: string) {
   const [childAgeBand, setChildAgeBand] = useState('');
@@ -216,6 +214,7 @@ export function useCompletionSurvey(storyId: string) {
     childReactionsOtherOn,
     childReactionsOtherText,
     setChildReactionsOtherText,
+    childReactionsValid,
     disruptions,
     setDisruptions,
     reportHelpfulness,
@@ -225,6 +224,7 @@ export function useCompletionSurvey(storyId: string) {
     bestAspectOtherOn,
     bestAspectOtherText,
     setBestAspectOtherText,
+    bestAspectValid,
     topPriority,
     setTopPriority,
     retryInterest,
@@ -247,6 +247,3 @@ export function useCompletionSurvey(storyId: string) {
     reset,
   };
 }
-
-export type UseCompletionSurvey = ReturnType<typeof useCompletionSurvey>;
-export { OTHER_CHOICE };

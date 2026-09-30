@@ -6,33 +6,13 @@ import { Icon, storybookTheme } from '@/shared/ui';
 type HomeSectionProps = {
   title: string;
   subtitle?: string;
-  /** 우측 상단의 "더 보기" 버튼 - 서재 탭으로 이동시키는 데 쓴다. onPress가 없으면 렌더링하지 않는다. */
+  /** 우측 상단의 "더 보기" 버튼 - 없으면 렌더링하지 않는다. */
   onSeeAll?: () => void;
-  seeAllLabel?: string;
-  /** 자식 배치 방향 - horizontal(default)은 스토리 스트립처럼 가로 ScrollView로, vertical은
-   *  최근 활동 리스트처럼 세로 스택으로 쌓는다. horizontal일 때만 스크롤 컨테이너가 붙는다. */
-  direction?: 'horizontal' | 'vertical';
   children: ReactNode;
 };
 
-/**
- * IA에서 정의한 홈 섹션 하나(제목 + 카드 스트립/리스트)의 공통 껍데기.
- * "메인 추천 히어로"는 이 컴포넌트 없이 자체 레이아웃을 쓰고, 그 밖의 섹션
- * (이어서 읽기 / 아이에게 추천 / 새로운 작품 / 최근 활동)이 모두 이걸 재사용한다.
- *
- * 자식 자체는 이 컴포넌트가 관여하지 않는다 - 안에 무엇을 넣을지는 호출부가 결정하고,
- * 이 컴포넌트는 direction에 따라 그 결과를 가로 ScrollView(horizontal, default) 혹은
- * 세로 스택(vertical)으로 감싼다. StoryCard 외의 다른 카드(예: 최근 활동의 리포트 카드)도
- * 같은 헤더/여백을 쓸 수 있다.
- */
-export function HomeSection({
-  title,
-  subtitle,
-  onSeeAll,
-  seeAllLabel = '더 보기',
-  direction = 'horizontal',
-  children,
-}: HomeSectionProps) {
+/** 부모 홈 섹션 하나(제목 + 가로 카드 스트립)의 공통 껍데기. 자식 카드는 호출부가 결정한다. */
+export function HomeSection({ title, subtitle, onSeeAll, children }: HomeSectionProps) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -43,26 +23,22 @@ export function HomeSection({
         {onSeeAll ? (
           <Pressable
             accessibilityRole="link"
-            accessibilityLabel={`${title} ${seeAllLabel}`}
+            accessibilityLabel={`${title} 더 보기`}
             onPress={onSeeAll}
             style={({ pressed }) => [styles.seeAll, pressed && styles.seeAllPressed]}
           >
-            <Text style={styles.seeAllLabel}>{seeAllLabel}</Text>
+            <Text style={styles.seeAllLabel}>더 보기</Text>
             <Icon name="chevronRight" size={14} color={storybookTheme.color.gold} />
           </Pressable>
         ) : null}
       </View>
-      {direction === 'horizontal' ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.stripContent}
-        >
-          {children}
-        </ScrollView>
-      ) : (
-        <View style={styles.verticalStack}>{children}</View>
-      )}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.stripContent}
+      >
+        {children}
+      </ScrollView>
     </View>
   );
 }
@@ -106,9 +82,5 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 4,
     paddingVertical: 4,
-  },
-  verticalStack: {
-    gap: 8,
-    paddingHorizontal: 4,
   },
 });

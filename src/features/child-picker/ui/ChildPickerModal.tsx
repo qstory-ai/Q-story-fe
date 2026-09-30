@@ -7,7 +7,6 @@ import { AddChildModal } from '@/features/child-selector';
 
 type Props = {
   visible: boolean;
-  title?: string;
   /** 화면 부제 - 예: "이 이야기를 어떤 아이와 함께 볼까요?" */
   subtitle?: string;
   onClose: () => void;
@@ -24,7 +23,7 @@ type Props = {
  * 유지되도록 한다. 아이가 아직 없으면 "아이 등록" 카드가 대신 노출되고, 등록 완료 시
  * ChildrenProvider가 새 아이를 자동 선택해 곧바로 onSelected로 이어진다.
  */
-export function ChildPickerModal({ visible, title, subtitle, onClose, onSelected }: Props) {
+export function ChildPickerModal({ visible, subtitle, onClose, onSelected }: Props) {
   const { children, selectChild } = useChildren();
   const [addOpen, setAddOpen] = useState(false);
   const hasChildren = children.length > 0;
@@ -39,7 +38,7 @@ export function ChildPickerModal({ visible, title, subtitle, onClose, onSelected
       <Modal
         visible={visible && !addOpen}
         eyebrow="아이 선택"
-        title={title ?? '누구와 함께 볼까요?'}
+        title="누구와 함께 볼까요?"
         accessibilityLabel="이야기 시작 전 아이 선택"
         linkAction={{ label: '취소', onPress: onClose }}
       >
@@ -125,13 +124,11 @@ const styles = StyleSheet.create({
   avatarFrame: {
     width: 84,
     height: 84,
-    // 84/2 = 42 - 정원. radius.pill(999)도 같은 결과지만 이 곳은 "정확히 원"임을 유지한다.
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 3,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // 이모지는 type 스케일에서 xxl(32)이 가장 가깝지만 아바타 안에서는 40이 더 자연스러워 하드코딩 유지.
   avatarEmoji: { fontSize: 40 },
   tileName: {
     fontSize: storybookTheme.type.sm,

@@ -5,21 +5,15 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Icon, storybookTheme } from '@/shared/ui';
 
 /**
- * 애플 캘린더 스타일 월 그리드 + 선택된 일자 아래 목록. 재사용 가능한 프리미티브로,
- * caller가 넘긴 items(각 항목은 date를 가짐)를 날짜별로 그루핑해 dot 표시하고, 사용자가
- * 어느 날짜를 탭하면 그 아래 renderItem으로 그린다.
- *
- * 설계 선택:
- *  - 주 시작은 일요일 (한국 앱들 관행 - 애플 캘린더 기본, 네이버/카카오도 동일).
- *  - 6주 고정 42셀 그리드. 앞뒤 달의 스필오버는 눌러도 아무 일도 하지 않고 dim으로만 표시.
- *  - dot은 "그 날에 항목이 있음"만 표시(개수 무관). 겹치면 시각 소음이 커진다.
- *  - "오늘"은 gold 외곽선, "선택된 날"은 gold 채워진 원. 둘 다 오늘이면 채워진 원이 이긴다.
- *  - onMonthChange가 있으면 prev/next 버튼이 상위에 알려주므로 caller가 월별로 다른
- *    데이터를 로드할 수 있게 한다(지금은 홈에서 통째 로드해 쓰지만 미래를 위해 열어둠).
+ * 월 그리드 + 선택된 일자 아래 목록. items를 날짜별로 그루핑해 dot으로 표시하고, 탭한 날짜의
+ * 항목을 renderItem으로 그린다.
+ *  - 주 시작은 일요일. 6주 고정 42셀 그리드, 앞뒤 달 날짜는 dim 처리.
+ *  - dot은 항목 유무만 표시(개수 무관).
+ *  - "오늘"은 gold 외곽선, "선택된 날"은 gold 채워진 원(둘 다면 채워진 원).
  */
 
 export type MonthCalendarItem = {
-  /** 그루핑/dot 판단용 - 로컬 타임존 기준 자정으로 정규화된 값을 넣어도 되고, 아래처럼 그대로 넣어도 됨. */
+  /** 그루핑/dot 판단용 - 로컬 타임존 기준 날짜로 묶는다(시각은 무시). */
   date: Date;
   /** React key */
   id: string;
@@ -28,12 +22,8 @@ export type MonthCalendarItem = {
 type MonthCalendarProps<T extends MonthCalendarItem> = {
   items: T[];
   renderItem: (item: T) => ReactNode;
-  /** 초기 선택 날짜. 지정 없으면 오늘. */
-  initialDate?: Date;
   /** 선택된 날에 항목이 없을 때 아래에 보여줄 문구. */
   emptyDayMessage?: string;
-  /** 월이 바뀔 때 호출. 데이터를 월별로 요청하는 caller가 쓴다(선택). */
-  onMonthChange?: (year: number, month0Based: number) => void;
 };
 
 const WEEKDAY_HEADERS = ['일', '월', '화', '수', '목', '금', '토'] as const;
@@ -45,14 +35,10 @@ const MONTH_LABELS = [
 export function MonthCalendar<T extends MonthCalendarItem>({
   items,
   renderItem,
-  initialDate,
   emptyDayMessage = '이 날에는 예정된 항목이 없어요.',
-  onMonthChange,
 }: MonthCalendarProps<T>) {
-  // 최초 렌더에만 오늘/initialDate로 잡고, 이후에는 상태로만 이동한다 - initialDate가 나중에
-  // 부모에서 바뀐다고 사용자의 현재 선택을 덮어쓰지 않게.
-  const [selectedDate, setSelectedDate] = useState<Date>(() => startOfDay(initialDate ?? new Date()));
-  const [viewMonth, setViewMonth] = useState<Date>(() => startOfMonth(initialDate ?? new Date()));
+  const [selectedDate, setSelectedDate] = useState<Date>(() => startOfDay(new Date()));
+  const [viewMonth, setViewMonth] = useState<Date>(() => startOfMonth(new Date()));
 
   // 날짜별 그루핑 - dot 표시와 선택된 날의 목록에 둘 다 쓴다. key는 로컬 YYYY-MM-DD.
   const itemsByDay = useMemo(() => {
@@ -74,11 +60,7 @@ export function MonthCalendar<T extends MonthCalendarItem>({
   const selectedItems = itemsByDay.get(selectedKey) ?? [];
 
   function changeMonth(delta: number) {
-    setViewMonth((prev) => {
-      const next = new Date(prev.getFullYear(), prev.getMonth() + delta, 1);
-      onMonthChange?.(next.getFullYear(), next.getMonth());
-      return next;
-    });
+    setViewMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + delta, 1));
   }
 
   const todayKey = localDayKey(new Date());
@@ -270,11 +252,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
-  // aspectRatio: 1(정사각형)이었을 때는 가로폭이 넓은 화면(데스크톱 사이드바 레이아웃)에서
-  // 폭을 그대로 세로로도 물려받아 6주 그리드 전체가 불필요하게 길어졌다 - 폭은 페이지마다
-  // 다르게 두고 싶은데(가변) 세로만 고정폭으로 눌러야 해서 aspectRatio를 버리고 고정
-  // height로 바꿨다. 36px 뱃지 + 4px dot slot을 담는 최소 높이(~44px, 위 dayBadge 주석 참고)
-  // 보다 살짝 여유 있게 잡아 터치 영역은 그대로 지킨다.
+  // aspectRatio 대신 고정 height - 넓은 화면에서 그리드가 세로로 불필요하게 길어지지 않게.
+  // 36px 뱃지 + 4px dot을 담고 터치 영역을 확보하는 높이.
   cell: {
     width: `${100 / 7}%`,
     height: 52,
@@ -284,8 +263,6 @@ const styles = StyleSheet.create({
   },
   cellPressed: { opacity: 0.7 },
   dayBadge: {
-    // 32→36으로 상향해 터치 hit 안정성을 확보한다 (셀 자체는 paddingVertical: xs를 더해
-    // 총 ~44px 세로 hit 영역이 나오는 것을 유지). "선택된 원"이 더 존재감 있게 보이는 부수효과.
     width: 36,
     height: 36,
     borderRadius: 999,
@@ -303,8 +280,7 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onContent,
-    // 캘린더 셀 폭이 균등한데 숫자 폭이 다르면 (예: 1일 vs 28일) 원 안의 시각 중심이
-    // 오른쪽으로 밀린다. tabular-nums로 모든 자릿수를 같은 폭으로 강제해 정렬 유지.
+    // 자릿수 폭을 같게 해 원 안의 숫자 중심이 밀리지 않게 한다.
     fontVariant: ['tabular-nums'],
   },
   dayNumberOutOfMonth: { color: storybookTheme.color.onContentMuted, opacity: 0.5 },

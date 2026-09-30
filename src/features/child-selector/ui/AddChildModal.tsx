@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Modal, TextField, storybookTheme } from '@/shared/ui';
@@ -16,21 +16,13 @@ import {
 type Props = {
   visible: boolean;
   onClose: () => void;
-  /**
-   * 지정하면 편집 모드가 된다 - 폼이 이 아이의 값으로 초기화되고, 저장 시 editChild를 호출한다.
-   * 지정하지 않으면(기존 호출부: 홈의 "아이 추가" 버튼) 새 아이를 만드는 등록 모드로 동작한다.
-   */
+  /** 지정하면 편집 모드(이 아이 값으로 초기화, 저장 시 editChild), 없으면 등록 모드. */
   editing?: Child | null;
 };
 
 /**
- * 아이 프로필 등록/편집 시트 - 홈(ChildSelector), 마이페이지의 "아이 관리" 두 곳에서 재사용한다.
- * 필드는 IA의 "아이 등록/수정" 스텝을 그대로 가져왔다: 이름 · 출생연도(나이는 계산) · 아바타(성별은 아직 표시 전용).
- * 부모 계정 소유임은 ChildrenProvider가 이미 보장하므로 여기선 caller가 PARENT인지 다시 확인하지 않는다.
- *
- * <p>편집 대상이 바뀔 때 폼을 다시 채우는 것은 내부 <ChildFormBody /> 컴포넌트에 key로
- * editing?.id를 넘겨 매번 remount시키는 방식으로 해결한다 - 예전엔 useEffect + setState로
- * 리셋했지만 그 방식은 렌더 사이 cascading state 업데이트를 만들어 lint 규칙에 걸렸다.
+ * 아이 프로필 등록/편집 시트 - 이름 · 출생연도(나이는 계산) · 아바타.
+ * 부모 계정 소유임은 ChildrenProvider가 보장하므로 여기선 역할을 다시 확인하지 않는다.
  */
 export function AddChildModal({ visible, onClose, editing }: Props) {
   const isEdit = Boolean(editing);
@@ -47,17 +39,13 @@ export function AddChildModal({ visible, onClose, editing }: Props) {
   );
 }
 
-/**
- * Modal이 렌더하는 본문 - 자기 상태로 폼을 관리하고 Save/Cancel 버튼도 여기서 그린다.
- * 예전엔 Modal의 positive/negativeAction으로 넘겼지만, editing 전환 시 폼과 함께 저장 상태도
- * 함께 초기화되어야 해서 여기 안으로 흡수했다 - Modal은 여전히 두 버튼을 위한 공간을 남긴다.
- */
+/** 폼 상태와 저장/취소 버튼을 함께 가져서, remount 시 저장 상태까지 같이 초기화된다. */
 function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: () => void }) {
   const { addChild, editChild } = useChildren();
   const isEdit = editing !== null;
 
   const [name, setName] = useState(editing?.name ?? '');
-  // 나이 대신 출생연도 - 예전 프로필(출생연도 없음)은 저장된 연령대 가운데 나이로 초기 선택.
+  // 출생연도가 없는 프로필은 저장된 연령대의 가운데 나이로 초기 선택.
   const [birthYear, setBirthYear] = useState<number>(() => editing?.birthYear ?? defaultBirthYearForBand(editing?.ageBand));
   const [avatarKey, setAvatarKey] = useState<ChildAvatarKey>(
     (editing?.avatarKey as ChildAvatarKey) ?? CHILD_AVATARS[0].key,
@@ -65,14 +53,14 @@ function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: (
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const canSubmit = useMemo(() => name.trim().length > 0 && !submitting, [name, submitting]);
+  const canSubmit = name.trim().length > 0 && !submitting;
 
   async function handleSubmit() {
     if (!canSubmit) return;
     setSubmitting(true);
     setError(null);
     try {
-      if (isEdit && editing) {
+      if (editing) {
         await editChild(editing.id, { name: name.trim(), birthYear, ageBand: ageBandFromBirthYear(birthYear), avatarKey });
       } else {
         await addChild({ name: name.trim(), birthYear, ageBand: ageBandFromBirthYear(birthYear), avatarKey });
@@ -156,33 +144,12 @@ function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: (
 const styles = StyleSheet.create({
   body: { gap: 16 },
   group: { gap: 8 },
-  // xs(12)였던 걸 sm(14)로 - 취소/추가 버튼 라벨(sm)보다도 작아서 정작 채워야 할 폼 내용이
-  // 자기보다 덜 중요한 액션보다 더 눈에 안 띄는 위계 역전이 있었다.
   groupLabel: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardBody,
   },
-  chipRow: { gap: 8, paddingVertical: 2 },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: storybookTheme.radius.pill,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    backgroundColor: 'transparent',
-  },
-  chipSelected: {
-    backgroundColor: storybookTheme.color.primary,
-    borderColor: storybookTheme.color.primary,
-  },
   chipPressed: { opacity: 0.85 },
-  chipLabel: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardBody,
-  },
-  chipLabelSelected: { color: storybookTheme.color.onContent },
   avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   avatarChoice: {
     width: 52,

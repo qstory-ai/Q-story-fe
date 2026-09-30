@@ -34,7 +34,7 @@ async function copy(value: string) {
 const COPIED_FEEDBACK_MS = 1600;
 
 export function InviteCodeCard({ shortCode, link, expiresLabel, shareMessage, onDismiss }: Props) {
-  const canCopy = typeof navigator !== 'undefined' && Boolean(navigator?.clipboard);
+  const canCopy = typeof navigator !== 'undefined' && Boolean(navigator.clipboard);
   const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
   const shareText = `${shareMessage ? `${shareMessage}\n` : ''}초대 코드: ${shortCode}\n${link}`;
   const [shareError, setShareError] = useState<string | null>(null);
@@ -68,9 +68,7 @@ export function InviteCodeCard({ shortCode, link, expiresLabel, shareMessage, on
       <View style={styles.row}>
         <View style={styles.rowBody}>
           <Text style={styles.rowLabel}>링크</Text>
-          {/* numberOfLines={1}이던 걸 지웠다 - 토큰이 길어(32자) 한 줄로 자르면 항상
-              "https://…" 형태로 잘려 사용자가 실제로 뭘 복사하는지 확인할 수 없었다.
-              그대로 줄바꿈해 전체 링크가 보이게 한다. */}
+          {/* 한 줄로 자르면 무엇을 복사하는지 확인할 수 없어 전체 링크를 줄바꿈해 보여준다. */}
           <Text style={styles.linkText}>{link}</Text>
         </View>
         <CopyButton value={link} enabled={canCopy} />
@@ -108,8 +106,7 @@ function CopyButton({
   label?: string;
   wide?: boolean;
 }) {
-  // 눌렀을 때 "복사됨"으로 잠깐 바뀌어야 실제로 복사됐는지 알 수 있다 - 예전엔 아무 반응이
-  // 없어서 여러 번 누르거나 정말 복사됐는지 붙여넣어 확인해야 했다.
+  // 복사 성공을 알 수 있게 잠깐 "복사됨"으로 바꾼다.
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
@@ -151,7 +148,6 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.surfaceCard,
     borderWidth: 1,
     borderColor: storybookTheme.color.primary,
-    // spacing.md(16)와 ml(20) 사이 - 초대 카드는 좁은 폭에서도 여유 있게 보여야 해 18 유지.
     padding: 18,
     gap: storybookTheme.spacing.sm,
   },
@@ -163,16 +159,13 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   description: {
-    // xs(12)였던 걸 sm(14)로 - 카드 안에서 가장 먼저 읽는 안내 문장인데 아래 라벨류보다도
-    // 작아서 정작 중요한 설명이 눈에 덜 띄었다.
     fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onCardBody,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
   },
   row: {
     flexDirection: 'row',
-    // 링크 텍스트가 이제 여러 줄로 줄바꿈될 수 있어(아래 linkText) center로 맞추면 복사
-    // 버튼이 어중간하게 걸린다 - 버튼을 첫 줄 높이에 맞춰 위쪽 정렬한다.
+    // 링크가 여러 줄로 줄바꿈될 수 있어 복사 버튼을 첫 줄 높이에 맞춘다.
     alignItems: 'flex-start',
     gap: storybookTheme.spacing.sm,
     paddingVertical: storybookTheme.spacing.sm,
@@ -181,8 +174,6 @@ const styles = StyleSheet.create({
   },
   rowBody: { flex: 1, gap: 4 },
   rowLabel: {
-    // xxs(10)였던 걸 xs(12)로 - 코드/링크가 뭘 가리키는지 알려주는 라벨이 본문보다도 작아
-    // 잘 안 읽혔다.
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onCardMuted,
     fontWeight: storybookTheme.type.weight.semibold,
@@ -201,7 +192,6 @@ const styles = StyleSheet.create({
   shareRow: { marginTop: storybookTheme.spacing.xs },
   shareError: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.error },
   copyButton: {
-    // pill 버튼 안쪽 여백 - spacing.ms(12)와 md(16) 사이. 코드 두 글자짜리 라벨에 맞춘 14 유지.
     paddingHorizontal: 14,
     paddingVertical: storybookTheme.spacing.sm,
     borderRadius: storybookTheme.radius.pill,
@@ -226,7 +216,6 @@ const styles = StyleSheet.create({
   },
   dismissLink: {
     alignSelf: 'flex-end',
-    // 닫기 링크 히트 영역 - xs(4)와 sm(8) 사이의 컴팩트 값, 링크 텍스트 주변 여백만 확보.
     paddingHorizontal: 6,
     paddingVertical: 6,
   },

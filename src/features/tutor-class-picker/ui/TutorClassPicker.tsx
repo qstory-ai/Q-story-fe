@@ -14,8 +14,6 @@ type Props = {
   onChange: (next: TutorClassSelection) => void;
   /** 학생 등록/상세처럼 "개인 레슨 / 반 수업" 라디오까지 보여줄지. 수업 폼은 반 선택만 쓴다. */
   showTypeToggle?: boolean;
-  /** 반이 새로 만들어졌을 때(목록 갱신용). */
-  onClassCreated?: (created: TutorClass) => void;
 };
 
 type ClassesLoad =
@@ -28,7 +26,7 @@ type ClassesLoad =
  * (GET /v1/tutor-classes). 목록에 없으면 이 자리에서 바로 새 반을 만들 수 있고, 소속 기관이 있으면
  * 그 기관 안의 반으로 만들지 고를 수 있다(기관 관리자의 반 목록에도 함께 보인다).
  */
-export function TutorClassPicker({ token, value, onChange, showTypeToggle = true, onClassCreated }: Props) {
+export function TutorClassPicker({ token, value, onChange, showTypeToggle = true }: Props) {
   const [load, setLoad] = useState<ClassesLoad>({ status: 'loading' });
   const [newClassName, setNewClassName] = useState('');
   const [newClassOrganizationId, setNewClassOrganizationId] = useState<string | null>(null);
@@ -72,13 +70,12 @@ export function TutorClassPicker({ token, value, onChange, showTypeToggle = true
       setLoad({ status: 'ready', classes: [...load.classes, created], organizations: load.organizations });
       setNewClassName('');
       onChange({ lessonType: 'CLASS', classGroupId: created.id });
-      onClassCreated?.(created);
     } catch (failure: unknown) {
       setCreateError(messageForError(failure, '반을 만들지 못했어요.'));
     } finally {
       setCreating(false);
     }
-  }, [newClassName, newClassOrganizationId, load, token, onChange, onClassCreated]);
+  }, [newClassName, newClassOrganizationId, load, token, onChange]);
 
   return (
     <View style={styles.container}>

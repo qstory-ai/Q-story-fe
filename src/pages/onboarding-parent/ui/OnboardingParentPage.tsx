@@ -94,14 +94,16 @@ export function OnboardingParentPage() {
           <ProgressPip filled={step === 'consent' || step === 'done'} />
           <ProgressPip filled={step === 'done'} />
         </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="온보딩 나중에 하기"
-          onPress={markDoneAndGoHome}
-          hitSlop={8}
-        >
-          <Text style={styles.skipLabel}>나중에</Text>
-        </Pressable>
+        {step === 'child' ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="아이 등록 나중에 하기"
+            onPress={() => setStep('consent')}
+            hitSlop={8}
+          >
+            <Text style={styles.skipLabel}>나중에</Text>
+          </Pressable>
+        ) : null}
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>

@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { BrandLockup, AppNavShell, Card, EmptyState, Icon, LoadingState, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
+import { relativeDayLabel } from '@/shared/lib';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
@@ -177,7 +178,7 @@ export function ParentHomePage() {
           <View style={styles.section}>
             <HomeSection
               title="이어서 읽기"
-              subtitle={`${progress.childName || displayName}님이 어제 읽던 이야기예요.`}
+              subtitle={`${progress.childName || displayName}님이 ${relativeDayLabel(progress.savedAt)} 읽던 이야기예요.`}
             >
               <ContinueReadingCard
                 progress={progress}

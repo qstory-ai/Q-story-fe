@@ -217,7 +217,7 @@ function StoryCardWithLink({
       description={story.description}
       category={story.category}
       locked={locked}
-      lockedCaption={locked ? '구독하고 잠금 해제' : undefined}
+      lockedCaption={locked ? '이용권으로 잠금 해제' : undefined}
       onRemove={onUnbookmark}
       removeLabel={onUnbookmark ? `${story.title} 저장 해제` : undefined}
       // 베타 스토리도 /demo가 아니라 상세로 보낸다(로그인 상태) - /demo는 수업을 모르므로 반 선택

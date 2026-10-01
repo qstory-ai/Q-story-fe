@@ -22,7 +22,7 @@ type ClassesLoad =
  * 선생님이 수업을 반에 넣을 때 쓰는 공용 선택기. 수업은 언제나 반 수업이라(1:1 과외도 아이 한 명짜리 반)
  * 개인 레슨/반 수업을 고르는 단계 없이 반만 고르거나 만든다. 보이는 반 = 내가 만든 반 + 소속 기관의 반
  * (GET /v1/tutor-classes). 목록에 없으면 이 자리에서 바로 새 반을 만들 수 있고, 소속 기관이 있으면
- * 그 기관 안의 반으로 만들지 고를 수 있다(기관 관리자의 반 목록에도 함께 보인다).
+ * 그 기관 안의 반으로 만들지 고를 수 있다(관리자의 반 목록에도 함께 보인다).
  */
 export function TutorClassPicker({ token, value, onChange }: Props) {
   const [load, setLoad] = useState<ClassesLoad>({ status: 'loading' });
@@ -111,7 +111,7 @@ export function TutorClassPicker({ token, value, onChange }: Props) {
           {load.organizations.length > 0 && newClassName.trim() ? (
             <SelectField
               label="새 반의 소속"
-              description="기관 안의 반으로 만들면 기관 관리자의 반 목록에도 보여요."
+              description="기관 안의 반으로 만들면 관리자의 반 목록에도 보여요."
               options={[
                 { value: '', label: '내 개인 반' },
                 ...load.organizations.map((org) => ({ value: org.organizationId, label: org.organizationName })),

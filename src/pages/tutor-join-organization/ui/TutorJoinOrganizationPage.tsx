@@ -83,7 +83,7 @@ export function TutorJoinOrganizationPage() {
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">기관 소속 참여</Text>
         <Text style={styles.subtitle}>
-          기관 관리자에게 받은 초대 코드나 링크로 소속을 완성해요.
+          관리자에게 받은 초대 코드나 링크로 소속을 완성해요.
         </Text>
 
         <View style={styles.card}>

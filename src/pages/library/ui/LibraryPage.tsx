@@ -236,7 +236,7 @@ function StoryCardWithFallback({
       category={story.category}
       locked={locked}
       progress={progressRatio}
-      lockedCaption={locked ? '구독하고 잠금 해제' : undefined}
+      lockedCaption={locked ? '이용권으로 잠금 해제' : undefined}
       onRemove={onUnbookmark}
       removeLabel={onUnbookmark ? `${story.title} 저장 해제` : undefined}
       onPress={() => navigate(storyDestination(story, auth))}

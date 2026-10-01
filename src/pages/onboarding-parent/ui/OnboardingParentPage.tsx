@@ -177,7 +177,7 @@ export function OnboardingParentPage() {
             />
             <ConsentBlock
               title="리포트 표시 범위"
-              body="완주 리포트는 부모(그리고 아이가 속한 반의 담임 선생님과 기관 관리자)에게만 노출돼요. 외부 공유는 별도 동의 없이는 하지 않아요."
+              body="완주 리포트는 보호자(그리고 아이가 속한 반의 담임 선생님과 관리자)에게만 노출돼요. 외부 공유는 별도 동의 없이는 하지 않아요."
               checked={consentReport}
               onChange={setConsentReport}
             />

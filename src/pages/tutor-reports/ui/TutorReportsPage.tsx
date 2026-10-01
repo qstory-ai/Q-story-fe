@@ -171,7 +171,7 @@ function StudentSection({
             {section.student.classType ? ` · ${section.student.classType}` : ''}
           </Text>
         </View>
-        <Pill label={isLinked ? '부모 연결됨 · 자동 전달' : '부모 연결 대기'} tone="onCard" />
+        <Pill label={isLinked ? '보호자 연결됨 · 자동 전달' : '보호자 연결 대기'} tone="onCard" />
       </View>
 
       {section.loading ? (

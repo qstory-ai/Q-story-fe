@@ -373,12 +373,12 @@ function SignUpStep({
     } catch (failure) {
       const fallback =
         role === 'DIRECTOR'
-          ? '기관 관리자 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
+          ? '관리자 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
           : role === 'TUTOR'
             ? '선생님 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
             : useJoinFlow
               ? '가입하지 못했어요. 반 코드와 입력값을 확인해 주세요.'
-              : '학부모 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.';
+              : '보호자 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.';
       setError(messageForError(failure, fallback));
     } finally {
       setSubmitting(false);
@@ -402,7 +402,7 @@ function SignUpStep({
       <Text style={styles.eyebrow}>회원가입 · 2 / 2</Text>
       <Text style={styles.carouselTitle}>계정을 만들어볼까요?</Text>
       <Text style={[styles.welcomeLead, styles.formLead]}>
-        {role === 'PARENT' ? '학부모' : role === 'DIRECTOR' ? '기관 및 단체' : '선생님'} 홈을 준비할게요.
+        {role === 'PARENT' ? '보호자' : role === 'DIRECTOR' ? '기관' : '선생님'} 홈을 준비할게요.
       </Text>
 
       {role === 'PARENT' && (
@@ -420,14 +420,14 @@ function SignUpStep({
               <Text style={styles.formNote}>가입하고 아이 프로필을 만들면 이 반에 연결할 아이를 고를 수 있어요.</Text>
             </>
           ) : (
-            <Text style={styles.formNote}>반 코드 없이 학부모 계정만 만들어요.</Text>
+            <Text style={styles.formNote}>반 코드 없이 보호자 계정만 만들어요.</Text>
           )}
         </>
       )}
 
       {role === 'DIRECTOR' && (
         <TextField
-          label="기관 및 단체 이름"
+          label="기관 이름"
           value={orgName}
           onChangeText={setOrgName}
           placeholder="예: 무지개 유치원"

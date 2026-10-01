@@ -161,7 +161,7 @@ export function TutorHomePage() {
         {/* 튜터의 주 액션을 캘린더 바로 아래에 모아 원터치로 진입하게 한다. */}
         {isFirstVisit ? null : ctaRow}
 
-        <Card variant="panel" padding="md" title="부모 연결 대기" style={styles.panel}>
+        <Card variant="panel" padding="md" title="보호자 연결 대기" style={styles.panel}>
           {load.status === 'loading' ? (
             <LoadingState compact label="학생 목록을 불러오는 중이에요…" />
           ) : load.status === 'ready' && load.students.length === 0 ? (
@@ -175,7 +175,7 @@ export function TutorHomePage() {
                   <Text style={styles.studentName}>{student.name} · {student.ageBand}</Text>
                   {student.classType ? <Text style={styles.studentMeta}>{student.classType}</Text> : null}
                 </View>
-                <Pill label="부모 연결 대기" tone="onLight" />
+                <Pill label="보호자 연결 대기" tone="onLight" />
               </View>
             ))
           )}

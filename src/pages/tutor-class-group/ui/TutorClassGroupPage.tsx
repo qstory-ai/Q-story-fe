@@ -108,7 +108,7 @@ export function TutorClassGroupPage() {
                         {student.parentDisplayName ? `${student.parentDisplayName} 부모님` : '아직 부모님이 들어오지 않았어요'}
                       </Text>
                     </View>
-                    <Pill label={student.status === 'CONFIRMED' ? '연결됨' : '연결 대기'} tone={student.status === 'CONFIRMED' ? 'accent' : 'onCard'} />
+                    <Pill label={student.status === 'CONFIRMED' ? '연결됨' : '보호자 연결 대기'} tone={student.status === 'CONFIRMED' ? 'accent' : 'onCard'} />
                   </View>
                 ))
               )}

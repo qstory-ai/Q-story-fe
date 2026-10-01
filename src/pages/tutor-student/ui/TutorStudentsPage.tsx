@@ -13,7 +13,7 @@ type LoadState =
   | { status: 'error'; message: string };
 
 const STATUS_LABEL: Record<TutorStudent['status'], string> = {
-  PENDING_PARENT: '부모 확인 대기',
+  PENDING_PARENT: '보호자 연결 대기',
   CONFIRMED: '연결됨',
 };
 

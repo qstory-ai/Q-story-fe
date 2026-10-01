@@ -51,7 +51,7 @@ export function CompletionSurveyModal({
         accessibilityLabel="체험 후기 제출 완료"
       >
         <ModalBody>
-          부모님의 의견은 다음 동화와 부모 리포트를 고치는 데 반영할게요. 체험단 안내를
+          보호자의 의견은 다음 동화와 보호자 리포트를 고치는 데 반영할게요. 체험단 안내를
           신청하셨다면 다음 이야기가 준비되는 대로 연락드릴게요.
         </ModalBody>
       </Modal>
@@ -140,7 +140,7 @@ export function CompletionSurveyModal({
         errorText={fieldError(form.disruptions.length > 0, '불편했던 점을 선택해 주세요.')}
       />
       <ScaleQuestion
-        label="부모 리포트가 아이와 대화를 이어가는 데 얼마나 도움이 되었나요?"
+        label="보호자 리포트가 아이와 대화를 이어가는 데 얼마나 도움이 되었나요?"
         minLabel="전혀 도움이 되지 않았어요"
         maxLabel="매우 도움이 되었어요"
         value={form.reportHelpfulness}

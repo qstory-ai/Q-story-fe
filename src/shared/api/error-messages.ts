@@ -26,7 +26,7 @@ const CODE_MESSAGES: Record<string, string> = {
   INVALID_CREDENTIALS: '아이디 또는 비밀번호가 맞지 않아요.',
   LOGIN_ID_ALREADY_REGISTERED: '이미 사용 중인 아이디예요. 다른 아이디로 시도해 주세요.',
   OAUTH_TOKEN_INVALID: '소셜 로그인 확인이 만료됐어요. 다시 로그인해 주세요.',
-  OAUTH_ROLE_REQUIRED: '소셜 가입에는 가입 유형(학부모/기관/선생님) 선택이 필요해요.',
+  OAUTH_ROLE_REQUIRED: '소셜 가입에는 가입 유형(보호자/기관/선생님) 선택이 필요해요.',
   OAUTH_EMAIL_ALREADY_REGISTERED: '이 이메일은 이미 다른 계정으로 가입돼 있어요. 그 계정으로 로그인해 주세요.',
   OAUTH_PROVIDER_NOT_CONFIGURED: '이 소셜 로그인은 아직 열리지 않았어요. 다른 방법으로 로그인해 주세요.',
   UNAUTHENTICATED: '로그인이 필요해요. 다시 로그인 후 시도해 주세요.',
@@ -43,7 +43,7 @@ const CODE_MESSAGES: Record<string, string> = {
   ORGANIZATION_ALREADY_EXISTS: '이미 등록된 기관이 있어요.',
 
   // ---- entitlement / limits
-  ENTITLEMENT_REQUIRED: '이 이야기는 구독 후 열려요.',
+  ENTITLEMENT_REQUIRED: '이 이야기는 이용권이 있어야 열려요.',
   RATE_LIMITED: '요청이 너무 잦아요. 잠시 후 다시 시도해 주세요.',
   COMPANION_CHAT_RATE_LIMITED: '대화가 너무 자주 이어졌어요. 잠시 쉬었다가 이어가 주세요.',
   PAYLOAD_TOO_LARGE: '보내는 데이터가 너무 커요. 좀 더 짧게 만들어 주세요.',
@@ -84,7 +84,7 @@ function messageForStatus(status: number | undefined): string {
   if (status === 409) return '이미 등록된 정보와 충돌해요.';
   if (status === 404) return '요청한 항목을 찾지 못했어요.';
   if (status === 403) return '이 작업을 수행할 권한이 없어요.';
-  if (status === 402) return '이 이야기는 구독 후 열려요.';
+  if (status === 402) return '이 이야기는 이용권이 있어야 열려요.';
   if (status === 401) return '로그인이 필요해요.';
   if (status === 400) return '요청을 확인해 주세요. 입력값이 올바르지 않을 수 있어요.';
   return '요청을 처리하지 못했어요.';

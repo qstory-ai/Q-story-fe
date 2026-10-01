@@ -67,7 +67,7 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
       const response = await createOrganization(token, { name: name.trim() });
       setSession(response.token, response.user);
     } catch (failure) {
-      setError(messageForError(failure, '기관 및 단체를 등록하지 못했어요. 잠시 후 다시 시도해 주세요.'));
+      setError(messageForError(failure, '기관을 등록하지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }
@@ -77,9 +77,9 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
     <AppNavShell items={dashboardNavItems(user, navigate, pathname)}>
       <View style={styles.scroll}>
         <Card variant="surface" padding="lg" style={styles.greetingCard}>
-          <Text style={styles.title} accessibilityRole="header">기관 및 단체 등록</Text>
-          <Text style={styles.body}>거의 다 됐어요. 기관 및 단체 이름을 알려주세요.</Text>
-          <TextField label="기관 및 단체 이름" value={name} onChangeText={setName} errorText={error ?? undefined} />
+          <Text style={styles.title} accessibilityRole="header">기관 등록</Text>
+          <Text style={styles.body}>거의 다 됐어요. 기관 이름을 알려주세요.</Text>
+          <TextField label="기관 이름" value={name} onChangeText={setName} errorText={error ?? undefined} />
           <ActionButton
             label="등록하기"
             loading={submitting}
@@ -135,7 +135,7 @@ function ClassManagementStep({
           <NotificationBell token={token} />
         </View>
         <Card variant="surface" padding="lg" style={styles.greetingCard}>
-          <Text style={styles.title} accessibilityRole="header">기관 관리자 대시보드</Text>
+          <Text style={styles.title} accessibilityRole="header">관리자 대시보드</Text>
           <Text style={styles.body}>
             반과 학생, 소속 선생님, 이용 현황을 이곳에서 한눈에 관리해요.
           </Text>
@@ -148,13 +148,13 @@ function ClassManagementStep({
               body={
                 entitlement.grantsAccess
                   ? undefined
-                  : '구독 없이도 무료 데모 한 편은 계속 이용할 수 있어요. 전체 이야기는 구독 후 열려요.'
+                  : '이용권 없이도 무료 데모 한 편은 계속 이용할 수 있어요. 전체 이야기는 이용권이 있으면 열려요.'
               }
             />
           ) : !entitlementDone ? (
             <View style={styles.entitlementLoader}>
               <ActivityIndicator color={storybookTheme.color.primary} />
-              <Text style={styles.entitlementLoaderText}>구독 상태를 확인 중이에요…</Text>
+              <Text style={styles.entitlementLoaderText}>이용권 상태를 확인 중이에요…</Text>
             </View>
           ) : null}
         </Card>
@@ -183,8 +183,8 @@ function ClassManagementStep({
             onPress={() => navigate('/organization/reports')}
           />
           <DashboardCard
-            title="이용권 · 라이선스"
-            body="기관 구독 상태와 활성 이용 범위를 확인해요."
+            title="이용권"
+            body="기관 이용권 상태와 활성 이용 범위를 확인해요."
             onPress={() => navigate('/organization/subscription')}
           />
         </View>

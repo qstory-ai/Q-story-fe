@@ -167,7 +167,7 @@ export function TutorLessonDetailPage() {
                       <Text style={styles.studentMeta}>{student.ageBand}</Text>
                     </View>
                     <Pill
-                      label={student.status === 'CONFIRMED' ? '부모 연결됨' : '부모 연결 대기'}
+                      label={student.status === 'CONFIRMED' ? '보호자 연결됨' : '보호자 연결 대기'}
                       tone="onCard"
                     />
                   </View>
@@ -210,7 +210,7 @@ export function TutorLessonDetailPage() {
             </View>
 
             <View style={styles.card}>
-              <Text style={styles.sectionTitle}>완주 기록 {effective.completions.length}건</Text>
+              <Text style={styles.sectionTitle}>리포트 {effective.completions.length}건</Text>
               {effective.completions.length === 0 ? (
                 <Text style={styles.helper}>아직 이 수업에서 끝까지 들은 이야기가 없어요. 위 "시작"으로 진행하면 기록이 남고, 연결된 부모님께 리포트가 전달돼요.</Text>
               ) : (

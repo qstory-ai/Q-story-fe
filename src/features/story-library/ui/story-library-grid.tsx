@@ -94,7 +94,7 @@ function subtitleFor(auth: AuthState): string {
     return '모든 이야기가 열려 있어요.';
   }
   if (auth.status === 'authenticated') {
-    return '구독하면 서재의 모든 이야기를 볼 수 있어요. 지금은 무료 데모 한 편을 먼저 만나보세요.';
+    return '이용권이 있으면 서재의 모든 이야기를 볼 수 있어요. 지금은 무료 데모 한 편을 먼저 만나보세요.';
   }
   return '무료 데모 한 편을 지금 바로 만나보세요. 로그인하면 서재가 더 넓어져요.';
 }
@@ -166,7 +166,7 @@ export function StoryLibraryGrid() {
                 category={story.category}
                 locked={locked}
                 lockedCaption={
-                  locked ? (auth.status === 'authenticated' ? '구독하고 잠금 해제' : '로그인하고 잠금 해제') : undefined
+                  locked ? (auth.status === 'authenticated' ? '이용권으로 잠금 해제' : '로그인하고 잠금 해제') : undefined
                 }
                 onPress={() => navigate(storyDestination(story, auth))}
               />

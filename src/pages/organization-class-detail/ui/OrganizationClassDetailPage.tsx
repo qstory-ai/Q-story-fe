@@ -138,7 +138,7 @@ export function OrganizationClassDetailPage() {
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>학생 {load.students.length}명</Text>
               {load.students.length === 0 ? (
-                <Text style={styles.body}>아직 명단에 학생이 없어요. 학부모에게 반 코드를 전달해 보세요.</Text>
+                <Text style={styles.body}>아직 명단에 학생이 없어요. 보호자에게 반 코드를 전달해 보세요.</Text>
               ) : (
                 <View style={styles.list}>
                   {load.students.map((student) => (
@@ -147,8 +147,8 @@ export function OrganizationClassDetailPage() {
                         <Text style={styles.studentName}>{student.name} · {student.ageBand}</Text>
                         <Text style={styles.studentMeta}>
                           {student.parentDisplayName
-                            ? `학부모 ${student.parentDisplayName}${student.parentEmail ? ` · ${student.parentEmail}` : ''}`
-                            : '학부모 연결 대기 중'}
+                            ? `보호자 ${student.parentDisplayName}${student.parentEmail ? ` · ${student.parentEmail}` : ''}`
+                            : '보호자 연결 대기'}
                         </Text>
                         <Text style={styles.studentMeta}>등록: {formatShortDate(student.createdAt)}</Text>
                       </View>

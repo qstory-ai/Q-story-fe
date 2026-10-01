@@ -215,7 +215,7 @@ export function TutorStudentDetailPage() {
 /* -------------------------------------------------------------- helpers */
 
 function ParentConnectionBadge({ status }: { status: TutorStudent['status'] }) {
-  const label = status === 'CONFIRMED' ? '연결됨' : '연결 안 됨';
+  const label = status === 'CONFIRMED' ? '연결됨' : '보호자 연결 대기';
   return (
     <View style={[styles.badge, status === 'CONFIRMED' ? styles.badgeConfirmed : styles.badgePending]}>
       <Text style={[styles.badgeText, status === 'CONFIRMED' ? styles.badgeTextConfirmed : styles.badgeTextPending]}>

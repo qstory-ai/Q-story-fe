@@ -94,7 +94,7 @@ export function OnboardingTutorPage() {
           <ChoiceCard
             selected={choice === 'organization'}
             title="기관에 소속돼 있어요"
-            body="기관 관리자에게 받은 코드를 입력해 소속을 완성해요."
+            body="관리자에게 받은 코드를 입력해 소속을 완성해요."
             onPress={() => setChoice('organization')}
           />
         </View>

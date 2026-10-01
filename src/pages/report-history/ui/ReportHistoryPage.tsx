@@ -22,6 +22,7 @@ import {
   type StoryCompletionSummary,
 } from '@/entities/story-completion';
 import { listParentTutorReports, tutorReportSource, type TutorReportSummary } from '@/entities/tutor';
+import { teacherTitle } from '@/shared/lib';
 
 /** 종합 리포트에 넘길 최근 회차 수 - listRecentStoryCompletions()가 outcomes를 함께 실어 오는 유일한 경로. */
 const COMPREHENSIVE_LIMIT = 20;
@@ -519,7 +520,7 @@ function groupTutorReports(reports: TutorReportSummary[]): TutorReportGroup[] {
     if (!group) {
       group = isClass
         ? { key, eyebrow: report.organizationName ?? '반 수업', title: report.className ?? '반 수업', reports: [] }
-        : { key, eyebrow: '선생님 개별 수업', title: `${report.tutorDisplayName} 선생님`, reports: [] };
+        : { key, eyebrow: '선생님 개별 수업', title: `${teacherTitle(report.tutorDisplayName)}`, reports: [] };
       groups.set(key, group);
     }
     group.reports.push(report);
@@ -531,7 +532,7 @@ function SectionButton({ label, active, onPress }: { label: string; active: bool
   return (
     <Pressable
       accessibilityRole="tab"
-      accessibilityState={{ selected: active }}
+      aria-selected={active}
       onPress={onPress}
       style={({ pressed }) => [styles.section, active && styles.sectionActive, pressed && styles.tabPressed]}
     >
@@ -544,7 +545,7 @@ function TabButton({ label, active, onPress }: { label: string; active: boolean;
   return (
     <Pressable
       accessibilityRole="tab"
-      accessibilityState={{ selected: active }}
+      aria-selected={active}
       onPress={onPress}
       style={({ pressed }) => [styles.tab, active && styles.tabActive, pressed && styles.tabPressed]}
     >
@@ -557,7 +558,7 @@ function ChildFilterChip({ label, selected, onPress }: { label: string; selected
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityState={{ selected }}
+      aria-checked={selected}
       onPress={onPress}
       style={({ pressed }) => [
         styles.childFilterChip,

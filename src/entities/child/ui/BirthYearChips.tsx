@@ -31,7 +31,7 @@ export function BirthYearChips({ value, onChange, label = '출생연도', minAge
             <Pressable
               key={year}
               accessibilityRole="radio"
-              accessibilityState={{ selected }}
+              aria-checked={selected}
               accessibilityLabel={formatBirthYear(year)}
               onPress={() => onChange(year)}
               style={({ pressed }) => [
@@ -81,5 +81,5 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
   },
   chipLabelContent: { color: storybookTheme.color.onContentMuted },
-  chipLabelSelected: { color: storybookTheme.color.onContent },
+  chipLabelSelected: { color: storybookTheme.color.onDark },
 });

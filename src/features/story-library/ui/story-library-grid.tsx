@@ -65,7 +65,7 @@ function PaginationBar({
             key={entry}
             accessibilityRole="button"
             accessibilityLabel={`${entry}페이지`}
-            accessibilityState={{ selected: entry === page }}
+            aria-selected={entry === page}
             onPress={() => onChange(entry)}
             style={[styles.pageNumber, entry === page && styles.pageNumberActive]}
           >

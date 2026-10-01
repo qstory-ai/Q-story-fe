@@ -91,7 +91,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
                 key={item.key}
                 accessibilityRole="link"
                 accessibilityLabel={item.label}
-                accessibilityState={{ selected: item.active }}
+                aria-selected={item.active}
                 onPress={item.onPress}
                 style={({ pressed }) => [
                   styles.sidebarItem,
@@ -149,7 +149,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
               key={item.key}
               accessibilityRole="link"
               accessibilityLabel={item.label}
-              accessibilityState={{ selected: item.active }}
+              aria-selected={item.active}
               onPress={item.onPress}
               style={styles.bottomBarItem}
             >

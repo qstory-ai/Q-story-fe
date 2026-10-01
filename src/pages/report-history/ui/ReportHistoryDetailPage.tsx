@@ -9,6 +9,7 @@ import { refetchStoryPackage, type StoryRuntimePackage } from '@/entities/story'
 import { ReportContent } from '@/pages/one-story';
 import { getStoryCompletion, type StoryCompletionDetail } from '@/entities/story-completion';
 import { messageForError } from '@/shared/api';
+import { teacherTitle } from '@/shared/lib';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -130,7 +131,7 @@ function SessionHeader({
   onReadAgain?: () => void;
 }) {
   const where = [detail.organizationName, detail.className].filter(Boolean).join(' · ');
-  const teacher = detail.tutorDisplayName ? `${detail.tutorDisplayName} 선생님` : null;
+  const teacher = detail.tutorDisplayName ? `${teacherTitle(detail.tutorDisplayName)}` : null;
   const kindLabel =
     detail.sessionKind === 'CLASS' ? '반 수업 리포트' : detail.sessionKind === 'TUTOR' ? '선생님 수업 리포트' : '집에서 읽은 기록';
   const description =

@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, Modal, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { createLesson, listLessons, type Lesson } from '@/entities/lesson';
+import { withParticle } from '@/shared/lib';
+import { createLesson, listLessons, updateLesson, type Lesson } from '@/entities/lesson';
 import { listTutorClasses, type TutorClass } from '@/entities/tutor';
 
 type Props = {
@@ -54,9 +55,15 @@ export function ClassLessonStartModal({ visible, token, tutorId, storyId, storyT
     setStartingClassId(classGroup.id);
     setStartError(null);
     try {
-      // 플레이어에서 바로 나왔다가 다시 시작해도 수업이 하나씩 쌓이지 않게 - 오늘 같은 반·같은 이야기로 연 수업을 잇는다.
-      const reusable = await findTodaysLesson(token, classGroup.id, storyId);
-      const lesson = reusable ?? await createLesson(token, {
+      // 플레이어에서 바로 나왔다가 다시 시작해도 수업이 하나씩 쌓이지 않게 - 오늘 같은 반·같은 이야기로 연
+      // 수업을 잇는다. 그런 수업이 없고 오늘 이 반에 이야기를 아직 안 정한 예정 수업(정기 수업 회차 등)이
+      // 있으면 거기에 이 이야기를 붙여 그 수업으로 연다 - 미리 만든 회차를 두고 새 수업이 또 생기지 않게.
+      const todays = await findTodaysLessons(token, classGroup.id);
+      const sameStory = todays.find((lesson) => lesson.storyIds.includes(storyId));
+      const withoutStory = todays.find((lesson) => lesson.status === 'SCHEDULED' && lesson.storyIds.length === 0);
+      const lesson = sameStory
+        ?? (withoutStory ? await updateLesson(token, withoutStory.id, { storyIds: [storyId] }) : null)
+        ?? await createLesson(token, {
         name: storyTitle,
         classGroupId: classGroup.id,
         storyIds: [storyId],
@@ -79,7 +86,7 @@ export function ClassLessonStartModal({ visible, token, tutorId, storyId, storyT
       linkAction={{ label: '취소', onPress: onClose }}
     >
       <View style={styles.body}>
-        <Text style={styles.subtitle}>{`${storyTitle}을(를) 반 수업으로 시작해요.`}</Text>
+        <Text style={styles.subtitle}>{`${withParticle(storyTitle, '을/를')} 반 수업으로 시작해요.`}</Text>
 
         {load.status === 'loading' ? (
           <Text style={styles.helper}>반 목록을 불러오는 중이에요…</Text>
@@ -104,7 +111,7 @@ export function ClassLessonStartModal({ visible, token, tutorId, storyId, storyT
               <Pressable
                 key={classGroup.id}
                 accessibilityRole="button"
-                accessibilityLabel={`${classGroup.name}과(와) 시작`}
+                accessibilityLabel={`${withParticle(classGroup.name, '과/와')} 시작`}
                 onPress={() => startWith(classGroup)}
                 disabled={startingClassId !== null}
                 style={({ pressed }) => [styles.row, pressed && styles.pressed]}
@@ -122,20 +129,18 @@ export function ClassLessonStartModal({ visible, token, tutorId, storyId, storyT
   );
 }
 
-async function findTodaysLesson(token: string, classGroupId: string, storyId: string): Promise<Lesson | null> {
+/** 오늘(로컬 날짜) 이 반으로 잡힌 진행 중·예정 수업 - 진행 중이 먼저 온다. */
+async function findTodaysLessons(token: string, classGroupId: string): Promise<Lesson[]> {
   const today = new Date().toDateString();
   const [inProgress, scheduled] = await Promise.all([
     listLessons(token, { status: 'IN_PROGRESS' }),
     listLessons(token, { status: 'SCHEDULED' }),
   ]);
-  return (
-    [...inProgress, ...scheduled].find(
-      (lesson) =>
-        lesson.classGroupId === classGroupId &&
-        lesson.storyIds.includes(storyId) &&
-        lesson.scheduledAt != null &&
-        new Date(lesson.scheduledAt).toDateString() === today,
-    ) ?? null
+  return [...inProgress, ...scheduled].filter(
+    (lesson) =>
+      lesson.classGroupId === classGroupId &&
+      lesson.scheduledAt != null &&
+      new Date(lesson.scheduledAt).toDateString() === today,
   );
 }
 

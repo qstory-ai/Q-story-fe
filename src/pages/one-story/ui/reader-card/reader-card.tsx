@@ -49,7 +49,7 @@ export function ReaderCard({ runtime }: { runtime: OneStoryRuntime }) {
             <Text style={styles.statusText}>
               {isQuestionInvitePlayback
                 ? `${speaker?.displayName ?? '이야기 친구'}이 묻고 있어요`
-                : statusCopy(runtimeState)}
+                : statusCopy(runtimeState, runtime.isClassLesson)}
             </Text>
           </View>
         </View>

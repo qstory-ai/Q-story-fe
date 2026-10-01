@@ -25,7 +25,7 @@ function Chip({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ selected }}
+      aria-selected={selected}
       onPress={onPress}
       style={[styles.chip, selected && styles.chipActive]}
     >
@@ -156,7 +156,7 @@ export function ScaleQuestion({
           <Pressable
             key={score}
             accessibilityRole="button"
-            accessibilityState={{ selected: value === score }}
+            aria-selected={value === score}
             onPress={() => onChange(score)}
             style={[styles.scaleDot, value === score && styles.scaleDotActive]}
           >

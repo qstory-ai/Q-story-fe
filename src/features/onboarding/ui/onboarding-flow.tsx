@@ -53,6 +53,9 @@ type OnboardingFlowProps = {
   /** 이 흐름 안에서 세션이 만들어졌을 때(가입 직후). HomePage가 이걸 보고 역할 홈
    *  리다이렉트를 보류한다 - 아니면 캐러셀·아이 등록 단계 전에 홈으로 튕긴다. */
   onSessionCreated?: () => void;
+  /** 가입 전에 같은 내용의 튜토리얼(/tutorial)을 이미 봤으면 true - 가입 직후 가치 제안 캐러셀을
+   *  한 번 더 보여 주지 않고 곧장 역할별 온보딩으로 보낸다. */
+  skipValueCarousel?: boolean;
 };
 
 const VALUE_SLIDES = [
@@ -73,6 +76,12 @@ const VALUE_SLIDES = [
   },
 ];
 
+const DISPLAY_NAME_PLACEHOLDER: Record<OnboardingRole, string> = {
+  PARENT: '아이에게 보일 부모님 이름',
+  TUTOR: '아이와 부모님께 보일 이름 (예: 김하늘)',
+  DIRECTOR: '담당자 이름',
+};
+
 const ROLE_CARDS: Array<{ role: OnboardingRole; eyebrow: string; title: string; description: string }> = [
   { role: 'PARENT', eyebrow: '가정에서', title: '학부모님', description: '아이와 함께 이야기 서재를 쓰고, 완주 리포트를 받아요.' },
   { role: 'DIRECTOR', eyebrow: '유치원·학원·기관에서', title: '기관 및 단체', description: '반을 만들고 여러 아이가 함께 듣는 수업을 준비해요.' },
@@ -92,6 +101,7 @@ export function OnboardingFlow({
   signInNext,
   onExit,
   onSessionCreated,
+  skipValueCarousel = false,
 }: OnboardingFlowProps) {
   const navigate = useNavigate();
   const { setSession } = useAuth();
@@ -131,10 +141,14 @@ export function OnboardingFlow({
         : user.role === 'TUTOR'
           ? '/onboarding/tutor'
           : homePathFor(user);
+      if (skipValueCarousel) {
+        goHome(nextAfterCarousel, nextAfterCarousel === '/onboarding/parent' && next ? { next } : undefined);
+        return;
+      }
       setPendingHomePath(nextAfterCarousel);
       go('value-onboarding');
     },
-    [setSession, go, onSessionCreated],
+    [setSession, go, goHome, onSessionCreated, skipValueCarousel],
   );
 
   // 캐러셀엔 자체 "건너뛰기"가 있어 상단 링크를 숨긴다.
@@ -454,7 +468,7 @@ function SignUpStep({
         autoComplete="new-password"
         errorText={passwordMismatch ? '비밀번호가 서로 달라요.' : undefined}
       />
-      <TextField label="이름" value={displayName} onChangeText={setDisplayName} autoComplete="name" placeholder="아이에게 보일 부모님 이름" />
+      <TextField label="이름" value={displayName} onChangeText={setDisplayName} autoComplete="name" placeholder={DISPLAY_NAME_PLACEHOLDER[role]} />
       <TermsConsent
         value={terms}
         onChange={setTerms}

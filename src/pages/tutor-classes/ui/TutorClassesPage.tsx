@@ -156,7 +156,7 @@ function LessonRow({
         style={({ pressed }) => [styles.rowAction, pressed && styles.rowPressed]}
       >
         <View style={styles.rowLead}>
-          <Text style={styles.rowLeadDay}>{lesson.scheduledAt ? formatShortDate(lesson.scheduledAt) : '일정 미정'}</Text>
+          <Text style={styles.rowLeadDay} numberOfLines={1}>{lesson.scheduledAt ? formatShortDate(lesson.scheduledAt) : '일정 미정'}</Text>
           {lesson.scheduledAt ? (
             <Text style={styles.rowLeadTime}>{formatShortTime(lesson.scheduledAt)}</Text>
           ) : null}
@@ -259,8 +259,9 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.card,
   },
   rowEditButtonPressed: { backgroundColor: storybookTheme.color.contentPanelBorder },
+  // "12월 25일"까지 한 줄에 들어가는 폭 - 60일 땐 두 자리 일자에서 "10월 / 8일"로 줄이 갈렸다.
   rowLead: {
-    width: 60,
+    width: 76,
     gap: 2,
     paddingRight: 8,
     borderRightWidth: 1,

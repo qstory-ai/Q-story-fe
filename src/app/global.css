@@ -50,6 +50,10 @@ body {
   /* 짧은-중간 길이 텍스트에서 마지막 줄에 단어 하나만 남는 orphan을 방지 -
      문단 전체 wrapping을 조정. 긴 텍스트(10줄+)에는 조용히 무시되므로 전역 안전. */
   text-wrap: pretty;
+  /* 한글은 기본값(normal)이면 음절 단위로 줄이 바뀌어 "움 / 직여요"처럼 단어가 쪼개진다 -
+     띄어쓰기 단위로만 줄을 바꾼다. URL처럼 공백 없는 긴 토큰은 RNW Text의
+     overflow-wrap: break-word가 그대로 넘침을 막는다. */
+  word-break: keep-all;
 }
 
 ::selection {

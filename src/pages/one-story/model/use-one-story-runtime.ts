@@ -1933,6 +1933,8 @@ export function useOneStoryRuntime(
   const showPlaybackDock = isNarrow && showPlaybackControls;
 
   return {
+    // 반 수업(lessonId)으로 연 이야기 - 선생님이 반 아이들과 읽으니 "부모님과 함께" 문구를 바꾼다.
+    isClassLesson: Boolean(lessonId),
     // 레이아웃
     isWide,
     isShort,

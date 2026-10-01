@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ActionButton, Card, ErrorState, Icon, LoadingState, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { fetchStoryEntry, type StoryCatalogEntry } from '@/entities/story';
 import { messageForError } from '@/shared/api';
+import { withParticle } from '@/shared/lib';
 import { useAuth } from '@/entities/auth';
 import { useBookmarks } from '@/entities/bookmark';
 import { useChildren } from '@/entities/child';
@@ -179,7 +180,7 @@ export function StoryDetailPage() {
       {effectiveLoad.status === 'ready' && isParent ? (
         <ChildPickerModal
           visible={childPickerOpen}
-          subtitle={`${effectiveLoad.story.title}을(를) 어떤 아이와 함께 볼까요?`}
+          subtitle={`${withParticle(effectiveLoad.story.title, '을/를')} 어떤 아이와 함께 볼까요?`}
           onClose={() => setChildPickerOpen(false)}
           onSelected={() => {
             setChildPickerOpen(false);
@@ -260,6 +261,9 @@ const styles = StyleSheet.create({
   },
   // 커버 이미지 위로 살짝 겹치는 negative margin과 강조 elevation만 오버라이드한다.
   infoCard: {
+    // Card 기본값 width:'100%'에 좌우 margin이 더해지면 화면보다 넓어져 가로 스크롤이 생긴다 -
+    // auto로 두고 부모 폭에서 margin을 뺀 만큼만 차지하게 한다.
+    width: 'auto',
     marginTop: -28,
     marginHorizontal: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.ms,

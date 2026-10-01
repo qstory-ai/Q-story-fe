@@ -80,7 +80,7 @@ export function MonthCalendar<T extends MonthCalendarItem>({
             <Icon name="chevronRight" size={16} color={storybookTheme.color.onContent} />
           </View>
         </Pressable>
-        <Text style={styles.headerLabel} accessibilityRole="header">
+        <Text style={styles.headerLabel} accessibilityRole="header" {...({ 'aria-level': 3 } as object)}>
           {viewMonth.getFullYear()}년 {MONTH_LABELS[viewMonth.getMonth()]}
         </Text>
         <Pressable
@@ -160,7 +160,7 @@ export function MonthCalendar<T extends MonthCalendarItem>({
 
       {/* 선택된 날의 목록 */}
       <View style={styles.list}>
-        <Text style={styles.listHeader} accessibilityRole="header">
+        <Text style={styles.listHeader} accessibilityRole="header" {...({ 'aria-level': 3 } as object)}>
           {selectedDate.getMonth() + 1}월 {selectedDate.getDate()}일 ({WEEKDAY_HEADERS[selectedDate.getDay()]})
         </Text>
         {selectedItems.length === 0 ? (

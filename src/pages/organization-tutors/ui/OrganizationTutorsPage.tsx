@@ -15,6 +15,7 @@ import {
   type OrganizationTutorLink,
 } from '@/entities/organization-tutor';
 import { InviteCodeCard, formatInviteExpiry, organizationTutorInviteLink } from '@/features/invite-issue';
+import { teacherTitle } from '@/shared/lib';
 
 type TutorsLoad = { status: 'loading' } | { status: 'ready'; tutors: OrganizationTutorLink[] } | { status: 'error'; message: string };
 type InvitesLoad = { status: 'loading' } | { status: 'ready'; invites: OrganizationTutorInviteSummary[] } | { status: 'error' };
@@ -165,7 +166,7 @@ export function OrganizationTutorsPage() {
                 <View key={tutor.id} style={styles.tutorRow}>
                   <Pressable
                     accessibilityRole="link"
-                    accessibilityLabel={`${tutor.tutorDisplayName} 선생님의 학생·수업 보기`}
+                    accessibilityLabel={`${teacherTitle(tutor.tutorDisplayName)}의 학생·수업 보기`}
                     onPress={() => navigate(`/organization/tutors/${tutor.tutorId}`)}
                     style={({ pressed }) => [styles.tutorInfo, pressed && styles.pressed]}
                   >
@@ -190,7 +191,7 @@ export function OrganizationTutorsPage() {
 
       <Modal
         visible={unlinkTarget !== null}
-        title={unlinkTarget ? `${unlinkTarget.tutorDisplayName} 선생님의 소속을 해제할까요?` : '소속 해제'}
+        title={unlinkTarget ? `${teacherTitle(unlinkTarget.tutorDisplayName)}의 소속을 해제할까요?` : '소속 해제'}
         accessibilityLabel="선생님 소속 해제 확인"
         positiveAction={{
           label: unlinkInFlight ? '해제 중…' : '해제',

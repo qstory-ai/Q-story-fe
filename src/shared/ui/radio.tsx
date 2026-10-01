@@ -18,7 +18,7 @@ export function Radio({ selected, onSelect, label, description, disabled }: Radi
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityState={{ selected, disabled }}
+      aria-checked={selected} aria-disabled={disabled}
       onPress={() => !disabled && onSelect()}
       style={styles.row}
       hitSlop={4}

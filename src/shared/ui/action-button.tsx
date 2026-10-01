@@ -77,7 +77,7 @@ export function ActionButton({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ disabled: disabled || loading, busy: loading }}
+      aria-disabled={disabled || loading} aria-busy={loading}
       disabled={disabled || loading}
       onPress={onPress}
       // react-native-web은 웹에서 Pressable의 style 콜백에 pressed 말고도 hovered를 실제로

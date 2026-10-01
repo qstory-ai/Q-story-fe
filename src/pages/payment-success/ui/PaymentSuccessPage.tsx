@@ -4,24 +4,28 @@ import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, fetchCurrentUser, useAuth } from '@/entities/auth';
+import { useBackOr } from '@/shared/lib';
+import { dashboardNavItems, fetchCurrentUser, subscriptionPathFor, useAuth } from '@/entities/auth';
 import { confirmPayment, type PaymentOrder } from '@/entities/payment';
 
 type Result = { status: 'loading' } | { status: 'success'; order: PaymentOrder } | { status: 'error'; message: string };
 
 export function PaymentSuccessPage() {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const { state, updateUser } = useAuth();
   const [params] = useSearchParams();
   const [result, setResult] = useState<Result>({ status: 'loading' });
   const paymentKey = params.get('paymentKey');
   const orderId = params.get('orderId');
   const amount = Number(params.get('amount'));
+  const goBack = useBackOr(state.status === 'authenticated' ? subscriptionPathFor(state.user) : '/');
 
   useEffect(() => {
-    if (state.status !== 'loading' && state.status !== 'authenticated') navigate('/login', { replace: true });
-  }, [state.status, navigate]);
+    if (state.status !== 'loading' && state.status !== 'authenticated') {
+      navigate(`/login?next=${encodeURIComponent(pathname + search)}`, { replace: true });
+    }
+  }, [state.status, navigate, pathname, search]);
 
   // state가 아니라 token에만 의존한다 - 성공 경로의 updateUser()가 state identity를 바꿔 effect가
   // 다시 돌면 같은 주문으로 confirmPayment를 재호출하고, 백엔드가 거부하면 성공 화면이 에러로 뒤집힌다.
@@ -51,7 +55,7 @@ export function PaymentSuccessPage() {
   const backPath = result.status === 'success' && result.order.target === 'ORGANIZATION' ? '/organization/subscription' : '/mypage/subscription';
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">결제 결과</Text>
         {result.status === 'loading' ? <LoadingState label="결제를 확인하고 있어요." /> : null}

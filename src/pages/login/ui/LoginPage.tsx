@@ -1,6 +1,9 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
-/** `/login` 딥링크(이메일·북마크·외부 링크)를 홈("/") OnboardingFlow의 sign-in 스텝으로 넘긴다. */
+import { loginRedirectPath } from './login-redirect';
+
+/** `/login` 딥링크(이메일·북마크·외부 링크)를 홈("/") OnboardingFlow의 sign-in 스텝으로 넘긴다. next는 유지한다. */
 export function LoginPage() {
-  return <Navigate to="/?flow=sign-in" replace />;
+  const { search } = useLocation();
+  return <Navigate to={loginRedirectPath(search)} replace />;
 }

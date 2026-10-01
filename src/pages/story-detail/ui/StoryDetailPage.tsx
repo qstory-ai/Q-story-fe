@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, Card, ErrorState, Icon, LoadingState, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { fetchStoryEntry, type StoryCatalogEntry } from '@/entities/story';
 import { messageForError } from '@/shared/api';
-import { withParticle } from '@/shared/lib';
-import { useAuth } from '@/entities/auth';
+import { useBackOr, withParticle } from '@/shared/lib';
+import { dashboardNavItems, libraryPathFor, useAuth } from '@/entities/auth';
 import { useBookmarks } from '@/entities/bookmark';
 import { useChildren } from '@/entities/child';
 import { ChildPickerModal } from '@/features/child-picker';
@@ -28,7 +28,9 @@ const WIDE_BREAKPOINT = 760;
 export function StoryDetailPage() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
+  const goBack = useBackOr(state.status === 'authenticated' ? libraryPathFor(state.user) : '/');
   const { width } = useWindowDimensions();
   const isWide = width >= WIDE_BREAKPOINT;
   const bookmarks = useBookmarks();
@@ -72,7 +74,7 @@ export function StoryDetailPage() {
   const toggleBookmark = useCallback(async () => {
     if (!storyId) return;
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate(`/login?next=${encodeURIComponent(`/stories/${storyId}`)}`);
       return;
     }
     setBookmarkPending(true);
@@ -111,95 +113,102 @@ export function StoryDetailPage() {
   // 로딩 중인 것처럼 렌더링한다 (react-hooks/set-state-in-effect 참고).
   const effectiveLoad: LoadState = load.requestKey === requestKey ? load : { requestKey, status: 'loading' };
 
+  const body = (
+    <>
+        {effectiveLoad.status === 'loading' && <LoadingState label="이야기를 불러오는 중이에요…" />}
+
+        {effectiveLoad.status === 'error' && (
+          <ErrorState message={effectiveLoad.message} onRetry={retry} />
+        )}
+
+        {effectiveLoad.status === 'ready' && (
+          <View style={[styles.content, isWide && styles.contentWide]}>
+            <View style={isWide ? styles.coverFrameWide : styles.coverFrame}>
+              {effectiveLoad.story.coverImageUrl ? (
+                <Image
+                  source={{ uri: effectiveLoad.story.coverImageUrl }}
+                  resizeMode="cover"
+                  style={styles.cover}
+                  accessibilityLabel={`${effectiveLoad.story.title} 표지 그림`}
+                />
+              ) : (
+                <View style={styles.coverFallback}>
+                  <Icon name="book" size={36} color={storybookTheme.color.onContentMuted} />
+                </View>
+              )}
+            </View>
+            <Card variant="surface" padding="lg" style={[styles.infoCard, isWide && styles.infoCardWide]}>
+              {effectiveLoad.story.category ? <Pill label={effectiveLoad.story.category} /> : null}
+              <Text style={styles.title} accessibilityRole="header">{effectiveLoad.story.title}</Text>
+              {effectiveLoad.story.description ? (
+                <Text style={styles.description}>{effectiveLoad.story.description}</Text>
+              ) : null}
+              <ActionButton
+                label="이야기 시작하기"
+                onPress={() => startPlay(effectiveLoad.story.storyId)}
+              />
+              <View style={styles.secondaryActions}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={bookmarks.isBookmarked(effectiveLoad.story.storyId) ? '저장 해제' : '저장하기'}
+                  onPress={toggleBookmark}
+                  disabled={bookmarkPending}
+                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+                >
+                  <Icon
+                    name={bookmarks.isBookmarked(effectiveLoad.story.storyId) ? 'check' : 'plus'}
+                    size={16}
+                    color={storybookTheme.color.primary}
+                  />
+                  <Text style={styles.secondaryLabel}>
+                    {bookmarks.isBookmarked(effectiveLoad.story.storyId) ? '저장됨' : '저장하기'}
+                  </Text>
+                </Pressable>
+              </View>
+              {bookmarkError ? <Text style={styles.actionError}>{bookmarkError}</Text> : null}
+            </Card>
+          </View>
+        )}
+
+        {effectiveLoad.status === 'ready' && isParent ? (
+          <ChildPickerModal
+            visible={childPickerOpen}
+            subtitle={`${withParticle(effectiveLoad.story.title, '을/를')} 어떤 아이와 함께 볼까요?`}
+            onClose={() => setChildPickerOpen(false)}
+            onSelected={() => {
+              setChildPickerOpen(false);
+              // selectChild는 ChildPickerModal 내부에서 이미 호출됐다 - 여기선 플레이어로 이동만.
+              navigate(`/stories/${effectiveLoad.story.storyId}/play`);
+            }}
+          />
+        ) : null}
+
+        {effectiveLoad.status === 'ready' && tutorToken && tutorId ? (
+          <ClassLessonStartModal
+            visible={classPickerOpen}
+            token={tutorToken}
+            tutorId={tutorId}
+            storyId={effectiveLoad.story.storyId}
+            storyTitle={effectiveLoad.story.title}
+            onClose={() => setClassPickerOpen(false)}
+          />
+        ) : null}
+    </>
+  );
+
+  if (state.status === 'authenticated') {
+    return (
+      <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
+        {body}
+      </AppNavShell>
+    );
+  }
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      <Pressable
-        onPress={() => navigate('/')}
-        accessibilityRole="link"
-        hitSlop={8}
-        style={styles.backLink}
-      >
+      <Pressable onPress={goBack} accessibilityRole="link" hitSlop={8} style={styles.backLink}>
         <Text style={styles.backLinkText}>← 처음으로</Text>
       </Pressable>
-
-      {effectiveLoad.status === 'loading' && <LoadingState label="이야기를 불러오는 중이에요…" />}
-
-      {effectiveLoad.status === 'error' && (
-        <ErrorState message={effectiveLoad.message} onRetry={retry} />
-      )}
-
-      {effectiveLoad.status === 'ready' && (
-        <View style={[styles.content, isWide && styles.contentWide]}>
-          <View style={isWide ? styles.coverFrameWide : styles.coverFrame}>
-            {effectiveLoad.story.coverImageUrl ? (
-              <Image
-                source={{ uri: effectiveLoad.story.coverImageUrl }}
-                resizeMode="cover"
-                style={styles.cover}
-                accessibilityLabel={`${effectiveLoad.story.title} 표지 그림`}
-              />
-            ) : (
-              <View style={styles.coverFallback}>
-                <Icon name="book" size={36} color={storybookTheme.color.onContentMuted} />
-              </View>
-            )}
-          </View>
-          <Card variant="surface" padding="lg" style={[styles.infoCard, isWide && styles.infoCardWide]}>
-            {effectiveLoad.story.category ? <Pill label={effectiveLoad.story.category} /> : null}
-            <Text style={styles.title} accessibilityRole="header">{effectiveLoad.story.title}</Text>
-            {effectiveLoad.story.description ? (
-              <Text style={styles.description}>{effectiveLoad.story.description}</Text>
-            ) : null}
-            <ActionButton
-              label="이야기 시작하기"
-              onPress={() => startPlay(effectiveLoad.story.storyId)}
-            />
-            <View style={styles.secondaryActions}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={bookmarks.isBookmarked(effectiveLoad.story.storyId) ? '저장 해제' : '저장하기'}
-                onPress={toggleBookmark}
-                disabled={bookmarkPending}
-                style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
-              >
-                <Icon
-                  name={bookmarks.isBookmarked(effectiveLoad.story.storyId) ? 'check' : 'plus'}
-                  size={16}
-                  color={storybookTheme.color.primary}
-                />
-                <Text style={styles.secondaryLabel}>
-                  {bookmarks.isBookmarked(effectiveLoad.story.storyId) ? '저장됨' : '저장하기'}
-                </Text>
-              </Pressable>
-            </View>
-            {bookmarkError ? <Text style={styles.actionError}>{bookmarkError}</Text> : null}
-          </Card>
-        </View>
-      )}
-
-      {effectiveLoad.status === 'ready' && isParent ? (
-        <ChildPickerModal
-          visible={childPickerOpen}
-          subtitle={`${withParticle(effectiveLoad.story.title, '을/를')} 어떤 아이와 함께 볼까요?`}
-          onClose={() => setChildPickerOpen(false)}
-          onSelected={() => {
-            setChildPickerOpen(false);
-            // selectChild는 ChildPickerModal 내부에서 이미 호출됐다 - 여기선 플레이어로 이동만.
-            navigate(`/stories/${effectiveLoad.story.storyId}/play`);
-          }}
-        />
-      ) : null}
-
-      {effectiveLoad.status === 'ready' && tutorToken && tutorId ? (
-        <ClassLessonStartModal
-          visible={classPickerOpen}
-          token={tutorToken}
-          tutorId={tutorId}
-          storyId={effectiveLoad.story.storyId}
-          storyTitle={effectiveLoad.story.title}
-          onClose={() => setClassPickerOpen(false)}
-        />
-      ) : null}
+      {body}
     </SafeAreaView>
   );
 }

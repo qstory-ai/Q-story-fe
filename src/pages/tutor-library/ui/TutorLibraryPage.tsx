@@ -6,6 +6,7 @@ import { ActionButton, AppNavShell, Card, ErrorState, FilterChip, LoadingState, 
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
+import { storyDestination } from '@/features/story-library';
 import { useBookmarks } from '@/entities/bookmark';
 import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
 
@@ -219,15 +220,9 @@ function StoryCardWithLink({
       lockedCaption={locked ? '구독하고 잠금 해제' : undefined}
       onRemove={onUnbookmark}
       removeLabel={onUnbookmark ? `${story.title} 저장 해제` : undefined}
-      onPress={() => {
-        if (locked) {
-          navigate('/mypage/subscription');
-          return;
-        }
-        // 베타 스토리도 /demo가 아니라 상세로 보낸다 - /demo는 수업을 모르므로 반 선택
-        // (StoryDetailPage의 ClassLessonStartModal)을 거쳐 반 수업을 만들어야 완주 기록이 반에 남는다.
-        navigate(`/stories/${story.storyId}`);
-      }}
+      // 베타 스토리도 /demo가 아니라 상세로 보낸다(로그인 상태) - /demo는 수업을 모르므로 반 선택
+      // (StoryDetailPage의 ClassLessonStartModal)을 거쳐 반 수업을 만들어야 완주 기록이 반에 남는다.
+      onPress={() => navigate(storyDestination(story, auth))}
     />
   );
 }

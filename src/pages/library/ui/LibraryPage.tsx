@@ -6,11 +6,11 @@ import { ActionButton, AppNavShell, Card, ErrorState, FilterChip, LoadingState, 
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
 import {
-  DEFAULT_BETA_STORY_ID,
   listStories,
   unlockStateFor,
   type StoryCatalogEntry,
 } from '@/entities/story';
+import { storyDestination } from '@/features/story-library';
 import { useBookmarks } from '@/entities/bookmark';
 import { useChildren } from '@/entities/child';
 import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
@@ -239,17 +239,7 @@ function StoryCardWithFallback({
       lockedCaption={locked ? '구독하고 잠금 해제' : undefined}
       onRemove={onUnbookmark}
       removeLabel={onUnbookmark ? `${story.title} 저장 해제` : undefined}
-      onPress={() => {
-        if (locked) {
-          navigate('/mypage/subscription');
-          return;
-        }
-        if (story.storyId === DEFAULT_BETA_STORY_ID) {
-          navigate('/demo');
-          return;
-        }
-        navigate(`/stories/${story.storyId}`);
-      }}
+      onPress={() => navigate(storyDestination(story, auth))}
     />
   );
 }

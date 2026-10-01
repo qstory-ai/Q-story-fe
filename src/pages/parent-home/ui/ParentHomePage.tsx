@@ -7,6 +7,7 @@ import { messageForError } from '@/shared/api';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
+import { storyDestination } from '@/features/story-library';
 import { HomeSection } from '@/features/home-section';
 import { ChildSelector } from '@/features/child-selector';
 import { MonthCalendar } from '@/features/month-calendar';
@@ -163,7 +164,7 @@ export function ParentHomePage() {
         {hero ? (
           <HeroRecommendation
             story={hero}
-            onPress={() => navigate(`/stories/${hero.storyId}`)}
+            onPress={() => navigate(storyDestination(hero, state))}
             locked={unlockStateFor(hero, state) === 'locked'}
           />
         ) : catalogLoading ? (
@@ -200,7 +201,7 @@ export function ParentHomePage() {
                   size="mini"
                   title={story.title}
                   coverImageUrl={story.coverImageUrl}
-                  onPress={() => navigate(`/stories/${story.storyId}`)}
+                  onPress={() => navigate(storyDestination(story, state))}
                   locked={unlockStateFor(story, state) === 'locked'}
                 />
               ))}
@@ -217,7 +218,7 @@ export function ParentHomePage() {
                   size="mini"
                   title={story.title}
                   coverImageUrl={story.coverImageUrl}
-                  onPress={() => navigate(`/stories/${story.storyId}`)}
+                  onPress={() => navigate(storyDestination(story, state))}
                   locked={unlockStateFor(story, state) === 'locked'}
                 />
               ))}

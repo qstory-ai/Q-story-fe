@@ -3,14 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Pill, SectionHeader, StatusBanner, storybookTheme } from '@/shared/ui';
-import { dashboardNavItems, useAuth, type UserSummary } from '@/entities/auth';
-
-const STATUS_LABEL: Record<UserSummary['subscriptionStatus'], string> = {
-  NONE: '구독 없음',
-  TRIALING: '체험 중',
-  ACTIVE: '구독 중',
-  EXPIRED: '만료됨',
-};
+import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { subscriptionStatusLabel } from '@/shared/config';
 
 export function MyPageSubscriptionPage() {
   const navigate = useNavigate();
@@ -29,7 +23,7 @@ export function MyPageSubscriptionPage() {
       <View style={styles.content}>
         <SectionHeader title="나의 구독" />
         <View style={styles.card}>
-          <Pill label={STATUS_LABEL[user.subscriptionStatus]} />
+          <Pill label={subscriptionStatusLabel(user.subscriptionStatus)} />
           <StatusBanner
             label={user.grantsAccess ? '지금 전체 이야기를 이용할 수 있어요.' : '지금은 무료 이야기만 이용할 수 있어요.'}
             variant={user.grantsAccess ? 'info' : 'warning'}

@@ -13,13 +13,7 @@ import {
   type UserSummary,
 } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
-
-const SUBSCRIPTION_LABEL: Record<EntitlementResponse['subscriptionStatus'], string> = {
-  NONE: '구독 전',
-  TRIALING: '체험판 이용 중',
-  ACTIVE: '구독 중',
-  EXPIRED: '구독이 만료됐어요',
-};
+import { subscriptionStatusLabel } from '@/shared/config';
 
 /**
  * DIRECTOR 홈("/organization"). 기관이 없으면 기관 등록, 있으면 대시보드를 보여 준다 - 한 방향으로만
@@ -148,7 +142,7 @@ function ClassManagementStep({
           {entitlement ? (
             <StatusBanner
               variant={entitlement.grantsAccess ? 'info' : 'warning'}
-              label={SUBSCRIPTION_LABEL[entitlement.subscriptionStatus] ?? '구독 상태를 확인하고 있어요.'}
+              label={subscriptionStatusLabel(entitlement.subscriptionStatus)}
               body={
                 entitlement.grantsAccess
                   ? undefined

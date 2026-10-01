@@ -6,15 +6,12 @@ import { ActionButton, AppNavShell, LoadingState, StatusBanner, storybookTheme }
 import { dashboardNavItems, fetchEntitlement, useDirectorSession, type EntitlementResponse } from '@/entities/auth';
 import { getOrganizationQuote, type OrganizationQuote } from '@/entities/payment';
 import { messageForError } from '@/shared/api';
+import { subscriptionStatusLabel } from '@/shared/config';
 
 type LoadState =
   | { status: 'loading' }
   | { status: 'ready'; entitlement: EntitlementResponse; quote: OrganizationQuote }
   | { status: 'error'; message: string };
-
-const LABEL: Record<EntitlementResponse['subscriptionStatus'], string> = {
-  NONE: '구독 없음', TRIALING: '체험 이용 중', ACTIVE: '구독 중', EXPIRED: '구독 만료',
-};
 
 export function OrganizationSubscriptionPage() {
   const navigate = useNavigate();
@@ -41,7 +38,7 @@ export function OrganizationSubscriptionPage() {
         {load.status === 'error' ? <StatusBanner variant="warning" label={load.message} /> : null}
         {load.status === 'ready' ? (
           <View style={styles.card}>
-            <Text style={styles.heading}>{LABEL[load.entitlement.subscriptionStatus]}</Text>
+            <Text style={styles.heading}>{subscriptionStatusLabel(load.entitlement.subscriptionStatus)}</Text>
             <StatusBanner
               label={load.entitlement.grantsAccess ? '기관 구성원이 전체 이야기를 이용할 수 있어요.' : '지금은 무료 이야기만 이용할 수 있어요.'}
               variant={load.entitlement.grantsAccess ? 'info' : 'warning'}

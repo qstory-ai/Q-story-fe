@@ -155,7 +155,7 @@ export function ReportHistoryPage() {
   const showClassSection = load.status === 'ready' && (load.hasClassMembership || load.tutorReports.length > 0);
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate(homePathFor(state.user))}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">리포트</Text>
         <Text style={styles.subtitle}>

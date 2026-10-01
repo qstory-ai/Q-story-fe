@@ -9,7 +9,7 @@ import { refetchStoryPackage, type StoryRuntimePackage } from '@/entities/story'
 import { ReportContent } from '@/pages/one-story';
 import { getStoryCompletion, type StoryCompletionDetail } from '@/entities/story-completion';
 import { messageForError } from '@/shared/api';
-import { teacherTitle } from '@/shared/lib';
+import { teacherTitle, useBackOr } from '@/shared/lib';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -22,6 +22,8 @@ export function ReportHistoryDetailPage() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { state } = useAuth();
+  const reportsFallback = state.status === 'authenticated' && state.user.role === 'TUTOR' ? '/tutor/reports' : '/reports';
+  const goBack = useBackOr(reportsFallback);
   const { width } = useWindowDimensions();
   const isWide = width >= 900;
   const [attempt, setAttempt] = useState(0);
@@ -80,7 +82,7 @@ export function ReportHistoryDetailPage() {
   return (
     <AppNavShell
       items={dashboardNavItems(state.user, navigate, pathname)}
-      onBack={() => navigate(state.status === 'authenticated' && state.user.role === 'TUTOR' ? '/tutor/reports' : '/reports')}
+      onBack={goBack}
     >
       {effectiveLoad.status === 'loading' && <LoadingState label="리포트를 불러오는 중이에요…" />}
 

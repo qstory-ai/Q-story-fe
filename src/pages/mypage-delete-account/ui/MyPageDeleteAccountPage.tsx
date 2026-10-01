@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ActionButton, AppNavShell, Modal, RadioGroup, StatusBanner, TextareaField, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, deleteAccount, useAuth } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
+import { useBackOr } from '@/shared/lib';
 
 /** 백엔드 AuthService.DELETE_REASON_CATEGORIES와 문구를 맞춰야 한다. */
 const REASON_CATEGORIES = [
@@ -18,6 +19,7 @@ const REASON_CATEGORIES = [
 /** 회원 탈퇴 + 설문 - 소프트 삭제라 데이터가 완전히 사라진다고 말하지 않고, 로그인이 즉시 막힌다고만 안내한다. */
 export function MyPageDeleteAccountPage() {
   const navigate = useNavigate();
+  const goBack = useBackOr('/mypage');
   const { pathname } = useLocation();
   const { state, logout } = useAuth();
   const [reasonCategory, setReasonCategory] = useState<string | null>(null);
@@ -54,7 +56,7 @@ export function MyPageDeleteAccountPage() {
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage/account')}>
+    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={goBack}>
       <View style={styles.content}>
         <View style={styles.card}>
           <Text style={styles.title}>정말 탈퇴하시겠어요?</Text>

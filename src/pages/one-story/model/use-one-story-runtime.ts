@@ -41,7 +41,7 @@ import {
   type TranscriptionSuccess,
 } from '@/entities/speech-pipeline';
 import { narrationUtteranceSlug, type StoryRuntimePackage } from '@/entities/story';
-import { useAuth } from '@/entities/auth';
+import { homePathForAuth, useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { recordStoryCompletion } from '@/entities/story-completion';
 import {
@@ -1826,7 +1826,7 @@ export function useOneStoryRuntime(
     if (authState.status === 'authenticated') {
       clearLocalStoryProgress();
     }
-    navigate('/');
+    navigate(homePathForAuth(authState));
   }, [authState, navigate, stopNarration]);
 
   const finishToday = useCallback(
@@ -1863,13 +1863,14 @@ export function useOneStoryRuntime(
       // restartStory()(이야기 처음 화면으로)가 아니라 navigate('/')(진짜 홈으로) - "오늘 체험
       // 마치기"는 이 이야기를 그만 보겠다는 뜻이지 같은 이야기를 처음부터 다시 보겠다는 뜻이
       // 아니다. finishExperience()(완주 뒤 "홈으로 돌아가기")와 같은 목적지로 맞춘다.
-      navigate('/');
+      navigate(homePathForAuth(authState));
     },
     [
       narrationState.captionRequestId,
       narrationState.isPaused,
       narrationState.isSpeaking,
       narrationState.source,
+      authState,
       navigate,
       questionOutcomes,
       storyPackage,

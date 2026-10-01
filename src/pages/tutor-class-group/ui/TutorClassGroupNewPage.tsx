@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
+import { useBackOr } from '@/shared/lib';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { createTutorClass } from '@/entities/tutor';
 import { listMyOrganizations, type TutorOrganizationLink } from '@/entities/organization-tutor';
@@ -16,6 +17,7 @@ const NO_ORGANIZATION = 'none';
  */
 export function TutorClassGroupNewPage() {
   const navigate = useNavigate();
+  const goBack = useBackOr('/tutor/students');
   const { pathname } = useLocation();
   const { state } = useAuth();
   const [name, setName] = useState('');
@@ -68,7 +70,7 @@ export function TutorClassGroupNewPage() {
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor/students')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.title} accessibilityRole="header">새 반 만들기</Text>
         <Text style={styles.body}>

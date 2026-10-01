@@ -86,10 +86,10 @@ const DISPLAY_NAME_PLACEHOLDER: Record<OnboardingRole, string> = {
   DIRECTOR: '담당자 이름',
 };
 
-const ROLE_CARDS: Array<{ role: OnboardingRole; eyebrow: string; title: string; description: string }> = [
-  { role: 'PARENT', eyebrow: '가정에서', title: '보호자', description: '아이와 함께 이야기 서재를 쓰고, 리포트를 받아요.' },
-  { role: 'DIRECTOR', eyebrow: '유치원·학원·기관에서', title: '기관', description: '반을 만들고 여러 아이가 함께 듣는 수업을 준비해요.' },
-  { role: 'TUTOR', eyebrow: '수업에서', title: '선생님', description: '반을 만들어 수업을 준비하고 부모님께 리포트를 전달해요. 1:1 과외도 아이 한 명짜리 반으로 시작해요. 기관 소속·독립 활동 모두 가능해요.' },
+const ROLE_CARDS: Array<{ role: OnboardingRole; title: string; description: string }> = [
+  { role: 'PARENT', title: '보호자', description: '아이와 함께 이야기 서재를 쓰고, 리포트를 받아요.' },
+  { role: 'DIRECTOR', title: '기관', description: '반을 만들고 여러 아이가 함께 듣는 수업을 준비해요.' },
+  { role: 'TUTOR', title: '선생님', description: '반을 만들어 수업을 준비하고 보호자께 리포트를 전달해요. 기관 소속·독립 활동 모두 가능해요.' },
 ];
 
 /**
@@ -291,7 +291,6 @@ function RoleStep({ onSelect }: { onSelect: (role: OnboardingRole) => void }) {
             onPress={() => onSelect(card.role)}
             style={({ pressed }) => [styles.roleCard, pressed && styles.pressed]}
           >
-            <Text style={styles.roleCardEyebrow}>{card.eyebrow}</Text>
             <Text style={styles.roleCardTitle}>{card.title}</Text>
             <Text style={styles.roleCardBody}>{card.description}</Text>
           </Pressable>
@@ -672,7 +671,6 @@ const styles = StyleSheet.create({
     padding: 18,
     gap: 4,
   },
-  roleCardEyebrow: { color: storybookTheme.color.primary, fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.semibold },
   roleCardTitle: {
     color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.md,

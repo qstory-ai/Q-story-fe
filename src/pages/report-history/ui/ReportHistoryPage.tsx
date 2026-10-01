@@ -224,7 +224,7 @@ export function ReportHistoryPage() {
               <EmptyState
                 title="작품별 리포트가 아직 없어요"
                 body={emptyMessageForTab}
-                cta={{ label: '홈으로', onPress: () => navigate(state.status === 'authenticated' ? homePathFor(state.user) : '/') }}
+                cta={{ label: '이야기 읽으러 가기', onPress: () => navigate(state.status === 'authenticated' ? homePathFor(state.user) : '/') }}
               />
             ) : (
               load.completions.map((completion) => (
@@ -325,7 +325,7 @@ function ComprehensiveView({
       <EmptyState
         title="종합 리포트가 아직 없어요"
         body={emptyMessage}
-        cta={{ label: '홈으로', onPress: onGoHome }}
+        cta={{ label: '이야기 읽으러 가기', onPress: onGoHome }}
       />
     );
   }
@@ -606,7 +606,8 @@ const styles = StyleSheet.create({
   section: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 10,
+    justifyContent: 'center',
+    minHeight: 44,
     borderRadius: storybookTheme.radius.card,
   },
   sectionActive: { backgroundColor: storybookTheme.color.primary },
@@ -619,22 +620,23 @@ const styles = StyleSheet.create({
   reportGroup: { gap: 8, marginTop: 8 },
   childFilterRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   childFilterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 14,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
     borderColor: storybookTheme.color.contentPanelBorder,
   },
   childFilterChipActive: {
     backgroundColor: storybookTheme.color.contentPanel,
-    borderColor: storybookTheme.color.gold,
+    borderColor: storybookTheme.color.primary,
   },
   childFilterLabel: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onContentMuted,
   },
-  childFilterLabelActive: { color: storybookTheme.color.goldText },
+  childFilterLabelActive: { color: storybookTheme.color.primary },
   filterNote: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onContentMuted,
@@ -646,8 +648,9 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContentMuted,
   },
   tab: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
     borderColor: storybookTheme.color.contentPanelBorder,
@@ -659,7 +662,7 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onContentMuted,
   },
-  tabLabelActive: { color: storybookTheme.color.background },
+  tabLabelActive: { color: storybookTheme.color.primary },
   reportCard: {
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,
@@ -687,11 +690,9 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
   },
   sectionEyebrow: {
-    fontSize: storybookTheme.type.xxs,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.goldText,
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.semibold,
+    color: storybookTheme.color.onContentMuted,
   },
   sectionTitle: {
     fontSize: storybookTheme.type.md,

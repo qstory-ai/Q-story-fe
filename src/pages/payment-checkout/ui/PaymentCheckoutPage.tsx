@@ -112,7 +112,7 @@ export function PaymentCheckoutPage() {
   return (
     <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(backPath)}>
       <View style={styles.content}>
-        <Text style={styles.title} accessibilityRole="header">결제하기</Text>
+        <Text style={styles.title} accessibilityRole="header">이용권 결제</Text>
         {load.status === 'error' ? <ErrorState message={load.message} onRetry={() => window.location.reload()} /> : null}
         {/* 위젯은 'ready' 전환 전에 setup() 안에서 두 div에 mount된다(그 성공이 'ready'의 조건).
             그래서 카드와 두 div는 status와 무관하게 항상 렌더링하고 안의 내용만 바꾼다. */}
@@ -128,7 +128,7 @@ export function PaymentCheckoutPage() {
           <div id="qstory-payment-method" />
           <div id="qstory-payment-agreement" />
           {load.status === 'ready' ? (
-            <ActionButton label="결제 요청" onPress={() => { void requestPayment(); }} />
+            <ActionButton label="결제하기" onPress={() => { void requestPayment(); }} />
           ) : null}
         </View>
       </View>

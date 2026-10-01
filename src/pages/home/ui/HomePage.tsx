@@ -115,7 +115,7 @@ export function HomePage() {
               {ROLE_OPTIONS.map(({ role, label, body }) => (
                 <Pressable
                   key={role}
-                  accessibilityRole="link"
+                  accessibilityRole="button"
                   style={styles.role}
                   onPress={() => setManualOnboarding({ step: 'sign-up', role })}
                 >
@@ -136,13 +136,13 @@ export function HomePage() {
         {state.status === 'authenticated' && (
           <View style={[styles.panel, isWide && styles.panelWide]}>
             <Text style={styles.panelTitle}>{state.user.displayName}님, 다시 오셨네요</Text>
-            <Pressable accessibilityRole="button" onPress={logout}>
+            <Pressable accessibilityRole="button" onPress={logout} style={styles.logoutButton}>
               <Text style={styles.link}>로그아웃</Text>
             </Pressable>
           </View>
         )}
 
-        <Text style={styles.beta}>베타 서비스로, 정식 출시를 앞두고 있습니다.</Text>
+        <Text style={styles.beta}>베타 서비스예요. 정식 출시를 준비하고 있어요.</Text>
       </View>
     </SafeAreaView>
   );
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: storybookTheme.spacing.md,
     paddingVertical: storybookTheme.spacing.ms,
   },
-  roleLabel: { fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.goldText },
+  roleLabel: { fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onContent },
   roleBody: {
     fontSize: storybookTheme.type.xs,
     lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
@@ -231,6 +231,7 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContentMuted,
     textAlign: 'center',
   },
+  logoutButton: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   link: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,

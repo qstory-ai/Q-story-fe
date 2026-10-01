@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, fetchEntitlement, useDirectorSession, type EntitlementResponse } from '@/entities/auth';
 import { getOrganizationQuote, type OrganizationQuote } from '@/entities/payment';
 import { messageForError } from '@/shared/api';
@@ -26,7 +26,7 @@ export function OrganizationSubscriptionPage() {
     let cancelled = false;
     Promise.all([fetchEntitlement(token, organizationId), getOrganizationQuote(token)])
       .then(([entitlement, quote]) => { if (!cancelled) setLoad({ status: 'ready', entitlement, quote }); })
-      .catch((error: unknown) => { if (!cancelled) setLoad({ status: 'error', message: messageForError(error, '이용권 정보를 불러오지 못했어요.') }); });
+      .catch((error: unknown) => { if (!cancelled) setLoad({ status: 'error', message: messageForError(error, '이용권 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.') }); });
     return () => { cancelled = true; };
   }, [token, organizationId]);
 
@@ -36,7 +36,7 @@ export function OrganizationSubscriptionPage() {
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">이용권</Text>
         {load.status === 'loading' ? <LoadingState label="이용권 정보를 불러오는 중이에요." /> : null}
-        {load.status === 'error' ? <StatusBanner variant="warning" label={load.message} /> : null}
+        {load.status === 'error' ? <ErrorState message={load.message} onRetry={() => window.location.reload()} /> : null}
         {load.status === 'ready' ? (
           <View style={styles.card}>
             <Text style={styles.heading}>{subscriptionStatusLabel(load.entitlement.subscriptionStatus)}</Text>
@@ -50,7 +50,7 @@ export function OrganizationSubscriptionPage() {
             {load.entitlement.subscriptionExpiresAt ? <Text style={styles.body}>이용권 만료일 · {formatDate(load.entitlement.subscriptionExpiresAt)}</Text> : null}
             <QuoteSection quote={load.quote} />
             <ActionButton
-              label={load.entitlement.grantsAccess ? '기관 이용권 연장하기' : '기관 이용권 결제'}
+              label={load.entitlement.grantsAccess ? '기관 이용권 연장하기' : '기관 이용권 결제하기'}
               onPress={() => navigate('/payment/checkout?target=ORGANIZATION')}
               disabled={!canPay(load.quote)}
             />

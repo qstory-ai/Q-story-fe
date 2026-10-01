@@ -89,6 +89,7 @@ function ProfileForm({
   return (
     <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
+        <Text style={styles.title} accessibilityRole="header">내 정보 관리</Text>
         <View style={styles.card}>
           {isTutor ? (
             <View style={styles.photoSection}>
@@ -141,6 +142,7 @@ function ProfileForm({
 }
 
 const styles = StyleSheet.create({
+  title: { fontSize: storybookTheme.type.xl, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onContent },
   content: {
     flex: 1,
     width: '100%',

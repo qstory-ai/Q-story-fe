@@ -57,14 +57,13 @@ export function PaymentSuccessPage() {
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
       <View style={styles.content}>
-        <Text style={styles.title} accessibilityRole="header">결제 결과</Text>
+        <Text style={styles.title} accessibilityRole="header">{result.status === 'success' ? '결제가 완료되었어요' : '결제 확인'}</Text>
         {result.status === 'loading' ? <LoadingState label="결제를 확인하고 있어요." /> : null}
         {result.status === 'error' ? <ErrorState message={result.message} onRetry={() => window.location.reload()} /> : null}
         {result.status === 'success' ? (
           <View style={styles.card}>
-            <Text style={styles.success}>결제가 완료되었어요.</Text>
             <StatusBanner label={`이용권은 ${formatDate(result.order.accessExpiresAt)}까지 활성화돼요.`} />
-            <ActionButton label="이용권 관리로 이동" onPress={() => navigate(backPath)} />
+            <ActionButton label="이용권 보기" onPress={() => navigate(backPath)} />
           </View>
         ) : null}
       </View>
@@ -81,5 +80,4 @@ const styles = StyleSheet.create({
   content: { flex: 1, width: '100%', maxWidth: storybookTheme.layout.contentMaxWidth, alignSelf: 'center', paddingHorizontal: storybookTheme.spacing.ml, paddingVertical: storybookTheme.spacing.lg, gap: storybookTheme.spacing.md },
   title: { fontSize: storybookTheme.type.xl, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onContent },
   card: { borderRadius: storybookTheme.radius.card, backgroundColor: storybookTheme.color.surfaceCard, borderWidth: 1, borderColor: storybookTheme.color.surfaceCardBorder, padding: storybookTheme.spacing.lg, gap: storybookTheme.spacing.md },
-  success: { fontSize: storybookTheme.type.lg, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onCardTitle },
 });

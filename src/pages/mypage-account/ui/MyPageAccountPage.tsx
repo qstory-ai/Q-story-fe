@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Pill, SectionHeader, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Pill, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { changePassword, dashboardNavItems, isPasswordLongEnough, PASSWORD_RULE_HINT, PASSWORD_TOO_SHORT_MESSAGE, roleLabel, useAuth } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
 
@@ -60,7 +60,7 @@ export function MyPageAccountPage() {
   return (
     <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
-        <SectionHeader title="계정정보" />
+        <Text style={styles.title} accessibilityRole="header">계정 관리</Text>
         <View style={styles.card}>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>아이디</Text>
@@ -116,6 +116,7 @@ export function MyPageAccountPage() {
 }
 
 const styles = StyleSheet.create({
+  title: { fontSize: storybookTheme.type.xl, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onContent },
   content: {
     flex: 1,
     width: '100%',

@@ -150,7 +150,7 @@ export function StoryDetailPage() {
               <View style={styles.secondaryActions}>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={bookmarks.isBookmarked(effectiveLoad.story.storyId) ? '저장 해제' : '저장하기'}
+                  accessibilityLabel={bookmarks.isBookmarked(effectiveLoad.story.storyId) ? '저장됨, 누르면 저장 해제' : '저장하기'}
                   onPress={toggleBookmark}
                   disabled={bookmarkPending}
                   style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
@@ -305,8 +305,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    minHeight: 44,
     paddingHorizontal: 14,
-    paddingVertical: 10,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
     borderColor: storybookTheme.color.primary,

@@ -71,7 +71,7 @@ export function OnboardingParentPage() {
       await addChild({ name: name.trim(), birthYear, ageBand: ageBandFromBirthYear(birthYear), avatarKey });
       setStep('consent');
     } catch (failure: unknown) {
-      const message = messageForError(failure, '아이 프로필을 만들지 못했어요.');
+      const message = messageForError(failure, '아이 프로필을 만들지 못했어요. 잠시 후 다시 시도해 주세요.');
       setError(message);
     } finally {
       setSubmitting(false);
@@ -99,7 +99,7 @@ export function OnboardingParentPage() {
             accessibilityRole="button"
             accessibilityLabel="아이 등록 나중에 하기"
             onPress={() => setStep('consent')}
-            hitSlop={8}
+            style={styles.skipButton}
           >
             <Text style={styles.skipLabel}>나중에</Text>
           </Pressable>
@@ -266,6 +266,7 @@ const styles = StyleSheet.create({
     maxWidth: 60,
   },
   progressPipFilled: { backgroundColor: storybookTheme.color.primary },
+  skipButton: { minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' },
   skipLabel: {
     color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,

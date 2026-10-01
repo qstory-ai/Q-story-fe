@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Pill, SectionHeader, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { BETA_OPEN_ACCESS_NOTICE, subscriptionStatusLabel } from '@/shared/config';
 
@@ -22,7 +22,7 @@ export function MyPageSubscriptionPage() {
   return (
     <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
-        <SectionHeader title="이용권" />
+        <Text style={styles.title} accessibilityRole="header">이용권</Text>
         <View style={styles.card}>
           <Pill label={subscriptionStatusLabel(user.subscriptionStatus)} />
           <StatusBanner
@@ -49,6 +49,7 @@ function formatDate(value: string) {
 }
 
 const styles = StyleSheet.create({
+  title: { fontSize: storybookTheme.type.xl, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onContent },
   content: { flex: 1, width: '100%', maxWidth: storybookTheme.layout.contentMaxWidth, alignSelf: 'center', paddingHorizontal: storybookTheme.spacing.ml, paddingTop: storybookTheme.spacing.lg, paddingBottom: storybookTheme.spacing.xl, gap: storybookTheme.spacing.md },
   card: { borderRadius: storybookTheme.radius.card, backgroundColor: storybookTheme.color.surfaceCard, borderWidth: 1, borderColor: storybookTheme.color.surfaceCardBorder, padding: storybookTheme.spacing.lg, gap: storybookTheme.spacing.md, ...storybookTheme.elevation.high },
   expiry: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onCardMuted },

@@ -56,7 +56,7 @@ export function MyPageDeleteAccountPage() {
     <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={goBack}>
       <View style={styles.content}>
         <View style={styles.card}>
-          <Text style={styles.title}>정말 탈퇴하시겠어요?</Text>
+          <Text style={styles.title} accessibilityRole="header">정말 탈퇴하시겠어요?</Text>
           <Text style={styles.body}>탈퇴하면 이 아이디로는 더 이상 로그인할 수 없어요.</Text>
 
           <Text style={styles.sectionTitle}>탈퇴하는 이유를 알려주세요</Text>

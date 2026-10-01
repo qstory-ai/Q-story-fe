@@ -91,9 +91,7 @@ export function OrganizationClassDetailPage() {
 
         {load.status === 'ready' && (
           <>
-            <View style={styles.card}>
-              <Text style={styles.title} accessibilityRole="header">{load.classGroup.name}</Text>
-            </View>
+            <Text style={styles.title} accessibilityRole="header">{load.classGroup.name}</Text>
 
             <InviteCodeCard
               reusable
@@ -192,7 +190,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onCardTitle,
+    color: storybookTheme.color.onContent,
   },
   sectionTitle: {
     fontSize: storybookTheme.type.md,

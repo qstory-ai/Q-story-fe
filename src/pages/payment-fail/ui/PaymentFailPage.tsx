@@ -29,7 +29,7 @@ export function PaymentFailPage() {
         <Text style={styles.title} accessibilityRole="header">결제가 완료되지 않았어요</Text>
         <StatusBanner variant="warning" label={message} />
         <ActionButton label="다시 결제하기" onPress={() => navigate(`/payment/checkout?target=${retryTarget}`)} />
-        <ActionButton variant="secondaryFull" label="이용권 관리로 돌아가기" onPress={() => navigate(fallback)} />
+        <ActionButton variant="secondaryFull" label="이용권으로 돌아가기" onPress={() => navigate(fallback)} />
       </View>
     </AppNavShell>
   );

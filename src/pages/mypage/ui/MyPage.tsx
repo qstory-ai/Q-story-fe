@@ -107,11 +107,11 @@ function ProfileCard({ user }: { user: UserSummary }) {
 function ParentMenu({ navigate }: { navigate: (path: string) => void }) {
   return (
     <View style={styles.menuGroups}>
-      <MenuGroup title="아이">
+      <MenuGroup>
         <MenuRow label="아이 관리" hint="아이 프로필 추가·수정·삭제" onPress={() => navigate('/mypage/children')} />
       </MenuGroup>
 
-      <MenuGroup title="수업">
+      <MenuGroup>
         <MenuRow label="수업 연결" hint="반 코드로 반에 연결해요" onPress={() => navigate('/mypage/classes')} />
       </MenuGroup>
 
@@ -122,9 +122,9 @@ function ParentMenu({ navigate }: { navigate: (path: string) => void }) {
       </MenuGroup>
 
       <MenuGroup title="계정">
-        <MenuRow label="보호자 정보 변경" onPress={() => navigate('/mypage/profile')} />
+        <MenuRow label="내 정보 관리" onPress={() => navigate('/mypage/profile')} />
         <MenuRow label="이용권" onPress={() => navigate('/mypage/subscription')} />
-        <MenuRow label="계정 관리 (아이디·비밀번호)" onPress={() => navigate('/mypage/account')} />
+        <MenuRow label="계정 관리" hint="아이디 확인·비밀번호 변경" onPress={() => navigate('/mypage/account')} />
       </MenuGroup>
     </View>
   );
@@ -144,7 +144,7 @@ function GenericMenu({ user, navigate }: { user: UserSummary; navigate: (path: s
       ) : null}
       <MenuGroup title="계정">
         <MenuRow label="내 정보 관리" onPress={() => navigate('/mypage/profile')} />
-        <MenuRow label="계정 관리" onPress={() => navigate('/mypage/account')} />
+        <MenuRow label="계정 관리" hint="아이디 확인·비밀번호 변경" onPress={() => navigate('/mypage/account')} />
         <MenuRow
           label="이용권"
           hint={user.role === 'PARENT' ? undefined : user.grantsAccess ? BETA_OPEN_ACCESS_NOTICE : '이용권은 관리자에게 문의해 주세요.'}
@@ -209,7 +209,7 @@ function MenuRow({
           <Text style={[styles.menuLabel, variant === 'danger' && styles.menuLabelDanger]} numberOfLines={1}>
             {label}
           </Text>
-          {hint ? <Text style={styles.menuHint} numberOfLines={1}>{hint}</Text> : null}
+          {hint ? <Text style={styles.menuHint} numberOfLines={2}>{hint}</Text> : null}
         </View>
       </View>
       <Icon name="chevronRight" size={16} color={storybookTheme.color.onCardMuted} />

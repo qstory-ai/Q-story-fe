@@ -77,14 +77,14 @@ const VALUE_SLIDES = [
 ];
 
 const DISPLAY_NAME_PLACEHOLDER: Record<OnboardingRole, string> = {
-  PARENT: '아이에게 보일 부모님 이름',
+  PARENT: '아이에게 보일 보호자 이름',
   TUTOR: '아이와 부모님께 보일 이름 (예: 김하늘)',
   DIRECTOR: '담당자 이름',
 };
 
 const ROLE_CARDS: Array<{ role: OnboardingRole; eyebrow: string; title: string; description: string }> = [
-  { role: 'PARENT', eyebrow: '가정에서', title: '학부모님', description: '아이와 함께 이야기 서재를 쓰고, 완주 리포트를 받아요.' },
-  { role: 'DIRECTOR', eyebrow: '유치원·학원·기관에서', title: '기관 및 단체', description: '반을 만들고 여러 아이가 함께 듣는 수업을 준비해요.' },
+  { role: 'PARENT', eyebrow: '가정에서', title: '보호자', description: '아이와 함께 이야기 서재를 쓰고, 리포트를 받아요.' },
+  { role: 'DIRECTOR', eyebrow: '유치원·학원·기관에서', title: '기관', description: '반을 만들고 여러 아이가 함께 듣는 수업을 준비해요.' },
   { role: 'TUTOR', eyebrow: '수업에서', title: '선생님', description: '반을 만들어 수업을 준비하고 부모님께 리포트를 전달해요. 1:1 과외도 아이 한 명짜리 반으로 시작해요. 기관 소속·독립 활동 모두 가능해요.' },
 ];
 

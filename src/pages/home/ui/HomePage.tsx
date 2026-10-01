@@ -7,52 +7,15 @@ import { homePathFor, useAuth } from '@/entities/auth';
 import { StoryLibraryGrid } from '@/features/story-library';
 import { OnboardingFlow } from '@/features/onboarding';
 import { hasSeenTutorial } from '@/pages/tutorial';
-
-type OnboardingEntry = {
-  step: 'welcome' | 'sign-up' | 'sign-in';
-  role?: 'PARENT' | 'DIRECTOR' | 'TUTOR';
-  /** 반 초대 링크(/join?code=)에서 "계정 만들기"로 왔을 때 학부모 가입 폼에 미리 채울 반 코드. */
-  classCode?: string;
-  /** 반 초대 링크에서 "로그인"으로 왔을 때 로그인 뒤 돌아갈 앱 내부 경로. */
-  next?: string;
-};
-
-/** 로그인 뒤 돌아갈 경로는 앱 내부 경로만 받는다 - 외부 주소로 튕기는 오픈 리다이렉트를 막는다. */
-function safeNextPath(value: string | null): string | undefined {
-  // "/\evil.com"은 브라우저가 "//evil.com"으로 읽고, 탭·줄바꿈은 지워진다 - 백슬래시와 공백 문자도 거절한다.
-  return value && /^\/(?![/\\])[^\\\s]*$/.test(value) ? value : undefined;
-}
-
-/**
- * `?flow=sign-in|sign-up|welcome` + 선택적 `?role=parent|organization|tutor` (+ `classCode`, `next`)를
- * OnboardingEntry로 정규화한다. `/login`, `/signup`, `/join` 얇은 리다이렉트가 이 파라미터들을 붙여
- * 홈으로 보낸다 - 여러 경로가 별도 페이지가 아니라 홈의 온보딩 흐름 안으로 흡수되도록.
- */
-function readOnboardingParams(params: URLSearchParams): OnboardingEntry | null {
-  const flow = params.get('flow');
-  if (flow !== 'sign-in' && flow !== 'sign-up' && flow !== 'welcome') return null;
-  if (flow === 'sign-in') return { step: 'sign-in', next: safeNextPath(params.get('next')) };
-  if (flow === 'welcome') return { step: 'welcome' };
-  const roleParam = params.get('role');
-  const role: OnboardingEntry['role'] =
-    roleParam === 'organization'
-      ? 'DIRECTOR'
-      : roleParam === 'tutor'
-        ? 'TUTOR'
-        : roleParam === 'parent'
-          ? 'PARENT'
-          : undefined;
-  const classCode = params.get('classCode')?.trim().toUpperCase() || undefined;
-  return role ? { step: 'sign-up', role, classCode } : { step: 'welcome' };
-}
+import { readOnboardingParams, type OnboardingEntry } from '../model/onboarding-params';
 
 // IA의 회원 유형 분류에 맞춘 표기 - 기관 소속 여부와 무관하게 모두 "선생님"으로 표기하고,
 // 실제 소속은 온보딩 이후에 결정된다.
 const ROLE_OPTIONS: { role: 'DIRECTOR' | 'PARENT' | 'TUTOR'; label: string; body: string }[] = [
-  { role: 'PARENT', label: '학부모님', body: '아이와 함께 이야기 서재를 시작해요' },
+  { role: 'PARENT', label: '보호자', body: '아이와 함께 이야기 서재를 시작해요' },
   { role: 'TUTOR', label: '선생님', body: '반을 만들고 수업을 준비해요' },
-  // OnboardingFlow의 ROLE_CARDS와 같은 표기("기관 및 단체")를 유지한다.
-  { role: 'DIRECTOR', label: '기관 및 단체', body: '유치원·기관을 등록하고 반을 만들어요' },
+  // OnboardingFlow의 ROLE_CARDS와 같은 표기("기관")를 유지한다.
+  { role: 'DIRECTOR', label: '기관', body: '유치원·기관을 등록하고 반을 만들어요' },
 ];
 
 /**
@@ -102,7 +65,7 @@ export function HomePage() {
           initialStep={onboarding.step}
           initialRole={onboarding.role}
           initialClassCode={onboarding.classCode}
-          signInNext={onboarding.next}
+          signInNext={onboarding.step === 'sign-in' ? onboarding.next : undefined}
           skipValueCarousel={hasSeenTutorial()}
           // URL 파라미터로 들어온 경우엔 state를 비워도 paramEntry가 계속 이기므로 파라미터 없는
           // "/"로 실제로 이동한다.

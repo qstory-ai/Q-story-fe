@@ -128,7 +128,7 @@ export function TutorLibraryPage() {
     <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">서재</Text>
-        <Text style={styles.subtitle}>다음 수업에 어떤 이야기를 쓸지 미리 살펴보고, 학생별로 담아 두세요.</Text>
+        <Text style={styles.subtitle}>다음 수업에 쓸 이야기를 미리 살펴보고 저장해 두세요.</Text>
 
         <SearchField
           value={query}

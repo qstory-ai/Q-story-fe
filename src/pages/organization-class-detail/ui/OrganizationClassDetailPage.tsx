@@ -12,6 +12,7 @@ import {
   type ClassResponse,
   type ClassStudentResponse,
 } from '@/entities/auth';
+import { InviteCodeCard, classInviteLink, classInviteShareMessage } from '@/features/invite-issue';
 import { listOrganizationTutors, type OrganizationTutorLink } from '@/entities/organization-tutor';
 import { messageForError } from '@/shared/api';
 
@@ -92,14 +93,14 @@ export function OrganizationClassDetailPage() {
           <>
             <View style={styles.card}>
               <Text style={styles.title} accessibilityRole="header">{load.classGroup.name}</Text>
-              <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>반 코드</Text>
-                <Text style={styles.metaValue}>{load.classGroup.joinCode}</Text>
-              </View>
-              <Text style={styles.body}>
-                학부모가 이 코드로 가입하면 아이가 아래 학생 명단에 올라가요. 코드는 여러 번 쓸 수 있어요.
-              </Text>
             </View>
+
+            <InviteCodeCard
+              reusable
+              shortCode={load.classGroup.joinCode}
+              link={classInviteLink(load.classGroup.joinCode)}
+              shareMessage={classInviteShareMessage(load.classGroup.name)}
+            />
 
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>담임 선생님</Text>
@@ -190,20 +191,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: storybookTheme.type.xl,
-    fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onCardTitle,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
-  },
-  metaLabel: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
-  metaValue: {
-    fontSize: storybookTheme.type.md,
-    letterSpacing: 2,
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onCardTitle,
   },

@@ -107,9 +107,10 @@ function ClassInvite({ code }: { code: string }) {
           </View>
         ) : state.user.role !== 'PARENT' ? (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>학부모 계정으로만 반에 들어갈 수 있어요</Text>
-            <Text style={styles.note}>지금은 학부모가 아닌 계정으로 로그인돼 있어요. 로그아웃한 뒤 학부모 계정으로 이 링크를 다시 열어 주세요.</Text>
-            <ActionButton variant="gold" label="로그아웃" onPress={logout} />
+            <Text style={styles.cardTitle}>반 초대 링크는 보호자 계정에서 열 수 있어요</Text>
+            <Text style={styles.note}>지금은 보호자가 아닌 계정으로 로그인돼 있어요. 보호자에게 이 링크를 전달하거나, 보호자 계정으로 다시 열어 주세요.</Text>
+            <ActionButton variant="gold" label="내 홈으로" onPress={() => navigate(homePathFor(state.user))} />
+            <ActionButton variant="secondaryFull" label="로그아웃" onPress={logout} />
           </View>
         ) : (
           <ChildPicker

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -27,6 +27,7 @@ type LoadState =
 export function TutorClassGroupPage() {
   const { classId } = useParams<{ classId: string }>();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [attempt, setAttempt] = useState(0);
   const requestKey = `${classId ?? ''}:${attempt}`;
@@ -64,7 +65,7 @@ export function TutorClassGroupPage() {
   const effective: LoadState = load.requestKey === requestKey ? load : { requestKey, status: 'loading' };
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor/students')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor/students')}>
       <ScrollView contentContainerStyle={styles.content}>
         {effective.status === 'loading' && <LoadingState label="반 정보를 불러오는 중이에요…" />}
         {effective.status === 'error' && (

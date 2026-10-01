@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -16,6 +16,7 @@ const NO_ORGANIZATION = 'none';
  */
 export function TutorClassGroupNewPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [name, setName] = useState('');
   const [organizations, setOrganizations] = useState<TutorOrganizationLink[]>([]);
@@ -67,7 +68,7 @@ export function TutorClassGroupNewPage() {
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor/students')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor/students')}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.title} accessibilityRole="header">새 반 만들기</Text>
         <Text style={styles.body}>

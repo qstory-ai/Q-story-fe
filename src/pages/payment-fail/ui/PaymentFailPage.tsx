@@ -1,18 +1,19 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, StatusBanner, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 
 export function PaymentFailPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [params] = useSearchParams();
   if (state.status !== 'authenticated') return null;
   const message = params.get('message') || '결제가 완료되지 않았어요. 결제수단을 확인한 뒤 다시 시도해 주세요.';
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'mypage')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">결제가 완료되지 않았어요</Text>
         <StatusBanner variant="warning" label={message} />

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Pill, SectionHeader, StatusBanner, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
@@ -8,6 +8,7 @@ import { subscriptionStatusLabel } from '@/shared/config';
 
 export function MyPageSubscriptionPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
 
   useEffect(() => {
@@ -19,7 +20,7 @@ export function MyPageSubscriptionPage() {
   const isParent = user.role === 'PARENT';
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, 'mypage')} onBack={() => navigate('/mypage')}>
+    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <SectionHeader title="나의 구독" />
         <View style={styles.card}>

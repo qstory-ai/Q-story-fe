@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, Icon, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
@@ -16,6 +16,7 @@ const SUPPORT_EMAIL = 'support@qstory.co.kr';
  */
 export function MyPageSupportPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [feedbackKind, setFeedbackKind] = useState<FeedbackKind | null>(null);
 
@@ -41,7 +42,7 @@ export function MyPageSupportPage() {
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'mypage')} onBack={() => navigate('/mypage')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">고객지원</Text>
 

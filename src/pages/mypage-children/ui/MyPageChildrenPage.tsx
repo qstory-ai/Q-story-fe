@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, EmptyState, ErrorState, Icon, LoadingState, Modal, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -19,6 +19,7 @@ import { AddChildModal } from '@/features/child-selector';
  */
 export function MyPageChildrenPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const { children, load, removeChild, reload } = useChildren();
   const [addOpen, setAddOpen] = useState(false);
@@ -51,7 +52,7 @@ export function MyPageChildrenPage() {
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'mypage')} onBack={() => navigate('/mypage')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title} accessibilityRole="header">아이 관리</Text>

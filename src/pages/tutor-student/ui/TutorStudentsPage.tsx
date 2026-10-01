@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, EmptyState, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -24,6 +24,7 @@ const STATUS_LABEL: Record<TutorStudent['status'], string> = {
  */
 export function TutorStudentsPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
@@ -68,7 +69,7 @@ export function TutorStudentsPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title} accessibilityRole="header">반과 학생</Text>

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, Icon, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
@@ -56,6 +56,7 @@ async function openMail(subject: string) {
 
 export function MyPagePrivacyPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
 
   useEffect(() => {
@@ -99,7 +100,7 @@ export function MyPagePrivacyPage() {
   ];
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'mypage')} onBack={() => navigate('/mypage')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">개인정보 및 데이터</Text>
 

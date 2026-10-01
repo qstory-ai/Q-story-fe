@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, LoadingState, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -23,6 +23,7 @@ type LoadState =
  */
 export function OrganizationUsagePage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
@@ -60,7 +61,7 @@ export function OrganizationUsagePage() {
   if (!director) return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, 'home')} onBack={() => navigate('/organization')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">이용 현황</Text>
         <Text style={styles.subtitle}>기관 전체의 요약 지표와 최근 완주 활동을 확인해요.</Text>

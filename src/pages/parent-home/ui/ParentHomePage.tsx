@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { BrandLockup, AppNavShell, Card, EmptyState, Icon, LoadingState, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -34,6 +34,7 @@ import { formatReportDuration } from '@/pages/one-story';
  */
 export function ParentHomePage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const { width } = useWindowDimensions();
   const isWide = width >= 640;
@@ -138,7 +139,7 @@ export function ParentHomePage() {
   const displayName = selectedChild?.name ?? state.user.displayName;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)}>
       <View style={styles.scroll}>
         <TopBar token={state.token} />
 

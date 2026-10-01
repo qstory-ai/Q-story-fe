@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, updateProfile, uploadProfileImage, useAuth, type UserSummary } from '@/entities/auth';
@@ -35,6 +35,7 @@ function ProfileForm({
   token: string;
   navigate: (path: string) => void;
 }) {
+  const { pathname } = useLocation();
   const { updateUser } = useAuth();
   const [displayName, setDisplayName] = useState(user.displayName);
   const [childName, setChildName] = useState(user.childName ?? '');
@@ -86,7 +87,7 @@ function ProfileForm({
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, 'mypage')} onBack={() => navigate('/mypage')}>
+    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <View style={styles.card}>
           {isTutor ? (

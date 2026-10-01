@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -11,6 +11,7 @@ type Result = { status: 'loading' } | { status: 'success'; order: PaymentOrder }
 
 export function PaymentSuccessPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state, updateUser } = useAuth();
   const [params] = useSearchParams();
   const [result, setResult] = useState<Result>({ status: 'loading' });
@@ -50,7 +51,7 @@ export function PaymentSuccessPage() {
   const backPath = result.status === 'success' && result.order.target === 'ORGANIZATION' ? '/organization/subscription' : '/mypage/subscription';
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'mypage')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">결제 결과</Text>
         {result.status === 'loading' ? <LoadingState label="결제를 확인하고 있어요." /> : null}

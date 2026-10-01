@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
@@ -20,6 +20,7 @@ type LoadState =
 export function ReportHistoryDetailPage() {
   const { completionId } = useParams<{ completionId: string }>();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const { width } = useWindowDimensions();
   const isWide = width >= 900;
@@ -78,7 +79,7 @@ export function ReportHistoryDetailPage() {
 
   return (
     <AppNavShell
-      items={dashboardNavItems(state.user, navigate, 'reports')}
+      items={dashboardNavItems(state.user, navigate, pathname)}
       onBack={() => navigate(state.status === 'authenticated' && state.user.role === 'TUTOR' ? '/tutor/reports' : '/reports')}
     >
       {effectiveLoad.status === 'loading' && <LoadingState label="리포트를 불러오는 중이에요…" />}

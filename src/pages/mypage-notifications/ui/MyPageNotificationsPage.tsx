@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, LoadingState, StatusBanner, SwitchField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -23,6 +23,7 @@ type LoadState =
  */
 export function MyPageNotificationsPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [savingKey, setSavingKey] = useState<keyof NotificationSettings | null>(null);
@@ -79,7 +80,7 @@ export function MyPageNotificationsPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'mypage')} onBack={() => navigate('/mypage')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">알림 설정</Text>
 

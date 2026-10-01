@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, Icon, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { NotificationBell } from '@/features/notification-center';
@@ -54,6 +54,7 @@ function Redirect({ to }: { to: string }) {
 
 function CreateOrganizationStep({ token, user }: { token: string; user: UserSummary }) {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { setSession } = useAuth();
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +74,7 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
   }, [token, name, setSession]);
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, 'home')}>
+    <AppNavShell items={dashboardNavItems(user, navigate, pathname)}>
       <View style={styles.scroll}>
         <Card variant="surface" padding="lg" style={styles.greetingCard}>
           <Text style={styles.title} accessibilityRole="header">기관 및 단체 등록</Text>
@@ -102,6 +103,7 @@ function ClassManagementStep({
   user: UserSummary;
 }) {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [entitlement, setEntitlement] = useState<EntitlementResponse | null>(null);
   // fetchEntitlement가 조용히 실패해도 대시보드가 살아 있어야 하지만, 로딩 중임을 표시는 해야
   // "구독 상태가 없는 건지, 아직 안 온 건지" 사용자가 혼동하지 않는다. done=true는 성공/실패 무관.
@@ -125,7 +127,7 @@ function ClassManagementStep({
   }, [token, organizationId]);
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, 'home')}>
+    <AppNavShell items={dashboardNavItems(user, navigate, pathname)}>
       <View style={styles.scroll}>
         {/* Parent/Tutor 홈과 시각 일관성을 위해 우측 정렬 벨 하나만 두는 얇은 상단 행.
             Director는 브랜드가 AppNavShell 사이드바에 이미 있어 좌측 브랜드는 생략. */}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, RadioGroup, StatusBanner, storybookTheme } from '@/shared/ui';
 import {
@@ -27,6 +27,7 @@ type LoadState =
 export function OrganizationClassDetailPage() {
   const { classId } = useParams<{ classId: string }>();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [pickedTutorId, setPickedTutorId] = useState<string | null>(null);
@@ -79,7 +80,7 @@ export function OrganizationClassDetailPage() {
   if (!director) return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, 'classes')} onBack={() => navigate('/organization/classes')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization/classes')}>
       <View style={styles.content}>
         {load.status === 'loading' && <LoadingState label="반 정보를 불러오는 중이에요…" />}
 

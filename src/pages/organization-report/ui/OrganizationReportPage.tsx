@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, LoadingState, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -15,6 +15,7 @@ type LoadState =
 
 export function OrganizationReportPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
@@ -39,7 +40,7 @@ export function OrganizationReportPage() {
   if (!director) return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, 'home')} onBack={() => navigate('/organization')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">기관 리포트</Text>
         <Text style={styles.subtitle}>반별 활동과 질문 수를 집계해 수업 운영 흐름을 확인해요.</Text>

@@ -1,7 +1,7 @@
 import { webOrigin } from '@/shared/config';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { loadTossPayments, type TossPaymentsWidgets } from '@tosspayments/tosspayments-sdk';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, storybookTheme } from '@/shared/ui';
@@ -18,6 +18,7 @@ const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY as string | undefined;
 
 export function PaymentCheckoutPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [params] = useSearchParams();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
@@ -93,7 +94,7 @@ export function PaymentCheckoutPage() {
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, 'mypage')} onBack={() => navigate(backPath)}>
+    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(backPath)}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">결제하기</Text>
         {load.status === 'error' ? <ErrorState message={load.message} onRetry={() => window.location.reload()} /> : null}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { BrandLockup, ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -28,6 +28,7 @@ type LoadState =
  */
 export function TutorHomePage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
@@ -106,7 +107,7 @@ export function TutorHomePage() {
   );
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)}>
       <View style={styles.scroll}>
         <TopBar token={state.token} />
 

@@ -1,7 +1,7 @@
 import { Children, Fragment, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, Icon, Modal, ModalBody, Pill, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, roleLabel, useAuth, type UserSummary } from '@/entities/auth';
@@ -14,6 +14,7 @@ import { FeedbackModal } from '@/features/feedback-modal';
  */
 export function MyPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state, logout } = useAuth();
   const [confirmingLogout, setConfirmingLogout] = useState(false);
   const [openModal, setOpenModal] = useState<'feedback' | null>(null);
@@ -31,7 +32,7 @@ export function MyPage() {
   const homePath = homePathFor(user);
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, 'mypage')} onBack={() => navigate(homePath)}>
+    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(homePath)}>
       <View style={styles.content}>
         <ProfileCard user={user} />
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, StatusBanner, TextField, TextareaField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -26,6 +26,7 @@ type LoadState =
 export function TutorStudentDetailPage() {
   const { studentId } = useParams<{ studentId: string }>();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [attempt, setAttempt] = useState(0);
   const requestKey = `${studentId ?? ''}:${attempt}`;
@@ -109,7 +110,7 @@ export function TutorStudentDetailPage() {
   const effective = load.requestKey === requestKey ? load : { requestKey, status: 'loading' as const };
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor/students')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor/students')}>
       <View style={styles.content}>
         {effective.status === 'loading' && <LoadingState label="학생 정보를 불러오는 중이에요…" />}
 

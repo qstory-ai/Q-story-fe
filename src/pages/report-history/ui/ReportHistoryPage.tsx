@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, EmptyState, ErrorState, HexagonStatChart, LoadingState, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, listClassMemberships, useAuth } from '@/entities/auth';
@@ -78,6 +78,7 @@ function formatCompletedAt(iso: string) {
  */
 export function ReportHistoryPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const { children } = useChildren();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
@@ -154,7 +155,7 @@ export function ReportHistoryPage() {
   const showClassSection = load.status === 'ready' && (load.hasClassMembership || load.tutorReports.length > 0);
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'reports')} onBack={() => navigate('/mypage')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">리포트</Text>
         <Text style={styles.subtitle}>

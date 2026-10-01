@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, EmptyState, ErrorState, FilterChip, Icon, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -28,6 +28,7 @@ type LoadState =
  */
 export function TutorClassesPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [tab, setTab] = useState<Tab>('SCHEDULED');
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
@@ -67,7 +68,7 @@ export function TutorClassesPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title} accessibilityRole="header">수업</Text>

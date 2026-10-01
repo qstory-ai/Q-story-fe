@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Pill, SectionHeader, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { changePassword, dashboardNavItems, isPasswordLongEnough, PASSWORD_RULE_HINT, PASSWORD_TOO_SHORT_MESSAGE, roleLabel, useAuth } from '@/entities/auth';
@@ -9,6 +9,7 @@ import { messageForError } from '@/shared/api';
 /** 계정 관리 - 아이디 표시 + 로그인된 상태에서 현재 비밀번호로 바로 바꾸는 폼. */
 export function MyPageAccountPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -57,7 +58,7 @@ export function MyPageAccountPage() {
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, 'mypage')} onBack={() => navigate('/mypage')}>
+    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <SectionHeader title="계정정보" />
         <View style={styles.card}>

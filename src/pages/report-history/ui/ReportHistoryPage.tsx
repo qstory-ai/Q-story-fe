@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, EmptyState, ErrorState, HexagonStatChart, LoadingState, storybookTheme } from '@/shared/ui';
-import { dashboardNavItems, homePathFor, listClassMemberships, useAuth } from '@/entities/auth';
+import { dashboardNavItems, homePathFor, libraryPathFor, listClassMemberships, useAuth } from '@/entities/auth';
 import { findChildAvatar, useChildren } from '@/entities/child';
 import { fetchStoryReportCopy, listStories, type StoryReportCopy } from '@/entities/story';
 import { messageForError } from '@/shared/api';
@@ -214,7 +214,7 @@ export function ReportHistoryPage() {
             sessionCount={load.comprehensiveSessionCount}
             recentTrend={load.recentTrend}
             emptyMessage={emptyMessageForTab}
-            onGoHome={() => navigate(state.status === 'authenticated' ? homePathFor(state.user) : '/')}
+            onGoHome={() => navigate(state.status === 'authenticated' ? libraryPathFor(state.user) : '/')}
           />
         )}
 
@@ -224,7 +224,7 @@ export function ReportHistoryPage() {
               <EmptyState
                 title="작품별 리포트가 아직 없어요"
                 body={emptyMessageForTab}
-                cta={{ label: '이야기 읽으러 가기', onPress: () => navigate(state.status === 'authenticated' ? homePathFor(state.user) : '/') }}
+                cta={{ label: '이야기 읽으러 가기', onPress: () => navigate(state.status === 'authenticated' ? libraryPathFor(state.user) : '/') }}
               />
             ) : (
               load.completions.map((completion) => (

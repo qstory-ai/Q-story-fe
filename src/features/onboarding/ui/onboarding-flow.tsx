@@ -82,14 +82,14 @@ const VALUE_SLIDES = [
 
 const DISPLAY_NAME_PLACEHOLDER: Record<OnboardingRole, string> = {
   PARENT: '아이에게 보일 보호자 이름',
-  TUTOR: '아이와 부모님께 보일 이름 (예: 김하늘)',
+  TUTOR: '아이와 보호자께 보일 이름 (예: 김하늘)',
   DIRECTOR: '담당자 이름',
 };
 
 const ROLE_CARDS: Array<{ role: OnboardingRole; title: string; description: string }> = [
   { role: 'PARENT', title: '보호자', description: '아이와 함께 이야기 서재를 쓰고, 리포트를 받아요.' },
-  { role: 'DIRECTOR', title: '기관', description: '반을 만들고 여러 아이가 함께 듣는 수업을 준비해요.' },
-  { role: 'TUTOR', title: '선생님', description: '반을 만들어 수업을 준비하고 보호자께 리포트를 전달해요. 기관 소속·독립 활동 모두 가능해요.' },
+  { role: 'DIRECTOR', title: '기관', description: '유치원·학원에서 반을 만들고 여러 아이가 함께 듣는 수업을 준비해요.' },
+  { role: 'TUTOR', title: '선생님', description: '반을 만들어 수업을 준비하고 보호자께 리포트를 전달해요. 1:1 과외도 아이 한 명짜리 반으로 시작해요. 기관 소속·독립 활동 모두 가능해요.' },
 ];
 
 /**

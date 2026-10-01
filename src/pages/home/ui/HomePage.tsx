@@ -66,6 +66,7 @@ export function HomePage() {
           initialRole={onboarding.role}
           initialClassCode={onboarding.classCode}
           signInNext={onboarding.step === 'sign-in' ? onboarding.next : undefined}
+          signUpNext={onboarding.step === 'sign-in' ? undefined : onboarding.next}
           skipValueCarousel={hasSeenTutorial()}
           // URL 파라미터로 들어온 경우엔 state를 비워도 paramEntry가 계속 이기므로 파라미터 없는
           // "/"로 실제로 이동한다.

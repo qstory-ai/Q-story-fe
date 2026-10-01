@@ -81,7 +81,7 @@ export function OnboardingTutorPage() {
           어떻게 활동하시나요?
         </Text>
         <Text style={styles.body}>
-          지금 결정하지 않아도 돼요. 나중에 마이페이지 &gt; 소속에서 언제든 바꿀 수 있어요.
+          지금 결정하지 않아도 돼요. 기관 소속은 나중에 마이페이지 &gt; 소속에서 추가할 수 있어요.
         </Text>
 
         <View style={styles.choiceList}>

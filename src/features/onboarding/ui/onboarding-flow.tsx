@@ -2,6 +2,8 @@ import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
+import { afterSignUpPath } from '../model/after-sign-up';
+
 import { ActionButton, BrandLockup, Checkbox, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
   createOrganization,
@@ -48,6 +50,8 @@ type OnboardingFlowProps = {
   initialClassCode?: string;
   /** 로그인 뒤 역할 홈 대신 돌아갈 앱 내부 경로(반 초대 링크 등). */
   signInNext?: string;
+  /** 가입 뒤 돌아갈 앱 내부 경로(기관 초대 수락 등). */
+  signUpNext?: string;
   /** "← 처음으로"로 닫을 때 - HomePage가 평소 화면으로 되돌아간다. */
   onExit: () => void;
   /** 이 흐름 안에서 세션이 만들어졌을 때(가입 직후). HomePage가 이걸 보고 역할 홈
@@ -99,6 +103,7 @@ export function OnboardingFlow({
   initialRole,
   initialClassCode,
   signInNext,
+  signUpNext,
   onExit,
   onSessionCreated,
   skipValueCarousel = false,
@@ -136,11 +141,7 @@ export function OnboardingFlow({
       onSessionCreated?.();
       setSession(token, user);
       setPendingNext(next ?? null);
-      const nextAfterCarousel = user.role === 'PARENT'
-        ? '/onboarding/parent'
-        : user.role === 'TUTOR'
-          ? '/onboarding/tutor'
-          : homePathFor(user);
+      const nextAfterCarousel = afterSignUpPath(user.role as OnboardingRole, signUpNext);
       if (skipValueCarousel) {
         goHome(nextAfterCarousel, nextAfterCarousel === '/onboarding/parent' && next ? { next } : undefined);
         return;
@@ -148,7 +149,7 @@ export function OnboardingFlow({
       setPendingHomePath(nextAfterCarousel);
       go('value-onboarding');
     },
-    [setSession, go, goHome, onSessionCreated, skipValueCarousel],
+    [setSession, go, goHome, onSessionCreated, skipValueCarousel, signUpNext],
   );
 
   // 캐러셀엔 자체 "건너뛰기"가 있어 상단 링크를 숨긴다.

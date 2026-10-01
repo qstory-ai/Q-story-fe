@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
+import { normalizeInviteCode, isValidInviteCode, withParticle, teacherTitle } from '@/shared/lib';
 import {
   dashboardNavItems,
   joinExistingClass,
@@ -139,7 +139,7 @@ export function MyPageClassesPage() {
                   <View style={styles.rowInfo}>
                     <Text style={styles.rowTitle}>{membership.studentName} · {membership.className}</Text>
                     <Text style={styles.rowSub}>
-                      {[membership.organizationName, membership.tutorDisplayName ? `${membership.tutorDisplayName} 선생님` : '담임 선생님 배정 전']
+                      {[membership.organizationName, membership.tutorDisplayName ? `${teacherTitle(membership.tutorDisplayName)}` : '담임 선생님 배정 전']
                         .filter(Boolean)
                         .join(' · ')}
                     </Text>
@@ -205,7 +205,7 @@ export function MyPageClassesPage() {
         visible={leaveTarget !== null}
         accessibilityLabel="반에서 빼기 확인"
         eyebrow="반 연결"
-        title={leaveTarget ? `${leaveTarget.studentName}을(를) ${leaveTarget.className}에서 뺄까요?` : ''}
+        title={leaveTarget ? `${withParticle(leaveTarget.studentName, '을/를')} ${leaveTarget.className}에서 뺄까요?` : ''}
         positiveAction={{ label: '반에서 빼기', onPress: leaveSelectedClass, loading: leaving }}
         negativeAction={{ label: '취소', onPress: () => setLeaveTarget(null), disabled: leaving }}
       >

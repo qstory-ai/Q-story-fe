@@ -133,7 +133,7 @@ export function OnboardingParentPage() {
                       key={preset.key}
                       accessibilityRole="radio"
                       accessibilityLabel={preset.label}
-                      accessibilityState={{ selected }}
+                      aria-checked={selected}
                       onPress={() => setAvatarKey(preset.key)}
                       style={({ pressed }) => [
                         styles.avatarChoice,
@@ -168,8 +168,8 @@ export function OnboardingParentPage() {
             </Text>
 
             <ConsentBlock
-              title="음성 원본 저장 안 함"
-              body="아이의 목소리 원본은 이야기 진행이 끝나면 폐기해요. 리포트에는 아이의 뜻(childRelevantMeaning)만 남아요."
+              title="아이 음성 보관"
+              body="아이의 질문 음성은 음성 인식 개선을 위해 90일간 비공개로 보관한 뒤 지워요. 리포트에는 아이가 한 말의 뜻만 남아요. 마이페이지 > 개인정보 및 데이터에서 언제든 끌 수 있어요."
               checked={consentAudio}
               onChange={setConsentAudio}
             />
@@ -192,7 +192,7 @@ export function OnboardingParentPage() {
         {step === 'done' && (
           <>
             <Text style={styles.eyebrow}>3 · 완료</Text>
-            <Text style={styles.title} accessibilityRole="header">준비가 끝났어요</Text>
+            <Text style={styles.title} accessibilityRole="header">{next ? '거의 다 됐어요' : '준비가 끝났어요'}</Text>
             <Text style={styles.body}>
               {next
                 ? '이제 반에 연결할 아이를 고르면 끝이에요. 반 수업 리포트도 여기서 받아 볼 수 있어요.'
@@ -226,7 +226,7 @@ function ConsentBlock({
   return (
     <Pressable
       accessibilityRole="checkbox"
-      accessibilityState={{ checked }}
+      aria-checked={checked}
       onPress={() => onChange(!checked)}
       style={({ pressed }) => [
         styles.consentCard,

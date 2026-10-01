@@ -96,7 +96,7 @@ function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: (
                 key={preset.key}
                 accessibilityRole="radio"
                 accessibilityLabel={preset.label}
-                accessibilityState={{ selected }}
+                aria-checked={selected}
                 onPress={() => setAvatarKey(preset.key)}
                 style={({ pressed }) => [
                   styles.avatarChoice,
@@ -132,7 +132,7 @@ function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: (
             pressed && styles.chipPressed,
           ]}
         >
-          <Text style={styles.submitLabel}>
+          <Text style={[styles.submitLabel, !canSubmit && styles.submitLabelDisabled]}>
             {submitting ? '저장 중…' : isEdit ? '저장' : '아이 추가하기'}
           </Text>
         </Pressable>
@@ -194,9 +194,11 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.primary,
   },
   submitButtonDisabled: { backgroundColor: storybookTheme.color.disabledBackground },
+  submitLabelDisabled: { color: storybookTheme.color.disabledText },
+  // 버튼 배경이 primary(#1E293B)라 흰 글자 - onContent도 #1E293B여서 활성화되면 글자가 사라졌다.
   submitLabel: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onContent,
+    color: storybookTheme.color.onDark,
   },
 });

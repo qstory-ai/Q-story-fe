@@ -16,7 +16,7 @@ export function SwitchField({ label, description, checked, onChange, disabled }:
     <View style={styles.container}>
       <Pressable
         accessibilityRole="switch"
-        accessibilityState={{ checked, disabled }}
+        aria-checked={checked} aria-disabled={disabled}
         onPress={() => !disabled && onChange(!checked)}
         style={styles.row}
         hitSlop={4}

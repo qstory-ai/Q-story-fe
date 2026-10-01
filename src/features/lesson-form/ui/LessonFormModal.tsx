@@ -139,9 +139,9 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
         });
         onCreated?.(created);
       } else {
-        // 정기 수업 - 계산된 각 datetime마다 개별 Lesson을 순차 생성한다. Promise.all로 병렬
-        // 화하지 않는 이유: BE에 rate limit이 걸려 있을 수 있고, 진행률을 사용자에게 정확히
-        // 보여 주려면 순차가 편하다. 실패는 곧바로 중단(부분 성공은 상세 페이지에서 정리).
+        // 정기 수업 - 계산된 각 datetime마다 개별 Lesson을 만든다. 하나씩 기다리면 12회에 10초쯤
+        // 걸려서, BE rate limit을 넘지 않게 몇 개씩 묶어 병렬로 보낸다. 실패는 그 묶음에서 중단
+        // (부분 성공은 상세 페이지에서 정리).
         // seriesId는 이 제출 하나에서만 쓰는 클라이언트 생성 UUID - N번의 create 호출 전체가
         // 같은 값을 실어 보내야 나중에 "향후 모든 수업 수정"으로 형제들을 함께 찾을 수 있다.
         const dates = computeRecurringDates({
@@ -155,14 +155,18 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
         const seriesId = crypto.randomUUID();
         setSubmitProgress({ done: 0, total: dates.length });
         let lastCreated: Lesson | null = null;
-        for (let i = 0; i < dates.length; i += 1) {
-          const created = await createLesson(state.token, {
-            ...baseInput,
-            scheduledAt: dates[i],
-            seriesId,
-          });
-          lastCreated = created;
-          setSubmitProgress({ done: i + 1, total: dates.length });
+        let done = 0;
+        for (let i = 0; i < dates.length; i += RECURRING_CREATE_CONCURRENCY) {
+          const batch = await Promise.all(
+            dates.slice(i, i + RECURRING_CREATE_CONCURRENCY).map((scheduledAt) =>
+              createLesson(state.token, { ...baseInput, scheduledAt, seriesId }).then((created) => {
+                done += 1;
+                setSubmitProgress({ done, total: dates.length });
+                return created;
+              }),
+            ),
+          );
+          lastCreated = batch[batch.length - 1] ?? lastCreated;
         }
         // onCreated는 부모 리스트 refresh용이라 마지막 lesson 하나만 전달해도 문제없다 -
         // 부모는 이 콜백 이후 listLessons를 다시 호출해 전체를 새로 받는다.
@@ -217,7 +221,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
           label="수업 이름"
           value={name}
           onChangeText={setName}
-          placeholder="예: 화요일 오후 반"
+          placeholder="예: 목요일 동화 수업"
           maxLength={80}
         />
         <TextareaField
@@ -292,7 +296,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
                     <Pressable
                       key={day}
                       accessibilityRole="checkbox"
-                      accessibilityState={{ checked: selected }}
+                      aria-checked={selected}
                       onPress={() => setWeekdays((prev) => toggleInSet(prev, day))}
                       style={({ pressed }) => [
                         styles.weekdayChip,
@@ -409,7 +413,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
                   <Pressable
                     key={student.id}
                     accessibilityRole="checkbox"
-                    accessibilityState={{ checked: selected }}
+                    aria-checked={selected}
                     onPress={() => setSelectedStudentIds((prev) => toggleInSet(prev, student.id))}
                     style={({ pressed }) => [styles.chip, selected && styles.chipSelected, pressed && styles.chipPressed]}
                   >
@@ -425,6 +429,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
 
         <View style={styles.group}>
           <Text style={styles.groupLabel}>사용 이야기</Text>
+          <Text style={styles.helper}>눌러서 고르세요. 비워 두면 수업 날 서재에서 이야기를 시작할 때 정해져요.</Text>
           {refs.status === 'loading' ? (
             <Text style={styles.helper}>이야기 목록을 불러오는 중이에요…</Text>
           ) : refs.status === 'ready' && refs.stories.length === 0 ? (
@@ -437,7 +442,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
                   <Pressable
                     key={story.storyId}
                     accessibilityRole="checkbox"
-                    accessibilityState={{ checked: selected }}
+                    aria-checked={selected}
                     onPress={() => setSelectedStoryIds((prev) => toggleInSet(prev, story.storyId))}
                     style={({ pressed }) => [styles.chip, selected && styles.chipSelected, pressed && styles.chipPressed]}
                   >
@@ -456,6 +461,8 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
 }
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const;
+/** 정기 수업 회차를 한 번에 몇 개씩 만들지 - 순차(1)는 너무 느리고, 한꺼번에 60개는 rate limit 위험. */
+const RECURRING_CREATE_CONCURRENCY = 4;
 
 function ChoiceRow<T extends string>({
   options,
@@ -474,7 +481,7 @@ function ChoiceRow<T extends string>({
           <Pressable
             key={option.value}
             accessibilityRole="radio"
-            accessibilityState={{ selected }}
+            aria-checked={selected}
             onPress={() => onChange(option.value)}
             style={({ pressed }) => [
               styles.kindOption,
@@ -608,7 +615,8 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardBody,
   },
-  chipLabelSelected: { color: storybookTheme.color.onContent },
+  // 선택된 칩 배경이 primary(#1E293B)라 글자는 흰색 - onContent(같은 #1E293B)였을 땐 글자가 안 보였다.
+  chipLabelSelected: { color: storybookTheme.color.onDark },
   errorText: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.error,
@@ -641,10 +649,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: storybookTheme.color.contentPanelBorder,
   },
-  weekdayRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  // 일~토 7칸을 한 줄에 나눠 담는다 - wrap이면 390px 폭에서 "토"만 아랫줄로 떨어졌다.
+  weekdayRow: { flexDirection: 'row', gap: 6 },
   weekdayChip: {
-    minWidth: 36,
-    paddingHorizontal: 8,
+    flex: 1,
+    minWidth: 0,
+    paddingHorizontal: 0,
     paddingVertical: 8,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,

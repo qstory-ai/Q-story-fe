@@ -1,6 +1,7 @@
 import { apiBaseUrl } from '@/shared/config';
 import { requestJson, type PublicRequestOptions as RequestOptions } from '@/shared/api';
 import type { StoryCompletionSummary } from '@/entities/story-completion';
+import { teacherTitle } from '@/shared/lib';
 
 export type TutorStudentStatus = 'PENDING_PARENT' | 'CONFIRMED';
 
@@ -56,9 +57,9 @@ export type TutorReportSummary = {
 export function tutorReportSource(report: TutorReportSummary): string {
   if (report.sessionKind === 'CLASS') {
     const where = [report.organizationName, report.className].filter(Boolean).join(' ');
-    return `${where ? `${where} ` : ''}반 수업 · ${report.tutorDisplayName} 선생님`;
+    return `${where ? `${where} ` : ''}반 수업 · ${teacherTitle(report.tutorDisplayName)}`;
   }
-  return `${report.tutorDisplayName} 선생님 · ${report.studentName}`;
+  return `${teacherTitle(report.tutorDisplayName)} · ${report.studentName}`;
 }
 
 export class TutorApiError extends Error {

@@ -36,7 +36,7 @@ function FaqItem({ question, answer, defaultOpen = false }: { question: string; 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ expanded: open }}
+      aria-expanded={open}
       onPress={() => setOpen((prev) => !prev)}
       style={styles.faqItem}
     >

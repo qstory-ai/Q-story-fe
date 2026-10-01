@@ -13,6 +13,7 @@ export function IdlePanel({ runtime }: { runtime: OneStoryRuntime }) {
     setChildNameInput,
     selectedChildName,
     startStory,
+    isClassLesson,
   } = runtime;
 
   if (runtimeState.status !== 'idle') {
@@ -25,10 +26,13 @@ export function IdlePanel({ runtime }: { runtime: OneStoryRuntime }) {
         아이가 질문하면{'\n'}이야기가 귀 기울여요
       </Text>
       <Text style={styles.introBody}>
-        부모님과 아이가 한 화면에서 듣고, 말하고, 선택하며 끝까지 함께
-        읽는 이야기예요.
+        {isClassLesson
+          ? '선생님과 반 아이들이 한 화면에서 듣고, 말하고, 선택하며 끝까지 함께 읽는 이야기예요.'
+          : '부모님과 아이가 한 화면에서 듣고, 말하고, 선택하며 끝까지 함께 읽는 이야기예요.'}
       </Text>
-      {selectedChildName ? (
+      {isClassLesson ? (
+        <Text style={styles.nameHint}>반 수업에서는 질문 순간에 아이들을 ‘친구’라고 불러요.</Text>
+      ) : selectedChildName ? (
         // 홈에서 이미 아이를 고르고 들어온 경로 - 방금 고른 이름을 여기서 또 타이핑하게 하지
         // 않는다. 이름 확인 문구만 보여주고 바로 시작하기로 넘어간다.
         <Text style={styles.nameKnownText}>

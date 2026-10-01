@@ -147,7 +147,7 @@ function ChoiceCard({
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityState={{ selected }}
+      aria-checked={selected}
       onPress={onPress}
       style={({ pressed }) => [
         styles.choiceCard,

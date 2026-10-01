@@ -9,6 +9,7 @@ import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listTutorStudents, type TutorStudent } from '@/entities/tutor';
 import { listLessons, type Lesson } from '@/entities/lesson';
 import { MonthCalendar } from '@/features/month-calendar';
+import { teacherTitle } from '@/shared/lib';
 
 type LoadState =
   | { status: 'loading' }
@@ -76,7 +77,33 @@ export function TutorHomePage() {
     return load.students.filter((student) => student.status === 'PENDING_PARENT').slice(0, 4);
   }, [load]);
 
+  // 반도 수업도 아직 없는 첫 방문 - 빈 캘린더가 한 화면을 다 차지해 "새 반 만들기"가 접힌 아래로
+  // 밀려나 있었다. 이때는 시작 안내와 CTA를 캘린더 위로 올린다.
+  const isFirstVisit = load.status === 'ready' && load.lessons.length === 0 && load.students.length === 0;
+
   if (state.status !== 'authenticated') return null;
+
+  const ctaRow = (
+    <View style={styles.ctaRow}>
+      <ActionButton label="새 반 만들기" onPress={() => navigate('/tutor/class-groups/new')} />
+      <View style={styles.linkRow}>
+        <Pressable
+          accessibilityRole="link"
+          onPress={() => navigate('/tutor/students')}
+          style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
+        >
+          <Text style={styles.linkLabel}>학생 관리 →</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="link"
+          onPress={() => navigate('/tutor/classes')}
+          style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
+        >
+          <Text style={styles.linkLabel}>수업 관리 →</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
 
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')}>
@@ -84,9 +111,15 @@ export function TutorHomePage() {
         <TopBar token={state.token} />
 
         <Card variant="surface" padding="lg" style={styles.greetingCard}>
-          <Text style={styles.title} accessibilityRole="header">{state.user.displayName} 선생님</Text>
-          <Text style={styles.body}>오늘 만날 아이와 수업을 준비해 보세요.</Text>
+          <Text style={styles.title} accessibilityRole="header">{teacherTitle(state.user.displayName)}</Text>
+          <Text style={styles.body}>
+            {isFirstVisit
+              ? '반을 만들고 초대 링크를 부모님께 보내면 아이들이 명단에 들어와요. 1:1 과외도 아이 한 명짜리 반으로 시작해요.'
+              : '오늘 만날 아이와 수업을 준비해 보세요.'}
+          </Text>
         </Card>
+
+        {isFirstVisit ? ctaRow : null}
 
         <Card variant="panel" padding="md" title="수업 캘린더" style={styles.panel}>
           {load.status === 'loading' ? (
@@ -125,29 +158,13 @@ export function TutorHomePage() {
         </Card>
 
         {/* 튜터의 주 액션을 캘린더 바로 아래에 모아 원터치로 진입하게 한다. */}
-        <View style={styles.ctaRow}>
-          <ActionButton label="새 반 만들기" onPress={() => navigate('/tutor/class-groups/new')} />
-          <View style={styles.linkRow}>
-            <Pressable
-              accessibilityRole="link"
-              onPress={() => navigate('/tutor/students')}
-              style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
-            >
-              <Text style={styles.linkLabel}>학생 관리 →</Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="link"
-              onPress={() => navigate('/tutor/classes')}
-              style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
-            >
-              <Text style={styles.linkLabel}>수업 관리 →</Text>
-            </Pressable>
-          </View>
-        </View>
+        {isFirstVisit ? null : ctaRow}
 
         <Card variant="panel" padding="md" title="부모 연결 대기" style={styles.panel}>
           {load.status === 'loading' ? (
             <LoadingState compact label="학생 목록을 불러오는 중이에요…" />
+          ) : load.status === 'ready' && load.students.length === 0 ? (
+            <Text style={styles.panelBody}>아직 반에 들어온 아이가 없어요. 반 초대 링크를 보내면 부모님이 아이를 연결해요.</Text>
           ) : pendingStudents.length === 0 ? (
             <Text style={styles.panelBody}>모든 아이와 부모 연결이 완료됐어요.</Text>
           ) : (

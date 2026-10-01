@@ -191,10 +191,10 @@ export function getVisualAssetId({
   );
 }
 
-export function statusCopy(state: StoryRuntimeState) {
+export function statusCopy(state: StoryRuntimeState, isClassLesson = false) {
   switch (state.status) {
     case 'idle':
-      return '부모님과 함께 읽을 준비';
+      return isClassLesson ? '반 아이들과 함께 읽을 준비' : '부모님과 함께 읽을 준비';
     case 'playing-fixed':
       return '이야기 듣는 중';
     case 'awaiting-question':

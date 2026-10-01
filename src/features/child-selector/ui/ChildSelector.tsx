@@ -85,7 +85,7 @@ function ChildAvatarButton({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${child.name} 선택`}
-      accessibilityState={{ selected }}
+      aria-selected={selected}
       onPress={onPress}
       style={({ pressed }) => [styles.avatarButton, pressed && styles.pressed]}
     >

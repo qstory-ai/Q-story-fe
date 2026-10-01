@@ -46,7 +46,8 @@ export function Card({ children, variant = 'surface', padding = 'md', title, sty
   return (
     <View style={composed}>
       {title ? (
-        <Text style={styles.title} accessibilityRole="header">
+        // 페이지 제목(h1) 아래 섹션 제목이라 h2로 내린다 - 레벨이 없으면 RNW가 전부 h1로 그린다.
+        <Text style={styles.title} accessibilityRole="header" {...({ 'aria-level': 2 } as object)}>
           {title}
         </Text>
       ) : null}

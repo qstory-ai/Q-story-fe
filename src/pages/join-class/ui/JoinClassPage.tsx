@@ -13,6 +13,7 @@ import {
   storybookTheme,
 } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
+import { withParticle, teacherTitle } from '@/shared/lib';
 import { homePathFor, joinExistingClass, previewClassByCode, useAuth, type ClassPreview } from '@/entities/auth';
 import { BirthYearChips, listChildren, useChildren, type Child } from '@/entities/child';
 import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
@@ -81,13 +82,13 @@ function ClassInvite({ code }: { code: string }) {
     body = (
       <>
         <View style={styles.hero}>
-          <Text style={styles.eyebrow}>{preview.tutorDisplayName ? `${preview.tutorDisplayName} 선생님이 보낸 반 초대` : '반 초대'}</Text>
+          <Text style={styles.eyebrow}>{preview.tutorDisplayName ? `${teacherTitle(preview.tutorDisplayName)}이 보낸 반 초대` : '반 초대'}</Text>
           <Text style={styles.title}>
             {preview.organizationName ? `${preview.organizationName}\n` : ''}
             {preview.className}
           </Text>
           <Text style={styles.lead}>
-            반에 들어오면 유치원에서 함께 읽은 동화와 나눈 이야기를 반 수업 리포트로 받아 보고, 같은 동화를 집에서 아이와 다시 읽을 수 있어요.
+            반에 들어오면 선생님과 함께 읽은 동화와 나눈 이야기를 반 수업 리포트로 받아 보고, 같은 동화를 집에서 아이와 다시 읽을 수 있어요.
           </Text>
         </View>
         {state.status !== 'authenticated' ? (
@@ -186,7 +187,7 @@ function ChildPicker({
   if (joined) {
     return (
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>{`${joined.childName}이(가) ${preview.className}에 들어갔어요`}</Text>
+        <Text style={styles.cardTitle}>{`${withParticle(joined.childName, '이/가')} ${preview.className}에 들어갔어요`}</Text>
         <Text style={styles.note}>반 수업이 끝나면 리포트가 도착했다고 알려드릴게요. 반 연결은 마이페이지 &gt; 수업 연결에서 볼 수 있어요.</Text>
         <ActionButton variant="gold" label="홈으로 가기" onPress={() => onJoined(joined.homePath)} />
       </View>

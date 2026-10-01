@@ -13,6 +13,7 @@ import {
 } from '@/entities/organization-tutor';
 import type { Lesson } from '@/entities/lesson';
 import type { TutorStudent } from '@/entities/tutor';
+import { teacherTitle } from '@/shared/lib';
 
 type Load =
   | { status: 'loading' }
@@ -92,7 +93,7 @@ export function OrganizationTutorDetailPage() {
         ) : (
           <>
             <Text style={styles.title} accessibilityRole="header">
-              {load.tutor ? `${load.tutor.tutorDisplayName} 선생님` : '선생님'}
+              {load.tutor ? `${teacherTitle(load.tutor.tutorDisplayName)}` : '선생님'}
             </Text>
             <Text style={styles.subtitle}>
               {load.tutor?.tutorEmail ? `${load.tutor.tutorEmail} · ` : ''}학생 {load.students.length}명 · 수업 {load.lessons.length}개

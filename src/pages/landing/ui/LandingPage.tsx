@@ -111,7 +111,7 @@ export function LandingPage() {
       <Pressable
         key={item.key}
         accessibilityRole="button"
-        accessibilityState={{ selected: active }}
+        aria-selected={active}
         onPress={() => scrollToSection(item.key)}
         style={({ pressed }) => [
           styles.navChip,

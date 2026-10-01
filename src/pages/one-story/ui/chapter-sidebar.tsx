@@ -204,7 +204,7 @@ export function ChapterSidebar({
                     key={chapter.id}
                     accessibilityRole="button"
                     accessibilityLabel={`${index + 1}화 ${chapter.title}${stateLabel}`}
-                    accessibilityState={{ selected: isCurrent, disabled: !isReached }}
+                    aria-selected={isCurrent} aria-disabled={!isReached}
                     disabled={!isReached}
                     onLayout={isCurrent ? rememberCurrentRow : undefined}
                     onPress={() => requestRewind(chapter, index)}

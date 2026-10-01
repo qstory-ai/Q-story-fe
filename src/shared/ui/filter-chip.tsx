@@ -52,7 +52,7 @@ export function FilterChip({
   return (
     <Pressable
       accessibilityRole={accessibilityRole}
-      accessibilityState={{ selected }}
+      aria-selected={selected}
       onPress={onPress}
       style={({ pressed }) => [...containerStyle, styles.row, pressed && styles.pressed]}
     >

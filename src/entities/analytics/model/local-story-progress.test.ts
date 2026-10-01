@@ -6,6 +6,7 @@ import {
   clearLocalStoryProgress,
   loadLocalStoryProgress,
   localStoryProgressStorageKey,
+  resumableProgressFor,
   resumableRuntimeState,
   saveLocalStoryProgress,
 } from './local-story-progress';
@@ -70,4 +71,11 @@ test('clearing progress prevents a resume prompt', () => {
   storage.setItem(localStoryProgressStorageKey, '{"version":1}');
   clearLocalStoryProgress(storage);
   assert.equal(loadLocalStoryProgress(storage), null);
+});
+
+test('다른 이야기의 진행 기록은 이어듣기 후보가 아니다', () => {
+  const progress = { storyId: 'HG' };
+  assert.equal(resumableProgressFor(progress, 'HG'), progress);
+  assert.equal(resumableProgressFor(progress, 'OTHER'), null);
+  assert.equal(resumableProgressFor(null, 'HG'), null);
 });

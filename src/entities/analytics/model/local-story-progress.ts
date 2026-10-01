@@ -142,3 +142,11 @@ export function clearLocalStoryProgress(
 }
 
 export const localStoryProgressStorageKey = STORAGE_KEY;
+
+/** 저장된 진행 기록이 지금 연 이야기의 것일 때만 이어듣기 후보로 쓴다 - 저장소에는 한 건만 남는다. */
+export function resumableProgressFor(
+  progress: LocalStoryProgress | null,
+  storyId: string,
+): LocalStoryProgress | null {
+  return progress && progress.storyId === storyId ? progress : null;
+}

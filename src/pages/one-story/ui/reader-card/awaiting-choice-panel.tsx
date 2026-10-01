@@ -3,6 +3,8 @@ import { Pressable, Text, View } from 'react-native';
 import { personalizeStoryText } from '@/entities/narration';
 import { ActionButton } from '@/shared/ui';
 
+import { withParticle } from '@/shared/lib';
+
 import type { OneStoryRuntime } from '../../model';
 import { styles } from '../styles';
 import { LoadingPanel } from './loading-panel';
@@ -10,12 +12,15 @@ import { LoadingPanel } from './loading-panel';
 export function AwaitingChoicePanel({ runtime }: { runtime: OneStoryRuntime }) {
   const {
     runtimeState,
+    storyPackage,
     childName,
     displayedBranchSubtitle,
     selectRouteOption,
     continueStory,
     isPreparingResponseAudio,
   } = runtime;
+
+  const storyTitle = storyPackage.manifest.title;
 
   if (runtimeState.status !== 'awaiting-choice') {
     return null;
@@ -30,7 +35,7 @@ export function AwaitingChoicePanel({ runtime }: { runtime: OneStoryRuntime }) {
       <LoadingPanel
         title={
           <>
-            헨젤과 그레텔이{'\n'}
+            {withParticle(storyTitle, '이/가')}{'\n'}
             다음 이야기를 준비하고 있어요
           </>
         }

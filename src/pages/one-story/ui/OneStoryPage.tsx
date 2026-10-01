@@ -62,7 +62,7 @@ export function OneStoryPage({
             StyleSheet.absoluteFill,
             isParentReport && styles.reportHiddenIllustration,
           ]}
-          accessibilityLabel={`${scene?.title ?? '헨젤과 그레텔'} 삽화`}
+          accessibilityLabel={`${scene?.title ?? runtime.storyPackage.manifest.title} 삽화`}
         />
         <View
           style={[

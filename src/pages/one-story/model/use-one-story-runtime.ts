@@ -21,6 +21,7 @@ import {
   hasExperiencedStoryAgency,
   clearLocalStoryProgress,
   loadLocalStoryProgress,
+  resumableProgressFor,
   saveLocalStoryProgress,
   createVoiceResearchConsent,
   getVoiceResearchAccountConsent,
@@ -221,7 +222,9 @@ export function useOneStoryRuntime(
   const [companionChatSummary, setCompanionChatSummary] =
     useState<CompanionChatSummary | null>(null);
   const [resumeCandidate, setResumeCandidate] =
-    useState<LocalStoryProgress | null>(() => loadLocalStoryProgress());
+    useState<LocalStoryProgress | null>(() =>
+      resumableProgressFor(loadLocalStoryProgress(), storyPackage.storyId),
+    );
   const [homeMenuVisible, setHomeMenuVisible] = useState(false);
   const [exitReasonVisible, setExitReasonVisible] = useState(false);
   const parentReport = useMemo(

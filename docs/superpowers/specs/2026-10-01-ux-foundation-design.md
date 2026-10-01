@@ -8,13 +8,13 @@
 ## 성공 기준
 
 1. 메뉴/버튼을 눌렀을 때 아무 안내 없이 다른 곳으로 튕기는 경로가 0개.
-2. 아래 용어 사전의 "없앨 표기"가 UI 문구에 남아 있지 않음(코드 식별자·URL 제외).
+2. 금지어 목록(학부모, 부모 리포트, 구독, 원장, 기관 관리자, 라이선스, 비즈니스 이용권, 완주 기록, 부모 확인 대기, 부모 연결 대기, 연결 안 됨, 기관 및 단체)이 UI 문구에 남아 있지 않음 — 주석 제외, 테스트로 강제. "부모" 단독 표기는 1~4에서 화면을 다룰 때 교체.
 3. 구독 상태 라벨 맵·탭 강조 판단·홈 경로가 각각 한 곳에서만 정의됨.
 4. 기존 테스트(`npm test`, `npm run typecheck`, `npm run lint`) 통과.
 
 ## 1. 용어 사전
 
-`src/shared/config/glossary.ts`에 문구 상수로 둔다. 화면은 이 상수를 import해서 쓴다(새로 작성하거나 이번에 손대는 문구부터 적용, 나머지는 1~4에서 해당 화면을 다룰 때 교체).
+`src/shared/config/glossary.ts`에 문구 상수로 둔다. 금지어는 이번에 전부 교체하고 `glossary.test.ts`가 재발을 막는다. `roleLabel`도 PARENT 보호자 / DIRECTOR 관리자로 바꾼다.
 
 | 개념 | 표기 | 없앨 표기 |
 |---|---|---|
@@ -67,7 +67,7 @@
 ### 마이페이지/결제
 1. `MyPageNotificationsPage`, `MyPagePrivacyPage`, `MyPageSupportPage`의 역할 가드: 개인정보·고객지원은 모든 로그인 역할 허용(VoiceResearchConsentSection은 PARENT만). 알림 설정은 API가 지원하는 역할에만 메뉴 노출 — 구현 시 BE 지원 범위 확인 후 결정, 미지원 역할은 메뉴에서 숨김.
 2. DIRECTOR의 마이페이지 "이용권" → `/organization/subscription`.
-3. `/mypage/subscription`에서 PARENT가 아닌 역할(개인/기관 소속 TUTOR, DIRECTOR가 직접 들어온 경우 포함): "베타 기간에는 모든 이야기가 열려 있어요" 안내. 기관 소속 여부와 관계없이 같은 문구.
+3. 베타 개방: BE `EntitlementService`가 설정 `qstory.beta.open-access-tutor-org`(기본 true, env `BETA_OPEN_ACCESS_TUTOR_ORG`)가 켜져 있으면 TUTOR·DIRECTOR에게 모든 이야기를 연다(`assertAccessible`, `hasAccess` 모두). PARENT는 그대로 이용권 필요. FE `/mypage/subscription`에서 PARENT가 아닌 역할은 "베타 기간에는 모든 이야기가 열려 있어요" 안내(DIRECTOR에겐 기관 이용권 페이지 버튼 추가).
 4. 회원 탈퇴: 진입점은 마이페이지 하단과 개인정보 "데이터 삭제" 2곳(`MyPageAccountPage.tsx:112-119` 링크 제거). `MyPageDeleteAccountPage`의 추가 확인 모달 제거 — 페이지가 확인 단계.
 5. 마이페이지의 "개선사항 요청" 메뉴 제거, 고객지원의 기능제안·오류제보로 일원화.
 6. 결제
@@ -78,7 +78,7 @@
 ### 튜터/기관
 7. `OrgInviteAcceptPage` 비로그인 수락: `/signup?role=tutor&next=<초대 경로>`. 현재 sign-in에만 있는 `next`를 sign-up 진입에도 전달하고(`readOnboardingParams`, 검증은 기존 `safeNextPath` 재사용), 가입 후 `/onboarding/tutor`로 넘길 때 `next`를 유지해 온보딩 완료(또는 "나중에") 시 그리로 이동한다. 초대로 들어온 경우 온보딩의 소속 선택 단계는 건너뛴다(초대 수락 화면이 그 역할).
 8. `OrganizationClassDetailPage`
-   - 담임 변경 UI(담임이 있어도 변경 가능). BE가 재배정을 막으면 BE 수정 포함.
+   - ~~담임 변경~~ → 2번으로 이동(BE가 수업·기록 귀속 문제로 의도적으로 막아 둠, `ClassService.assignHomeroom`).
    - 반 코드 영역을 `InviteCodeCard`로 교체(공유·복사).
 9. 소속 해제 안내 문구(`OrgInviteAcceptPage.tsx:124-125`, `OnboardingTutorPage.tsx:84`): "해제는 관리자에게 요청해 주세요."로 수정. 해제 기능은 2번에서 판단.
 10. `JoinClassPage` 비보호자 계정: "반 초대 링크는 보호자 계정에서 열 수 있어요" 안내 + "내 홈으로" + 로그아웃.
@@ -87,7 +87,7 @@
 ### 보호자
 12. ~~가입 폼 반 코드 체크박스 기본값~~ — 이번 범위에서 제외(유지).
 13. 튜토리얼 "회원가입하기" → 역할 선택 단계로 바로. `HomePage.readOnboardingParams`에서 `flow=sign-up`인데 role이 없으면 `welcome`이 아니라 `role` 단계를 반환한다(`OnboardingEntry`에 `role` step 진입 추가). 역할 카드 라벨 "학부모님" → "보호자"(HomePage `ROLE_OPTIONS`, OnboardingFlow `ROLE_CARDS`).
-14. `OnboardingParentPage` "나중에": 아이 등록 단계에서만 노출, 필수 동의 단계는 건너뛸 수 없음. 이미 "나중에"로 동의 없이 완료된 계정 처리: 플레이어 진입 전 동의 여부 확인 — 구현 시 BE 동의 상태 필드 존재 확인 후 결정(없으면 BE에 추가).
+14. `OnboardingParentPage` "나중에": 아이 등록 단계에서 누르면 동의 단계로 이동(완료 처리 안 함), 동의 단계에서는 숨김. 동의는 서버에 저장되지 않는 화면 확인이므로 FE만 수정.
 15. `ParentHomePage` "어제 읽던 이야기예요" → 저장 시각 기준 상대 날짜(오늘/어제/N일 전).
 16. 이어듣기 후보가 storyId로 걸러지지 않는 의심(`use-one-story-runtime.ts:223-224`): 테스트로 재현 후 맞으면 storyId 일치 시에만 ResumeModal.
 

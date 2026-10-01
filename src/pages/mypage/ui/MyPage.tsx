@@ -4,20 +4,19 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, Icon, Modal, ModalBody, Pill, storybookTheme } from '@/shared/ui';
-import { dashboardNavItems, homePathFor, roleLabel, useAuth, type UserSummary } from '@/entities/auth';
+import { dashboardNavItems, homePathFor, roleLabel, subscriptionPathFor, useAuth, type UserSummary } from '@/entities/auth';
+import { BETA_OPEN_ACCESS_NOTICE } from '@/shared/config';
 import { useChildren } from '@/entities/child';
-import { FeedbackModal } from '@/features/feedback-modal';
 
 /**
  * IA [4] 마이페이지 허브. 부모는 4개 그룹 메뉴, 그 외 역할(원장/선생님/스태프)은 간단한 리스트를 본다.
- * 하위 화면은 별도 라우트(pages/mypage-*)이고, 개선사항 요청만 오버레이 모달로 열린다.
+ * 하위 화면은 별도 라우트(pages/mypage-*)다.
  */
 export function MyPage() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { state, logout } = useAuth();
   const [confirmingLogout, setConfirmingLogout] = useState(false);
-  const [openModal, setOpenModal] = useState<'feedback' | null>(null);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -37,9 +36,9 @@ export function MyPage() {
         <ProfileCard user={user} />
 
         {user.role === 'PARENT' ? (
-          <ParentMenu navigate={navigate} onOpenFeedback={() => setOpenModal('feedback')} />
+          <ParentMenu navigate={navigate} />
         ) : (
-          <GenericMenu user={user} navigate={navigate} onOpenFeedback={() => setOpenModal('feedback')} />
+          <GenericMenu user={user} navigate={navigate} />
         )}
 
         <MenuGroup>
@@ -66,7 +65,6 @@ export function MyPage() {
       >
         <ModalBody>다시 로그인하면 그대로 이어서 쓸 수 있어요.</ModalBody>
       </Modal>
-      <FeedbackModal visible={openModal === 'feedback'} token={state.token} onClose={() => setOpenModal(null)} />
     </AppNavShell>
   );
 }
@@ -106,13 +104,7 @@ function ProfileCard({ user }: { user: UserSummary }) {
 
 /* -------------------------------------------------------------- menus */
 
-function ParentMenu({
-  navigate,
-  onOpenFeedback,
-}: {
-  navigate: (path: string) => void;
-  onOpenFeedback: () => void;
-}) {
+function ParentMenu({ navigate }: { navigate: (path: string) => void }) {
   return (
     <View style={styles.menuGroups}>
       <MenuGroup title="아이">
@@ -120,7 +112,7 @@ function ParentMenu({
       </MenuGroup>
 
       <MenuGroup title="수업">
-        <MenuRow label="수업 연결" hint="선생님·기관 연결과 관리" onPress={() => navigate('/mypage/classes')} />
+        <MenuRow label="수업 연결" hint="반 코드로 반에 연결해요" onPress={() => navigate('/mypage/classes')} />
       </MenuGroup>
 
       <MenuGroup title="앱 설정">
@@ -131,24 +123,14 @@ function ParentMenu({
 
       <MenuGroup title="계정">
         <MenuRow label="보호자 정보 변경" onPress={() => navigate('/mypage/profile')} />
-        <MenuRow label="이용권/결제" onPress={() => navigate('/mypage/subscription')} />
+        <MenuRow label="이용권" onPress={() => navigate('/mypage/subscription')} />
         <MenuRow label="계정 관리 (아이디·비밀번호)" onPress={() => navigate('/mypage/account')} />
-        <MenuRow label="개선사항 요청" onPress={onOpenFeedback} accessibilityRole="button" />
       </MenuGroup>
     </View>
   );
 }
 
-function GenericMenu({
-  user,
-  navigate,
-  onOpenFeedback,
-}: {
-  user: UserSummary;
-  navigate: (path: string) => void;
-  onOpenFeedback: () => void;
-}) {
-  const isOrganizationTutor = user.role === 'TUTOR' && Boolean(user.organizationId);
+function GenericMenu({ user, navigate }: { user: UserSummary; navigate: (path: string) => void }) {
   return (
     <View style={styles.menuGroups}>
       {user.role === 'TUTOR' ? (
@@ -164,16 +146,15 @@ function GenericMenu({
         <MenuRow label="내 정보 관리" onPress={() => navigate('/mypage/profile')} />
         <MenuRow label="계정 관리" onPress={() => navigate('/mypage/account')} />
         <MenuRow
-          label={isOrganizationTutor ? '비즈니스 이용권' : '이용권/결제'}
-          hint={isOrganizationTutor ? '소속 기관의 이용권이 적용돼요' : undefined}
-          onPress={() => navigate('/mypage/subscription')}
+          label="이용권"
+          hint={user.role === 'PARENT' ? undefined : BETA_OPEN_ACCESS_NOTICE}
+          onPress={() => navigate(subscriptionPathFor(user))}
         />
       </MenuGroup>
       <MenuGroup title="앱 설정">
         <MenuRow label="알림 설정" onPress={() => navigate('/mypage/notifications')} />
         <MenuRow label="개인정보 및 데이터" onPress={() => navigate('/mypage/privacy')} />
         <MenuRow label="고객지원" onPress={() => navigate('/mypage/support')} />
-        <MenuRow label="개선사항 요청" onPress={onOpenFeedback} accessibilityRole="button" />
       </MenuGroup>
     </View>
   );

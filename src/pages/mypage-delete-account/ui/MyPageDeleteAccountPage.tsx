@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Modal, RadioGroup, StatusBanner, TextareaField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, RadioGroup, StatusBanner, TextareaField, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, deleteAccount, useAuth } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
 import { useBackOr } from '@/shared/lib';
@@ -24,7 +24,6 @@ export function MyPageDeleteAccountPage() {
   const { state, logout } = useAuth();
   const [reasonCategory, setReasonCategory] = useState<string | null>(null);
   const [reasonDetail, setReasonDetail] = useState('');
-  const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,11 +43,9 @@ export function MyPageDeleteAccountPage() {
     setError(null);
     try {
       await deleteAccount(token, { reasonCategory, reasonDetail: reasonDetail.trim() || undefined });
-      setConfirming(false);
       logout();
       navigate('/', { replace: true });
     } catch (err) {
-      setConfirming(false);
       setError(messageForError(err, '탈퇴 처리 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setDeleting(false);
@@ -83,19 +80,13 @@ export function MyPageDeleteAccountPage() {
           <ActionButton
             label="탈퇴하기"
             variant="stop"
-            onPress={() => setConfirming(true)}
-            disabled={!reasonCategory}
+            onPress={handleConfirmDelete}
+            loading={deleting}
+            disabled={!reasonCategory || deleting}
           />
         </View>
       </View>
 
-      <Modal
-        visible={confirming}
-        title="탈퇴를 진행할까요?"
-        positiveAction={{ label: '네, 탈퇴할게요', onPress: handleConfirmDelete, loading: deleting }}
-        negativeAction={{ label: '취소', onPress: () => setConfirming(false), disabled: deleting }}
-        accessibilityLabel="회원 탈퇴 확인"
-      />
     </AppNavShell>
   );
 }

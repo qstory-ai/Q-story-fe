@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Pill, SectionHeader, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
@@ -110,14 +110,6 @@ export function MyPageAccountPage() {
           <ActionButton label="비밀번호 변경" onPress={handleChangePassword} loading={saving} disabled={!canSubmit} />
         </View>
 
-        <Pressable
-          onPress={() => navigate('/mypage/delete-account')}
-          accessibilityRole="link"
-          hitSlop={8}
-          style={styles.deleteAccountLink}
-        >
-          <Text style={styles.deleteAccountText}>회원 탈퇴</Text>
-        </Pressable>
       </View>
     </AppNavShell>
   );
@@ -163,16 +155,5 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.medium,
     color: storybookTheme.color.onCardBody,
-  },
-  deleteAccountLink: {
-    alignSelf: 'center',
-    minHeight: 44,
-    justifyContent: 'center',
-  },
-  deleteAccountText: {
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.medium,
-    color: storybookTheme.color.onContentMuted,
-    textDecorationLine: 'underline',
   },
 });

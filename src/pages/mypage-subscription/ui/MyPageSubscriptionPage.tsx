@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Pill, SectionHeader, StatusBanner, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
-import { subscriptionStatusLabel } from '@/shared/config';
+import { BETA_OPEN_ACCESS_NOTICE, subscriptionStatusLabel } from '@/shared/config';
 
 export function MyPageSubscriptionPage() {
   const navigate = useNavigate();
@@ -22,16 +22,22 @@ export function MyPageSubscriptionPage() {
   return (
     <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
-        <SectionHeader title="나의 구독" />
+        <SectionHeader title="이용권" />
         <View style={styles.card}>
           <Pill label={subscriptionStatusLabel(user.subscriptionStatus)} />
           <StatusBanner
-            label={user.grantsAccess ? '지금 전체 이야기를 이용할 수 있어요.' : '지금은 무료 이야기만 이용할 수 있어요.'}
+            label={user.grantsAccess ? '지금 모든 이야기를 이용할 수 있어요.' : '지금은 무료 이야기만 이용할 수 있어요.'}
             variant={user.grantsAccess ? 'info' : 'warning'}
           />
           {user.subscriptionExpiresAt ? <Text style={styles.expiry}>이용권 만료일 · {formatDate(user.subscriptionExpiresAt)}</Text> : null}
-          {isParent ? <ActionButton label={user.grantsAccess ? '이용권 연장하기' : '보호자 이용권 결제'} onPress={() => navigate('/payment/checkout?target=PARENT')} /> : null}
-          {!isParent ? <Text style={styles.note}>보호자 이용권 결제는 보호자 계정에서만 할 수 있어요.</Text> : null}
+          {isParent ? (
+            <ActionButton label={user.grantsAccess ? '이용권 연장하기' : '이용권 결제하기'} onPress={() => navigate('/payment/checkout?target=PARENT')} />
+          ) : (
+            <Text style={styles.note}>{BETA_OPEN_ACCESS_NOTICE}</Text>
+          )}
+          {user.role === 'DIRECTOR' ? (
+            <ActionButton variant="secondaryFull" label="기관 이용권 보기" onPress={() => navigate('/organization/subscription')} />
+          ) : null}
         </View>
       </View>
     </AppNavShell>

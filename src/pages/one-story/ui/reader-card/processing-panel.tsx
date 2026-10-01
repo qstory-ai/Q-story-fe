@@ -2,6 +2,8 @@ import { View } from 'react-native';
 
 import { ActionButton } from '@/shared/ui';
 
+import { withParticle } from '@/shared/lib';
+
 import type { OneStoryRuntime } from '../../model';
 import { styles } from '../styles';
 import { LoadingPanel } from './loading-panel';
@@ -9,6 +11,7 @@ import { LoadingPanel } from './loading-panel';
 export function ProcessingPanel({ runtime }: { runtime: OneStoryRuntime }) {
   const {
     runtimeState,
+    storyPackage,
     pendingTranscription,
     isPreparingResponseAudio,
     questionMode,
@@ -16,6 +19,8 @@ export function ProcessingPanel({ runtime }: { runtime: OneStoryRuntime }) {
     beginTypedQuestion,
     continueStory,
   } = runtime;
+
+  const storyTitle = storyPackage.manifest.title;
 
   if (
     !(runtimeState.status === 'processing-question' && !pendingTranscription)
@@ -28,12 +33,12 @@ export function ProcessingPanel({ runtime }: { runtime: OneStoryRuntime }) {
       title={
         isPreparingResponseAudio ? (
           <>
-            헨젤과 그레텔이{'\n'}
+            {withParticle(storyTitle, '이/가')}{'\n'}
             대답을 준비하고 있어요
           </>
         ) : (
           <>
-            헨젤과 그레텔이{'\n'}
+            {withParticle(storyTitle, '이/가')}{'\n'}
             아이의 생각을 살펴보고 있어요
           </>
         )

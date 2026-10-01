@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, EmptyState, ErrorState, HexagonStatChart, LoadingState, storybookTheme } from '@/shared/ui';
-import { dashboardNavItems, homePathFor, listClassMemberships, useAuth } from '@/entities/auth';
+import { dashboardNavItems, homePathFor, libraryPathFor, listClassMemberships, useAuth } from '@/entities/auth';
 import { findChildAvatar, useChildren } from '@/entities/child';
 import { fetchStoryReportCopy, listStories, type StoryReportCopy } from '@/entities/story';
 import { messageForError } from '@/shared/api';
@@ -78,6 +78,7 @@ function formatCompletedAt(iso: string) {
  */
 export function ReportHistoryPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const { children } = useChildren();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
@@ -146,7 +147,7 @@ export function ReportHistoryPage() {
 
   const emptyMessageForTab =
     tab === 'comprehensive'
-      ? '아직 종합 리포트에 담을 완주 기록이 없어요. 이야기를 두세 편 마치면 요약이 채워져요.'
+      ? '종합 리포트에 담을 이야기가 아직 없어요. 이야기를 두세 편 마치면 요약이 채워져요.'
       : '아직 마친 이야기가 없어요. 이야기를 끝까지 읽으면 여기에 기록이 남아요.';
 
   if (!canView) return null;
@@ -154,7 +155,7 @@ export function ReportHistoryPage() {
   const showClassSection = load.status === 'ready' && (load.hasClassMembership || load.tutorReports.length > 0);
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'reports')} onBack={() => navigate('/mypage')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate(homePathFor(state.user))}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">리포트</Text>
         <Text style={styles.subtitle}>
@@ -213,7 +214,7 @@ export function ReportHistoryPage() {
             sessionCount={load.comprehensiveSessionCount}
             recentTrend={load.recentTrend}
             emptyMessage={emptyMessageForTab}
-            onGoHome={() => navigate(state.status === 'authenticated' ? homePathFor(state.user) : '/')}
+            onGoHome={() => navigate(state.status === 'authenticated' ? libraryPathFor(state.user) : '/')}
           />
         )}
 
@@ -223,7 +224,7 @@ export function ReportHistoryPage() {
               <EmptyState
                 title="작품별 리포트가 아직 없어요"
                 body={emptyMessageForTab}
-                cta={{ label: '홈으로', onPress: () => navigate(state.status === 'authenticated' ? homePathFor(state.user) : '/') }}
+                cta={{ label: '이야기 읽으러 가기', onPress: () => navigate(state.status === 'authenticated' ? libraryPathFor(state.user) : '/') }}
               />
             ) : (
               load.completions.map((completion) => (
@@ -324,7 +325,7 @@ function ComprehensiveView({
       <EmptyState
         title="종합 리포트가 아직 없어요"
         body={emptyMessage}
-        cta={{ label: '홈으로', onPress: onGoHome }}
+        cta={{ label: '이야기 읽으러 가기', onPress: onGoHome }}
       />
     );
   }
@@ -605,7 +606,8 @@ const styles = StyleSheet.create({
   section: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 10,
+    justifyContent: 'center',
+    minHeight: 44,
     borderRadius: storybookTheme.radius.card,
   },
   sectionActive: { backgroundColor: storybookTheme.color.primary },
@@ -618,22 +620,23 @@ const styles = StyleSheet.create({
   reportGroup: { gap: 8, marginTop: 8 },
   childFilterRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   childFilterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 14,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
     borderColor: storybookTheme.color.contentPanelBorder,
   },
   childFilterChipActive: {
     backgroundColor: storybookTheme.color.contentPanel,
-    borderColor: storybookTheme.color.gold,
+    borderColor: storybookTheme.color.primary,
   },
   childFilterLabel: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onContentMuted,
   },
-  childFilterLabelActive: { color: storybookTheme.color.goldText },
+  childFilterLabelActive: { color: storybookTheme.color.primary },
   filterNote: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onContentMuted,
@@ -645,8 +648,9 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContentMuted,
   },
   tab: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
     borderColor: storybookTheme.color.contentPanelBorder,
@@ -658,7 +662,7 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onContentMuted,
   },
-  tabLabelActive: { color: storybookTheme.color.background },
+  tabLabelActive: { color: storybookTheme.color.primary },
   reportCard: {
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,
@@ -686,11 +690,9 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
   },
   sectionEyebrow: {
-    fontSize: storybookTheme.type.xxs,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.goldText,
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.semibold,
+    color: storybookTheme.color.onContentMuted,
   },
   sectionTitle: {
     fontSize: storybookTheme.type.md,

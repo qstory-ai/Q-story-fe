@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
+import { useBackOr } from '@/shared/lib';
 import {
   dashboardNavItems,
   fetchClass,
@@ -27,6 +28,8 @@ type LoadState =
 export function TutorClassGroupPage() {
   const { classId } = useParams<{ classId: string }>();
   const navigate = useNavigate();
+  const goBack = useBackOr('/tutor/students');
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [attempt, setAttempt] = useState(0);
   const requestKey = `${classId ?? ''}:${attempt}`;
@@ -64,7 +67,7 @@ export function TutorClassGroupPage() {
   const effective: LoadState = load.requestKey === requestKey ? load : { requestKey, status: 'loading' };
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'classes')} onBack={() => navigate('/tutor/students')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
       <ScrollView contentContainerStyle={styles.content}>
         {effective.status === 'loading' && <LoadingState label="반 정보를 불러오는 중이에요…" />}
         {effective.status === 'error' && (
@@ -105,7 +108,7 @@ export function TutorClassGroupPage() {
                         {student.parentDisplayName ? `${student.parentDisplayName} 부모님` : '아직 부모님이 들어오지 않았어요'}
                       </Text>
                     </View>
-                    <Pill label={student.status === 'CONFIRMED' ? '연결됨' : '연결 대기'} tone={student.status === 'CONFIRMED' ? 'accent' : 'onCard'} />
+                    <Pill label={student.status === 'CONFIRMED' ? '연결됨' : '보호자 연결 대기'} tone={student.status === 'CONFIRMED' ? 'accent' : 'onCard'} />
                   </View>
                 ))
               )}

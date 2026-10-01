@@ -54,7 +54,7 @@ export function InviteCodeCard({ shortCode, link, expiresLabel, shareMessage, re
 
   return (
     <View style={styles.card}>
-      <Text style={styles.eyebrow}>{reusable ? '반 초대' : '발급된 초대'}</Text>
+      <Text style={styles.cardTitle} accessibilityRole="header">{reusable ? '반 초대' : '발급된 초대'}</Text>
       <Text style={styles.description}>
         {reusable
           ? '알림장이나 단체방에 이 링크 하나만 올리면 돼요. 부모님마다 자기 아이를 골라 반에 들어오고, 여러 번 쓸 수 있어요.'
@@ -155,12 +155,10 @@ const styles = StyleSheet.create({
     padding: 18,
     gap: storybookTheme.spacing.sm,
   },
-  eyebrow: {
-    fontSize: storybookTheme.type.xxs,
+  cardTitle: {
+    fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.primary,
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
+    color: storybookTheme.color.onCardTitle,
   },
   description: {
     fontSize: storybookTheme.type.sm,
@@ -201,6 +199,8 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.pill,
     backgroundColor: storybookTheme.color.primary,
     minWidth: 64,
+    minHeight: 44,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   copyButtonWide: { alignSelf: 'stretch', minHeight: 48, justifyContent: 'center' },
@@ -220,8 +220,9 @@ const styles = StyleSheet.create({
   },
   dismissLink: {
     alignSelf: 'flex-end',
-    paddingHorizontal: 6,
-    paddingVertical: 6,
+    paddingHorizontal: storybookTheme.spacing.sm,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   dismissLinkText: {
     fontSize: storybookTheme.type.xs,

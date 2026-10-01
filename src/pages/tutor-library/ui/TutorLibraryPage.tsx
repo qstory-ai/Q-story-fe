@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, ErrorState, FilterChip, LoadingState, SearchField, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
+import { storyDestination } from '@/features/story-library';
 import { useBookmarks } from '@/entities/bookmark';
 import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
 
@@ -28,6 +29,7 @@ const TABS: { key: Tab; label: string }[] = [
  */
 export function TutorLibraryPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const { width } = useWindowDimensions();
   const columns = width >= 860 ? 3 : width >= 520 ? 2 : 1;
@@ -123,10 +125,10 @@ export function TutorLibraryPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'library')} onBack={() => navigate('/tutor')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">서재</Text>
-        <Text style={styles.subtitle}>다음 수업에 어떤 이야기를 쓸지 미리 살펴보고, 학생별로 담아 두세요.</Text>
+        <Text style={styles.subtitle}>다음 수업에 쓸 이야기를 미리 살펴보고 저장해 두세요.</Text>
 
         <SearchField
           value={query}
@@ -215,18 +217,12 @@ function StoryCardWithLink({
       description={story.description}
       category={story.category}
       locked={locked}
-      lockedCaption={locked ? '구독하고 잠금 해제' : undefined}
+      lockedCaption={locked ? '이용권으로 잠금 해제' : undefined}
       onRemove={onUnbookmark}
       removeLabel={onUnbookmark ? `${story.title} 저장 해제` : undefined}
-      onPress={() => {
-        if (locked) {
-          navigate('/mypage/subscription');
-          return;
-        }
-        // 베타 스토리도 /demo가 아니라 상세로 보낸다 - /demo는 수업을 모르므로 반 선택
-        // (StoryDetailPage의 ClassLessonStartModal)을 거쳐 반 수업을 만들어야 완주 기록이 반에 남는다.
-        navigate(`/stories/${story.storyId}`);
-      }}
+      // 베타 스토리도 /demo가 아니라 상세로 보낸다(로그인 상태) - /demo는 수업을 모르므로 반 선택
+      // (StoryDetailPage의 ClassLessonStartModal)을 거쳐 반 수업을 만들어야 완주 기록이 반에 남는다.
+      onPress={() => navigate(storyDestination(story, auth))}
     />
   );
 }

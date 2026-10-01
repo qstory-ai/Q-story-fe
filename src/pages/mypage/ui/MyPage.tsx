@@ -1,22 +1,22 @@
 import { Children, Fragment, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, Icon, Modal, ModalBody, Pill, storybookTheme } from '@/shared/ui';
-import { dashboardNavItems, homePathFor, roleLabel, useAuth, type UserSummary } from '@/entities/auth';
+import { dashboardNavItems, homePathFor, roleLabel, subscriptionPathFor, useAuth, type UserSummary } from '@/entities/auth';
+import { BETA_OPEN_ACCESS_NOTICE, subscriptionStatusLabel } from '@/shared/config';
 import { useChildren } from '@/entities/child';
-import { FeedbackModal } from '@/features/feedback-modal';
 
 /**
  * IA [4] 마이페이지 허브. 부모는 4개 그룹 메뉴, 그 외 역할(원장/선생님/스태프)은 간단한 리스트를 본다.
- * 하위 화면은 별도 라우트(pages/mypage-*)이고, 개선사항 요청만 오버레이 모달로 열린다.
+ * 하위 화면은 별도 라우트(pages/mypage-*)다.
  */
 export function MyPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state, logout } = useAuth();
   const [confirmingLogout, setConfirmingLogout] = useState(false);
-  const [openModal, setOpenModal] = useState<'feedback' | null>(null);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -31,14 +31,14 @@ export function MyPage() {
   const homePath = homePathFor(user);
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, 'mypage')} onBack={() => navigate(homePath)}>
+    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(homePath)}>
       <View style={styles.content}>
         <ProfileCard user={user} />
 
         {user.role === 'PARENT' ? (
-          <ParentMenu navigate={navigate} onOpenFeedback={() => setOpenModal('feedback')} />
+          <ParentMenu user={user} navigate={navigate} />
         ) : (
-          <GenericMenu user={user} navigate={navigate} onOpenFeedback={() => setOpenModal('feedback')} />
+          <GenericMenu user={user} navigate={navigate} />
         )}
 
         <MenuGroup>
@@ -48,12 +48,14 @@ export function MyPage() {
             onPress={() => setConfirmingLogout(true)}
             accessibilityRole="button"
           />
-          <MenuRow
-            label="회원 탈퇴"
-            variant="danger"
-            onPress={() => navigate('/mypage/delete-account')}
-          />
         </MenuGroup>
+        <Pressable
+          accessibilityRole="link"
+          onPress={() => navigate('/mypage/delete-account')}
+          style={({ pressed }) => [styles.withdrawLink, pressed && styles.pressed]}
+        >
+          <Text style={styles.withdrawText}>회원 탈퇴</Text>
+        </Pressable>
       </View>
 
       <Modal
@@ -65,7 +67,6 @@ export function MyPage() {
       >
         <ModalBody>다시 로그인하면 그대로 이어서 쓸 수 있어요.</ModalBody>
       </Modal>
-      <FeedbackModal visible={openModal === 'feedback'} token={state.token} onClose={() => setOpenModal(null)} />
     </AppNavShell>
   );
 }
@@ -94,60 +95,52 @@ function ProfileCard({ user }: { user: UserSummary }) {
           <Text style={styles.avatarText}>{initial}</Text>
         )}
       </View>
-      <Text style={styles.name}>{user.displayName}</Text>
-      <View style={styles.roleBadgeRow}>
-        <Pill label={roleLabel(user.role)} />
+      <View style={styles.profileText}>
+        <View style={styles.nameRow}>
+          <Text style={styles.name} numberOfLines={1}>{user.displayName}</Text>
+          <Pill label={roleLabel(user.role)} />
+        </View>
+        {childrenSummary ? <Text style={styles.profileMeta}>{childrenSummary}</Text> : null}
       </View>
-      {childrenSummary ? <Text style={styles.profileMeta}>{childrenSummary}</Text> : null}
     </View>
   );
 }
 
 /* -------------------------------------------------------------- menus */
 
-function ParentMenu({
-  navigate,
-  onOpenFeedback,
-}: {
-  navigate: (path: string) => void;
-  onOpenFeedback: () => void;
-}) {
+function ParentMenu({ user, navigate }: { user: UserSummary; navigate: (path: string) => void }) {
+  const expiry = user.subscriptionExpiresAt ? ` · ${formatShortDate(user.subscriptionExpiresAt)} 만료` : '';
   return (
     <View style={styles.menuGroups}>
-      <MenuGroup title="아이">
+      <MenuGroup title="아이와 수업">
         <MenuRow label="아이 관리" hint="아이 프로필 추가·수정·삭제" onPress={() => navigate('/mypage/children')} />
-      </MenuGroup>
-
-      <MenuGroup title="수업">
-        <MenuRow label="수업 연결" hint="선생님·기관 연결과 관리" onPress={() => navigate('/mypage/classes')} />
-      </MenuGroup>
-
-      <MenuGroup title="앱 설정">
-        <MenuRow label="알림 설정" onPress={() => navigate('/mypage/notifications')} />
-        <MenuRow label="개인정보 및 데이터" onPress={() => navigate('/mypage/privacy')} />
-        <MenuRow label="고객지원" onPress={() => navigate('/mypage/support')} />
+        <MenuRow label="수업 연결" hint="반 코드로 반에 연결해요" onPress={() => navigate('/mypage/classes')} />
       </MenuGroup>
 
       <MenuGroup title="계정">
-        <MenuRow label="보호자 정보 변경" onPress={() => navigate('/mypage/profile')} />
-        <MenuRow label="이용권/결제" onPress={() => navigate('/mypage/subscription')} />
-        <MenuRow label="계정 관리 (아이디·비밀번호)" onPress={() => navigate('/mypage/account')} />
-        <MenuRow label="개선사항 요청" onPress={onOpenFeedback} accessibilityRole="button" />
+        <MenuRow label="내 정보 관리" onPress={() => navigate('/mypage/profile')} />
+        <MenuRow label="계정 관리" hint="아이디 확인·비밀번호 변경" onPress={() => navigate('/mypage/account')} />
+        <MenuRow
+          label="이용권"
+          hint={`${subscriptionStatusLabel(user.subscriptionStatus)}${expiry}`}
+          onPress={() => navigate('/mypage/subscription')}
+        />
+      </MenuGroup>
+
+      <MenuGroup title="설정과 도움">
+        <MenuRow label="알림 설정" onPress={() => navigate('/mypage/notifications')} />
+        <MenuRow label="개인정보 및 데이터" onPress={() => navigate('/mypage/privacy')} />
+        <MenuRow label="고객지원" onPress={() => navigate('/mypage/support')} />
       </MenuGroup>
     </View>
   );
 }
 
-function GenericMenu({
-  user,
-  navigate,
-  onOpenFeedback,
-}: {
-  user: UserSummary;
-  navigate: (path: string) => void;
-  onOpenFeedback: () => void;
-}) {
-  const isOrganizationTutor = user.role === 'TUTOR' && Boolean(user.organizationId);
+function formatShortDate(value: string) {
+  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' }).format(new Date(value));
+}
+
+function GenericMenu({ user, navigate }: { user: UserSummary; navigate: (path: string) => void }) {
   return (
     <View style={styles.menuGroups}>
       {user.role === 'TUTOR' ? (
@@ -161,18 +154,17 @@ function GenericMenu({
       ) : null}
       <MenuGroup title="계정">
         <MenuRow label="내 정보 관리" onPress={() => navigate('/mypage/profile')} />
-        <MenuRow label="계정 관리" onPress={() => navigate('/mypage/account')} />
+        <MenuRow label="계정 관리" hint="아이디 확인·비밀번호 변경" onPress={() => navigate('/mypage/account')} />
         <MenuRow
-          label={isOrganizationTutor ? '비즈니스 이용권' : '이용권/결제'}
-          hint={isOrganizationTutor ? '소속 기관의 이용권이 적용돼요' : undefined}
-          onPress={() => navigate('/mypage/subscription')}
+          label="이용권"
+          hint={user.role === 'PARENT' ? undefined : user.grantsAccess ? BETA_OPEN_ACCESS_NOTICE : '이용권은 관리자에게 문의해 주세요.'}
+          onPress={() => navigate(subscriptionPathFor(user))}
         />
       </MenuGroup>
-      <MenuGroup title="앱 설정">
+      <MenuGroup title="설정과 도움">
         <MenuRow label="알림 설정" onPress={() => navigate('/mypage/notifications')} />
         <MenuRow label="개인정보 및 데이터" onPress={() => navigate('/mypage/privacy')} />
         <MenuRow label="고객지원" onPress={() => navigate('/mypage/support')} />
-        <MenuRow label="개선사항 요청" onPress={onOpenFeedback} accessibilityRole="button" />
       </MenuGroup>
     </View>
   );
@@ -227,7 +219,7 @@ function MenuRow({
           <Text style={[styles.menuLabel, variant === 'danger' && styles.menuLabelDanger]} numberOfLines={1}>
             {label}
           </Text>
-          {hint ? <Text style={styles.menuHint} numberOfLines={1}>{hint}</Text> : null}
+          {hint ? <Text style={styles.menuHint} numberOfLines={2}>{hint}</Text> : null}
         </View>
       </View>
       <Icon name="chevronRight" size={16} color={storybookTheme.color.onCardMuted} />
@@ -250,14 +242,15 @@ const styles = StyleSheet.create({
     gap: storybookTheme.spacing.ml,
   },
   profileCard: {
+    flexDirection: 'row',
     alignItems: 'center',
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,
     borderWidth: 1,
     borderColor: storybookTheme.color.surfaceCardBorder,
     // spacing.lg(24)와 xl(32) 중간 - 프로필 카드는 앱 내 최상단 카드라서 살짝 여유있게.
-    padding: 28,
-    gap: storybookTheme.spacing.sm,
+    padding: storybookTheme.spacing.ml,
+    gap: storybookTheme.spacing.ml,
     ...storybookTheme.elevation.high,
   },
   avatar: {
@@ -267,7 +260,6 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: storybookTheme.spacing.xs,
     overflow: 'hidden',
   },
   avatarImage: { width: '100%', height: '100%' },
@@ -276,8 +268,10 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.goldText,
   },
-  roleBadgeRow: { flexDirection: 'row', justifyContent: 'center' },
+  profileText: { flex: 1, gap: storybookTheme.spacing.xs },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: storybookTheme.spacing.sm },
   name: {
+    flexShrink: 1,
     fontSize: storybookTheme.type.lg,
     lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
     letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
@@ -287,7 +281,6 @@ const styles = StyleSheet.create({
   profileMeta: {
     fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onCardMuted,
-    marginTop: storybookTheme.spacing.xs,
   },
   menuGroups: { gap: storybookTheme.spacing.md },
   menuGroup: { gap: storybookTheme.spacing.xs },
@@ -324,6 +317,8 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardTitle,
   },
   menuLabelDanger: { color: storybookTheme.color.error },
+  withdrawLink: { alignSelf: 'center', minHeight: 44, paddingHorizontal: storybookTheme.spacing.ml, justifyContent: 'center' },
+  withdrawText: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.error, textDecorationLine: 'underline' },
   menuHint: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onCardMuted,

@@ -1,16 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, ErrorState, FilterChip, LoadingState, SearchField, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
 import {
-  DEFAULT_BETA_STORY_ID,
   listStories,
   unlockStateFor,
   type StoryCatalogEntry,
 } from '@/entities/story';
+import { storyDestination } from '@/features/story-library';
 import { useBookmarks } from '@/entities/bookmark';
 import { useChildren } from '@/entities/child';
 import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
@@ -40,6 +40,7 @@ const TABS: { key: Tab; label: string }[] = [
  */
 export function LibraryPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const { width } = useWindowDimensions();
   const columns = width >= 860 ? 3 : width >= 520 ? 2 : 1;
@@ -138,7 +139,7 @@ export function LibraryPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'library')} onBack={() => navigate('/parent')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/parent')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">서재</Text>
 
@@ -235,20 +236,10 @@ function StoryCardWithFallback({
       category={story.category}
       locked={locked}
       progress={progressRatio}
-      lockedCaption={locked ? '구독하고 잠금 해제' : undefined}
+      lockedCaption={locked ? '이용권으로 잠금 해제' : undefined}
       onRemove={onUnbookmark}
       removeLabel={onUnbookmark ? `${story.title} 저장 해제` : undefined}
-      onPress={() => {
-        if (locked) {
-          navigate('/mypage/subscription');
-          return;
-        }
-        if (story.storyId === DEFAULT_BETA_STORY_ID) {
-          navigate('/demo');
-          return;
-        }
-        navigate(`/stories/${story.storyId}`);
-      }}
+      onPress={() => navigate(storyDestination(story, auth))}
     />
   );
 }

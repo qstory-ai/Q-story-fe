@@ -35,7 +35,7 @@ export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
           <Text style={styles.introBody}>{parentReport.completedStory}</Text>
           <ActionButton
             variant="primary"
-            label="부모 리포트 보기"
+            label="보호자 리포트 보기"
             onPress={openParentReport}
           />
           <View style={styles.splitRow}>

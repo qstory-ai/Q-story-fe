@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, RadioGroup, StatusBanner, storybookTheme } from '@/shared/ui';
 import {
@@ -12,6 +12,7 @@ import {
   type ClassResponse,
   type ClassStudentResponse,
 } from '@/entities/auth';
+import { InviteCodeCard, classInviteLink, classInviteShareMessage } from '@/features/invite-issue';
 import { listOrganizationTutors, type OrganizationTutorLink } from '@/entities/organization-tutor';
 import { messageForError } from '@/shared/api';
 
@@ -27,6 +28,7 @@ type LoadState =
 export function OrganizationClassDetailPage() {
   const { classId } = useParams<{ classId: string }>();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [pickedTutorId, setPickedTutorId] = useState<string | null>(null);
@@ -79,7 +81,7 @@ export function OrganizationClassDetailPage() {
   if (!director) return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, 'classes')} onBack={() => navigate('/organization/classes')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization/classes')}>
       <View style={styles.content}>
         {load.status === 'loading' && <LoadingState label="반 정보를 불러오는 중이에요…" />}
 
@@ -89,16 +91,14 @@ export function OrganizationClassDetailPage() {
 
         {load.status === 'ready' && (
           <>
-            <View style={styles.card}>
-              <Text style={styles.title} accessibilityRole="header">{load.classGroup.name}</Text>
-              <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>반 코드</Text>
-                <Text style={styles.metaValue}>{load.classGroup.joinCode}</Text>
-              </View>
-              <Text style={styles.body}>
-                학부모가 이 코드로 가입하면 아이가 아래 학생 명단에 올라가요. 코드는 여러 번 쓸 수 있어요.
-              </Text>
-            </View>
+            <Text style={styles.title} accessibilityRole="header">{load.classGroup.name}</Text>
+
+            <InviteCodeCard
+              reusable
+              shortCode={load.classGroup.joinCode}
+              link={classInviteLink(load.classGroup.joinCode)}
+              shareMessage={classInviteShareMessage(load.classGroup.name)}
+            />
 
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>담임 선생님</Text>
@@ -136,7 +136,7 @@ export function OrganizationClassDetailPage() {
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>학생 {load.students.length}명</Text>
               {load.students.length === 0 ? (
-                <Text style={styles.body}>아직 명단에 학생이 없어요. 학부모에게 반 코드를 전달해 보세요.</Text>
+                <Text style={styles.body}>아직 명단에 학생이 없어요. 보호자에게 반 코드를 전달해 보세요.</Text>
               ) : (
                 <View style={styles.list}>
                   {load.students.map((student) => (
@@ -145,8 +145,8 @@ export function OrganizationClassDetailPage() {
                         <Text style={styles.studentName}>{student.name} · {student.ageBand}</Text>
                         <Text style={styles.studentMeta}>
                           {student.parentDisplayName
-                            ? `학부모 ${student.parentDisplayName}${student.parentEmail ? ` · ${student.parentEmail}` : ''}`
-                            : '학부모 연결 대기 중'}
+                            ? `보호자 ${student.parentDisplayName}${student.parentEmail ? ` · ${student.parentEmail}` : ''}`
+                            : '보호자 연결 대기'}
                         </Text>
                         <Text style={styles.studentMeta}>등록: {formatShortDate(student.createdAt)}</Text>
                       </View>
@@ -190,21 +190,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onCardTitle,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
-  },
-  metaLabel: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
-  metaValue: {
-    fontSize: storybookTheme.type.md,
-    letterSpacing: 2,
-    fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onCardTitle,
+    color: storybookTheme.color.onContent,
   },
   sectionTitle: {
     fontSize: storybookTheme.type.md,

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, TextField, storybookTheme } from '@/shared/ui';
 import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
@@ -20,6 +20,7 @@ type OrgsLoad = { status: 'loading' } | { status: 'ready'; organizations: TutorO
  */
 export function TutorJoinOrganizationPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [codeInput, setCodeInput] = useState('');
   const [codeError, setCodeError] = useState<string | null>(null);
@@ -78,11 +79,11 @@ export function TutorJoinOrganizationPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'mypage')} onBack={() => navigate('/mypage')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">기관 소속 참여</Text>
         <Text style={styles.subtitle}>
-          기관 관리자에게 받은 초대 코드나 링크로 소속을 완성해요.
+          관리자에게 받은 초대 코드나 링크로 소속을 완성해요.
         </Text>
 
         <View style={styles.card}>

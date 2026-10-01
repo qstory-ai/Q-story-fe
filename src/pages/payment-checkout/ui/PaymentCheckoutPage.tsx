@@ -1,12 +1,12 @@
 import { webOrigin } from '@/shared/config';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { loadTossPayments, type TossPaymentsWidgets } from '@tosspayments/tosspayments-sdk';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { dashboardNavItems, homePathFor, useAuth } from '@/entities/auth';
 import { createPaymentOrder, type PaymentOrder, type PaymentTarget } from '@/entities/payment';
 
 type LoadState =
@@ -18,6 +18,7 @@ const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY as string | undefined;
 
 export function PaymentCheckoutPage() {
   const navigate = useNavigate();
+  const { pathname, search } = useLocation();
   const { state } = useAuth();
   const [params] = useSearchParams();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
@@ -33,8 +34,10 @@ export function PaymentCheckoutPage() {
       || (target === 'ORGANIZATION' && state.user.role === 'DIRECTOR' && Boolean(state.user.organizationId)));
 
   useEffect(() => {
-    if (state.status !== 'loading' && !allowed) navigate('/', { replace: true });
-  }, [state.status, allowed, navigate]);
+    if (state.status === 'anonymous') {
+      navigate(`/login?next=${encodeURIComponent(pathname + search)}`, { replace: true });
+    }
+  }, [state.status, navigate, pathname, search]);
 
   // state 객체 전체가 아니라 token/userId로 좁힌다 - updateUser 등으로 state identity만 바뀌어도
   // 주문을 새로 만들고 위젯을 다시 그리지 않도록.
@@ -72,8 +75,22 @@ export function PaymentCheckoutPage() {
     return () => { cancelled = true; };
   }, [token, userId, target, allowed]);
 
-  if (!allowed) return null;
+  if (state.status !== 'authenticated') return null;
   const user = state.user;
+  if (!allowed) {
+    return (
+      <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(homePathFor(user))}>
+        <View style={styles.content}>
+          <Text style={styles.title} accessibilityRole="header">이 계정으로는 결제할 수 없어요</Text>
+          <StatusBanner
+            variant="warning"
+            label={target === null ? '결제 정보가 올바르지 않아요.' : '보호자 이용권은 보호자 계정에서, 기관 이용권은 관리자 계정에서 결제해요.'}
+          />
+          <ActionButton label="내 홈으로" onPress={() => navigate(homePathFor(user))} />
+        </View>
+      </AppNavShell>
+    );
+  }
   const backPath = target === 'ORGANIZATION' ? '/organization/subscription' : '/mypage/subscription';
 
   async function requestPayment() {
@@ -93,9 +110,9 @@ export function PaymentCheckoutPage() {
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, 'mypage')} onBack={() => navigate(backPath)}>
+    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(backPath)}>
       <View style={styles.content}>
-        <Text style={styles.title} accessibilityRole="header">결제하기</Text>
+        <Text style={styles.title} accessibilityRole="header">이용권 결제</Text>
         {load.status === 'error' ? <ErrorState message={load.message} onRetry={() => window.location.reload()} /> : null}
         {/* 위젯은 'ready' 전환 전에 setup() 안에서 두 div에 mount된다(그 성공이 'ready'의 조건).
             그래서 카드와 두 div는 status와 무관하게 항상 렌더링하고 안의 내용만 바꾼다. */}
@@ -111,7 +128,7 @@ export function PaymentCheckoutPage() {
           <div id="qstory-payment-method" />
           <div id="qstory-payment-agreement" />
           {load.status === 'ready' ? (
-            <ActionButton label="결제 요청" onPress={() => { void requestPayment(); }} />
+            <ActionButton label="결제하기" onPress={() => { void requestPayment(); }} />
           ) : null}
         </View>
       </View>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
@@ -26,6 +26,7 @@ const NO_HOMEROOM = '';
  */
 export function OrganizationClassesPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [name, setName] = useState('');
@@ -96,7 +97,7 @@ export function OrganizationClassesPage() {
   if (!director) return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, 'home')} onBack={() => navigate('/organization')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">반/학생 관리</Text>
 

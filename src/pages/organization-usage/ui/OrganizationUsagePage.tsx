@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, LoadingState, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -17,12 +17,13 @@ type LoadState =
   | { status: 'error'; message: string };
 
 /**
- * IA "기관 관리자 > 이용 현황 관리". 지표 카드 5개(선생님/반/학생/연결된 학부모/누적 완주)와 최근
+ * IA "기관 관리자 > 이용 현황 관리". 지표 카드 5개(선생님/반/학생/연결된 보호자/누적 완주)와 최근
  * 활동 리스트. 최근 활동은 카탈로그와 join해 이야기 제목을 표시하되, 카탈로그 실패는 조용히
  * 흡수해 storyId 원문을 대신 노출한다.
  */
 export function OrganizationUsagePage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
@@ -60,7 +61,7 @@ export function OrganizationUsagePage() {
   if (!director) return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, 'home')} onBack={() => navigate('/organization')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">이용 현황</Text>
         <Text style={styles.subtitle}>기관 전체의 요약 지표와 최근 완주 활동을 확인해요.</Text>
@@ -78,13 +79,13 @@ export function OrganizationUsagePage() {
               <MetricCard label="선생님" value={load.usage.tutorCount} />
               <MetricCard label="반" value={load.usage.classCount} />
               <MetricCard label="학생" value={load.usage.studentCount} />
-              <MetricCard label="연결된 학부모" value={load.usage.parentCount} />
+              <MetricCard label="연결된 보호자" value={load.usage.parentCount} />
             </View>
 
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>최근 활동</Text>
               {load.usage.recentActivity.length === 0 ? (
-                <Text style={styles.body}>아직 완주 기록이 없어요.</Text>
+                <Text style={styles.body}>아직 활동이 없어요.</Text>
               ) : (
                 load.usage.recentActivity.map((activity) => (
                   <View key={activity.completionId} style={styles.activityRow}>

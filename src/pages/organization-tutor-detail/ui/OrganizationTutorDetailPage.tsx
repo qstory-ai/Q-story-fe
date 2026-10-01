@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -39,6 +39,7 @@ const LESSON_STATUS_LABEL: Record<Lesson['status'], string> = {
 export function OrganizationTutorDetailPage() {
   const { tutorId } = useParams<{ tutorId: string }>();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<Load>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
@@ -84,7 +85,7 @@ export function OrganizationTutorDetailPage() {
   if (!director) return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, 'home')} onBack={() => navigate('/organization/tutors')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization/tutors')}>
       <View style={styles.content}>
         {load.status === 'loading' ? (
           <LoadingState label="선생님 정보를 불러오는 중이에요…" />

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -27,6 +27,7 @@ type InvitesLoad = { status: 'loading' } | { status: 'ready'; invites: Organizat
  */
 export function OrganizationTutorsPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const director = useDirectorSession(navigate);
   const [tutors, setTutors] = useState<TutorsLoad>({ status: 'loading' });
   const [invites, setInvites] = useState<InvitesLoad>({ status: 'loading' });
@@ -106,7 +107,7 @@ export function OrganizationTutorsPage() {
     : [];
 
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, 'home')} onBack={() => navigate('/organization')}>
+    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">선생님 관리</Text>
         <Text style={styles.subtitle}>

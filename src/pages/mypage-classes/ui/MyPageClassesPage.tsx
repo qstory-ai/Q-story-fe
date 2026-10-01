@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -27,6 +27,7 @@ type Load<T> = { status: 'loading' } | { status: 'ready'; items: T[] } | { statu
  */
 export function MyPageClassesPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state, setSession, refresh } = useAuth();
   const [memberships, setMemberships] = useState<Load<ClassMembershipResponse>>({ status: 'loading' });
   const [classCodeInput, setClassCodeInput] = useState('');
@@ -120,7 +121,7 @@ export function MyPageClassesPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'mypage')} onBack={() => navigate('/mypage')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">수업 연결</Text>
 

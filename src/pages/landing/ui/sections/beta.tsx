@@ -71,7 +71,7 @@ export function BetaSection({ isWide, sectionRef, onGoToDemo }: BetaSectionProps
             <View style={styles.reportPreviewIcon}>
               <Icon name="report" size={16} color={storybookTheme.color.primary} />
             </View>
-            <Text style={styles.reportPreviewHeaderLabel}>부모 리포트 미리보기</Text>
+            <Text style={styles.reportPreviewHeaderLabel}>보호자 리포트 미리보기</Text>
             <View style={styles.reportBadge}>
               <Text style={styles.reportBadgeText}>완주 후</Text>
             </View>

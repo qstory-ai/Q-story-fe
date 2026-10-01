@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
@@ -16,6 +16,7 @@ type LoadState =
  */
 export function StaffHomePage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
 
@@ -48,7 +49,7 @@ export function StaffHomePage() {
   if (state.status !== 'authenticated' || state.user.role !== 'STAFF') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)}>
       <View style={styles.scroll}>
         <View style={styles.card}>
           <Text style={styles.eyebrow}>콘텐츠 운영자</Text>

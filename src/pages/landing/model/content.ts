@@ -53,7 +53,7 @@ export const EXPERIENCE_SUPPORT: Array<{ icon: IconName; label: string }> = [
   { icon: 'user', label: '아이 이름으로 초대' },
   { icon: 'play', label: '자막·다시 듣기·이어 듣기' },
   { icon: 'pencil', label: '글로 질문하거나 건너뛰기' },
-  { icon: 'report', label: '완주 뒤 부모 리포트' },
+  { icon: 'report', label: '완주 뒤 보호자 리포트' },
 ];
 
 export const PROOF_POINTS = [
@@ -75,7 +75,7 @@ export const TRUST_PILLARS: Array<{ icon: IconName; title: string; body: string 
 export const BETA_QUICK_FACTS: Array<{ icon: IconName; title: string; body: string }> = [
   { icon: 'users', title: '6–9세 아이와 보호자', body: '함께 보고 들어요' },
   { icon: 'clock', title: '질문 방식에 따라 시간이 달라져요', body: '함께 한 편을 완주해요' },
-  { icon: 'report', title: '완주 뒤 부모 리포트', body: '질문과 변화를 확인해요' },
+  { icon: 'report', title: '완주 뒤 보호자 리포트', body: '질문과 변화를 확인해요' },
 ];
 
 export const FAQ_ITEMS = [

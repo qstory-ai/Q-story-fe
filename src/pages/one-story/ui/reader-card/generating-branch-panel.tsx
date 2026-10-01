@@ -1,3 +1,5 @@
+import { withParticle } from '@/shared/lib';
+
 import type { OneStoryRuntime } from '../../model';
 import { LoadingPanel } from './loading-panel';
 
@@ -9,7 +11,8 @@ import { LoadingPanel } from './loading-panel';
  * "질문 다시 하기/건너뛰기" 같은 탈출 버튼을 두지 않는다.
  */
 export function GeneratingBranchPanel({ runtime }: { runtime: OneStoryRuntime }) {
-  const { runtimeState } = runtime;
+  const { runtimeState, storyPackage } = runtime;
+  const storyTitle = storyPackage.manifest.title;
 
   if (runtimeState.status !== 'generating-branch') {
     return null;
@@ -19,7 +22,7 @@ export function GeneratingBranchPanel({ runtime }: { runtime: OneStoryRuntime })
     <LoadingPanel
       title={
         <>
-          헨젤과 그레텔이{'\n'}
+          {withParticle(storyTitle, '이/가')}{'\n'}
           새로운 이야기를 만들고 있어요
         </>
       }

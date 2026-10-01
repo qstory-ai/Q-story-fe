@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Modal, RadioGroup, StatusBanner, TextareaField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, RadioGroup, StatusBanner, TextareaField, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, deleteAccount, useAuth } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
+import { useBackOr } from '@/shared/lib';
 
 /** 백엔드 AuthService.DELETE_REASON_CATEGORIES와 문구를 맞춰야 한다. */
 const REASON_CATEGORIES = [
@@ -18,10 +19,11 @@ const REASON_CATEGORIES = [
 /** 회원 탈퇴 + 설문 - 소프트 삭제라 데이터가 완전히 사라진다고 말하지 않고, 로그인이 즉시 막힌다고만 안내한다. */
 export function MyPageDeleteAccountPage() {
   const navigate = useNavigate();
+  const goBack = useBackOr('/mypage');
+  const { pathname } = useLocation();
   const { state, logout } = useAuth();
   const [reasonCategory, setReasonCategory] = useState<string | null>(null);
   const [reasonDetail, setReasonDetail] = useState('');
-  const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,11 +43,9 @@ export function MyPageDeleteAccountPage() {
     setError(null);
     try {
       await deleteAccount(token, { reasonCategory, reasonDetail: reasonDetail.trim() || undefined });
-      setConfirming(false);
       logout();
       navigate('/', { replace: true });
     } catch (err) {
-      setConfirming(false);
       setError(messageForError(err, '탈퇴 처리 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setDeleting(false);
@@ -53,10 +53,10 @@ export function MyPageDeleteAccountPage() {
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, 'mypage')} onBack={() => navigate('/mypage/account')}>
+    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={goBack}>
       <View style={styles.content}>
         <View style={styles.card}>
-          <Text style={styles.title}>정말 탈퇴하시겠어요?</Text>
+          <Text style={styles.title} accessibilityRole="header">정말 탈퇴하시겠어요?</Text>
           <Text style={styles.body}>탈퇴하면 이 아이디로는 더 이상 로그인할 수 없어요.</Text>
 
           <Text style={styles.sectionTitle}>탈퇴하는 이유를 알려주세요</Text>
@@ -80,19 +80,13 @@ export function MyPageDeleteAccountPage() {
           <ActionButton
             label="탈퇴하기"
             variant="stop"
-            onPress={() => setConfirming(true)}
-            disabled={!reasonCategory}
+            onPress={handleConfirmDelete}
+            loading={deleting}
+            disabled={!reasonCategory || deleting}
           />
         </View>
       </View>
 
-      <Modal
-        visible={confirming}
-        title="탈퇴를 진행할까요?"
-        positiveAction={{ label: '네, 탈퇴할게요', onPress: handleConfirmDelete, loading: deleting }}
-        negativeAction={{ label: '취소', onPress: () => setConfirming(false), disabled: deleting }}
-        accessibilityLabel="회원 탈퇴 확인"
-      />
     </AppNavShell>
   );
 }

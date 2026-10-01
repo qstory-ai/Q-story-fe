@@ -6,5 +6,7 @@ export function SignupPage() {
   const roleParam = searchParams.get('role');
   const qs = new URLSearchParams({ flow: 'sign-up' });
   if (roleParam) qs.set('role', roleParam);
+  const nextParam = searchParams.get('next');
+  if (nextParam) qs.set('next', nextParam);
   return <Navigate to={`/?${qs.toString()}`} replace />;
 }

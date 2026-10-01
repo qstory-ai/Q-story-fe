@@ -1,5 +1,7 @@
 import { Text, View } from 'react-native';
 
+import { withParticle } from '@/shared/lib';
+
 import type { OneStoryRuntime } from '../../model';
 import { statusCopy } from '../../lib/runtime-view';
 import { styles } from '../styles';
@@ -48,7 +50,7 @@ export function ReaderCard({ runtime }: { runtime: OneStoryRuntime }) {
             <View style={styles.statusDot} />
             <Text style={styles.statusText}>
               {isQuestionInvitePlayback
-                ? `${speaker?.displayName ?? '이야기 친구'}이 묻고 있어요`
+                ? `${withParticle(speaker?.displayName ?? '이야기 친구', '이/가')} 묻고 있어요`
                 : statusCopy(runtimeState, runtime.isClassLesson)}
             </Text>
           </View>

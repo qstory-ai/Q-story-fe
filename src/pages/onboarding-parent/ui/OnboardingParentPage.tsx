@@ -71,7 +71,7 @@ export function OnboardingParentPage() {
       await addChild({ name: name.trim(), birthYear, ageBand: ageBandFromBirthYear(birthYear), avatarKey });
       setStep('consent');
     } catch (failure: unknown) {
-      const message = messageForError(failure, '아이 프로필을 만들지 못했어요.');
+      const message = messageForError(failure, '아이 프로필을 만들지 못했어요. 잠시 후 다시 시도해 주세요.');
       setError(message);
     } finally {
       setSubmitting(false);
@@ -94,14 +94,16 @@ export function OnboardingParentPage() {
           <ProgressPip filled={step === 'consent' || step === 'done'} />
           <ProgressPip filled={step === 'done'} />
         </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="온보딩 나중에 하기"
-          onPress={markDoneAndGoHome}
-          hitSlop={8}
-        >
-          <Text style={styles.skipLabel}>나중에</Text>
-        </Pressable>
+        {step === 'child' ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="아이 등록 나중에 하기"
+            onPress={() => setStep('consent')}
+            style={styles.skipButton}
+          >
+            <Text style={styles.skipLabel}>나중에</Text>
+          </Pressable>
+        ) : null}
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -175,7 +177,7 @@ export function OnboardingParentPage() {
             />
             <ConsentBlock
               title="리포트 표시 범위"
-              body="완주 리포트는 부모(그리고 아이가 속한 반의 담임 선생님과 기관 관리자)에게만 노출돼요. 외부 공유는 별도 동의 없이는 하지 않아요."
+              body="완주 리포트는 보호자(그리고 아이가 속한 반의 담임 선생님과 관리자)에게만 노출돼요. 외부 공유는 별도 동의 없이는 하지 않아요."
               checked={consentReport}
               onChange={setConsentReport}
             />
@@ -264,6 +266,7 @@ const styles = StyleSheet.create({
     maxWidth: 60,
   },
   progressPipFilled: { backgroundColor: storybookTheme.color.primary },
+  skipButton: { minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' },
   skipLabel: {
     color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,

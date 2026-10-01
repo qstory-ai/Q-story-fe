@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, EmptyState, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -38,6 +38,7 @@ type StudentSessions = {
  */
 export function TutorReportsPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [studentsLoad, setStudentsLoad] = useState<StudentsLoad>({ status: 'loading' });
   const [sessionsByStudent, setSessionsByStudent] = useState<Record<string, StudentSessions>>({});
@@ -114,7 +115,7 @@ export function TutorReportsPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'reports')} onBack={() => navigate('/tutor')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">수업 리포트</Text>
         <Text style={styles.subtitle}>
@@ -170,7 +171,7 @@ function StudentSection({
             {section.student.classType ? ` · ${section.student.classType}` : ''}
           </Text>
         </View>
-        <Pill label={isLinked ? '부모 연결됨 · 자동 전달' : '부모 연결 대기'} tone="onCard" />
+        <Pill label={isLinked ? '보호자 연결됨 · 자동 전달' : '보호자 연결 대기'} tone="onCard" />
       </View>
 
       {section.loading ? (

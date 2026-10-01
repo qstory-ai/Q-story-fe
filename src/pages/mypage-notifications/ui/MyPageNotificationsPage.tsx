@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, LoadingState, StatusBanner, SwitchField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
@@ -17,12 +17,13 @@ type LoadState =
   | { status: 'error'; message: string };
 
 /**
- * IA "[4] 마이페이지 > 알림 설정" 화면. 학부모와 선생님 모두 사용할 수 있다. 각 스위치는 상태를
+ * IA "[4] 마이페이지 > 알림 설정" 화면. 모든 로그인 역할이 쓸 수 있다. 각 스위치는 상태를
  * BE에 즉시 PATCH로 보내는 낙관적 UI - 저장 버튼 없이 토글이 곧 저장이다. 수업 시작/완료 알림
  * 두 개는 실제로 부모 계정에만 발송되는 알림이라 PARENT 역할에만 노출한다.
  */
 export function MyPageNotificationsPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [savingKey, setSavingKey] = useState<keyof NotificationSettings | null>(null);
@@ -31,12 +32,7 @@ export function MyPageNotificationsPage() {
 
   useEffect(() => {
     if (state.status === 'loading') return;
-    if (
-      state.status !== 'authenticated' ||
-      (state.user.role !== 'PARENT' && state.user.role !== 'TUTOR')
-    ) {
-      navigate('/', { replace: true });
-    }
+    if (state.status !== 'authenticated') navigate('/', { replace: true });
   }, [state, navigate]);
 
   const authToken = state.status === 'authenticated' ? state.token : null;
@@ -79,7 +75,7 @@ export function MyPageNotificationsPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'mypage')} onBack={() => navigate('/mypage')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">알림 설정</Text>
 

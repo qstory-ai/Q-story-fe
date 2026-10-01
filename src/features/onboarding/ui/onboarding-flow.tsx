@@ -2,6 +2,8 @@ import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
+import { afterSignUpPath } from '../model/after-sign-up';
+
 import { ActionButton, BrandLockup, Checkbox, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
   createOrganization,
@@ -48,6 +50,8 @@ type OnboardingFlowProps = {
   initialClassCode?: string;
   /** 로그인 뒤 역할 홈 대신 돌아갈 앱 내부 경로(반 초대 링크 등). */
   signInNext?: string;
+  /** 가입 뒤 돌아갈 앱 내부 경로(기관 초대 수락 등). */
+  signUpNext?: string;
   /** "← 처음으로"로 닫을 때 - HomePage가 평소 화면으로 되돌아간다. */
   onExit: () => void;
   /** 이 흐름 안에서 세션이 만들어졌을 때(가입 직후). HomePage가 이걸 보고 역할 홈
@@ -77,15 +81,15 @@ const VALUE_SLIDES = [
 ];
 
 const DISPLAY_NAME_PLACEHOLDER: Record<OnboardingRole, string> = {
-  PARENT: '아이에게 보일 부모님 이름',
-  TUTOR: '아이와 부모님께 보일 이름 (예: 김하늘)',
+  PARENT: '아이에게 보일 보호자 이름',
+  TUTOR: '아이와 보호자께 보일 이름 (예: 김하늘)',
   DIRECTOR: '담당자 이름',
 };
 
-const ROLE_CARDS: Array<{ role: OnboardingRole; eyebrow: string; title: string; description: string }> = [
-  { role: 'PARENT', eyebrow: '가정에서', title: '학부모님', description: '아이와 함께 이야기 서재를 쓰고, 완주 리포트를 받아요.' },
-  { role: 'DIRECTOR', eyebrow: '유치원·학원·기관에서', title: '기관 및 단체', description: '반을 만들고 여러 아이가 함께 듣는 수업을 준비해요.' },
-  { role: 'TUTOR', eyebrow: '수업에서', title: '선생님', description: '반을 만들어 수업을 준비하고 부모님께 리포트를 전달해요. 1:1 과외도 아이 한 명짜리 반으로 시작해요. 기관 소속·독립 활동 모두 가능해요.' },
+const ROLE_CARDS: Array<{ role: OnboardingRole; title: string; description: string }> = [
+  { role: 'PARENT', title: '보호자', description: '아이와 함께 이야기 서재를 쓰고, 리포트를 받아요.' },
+  { role: 'DIRECTOR', title: '기관', description: '유치원·학원에서 반을 만들고 여러 아이가 함께 듣는 수업을 준비해요.' },
+  { role: 'TUTOR', title: '선생님', description: '반을 만들어 수업을 준비하고 보호자께 리포트를 전달해요. 1:1 과외도 아이 한 명짜리 반으로 시작해요. 기관 소속·독립 활동 모두 가능해요.' },
 ];
 
 /**
@@ -99,6 +103,7 @@ export function OnboardingFlow({
   initialRole,
   initialClassCode,
   signInNext,
+  signUpNext,
   onExit,
   onSessionCreated,
   skipValueCarousel = false,
@@ -136,11 +141,7 @@ export function OnboardingFlow({
       onSessionCreated?.();
       setSession(token, user);
       setPendingNext(next ?? null);
-      const nextAfterCarousel = user.role === 'PARENT'
-        ? '/onboarding/parent'
-        : user.role === 'TUTOR'
-          ? '/onboarding/tutor'
-          : homePathFor(user);
+      const nextAfterCarousel = afterSignUpPath(user.role as OnboardingRole, signUpNext);
       if (skipValueCarousel) {
         goHome(nextAfterCarousel, nextAfterCarousel === '/onboarding/parent' && next ? { next } : undefined);
         return;
@@ -148,7 +149,7 @@ export function OnboardingFlow({
       setPendingHomePath(nextAfterCarousel);
       go('value-onboarding');
     },
-    [setSession, go, goHome, onSessionCreated, skipValueCarousel],
+    [setSession, go, goHome, onSessionCreated, skipValueCarousel, signUpNext],
   );
 
   // 캐러셀엔 자체 "건너뛰기"가 있어 상단 링크를 숨긴다.
@@ -290,7 +291,6 @@ function RoleStep({ onSelect }: { onSelect: (role: OnboardingRole) => void }) {
             onPress={() => onSelect(card.role)}
             style={({ pressed }) => [styles.roleCard, pressed && styles.pressed]}
           >
-            <Text style={styles.roleCardEyebrow}>{card.eyebrow}</Text>
             <Text style={styles.roleCardTitle}>{card.title}</Text>
             <Text style={styles.roleCardBody}>{card.description}</Text>
           </Pressable>
@@ -372,12 +372,12 @@ function SignUpStep({
     } catch (failure) {
       const fallback =
         role === 'DIRECTOR'
-          ? '기관 관리자 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
+          ? '관리자 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
           : role === 'TUTOR'
             ? '선생님 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
             : useJoinFlow
               ? '가입하지 못했어요. 반 코드와 입력값을 확인해 주세요.'
-              : '학부모 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.';
+              : '보호자 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.';
       setError(messageForError(failure, fallback));
     } finally {
       setSubmitting(false);
@@ -401,7 +401,7 @@ function SignUpStep({
       <Text style={styles.eyebrow}>회원가입 · 2 / 2</Text>
       <Text style={styles.carouselTitle}>계정을 만들어볼까요?</Text>
       <Text style={[styles.welcomeLead, styles.formLead]}>
-        {role === 'PARENT' ? '학부모' : role === 'DIRECTOR' ? '기관 및 단체' : '선생님'} 홈을 준비할게요.
+        {role === 'PARENT' ? '보호자' : role === 'DIRECTOR' ? '기관' : '선생님'} 홈을 준비할게요.
       </Text>
 
       {role === 'PARENT' && (
@@ -419,14 +419,14 @@ function SignUpStep({
               <Text style={styles.formNote}>가입하고 아이 프로필을 만들면 이 반에 연결할 아이를 고를 수 있어요.</Text>
             </>
           ) : (
-            <Text style={styles.formNote}>반 코드 없이 학부모 계정만 만들어요.</Text>
+            <Text style={styles.formNote}>반 코드 없이 보호자 계정만 만들어요.</Text>
           )}
         </>
       )}
 
       {role === 'DIRECTOR' && (
         <TextField
-          label="기관 및 단체 이름"
+          label="기관 이름"
           value={orgName}
           onChangeText={setOrgName}
           placeholder="예: 무지개 유치원"
@@ -671,7 +671,6 @@ const styles = StyleSheet.create({
     padding: 18,
     gap: 4,
   },
-  roleCardEyebrow: { color: storybookTheme.color.primary, fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.semibold },
   roleCardTitle: {
     color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.md,

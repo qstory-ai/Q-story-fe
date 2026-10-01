@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { BrandLockup, AppNavShell, Card, EmptyState, Icon, LoadingState, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
+import { relativeDayLabel } from '@/shared/lib';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
+import { storyDestination } from '@/features/story-library';
 import { HomeSection } from '@/features/home-section';
 import { ChildSelector } from '@/features/child-selector';
 import { MonthCalendar } from '@/features/month-calendar';
@@ -34,6 +36,7 @@ import { formatReportDuration } from '@/pages/one-story';
  */
 export function ParentHomePage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { state } = useAuth();
   const { width } = useWindowDimensions();
   const isWide = width >= 640;
@@ -138,7 +141,7 @@ export function ParentHomePage() {
   const displayName = selectedChild?.name ?? state.user.displayName;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, 'home')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)}>
       <View style={styles.scroll}>
         <TopBar token={state.token} />
 
@@ -162,7 +165,7 @@ export function ParentHomePage() {
         {hero ? (
           <HeroRecommendation
             story={hero}
-            onPress={() => navigate(`/stories/${hero.storyId}`)}
+            onPress={() => navigate(storyDestination(hero, state))}
             locked={unlockStateFor(hero, state) === 'locked'}
           />
         ) : catalogLoading ? (
@@ -175,7 +178,7 @@ export function ParentHomePage() {
           <View style={styles.section}>
             <HomeSection
               title="이어서 읽기"
-              subtitle={`${progress.childName || displayName}님이 어제 읽던 이야기예요.`}
+              subtitle={`${progress.childName || displayName}님이 ${relativeDayLabel(progress.savedAt)} 읽던 이야기예요.`}
             >
               <ContinueReadingCard
                 progress={progress}
@@ -199,7 +202,7 @@ export function ParentHomePage() {
                   size="mini"
                   title={story.title}
                   coverImageUrl={story.coverImageUrl}
-                  onPress={() => navigate(`/stories/${story.storyId}`)}
+                  onPress={() => navigate(storyDestination(story, state))}
                   locked={unlockStateFor(story, state) === 'locked'}
                 />
               ))}
@@ -216,7 +219,7 @@ export function ParentHomePage() {
                   size="mini"
                   title={story.title}
                   coverImageUrl={story.coverImageUrl}
-                  onPress={() => navigate(`/stories/${story.storyId}`)}
+                  onPress={() => navigate(storyDestination(story, state))}
                   locked={unlockStateFor(story, state) === 'locked'}
                 />
               ))}

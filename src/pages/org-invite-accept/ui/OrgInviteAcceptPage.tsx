@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { homePathFor, markOnboardingDone, useAuth } from '@/entities/auth';
@@ -27,6 +27,7 @@ export function OrgInviteAcceptPage() {
   const isCodeFlow = Boolean(rawCode && !rawToken);
   const identifier = isCodeFlow ? (rawCode ?? '') : (rawToken ?? '');
   const navigate = useNavigate();
+  const location = useLocation();
   const { state, refresh } = useAuth();
 
   const [stage, setStage] = useState<Stage>('loading');
@@ -66,8 +67,8 @@ export function OrgInviteAcceptPage() {
   const onAccept = useCallback(async () => {
     if (!identifier) return;
     if (state.status !== 'authenticated') {
-      // 비로그인 - 선생님 가입으로 안내. IA 상 신규 계정 만들며 수락은 지원 범위 밖.
-      navigate('/signup?role=tutor');
+      // 비로그인 - 선생님 가입으로 안내. 가입을 마치면 이 화면으로 돌아와 수락한다.
+      navigate(`/signup?role=tutor&next=${encodeURIComponent(location.pathname)}`);
       return;
     }
     if (state.user.role !== 'TUTOR') {
@@ -93,7 +94,7 @@ export function OrgInviteAcceptPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [identifier, isCodeFlow, state, navigate, refresh]);
+  }, [identifier, isCodeFlow, state, navigate, location.pathname, refresh]);
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
@@ -122,7 +123,7 @@ export function OrgInviteAcceptPage() {
             </Text>
             <Text style={styles.body}>
               수락하면 이 기관의 관리자에게 선생님으로 등록돼요. 계정과 학생 데이터는 그대로 유지되고,
-              필요할 땐 마이페이지에서 소속을 해제할 수 있어요.
+              소속 해제가 필요하면 관리자에게 요청해 주세요.
             </Text>
             {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
             <ActionButton

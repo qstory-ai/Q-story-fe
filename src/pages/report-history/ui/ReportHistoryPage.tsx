@@ -147,7 +147,7 @@ export function ReportHistoryPage() {
 
   const emptyMessageForTab =
     tab === 'comprehensive'
-      ? '아직 종합 리포트에 담을 이야기가 아직 없어요. 이야기를 두세 편 마치면 요약이 채워져요.'
+      ? '종합 리포트에 담을 이야기가 아직 없어요. 이야기를 두세 편 마치면 요약이 채워져요.'
       : '아직 마친 이야기가 없어요. 이야기를 끝까지 읽으면 여기에 기록이 남아요.';
 
   if (!canView) return null;

@@ -85,7 +85,7 @@ export function OrganizationUsagePage() {
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>최근 활동</Text>
               {load.usage.recentActivity.length === 0 ? (
-                <Text style={styles.body}>아직 리포트가 없어요.</Text>
+                <Text style={styles.body}>아직 활동이 없어요.</Text>
               ) : (
                 load.usage.recentActivity.map((activity) => (
                   <View key={activity.completionId} style={styles.activityRow}>

@@ -147,7 +147,7 @@ function GenericMenu({ user, navigate }: { user: UserSummary; navigate: (path: s
         <MenuRow label="계정 관리" onPress={() => navigate('/mypage/account')} />
         <MenuRow
           label="이용권"
-          hint={user.role === 'PARENT' ? undefined : BETA_OPEN_ACCESS_NOTICE}
+          hint={user.role === 'PARENT' ? undefined : user.grantsAccess ? BETA_OPEN_ACCESS_NOTICE : '이용권은 관리자에게 문의해 주세요.'}
           onPress={() => navigate(subscriptionPathFor(user))}
         />
       </MenuGroup>

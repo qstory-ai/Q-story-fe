@@ -6,7 +6,7 @@ import { ActionButton, AppNavShell, LoadingState, StatusBanner, storybookTheme }
 import { dashboardNavItems, fetchEntitlement, useDirectorSession, type EntitlementResponse } from '@/entities/auth';
 import { getOrganizationQuote, type OrganizationQuote } from '@/entities/payment';
 import { messageForError } from '@/shared/api';
-import { subscriptionStatusLabel } from '@/shared/config';
+import { BETA_OPEN_ACCESS_NOTICE, subscriptionStatusLabel } from '@/shared/config';
 
 type LoadState =
   | { status: 'loading' }
@@ -40,10 +40,13 @@ export function OrganizationSubscriptionPage() {
         {load.status === 'ready' ? (
           <View style={styles.card}>
             <Text style={styles.heading}>{subscriptionStatusLabel(load.entitlement.subscriptionStatus)}</Text>
-            <StatusBanner
-              label={load.entitlement.grantsAccess ? '기관 구성원이 전체 이야기를 이용할 수 있어요.' : '지금은 무료 이야기만 이용할 수 있어요.'}
-              variant={load.entitlement.grantsAccess ? 'info' : 'warning'}
-            />
+            {load.entitlement.grantsAccess ? (
+              <StatusBanner label="기관 구성원이 전체 이야기를 이용할 수 있어요." variant="info" />
+            ) : director.user.grantsAccess ? (
+              <StatusBanner label={BETA_OPEN_ACCESS_NOTICE} variant="info" />
+            ) : (
+              <StatusBanner label="지금은 무료 이야기만 이용할 수 있어요." variant="warning" />
+            )}
             {load.entitlement.subscriptionExpiresAt ? <Text style={styles.body}>이용권 만료일 · {formatDate(load.entitlement.subscriptionExpiresAt)}</Text> : null}
             <QuoteSection quote={load.quote} />
             <ActionButton

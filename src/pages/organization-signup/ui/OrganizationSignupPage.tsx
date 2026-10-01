@@ -13,7 +13,7 @@ import {
   type UserSummary,
 } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
-import { subscriptionStatusLabel } from '@/shared/config';
+import { BETA_OPEN_ACCESS_NOTICE, subscriptionStatusLabel } from '@/shared/config';
 
 /**
  * DIRECTOR 홈("/organization"). 기관이 없으면 기관 등록, 있으면 대시보드를 보여 준다 - 한 방향으로만
@@ -143,11 +143,13 @@ function ClassManagementStep({
               (EntitlementService.assertAccessible) - 그래서 "구독 후 전체 이야기"라고만 안내한다. */}
           {entitlement ? (
             <StatusBanner
-              variant={entitlement.grantsAccess ? 'info' : 'warning'}
+              variant={entitlement.grantsAccess || user.grantsAccess ? 'info' : 'warning'}
               label={subscriptionStatusLabel(entitlement.subscriptionStatus)}
               body={
                 entitlement.grantsAccess
                   ? undefined
+                  : user.grantsAccess
+                  ? BETA_OPEN_ACCESS_NOTICE
                   : '이용권 없이도 무료 데모 한 편은 계속 이용할 수 있어요. 전체 이야기는 이용권이 있으면 열려요.'
               }
             />

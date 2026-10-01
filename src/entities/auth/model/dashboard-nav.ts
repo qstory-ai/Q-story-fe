@@ -37,6 +37,7 @@ const PATH_TABS: Record<Role, Array<[string, DashboardNavKey]>> = {
   ],
   DIRECTOR: [
     ['/organization', 'home'],
+    ['/stories', 'home'],
     ['/organization/classes', 'classes'],
     ['/organization/tutors', 'tutors'],
     ['/organization/usage', 'usage'],

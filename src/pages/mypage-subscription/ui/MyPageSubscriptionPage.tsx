@@ -33,7 +33,7 @@ export function MyPageSubscriptionPage() {
           {isParent ? (
             <ActionButton label={user.grantsAccess ? '이용권 연장하기' : '이용권 결제하기'} onPress={() => navigate('/payment/checkout?target=PARENT')} />
           ) : (
-            <Text style={styles.note}>{BETA_OPEN_ACCESS_NOTICE}</Text>
+            <Text style={styles.note}>{user.grantsAccess ? BETA_OPEN_ACCESS_NOTICE : '이용권은 관리자에게 문의해 주세요.'}</Text>
           )}
           {user.role === 'DIRECTOR' ? (
             <ActionButton variant="secondaryFull" label="기관 이용권 보기" onPress={() => navigate('/organization/subscription')} />

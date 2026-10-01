@@ -6,6 +6,7 @@ import { navKeyForPath } from './dashboard-nav';
 
 test('관리자 하위 화면은 자기 탭을 강조한다', () => {
   assert.equal(navKeyForPath('DIRECTOR', '/organization'), 'home');
+  assert.equal(navKeyForPath('DIRECTOR', '/stories/HG'), 'home');
   assert.equal(navKeyForPath('DIRECTOR', '/organization/classes'), 'classes');
   assert.equal(navKeyForPath('DIRECTOR', '/organization/classes/abc'), 'classes');
   assert.equal(navKeyForPath('DIRECTOR', '/organization/tutors/t1'), 'tutors');

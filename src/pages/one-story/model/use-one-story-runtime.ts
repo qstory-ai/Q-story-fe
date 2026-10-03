@@ -66,7 +66,6 @@ import {
   EXIT_REASONS,
   EXIT_REASON_CODES,
   FIXED_AUDIO_FAILURE_RECOVERY_MS,
-  LANDING_URL,
   QUESTION_AUDIO_HEAD_START_MS,
   RESPONSE_AUDIO_PREPARE_MS,
 } from '../lib/constants';
@@ -1416,11 +1415,17 @@ export function useOneStoryRuntime(
     }
     const responseState = runtimeState;
     const responseId = `response-${responseState.anchorId}-${responseState.questionRound}`;
-    const selectedBridge =
-      responseState.plan.kind === 'route' &&
-      responseState.plan.originRoute === 'THREE_PATHS' &&
-      responseState.plan.actionFamilyId
+    const familyBridge =
+      responseState.plan.kind === 'route' && responseState.plan.actionFamilyId
         ? storyPackage.branchInteractionCopy(responseState.plan.actionFamilyId)
+        : null;
+    // 세 갈래에서 고른 분기, 또는 대화에서 뜻을 확인한 분기(말할 문장이 확인 문구 그대로)면
+    // 미리 녹음한 확인 문구 음성을 쓴다.
+    const selectedBridge =
+      familyBridge &&
+      responseState.plan.kind === 'route' &&
+      (responseState.plan.originRoute === 'THREE_PATHS' || responseState.plan.text === familyBridge.text)
+        ? familyBridge
         : null;
     const narrationId = selectedBridge?.audioId ?? responseId;
     if (activeNarrationIdRef.current === responseId) {
@@ -1614,6 +1619,95 @@ export function useOneStoryRuntime(
     await stopNarration();
     setNarrationAttempt((attempt) => attempt + 1);
   }, [currentClip, isBranchPlaybackState, stopNarration]);
+
+  /**
+   * Q-31 그레텔 대화: 질문 초대에서 아이가 뜻을 확인한 준비된 행동을 실행한다. 확인 문구(acknowledgementText,
+   * 미리 녹음됨)를 말한 뒤 분기 장면을 재생하고 정해진 합류 지점으로 이어진다.
+   */
+  const confirmDialogueAction = useCallback(
+    async (familyId: string, childMeaning: string) => {
+      const state = runtimeRef.current;
+      if (state.status !== 'awaiting-question') return false;
+      const anchor = storyManifest.questionAnchors.find((candidate) => candidate.id === state.anchorId);
+      const family = storyManifest.fallbackFamilies.find((candidate) => candidate.id === familyId);
+      if (!anchor || !family || !anchor.fallbackFamilyIds.includes(family.id)) return false;
+      const plan: RoutePlan = {
+        kind: 'route',
+        route: 'DIRECT_ACTION',
+        childRelevantMeaning: childMeaning || family.meaning,
+        coverageStatus: 'exact',
+        coverageReason: 'dialogue-confirmed',
+        text: family.acknowledgementText ?? '좋아, 그렇게 해 보자.',
+        speakerId: anchor.promptSpeakerId,
+        actionFamilyId: family.id,
+        rejoinAt: family.rejoinAnchorId,
+        fallbackFamilyId: family.id,
+        options: [],
+        versions: {
+          modelId: 'dialogue',
+          promptVersion: 'dialogue',
+          storyManifestVersion: storyManifest.contentVersion,
+          routePolicyVersion: 'dialogue',
+        },
+      };
+      await stopNarration();
+      activeNarrationIdRef.current = null;
+      setPendingResponseAudio(null);
+      setBranchCaption(null);
+      if (!commitEvent({ type: 'ACTION_CONFIRMED', plan })) return false;
+      rememberQuestionOutcome(anchor.id, plan);
+      void trackStoryEvent('dialogue_step', {
+        anchor_id: anchor.id,
+        scene_id: anchor.sceneId,
+        entry_mode: 'INVITE',
+        turn_kind: 'CONFIRM',
+        family_id: family.id,
+      });
+      return true;
+    },
+    [commitEvent, rememberQuestionOutcome, stopNarration, storyManifest, trackStoryEvent],
+  );
+
+  /** 행동 없이 대화만 하고 이야기로 돌아간 질문 초대도 리포트에 남긴다(아이가 실제로 말한 경우만). */
+  const recordDialogueOutcome = useCallback(
+    (anchorId: string, childMeaning: string, lastReply: string) => {
+      const anchor = storyManifest.questionAnchors.find((candidate) => candidate.id === anchorId);
+      if (!anchor || !childMeaning) return;
+      setQuestionOutcomes((current) => [
+        ...current.filter((item) => item.anchorId !== anchor.id),
+        {
+          anchorId: anchor.id,
+          childRelevantMeaning: childMeaning,
+          route: 'ANSWER_RESUME',
+          responseText: lastReply,
+          actionFamilyId: null,
+        },
+      ]);
+    },
+    [storyManifest.questionAnchors],
+  );
+
+  /** 그레텔 대화를 열면 낭독을 멈추고, 닫으면 멈춘 문장부터 이어 간다. 멈춘 게 없으면 아무것도 안 한다. */
+  const dialoguePausedNarrationRef = useRef(false);
+  const pauseForDialogue = useCallback(async () => {
+    if (narrationState.isSpeaking && !narrationState.isPaused) {
+      dialoguePausedNarrationRef.current = await pauseNarration();
+    }
+  }, [narrationState.isPaused, narrationState.isSpeaking, pauseNarration]);
+  const resumeAfterDialogue = useCallback(async () => {
+    if (dialoguePausedNarrationRef.current) {
+      dialoguePausedNarrationRef.current = false;
+      await resumeNarration();
+    }
+  }, [resumeNarration]);
+
+  /** 그레텔의 고정 대사(도움 단계 등)를 그레텔 목소리로 말한다. */
+  const speakDialogueLine = useCallback(
+    async (id: string, text: string, speakerId: string) => {
+      await speakNarration({ id, text, speakerId, language: 'ko-KR' });
+    },
+    [speakNarration],
+  );
 
   const toggleNarration = useCallback(async () => {
     setParentMessage(null);
@@ -1812,13 +1906,15 @@ export function useOneStoryRuntime(
     }
   }, [narrationState.isPaused, resumeNarration]);
 
+  // Q-34: 이야기에서 나가는 길은 모두 앱 홈(homePathForAuth) 한 곳으로 간다 - 잠시 나가기는
+  // 진행을 저장해 두고, 다시 들어오면 이어 듣기를 묻는다.
   const leaveTemporarily = useCallback(async () => {
     persistCurrentProgress();
     processingAbortRef.current?.abort();
     await stopNarration();
     setHomeMenuVisible(false);
-    window.location.assign(LANDING_URL);
-  }, [persistCurrentProgress, stopNarration]);
+    navigate(homePathForAuth(authState));
+  }, [authState, navigate, persistCurrentProgress, stopNarration]);
 
   const finishExperience = useCallback(async () => {
     processingAbortRef.current?.abort();
@@ -2016,6 +2112,13 @@ export function useOneStoryRuntime(
     selectRouteOption,
     replayCurrent,
     toggleNarration,
+    confirmDialogueAction,
+    trackStoryEvent,
+    recordDialogueOutcome,
+    pauseForDialogue,
+    resumeAfterDialogue,
+    speakDialogueLine,
+    stopDialogueSpeech: stopNarration,
     skipCurrentScene,
     restartStory,
     jumpToScene,

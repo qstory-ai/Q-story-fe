@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Icon, storybookTheme } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../model';
-import type { UseCompanionChat } from '../model/use-companion-chat';
+import type { UseDialogue } from '../model/use-dialogue';
 import { playbackControls } from '../lib/playback-controls';
 import { styles } from './styles';
 
@@ -20,11 +20,11 @@ const TOP_CONTROL_HIT_SLOP = { top: 4, bottom: 4, left: 3, right: 3 };
  */
 export function TopBar({
   runtime,
-  chat,
+  dialogue,
   onOpenChapters,
 }: {
   runtime: OneStoryRuntime;
-  chat: UseCompanionChat;
+  dialogue: UseDialogue;
   /** 챕터 사이드바 토글 - 없으면(예: 스토리를 아직 안 시작해 챕터 개념이 없는 idle 화면) 버튼을 숨긴다. */
   onOpenChapters?: () => void;
 }) {
@@ -38,9 +38,7 @@ export function TopBar({
     displayedSceneIndex,
     totalScenes,
     showPlaybackControls,
-    narrationState,
     openHomeMenu,
-    toggleNarration,
     closeParentReport,
   } = runtime;
   const navigate = useNavigate();
@@ -58,15 +56,14 @@ export function TopBar({
       ]}
     >
       <View style={styles.topBarRow}>
-      {/* 폰에서는 이 락업이 상단 바 왼쪽 절반(flex:1)을 차지한다 - 재생 중에 여기를 건드려 곧장
-          홈으로 튕기면 이야기 세션이 확인 없이 버려지므로, 폰의 이야기 화면에서는 홈 메뉴(계속 듣기 /
-          잠시 나가기)를 연다. 넓은 화면·idle 화면에서는 서재로 간다. */}
+      {/* 이야기 중에 로고를 눌러 곧장 홈으로 튕기면 세션이 확인 없이 버려지므로, 화면 폭과 상관없이
+          이야기 화면에서는 홈 메뉴(계속 듣기 / 잠시 나가기)를 연다(Q-34). idle 화면에서만 바로 홈으로 간다. */}
       <Pressable
-        accessibilityRole={compactLockup && inStory ? 'button' : 'link'}
+        accessibilityRole={inStory ? 'button' : 'link'}
         // 오른쪽 "이야기 홈 메뉴" 버튼과 접근성 이름이 겹치지 않게 회차 캡션을 앞에 붙인다.
-        accessibilityLabel={compactLockup && inStory ? `${chapterCaption ?? parentReport.storyTitle}, 메뉴 열기` : 'Q-Story 처음으로'}
+        accessibilityLabel={inStory ? `${chapterCaption ?? parentReport.storyTitle}, 메뉴 열기` : 'Q-Story 처음으로'}
         onPress={() => {
-          if (compactLockup && inStory) void openHomeMenu();
+          if (inStory) void openHomeMenu();
           else navigate('/');
         }}
         style={[styles.brandLockup, compactLockup && styles.brandLockupNarrow]}
@@ -143,26 +140,19 @@ export function TopBar({
             {isWide && <Text style={styles.topControlText}>챕터</Text>}
           </Pressable>
         )}
-        {inStory && (
+        {inStory && !dialogue.open && (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`${chat.character.displayName}에게 물어보기`}
+            accessibilityLabel={`${dialogue.character.displayName}에게 말하기`}
             style={styles.topControlButton}
             hitSlop={TOP_CONTROL_HIT_SLOP}
-            onPress={() => {
-              // 스토리 내레이션이 계속되는 동안 캐릭터와 대화하면 아이의 주의를 두고
-              // 경쟁하게 되므로 - 먼저 일시정지한다(단, 실제로 재생 중일 때만; 이미
-              // 일시정지된 상태에서 토글하면 오히려 재생이 재개되어 버리기 때문).
-              if (!narrationState.isPaused) {
-                void toggleNarration();
-              }
-              chat.setOpen(true);
-            }}
+            // 대화를 열면 낭독을 멈추고(use-dialogue openChat), 닫으면 멈춘 문장부터 이어 간다.
+            onPress={() => void dialogue.openChat()}
           >
             <Icon name="chat" size={16} color={TOP_ICON_COLOR} />
             {isWide && (
               <Text style={styles.topControlText}>
-                {chat.character.displayName}에게 물어보기
+                {dialogue.character.displayName}에게 말하기
               </Text>
             )}
           </Pressable>

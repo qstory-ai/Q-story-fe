@@ -5,9 +5,9 @@ import { SafeAreaView } from '@/shared/ui';
 import type { StoryRuntimePackage } from '@/entities/story';
 import { CompletionSurveyModal } from '@/features/completion-survey-modal';
 
-import { useCompanionChat, useOneStoryRuntime } from '../model';
+import { useDialogue, useOneStoryRuntime } from '../model';
 import { ChapterSidebar } from './chapter-sidebar';
-import { CompanionChatModal } from './modals/companion-chat-modal';
+import { DialoguePanel } from './dialogue-panel';
 import { HomeMenuModal } from './modals/home-menu-modal';
 import { ResumeModal } from './modals/resume-modal';
 import { PlaybackDock } from './playback-dock';
@@ -41,11 +41,9 @@ export function OneStoryPage({
     scene,
     illustration,
   } = runtime;
-  const chat = useCompanionChat({
-    storyId: storyPackage.storyId,
-    sceneId: scene?.id ?? null,
+  const dialogue = useDialogue({
+    runtime,
     conversationId: companionConversationId,
-    childId: runtime.conversationAttribution.childId,
     tutorStudentId,
     lessonId,
   });
@@ -73,7 +71,7 @@ export function OneStoryPage({
 
         {/* onOpenChapters를 항상 넘겨도 된다 - TopBar 자신이 이미 같은 조건(idle 아님 && 리포트
             아님)으로 다른 버튼들과 함께 보임/숨김을 판단한다. */}
-        <TopBar runtime={runtime} chat={chat} onOpenChapters={() => setChaptersOpen(true)} />
+        <TopBar runtime={runtime} dialogue={dialogue} onOpenChapters={() => setChaptersOpen(true)} />
         <SceneProgressBar runtime={runtime} />
 
         <ScrollView
@@ -101,10 +99,11 @@ export function OneStoryPage({
               ]}
             />
           )}
-          <ReaderCard runtime={runtime} />
+          {!dialogue.open && <ReaderCard runtime={runtime} />}
         </ScrollView>
 
-        <PlaybackDock runtime={runtime} />
+        {!dialogue.open && <PlaybackDock runtime={runtime} />}
+        <DialoguePanel dialogue={dialogue} hidden={runtime.homeMenuVisible || chaptersOpen} />
 
         <ChapterSidebar
           runtime={runtime}
@@ -114,7 +113,6 @@ export function OneStoryPage({
 
         <ResumeModal runtime={runtime} />
         <HomeMenuModal runtime={runtime} />
-        <CompanionChatModal chat={chat} homeMenuOpen={runtime.homeMenuVisible} />
         <CompletionSurveyModal
           visible={runtime.completionSurveyVisible}
           storyId={storyPackage.storyId}

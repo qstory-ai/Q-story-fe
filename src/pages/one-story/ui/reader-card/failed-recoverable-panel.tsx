@@ -36,7 +36,7 @@ export function FailedRecoverablePanel({ runtime }: { runtime: OneStoryRuntime }
       />
       <ActionButton
         variant="secondaryFull"
-        label="이번 질문 건너뛰기"
+        label="이야기 계속"
         onPress={continueStory}
       />
     </View>

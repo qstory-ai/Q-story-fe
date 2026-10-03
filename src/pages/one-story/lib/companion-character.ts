@@ -1,10 +1,8 @@
 import { STORY_IMAGE_ASSETS_BY_ID } from '@/entities/story/model/story-assets.generated';
 
 /**
- * 컴패니언 챗(이야기 밖에서 살짝) 상대 캐릭터. 헨젤과 그레텔 둘 다 이야기 내내 등장하는
- * 주인공 남매라 누가 뽑혀도 아이가 어색함 없이 대화할 수 있다 - 마녀/새엄마처럼 부정적인
- * 캐릭터는 대상에서 제외한다. 이야기 세션(useCompanionChat 훅 하나의 lifetime)당 한 번만
- * 뽑고 그 뒤로는 고정한다 - 대화 도중 상대가 바뀌면 버튼 라벨과 대화창 안 이름이 어긋난다.
+ * 그레텔 대화(Q-31) 상대 캐릭터. 질문 초대를 그레텔이 하므로 대화 상대도 그레텔로 고정한다
+ * (GRETEL_COMPANION). 헨젤 정보는 다른 이야기 친구가 필요해질 때를 위해 남겨 둔다.
  *
  * 아바타는 둘 다 같은 장면 일러스트(hg-art-18-home-apology-v2.webp, 1586x992)에 나란히
  * 서 있는 걸 이용해 얼굴 부분만 다르게 크롭한다 - 캐릭터별 초상화 에셋이 아직 없기 때문.
@@ -40,7 +38,5 @@ const COMPANION_CHARACTERS: readonly CompanionCharacter[] = [
   },
 ];
 
-export function pickRandomCompanionCharacter(): CompanionCharacter {
-  const index = Math.floor(Math.random() * COMPANION_CHARACTERS.length);
-  return COMPANION_CHARACTERS[index];
-}
+/** Q-31: 그레텔 대화의 상대는 그레텔로 고정한다 - 질문 초대도 그레텔이 하므로 같은 인물이 이어 간다. */
+export const GRETEL_COMPANION: CompanionCharacter = COMPANION_CHARACTERS[1];

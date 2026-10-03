@@ -662,3 +662,54 @@ test('visual continuity follows the final script through the forest and the kitc
   assert.equal(visualById['HG-VIS-F08-03'].exitState, 'siblings-outside-candy-house');
   assert.ok(visuals.every((visual) => !/oven|twig|ledger|evidence|pebble-and-feather/.test(visual.requiredAction)));
 });
+
+test('a dialogue-confirmed action plays its prepared branch and rejoins (Q-31)', () => {
+  const anchor = hanselGretelManifest.questionAnchors.find((candidate) => candidate.id === 'HG-Q-C');
+  const family = hanselGretelManifest.fallbackFamilies.find(
+    (candidate) => candidate.id === 'C_WAIT_FOR_WITCH_TURN',
+  );
+  assert.ok(anchor && family);
+  const awaiting = {
+    status: 'awaiting-question',
+    sceneId: anchor.sceneId,
+    anchorId: anchor.id,
+    questionRound: 1,
+    consecutiveSafetyFailures: 0,
+  };
+  const plan = {
+    kind: 'route',
+    route: 'DIRECT_ACTION',
+    childRelevantMeaning: '마녀가 등 돌릴 때까지 기다려',
+    coverageStatus: 'exact',
+    coverageReason: 'dialogue-confirmed',
+    text: family.acknowledgementText,
+    speakerId: anchor.promptSpeakerId,
+    actionFamilyId: family.id,
+    rejoinAt: family.rejoinAnchorId,
+    fallbackFamilyId: family.id,
+    options: [],
+    versions: {
+      modelId: 'dialogue',
+      promptVersion: 'dialogue',
+      storyManifestVersion: hanselGretelManifest.contentVersion,
+      routePolicyVersion: 'dialogue',
+    },
+  };
+  const confirmed = transitionStoryRuntime(hanselGretelManifest, awaiting, { type: 'ACTION_CONFIRMED', plan });
+  assert.equal(confirmed.ok, true);
+  assert.equal(confirmed.state.status, 'playing-response');
+  assert.equal(confirmed.state.plan.actionFamilyId, family.id);
+  assert.deepEqual(confirmed.commands.map((command) => command.type), ['PLAY_RESPONSE']);
+
+  // 다른 지점의 행동이나 DIRECT_ACTION이 아닌 계획은 받지 않는다.
+  const otherFamily = transitionStoryRuntime(hanselGretelManifest, awaiting, {
+    type: 'ACTION_CONFIRMED',
+    plan: { ...plan, actionFamilyId: 'A_OBSERVE_BIRD', fallbackFamilyId: 'A_OBSERVE_BIRD' },
+  });
+  assert.equal(otherFamily.ok, false);
+  const notAction = transitionStoryRuntime(hanselGretelManifest, awaiting, {
+    type: 'ACTION_CONFIRMED',
+    plan: { ...plan, route: 'ANSWER_RESUME' },
+  });
+  assert.equal(notAction.ok, false);
+});

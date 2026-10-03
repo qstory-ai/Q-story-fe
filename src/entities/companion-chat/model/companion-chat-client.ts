@@ -3,10 +3,33 @@ import type { BufferedResponseAudio } from '@/features/route-question';
 
 export type CompanionChatSafetyMode = 'ANSWER' | 'GENTLE_REDIRECT';
 
+export type CompanionReplyKind = 'ANSWER' | 'EMPATHY' | 'WAIT' | 'CLOSE' | 'REDIRECT';
+
+/** Q-31 대화 표시 - 종료·도움·행동 확인 단계를 정하는 데 쓴다. 예전 서버면 기본값으로 채운다. */
+export type CompanionDialogueSignal = {
+  replyKind: CompanionReplyKind;
+  childWantsToEnd: boolean;
+  childMeaning: string;
+  asksForHelp: boolean;
+  /** 질문 초대에서 아이가 제안한 준비된 행동(뜻 확인 전). */
+  proposedActionFamilyId: string | null;
+};
+
 export type CompanionChatReply = {
   responseText: string;
   safetyMode: CompanionChatSafetyMode;
   audio: BufferedResponseAudio | null;
+  dialogue: CompanionDialogueSignal;
+};
+
+/** 그레텔 대화가 한 턴마다 같이 보내는 맥락(BE DialogueInput). 모두 선택. */
+export type CompanionDialogueContext = {
+  history?: { role: 'CHILD' | 'CHARACTER'; text: string }[];
+  scene?: { title: string; storySoFar: string[]; recentLines: string[]; visual: string } | null;
+  executedActions?: string[];
+  /** 질문 초대 중이면 그 앵커 id. */
+  anchorId?: string | null;
+  wrapUp?: 'NONE' | 'SUGGEST_RETURN' | 'CLOSE';
 };
 
 /**
@@ -130,7 +153,7 @@ export async function sendCompanionChatMessage(
     speakerId?: string;
     /** VOICE = 방금 STT로 받아 적은 문장을 그대로 보냄, TEXT = 글로 입력. */
     inputMode?: 'VOICE' | 'TEXT';
-  } & CompanionChatAttribution,
+  } & CompanionChatAttribution & CompanionDialogueContext,
   signal?: AbortSignal,
 ): Promise<CompanionChatReply> {
   if (!speechApiUrl) {
@@ -148,11 +171,19 @@ export async function sendCompanionChatMessage(
       responseText: string;
       safety: { mode: CompanionChatSafetyMode };
       audio?: { mimeType: string; dataBase64: string };
+      dialogue?: Partial<CompanionDialogueSignal>;
     }
   >(response, '지금은 대답을 준비하지 못했어요.');
   return {
     responseText: body.responseText,
     safetyMode: body.safety.mode,
     audio: body.audio ? { mimeType: body.audio.mimeType, dataBase64: body.audio.dataBase64 } : null,
+    dialogue: {
+      replyKind: body.dialogue?.replyKind ?? (body.safety.mode === 'GENTLE_REDIRECT' ? 'REDIRECT' : 'ANSWER'),
+      childWantsToEnd: body.dialogue?.childWantsToEnd ?? false,
+      childMeaning: body.dialogue?.childMeaning ?? '',
+      asksForHelp: body.dialogue?.asksForHelp ?? false,
+      proposedActionFamilyId: body.dialogue?.proposedActionFamilyId ?? null,
+    },
   };
 }

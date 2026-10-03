@@ -1,5 +1,3 @@
-import { readEnv } from '@/shared/config';
-
 export const EXIT_REASONS = [
   '기다림이 길었어요',
   '음성 질문이 어려웠어요',
@@ -36,4 +34,3 @@ export const FIXED_AUDIO_FAILURE_RECOVERY_MS = 2_500;
 export const LIVE_BRANCH_POLL_INTERVAL_MS = 1_800;
 export const LIVE_BRANCH_POLL_TIMEOUT_MS = 90_000;
 
-export const LANDING_URL = readEnv('VITE_QSTORY_LANDING_URL') || 'https://qstory.ai.kr';

@@ -18,10 +18,10 @@ export function QuestionInvitePanel({ runtime }: { runtime: OneStoryRuntime }) {
     continueStory,
   } = runtime;
 
+  // 초대 대사가 끝난 뒤(awaiting-question)는 그레텔 대화 패널(DialoguePanel)이 이어 받는다.
   if (
     !(
       isQuestionInvitePlayback ||
-      runtimeState.status === 'awaiting-question' ||
       runtimeState.status === 'awaiting-clarification' ||
       runtimeState.status === 'awaiting-safety-retry'
     )
@@ -69,7 +69,7 @@ export function QuestionInvitePanel({ runtime }: { runtime: OneStoryRuntime }) {
             />
             <ActionButton
               variant="secondary"
-              label="건너뛰기"
+              label="이야기 계속"
               onPress={continueStory}
             />
           </View>

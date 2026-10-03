@@ -21,7 +21,8 @@ export type BetaEventName =
   | 'explicit_exit'
   | 'story_completed'
   | 'parent_report_opened'
-  | 'survey_opened';
+  | 'survey_opened'
+  | 'dialogue_step';
 
 type BetaMetadata = Record<string, string | number | boolean>;
 

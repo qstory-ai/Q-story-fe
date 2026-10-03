@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { LaunchNotificationGate } from '@/features/launch-notification-gate';
 import {
@@ -14,6 +14,8 @@ import { BookmarksProvider } from '@/entities/bookmark';
 import { ChildrenProvider } from '@/entities/child';
 import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
 import { ActionButton, LoadingState, SafeAreaView, storybookTheme } from '@/shared/ui';
+
+import { LEGACY_REDIRECTS } from './legacy-redirects';
 
 const HomePage = lazy(() => import('@/pages/home').then((m) => ({ default: m.HomePage })));
 const TutorialPage = lazy(() => import('@/pages/tutorial').then((m) => ({ default: m.TutorialPage })));
@@ -34,9 +36,6 @@ const OrganizationSignupPage = lazy(() =>
 );
 const ParentHomePage = lazy(() => import('@/pages/parent-home').then((m) => ({ default: m.ParentHomePage })));
 const MyPage = lazy(() => import('@/pages/mypage').then((m) => ({ default: m.MyPage })));
-const MyPageProfilePage = lazy(() =>
-  import('@/pages/mypage-profile').then((m) => ({ default: m.MyPageProfilePage })),
-);
 const MyPageAccountPage = lazy(() =>
   import('@/pages/mypage-account').then((m) => ({ default: m.MyPageAccountPage })),
 );
@@ -52,11 +51,8 @@ const MyPageChildrenPage = lazy(() =>
 const MyPageClassesPage = lazy(() =>
   import('@/pages/mypage-classes').then((m) => ({ default: m.MyPageClassesPage })),
 );
-const MyPageNotificationsPage = lazy(() =>
-  import('@/pages/mypage-notifications').then((m) => ({ default: m.MyPageNotificationsPage })),
-);
-const MyPagePrivacyPage = lazy(() =>
-  import('@/pages/mypage-privacy').then((m) => ({ default: m.MyPagePrivacyPage })),
+const MyPageSettingsPage = lazy(() =>
+  import('@/pages/mypage-settings').then((m) => ({ default: m.MyPageSettingsPage })),
 );
 const MyPageSupportPage = lazy(() =>
   import('@/pages/mypage-support').then((m) => ({ default: m.MyPageSupportPage })),
@@ -251,7 +247,6 @@ export function App() {
             <Route path="/tutor/students/:studentId" element={<TutorStudentDetailPage />} />
             <Route path="/tutor/lessons/:lessonId" element={<TutorLessonDetailPage />} />
             <Route path="/mypage" element={<MyPage />} />
-            <Route path="/mypage/profile" element={<MyPageProfilePage />} />
             <Route path="/mypage/account" element={<MyPageAccountPage />} />
             <Route path="/mypage/subscription" element={<MyPageSubscriptionPage />} />
             <Route path="/payment/checkout" element={<PaymentCheckoutPage />} />
@@ -260,8 +255,10 @@ export function App() {
             <Route path="/mypage/delete-account" element={<MyPageDeleteAccountPage />} />
             <Route path="/mypage/children" element={<MyPageChildrenPage />} />
             <Route path="/mypage/classes" element={<MyPageClassesPage />} />
-            <Route path="/mypage/notifications" element={<MyPageNotificationsPage />} />
-            <Route path="/mypage/privacy" element={<MyPagePrivacyPage />} />
+            <Route path="/mypage/settings" element={<MyPageSettingsPage />} />
+            {LEGACY_REDIRECTS.map(([from, to]) => (
+              <Route key={from} path={from} element={<Navigate to={to} replace />} />
+            ))}
             <Route path="/mypage/support" element={<MyPageSupportPage />} />
             <Route path="/reports" element={<ReportHistoryPage />} />
             <Route path="/reports/:completionId" element={<ReportHistoryDetailPage />} />

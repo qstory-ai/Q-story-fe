@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,46 +5,20 @@ import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
 
 const TUTORIAL_SEEN_KEY = 'qstory.tutorial.seen.v1';
 
-type Slide = {
-  eyebrow: string;
-  title: string;
-  body: string;
-  bullets?: string[];
-};
-
-// 부모/선생님 공용 소개라 문구에 역할 구분을 두지 않는다 - 역할별 세부 소개는 온보딩에서 이어진다.
-const SLIDES: Slide[] = [
-  {
-    eyebrow: '1 · Q-Story 소개',
-    title: '아이의 질문이 이야기를 움직여요',
-    body: '검수된 이야기를 함께 듣고, 아이가 궁금해할 순간에만 짧게 대화해요. 대화가 다음 장면과 리포트로 이어져요.',
-  },
-  {
-    eyebrow: '2 · 핵심 기능',
-    title: '이렇게 사용해요',
-    body: '아이의 한마디로 다음 이야기를 정하고, 진행 뒤에는 부모/선생님이 리포트로 아이를 이해해요.',
-    bullets: [
-      '등장인물과 질문·대화하기',
-      '질문에서 새로운 이야기가 이어지기',
-      '아이의 질문·생각을 리포트로 확인하기',
-    ],
-  },
-  {
-    eyebrow: '3 · 시작하기',
-    title: '준비됐어요',
-    body: '지금 회원가입하면 아이를 위한 이야기 서재가 열려요. 이미 계정이 있다면 로그인해 주세요.',
-  },
+const BULLETS = [
+  '등장인물과 질문·대화하기',
+  '질문에서 새로운 이야기가 이어지기',
+  '아이의 질문·생각을 리포트로 확인하기',
 ];
 
 /**
- * IA "튜토리얼" - 방문자가 앱을 처음 열 때 뜨는 3화면 안내. 건너뛰기는 언제든 가능하고, 완료
- * 하면 localStorage에 seen 마크가 남아 이후 재진입에는 뜨지 않는다(HomePage의 hasSeenTutorial 참고).
+ * IA "튜토리얼" - 방문자가 앱을 처음 열 때 한 번 뜨는 소개. 서비스 소개는 이 화면 한 곳에서만 한다 - 예전의
+ * 3장 슬라이드·가입 화면의 환영 단계·가입 직후 캐러셀이 같은 소개를 반복해 한 화면으로 합쳤다(Q-36).
+ * 보호자는 여기서 바로 보호자 가입 폼으로 간다(역할 선택 단계 생략). 어떤 버튼으로 떠나든 localStorage에
+ * seen 마크가 남아 이후 재진입에는 뜨지 않는다(HomePage의 hasSeenTutorial 참고).
  */
 export function TutorialPage() {
   const navigate = useNavigate();
-  const [index, setIndex] = useState(0);
-  const slide = SLIDES[index];
-  const isLast = index === SLIDES.length - 1;
 
   function completeTo(path: string) {
     try {
@@ -59,53 +32,39 @@ export function TutorialPage() {
   return (
     <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.progressRow}>
-          {SLIDES.map((_, i) => (
-            <View
-              key={i}
-              style={[styles.progressPip, i <= index && styles.progressPipFilled]}
-              accessibilityLabel={i === index ? `현재 ${i + 1}단계` : `${i + 1}단계`}
-            />
-          ))}
-        </View>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="튜토리얼 건너뛰기"
+          accessibilityLabel="소개 건너뛰고 서재 둘러보기"
           onPress={() => completeTo('/')}
           hitSlop={8}
         >
-          <Text style={styles.skipLabel}>건너뛰기</Text>
+          <Text style={styles.skipLabel}>둘러보기</Text>
         </Pressable>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.eyebrow}>{slide.eyebrow}</Text>
-        <Text style={styles.title} accessibilityRole="header">{slide.title}</Text>
-        <Text style={styles.body}>{slide.body}</Text>
-        {slide.bullets ? (
-          <View style={styles.bulletList}>
-            {slide.bullets.map((bullet) => (
-              <Text key={bullet} style={styles.bulletItem}>· {bullet}</Text>
-            ))}
-          </View>
-        ) : null}
+        <Text style={styles.eyebrow}>Q-Story 소개</Text>
+        <Text style={styles.title} accessibilityRole="header">아이의 질문이 이야기를 움직여요</Text>
+        <Text style={styles.body}>
+          검수된 이야기를 함께 듣고, 아이가 궁금해할 순간에만 짧게 대화해요. 대화가 다음 장면과 리포트로 이어져요.
+        </Text>
+        <View style={styles.bulletList}>
+          {BULLETS.map((bullet) => (
+            <Text key={bullet} style={styles.bulletItem}>· {bullet}</Text>
+          ))}
+        </View>
       </View>
 
       <View style={styles.footer}>
-        {isLast ? (
-          <>
-            <ActionButton variant="gold" label="회원가입하기" onPress={() => completeTo('/signup')} />
-            <Pressable
-              accessibilityRole="link"
-              onPress={() => completeTo('/login')}
-              style={styles.footerLink}
-            >
-              <Text style={styles.footerLinkText}>이미 계정이 있어요</Text>
-            </Pressable>
-          </>
-        ) : (
-          <ActionButton variant="gold" label="다음" onPress={() => setIndex((i) => Math.min(SLIDES.length - 1, i + 1))} />
-        )}
+        <ActionButton variant="gold" label="보호자로 시작하기" onPress={() => completeTo('/signup?role=parent')} />
+        <ActionButton variant="secondaryFull" label="선생님·기관으로 시작하기" onPress={() => completeTo('/signup')} />
+        <Pressable
+          accessibilityRole="link"
+          onPress={() => completeTo('/login')}
+          style={styles.footerLink}
+        >
+          <Text style={styles.footerLinkText}>이미 계정이 있어요</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -128,18 +87,9 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     gap: 12,
   },
-  progressRow: { flexDirection: 'row', gap: 6, flex: 1 },
-  progressPip: {
-    flex: 1,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: storybookTheme.color.contentPanelBorder,
-    maxWidth: 60,
-  },
-  progressPipFilled: { backgroundColor: storybookTheme.color.gold },
   skipLabel: {
     color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,

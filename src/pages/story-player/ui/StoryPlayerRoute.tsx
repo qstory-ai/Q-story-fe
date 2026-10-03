@@ -5,6 +5,8 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { OneStoryPage } from '@/pages/one-story';
 import { loadStoryPackage, type StoryRuntimePackage } from '@/entities/story';
 import { homePathForAuth, useAuth } from '@/entities/auth';
+import { useChildren } from '@/entities/child';
+import { playerChildSync } from '../model/player-child-sync';
 import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/shared/ui';
 
 type LoadState =
@@ -13,7 +15,8 @@ type LoadState =
   | { requestKey: string; status: 'error' };
 
 /**
- * 이야기 상세 페이지에서 도달하는 범용 story-id 플레이어 라우트("/stories/:storyId/play").
+ * 범용 story-id 플레이어 라우트("/stories/:storyId/play"). 보호자 홈 히어로·이어서 읽기, 이야기 상세,
+ * 리포트 "다시 읽기"에서 들어온다(경로는 features/story-library의 storyPlayPath).
  * App.tsx의 DemoStoryRoute(무료 익명 데모)와는 의도적으로 분리해 둔다 - 데모 경로의 동작을
  * 건드리지 않기 위해서다.
  */
@@ -26,6 +29,22 @@ export function StoryPlayerRoute() {
   const tutorStudentId = searchParams.get('tutorStudentId') ?? undefined;
   // 수업 상세의 "시작"에서 왔으면 수업 id도 함께 - 완주 시 참여 학생 전원의 기록이 이 수업에 연결된다.
   const lessonId = searchParams.get('lessonId') ?? undefined;
+  // 홈 히어로·이어서 읽기·상세·리포트 "다시 읽기"가 이 재생을 기록할 아이를 싣는다. 플레이어는 전역 선택
+  // 아이로 이름을 부르고 완주를 저장하므로, 띄우기 전에 전역 선택을 이 아이로 맞춘다.
+  const requestedChildId = searchParams.get('childId');
+  const { load: childrenLoad, children, selectedChild, selectChild } = useChildren();
+  const childSync = playerChildSync({
+    requestedChildId,
+    // 로그인 확인 중에도 기다린다 - 확인 전에 플레이어가 먼저 마운트되면 아이 이름 없이 뜬다.
+    isParent: authState.status === 'loading' || (authState.status === 'authenticated' && authState.user.role === 'PARENT'),
+    childrenLoading: childrenLoad.status === 'loading',
+    childIds: children.map((child) => child.id),
+    selectedChildId: selectedChild?.id ?? null,
+  });
+  const childToSelect = childSync.kind === 'select' ? childSync.childId : null;
+  useEffect(() => {
+    if (childToSelect) selectChild(childToSelect);
+  }, [childToSelect, selectChild]);
   const [attempt, setAttempt] = useState(0);
   const requestKey = `${storyId ?? ''}:${attempt}`;
   const [state, setState] = useState<LoadState>({ requestKey, status: 'loading' });
@@ -51,7 +70,7 @@ export function StoryPlayerRoute() {
   // 로딩 중인 것처럼 렌더링한다 (react-hooks/set-state-in-effect 참고).
   const effectiveState: LoadState = state.requestKey === requestKey ? state : { requestKey, status: 'loading' };
 
-  if (effectiveState.status === 'ready') {
+  if (effectiveState.status === 'ready' && childSync.kind === 'ready') {
     return <OneStoryPage storyPackage={effectiveState.storyPackage} tutorStudentId={tutorStudentId} lessonId={lessonId} />;
   }
 

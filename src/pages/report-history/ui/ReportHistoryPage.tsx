@@ -4,7 +4,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, EmptyState, ErrorState, HexagonStatChart, LoadingState, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, libraryPathFor, listClassMemberships, useAuth } from '@/entities/auth';
-import { findChildAvatar, useChildren } from '@/entities/child';
+import { useChildren } from '@/entities/child';
+import { ChildSelector } from '@/features/child-selector';
+import { MonthCalendar } from '@/features/month-calendar';
 import { fetchStoryReportCopy, listStories, type StoryReportCopy } from '@/entities/story';
 import { messageForError } from '@/shared/api';
 import { formatReportDuration } from '@/pages/one-story';
@@ -23,6 +25,8 @@ import {
 } from '@/entities/story-completion';
 import { listParentTutorReports, tutorReportSource, type TutorReportSummary } from '@/entities/tutor';
 import { teacherTitle } from '@/shared/lib';
+import { splitLatestReport } from '../model/latest-report';
+import { CompletionReport } from './CompletionReport';
 
 /** 종합 리포트에 넘길 최근 회차 수 - listRecentStoryCompletions()가 outcomes를 함께 실어 오는 유일한 경로. */
 const COMPREHENSIVE_LIMIT = 20;
@@ -42,8 +46,10 @@ async function loadReportCopies(storyIds: readonly string[]): Promise<ReportCopy
   return Object.fromEntries(unique.map((storyId, index) => [storyId, copies[index]]));
 }
 
-/** 우리 아이 리포트(집에서 읽은 기록) 안의 보기 - 종합 / 작품별. */
-type Tab = 'comprehensive' | 'by-story';
+/** 우리 아이 리포트(집에서 읽은 기록) 안의 보기 - 작품별(기본: 가장 최근 리포트 + 지난 리포트) / 종합. */
+type Tab = 'by-story' | 'comprehensive';
+/** 지난 리포트를 보는 방식 - 목록 / 달력(예전 보호자 홈의 "이 달의 활동"). */
+type PastView = 'list' | 'calendar';
 /** 리포트 탭의 큰 구분 - 우리 아이 개별 리포트와 반·수업 리포트를 섞지 않는다. */
 type Section = 'child' | 'class';
 
@@ -69,9 +75,12 @@ function formatCompletedAt(iso: string) {
 }
 
 /**
- * IA "[3] 리포트 > 개인 리포트" 화면. 상단 탭 두 개(종합 / 작품별)로 갈리는데:
+ * IA "[3] 리포트 > 개인 리포트" 화면. 상단 탭 두 개(작품별 / 종합)로 갈리는데:
+ *  - 작품별(기본): 가장 최근 리포트 한 편을 바로 펼쳐 보여 주고, 지난 리포트는 목록·달력으로.
  *  - 종합: buildComprehensiveReport()의 네 축(질문 · 관심 · 생각 · 변화)을 카드로 렌더.
- *  - 작품별: 기존 완주 기록 목록 그대로.
+ *
+ * <p>아이 선택은 보호자 홈과 같은 전역 선택(ChildrenProvider)을 쓴다 - 여기서 고른 아이가 홈에도
+ * 이어진다. "전체 아이"(아이 지정 안 된 이전 기록 포함)만 이 화면 전용 보기다.
  *
  * <p>연결된 선생님이 보낸 수업 리포트가 하나 이상이면 세 번째 "수업 리포트" 탭이 나타난다.
  * 가정에서 직접 읽은 기록(종합/작품별)과 수업에서 진행한 기록을 섞지 않는 IA 원칙을 따른다.
@@ -80,12 +89,14 @@ export function ReportHistoryPage() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { state } = useAuth();
-  const { children } = useChildren();
+  const { load: childrenLoad, children, selectedChild } = useChildren();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
-  const [tab, setTab] = useState<Tab>('comprehensive');
+  const [tab, setTab] = useState<Tab>('by-story');
+  const [pastView, setPastView] = useState<PastView>('list');
   const [section, setSection] = useState<Section>('child');
-  // null = "전체 아이" 필터. children이 하나뿐일 땐 UI에서도 그 아이가 자동 선택된 것처럼 취급.
-  const [childFilterId, setChildFilterId] = useState<string | null>(null);
+  // "전체 아이" 보기 - 끄면 전역 선택 아이 기준. 아이가 없으면(selectedChild null) 자연히 전체.
+  const [showAllChildren, setShowAllChildren] = useState(false);
+  const childFilterId = showAllChildren ? null : selectedChild?.id ?? null;
   const [reloadKey, setReloadKey] = useState(0);
 
   const canView = state.status === 'authenticated' && state.user.role === 'PARENT';
@@ -99,8 +110,11 @@ export function ReportHistoryPage() {
 
   const token = state.status === 'authenticated' ? state.token : null;
 
+  // 아이 목록이 오기 전엔 선택 아이를 몰라 "전체"로 한 번 불렀다가 다시 부르게 된다 - 기다린다.
+  const childrenLoading = childrenLoad.status === 'loading';
+
   useEffect(() => {
-    if (!token) return;
+    if (!token || childrenLoading) return;
     let cancelled = false;
     const filters = childFilterId ? { childId: childFilterId } : undefined;
     Promise.all([
@@ -143,7 +157,7 @@ export function ReportHistoryPage() {
     return () => {
       cancelled = true;
     };
-  }, [token, childFilterId, reloadKey]);
+  }, [token, childrenLoading, childFilterId, reloadKey]);
 
   const emptyMessageForTab =
     tab === 'comprehensive'
@@ -160,7 +174,7 @@ export function ReportHistoryPage() {
         <Text style={styles.title} accessibilityRole="header">리포트</Text>
         <Text style={styles.subtitle}>
           {section === 'child'
-            ? '집에서 우리 아이와 읽은 기록이에요. 요즘 흐름을 종합해 보고, 이야기별 기록도 다시 볼 수 있어요.'
+            ? '집에서 우리 아이와 읽은 기록이에요. 가장 최근 리포트를 먼저 보여 드리고, 지난 리포트와 요즘 흐름도 볼 수 있어요.'
             : '유치원·선생님과 함께 읽은 수업 기록이에요. 반별로 모아 보여 드려요.'}
         </Text>
 
@@ -172,21 +186,11 @@ export function ReportHistoryPage() {
         ) : null}
 
         {section === 'child' && children.length > 0 ? (
-          <View style={styles.childFilterRow}>
-            <ChildFilterChip
-              label="전체 아이"
-              selected={childFilterId === null}
-              onPress={() => setChildFilterId(null)}
-            />
-            {children.map((child) => (
-              <ChildFilterChip
-                key={child.id}
-                label={`${findChildAvatar(child.avatarKey).emoji} ${child.name}`}
-                selected={childFilterId === child.id}
-                onPress={() => setChildFilterId(child.id)}
-              />
-            ))}
-          </View>
+          <ChildSelector
+            showAdd={false}
+            allOption={{ label: '전체 아이', selected: showAllChildren, onPress: () => setShowAllChildren(true) }}
+            onSelect={() => setShowAllChildren(false)}
+          />
         ) : null}
 
         {section === 'child' && childFilterId ? (
@@ -197,8 +201,8 @@ export function ReportHistoryPage() {
 
         {section === 'child' ? (
           <View style={styles.tabRow} accessibilityRole="tablist">
-            <TabButton label="종합 리포트" active={tab === 'comprehensive'} onPress={() => setTab('comprehensive')} />
             <TabButton label="작품별 리포트" active={tab === 'by-story'} onPress={() => setTab('by-story')} />
+            <TabButton label="종합 리포트" active={tab === 'comprehensive'} onPress={() => setTab('comprehensive')} />
           </View>
         ) : null}
 
@@ -218,32 +222,17 @@ export function ReportHistoryPage() {
           />
         )}
 
-        {load.status === 'ready' && section === 'child' && tab === 'by-story' && (
-          <>
-            {load.completions.length === 0 ? (
-              <EmptyState
-                title="작품별 리포트가 아직 없어요"
-                body={emptyMessageForTab}
-                cta={{ label: '이야기 읽으러 가기', onPress: () => navigate(state.status === 'authenticated' ? libraryPathFor(state.user) : '/') }}
-              />
-            ) : (
-              load.completions.map((completion) => (
-                <Pressable
-                  key={completion.id}
-                  onPress={() => navigate(`/reports/${completion.id}`)}
-                  accessibilityRole="button"
-                  style={({ pressed }) => [styles.reportCard, pressed && styles.reportCardPressed]}
-                >
-                  <Text style={styles.reportCardTitle}>
-                    {load.titleByStoryId[completion.storyId] ?? completion.storyId}
-                  </Text>
-                  <Text style={styles.reportCardMeta}>
-                    {formatCompletedAt(completion.completedAt)} · {formatReportDuration(completion.durationSeconds)}
-                  </Text>
-                </Pressable>
-              ))
-            )}
-          </>
+        {load.status === 'ready' && section === 'child' && tab === 'by-story' && token && (
+          <ByStoryView
+            token={token}
+            completions={load.completions}
+            titleByStoryId={load.titleByStoryId}
+            pastView={pastView}
+            onChangePastView={setPastView}
+            emptyMessage={emptyMessageForTab}
+            onOpen={(completionId) => navigate(`/reports/${completionId}`)}
+            onGoLibrary={() => navigate(state.status === 'authenticated' ? libraryPathFor(state.user) : '/')}
+          />
         )}
 
         {load.status === 'ready' && section === 'class' && (
@@ -255,6 +244,80 @@ export function ReportHistoryPage() {
         )}
       </View>
     </AppNavShell>
+  );
+}
+
+/** 작품별 리포트 - 가장 최근 리포트를 바로 펼치고, 지난 리포트는 목록 또는 달력으로 연다. */
+function ByStoryView({
+  token,
+  completions,
+  titleByStoryId,
+  pastView,
+  onChangePastView,
+  emptyMessage,
+  onOpen,
+  onGoLibrary,
+}: {
+  token: string;
+  completions: StoryCompletionSummary[];
+  titleByStoryId: Record<string, string>;
+  pastView: PastView;
+  onChangePastView: (view: PastView) => void;
+  emptyMessage: string;
+  onOpen: (completionId: string) => void;
+  onGoLibrary: () => void;
+}) {
+  const { latest, rest } = splitLatestReport(completions);
+  if (!latest) {
+    return (
+      <EmptyState
+        title="작품별 리포트가 아직 없어요"
+        body={emptyMessage}
+        cta={{ label: '이야기 읽으러 가기', onPress: onGoLibrary }}
+      />
+    );
+  }
+  const row = (completion: StoryCompletionSummary) => (
+    <Pressable
+      key={completion.id}
+      onPress={() => onOpen(completion.id)}
+      accessibilityRole="button"
+      style={({ pressed }) => [styles.reportCard, pressed && styles.reportCardPressed]}
+    >
+      <Text style={styles.reportCardTitle}>{titleByStoryId[completion.storyId] ?? completion.storyId}</Text>
+      <Text style={styles.reportCardMeta}>
+        {formatCompletedAt(completion.completedAt)} · {formatReportDuration(completion.durationSeconds)}
+      </Text>
+    </Pressable>
+  );
+  return (
+    <>
+      <Text style={styles.groupHeading} accessibilityRole="header">
+        가장 최근 리포트 · {formatCompletedAt(latest.completedAt)}
+      </Text>
+      <CompletionReport key={latest.id} token={token} completionId={latest.id} isParent />
+
+      {rest.length > 0 ? (
+        <>
+          <View style={styles.pastHeader}>
+            <Text style={styles.groupHeading} accessibilityRole="header">지난 리포트</Text>
+            <View style={styles.tabRow} accessibilityRole="tablist">
+              <TabButton label="목록" active={pastView === 'list'} onPress={() => onChangePastView('list')} />
+              <TabButton label="달력" active={pastView === 'calendar'} onPress={() => onChangePastView('calendar')} />
+            </View>
+          </View>
+          {pastView === 'list' ? (
+            rest.map(row)
+          ) : (
+            <MonthCalendar
+              items={rest.map((completion) => ({ id: completion.id, date: new Date(completion.completedAt), completion }))}
+              emptyDayMessage="이 날에는 리포트가 없어요."
+              renderItem={(item) => row(item.completion)}
+            />
+          )}
+        </>
+      ) : null}
+    </>
   );
 }
 
@@ -555,23 +618,6 @@ function TabButton({ label, active, onPress }: { label: string; active: boolean;
   );
 }
 
-function ChildFilterChip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
-  return (
-    <Pressable
-      accessibilityRole="radio"
-      aria-checked={selected}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.childFilterChip,
-        selected && styles.childFilterChipActive,
-        pressed && styles.tabPressed,
-      ]}
-    >
-      <Text style={[styles.childFilterLabel, selected && styles.childFilterLabelActive]}>{label}</Text>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   content: {
     flex: 1,
@@ -618,25 +664,20 @@ const styles = StyleSheet.create({
   },
   sectionLabelActive: { color: storybookTheme.color.background },
   reportGroup: { gap: 8, marginTop: 8 },
-  childFilterRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  childFilterChip: {
-    minHeight: 44,
-    justifyContent: 'center',
-    paddingHorizontal: 14,
-    borderRadius: storybookTheme.radius.pill,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
-  },
-  childFilterChipActive: {
-    backgroundColor: storybookTheme.color.contentPanel,
-    borderColor: storybookTheme.color.primary,
-  },
-  childFilterLabel: {
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.semibold,
+  groupHeading: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onContentMuted,
+    marginTop: 4,
   },
-  childFilterLabelActive: { color: storybookTheme.color.primary },
+  pastHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 12,
+  },
   filterNote: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onContentMuted,

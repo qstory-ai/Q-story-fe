@@ -40,7 +40,7 @@ export function HomePage() {
   const [manualOnboarding, setManualOnboarding] = useState<OnboardingEntry | null>(null);
   const onboarding = paramEntry ?? manualOnboarding;
   // OnboardingFlow가 이 화면 안에서 세션을 만들었다(가입 직후). 그 순간 아래
-  // "로그인됐으면 역할 홈으로" 리다이렉트가 끼어들면 캐러셀·아이 등록 단계를 못 보고 홈으로 튕긴다 -
+  // "로그인됐으면 역할 홈으로" 리다이렉트가 끼어들면 아이 등록 단계를 못 보고 홈으로 튕긴다 -
   // 흐름이 스스로 navigate(replace)로 떠날 때까지 리다이렉트를 보류한다.
   const [flowOwnsSession, setFlowOwnsSession] = useState(false);
 
@@ -67,7 +67,6 @@ export function HomePage() {
           initialClassCode={onboarding.classCode}
           signInNext={onboarding.step === 'sign-in' ? onboarding.next : undefined}
           signUpNext={onboarding.step === 'sign-in' ? undefined : onboarding.next}
-          skipValueCarousel={hasSeenTutorial()}
           // URL 파라미터로 들어온 경우엔 state를 비워도 paramEntry가 계속 이기므로 파라미터 없는
           // "/"로 실제로 이동한다.
           onExit={() => {
@@ -107,7 +106,7 @@ export function HomePage() {
                 <Text style={styles.loginButtonText}>로그인</Text>
               </Pressable>
               <View style={styles.authButtonHalf}>
-                <ActionButton variant="gold" label="회원가입" onPress={() => setManualOnboarding({ step: 'welcome' })} />
+                <ActionButton variant="gold" label="회원가입" onPress={() => setManualOnboarding({ step: 'role' })} />
               </View>
             </View>
             <Text style={styles.panelNote}>또는 이미 어떤 역할인지 알고 있다면 바로 골라주세요.</Text>

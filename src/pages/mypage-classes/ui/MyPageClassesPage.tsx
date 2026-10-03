@@ -31,10 +31,11 @@ export function MyPageClassesPage() {
   const { state, setSession, refresh } = useAuth();
   const [memberships, setMemberships] = useState<Load<ClassMembershipResponse>>({ status: 'loading' });
   const [classCodeInput, setClassCodeInput] = useState('');
-  const { children, load: childrenLoad, reload: reloadChildren } = useChildren();
-  // 반에 올릴 아이 - 이름·출생연도를 다시 적지 않고 등록한 아이 프로필 중에서 고른다. 한 명뿐이면 그 아이.
+  const { children, selectedChild: globalSelectedChild, load: childrenLoad, reload: reloadChildren } = useChildren();
+  // 반에 올릴 아이 - 이름·출생연도를 다시 적지 않고 등록한 아이 프로필 중에서 고른다. 고르기 전엔 홈·리포트와
+  // 같은 전역 선택 아이가 기본값이다.
   const [pickedChildId, setPickedChildId] = useState<string | null>(null);
-  const selectedChild = children.find((child) => child.id === pickedChildId) ?? (children.length === 1 ? children[0] : null);
+  const selectedChild = children.find((child) => child.id === pickedChildId) ?? globalSelectedChild;
   const [classCodeError, setClassCodeError] = useState<string | null>(null);
   const [rosterSelection, setRosterSelection] = useState<RosterSelection>({ kind: 'not-needed' });
   const [classJoinSuccess, setClassJoinSuccess] = useState(false);

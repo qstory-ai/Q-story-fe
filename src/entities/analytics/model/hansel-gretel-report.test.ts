@@ -8,9 +8,10 @@ import { hanselGretelStoryPackage as storyPackage } from '@/entities/story/hanse
 import { buildComprehensiveReport } from './comprehensive-report';
 import { HG_COMPANION_CHAT, HG_REPORT_SCENARIOS, HG_REPORT_SESSIONS } from './hansel-gretel-report.fixtures';
 import { buildParentReport, buildRecentApproachTrend } from './parent-report';
-// 전략 표·후속 질문 문구를 report-copy.yaml로 옮기기 직전(report-labels.ts에 헨젤과 그레텔 전용 표가
-// 하드코딩돼 있던 때)의 코드로 같은 fixture를 돌려 저장한 출력이다. 이 파일을 다시 만들지 말 것 -
-// 헨젤과 그레텔 리포트가 바뀌면 이 테스트가 실패해야 한다.
+// 같은 fixture를 Q-30 최종 원고의 report-copy.yaml로 돌려 저장한 출력이다(처음에는 전략 표를
+// report-labels.ts에서 report-copy.yaml로 옮길 때 출력이 같은지 지키려고 만들었다). 리포트 문구나
+// 분기 구성을 일부러 바꾼 경우에만 다시 만들고, 바뀐 내용을 diff로 확인할 것 - 그 밖에 HG 리포트가
+// 바뀌면 이 테스트가 실패해야 한다.
 import before from './hansel-gretel-report.snapshot.json';
 
 const reportCopy = storyPackage.reportCopy;
@@ -128,10 +129,11 @@ test('여러 이야기를 섞은 종합 리포트는 이야기마다 제 전략 
   ];
   const comprehensive = buildComprehensiveReport(sessions, { HG: reportCopy, TT: otherStoryCopy });
   assert.deepEqual(comprehensive.thought.strategies, [
-    { label: '단서를 관찰하고 확인하기', count: 3 },
+    // HG는 A·C가 관찰 전략, B는 대화만 해서 전략이 없다.
+    { label: '단서를 관찰하고 확인하기', count: 2 },
     { label: '다른 가능성을 시험하기', count: 1 },
   ]);
   const trend = buildRecentApproachTrend(sessions, { HG: reportCopy, TT: otherStoryCopy });
-  assert.deepEqual(trend.repeatedApproach, { label: '단서를 관찰하고 확인하기', count: 3 });
+  assert.deepEqual(trend.repeatedApproach, { label: '단서를 관찰하고 확인하기', count: 2 });
   assert.deepEqual(trend.otherApproaches, ['다른 가능성을 시험하기']);
 });

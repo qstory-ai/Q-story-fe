@@ -20,7 +20,7 @@ const recording: LocalRecordingArtifact = {
   mimeType: 'audio/mp4',
 };
 
-test('local pipeline returns a reviewed fallback without exposing provider keys', async () => {
+test('local pipeline continues the base story when the anchor has no default branch', async () => {
   const pipeline = new LocalSafeSpeechPipeline(storyPackage);
   const result = await pipeline.transcribe(
     {
@@ -36,8 +36,9 @@ test('local pipeline returns a reviewed fallback without exposing provider keys'
   assert.equal(result.ok, false);
   if (!result.ok) {
     assert.equal(result.failure.code, 'SPEECH_PROVIDER_NOT_CONFIGURED');
-    assert.equal(result.fallback.familyId, 'B_CHECK_KEYS');
-    assert.equal(result.fallback.rejoinAt, 'HG-F05-ENTER-HOUSE');
+    // B는 대화만 하는 질문 지점이라 준비된 분기 장면 없이 기본 이야기(05-4)로 이어 간다.
+    assert.equal(result.fallback.familyId, null);
+    assert.equal(result.fallback.rejoinAt, null);
   }
 });
 
@@ -153,7 +154,7 @@ test('HTTP pipeline transcribes first and routes only after confirmation', async
   );
 });
 
-test('HTTP transport failure uses the active anchor fallback', async () => {
+test('HTTP transport failure continues the base story when the anchor has no default branch', async () => {
   const pipeline = new HttpSpeechPipeline(
     'https://api.q-story.test',
     storyPackage,
@@ -174,8 +175,9 @@ test('HTTP transport failure uses the active anchor fallback', async () => {
 
   assert.equal(result.ok, false);
   if (!result.ok) {
-    assert.equal(result.fallback.familyId, 'C_ASK_DEMONSTRATION');
-    assert.equal(result.fallback.rejoinAt, 'HG-F07-DEMONSTRATION');
+    assert.equal(result.fallback.familyId, null);
+    assert.equal(result.fallback.rejoinAt, null);
+    assert.match(result.fallback.text, /이야기를 이어서/);
   }
 });
 

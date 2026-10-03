@@ -67,7 +67,8 @@ export type QuestionAnchor = {
   resumeAudioGroupId: AudioGroupId | null;
   allowedRejoinAnchorIds: readonly RejoinAnchorId[];
   fallbackFamilyIds: readonly FallbackFamilyId[];
-  defaultFallbackFamilyId: FallbackFamilyId;
+  /** 없으면(null) 질문만 하거나 연결이 실패했을 때 기본 이야기로 이어 간다. */
+  defaultFallbackFamilyId: FallbackFamilyId | null;
 };
 
 export type RejoinAnchor = {

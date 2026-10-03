@@ -5,7 +5,7 @@
     "storyId": "HG",
     "slug": "hansel-gretel",
     "title": "헨젤과 그레텔",
-    "contentVersion": "master-spec-v2.4-branch-integrity",
+    "contentVersion": "q30-final-script-v1",
     "availability": "BETA",
     "targetAge": {
       "min": 6,
@@ -14,17 +14,17 @@
     "entrySceneId": "HG-F01",
     "endingSceneId": "HG-F10",
     "immutableEvents": [
-      "식량 부족과 어른의 잘못된 결정",
+      "먹을 것의 부족과 새어머니의 제안에 따른 아버지의 잘못된 결정",
       "조약돌을 따라 첫 번째 귀환",
-      "빵 부스러기 길의 실패",
-      "하얀 새와 과자집 발견",
-      "마녀의 정체와 감금",
-      "열쇠 규칙을 이용한 남매의 협력 탈출",
-      "증거를 가져와 집으로 귀환",
-      "아버지의 책임 인정과 신뢰 회복"
+      "빵 길의 실패와 길 잃음",
+      "하얀 새를 따라 과자집 발견",
+      "할머니의 초대와 부엌 감금",
+      "두 열쇠를 이용한 남매의 협력 탈출",
+      "먹을 것을 챙겨 집으로 귀환",
+      "아버지의 책임 인정과 가족의 이후 행동"
     ],
     "forbiddenElements": [
-      "폭력과 화덕 상해의 구체적 묘사",
+      "폭력과 오븐·화덕을 이용한 상해 묘사",
       "외모·나이·장애를 악함의 근거로 표현",
       "질문 지점 이전의 반전·결말 선공개",
       "아버지의 두려움을 책임 면제 사유로 표현"
@@ -40,7 +40,7 @@
       "HG-Q-A": {
         "slot": "A",
         "sceneId": "HG-F04",
-        "summary": "헨젤과 그레텔이 숲에서 길을 잃었고, 낮은 나뭇가지의 하얀 새가 두 아이를 바라보며 길을 알려줄 듯 움직인다.",
+        "summary": "길을 잃은 헨젤과 그레텔 앞에서 하얀 새가 앞쪽 가지로 옮겨 가며 남매를 자꾸 돌아본다. 새가 왜 돌아보는지, 어디로 가는지는 아직 아무도 모른다.",
         "primarySpeakerId": "HG-SPK-GRETEL",
         "allowedSpeakerIds": [
           "HG-SPK-GRETEL"
@@ -51,109 +51,46 @@
           "하얀 새",
           "숲",
           "길",
-          "냄새"
+          "가지",
+          "지켜보",
+          "말 걸"
         ],
-        "defaultFallbackFamilyId": "A_OBSERVE_BIRD",
+        "defaultFallbackFamilyId": null,
         "defaultRejoinAt": "HG-F04-CANDY-HOUSE-REVEAL",
-        "concernChoice": {
-          "familyIds": [
-            "A_OBSERVE_BIRD",
-            "A_SPEAK_TO_BIRD",
-            "A_CHECK_SURROUNDINGS"
-          ],
-          "responseText": "그렇게 걱정될 수 있어. 바로 따라가기 전에 안전하게 확인할 방법을 함께 골라 보자."
-        },
+        "liveBranchGeneration": false,
         "forbiddenKnowledge": [
-          "과자집 노파의 정체",
+          "새의 마음이나 의도를 사실처럼 단정하기",
+          "새가 사람 말로 대답하기",
+          "과자집 할머니의 정체",
           "마녀의 계획",
-          "최종 탈출 방법과 결말"
+          "탈출 방법과 결말"
         ],
         "actionFamilies": [
           {
             "id": "A_OBSERVE_BIRD",
-            "meaning": "안전한 거리에서 새의 행동을 관찰한다.",
-            "acknowledgementText": "좋아, 우리 가까이 가지 말고 하얀 새를 조용히 지켜보자.",
-            "reportSummary": "남매는 거리를 둔 채 새의 시선과 단 냄새를 확인하고 손을 잡은 채 새를 따라갔어요.",
+            "meaning": "잠깐 멈춰서 하얀 새가 어디로 가는지 지켜본다.",
+            "acknowledgementText": "좋아, 잠깐 멈춰서 하얀 새를 지켜보자.",
+            "reportSummary": "남매는 발을 멈추고 새가 앞으로 갔다가 다시 돌아보는 모습을 지켜본 뒤 새가 간 쪽으로 걸었어요.",
             "bridgeAudioId": "a-observe-bird-bridge",
             "branchAssetId": "a-observe-bird-01",
             "choiceCopyVariants": [
               {
-                "label": "새의 눈길 따라가기",
-                "meaning": "하얀 새가 바라보는 방향과 몸짓을 조용히 관찰한다."
-              },
-              {
-                "label": "새가 보는 곳 살피기",
-                "meaning": "새가 코끝을 든 방향에서 단 냄새가 나는지 확인한다."
-              },
-              {
-                "label": "조용히 새 지켜보기",
-                "meaning": "안전한 거리를 두고 새가 남매를 기다리는지 살펴본다."
+                "label": "잠깐 새 지켜보기",
+                "meaning": "발을 멈추고 하얀 새가 어디로 가는지 지켜본다."
               }
             ]
           },
           {
             "id": "A_SPEAK_TO_BIRD",
-            "meaning": "하얀 새에게 길을 아는지 말로 묻는다.",
-            "acknowledgementText": "좋아, 내가 하얀 새에게 길을 아는지 다정하게 물어볼게.",
-            "reportSummary": "그레텔이 하얀 새에게 말을 걸자 새가 앞선 가지에서 기다렸고 남매는 천천히 따라갔어요.",
+            "meaning": "하얀 새에게 어디로 가는지 말을 걸어 본다.",
+            "acknowledgementText": "좋아, 내가 하얀 새에게 말을 걸어 볼게.",
+            "reportSummary": "그레텔이 하얀 새에게 어디로 가는지 묻자 새가 짧게 울고 앞쪽으로 날아갔고 남매는 새를 따라갔어요.",
             "bridgeAudioId": "a-speak-to-bird-bridge",
             "branchAssetId": "a-speak-to-bird-01",
             "choiceCopyVariants": [
               {
-                "label": "새에게 길 물어보기",
-                "meaning": "하얀 새에게 숲을 나가는 길을 아는지 다정하게 묻는다."
-              },
-              {
-                "label": "하얀 새와 인사하기",
-                "meaning": "새가 놀라지 않게 인사한 뒤 알려주고 싶은 것이 있는지 묻는다."
-              },
-              {
-                "label": "새의 대답 기다리기",
-                "meaning": "낮은 목소리로 말을 건 뒤 새가 몸짓으로 답하는지 살핀다."
-              }
-            ]
-          },
-          {
-            "id": "A_CHECK_SURROUNDINGS",
-            "meaning": "새 주변의 발자국·냄새·나뭇가지 방향을 확인한다.",
-            "acknowledgementText": "좋아, 새를 따라가기 전에 주변에 남은 단서부터 찾아보자.",
-            "reportSummary": "남매는 빵 부스러기·발자국·깃털과 단 냄새를 함께 확인한 뒤 걸어갈 방향을 정했어요.",
-            "bridgeAudioId": "a-check-surroundings-bridge",
-            "branchAssetId": "a-check-surroundings-01",
-            "choiceCopyVariants": [
-              {
-                "label": "숲의 흔적 찾아보기",
-                "meaning": "발자국과 나뭇가지, 냄새를 차례로 살펴 길의 단서를 찾는다."
-              },
-              {
-                "label": "바닥 단서 살펴보기",
-                "meaning": "나무 아래의 빵 부스러기와 깃털이 향한 방향을 확인한다."
-              },
-              {
-                "label": "달콤한 냄새 좇기",
-                "meaning": "제자리에서 바람이 불어오는 방향과 희미한 단 냄새를 확인한다."
-              }
-            ]
-          },
-          {
-            "id": "A_TRY_OTHER_PATH",
-            "meaning": "새를 바로 따라가지 않고 반대쪽 길을 짧게 확인한다.",
-            "acknowledgementText": "좋아, 새를 바로 따라가지 말고 다른 안전한 길도 살펴보자.",
-            "reportSummary": "반대쪽 길이 가시덤불과 쓰러진 나무로 막힌 것을 확인한 남매는 새가 알려 준 열린 길로 돌아왔어요.",
-            "bridgeAudioId": "a-try-other-path-bridge",
-            "branchAssetId": "a-try-other-path-01",
-            "choiceCopyVariants": [
-              {
-                "label": "반대쪽 길 확인하기",
-                "meaning": "새를 바로 따라가지 않고 반대쪽 길이 안전한지 짧게 살펴본다."
-              },
-              {
-                "label": "다른 길 먼저 보기",
-                "meaning": "반대편 길에 쓰러진 나무나 가시덤불이 있는지 확인한다."
-              },
-              {
-                "label": "열린 길 다시 고르기",
-                "meaning": "다른 길이 막혔는지 본 뒤 새가 알려 준 열린 길로 돌아온다."
+                "label": "하얀 새에게 말 걸기",
+                "meaning": "하얀 새에게 어디로 가는지 물어본다."
               }
             ]
           }
@@ -162,7 +99,7 @@
       "HG-Q-B": {
         "slot": "B",
         "sceneId": "HG-F05",
-        "summary": "아이들이 과자집을 발견했고 노파가 문을 열었다. 문 주변에는 열쇠와 설탕 무늬 같은 수상한 단서가 있다.",
+        "summary": "길을 잃고 배고픈 남매에게 처음 보는 할머니가 과자집 문을 열고, 안에서 빵을 먹고 쉬었다 가라고 한다. 남매는 이 집에 처음 왔다.",
         "primarySpeakerId": "HG-SPK-GRETEL",
         "allowedSpeakerIds": [
           "HG-SPK-GRETEL"
@@ -171,146 +108,28 @@
           "헨젤",
           "그레텔",
           "할머니",
-          "노파",
           "과자집",
-          "열쇠",
-          "자물쇠",
-          "창문",
-          "출구",
-          "신호"
+          "집",
+          "빵",
+          "쉬어",
+          "들어가"
         ],
-        "defaultFallbackFamilyId": "B_CHECK_KEYS",
+        "defaultFallbackFamilyId": null,
         "defaultRejoinAt": "HG-F05-ENTER-HOUSE",
-        "concernChoice": {
-          "familyIds": [
-            "B_ASK_OLD_WOMAN",
-            "B_CHECK_HOUSE",
-            "B_MAKE_SIBLING_SIGNAL"
-          ],
-          "responseText": "나도 조금 수상하게 느껴져. 바로 들어가기 전에 안전하게 확인할 방법을 함께 골라 보자."
-        },
+        "liveBranchGeneration": false,
         "forbiddenKnowledge": [
-          "노파가 마녀라는 사실",
+          "할머니가 마녀라는 사실",
           "헨젤이 갇히는 미래 사건",
-          "최종 탈출 방법과 결말"
+          "이 장면에 없는 자국·마법 열쇠·설탕 무늬 단서",
+          "아이 의견 덕분에 집에 들어가거나 들어가지 않았다고 꾸미기",
+          "탈출 방법과 결말"
         ],
-        "actionFamilies": [
-          {
-            "id": "B_ASK_OLD_WOMAN",
-            "meaning": "노파에게 집과 열쇠에 관해 짧게 질문한다.",
-            "acknowledgementText": "좋아, 내가 할머니에게 이 집과 열쇠에 관해 조심스럽게 물어볼게.",
-            "reportSummary": "노파는 질문에 얼버무리면서도 열쇠고리를 꼭 잡았고 남매는 그 수상한 단서를 기억했어요.",
-            "bridgeAudioId": "b-ask-old-woman-bridge",
-            "branchAssetId": "b-ask-old-woman-01",
-            "choiceCopyVariants": [
-              {
-                "label": "할머니께 집 물어보기",
-                "meaning": "노파에게 숲 한가운데 이 집이 있는 이유를 조심스럽게 묻는다."
-              },
-              {
-                "label": "숲속 집 이유 묻기",
-                "meaning": "왜 숲 한가운데서 혼자 사는지 묻고 대답을 주의 깊게 듣는다."
-              },
-              {
-                "label": "노파의 대답 살피기",
-                "meaning": "길 잃은 손님을 기다렸다는 말이 구체적인지 확인한다."
-              }
-            ]
-          },
-          {
-            "id": "B_CHECK_KEYS",
-            "meaning": "문 주변의 열쇠와 자물쇠를 살핀다.",
-            "acknowledgementText": "좋아, 할머니 손에 있는 열쇠고리부터 자세히 살펴보자.",
-            "reportSummary": "그레텔은 검은 열쇠와 설탕 무늬가 함께 반응하는 것을 발견해 헨젤에게 알려줬어요.",
-            "bridgeAudioId": "b-check-keys-bridge",
-            "branchAssetId": "b-check-keys-01",
-            "choiceCopyVariants": [
-              {
-                "label": "검은 열쇠 살펴보기",
-                "meaning": "노파의 열쇠고리에서 가장 큰 검은 열쇠를 자세히 본다."
-              },
-              {
-                "label": "열쇠와 무늬 비교하기",
-                "meaning": "검은 열쇠가 흔들릴 때 현관 안쪽 설탕 무늬도 바뀌는지 본다."
-              },
-              {
-                "label": "같이 반응하는지 보기",
-                "meaning": "열쇠의 움직임과 설탕 소용돌이의 검은 빛이 연결됐는지 확인한다."
-              }
-            ]
-          },
-          {
-            "id": "B_CHECK_HOUSE",
-            "meaning": "문턱 밖에서 집의 창문과 출구 단서를 확인한다.",
-            "acknowledgementText": "좋아, 안으로 들어가기 전에 창문과 출구를 먼저 확인하자.",
-            "reportSummary": "남매는 문턱 밖에서 창문 가장자리의 철선을 발견하고 출구 단서를 기억했어요.",
-            "bridgeAudioId": "b-check-house-bridge",
-            "branchAssetId": "b-check-house-01",
-            "choiceCopyVariants": [
-              {
-                "label": "창문과 출구 확인하기",
-                "meaning": "문턱 밖에서 창문과 돌아나올 길이 있는지 살펴본다."
-              },
-              {
-                "label": "창문 가장자리 보기",
-                "meaning": "설탕 창문 가장자리에 숨은 가느다란 철선을 확인한다."
-              },
-              {
-                "label": "문틀 밖에서 살피기",
-                "meaning": "집 안으로 들어가지 않고 창문과 문틀의 수상한 단서를 찾는다."
-              }
-            ]
-          },
-          {
-            "id": "B_STEP_BACK_MARK_EXIT",
-            "meaning": "한 걸음 물러나 안전한 출구 위치를 표시한다.",
-            "acknowledgementText": "좋아, 한 걸음 물러나서 돌아갈 길을 잊지 않게 표시하자.",
-            "reportSummary": "남매는 돌아갈 표시를 남겼지만 길이 과자집 주위를 도는 것을 알았고 마녀의 함정 속에서도 그 표시를 기억했어요.",
-            "bridgeAudioId": "b-step-back-mark-exit-bridge",
-            "branchAssetId": "b-step-back-mark-exit-01",
-            "choiceCopyVariants": [
-              {
-                "label": "돌아갈 길 표시하기",
-                "meaning": "한 걸음 물러나 나무에 안전한 귀환 표시를 남긴다."
-              },
-              {
-                "label": "과자집과 거리 두기",
-                "meaning": "바로 들어가지 않고 표시한 길이 이어지는지 확인한다."
-              },
-              {
-                "label": "숲길 방향 기억하기",
-                "meaning": "과자집을 등졌을 때 보이는 나무와 길 모양을 기억해 둔다."
-              }
-            ]
-          },
-          {
-            "id": "B_MAKE_SIBLING_SIGNAL",
-            "meaning": "헨젤과 그레텔이 서로 알아볼 안전 신호를 정한다.",
-            "acknowledgementText": "좋아, 무슨 일이 생기면 바로 알 수 있게 우리끼리 신호를 정하자.",
-            "reportSummary": "남매는 위험할 때 무엇이든 두 번 두드리는 비밀 신호를 정하고 함께 기억했어요.",
-            "bridgeAudioId": "b-make-sibling-signal-bridge",
-            "branchAssetId": "b-make-sibling-signal-01",
-            "choiceCopyVariants": [
-              {
-                "label": "남매 비밀 신호 정하기",
-                "meaning": "이상한 일이 생기면 무엇이든 두 번 두드리는 신호를 정한다."
-              },
-              {
-                "label": "두 번 두드리기 약속",
-                "meaning": "서로 떨어져도 알아들을 수 있게 두 번 두드리는 신호를 만든다."
-              },
-              {
-                "label": "탁, 탁 약속하기",
-                "meaning": "문·그릇·나무 어디에서든 탁, 탁 두 번으로 서로의 신호를 보낸다."
-              }
-            ]
-          }
-        ]
+        "actionFamilies": []
       },
       "HG-Q-C": {
         "slot": "C",
         "sceneId": "HG-F07",
-        "summary": "마녀가 자신은 화덕에서 멀리 서서 열쇠고리를 쥔 채 그레텔에게만 안을 보라고 한다. 명령의 의도는 아직 설명되지 않았다.",
+        "summary": "마녀가 요리하려고 열쇠고리를 작업대 끝에 내려놓았다. 작은 은색 열쇠는 헨젤의 쇠창살 문, 큰 검은 열쇠는 복도로 나가는 부엌 문을 연다. 마녀는 요리하면서 가끔 남매 쪽을 돌아본다.",
         "primarySpeakerId": "HG-SPK-GRETEL",
         "allowedSpeakerIds": [
           "HG-SPK-GRETEL"
@@ -319,140 +138,51 @@
           "헨젤",
           "그레텔",
           "마녀",
-          "오븐",
-          "화덕",
+          "열쇠",
           "열쇠고리",
+          "작업대",
           "쇠창살",
-          "시범",
-          "신호",
-          "자물쇠"
+          "부엌 문",
+          "냄비",
+          "선반",
+          "불러"
         ],
-        "defaultFallbackFamilyId": "C_ASK_DEMONSTRATION",
-        "defaultRejoinAt": "HG-F07-DEMONSTRATION",
-        "concernChoice": {
-          "familyIds": [
-            "C_ASK_DEMONSTRATION",
-            "C_USE_SIGNAL",
-            "C_CHECK_LOCK_FROM_DISTANCE"
-          ],
-          "responseText": "그 걱정이 맞아. 가까이 가지 말고 안전하게 움직일 방법을 함께 골라 보자."
-        },
+        "defaultFallbackFamilyId": null,
+        "defaultRejoinAt": "HG-F07-KEYS-TAKEN",
+        "liveBranchGeneration": false,
         "forbiddenKnowledge": [
           "구체적인 폭력 방법",
-          "화덕을 이용해 상대를 해치는 묘사",
-          "최종 결말의 선공개"
+          "오븐이나 화덕으로 상대를 해치는 묘사",
+          "준비되지 않은 신호·마법·다른 출구",
+          "탈출 방법을 먼저 정답처럼 알려 주기",
+          "결말의 선공개"
         ],
         "actionFamilies": [
           {
-            "id": "C_ASK_DEMONSTRATION",
-            "meaning": "그레텔이 모르는 척하며 먼저 시범을 보여 달라고 한다.",
-            "acknowledgementText": "좋아, 내가 모르는 척하면서 마녀에게 먼저 보여 달라고 해볼게.",
-            "reportSummary": "그레텔은 화덕에서 멀리 서서 먼저 보여 달라고 했고 마녀가 열쇠를 든 채 앞으로 나서게 했어요.",
-            "bridgeAudioId": "c-ask-demonstration-bridge",
-            "branchAssetId": "c-ask-demonstration-01",
+            "id": "C_WAIT_FOR_WITCH_TURN",
+            "meaning": "마녀가 등을 돌릴 때까지 기다렸다가 열쇠를 가져온다.",
+            "acknowledgementText": "좋아, 마녀가 등을 돌릴 때까지 조용히 기다려 볼게.",
+            "reportSummary": "그레텔은 마녀가 어디를 보는지 살피며 기다렸다가 마녀가 선반 쪽으로 돌아선 틈에 열쇠고리를 가져왔어요.",
+            "bridgeAudioId": "c-wait-for-witch-turn-bridge",
+            "branchAssetId": "c-wait-for-witch-turn-01",
             "choiceCopyVariants": [
               {
-                "label": "마녀에게 먼저 부탁하기",
-                "meaning": "그레텔이 모르는 척하며 화덕을 먼저 확인해 달라고 한다."
-              },
-              {
-                "label": "시범을 보여 달라 하기",
-                "meaning": "마녀가 가까이 가서 어떻게 하는지 직접 보여 달라고 부탁한다."
-              },
-              {
-                "label": "방법을 다시 묻기",
-                "meaning": "위험하게 다가가지 않고 정확한 방법을 천천히 보여 달라고 한다."
+                "label": "등 돌릴 때 기다리기",
+                "meaning": "마녀가 다른 곳을 볼 때까지 기다렸다가 열쇠를 가져온다."
               }
             ]
           },
           {
             "id": "C_DISTRACT_AND_TAKE_KEYS",
-            "meaning": "마녀의 주의를 안전하게 돌리고 열쇠를 확보한다.",
-            "acknowledgementText": "좋아, 마녀의 시선을 다른 곳으로 돌리고 열쇠를 챙길 기회를 찾아보자.",
-            "reportSummary": "그레텔은 냄비로 마녀의 시선을 돌려 열쇠를 얻고 헨젤을 풀어 함께 복도로 빠져나갔어요.",
+            "meaning": "헨젤이 마녀를 부르는 동안 그레텔이 열쇠를 가져온다.",
+            "acknowledgementText": "좋아, 헨젤이 마녀를 부르는 동안 내가 열쇠를 가져올게.",
+            "reportSummary": "헨젤이 마녀를 불러 시선을 돌린 사이 그레텔이 작업대의 열쇠고리를 가져왔어요.",
             "bridgeAudioId": "c-distract-and-take-keys-bridge",
             "branchAssetId": "c-distract-and-take-keys-01",
             "choiceCopyVariants": [
               {
-                "label": "시선 돌리고 열쇠 보기",
-                "meaning": "마녀가 다른 곳을 보는 사이 작업대의 열쇠를 확인한다."
-              },
-              {
-                "label": "떨어질 냄비 알려주기",
-                "meaning": "작업대 끝의 빈 냄비가 떨어질 것 같다고 말해 마녀의 시선을 돌린다."
-              },
-              {
-                "label": "열쇠 놓을 순간 기다리기",
-                "meaning": "마녀가 시범을 위해 열쇠고리를 내려놓는 순간을 기다린다."
-              }
-            ]
-          },
-          {
-            "id": "C_USE_SIGNAL",
-            "meaning": "남매가 문 앞에서 나눈 두 번 두드리기 약속을 떠올려 움직일 순간을 맞춘다.",
-            "acknowledgementText": "좋아, 문 앞에서 헨젤과 나눈 약속대로 두 번 두드리는 신호를 보낼게.",
-            "reportSummary": "그레텔은 과자집 문 앞에서 나눈 약속을 떠올리고, 헨젤과 빈손으로 탁, 탁 신호를 주고받아 마녀의 시선을 돌린 뒤 함께 탈출했어요.",
-            "bridgeAudioId": "c-use-signal-bridge",
-            "branchAssetId": "c-use-signal-01",
-            "requiresPriorFamilyIds": [
-              "B_MAKE_SIBLING_SIGNAL"
-            ],
-            "choiceCopyVariants": [
-              {
-                "label": "헨젤에게 신호 보내기",
-                "meaning": "작업대를 두 번 두드려 헨젤에게 준비하라는 신호를 보낸다."
-              },
-              {
-                "label": "남매가 함께 움직이기",
-                "meaning": "두 번 두드리는 신호로 서로의 움직일 때를 맞춘다."
-              },
-              {
-                "label": "쇠창살 답신 기다리기",
-                "meaning": "그레텔이 신호를 보낸 뒤 헨젤의 두 번 두드리는 답을 기다린다."
-              }
-            ]
-          },
-          {
-            "id": "C_CHECK_LOCK_FROM_DISTANCE",
-            "meaning": "화덕에 다가가지 않고 열쇠와 잠금 상태를 확인한다.",
-            "acknowledgementText": "좋아, 위험하게 다가가지 말고 멀리서 자물쇠 상태를 확인하자.",
-            "reportSummary": "그레텔은 긴 빵 주걱으로 잠금 무늬와 철문이 연결된 것을 알아내고 마녀에게 먼저 시범을 요청했어요.",
-            "bridgeAudioId": "c-check-lock-from-distance-bridge",
-            "branchAssetId": "c-check-lock-from-distance-01",
-            "choiceCopyVariants": [
-              {
-                "label": "긴 주걱으로 확인하기",
-                "meaning": "화덕에 다가가지 않고 긴 빵 주걱으로 잠금 무늬를 살핀다."
-              },
-              {
-                "label": "멀리서 자물쇠 살피기",
-                "meaning": "안전한 거리에서 열쇠와 잠금장치가 연결됐는지 확인한다."
-              },
-              {
-                "label": "떨리는 철문 관찰하기",
-                "meaning": "주걱을 가까이 댔을 때 쇠창살과 철문이 움직이는지 본다."
-              }
-            ]
-          },
-          {
-            "id": "C_BLOCK_PURSUIT_SAFELY",
-            "meaning": "문과 주변 물건을 이용해 안전하게 추격을 늦춘다.",
-            "acknowledgementText": "좋아, 아무도 다치지 않게 문과 주변 물건으로 마녀를 늦춰보자.",
-            "reportSummary": "남매는 열쇠로 헨젤을 풀고 큰 철문을 내려 마녀의 추격을 늦춘 뒤 함께 달아났어요.",
-            "bridgeAudioId": "c-block-pursuit-safely-bridge",
-            "branchAssetId": "c-block-pursuit-safely-01",
-            "choiceCopyVariants": [
-              {
-                "label": "문으로 길 막아두기",
-                "meaning": "아무도 다치지 않게 문을 닫아 마녀의 추격을 늦춘다."
-              },
-              {
-                "label": "사탕 철문 내리기",
-                "meaning": "검은 열쇠를 반대로 돌려 마녀 앞의 사탕 철문을 내린다."
-              },
-              {
-                "label": "안전하게 추격 늦추기",
-                "meaning": "헨젤을 먼저 풀어 준 뒤 문과 자물쇠로 거리를 벌린다."
+                "label": "헨젤이 마녀 부르기",
+                "meaning": "헨젤이 마녀를 부르는 동안 그레텔이 열쇠를 가져온다."
               }
             ]
           }
@@ -544,14 +274,14 @@
     },
     "anchors": {
       "HG-Q-A": {
-        "topic": "하얀 새의 행동과 길 찾기",
+        "topic": "자꾸 돌아보는 하얀 새 관찰하기",
         "focusTopic": "하얀 새의 행동",
         "sceneTitle": "하얀 새를 만난 숲",
         "reportImageAssetId": "white-bird-leads",
-        "followUpQuestion": "하얀 새의 행동과 숲의 단서 중에서 어떤 것이 네 방법을 고르는 데 가장 중요했어?"
+        "followUpQuestion": "하얀 새가 자꾸 돌아본 건 왜였을 거라고 생각해?"
       },
       "HG-Q-B": {
-        "topic": "낯선 친절과 집의 단서 살피기",
+        "topic": "처음 가는 집과 처음 만난 사람 알아보기",
         "focusTopic": "낯선 친절",
         "sceneTitle": "과자집 문 앞",
         "reportImageAssetId": "old-woman-door",
@@ -559,32 +289,22 @@
         "followUpQuestion": "처음 만난 사람이 친절하게 다가오면 누구와 먼저 상의하면 좋을까?",
         "activity": {
           "title": "3분 함께하기",
-          "description": "집 안에서 “안전한 단서”와 “조심해야 할 단서”를 하나씩 찾아 서로 이유를 말해 보세요."
+          "description": "처음 가 보는 곳에 들어가기 전에 무엇을 물어보면 좋을지 서로 하나씩 말해 보세요."
         }
       },
       "HG-Q-C": {
-        "topic": "수상한 명령 속에서 안전하게 행동하기",
-        "focusTopic": "수상한 명령",
-        "sceneTitle": "오븐 앞 탈출 장면",
-        "reportImageAssetId": "witch-demonstrates-oven",
-        "followUpQuestion": "그레텔이 안전하게 움직이려면 가장 먼저 확인하거나 준비해야 할 것은 뭐라고 생각했어?"
+        "topic": "들키지 않고 열쇠를 가져올 방법 생각하기",
+        "focusTopic": "탈출 방법 제안",
+        "sceneTitle": "부엌에서 열쇠를 가져오는 장면",
+        "reportImageAssetId": "witch-cooking-keys",
+        "followUpQuestion": "그레텔과 헨젤이 함께 열쇠를 가져오려면 무엇을 먼저 살펴봐야 했을까?"
       }
     },
     "strategyByFamily": {
       "A_OBSERVE_BIRD": "단서를 관찰하고 확인하기",
       "A_SPEAK_TO_BIRD": "질문으로 정보 얻기",
-      "A_CHECK_SURROUNDINGS": "단서를 관찰하고 확인하기",
-      "A_TRY_OTHER_PATH": "다른 가능성을 시험하기",
-      "B_ASK_OLD_WOMAN": "질문으로 정보 얻기",
-      "B_CHECK_KEYS": "단서를 관찰하고 확인하기",
-      "B_CHECK_HOUSE": "단서를 관찰하고 확인하기",
-      "B_STEP_BACK_MARK_EXIT": "미리 계획하고 안전 확보하기",
-      "B_MAKE_SIBLING_SIGNAL": "함께 움직일 방법 정하기",
-      "C_ASK_DEMONSTRATION": "질문으로 정보 얻기",
-      "C_DISTRACT_AND_TAKE_KEYS": "상황에 맞게 해결 방법 바꾸기",
-      "C_USE_SIGNAL": "함께 움직일 방법 정하기",
-      "C_CHECK_LOCK_FROM_DISTANCE": "단서를 관찰하고 확인하기",
-      "C_BLOCK_PURSUIT_SAFELY": "미리 계획하고 안전 확보하기"
+      "C_WAIT_FOR_WITCH_TURN": "단서를 관찰하고 확인하기",
+      "C_DISTRACT_AND_TAKE_KEYS": "함께 움직일 방법 정하기"
     },
     "companionChat": {
       "title": "헨젤·그레텔과 나눈 이야기",
@@ -629,11 +349,11 @@
       "A_OBSERVE_BIRD": {
         "slot": "A",
         "expectedRejoin": "HG-F04-CANDY-HOUSE-REVEAL",
-        "expectedVisualCount": 1,
+        "expectedVisualCount": 2,
         "requiredNarrativeTerms": [
           "지켜보",
-          "단 냄새",
-          "따라"
+          "달콤한 냄새",
+          "새가 간 쪽"
         ],
         "forbiddenNarrativeTerms": [
           "마녀",
@@ -644,10 +364,10 @@
       "A_SPEAK_TO_BIRD": {
         "slot": "A",
         "expectedRejoin": "HG-F04-CANDY-HOUSE-REVEAL",
-        "expectedVisualCount": 1,
+        "expectedVisualCount": 2,
         "requiredNarrativeTerms": [
-          "하얀 새",
-          "알려주",
+          "하얀 새야",
+          "짧게 울고",
           "따라"
         ],
         "forbiddenNarrativeTerms": [
@@ -656,176 +376,36 @@
           "탈출"
         ]
       },
-      "A_CHECK_SURROUNDINGS": {
-        "slot": "A",
-        "expectedRejoin": "HG-F04-CANDY-HOUSE-REVEAL",
+      "C_WAIT_FOR_WITCH_TURN": {
+        "slot": "C",
+        "expectedRejoin": "HG-F07-KEYS-TAKEN",
         "expectedVisualCount": 1,
         "requiredNarrativeTerms": [
-          "빵 부스러기",
-          "발자국",
-          "깃털"
-        ],
-        "forbiddenNarrativeTerms": [
-          "마녀",
-          "열쇠",
-          "탈출"
-        ]
-      },
-      "A_TRY_OTHER_PATH": {
-        "slot": "A",
-        "expectedRejoin": "HG-F04-CANDY-HOUSE-REVEAL",
-        "expectedVisualCount": 1,
-        "requiredNarrativeTerms": [
-          "반대쪽 길",
-          "쓰러진 나무",
-          "돌아"
-        ],
-        "forbiddenNarrativeTerms": [
-          "마녀",
-          "열쇠",
-          "탈출"
-        ]
-      },
-      "B_ASK_OLD_WOMAN": {
-        "slot": "B",
-        "expectedRejoin": "HG-F05-ENTER-HOUSE",
-        "expectedVisualCount": 1,
-        "requiredNarrativeTerms": [
-          "여인",
-          "기다리",
+          "기다렸",
+          "선반",
           "열쇠고리"
         ],
         "forbiddenNarrativeTerms": [
           "오븐",
-          "탈출"
-        ]
-      },
-      "B_CHECK_KEYS": {
-        "slot": "B",
-        "expectedRejoin": "HG-F05-ENTER-HOUSE",
-        "expectedVisualCount": 1,
-        "requiredNarrativeTerms": [
-          "검은 열쇠",
-          "설탕 소용돌이",
-          "기억"
-        ],
-        "forbiddenNarrativeTerms": [
-          "오븐",
-          "탈출"
-        ]
-      },
-      "B_CHECK_HOUSE": {
-        "slot": "B",
-        "expectedRejoin": "HG-F05-ENTER-HOUSE",
-        "expectedVisualCount": 1,
-        "requiredNarrativeTerms": [
-          "창문",
-          "문틀",
-          "철선"
-        ],
-        "forbiddenNarrativeTerms": [
-          "오븐",
-          "탈출"
-        ]
-      },
-      "B_STEP_BACK_MARK_EXIT": {
-        "slot": "B",
-        "expectedRejoin": "HG-F06-CAPTURED-STATE",
-        "expectedVisualCount": 2,
-        "requiredNarrativeTerms": [
-          "화살표",
-          "마녀",
-          "헨젤"
-        ],
-        "forbiddenNarrativeTerms": [
-          "오븐",
-          "창고",
-          "집으로 돌아"
-        ]
-      },
-      "B_MAKE_SIBLING_SIGNAL": {
-        "slot": "B",
-        "expectedRejoin": "HG-F05-ENTER-HOUSE",
-        "expectedVisualCount": 1,
-        "requiredNarrativeTerms": [
-          "두 번 두드리",
+          "화덕",
           "신호",
-          "약속"
-        ],
-        "forbiddenNarrativeTerms": [
-          "오븐",
-          "탈출"
-        ]
-      },
-      "C_ASK_DEMONSTRATION": {
-        "slot": "C",
-        "expectedRejoin": "HG-F07-DEMONSTRATION",
-        "expectedVisualCount": 1,
-        "requiredNarrativeTerms": [
-          "먼저 보여",
-          "멀리",
-          "열쇠"
-        ],
-        "forbiddenNarrativeTerms": [
-          "다치게",
-          "집으로 돌아"
+          "철문"
         ]
       },
       "C_DISTRACT_AND_TAKE_KEYS": {
         "slot": "C",
-        "expectedRejoin": "HG-F08-AFTER-BRANCH-ESCAPE",
-        "expectedVisualCount": 2,
-        "requiredNarrativeTerms": [
-          "냄비",
-          "열쇠고리",
-          "복도"
-        ],
-        "forbiddenNarrativeTerms": [
-          "밀어",
-          "화덕에 넣"
-        ]
-      },
-      "C_USE_SIGNAL": {
-        "slot": "C",
-        "expectedRejoin": "HG-F08-AFTER-BRANCH-ESCAPE",
-        "expectedVisualCount": 2,
-        "requiredNarrativeTerms": [
-          "탁",
-          "탁",
-          "열쇠고리",
-          "복도"
-        ],
-        "forbiddenNarrativeTerms": [
-          "밀어",
-          "화덕에 넣"
-        ]
-      },
-      "C_CHECK_LOCK_FROM_DISTANCE": {
-        "slot": "C",
-        "expectedRejoin": "HG-F07-DEMONSTRATION",
+        "expectedRejoin": "HG-F07-KEYS-TAKEN",
         "expectedVisualCount": 1,
         "requiredNarrativeTerms": [
-          "빵 주걱",
-          "철문",
-          "먼저 확인"
+          "마녀님",
+          "열쇠고리",
+          "선반"
         ],
         "forbiddenNarrativeTerms": [
-          "다치게",
-          "집으로 돌아"
-        ]
-      },
-      "C_BLOCK_PURSUIT_SAFELY": {
-        "slot": "C",
-        "expectedRejoin": "HG-F08-AFTER-BRANCH-ESCAPE",
-        "expectedVisualCount": 2,
-        "requiredNarrativeTerms": [
-          "다치게 하지 않고",
-          "헨젤",
+          "오븐",
+          "화덕",
+          "신호",
           "철문"
-        ],
-        "forbiddenNarrativeTerms": [
-          "밀어",
-          "화덕에 넣"
         ]
       }
     }
@@ -833,7 +413,7 @@
   "references": {
     "schemaVersion": 1,
     "storyId": "HG",
-    "sourceModule": "src/content/hansel-gretel/visual-generation-contract.ts",
+    "sourceModule": "src/entities/story/hansel-gretel/visual-generation-contract.ts",
     "packs": {
       "style": [
         "HG-STYLE-STORYBOOK-V1"
@@ -853,8 +433,7 @@
         "HG-LOC-FOREST-V1",
         "HG-LOC-CANDY-EXTERIOR-V1",
         "HG-LOC-CANDY-INTERIOR-V1",
-        "HG-LOC-WATERWAY-V1",
-        "HG-LOC-VILLAGE-V1"
+        "HG-LOC-WATERWAY-V1"
       ],
       "props": [
         "HG-PROP-WHITE-PEBBLES-V1",
@@ -967,14 +546,6 @@
       ]
     },
     {
-      "id": "HG-CHAR-VILLAGERS-V1",
-      "kind": "CHARACTER",
-      "label": "VILLAGERS",
-      "immutableFacts": [
-        "현대 복장이 아닌 이야기 시대의 평범한 마을 사람들"
-      ]
-    },
-    {
       "id": "HG-LOC-HOME-V1",
       "kind": "LOCATION",
       "label": "HOME",
@@ -998,7 +569,8 @@
       "label": "CANDY_EXTERIOR",
       "immutableFacts": [
         "보라·갈색 사탕과 빵으로 지어진 동일한 집 외관",
-        "문·창문·설탕 무늬의 위치 관계를 유지"
+        "문·창문의 위치 관계를 유지",
+        "남매가 들어가기 전에는 문이 닫혀 있고, 문 주변에 긁힌 자국·설탕 소용돌이·마법 빛을 넣지 않음"
       ]
     },
     {
@@ -1007,7 +579,8 @@
       "label": "CANDY_INTERIOR",
       "immutableFacts": [
         "보라·갈색 사탕 질감의 동일한 내부 공간",
-        "오븐·높은 검은 쇠창살 감옥·열쇠 구조의 크기와 위치 관계를 유지"
+        "부엌 배치를 유지: 왼쪽 높은 쇠창살, 오른쪽 앞 작업대, 뒤쪽 벽 선반, 뒤쪽 오른편의 닫힌 오븐, 복도로 나가는 부엌 문",
+        "부엌 문은 같은 큰 검은 열쇠로 안팎에서 여닫고, 바깥문은 복도 끝의 다른 문"
       ]
     },
     {
@@ -1016,14 +589,6 @@
       "label": "WATERWAY",
       "immutableFacts": [
         "다리와 배가 없는 같은 폭의 물길과 양쪽 숲 둑"
-      ]
-    },
-    {
-      "id": "HG-LOC-VILLAGE-V1",
-      "kind": "LOCATION",
-      "label": "VILLAGE",
-      "immutableFacts": [
-        "남매의 집과 같은 시대·재료의 작은 숲 마을"
       ]
     },
     {
@@ -1047,8 +612,9 @@
       "kind": "PROP",
       "label": "KEY_SET",
       "immutableFacts": [
-        "검은 열쇠와 은색 열쇠를 색·크기·용도로 구분",
-        "은색 열쇠는 쇠창살 문, 검은 열쇠는 큰 철문에 사용"
+        "작은 은색 열쇠와 큰 검은 열쇠가 한 고리에 달려 있고 색·크기로 구분됨",
+        "은색 열쇠는 헨젤의 쇠창살 문, 검은 열쇠는 복도로 나가는 부엌 문에만 사용",
+        "열쇠가 빛나거나 문·무늬를 마법으로 움직이지 않음"
       ]
     },
     {
@@ -1065,8 +631,8 @@
       "kind": "PROP",
       "label": "OVEN",
       "immutableFacts": [
-        "성인 한 명이 몸을 숙여 들어갈 수 있는 같은 크기의 벽난로형 오븐",
-        "불이 사람에게 닿거나 상해가 보이지 않음"
+        "부엌 뒤쪽의 닫힌 벽난로형 오븐 - 배경 소품일 뿐 감금·위협 장소가 아님",
+        "누군가 오븐을 가리키거나 오븐 안으로 들어가지 않음"
       ]
     },
     {
@@ -1074,7 +640,7 @@
       "kind": "PROP",
       "label": "RETURN_MARKS",
       "immutableFacts": [
-        "나무의 도끼 자국과 하얀 천 표시를 동일하게 유지"
+        "아버지가 나뭇가지에 묶은 하얀 천 표시를 동일하게 유지"
       ]
     }
   ],
@@ -1137,7 +703,7 @@
             "책임감 있음",
             "우유부단함"
           ],
-          "oneLiner": "가난 앞에서 흔들리지만 결국 책임을 인정하는 아버지"
+          "oneLiner": "새어머니의 고집에 끝내 동의했지만, 돌아온 아이들 앞에서 자기 잘못을 인정하는 아버지"
         },
         "speechStyle": {
           "endings": [
@@ -1181,11 +747,13 @@
         ],
         "knowledgeBoundary": {
           "knows": [
-            "집안 형편이 어렵다는 것",
-            "새어머니의 제안에 동의했다는 것"
+            "집에 먹을 것이 부족하다는 것",
+            "새어머니의 제안에 두 번 동의했다는 것",
+            "하얀 천을 묶으며 아이들을 찾아다녔다는 것"
           ],
           "doesNotKnow": [
-            "아이들이 조약돌·빵 부스러기로 정확히 무엇을 준비했는지"
+            "아이들이 하얀 돌·빵 조각으로 정확히 무엇을 준비했는지",
+            "과자집에서 일어난 일(F10 이전)"
           ],
           "neverRevealsFirst": [
             "아이들이 숲에서 겪은 일을 해당 장면 전에"
@@ -1311,14 +879,16 @@
         ],
         "knowledgeBoundary": {
           "knows": [
-            "숲에 두 번 버려졌다는 것",
-            "조약돌·빵 부스러기 계획"
+            "숲에 두 번 남겨졌다는 것",
+            "하얀 돌과 빵 조각으로 길을 표시한 계획"
           ],
           "doesNotKnow": [
-            "노파가 처음부터 마녀로 위장하고 있었다는 사실(F06 이전)"
+            "할머니가 아이들을 붙잡아 일을 시키는 마녀라는 사실(F06 이전)",
+            "하얀 새가 왜 돌아보는지"
           ],
           "neverRevealsFirst": [
-            "과자집의 진짜 정체(F06 이전)"
+            "할머니의 정체(F06 이전)",
+            "열쇠를 가져올 방법을 정답처럼 먼저 말하기"
           ]
         },
         "samePersonKey": null
@@ -1379,14 +949,17 @@
         ],
         "knowledgeBoundary": {
           "knows": [
-            "숲에 두 번 버려졌다는 것",
-            "조약돌·빵 부스러기 계획"
+            "숲에 두 번 남겨졌다는 것",
+            "하얀 돌과 빵 조각으로 길을 표시한 계획",
+            "은색 열쇠는 쇠창살 문·검은 열쇠는 부엌 문을 연다는 것(F06 이후)"
           ],
           "doesNotKnow": [
-            "노파가 처음부터 마녀로 위장하고 있었다는 사실(F06 이전)"
+            "할머니가 아이들을 붙잡아 일을 시키는 마녀라는 사실(F06 이전)",
+            "하얀 새가 왜 돌아보는지"
           ],
           "neverRevealsFirst": [
-            "과자집의 진짜 정체(F06 이전)"
+            "할머니의 정체(F06 이전)",
+            "열쇠를 가져올 방법을 정답처럼 먼저 말하기"
           ]
         },
         "samePersonKey": null
@@ -1400,7 +973,7 @@
             "다정해 보임",
             "은근히 수상함"
           ],
-          "oneLiner": "친절한 척하지만 사실은 마녀인 노파"
+          "oneLiner": "길 잃은 남매에게 빵과 쉴 곳을 권하는 할머니 - 사실은 아이들을 붙잡아 일을 시키는 마녀"
         },
         "speechStyle": {
           "endings": [
@@ -1429,7 +1002,7 @@
         "knowledgeBoundary": {
           "knows": [
             "자신이 마녀라는 것",
-            "아이들을 왜 초대했는지"
+            "아이들을 붙잡아 일을 시키려고 초대했다는 것"
           ],
           "doesNotKnow": [],
           "neverRevealsFirst": [
@@ -1448,7 +1021,7 @@
             "조급함",
             "위협적"
           ],
-          "oneLiner": "정체가 드러난 뒤의 노파 - 같은 인물의 다른 상태"
+          "oneLiner": "정체가 드러난 뒤의 할머니 - 아이들을 가두고 일을 시키는 같은 인물"
         },
         "speechStyle": {
           "endings": [
@@ -1477,8 +1050,8 @@
         "relationships": [],
         "knowledgeBoundary": {
           "knows": [
-            "아이들을 가두고 있다는 것",
-            "열쇠 규칙"
+            "헨젤을 쇠창살에 가두고 부엌 문을 잠갔다는 것",
+            "은색 열쇠는 쇠창살 문·검은 열쇠는 부엌 문을 연다는 것"
           ],
           "doesNotKnow": [
             "아이들이 협력해서 탈출 방법을 짜고 있다는 것"
@@ -1511,13 +1084,13 @@
       },
       {
         "id": "HG-DISC-02",
-        "statement": "무서웠던 아빠의 선택은 괜찮은 걸까?",
+        "statement": "아빠가 잘못을 인정했을 때, 바로 괜찮아지지 않아도 될까?",
         "relatedSceneIds": [
           "HG-F01",
           "HG-F10"
         ],
         "relatedAssetIds": [],
-        "ageHint": "5~7세: 아빠도 실수할 수 있다는 것과, 잘못을 인정하고 되돌리는 것의 가치를 함께 이야기한다",
+        "ageHint": "5~7세: 아빠가 잘못을 인정한 것과, 아이의 무서운 마음이 바로 사라지지 않아도 된다는 것을 함께 이야기한다",
         "safetyBoundary": {
           "noForcedAnswer": true,
           "respectChildOpinion": true
@@ -1582,6 +1155,136 @@
         "generatedAt": null,
         "approvedBy": null,
         "note": "이 파일 도입 이전 제작분 - 생성 이력 미기록"
+      },
+      {
+        "assetSlug": "forest-night-waiting",
+        "status": "RECOVERED",
+        "prompt": "Edit the first reference image. Keep Hansel and Gretel exactly as they are (faces, hair, clothes, sitting pose by the small campfire) and keep the same forest composition. REMOVE the father and stepmother walking away on the path completely and restore the forest path behind where they were. Change the time to after sunset: a dark night forest, the small campfire lights the children's worried faces warmly, the path home is dark and hard to see. No moon visible yet, no shining white stones, no other people or new objects.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:9a320bd15e3d119807aa070adcfb5d2a5d32a072f6c1e292b2f82636e493e9c7",
+        "generatedAt": "2026-10-01T07:27:15.456Z",
+        "approvedBy": null,
+        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-20-forest-waiting.webp를 함께 넣은 OpenRouter /images 요청(시도 2). 출력은 1376x768을 1586x992로 맞춤."
+      },
+      {
+        "assetSlug": "deep-forest-waiting",
+        "status": "RECOVERED",
+        "prompt": "Use the first reference image as the location: the same deep forest path and trees. The father and stepmother are gone (remove them, restore the path). Hansel and Gretel now sit close together on a mossy root at the side of the path, waiting for a long time, looking down the empty path. Time: dusk turning to evening, the light is fading and orange-blue. A few small bread crumbs lie on the path behind them. Use the second reference image only for how the waiting siblings look. No campfire, no adults, no animals.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:2bf82c8d749ebfb52baf17b1c83c4f6da8c6c57b866be3925d7ce4695af3de7c",
+        "generatedAt": "2026-10-01T07:27:20.345Z",
+        "approvedBy": null,
+        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-22-second-walk-breadcrumbs.webp, hg-art-20-forest-waiting.webp를 함께 넣은 OpenRouter /images 요청(시도 2). 출력은 1376x768을 1586x992로 맞춤."
+      },
+      {
+        "assetSlug": "candy-house-close",
+        "status": "RECOVERED",
+        "prompt": "Edit the first reference image. Keep the candy house wall, the stained-glass window, the cookie roof and both children exactly. CLOSE the front door: replace the open dark doorway (and the purple candy swirls visible inside it) with a closed rounded wooden door decorated like the rest of the gingerbread house. Remove any scratch marks and any swirl patterns around the door and window. Hansel and Gretel stand together in front of the closed door, curious, sniffing the warm smell of fresh bread. Nobody else is visible.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:b881b8a5e1238e7ca47c8909ce97d21a3008339a9dbb77a06a5d8463bd0b19ab",
+        "generatedAt": "2026-10-01T07:27:20.848Z",
+        "approvedBy": null,
+        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-09-candy-house-close.webp, hg-art-08-candy-house-reveal.webp를 함께 넣은 OpenRouter /images 요청(시도 2). 출력은 1376x768을 1586x992로 맞춤."
+      },
+      {
+        "assetSlug": "kitchen-door-locked",
+        "status": "RECOVERED",
+        "prompt": "New scene in the same candy-house kitchen as the references. The kitchen layout must match the references: a tall round iron-bar cage on the left side, a wooden worktable on the right foreground, shelves with candy jars on the back wall, a brick stove/oven area at the back right (the oven door stays CLOSED and is only a background prop). Morning light from a small window. Hansel and Gretel have just walked into the kitchen for breakfast and stand in the middle of the room, BOTH outside the cage; the cage door stands open and the cage is empty. The old woman stands at the kitchen door on the far left wall (a solid wooden door that leads to a hallway), with her back half-turned, turning a LARGE BLACK iron key in that door's lock. A small silver key and the big black key hang together on one iron ring. The children look surprised and uneasy. No magic, no glowing effects.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:c56264fa293969a401b661e87ec9a2817fa7781602e362ad5648112af444c08a",
+        "generatedAt": "2026-10-01T07:27:21.735Z",
+        "approvedBy": null,
+        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-11-witch-reveal-v3.webp, hg-art-33-witch-sets-down-keys-v2.webp, hg-art-31-gretel-watches-keys.webp를 함께 넣은 OpenRouter /images 요청(시도 2). 출력은 1376x768을 1586x992로 맞춤."
+      },
+      {
+        "assetSlug": "gretel-whispers-keys",
+        "status": "RECOVERED",
+        "prompt": "Same kitchen and cage as the references. Hansel is inside the locked iron cage holding the bars. Gretel stands right outside the cage and leans close to whisper to him through the bars. In the background on the right, the witch has turned her back to the children and is busy at the shelves; a key ring with one small silver key and one large black key hangs from her waist belt. Quiet, secretive mood, warm candle light. The children do not hold any keys.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:ef08d3ee4e06ac8f77e3ed2a94c1ead583f87874ee29dc86a23dc9e82788fe15",
+        "generatedAt": "2026-10-01T07:27:21.781Z",
+        "approvedBy": null,
+        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-31-gretel-watches-keys.webp, hg-art-11-witch-reveal-v3.webp를 함께 넣은 OpenRouter /images 요청(시도 2). 출력은 1376x768을 1586x992로 맞춤."
+      },
+      {
+        "assetSlug": "witch-cooking-keys",
+        "status": "RECOVERED",
+        "prompt": "Edit the first reference image (same kitchen, same cage with Hansel locked inside on the left, same Gretel, same worktable). The kitchen layout must match the references: a tall round iron-bar cage on the left side, a wooden worktable on the right foreground, shelves with candy jars on the back wall, a brick stove/oven area at the back right (the oven door stays CLOSED and is only a background prop). Replace the open glowing oven with a CLOSED oven door; in front of it on the stove stands a big black cooking pot with gentle steam. The witch stands at the big pot stirring with a long wooden spoon and turns her head to glance back over her shoulder toward the children. IMPORTANT: a large iron key ring holding one small silver key and one big black key LIES on the near right END of the wooden worktable, drawn large and clearly visible, separated from other objects, with a soft highlight on the metal. Gretel stands by the worktable with vegetables and a bowl of flour she has set out, eyes on the keys. No one points at the oven.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:d915e8d510964a2647883e4c1745a63b4eb9b68d1771ddabbab268cc07089aff",
+        "generatedAt": "2026-10-01T07:28:24.565Z",
+        "approvedBy": null,
+        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-33-witch-sets-down-keys-v2.webp, fb-c-distract-and-take-keys-v1.webp를 함께 넣은 OpenRouter /images 요청(시도 3). 출력은 1376x768을 1586x992로 맞춤."
+      },
+      {
+        "assetSlug": "wait-and-take-keys",
+        "status": "RECOVERED",
+        "prompt": "Edit the first reference image (same kitchen, same cage with Hansel on the left, same worktable). The kitchen layout must match the references: a tall round iron-bar cage on the left side, a wooden worktable on the right foreground, shelves with candy jars on the back wall, a brick stove/oven area at the back right (the oven door stays CLOSED and is only a background prop). The witch has turned fully AWAY from the children: she stands at the back wall shelves with her back to the viewer, rummaging inside a shelf cupboard looking for a pot lid. The oven door is closed. Gretel quietly steps to the worktable and picks up the iron key ring (small silver key and large black key) from the end of the table, glancing toward the witch. Hansel watches from inside the cage, hopeful.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:40bd042ce6161330afa6443879aaaebad74cdb54fa15711d78c0776e64268489",
+        "generatedAt": "2026-10-01T07:28:24.179Z",
+        "approvedBy": null,
+        "note": "Q-30 최종 원고 적용. 참조 그림 fb-c-distract-and-take-keys-v1.webp, hg-art-33-witch-sets-down-keys-v2.webp를 함께 넣은 OpenRouter /images 요청(시도 3). 출력은 1376x768을 1586x992로 맞춤."
+      },
+      {
+        "assetSlug": "c-wait-for-witch-turn-01",
+        "status": "RECOVERED",
+        "prompt": "Edit the first reference image (same kitchen, same cage with Hansel on the left, same worktable). The kitchen layout must match the references: a tall round iron-bar cage on the left side, a wooden worktable on the right foreground, shelves with candy jars on the back wall, a brick stove/oven area at the back right (the oven door stays CLOSED and is only a background prop). The witch has turned fully AWAY from the children: she stands at the back wall shelves with her back to the viewer, rummaging inside a shelf cupboard looking for a pot lid. The oven door is closed. Gretel quietly steps to the worktable and picks up the iron key ring (small silver key and large black key) from the end of the table, glancing toward the witch. Hansel watches from inside the cage, hopeful.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:40bd042ce6161330afa6443879aaaebad74cdb54fa15711d78c0776e64268489",
+        "generatedAt": "2026-10-01T07:28:24.179Z",
+        "approvedBy": null,
+        "note": "Q-30 최종 원고 적용. 참조 그림 fb-c-distract-and-take-keys-v1.webp, hg-art-33-witch-sets-down-keys-v2.webp를 함께 넣은 OpenRouter /images 요청(시도 3). 출력은 1376x768을 1586x992로 맞춤."
+      },
+      {
+        "assetSlug": "c-distract-and-take-keys-01",
+        "status": "RECOVERED",
+        "prompt": "Edit the first reference image (same kitchen, same cage on the left, same worktable). The kitchen layout must match the references: a tall round iron-bar cage on the left side, a wooden worktable on the right foreground, shelves with candy jars on the back wall, a brick stove/oven area at the back right (the oven door stays CLOSED and is only a background prop). Hansel, inside the cage, calls out to the witch with one hand raised. The witch has turned toward the cage and looks at Hansel (her face and body face the cage, away from Gretel). The oven door is closed. At the same moment Gretel, at the worktable, quietly picks up the iron key ring (small silver key and large black key) from the end of the table.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:40bd042ce6161330afa6443879aaaebad74cdb54fa15711d78c0776e64268489",
+        "generatedAt": "2026-10-01T07:28:24.704Z",
+        "approvedBy": null,
+        "note": "Q-30 최종 원고 적용. 참조 그림 fb-c-distract-and-take-keys-v1.webp, hg-art-33-witch-sets-down-keys-v2.webp를 함께 넣은 OpenRouter /images 요청(시도 3). 출력은 1376x768을 1586x992로 맞춤."
+      },
+      {
+        "assetSlug": "corridor-lock-door",
+        "status": "RECOVERED",
+        "prompt": "Same candy-house hallway as the references. Hansel and Gretel have just come out into the hallway. The heavy wooden kitchen door behind them is now CLOSED. Gretel turns the LARGE BLACK iron key in the door's lock from the hallway side while Hansel presses both hands against the closed door to keep it shut. Through a small gap nobody is visible; the witch stays inside the kitchen. Urgent but safe mood. The long hallway with a bright door at its far end stretches to the right.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:7b2d3210ad3a972a0b4b7a5d8c821022788860e18e8ab4f2230a285ce0f7cdfc",
+        "generatedAt": "2026-10-01T07:28:23.422Z",
+        "approvedBy": null,
+        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-46-black-key-side-door-v2.webp, hg-art-34-escape-corridor.webp를 함께 넣은 OpenRouter /images 요청(시도 3). 출력은 1376x768을 1586x992로 맞춤."
+      },
+      {
+        "assetSlug": "storehouse",
+        "status": "RECOVERED",
+        "prompt": "Edit the first reference image. Keep the storeroom, the shelves of bread loaves, the clay water jugs, both children and their poses. REMOVE from the table: the map, the open ledger book, the feather quill, the iron key, the strings of jewels and the bowl of colored candies. Remove paper name tags from the bundles. Instead the table holds a few round bread loaves, two corked water bottles and an empty small cloth shoulder bag. Hansel points at the bread; Gretel holds a loaf. Keep the left side of the image as in the reference (the dark arched storeroom doorway). Do not add any modern or white door; everything keeps the same old candy-house storybook look and warm palette.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:a80d9a9b496ffb4e4f3102c25aaf851b49d994b32fdc6fd2ba6f6dd81d7154b8",
+        "generatedAt": "2026-10-01T07:29:15.124Z",
+        "approvedBy": null,
+        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-16-storehouse.webp, hg-art-37-packing-evidence.webp를 함께 넣은 OpenRouter /images 요청(시도 4). 출력은 1376x768을 1586x992로 맞춤."
+      },
+      {
+        "assetSlug": "packing-food",
+        "status": "RECOVERED",
+        "prompt": "Edit the first reference image. Keep both children, their kneeling poses, the cloth bag and the storeroom shelves. Hansel puts a round bread loaf into the small cloth bag; Gretel puts a corked water bottle into the same bag. Replace the pile of tagged cloth bundles in the lower right corner with a few plain round bread loaves in a wicker basket. REMOVE the book/ledger that Gretel was holding and REMOVE the keys on the floor. IMPORTANT: remove EVERY paper name tag / label from ALL cloth bundles on the shelves and floor; the bundles are plain with no tags at all. No treasure, no documents, no labels.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:43512cec9a4d9282c6293a71cc861434bbe9f0a3aabac0200d40b846218ce2d0",
+        "generatedAt": "2026-10-01T07:29:50.754Z",
+        "approvedBy": null,
+        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-37-packing-evidence.webp를 함께 넣은 OpenRouter /images 요청(시도 6). 출력은 1376x768을 1586x992로 맞춤."
+      },
+      {
+        "assetSlug": "window-epilogue",
+        "status": "RECOVERED",
+        "prompt": "Edit the reference image. Keep the father, Hansel, Gretel, the room, the lamp and the window exactly. REMOVE the white pebble and the white feather lying on the windowsill in the foreground; leave just the plain wooden sill. Nothing else changes.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide 16:10 landscape composition with the lower fifth kept calm and uncluttered for subtitles. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:62d29895f3d92daf7784522c05d48a3d6b88f0f88468a1429540d8c0a04b5fad",
+        "generatedAt": "2026-10-01T07:26:03.929Z",
+        "approvedBy": null,
+        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-26-window-epilogue.webp를 함께 넣은 OpenRouter /images 요청(시도 1). 출력은 1376x768을 1586x992로 맞춤."
       }
     ]
   },
@@ -1604,15 +1307,6 @@
   "assetRoot": "assets/story/hansel-gretel/",
   "assets": [
     {
-      "slug": "a-check-surroundings-01",
-      "category": "BRANCH_ART",
-      "familyId": "A_CHECK_SURROUNDINGS",
-      "panel": 1,
-      "file": "illustrations/fb-a-check-surroundings-v1.webp",
-      "integrity": "sha256-VazsFMtH6cEoc2U/c/QGPW8ES9YUwOjlN7GSKiYb8TA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-a-check-surroundings-v1.webp"
-    },
-    {
       "slug": "a-observe-bird-01",
       "category": "BRANCH_ART",
       "familyId": "A_OBSERVE_BIRD",
@@ -1631,112 +1325,302 @@
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-a-speak-to-bird-v1.webp"
     },
     {
-      "slug": "a-try-other-path-01",
+      "slug": "c-wait-for-witch-turn-01",
       "category": "BRANCH_ART",
-      "familyId": "A_TRY_OTHER_PATH",
+      "familyId": "C_WAIT_FOR_WITCH_TURN",
       "panel": 1,
-      "file": "illustrations/fb-a-try-other-path-v1.webp",
-      "integrity": "sha256-zHS1sqYd2mvKazWAxjGRvoHpoQnQ/dE6aBFQRnqODaQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-a-try-other-path-v1.webp"
-    },
-    {
-      "slug": "b-ask-old-woman-01",
-      "category": "BRANCH_ART",
-      "familyId": "B_ASK_OLD_WOMAN",
-      "panel": 1,
-      "file": "illustrations/fb-b-ask-old-woman-v1.webp",
-      "integrity": "sha256-LTeb4l1X1YFFcgci9Fj2GrIbDodoII5/XYtWAE/nctA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-b-ask-old-woman-v1.webp"
-    },
-    {
-      "slug": "b-check-house-01",
-      "category": "BRANCH_ART",
-      "familyId": "B_CHECK_HOUSE",
-      "panel": 1,
-      "file": "illustrations/fb-b-check-house-v1.webp",
-      "integrity": "sha256-tmvbDogov35xGTpbPGhhyvKAmX/IsSPaiL9a6GG6M50=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-b-check-house-v1.webp"
-    },
-    {
-      "slug": "b-check-keys-01",
-      "category": "BRANCH_ART",
-      "familyId": "B_CHECK_KEYS",
-      "panel": 1,
-      "file": "illustrations/fb-b-check-keys-v1.webp",
-      "integrity": "sha256-2GgjaCVtPGEkLOpfBM7YGFxmjeC+YwHv0vBDlQj/GsA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-b-check-keys-v1.webp"
-    },
-    {
-      "slug": "b-make-sibling-signal-01",
-      "category": "BRANCH_ART",
-      "familyId": "B_MAKE_SIBLING_SIGNAL",
-      "panel": 1,
-      "file": "illustrations/fb-b-make-sibling-signal-v1.webp",
-      "integrity": "sha256-ZiJ1J6A2kgfFZX5FTW8/R29vWTYtp1mQ5Zt7qw2rEAE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-b-make-sibling-signal-v1.webp"
-    },
-    {
-      "slug": "b-step-back-mark-exit-01",
-      "category": "BRANCH_ART",
-      "familyId": "B_STEP_BACK_MARK_EXIT",
-      "panel": 1,
-      "file": "illustrations/fb-b-step-back-mark-exit-v1.webp",
-      "integrity": "sha256-svlp/tAu1pkoDUa5fLUONyXalwwO2WUW9O+ewdd4AAA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-b-step-back-mark-exit-v1.webp"
-    },
-    {
-      "slug": "b-step-back-mark-exit-02",
-      "category": "BRANCH_ART",
-      "familyId": "B_STEP_BACK_MARK_EXIT",
-      "panel": 2,
-      "file": "illustrations/fb-b-step-back-mark-exit-v2.webp",
-      "integrity": "sha256-0YYvuNygQ8r9WsW7zBeQi6Qh3G4EXgcKt0eCrshu4bU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-b-step-back-mark-exit-v2.webp"
-    },
-    {
-      "slug": "c-ask-demonstration-01",
-      "category": "BRANCH_ART",
-      "familyId": "C_ASK_DEMONSTRATION",
-      "panel": 1,
-      "file": "illustrations/fb-c-ask-demonstration-v1.webp",
-      "integrity": "sha256-5dExV7VKwnEWvNGbQzbyHgNqEqnhqtlgdxVkubPTCCI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-c-ask-demonstration-v1.webp"
-    },
-    {
-      "slug": "c-block-pursuit-safely-01",
-      "category": "BRANCH_ART",
-      "familyId": "C_BLOCK_PURSUIT_SAFELY",
-      "panel": 1,
-      "file": "illustrations/fb-c-block-pursuit-safely-v1.webp",
-      "integrity": "sha256-0zB1pxcpIwI5+zNaFDLb8vR88gXREaTRxhad1RVNZIA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-c-block-pursuit-safely-v1.webp"
-    },
-    {
-      "slug": "c-check-lock-from-distance-01",
-      "category": "BRANCH_ART",
-      "familyId": "C_CHECK_LOCK_FROM_DISTANCE",
-      "panel": 1,
-      "file": "illustrations/fb-c-check-lock-from-distance-v1.webp",
-      "integrity": "sha256-260X0vy01wO1YIcGBC4puSaVRm0ACgEU9QgwTdhOq58=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-c-check-lock-from-distance-v1.webp"
+      "file": "illustrations/fb-c-wait-for-witch-turn-v1.webp",
+      "integrity": "sha256-g9JJVZhmyZ7p4t3QA8S/7Vl3dcQArITDDPZqCVVz/Bs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-c-wait-for-witch-turn-v1.webp"
     },
     {
       "slug": "c-distract-and-take-keys-01",
       "category": "BRANCH_ART",
       "familyId": "C_DISTRACT_AND_TAKE_KEYS",
       "panel": 1,
-      "file": "illustrations/fb-c-distract-and-take-keys-v1.webp",
-      "integrity": "sha256-rdUfZ4JDlunEZjXV13neHSxHqR50G4I3baTsj0XwzCo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-c-distract-and-take-keys-v1.webp"
+      "file": "illustrations/fb-c-distract-and-take-keys-v2.webp",
+      "integrity": "sha256-3Xo0kTuq6CNe/Q1Zh/hQRwJFa0z4Z6wMMgseFqRppNg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-c-distract-and-take-keys-v2.webp"
     },
     {
-      "slug": "c-use-signal-01",
-      "category": "BRANCH_ART",
-      "familyId": "C_USE_SIGNAL",
-      "panel": 1,
-      "file": "illustrations/fb-c-use-signal-v2.webp",
-      "integrity": "sha256-LGDOMqBMhQBHGDFplODe0lKH+xdO5u/jjvFXzkCC6Kk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-c-use-signal-v2.webp"
+      "slug": "home-table",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-01-home-table.webp",
+      "integrity": "sha256-OgZW17it40IBKYAoXZUjVUjKpRohBXkYxdLRqpAgBsg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-01-home-table.webp"
+    },
+    {
+      "slug": "night-plan",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-02-night-plan.webp",
+      "integrity": "sha256-DeCkH4TITpkbo+z0LwrhEg+qVE7F4L7hje4Cc1Tyv9c=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-02-night-plan.webp"
+    },
+    {
+      "slug": "pebble-collection",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-19-pebble-collection.webp",
+      "integrity": "sha256-3cCzVoAM78smsDrDGFB1lbG9hRVk17OP6h5S3UIdJmw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-19-pebble-collection.webp"
+    },
+    {
+      "slug": "first-walk-pebbles",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-03-first-walk-pebbles.webp",
+      "integrity": "sha256-wU324oXPKP1ZHatP1/GRFtvs04d+cnw3MtUcWtHoYWg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-03-first-walk-pebbles.webp"
+    },
+    {
+      "slug": "forest-waiting",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-20-forest-waiting.webp",
+      "integrity": "sha256-mjIL0V49EZgHqgcK3PtdKl0yoHL2weKSsvgmNuST6cc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-20-forest-waiting.webp"
+    },
+    {
+      "slug": "forest-night-waiting",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-47-forest-night-waiting.webp",
+      "integrity": "sha256-+zmP5xTM+RbBDTJW4weZQCluDGmG4RQQmE77XGncZ3E=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-47-forest-night-waiting.webp"
+    },
+    {
+      "slug": "moonlit-return",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-04-moonlit-return.webp",
+      "integrity": "sha256-oBTmgm8tvlVfbKZ10v1ZigNLcom4VS3KqkxYbdh/L3w=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-04-moonlit-return.webp"
+    },
+    {
+      "slug": "first-homecoming",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-21-first-homecoming.webp",
+      "integrity": "sha256-Q/6s/sF7tvN0BvspqTAl1Lud5qeuiXvpLncqJXqauVc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-21-first-homecoming.webp"
+    },
+    {
+      "slug": "second-night-plan",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-36-second-night-plan.webp",
+      "integrity": "sha256-3TJImtrPoh3t8cuSPyaxRpAHsbnmZMQH63PRDskTXjo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-36-second-night-plan.webp"
+    },
+    {
+      "slug": "locked-door-night",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-40-locked-door-night-v2.webp",
+      "integrity": "sha256-2+0oYSoL/MnbbnBcb0di/32jS2bMyibsIWB9hABmRSs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-40-locked-door-night-v2.webp"
+    },
+    {
+      "slug": "morning-bread-plan",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-41-morning-bread-plan-v2.webp",
+      "integrity": "sha256-Ai2bax/GcUhrciu609kckoF3X30QQa4H7psNV87JD5E=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-41-morning-bread-plan-v2.webp"
+    },
+    {
+      "slug": "second-walk-breadcrumbs",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-22-second-walk-breadcrumbs.webp",
+      "integrity": "sha256-xuoEZCI7yhyQtIeBewT98/lC7N9tejBNIcBMRCvRVzI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-22-second-walk-breadcrumbs.webp"
+    },
+    {
+      "slug": "deep-forest-waiting",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-48-deep-forest-waiting.webp",
+      "integrity": "sha256-fZQxF+AHgax/rqgI/0sCE44vsDOmN/auS2QPw5iwjhQ=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-48-deep-forest-waiting.webp"
+    },
+    {
+      "slug": "birds-eat-breadcrumbs",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-27-birds-eat-breadcrumbs.webp",
+      "integrity": "sha256-Htf5PK1i1AmrRmZhX68X1PlRXjxXOIZkh7CGMP3dCRs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-27-birds-eat-breadcrumbs.webp"
+    },
+    {
+      "slug": "lost-forest",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-06-lost-forest-walking-v2.webp",
+      "integrity": "sha256-fagBqHU3943pivASMZauUGY35/X716ociDMe3Hx3zq8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-06-lost-forest-walking-v2.webp"
+    },
+    {
+      "slug": "morning-song",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-28-morning-song.webp",
+      "integrity": "sha256-LfTwWiN+5WjI9qQVpylTtof0NEAnt5ia75e8qEJ6AFM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-28-morning-song.webp"
+    },
+    {
+      "slug": "white-bird",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-07-white-bird.webp",
+      "integrity": "sha256-c/lWb3LkIKx235OuBoFzHfRdtlp3ZHQ1Dt/0pmCvyWs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-07-white-bird.webp"
+    },
+    {
+      "slug": "white-bird-leads",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-29-white-bird-leads.webp",
+      "integrity": "sha256-G99py36T6ye0bhQgMxWG6qCPxN2/7mPXhSRyIHLyVLI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-29-white-bird-leads.webp"
+    },
+    {
+      "slug": "candy-house-reveal",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-08-candy-house-reveal.webp",
+      "integrity": "sha256-9v/oZB5den0/Xr6OU/iYqFp6vQwfV1ERNiFTBRQmNe8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-08-candy-house-reveal.webp"
+    },
+    {
+      "slug": "candy-house-close",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-09-candy-house-close-v2.webp",
+      "integrity": "sha256-3VuPdQjo+CRbnsyr36qcnEYkaADyggsBoDSZC9OQAv0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-09-candy-house-close-v2.webp"
+    },
+    {
+      "slug": "old-woman-door",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-10-old-woman-door.webp",
+      "integrity": "sha256-yqmihlqI3SVuskbq383fBxPOdRlhZ4KWGz14/XZsgMc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-10-old-woman-door.webp"
+    },
+    {
+      "slug": "candy-house-interior",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-23-candy-house-interior.webp",
+      "integrity": "sha256-xcIdiP5kaTQlGjR9JWizYAT646xfOFGDLHZxHZ1h/pk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-23-candy-house-interior.webp"
+    },
+    {
+      "slug": "kitchen-door-locked",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-49-kitchen-door-locked.webp",
+      "integrity": "sha256-I207q/dJIc36TuGgagAR39rBbGn6QBR93kQgs10af5Y=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-49-kitchen-door-locked.webp"
+    },
+    {
+      "slug": "witch-reveal",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-11-witch-reveal-v3.webp",
+      "integrity": "sha256-I/OeshZwSQ4uTwcQxMe0472tdL6EVKwM+vHZSPrkcoY=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-11-witch-reveal-v3.webp"
+    },
+    {
+      "slug": "gretel-watches-keys",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-31-gretel-watches-keys.webp",
+      "integrity": "sha256-q/Edt+w8eXF6p8h/QUTaySG63TbDTFGXkU+7mzvDJr0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-31-gretel-watches-keys.webp"
+    },
+    {
+      "slug": "gretel-whispers-keys",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-50-gretel-whispers-keys.webp",
+      "integrity": "sha256-4fCCE0yd6r9wpns5YmTPHenFKKywLxcfWPwXdpJsQB0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-50-gretel-whispers-keys.webp"
+    },
+    {
+      "slug": "witch-cooking-keys",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-51-witch-cooking-keys.webp",
+      "integrity": "sha256-rvH/Sfm4oE91HJWbbPh864kW/teEhzImrCCMtmvJ5MM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-51-witch-cooking-keys.webp"
+    },
+    {
+      "slug": "wait-and-take-keys",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-52-wait-and-take-keys.webp",
+      "integrity": "sha256-g9JJVZhmyZ7p4t3QA8S/7Vl3dcQArITDDPZqCVVz/Bs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-52-wait-and-take-keys.webp"
+    },
+    {
+      "slug": "cage-unlock-oven-secured",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-45-cage-unlock-oven-secured-v2.webp",
+      "integrity": "sha256-lYmLWCWJuNWC7z4umbi4jEOY4R/+RoXs2RPKOoGTqCs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-45-cage-unlock-oven-secured-v2.webp"
+    },
+    {
+      "slug": "black-key-side-door",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-46-black-key-side-door-v2.webp",
+      "integrity": "sha256-o8CuUmXMa/pGDv4ebjmmSJElPmL+3k47pxLKmAmobOU=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-46-black-key-side-door-v2.webp"
+    },
+    {
+      "slug": "corridor-lock-door",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-53-corridor-lock-door.webp",
+      "integrity": "sha256-D6VINyIKsjS/6LJF0tr4IIGhlAQMDXPUx/gALXl2shU=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-53-corridor-lock-door.webp"
+    },
+    {
+      "slug": "escape-corridor",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-34-escape-corridor.webp",
+      "integrity": "sha256-D+lz2cj20oZbmt9TiXvvfntDnDs6uRfxXH7zC7xFlPQ=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-34-escape-corridor.webp"
+    },
+    {
+      "slug": "storehouse",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-16-storehouse-v2.webp",
+      "integrity": "sha256-bW3nmZ9ANLZHL9k8PSVNf8lbQph4z+O91U0W4bHqYFE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-16-storehouse-v2.webp"
+    },
+    {
+      "slug": "packing-food",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-54-packing-food.webp",
+      "integrity": "sha256-JVN2UsjIKmsfuzRR0O5NWjjhv26o9D+G6S3M4pN5FRY=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-54-packing-food.webp"
+    },
+    {
+      "slug": "candy-house-exit",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-35-candy-house-exit.webp",
+      "integrity": "sha256-AT6k5UTKoHJQq/UY75XegMcBbfYO2gV31cv440RMFbs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-35-candy-house-exit.webp"
+    },
+    {
+      "slug": "waterway-obstacle",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-38-waterway-obstacle.webp",
+      "integrity": "sha256-uK9UFWB/KouJvIb/u4WYP4pLFdrx7Rge7r1+IU10Ifs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-38-waterway-obstacle.webp"
+    },
+    {
+      "slug": "water-return",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-17-water-crossing-v2.webp",
+      "integrity": "sha256-s7xtZUK4/tWOxnC5dATuttl2Ec6Y0jasw5KmkyG1deY=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-17-water-crossing-v2.webp"
+    },
+    {
+      "slug": "marked-return-path",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-24-marked-return-path.webp",
+      "integrity": "sha256-yNzyPRjHXN6Q05VmDnrX234ARmRiZjUFdsH7BkQWIy8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-24-marked-return-path.webp"
+    },
+    {
+      "slug": "home-promise",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-18-home-apology-v2.webp",
+      "integrity": "sha256-toiAZftmgK1t8F3SDT7YLc422Kiq7/wAMWh3Cw2e5wc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-18-home-apology-v2.webp"
+    },
+    {
+      "slug": "window-epilogue",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-26-window-epilogue-v2.webp",
+      "integrity": "sha256-DuOEsi7qapwYlP/j5bZ7SN1SIKfH7ByaBRTVsNXE9d4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-26-window-epilogue-v2.webp"
     },
     {
       "slug": "a-check-surroundings-bridge",
@@ -3151,293 +3035,6 @@
       "file": "audio/hg-f10-clip-022.mp3",
       "integrity": "sha256-kUnu/K0XLbC1kXiibwcK1Ivg/wpE3cEO8pHj510fU/8=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-022.mp3"
-    },
-    {
-      "slug": "birds-eat-breadcrumbs",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-27-birds-eat-breadcrumbs.webp",
-      "integrity": "sha256-Htf5PK1i1AmrRmZhX68X1PlRXjxXOIZkh7CGMP3dCRs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-27-birds-eat-breadcrumbs.webp"
-    },
-    {
-      "slug": "black-key-glow",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-30-black-key-glow.webp",
-      "integrity": "sha256-CyNvgEJA7fHY4wX2IsfwU9BO6LmEZN8MSuJEfEnOlNk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-30-black-key-glow.webp"
-    },
-    {
-      "slug": "black-key-side-door",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-46-black-key-side-door-v2.webp",
-      "integrity": "sha256-o8CuUmXMa/pGDv4ebjmmSJElPmL+3k47pxLKmAmobOU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-46-black-key-side-door-v2.webp"
-    },
-    {
-      "slug": "cage-unlock-oven-secured",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-45-cage-unlock-oven-secured-v2.webp",
-      "integrity": "sha256-lYmLWCWJuNWC7z4umbi4jEOY4R/+RoXs2RPKOoGTqCs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-45-cage-unlock-oven-secured-v2.webp"
-    },
-    {
-      "slug": "candy-house-close",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-09-candy-house-close.webp",
-      "integrity": "sha256-x0GJ3O3pUQzr55O2euHpmQHkUghQiJS+QvfNwZ+cOcY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-09-candy-house-close.webp"
-    },
-    {
-      "slug": "candy-house-exit",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-35-candy-house-exit.webp",
-      "integrity": "sha256-AT6k5UTKoHJQq/UY75XegMcBbfYO2gV31cv440RMFbs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-35-candy-house-exit.webp"
-    },
-    {
-      "slug": "candy-house-interior",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-23-candy-house-interior.webp",
-      "integrity": "sha256-xcIdiP5kaTQlGjR9JWizYAT646xfOFGDLHZxHZ1h/pk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-23-candy-house-interior.webp"
-    },
-    {
-      "slug": "candy-house-reveal",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-08-candy-house-reveal.webp",
-      "integrity": "sha256-9v/oZB5den0/Xr6OU/iYqFp6vQwfV1ERNiFTBRQmNe8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-08-candy-house-reveal.webp"
-    },
-    {
-      "slug": "escape-corridor",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-34-escape-corridor.webp",
-      "integrity": "sha256-D+lz2cj20oZbmt9TiXvvfntDnDs6uRfxXH7zC7xFlPQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-34-escape-corridor.webp"
-    },
-    {
-      "slug": "first-homecoming",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-21-first-homecoming.webp",
-      "integrity": "sha256-Q/6s/sF7tvN0BvspqTAl1Lud5qeuiXvpLncqJXqauVc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-21-first-homecoming.webp"
-    },
-    {
-      "slug": "first-walk-pebbles",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-03-first-walk-pebbles.webp",
-      "integrity": "sha256-wU324oXPKP1ZHatP1/GRFtvs04d+cnw3MtUcWtHoYWg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-03-first-walk-pebbles.webp"
-    },
-    {
-      "slug": "forest-waiting",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-20-forest-waiting.webp",
-      "integrity": "sha256-mjIL0V49EZgHqgcK3PtdKl0yoHL2weKSsvgmNuST6cc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-20-forest-waiting.webp"
-    },
-    {
-      "slug": "gretel-watches-keys",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-31-gretel-watches-keys.webp",
-      "integrity": "sha256-q/Edt+w8eXF6p8h/QUTaySG63TbDTFGXkU+7mzvDJr0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-31-gretel-watches-keys.webp"
-    },
-    {
-      "slug": "home-promise",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-18-home-apology-v2.webp",
-      "integrity": "sha256-toiAZftmgK1t8F3SDT7YLc422Kiq7/wAMWh3Cw2e5wc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-18-home-apology-v2.webp"
-    },
-    {
-      "slug": "home-table",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-01-home-table.webp",
-      "integrity": "sha256-OgZW17it40IBKYAoXZUjVUjKpRohBXkYxdLRqpAgBsg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-01-home-table.webp"
-    },
-    {
-      "slug": "locked-door-night",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-40-locked-door-night-v2.webp",
-      "integrity": "sha256-2+0oYSoL/MnbbnBcb0di/32jS2bMyibsIWB9hABmRSs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-40-locked-door-night-v2.webp"
-    },
-    {
-      "slug": "lost-forest",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-06-lost-forest-walking-v2.webp",
-      "integrity": "sha256-fagBqHU3943pivASMZauUGY35/X716ociDMe3Hx3zq8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-06-lost-forest-walking-v2.webp"
-    },
-    {
-      "slug": "marked-return-path",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-24-marked-return-path.webp",
-      "integrity": "sha256-yNzyPRjHXN6Q05VmDnrX234ARmRiZjUFdsH7BkQWIy8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-24-marked-return-path.webp"
-    },
-    {
-      "slug": "moonlit-return",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-04-moonlit-return.webp",
-      "integrity": "sha256-oBTmgm8tvlVfbKZ10v1ZigNLcom4VS3KqkxYbdh/L3w=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-04-moonlit-return.webp"
-    },
-    {
-      "slug": "morning-bread-plan",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-41-morning-bread-plan-v2.webp",
-      "integrity": "sha256-Ai2bax/GcUhrciu609kckoF3X30QQa4H7psNV87JD5E=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-41-morning-bread-plan-v2.webp"
-    },
-    {
-      "slug": "morning-song",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-28-morning-song.webp",
-      "integrity": "sha256-LfTwWiN+5WjI9qQVpylTtof0NEAnt5ia75e8qEJ6AFM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-28-morning-song.webp"
-    },
-    {
-      "slug": "night-plan",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-02-night-plan.webp",
-      "integrity": "sha256-DeCkH4TITpkbo+z0LwrhEg+qVE7F4L7hje4Cc1Tyv9c=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-02-night-plan.webp"
-    },
-    {
-      "slug": "old-woman-door",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-10-old-woman-door.webp",
-      "integrity": "sha256-yqmihlqI3SVuskbq383fBxPOdRlhZ4KWGz14/XZsgMc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-10-old-woman-door.webp"
-    },
-    {
-      "slug": "oven-command",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-13-oven-command.webp",
-      "integrity": "sha256-BLC2dizqEUQ1iSPn7GKKkh2eLhCXVyGbj8fgs4NSdLw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-13-oven-command.webp"
-    },
-    {
-      "slug": "oven-secured-keys",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-44-oven-secured-keys-v2.webp",
-      "integrity": "sha256-wQJAsnu6lPnpUDABwZ4GtJwk+cIaTSeAmos09P+PC0Y=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-44-oven-secured-keys-v2.webp"
-    },
-    {
-      "slug": "packing-evidence",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-37-packing-evidence.webp",
-      "integrity": "sha256-Q1Es7JpNkoLGKTpxzIYUNLvp8KOqusAgDUC4RiGM4tA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-37-packing-evidence.webp"
-    },
-    {
-      "slug": "pebble-collection",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-19-pebble-collection.webp",
-      "integrity": "sha256-3cCzVoAM78smsDrDGFB1lbG9hRVk17OP6h5S3UIdJmw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-19-pebble-collection.webp"
-    },
-    {
-      "slug": "second-night-plan",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-36-second-night-plan.webp",
-      "integrity": "sha256-3TJImtrPoh3t8cuSPyaxRpAHsbnmZMQH63PRDskTXjo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-36-second-night-plan.webp"
-    },
-    {
-      "slug": "second-walk-breadcrumbs",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-22-second-walk-breadcrumbs.webp",
-      "integrity": "sha256-xuoEZCI7yhyQtIeBewT98/lC7N9tejBNIcBMRCvRVzI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-22-second-walk-breadcrumbs.webp"
-    },
-    {
-      "slug": "short-twig-check",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-42-short-twig-check-v3.webp",
-      "integrity": "sha256-qimAZ1D2jfu1HFxCslrbqe8iQaHxGU1BoXC2nh7qvj4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-42-short-twig-check-v3.webp"
-    },
-    {
-      "slug": "storehouse",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-16-storehouse.webp",
-      "integrity": "sha256-9IJOryLBO0VFu64F7gr4XQBN0iEPaE8T6f5z2i261wo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-16-storehouse.webp"
-    },
-    {
-      "slug": "village-restitution",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-25-village-restitution.webp",
-      "integrity": "sha256-lyg9QT7X1yM4mkhJi9J3ThsZo59ixp2O8Y1t3ZodTqg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-25-village-restitution.webp"
-    },
-    {
-      "slug": "water-return",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-17-water-crossing-v2.webp",
-      "integrity": "sha256-s7xtZUK4/tWOxnC5dATuttl2Ec6Y0jasw5KmkyG1deY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-17-water-crossing-v2.webp"
-    },
-    {
-      "slug": "waterway-obstacle",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-38-waterway-obstacle.webp",
-      "integrity": "sha256-uK9UFWB/KouJvIb/u4WYP4pLFdrx7Rge7r1+IU10Ifs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-38-waterway-obstacle.webp"
-    },
-    {
-      "slug": "white-bird",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-07-white-bird.webp",
-      "integrity": "sha256-c/lWb3LkIKx235OuBoFzHfRdtlp3ZHQ1Dt/0pmCvyWs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-07-white-bird.webp"
-    },
-    {
-      "slug": "white-bird-leads",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-29-white-bird-leads.webp",
-      "integrity": "sha256-G99py36T6ye0bhQgMxWG6qCPxN2/7mPXhSRyIHLyVLI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-29-white-bird-leads.webp"
-    },
-    {
-      "slug": "window-epilogue",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-26-window-epilogue.webp",
-      "integrity": "sha256-YtKYlfPZLa93hFIsBdSKPWuI8PiEaKFClUDYwKBLX60=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-26-window-epilogue.webp"
-    },
-    {
-      "slug": "witch-demonstrates-oven",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-43-witch-demonstrates-oven-v2.webp",
-      "integrity": "sha256-hfI+PhuF0CQOvly6YArdMb+Uz1wB6uZOqc2twARS6TY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-43-witch-demonstrates-oven-v2.webp"
-    },
-    {
-      "slug": "witch-loses-patience",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-32-witch-loses-patience.webp",
-      "integrity": "sha256-IJrO2AtErHGzDqpilyTvevJsH+u/5kvtP2vVbQy9o5c=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-32-witch-loses-patience.webp"
-    },
-    {
-      "slug": "witch-reveal",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-11-witch-reveal-v3.webp",
-      "integrity": "sha256-I/OeshZwSQ4uTwcQxMe0472tdL6EVKwM+vHZSPrkcoY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-11-witch-reveal-v3.webp"
-    },
-    {
-      "slug": "witch-sets-down-keys",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-33-witch-sets-down-keys-v2.webp",
-      "integrity": "sha256-B8B41G/WVqpqtgtubzJJqfKVZesO5uyuJjqRsH9oupY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-33-witch-sets-down-keys-v2.webp"
     }
   ],
   "prompt": {
@@ -4027,5 +3624,5 @@
       }
     }
   },
-  "sourceDigest": "9c864e22e4ab20e62e5f0a3ab47b271d1924422bf52e7506dccafdc0e6a53b69"
+  "sourceDigest": "2b7cc8f3b704645b6a65fa84d86790d449fb0d69ca3dfd5ce062ad205085774a"
 }

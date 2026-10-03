@@ -15,7 +15,7 @@ const visuals = generatedHanselGretelContent.scenes.flatMap(
 const approvedAssetIds = new Set(visuals.map((visual) => visual.assetId));
 
 test('every fixed visual has a versioned reference-guided generation brief', () => {
-  assert.equal(hanselGretelVisualGenerationBriefs.length, 41);
+  assert.equal(hanselGretelVisualGenerationBriefs.length, 40);
   assert.deepEqual(
     hanselGretelVisualGenerationBriefs.map((brief) => brief.visualId),
     visuals.map((visual) => visual.id),
@@ -26,7 +26,7 @@ test('every fixed visual has a versioned reference-guided generation brief', () 
         (brief) => brief.targetAssetId,
       ),
     ).size,
-    41,
+    40,
   );
 
   for (const brief of hanselGretelVisualGenerationBriefs) {
@@ -63,52 +63,35 @@ test('each sequential brief carries the immediately previous approved asset', ()
   }
 });
 
-test('F07 escape images preserve the oven-first sequence and shared props', () => {
-  const command = visualGenerationBriefForId('HG-VIS-F07-01');
-  const preparation = visualGenerationBriefForId('HG-VIS-F07-02A');
-  const demonstration = visualGenerationBriefForId('HG-VIS-F07-02');
-  const securedOven = visualGenerationBriefForId('HG-VIS-F07-03');
-  const unlock = visualGenerationBriefForId('HG-VIS-F07-04');
+test('F06-F07 kitchen images keep the two-key escape in order with shared props', () => {
+  const locked = visualGenerationBriefForId('HG-VIS-F06-01');
+  const cooking = visualGenerationBriefForId('HG-VIS-F07-01');
+  const taken = visualGenerationBriefForId('HG-VIS-F07-02');
+  const unlock = visualGenerationBriefForId('HG-VIS-F07-03');
+  const corridorLock = visualGenerationBriefForId('HG-VIS-F07-05');
 
-  for (const brief of [
-    command,
-    preparation,
-    demonstration,
-    securedOven,
-    unlock,
-  ]) {
+  for (const brief of [locked, cooking, taken, unlock, corridorLock]) {
     assert.ok(brief);
     assert.ok(brief.characterPackIds.includes('HG-CHAR-GRETEL-V1'));
+    assert.ok(brief.propPackIds.includes('HG-PROP-KEY-SET-V1'), `${brief.visualId} keeps the key set`);
   }
-  assert.ok(command?.propPackIds.includes('HG-PROP-IRON-CAGE-V1'));
-  assert.ok(command?.propPackIds.includes('HG-PROP-OVEN-V1'));
-  assert.equal(
-    preparation?.targetAssetId,
-    'witch-sets-down-keys',
-  );
-  assert.equal(preparation?.requiredFacts.exitState, 'keys-left-on-worktable');
-  assert.equal(demonstration?.requiredFacts.entryState, 'keys-left-on-worktable');
-  assert.ok(
-    demonstration?.characterPackIds.includes('HG-CHAR-WITCH-V1'),
-  );
-  assert.ok(demonstration?.propPackIds.includes('HG-PROP-OVEN-V1'));
-  assert.ok(securedOven?.propPackIds.includes('HG-PROP-KEY-SET-V1'));
-  assert.ok(securedOven?.propPackIds.includes('HG-PROP-OVEN-V1'));
-  assert.ok(unlock?.propPackIds.includes('HG-PROP-KEY-SET-V1'));
-  assert.ok(unlock?.propPackIds.includes('HG-PROP-IRON-CAGE-V1'));
-  assert.ok(
-    unlock?.referenceAssetIds.includes('short-twig-check'),
-  );
-  assert.ok(
-    unlock?.referenceAssetIds.includes(
-      'oven-secured-keys',
-    ),
-  );
-  assert.ok(
-    unlock?.referenceAssetIds.includes(
-      'cage-unlock-oven-secured',
-    ),
-  );
+  assert.equal(locked?.targetAssetId, 'kitchen-door-locked');
+  assert.equal(locked?.locationPackId, 'HG-LOC-CANDY-INTERIOR-V1');
+  assert.equal(cooking?.targetAssetId, 'witch-cooking-keys');
+  assert.ok(cooking?.propPackIds.includes('HG-PROP-IRON-CAGE-V1'));
+  assert.equal(cooking?.requiredFacts.exitState, taken?.requiredFacts.entryState);
+  assert.equal(taken?.targetAssetId, 'wait-and-take-keys');
+  assert.equal(taken?.requiredFacts.exitState, unlock?.requiredFacts.entryState);
+  assert.ok(unlock?.referenceAssetIds.includes('wait-and-take-keys'));
+  assert.equal(corridorLock?.targetAssetId, 'corridor-lock-door');
+  assert.equal(corridorLock?.requiredFacts.exitState, 'witch-locked-in-kitchen');
+
+  // 오븐은 닫힌 배경 소품으로만 남는다 - 오븐을 쓰는 장면 규약을 다시 만들지 않는다.
+  const oven = hanselGretelVisualReferencePacks.props.OVEN;
+  assert.ok(oven.immutableFacts.some((fact) => fact.includes('감금·위협 장소가 아님')));
+  for (const brief of hanselGretelVisualGenerationBriefs) {
+    assert.doesNotMatch(brief.requiredFacts.action, /oven/, `${brief.visualId} acts on the oven`);
+  }
 });
 
 test('reference packs preserve the same old-woman identity after the reveal', () => {

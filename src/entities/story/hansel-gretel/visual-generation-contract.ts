@@ -51,7 +51,7 @@ const STYLE_PACK: VisualReferencePack = {
   canonicalAssetIds: [
     'home-table',
     'white-bird',
-    'oven-command',
+    'witch-cooking-keys',
   ],
   immutableFacts: [
     '가로 16:10 아동 그림책 삽화',
@@ -71,7 +71,7 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     label: '헨젤',
     canonicalAssetIds: [
       'first-walk-pebbles',
-      'short-twig-check',
+      'witch-reveal',
       'cage-unlock-oven-secured',
     ],
     immutableFacts: [
@@ -134,7 +134,7 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     canonicalAssetIds: [
       'old-woman-door',
       'witch-reveal',
-      'oven-command',
+      'witch-cooking-keys',
     ],
     immutableFacts: [
       '회색 머리를 뒤로 올린 동일한 노년 여성',
@@ -150,7 +150,7 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     canonicalAssetIds: [
       'old-woman-door',
       'witch-reveal',
-      'oven-command',
+      'witch-cooking-keys',
     ],
     immutableFacts: [
       '회색 머리를 뒤로 올린 동일한 노년 여성',
@@ -193,14 +193,6 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     label: '빵 부스러기를 먹는 작은 새들',
     canonicalAssetIds: ['birds-eat-breadcrumbs'],
     immutableFacts: ['숲의 작은 새들이며 하얀 새와 혼동되지 않음'],
-  },
-  VILLAGERS: {
-    id: 'HG-CHAR-VILLAGERS-V1',
-    version: '1.0.0',
-    kind: 'character',
-    label: '마을 사람들',
-    canonicalAssetIds: ['village-restitution'],
-    immutableFacts: ['현대 복장이 아닌 이야기 시대의 평범한 마을 사람들'],
   },
 };
 
@@ -247,7 +239,8 @@ const LOCATION_PACKS: Record<string, VisualReferencePack> = {
     ],
     immutableFacts: [
       '보라·갈색 사탕과 빵으로 지어진 동일한 집 외관',
-      '문·창문·설탕 무늬의 위치 관계를 유지',
+      '문·창문의 위치 관계를 유지',
+      '남매가 들어가기 전에는 문이 닫혀 있고, 문 주변에 긁힌 자국·설탕 소용돌이·마법 빛을 넣지 않음',
     ],
   },
   CANDY_INTERIOR: {
@@ -257,12 +250,13 @@ const LOCATION_PACKS: Record<string, VisualReferencePack> = {
     label: '과자집 내부',
     canonicalAssetIds: [
       'candy-house-interior',
-      'short-twig-check',
-      'oven-command',
+      'kitchen-door-locked',
+      'witch-cooking-keys',
     ],
     immutableFacts: [
       '보라·갈색 사탕 질감의 동일한 내부 공간',
-      '오븐·높은 검은 쇠창살 감옥·열쇠 구조의 크기와 위치 관계를 유지',
+      '부엌 배치를 유지: 왼쪽 높은 쇠창살, 오른쪽 앞 작업대, 뒤쪽 벽 선반, 뒤쪽 오른편의 닫힌 오븐, 복도로 나가는 부엌 문',
+      '부엌 문은 같은 큰 검은 열쇠로 안팎에서 여닫고, 바깥문은 복도 끝의 다른 문',
     ],
   },
   WATERWAY: {
@@ -275,14 +269,6 @@ const LOCATION_PACKS: Record<string, VisualReferencePack> = {
       'water-return',
     ],
     immutableFacts: ['다리와 배가 없는 같은 폭의 물길과 양쪽 숲 둑'],
-  },
-  VILLAGE: {
-    id: 'HG-LOC-VILLAGE-V1',
-    version: '1.0.0',
-    kind: 'location',
-    label: '마을',
-    canonicalAssetIds: ['village-restitution'],
-    immutableFacts: ['남매의 집과 같은 시대·재료의 작은 숲 마을'],
   },
 };
 
@@ -317,13 +303,14 @@ const PROP_PACKS: Record<string, VisualReferencePack> = {
     kind: 'prop',
     label: '검은 열쇠·은색 열쇠',
     canonicalAssetIds: [
-      'black-key-glow',
+      'kitchen-door-locked',
       'gretel-watches-keys',
-      'oven-secured-keys',
+      'witch-cooking-keys',
     ],
     immutableFacts: [
-      '검은 열쇠와 은색 열쇠를 색·크기·용도로 구분',
-      '은색 열쇠는 쇠창살 문, 검은 열쇠는 큰 철문에 사용',
+      '작은 은색 열쇠와 큰 검은 열쇠가 한 고리에 달려 있고 색·크기로 구분됨',
+      '은색 열쇠는 헨젤의 쇠창살 문, 검은 열쇠는 복도로 나가는 부엌 문에만 사용',
+      '열쇠가 빛나거나 문·무늬를 마법으로 움직이지 않음',
     ],
   },
   IRON_CAGE: {
@@ -332,8 +319,8 @@ const PROP_PACKS: Record<string, VisualReferencePack> = {
     kind: 'prop',
     label: '높은 검은 쇠창살 감옥',
     canonicalAssetIds: [
-      'short-twig-check',
-      'oven-command',
+      'witch-reveal',
+      'gretel-whispers-keys',
       'cage-unlock-oven-secured',
     ],
     immutableFacts: [
@@ -347,13 +334,12 @@ const PROP_PACKS: Record<string, VisualReferencePack> = {
     kind: 'prop',
     label: '과자집 오븐',
     canonicalAssetIds: [
-      'oven-command',
-      'witch-demonstrates-oven',
-      'oven-secured-keys',
+      'witch-cooking-keys',
+      'cage-unlock-oven-secured',
     ],
     immutableFacts: [
-      '성인 한 명이 몸을 숙여 들어갈 수 있는 같은 크기의 벽난로형 오븐',
-      '불이 사람에게 닿거나 상해가 보이지 않음',
+      '부엌 뒤쪽의 닫힌 벽난로형 오븐 - 배경 소품일 뿐 감금·위협 장소가 아님',
+      '누군가 오븐을 가리키거나 오븐 안으로 들어가지 않음',
     ],
   },
   RETURN_MARKS: {
@@ -362,14 +348,11 @@ const PROP_PACKS: Record<string, VisualReferencePack> = {
     kind: 'prop',
     label: '귀환 표시',
     canonicalAssetIds: ['marked-return-path'],
-    immutableFacts: ['나무의 도끼 자국과 하얀 천 표시를 동일하게 유지'],
+    immutableFacts: ['아버지가 나뭇가지에 묶은 하얀 천 표시를 동일하게 유지'],
   },
 };
 
 function locationPackFor(location: string) {
-  if (location === 'village-and-candy-house') {
-    return LOCATION_PACKS.VILLAGE;
-  }
   if (
     location.startsWith('home-') ||
     location === 'outside-home'

@@ -11,6 +11,7 @@ import {
   StoryLoadError,
   DEFAULT_BETA_STORY_ID,
 } from './story-registry';
+import { buildStoryRuntimePackage } from './story-package';
 import {
   fallbackFamilyId,
   rejoinAnchorId,
@@ -171,56 +172,46 @@ test('runtime package owns manifest, fallback, assets, and report copy', () => {
   assert.equal(storyPackage.storyId, 'HG');
   assert.equal(storyPackage.availability, 'BETA');
 
-  const anchor = storyPackage.manifest.questionAnchors[1];
-  const fallback = storyPackage.manifest.fallbackFamilies.find(
-    (family) => family.id === anchor.defaultFallbackFamilyId,
-  );
-
-  assert.equal(anchor.sceneId, 'HG-F05');
-  assert.equal(fallback?.id, 'B_CHECK_KEYS');
+  const [anchorA, anchorB, anchorC] = storyPackage.manifest.questionAnchors;
+  // Q-30 최종 원고: 기본 분기 없이 질문만 하면 기본 이야기로 이어 가고, B는 대화만 한다.
+  assert.ok(storyPackage.manifest.questionAnchors.every((anchor) => anchor.defaultFallbackFamilyId === null));
+  assert.equal(anchorB.sceneId, 'HG-F05');
+  assert.deepEqual(anchorB.fallbackFamilyIds, []);
+  assert.deepEqual(anchorA.fallbackFamilyIds, ['A_OBSERVE_BIRD', 'A_SPEAK_TO_BIRD']);
+  assert.deepEqual(anchorC.fallbackFamilyIds, ['C_WAIT_FOR_WITCH_TURN', 'C_DISTRACT_AND_TAKE_KEYS']);
   assert.ok(storyPackage.illustrationForAssetId('old-woman-door'));
   assert.equal(
-    storyPackage.reportCopy.anchors[anchor.id]?.sceneTitle,
+    storyPackage.reportCopy.anchors[anchorB.id]?.sceneTitle,
     '과자집 문 앞',
   );
 });
 
 test('runtime repairs a stale server plan that offers a family without its prerequisite', () => {
-  const storyPackage = hanselGretelStoryPackage;
+  // HG 최종 원고에는 선행 조건이 있는 분기가 없어서, 같은 데이터에 선행 조건만 더한 사본으로 검증한다.
+  const gatedPackageData = structuredClone(packageData);
+  const gatedFamily = gatedPackageData.routeContext.anchors['HG-Q-C'].actionFamilies.find(
+    (family) => family.id === 'C_DISTRACT_AND_TAKE_KEYS',
+  );
+  assert.ok(gatedFamily);
+  (gatedFamily as { requiresPriorFamilyIds?: string[] }).requiresPriorFamilyIds = ['A_SPEAK_TO_BIRD'];
+  const storyPackage = buildStoryRuntimePackage({
+    generatedContent: generatedContent as Parameters<typeof buildStoryRuntimePackage>[0]['generatedContent'],
+    packageData: gatedPackageData as Parameters<typeof buildStoryRuntimePackage>[0]['packageData'],
+    imageAssets: hanselGretelStoryPackage.imageAssets,
+    audioAssets: hanselGretelStoryPackage.audioAssets,
+  });
   const plan: RoutePlan = {
     kind: 'route',
-    route: 'THREE_PATHS',
-    childRelevantMeaning: '안전하게 빠져나가는 방법',
-    coverageStatus: 'partial',
+    route: 'DIRECT_ACTION',
+    childRelevantMeaning: '헨젤이 마녀를 부르는 동안 열쇠를 가져온다',
+    coverageStatus: 'exact',
     coverageReason: 'test',
-    text: '안전한 방법을 골라 보자.',
+    text: '좋아, 헨젤이 마녀를 부르는 동안 내가 열쇠를 가져올게.',
     speakerId: speakerId('HG-SPK-GRETEL'),
-    actionFamilyId: null,
-    rejoinAt: rejoinAnchorId('HG-F07-DEMONSTRATION'),
-    fallbackFamilyId: fallbackFamilyId('C_USE_SIGNAL'),
-    options: [
-      {
-        id: 'OPTION_1',
-        label: '시범 요청하기',
-        meaning: '먼저 시범을 요청한다.',
-        actionFamilyId: fallbackFamilyId('C_ASK_DEMONSTRATION'),
-        branchLine: '먼저 시범을 보여달라고 부탁해보자.',
-      },
-      {
-        id: 'OPTION_2',
-        label: '신호 보내기',
-        meaning: '앞에서 정한 신호를 사용한다.',
-        actionFamilyId: fallbackFamilyId('C_USE_SIGNAL'),
-        branchLine: '우리가 정한 신호를 보내보자.',
-      },
-      {
-        id: 'OPTION_3',
-        label: '자물쇠 살피기',
-        meaning: '멀리서 자물쇠를 살핀다.',
-        actionFamilyId: fallbackFamilyId('C_CHECK_LOCK_FROM_DISTANCE'),
-        branchLine: '멀리서 자물쇠를 조심히 살펴보자.',
-      },
-    ],
+    actionFamilyId: fallbackFamilyId('C_DISTRACT_AND_TAKE_KEYS'),
+    rejoinAt: rejoinAnchorId('HG-F07-KEYS-TAKEN'),
+    fallbackFamilyId: fallbackFamilyId('C_DISTRACT_AND_TAKE_KEYS'),
+    options: [],
     versions: {
       modelId: 'test',
       promptVersion: 'test',
@@ -229,23 +220,11 @@ test('runtime repairs a stale server plan that offers a family without its prere
     },
   };
 
-  const withoutSignal = storyPackage.repairRoutePlanForHistory(
-    'HG-Q-C',
-    plan,
-    ['B_CHECK_KEYS'],
-  );
-  assert.equal(withoutSignal.options.length, 3);
-  assert.ok(
-    withoutSignal.options.every(
-      (option) => option.actionFamilyId !== 'C_USE_SIGNAL',
-    ),
-  );
-  assert.notEqual(withoutSignal.fallbackFamilyId, 'C_USE_SIGNAL');
+  const withoutPrior = storyPackage.repairRoutePlanForHistory('HG-Q-C', plan, ['A_OBSERVE_BIRD']);
+  assert.equal(withoutPrior.actionFamilyId, 'C_WAIT_FOR_WITCH_TURN');
+  assert.equal(withoutPrior.fallbackFamilyId, 'C_WAIT_FOR_WITCH_TURN');
+  assert.equal(withoutPrior.rejoinAt, 'HG-F07-KEYS-TAKEN');
 
-  const withSignal = storyPackage.repairRoutePlanForHistory(
-    'HG-Q-C',
-    plan,
-    ['B_MAKE_SIBLING_SIGNAL'],
-  );
-  assert.equal(withSignal, plan);
+  const withPrior = storyPackage.repairRoutePlanForHistory('HG-Q-C', plan, ['A_SPEAK_TO_BIRD']);
+  assert.equal(withPrior, plan);
 });

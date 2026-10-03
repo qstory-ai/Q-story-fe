@@ -88,8 +88,11 @@ export type StoryPackageData = {
         sceneId: string;
         primarySpeakerId: string;
         allowedSpeakerIds: string[];
-        defaultFallbackFamilyId: string;
+        /** 없으면(null) 질문만 하거나 연결이 실패했을 때 기본 이야기로 이어 간다. */
+        defaultFallbackFamilyId: string | null;
         defaultRejoinAt: string;
+        /** false면 이 질문 지점에서 실시간 새 분기를 만들지 않는다(기본 true). */
+        liveBranchGeneration?: boolean;
         actionFamilies: {
           id: string;
           meaning: string;

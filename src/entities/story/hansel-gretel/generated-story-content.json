@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "source": {
     "package": "content/stories/hansel-gretel",
-    "digest": "9c864e22e4ab20e62e5f0a3ab47b271d1924422bf52e7506dccafdc0e6a53b69"
+    "digest": "2b7cc8f3b704645b6a65fa84d86790d449fb0d69ca3dfd5ce062ad205085774a"
   },
   "story": {
     "id": "HG",
     "title": "헨젤과 그레텔",
-    "contentVersion": "master-spec-v2.4-branch-integrity"
+    "contentVersion": "q30-final-script-v1"
   },
   "scenes": [
     {
       "id": "HG-F01",
-      "title": "텅 빈 식탁과 밤의 계획",
+      "title": "빵 한 조각",
       "visuals": [
         {
           "id": "HG-VIS-F01-01",
@@ -28,13 +28,13 @@
           ],
           "entryState": "family-at-home-low-food",
           "requiredAction": "family-faces-last-piece-of-bread",
-          "exitState": "father-fears-hunger",
+          "exitState": "father-worries-about-food",
           "exception": "single-table-setup"
         },
         {
           "id": "HG-VIS-F01-02",
           "assetId": "night-plan",
-          "mode": "parents-whisper-children-listen",
+          "mode": "stepmother-proposes-father-hesitates-children-listen",
           "time": "night",
           "location": "home-bedroom-wall",
           "characters": [
@@ -43,9 +43,9 @@
             "FATHER",
             "STEPMOTHER"
           ],
-          "entryState": "family-at-home-night",
-          "requiredAction": "parents-plan-while-siblings-overhear",
-          "exitState": "siblings-promise-to-find-way-home",
+          "entryState": "father-worries-about-food",
+          "requiredAction": "stepmother-insists-father-nods-siblings-overhear",
+          "exitState": "siblings-decide-to-find-way-home",
           "exception": "same-night-family-dialogue"
         }
       ],
@@ -65,7 +65,7 @@
           ],
           "entryState": "family-at-home-low-food",
           "requiredAction": "family-faces-last-piece-of-bread",
-          "exitState": "father-fears-hunger",
+          "exitState": "father-worries-about-food",
           "exception": "single-table-setup"
         },
         {
@@ -73,41 +73,41 @@
           "visualId": "HG-VIS-F01-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "아주 오래전, 커다란 숲 가장자리의 작은 집에"
+          "text": "커다란 숲 옆 작은 집에 헨젤과 그레텔이 살았어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F01-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "나무꾼 아버지와 그의 아내, 헨젤과 그레텔이 살았어요."
+          "text": "아버지와 새어머니도 함께 살았지요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F01-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "비가 오지 않은 해가 이어지자 곡식과 빵이 모자랐고,"
+          "text": "비가 오래 오지 않아 먹을 것이 줄었어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F01-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "어느 날 식탁에는 나눠 먹을 빵 한 조각만 남았어요."
+          "text": "어느 날 식탁에는 빵 한 조각만 남았어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F01-01",
           "speaker": "FATHER",
           "role": "DIALOGUE",
-          "text": "“내일은 아이들에게 무엇을 먹여야 하지?”"
+          "text": "“내일은 아이들에게 무엇을 먹이지?”"
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F01-02",
           "assetId": "night-plan",
-          "mode": "parents-whisper-children-listen",
+          "mode": "stepmother-proposes-father-hesitates-children-listen",
           "time": "night",
           "location": "home-bedroom-wall",
           "characters": [
@@ -116,9 +116,9 @@
             "FATHER",
             "STEPMOTHER"
           ],
-          "entryState": "family-at-home-night",
-          "requiredAction": "parents-plan-while-siblings-overhear",
-          "exitState": "siblings-promise-to-find-way-home",
+          "entryState": "father-worries-about-food",
+          "requiredAction": "stepmother-insists-father-nods-siblings-overhear",
+          "exitState": "siblings-decide-to-find-way-home",
           "exception": "same-night-family-dialogue"
         },
         {
@@ -126,42 +126,70 @@
           "visualId": "HG-VIS-F01-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "그날 밤, 새어머니가 아이들을 깊은 숲에 두고 오자고 말했어요."
+          "text": "그날 밤, 새어머니가 아이들을 숲에 두고 오자고 했어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F01-02",
+          "speaker": "FATHER",
+          "role": "DIALOGUE",
+          "text": "“아이들만 두고 올 수는 없어.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F01-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "아버지는 안 된다고 했지만, 끝내 두려움에 굴복하고 말았지요."
+          "text": "하지만 새어머니는 꼭 그렇게 해야 한다며"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F01-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "벽 너머에서 모든 말을 들은 그레텔의 손이 떨렸어요."
+          "text": "고집을 꺾지 않았어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F01-02",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "먹을 것을 구할 방법이 떠오르지 않던 아버지는"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F01-02",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "한참을 망설이다가 끝내 고개를 끄덕였어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F01-02",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "남매는 벽 너머로 그 이야기를 들었어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F01-02",
           "speaker": "GRETEL",
           "role": "DIALOGUE",
-          "text": "“정말 우리를 두고 가려는 걸까?”"
+          "text": "“정말 우리만 두고 가려는 걸까? 무서워.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F01-02",
           "speaker": "HANSEL",
           "role": "DIALOGUE",
-          "text": "“무섭지만 같이 돌아올 방법을 찾자.”"
+          "text": "“나도 무서워.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F01-02",
           "speaker": "HANSEL",
           "role": "DIALOGUE",
-          "text": "“절대 손을 놓지 마.”"
+          "text": "“그렇지만 우리 같이 집으로 돌아갈 방법을 찾아보자.”"
         },
         {
           "kind": "checkpoint",
@@ -175,7 +203,7 @@
     },
     {
       "id": "HG-F02",
-      "title": "조약돌이 알려준 첫 번째 길",
+      "title": "달빛에 반짝이는 돌",
       "visuals": [
         {
           "id": "HG-VIS-F02-01",
@@ -186,7 +214,7 @@
           "characters": [
             "HANSEL"
           ],
-          "entryState": "siblings-need-return-plan",
+          "entryState": "siblings-decide-to-find-way-home",
           "requiredAction": "hansel-collects-white-pebbles",
           "exitState": "hansel-pocket-full-of-pebbles",
           "exception": null
@@ -211,8 +239,8 @@
         {
           "id": "HG-VIS-F02-03",
           "assetId": "forest-waiting",
-          "mode": "siblings-wait-by-fire-as-adults-leave-with-branch-trick",
-          "time": "afternoon-to-dusk",
+          "mode": "father-and-stepmother-walk-away-siblings-stay-by-fire",
+          "time": "afternoon",
           "location": "forest-clearing",
           "characters": [
             "HANSEL",
@@ -221,12 +249,27 @@
             "STEPMOTHER"
           ],
           "entryState": "family-reaches-clearing",
-          "requiredAction": "adults-leave-branch-trick-siblings-wait",
-          "exitState": "night-no-adults",
-          "exception": "same-clearing-abandonment"
+          "requiredAction": "adults-tell-siblings-to-wait-and-leave",
+          "exitState": "siblings-alone-by-fire",
+          "exception": null
         },
         {
           "id": "HG-VIS-F02-04",
+          "assetId": "forest-night-waiting",
+          "mode": "siblings-alone-by-small-fire-after-dark-no-adults",
+          "time": "night",
+          "location": "forest-clearing",
+          "characters": [
+            "HANSEL",
+            "GRETEL"
+          ],
+          "entryState": "siblings-alone-by-fire",
+          "requiredAction": "siblings-wait-in-dark-path-unseen",
+          "exitState": "siblings-wait-for-moonlight",
+          "exception": null
+        },
+        {
+          "id": "HG-VIS-F02-05",
           "assetId": "moonlit-return",
           "mode": "siblings-follow-shining-stones-home",
           "time": "night-to-dawn",
@@ -235,13 +278,13 @@
             "HANSEL",
             "GRETEL"
           ],
-          "entryState": "night-stones-hidden-by-cloud",
+          "entryState": "siblings-wait-for-moonlight",
           "requiredAction": "siblings-follow-shining-pebbles",
-          "exitState": "siblings-reach-home-at-dawn",
+          "exitState": "siblings-reach-home",
           "exception": null
         },
         {
-          "id": "HG-VIS-F02-05",
+          "id": "HG-VIS-F02-06",
           "assetId": "first-homecoming",
           "mode": "father-embraces-returned-siblings-stepmother-watches-coldly",
           "time": "dawn",
@@ -252,13 +295,13 @@
             "FATHER",
             "STEPMOTHER"
           ],
-          "entryState": "siblings-return-home",
-          "requiredAction": "father-embraces-stepmother-watches",
+          "entryState": "siblings-reach-home",
+          "requiredAction": "father-embraces-siblings-without-words",
           "exitState": "family-reunited-without-repair",
           "exception": null
         },
         {
-          "id": "HG-VIS-F02-06",
+          "id": "HG-VIS-F02-07",
           "assetId": "second-night-plan",
           "mode": "second-night-plan-stepmother-insists-father-yields",
           "time": "later-night",
@@ -270,9 +313,9 @@
             "STEPMOTHER"
           ],
           "entryState": "food-empty-again",
-          "requiredAction": "stepmother-demands-deeper-forest-father-yields",
+          "requiredAction": "stepmother-demands-deeper-forest-father-yields-siblings-overhear",
           "exitState": "second-abandonment-decided",
-          "exception": null
+          "exception": "same-night-plan-dialogue"
         }
       ],
       "segments": [
@@ -286,7 +329,7 @@
           "characters": [
             "HANSEL"
           ],
-          "entryState": "siblings-need-return-plan",
+          "entryState": "siblings-decide-to-find-way-home",
           "requiredAction": "hansel-collects-white-pebbles",
           "exitState": "hansel-pocket-full-of-pebbles",
           "exception": null
@@ -296,7 +339,7 @@
           "visualId": "HG-VIS-F02-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "달이 뜨자 헨젤은 문밖의 하얀 조약돌을 주머니에 담았어요."
+          "text": "달이 뜨자 헨젤은 집 앞의 하얀 돌을 주머니에 담았어요."
         },
         {
           "kind": "visual",
@@ -321,14 +364,21 @@
           "visualId": "HG-VIS-F02-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "다음 날 숲으로 걸어가며 돌을 하나씩 길에 떨어뜨렸지요."
+          "text": "다음 날 숲으로 가며 돌을 하나씩 떨어뜨렸어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F02-02",
+          "speaker": "HANSEL",
+          "role": "DIALOGUE",
+          "text": "“이 돌을 따라가면 집으로 돌아갈 수 있을 거야.”"
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F02-03",
           "assetId": "forest-waiting",
-          "mode": "siblings-wait-by-fire-as-adults-leave-with-branch-trick",
-          "time": "afternoon-to-dusk",
+          "mode": "father-and-stepmother-walk-away-siblings-stay-by-fire",
+          "time": "afternoon",
           "location": "forest-clearing",
           "characters": [
             "HANSEL",
@@ -337,48 +387,64 @@
             "STEPMOTHER"
           ],
           "entryState": "family-reaches-clearing",
-          "requiredAction": "adults-leave-branch-trick-siblings-wait",
-          "exitState": "night-no-adults",
-          "exception": "same-clearing-abandonment"
+          "requiredAction": "adults-tell-siblings-to-wait-and-leave",
+          "exitState": "siblings-alone-by-fire",
+          "exception": null
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F02-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "어른들은 불을 피운 뒤 마른 가지를 나무에 매달았어요."
+          "text": "아버지와 새어머니는 남매에게"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F02-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "바람에 흔들리는 가지 소리가 멀리서 도끼질처럼 들렸어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F02-03",
-          "speaker": "STEPMOTHER",
-          "role": "DIALOGUE",
-          "text": "“여기서 기다리렴.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F02-03",
-          "speaker": "STEPMOTHER",
-          "role": "DIALOGUE",
-          "text": "“일을 마치면 돌아올게.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F02-03",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "하지만 해가 져도 아무도 돌아오지 않았어요."
+          "text": "기다리라고 하고 떠났어요."
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F02-04",
+          "assetId": "forest-night-waiting",
+          "mode": "siblings-alone-by-small-fire-after-dark-no-adults",
+          "time": "night",
+          "location": "forest-clearing",
+          "characters": [
+            "HANSEL",
+            "GRETEL"
+          ],
+          "entryState": "siblings-alone-by-fire",
+          "requiredAction": "siblings-wait-in-dark-path-unseen",
+          "exitState": "siblings-wait-for-moonlight",
+          "exception": null
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F02-04",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "하지만 해가 져도 돌아오지 않았어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F02-04",
+          "speaker": "GRETEL",
+          "role": "DIALOGUE",
+          "text": "“어두워서 길이 안 보여.”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F02-04",
+          "speaker": "HANSEL",
+          "role": "DIALOGUE",
+          "text": "“달빛을 조금만 기다려보자.”"
+        },
+        {
+          "kind": "visual",
+          "id": "HG-VIS-F02-05",
           "assetId": "moonlit-return",
           "mode": "siblings-follow-shining-stones-home",
           "time": "night-to-dawn",
@@ -387,42 +453,28 @@
             "HANSEL",
             "GRETEL"
           ],
-          "entryState": "night-stones-hidden-by-cloud",
+          "entryState": "siblings-wait-for-moonlight",
           "requiredAction": "siblings-follow-shining-pebbles",
-          "exitState": "siblings-reach-home-at-dawn",
+          "exitState": "siblings-reach-home",
           "exception": null
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F02-04",
-          "speaker": "GRETEL",
-          "role": "DIALOGUE",
-          "text": "“이제 어느 쪽으로 가야 하지?”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F02-04",
-          "speaker": "HANSEL",
-          "role": "DIALOGUE",
-          "text": "“달빛을 기다려 보자.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F02-04",
+          "visualId": "HG-VIS-F02-05",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "구름 뒤에서 달이 나오자 하얀 돌들이 하나씩 반짝였어요."
+          "text": "구름 사이로 달이 나오자 하얀 돌들이 반짝였어요."
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F02-04",
+          "visualId": "HG-VIS-F02-05",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "남매는 손을 잡고 돌을 따라 걸어 새벽녘 집으로 돌아왔어요."
+          "text": "남매는 돌을 따라 걸어 집으로 돌아왔어요."
         },
         {
           "kind": "visual",
-          "id": "HG-VIS-F02-05",
+          "id": "HG-VIS-F02-06",
           "assetId": "first-homecoming",
           "mode": "father-embraces-returned-siblings-stepmother-watches-coldly",
           "time": "dawn",
@@ -433,28 +485,35 @@
             "FATHER",
             "STEPMOTHER"
           ],
-          "entryState": "siblings-return-home",
-          "requiredAction": "father-embraces-stepmother-watches",
+          "entryState": "siblings-reach-home",
+          "requiredAction": "father-embraces-siblings-without-words",
           "exitState": "family-reunited-without-repair",
           "exception": null
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F02-05",
+          "visualId": "HG-VIS-F02-06",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "아버지는 돌아온 아이들을 꼭 끌어안았어요."
+          "text": "집으로 돌아오자 아버지가 남매를 꼭 안았어요."
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F02-05",
+          "visualId": "HG-VIS-F02-06",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "하지만 자신의 잘못을 바로잡겠다고 말하지 못했지요."
+          "text": "아이들을 바라보던 아버지는"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F02-06",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "한동안 아무 말도 하지 못했어요."
         },
         {
           "kind": "visual",
-          "id": "HG-VIS-F02-06",
+          "id": "HG-VIS-F02-07",
           "assetId": "second-night-plan",
           "mode": "second-night-plan-stepmother-insists-father-yields",
           "time": "later-night",
@@ -466,30 +525,58 @@
             "STEPMOTHER"
           ],
           "entryState": "food-empty-again",
-          "requiredAction": "stepmother-demands-deeper-forest-father-yields",
+          "requiredAction": "stepmother-demands-deeper-forest-father-yields-siblings-overhear",
           "exitState": "second-abandonment-decided",
-          "exception": null
+          "exception": "same-night-plan-dialogue"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F02-06",
+          "visualId": "HG-VIS-F02-07",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "얼마 뒤 음식이 다시 떨어졌어요."
+          "text": "며칠 뒤, 집에 먹을 것이 다시 떨어졌어요."
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F02-06",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "새어머니는 더 깊은 숲으로 가자고 했고,"
+          "visualId": "HG-VIS-F02-07",
+          "speaker": "STEPMOTHER",
+          "role": "DIALOGUE",
+          "text": "“내일은 아이들을 더 깊은 숲에 두고 와야겠어요.”"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F02-06",
+          "visualId": "HG-VIS-F02-07",
+          "speaker": "FATHER",
+          "role": "DIALOGUE",
+          "text": "“또 아이들만 두고 오자고?”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F02-07",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "아버지는 또다시 거절하지 못했어요."
+          "text": "아버지는 고개를 저었지만,"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F02-07",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "새어머니가 거듭 재촉하자"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F02-07",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "이번에도 그 말을 따르기로 했어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F02-07",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "잠들지 못한 남매는 방 안에서 이 대화를 들었어요."
         },
         {
           "kind": "checkpoint",
@@ -503,7 +590,7 @@
     },
     {
       "id": "HG-F03",
-      "title": "빵 부스러기가 사라진 숲",
+      "title": "사라진 빵 부스러기",
       "visuals": [
         {
           "id": "HG-VIS-F03-01",
@@ -518,12 +605,12 @@
           "entryState": "second-abandonment-decided",
           "requiredAction": "hansel-tries-locked-door-and-cannot-collect-pebbles",
           "exitState": "pebble-plan-blocked",
-          "exception": null
+          "exception": "cause-then-locked-door"
         },
         {
           "id": "HG-VIS-F03-02",
           "assetId": "morning-bread-plan",
-          "mode": "hansel-saves-and-breaks-small-morning-bread",
+          "mode": "hansel-breaks-morning-bread-into-pocket",
           "time": "next-morning",
           "location": "home-table",
           "characters": [
@@ -531,14 +618,14 @@
             "GRETEL"
           ],
           "entryState": "pebble-plan-blocked",
-          "requiredAction": "hansel-saves-small-bread-and-breaks-it-into-pouch",
+          "requiredAction": "hansel-tears-bread-into-pocket",
           "exitState": "breadcrumb-plan-ready",
-          "exception": null
+          "exception": "bread-plan-dialogue"
         },
         {
           "id": "HG-VIS-F03-03",
           "assetId": "second-walk-breadcrumbs",
-          "mode": "hansel-drops-breadcrumbs-as-adults-disappear-into-deep-forest",
+          "mode": "hansel-drops-breadcrumbs-behind-adults-in-deep-forest",
           "time": "day",
           "location": "deep-forest-path",
           "characters": [
@@ -548,14 +635,29 @@
             "STEPMOTHER"
           ],
           "entryState": "breadcrumb-plan-ready",
-          "requiredAction": "hansel-drops-crumbs-adults-leave",
-          "exitState": "siblings-left-deep-in-forest",
-          "exception": "same-walk-abandonment"
+          "requiredAction": "hansel-drops-bread-pieces-while-walking",
+          "exitState": "adults-tell-siblings-to-wait",
+          "exception": null
         },
         {
           "id": "HG-VIS-F03-04",
+          "assetId": "deep-forest-waiting",
+          "mode": "siblings-wait-alone-on-deep-forest-path-at-dusk",
+          "time": "dusk",
+          "location": "deep-forest-path",
+          "characters": [
+            "HANSEL",
+            "GRETEL"
+          ],
+          "entryState": "adults-tell-siblings-to-wait",
+          "requiredAction": "adults-gone-siblings-wait-until-sunset",
+          "exitState": "siblings-left-deep-in-forest",
+          "exception": null
+        },
+        {
+          "id": "HG-VIS-F03-05",
           "assetId": "birds-eat-breadcrumbs",
-          "mode": "moonlit-siblings-find-birds-eating-last-crumbs",
+          "mode": "moonlit-siblings-find-birds-eating-bread-pieces",
           "time": "night",
           "location": "deep-forest-trail",
           "characters": [
@@ -563,15 +665,15 @@
             "GRETEL",
             "BIRDS"
           ],
-          "entryState": "siblings-search-breadcrumb-trail",
+          "entryState": "siblings-left-deep-in-forest",
           "requiredAction": "birds-eat-last-crumbs",
           "exitState": "breadcrumb-trail-gone",
-          "exception": null
+          "exception": "failure-then-new-plan"
         },
         {
-          "id": "HG-VIS-F03-05",
+          "id": "HG-VIS-F03-06",
           "assetId": "lost-forest",
-          "mode": "tired-siblings-circle-same-trees-in-daylight",
+          "mode": "siblings-walk-chosen-path-and-stay-lost",
           "time": "next-day",
           "location": "repeating-forest",
           "characters": [
@@ -579,14 +681,14 @@
             "GRETEL"
           ],
           "entryState": "breadcrumb-trail-gone",
-          "requiredAction": "siblings-circle-same-trees-and-rocks",
+          "requiredAction": "siblings-walk-the-path-gretel-chose",
           "exitState": "siblings-exhausted",
           "exception": null
         },
         {
-          "id": "HG-VIS-F03-06",
+          "id": "HG-VIS-F03-07",
           "assetId": "morning-song",
-          "mode": "exhausted-siblings-rest-under-tree-at-dawn-hearing-song",
+          "mode": "exhausted-siblings-rest-under-tree-hearing-bird-song",
           "time": "following-dawn",
           "location": "under-large-forest-tree",
           "characters": [
@@ -594,7 +696,7 @@
             "GRETEL"
           ],
           "entryState": "siblings-exhausted",
-          "requiredAction": "siblings-hear-clear-song-and-look-up",
+          "requiredAction": "siblings-rest-and-hear-clear-bird-song",
           "exitState": "song-source-nearby",
           "exception": null
         }
@@ -614,20 +716,55 @@
           "entryState": "second-abandonment-decided",
           "requiredAction": "hansel-tries-locked-door-and-cannot-collect-pebbles",
           "exitState": "pebble-plan-blocked",
-          "exception": null
+          "exception": "cause-then-locked-door"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F03-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "헨젤은 다시 조약돌을 주우려 했지만 이번에는 문이 잠겨 있었어요."
+          "text": "다시 숲에 데려간다는 말을 들은 헨젤은"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-01",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "지난번의 하얀 돌을 떠올렸어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-01",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "돌을 주우려고 집 밖으로 나가려 했지만,"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-01",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "이번에는 문이 잠겨 있었어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-01",
+          "speaker": "HANSEL",
+          "role": "DIALOGUE",
+          "text": "“문이 안 열려.”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-01",
+          "speaker": "HANSEL",
+          "role": "DIALOGUE",
+          "text": "“돌을 주울 수가 없겠어.”"
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F03-02",
           "assetId": "morning-bread-plan",
-          "mode": "hansel-saves-and-breaks-small-morning-bread",
+          "mode": "hansel-breaks-morning-bread-into-pocket",
           "time": "next-morning",
           "location": "home-table",
           "characters": [
@@ -635,22 +772,50 @@
             "GRETEL"
           ],
           "entryState": "pebble-plan-blocked",
-          "requiredAction": "hansel-saves-small-bread-and-breaks-it-into-pouch",
+          "requiredAction": "hansel-tears-bread-into-pocket",
           "exitState": "breadcrumb-plan-ready",
-          "exception": null
+          "exception": "bread-plan-dialogue"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F03-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "그래서 다음 날 받은 작은 빵을 먹지 않고 잘게 부수었어요."
+          "text": "다음 날 아침, 헨젤은 받은 빵을"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-02",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "조금씩 떼어 주머니에 넣었어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-02",
+          "speaker": "GRETEL",
+          "role": "DIALOGUE",
+          "text": "“이번에는 빵으로 길을 표시하려고?”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-02",
+          "speaker": "HANSEL",
+          "role": "DIALOGUE",
+          "text": "“응.”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-02",
+          "speaker": "HANSEL",
+          "role": "DIALOGUE",
+          "text": "“돌 대신 써보려고.”"
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F03-03",
           "assetId": "second-walk-breadcrumbs",
-          "mode": "hansel-drops-breadcrumbs-as-adults-disappear-into-deep-forest",
+          "mode": "hansel-drops-breadcrumbs-behind-adults-in-deep-forest",
           "time": "day",
           "location": "deep-forest-path",
           "characters": [
@@ -660,50 +825,80 @@
             "STEPMOTHER"
           ],
           "entryState": "breadcrumb-plan-ready",
-          "requiredAction": "hansel-drops-crumbs-adults-leave",
-          "exitState": "siblings-left-deep-in-forest",
-          "exception": "same-walk-abandonment"
+          "requiredAction": "hansel-drops-bread-pieces-while-walking",
+          "exitState": "adults-tell-siblings-to-wait",
+          "exception": null
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F03-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "헨젤은 깊은 숲으로 걸으며 빵 부스러기를 길에 떨어뜨렸어요."
+          "text": "아버지와 새어머니는 남매를"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F03-03",
-          "speaker": "GRETEL",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "지난번보다 깊은 숲으로 데려갔어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-03",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "헨젤은 걸으며 빵 조각을 하나씩 떨어뜨렸어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-03",
+          "speaker": "STEPMOTHER",
           "role": "DIALOGUE",
-          "text": "“돌처럼 빵도 우리를 집으로 데려다줄까?”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F03-03",
-          "speaker": "HANSEL",
-          "role": "DIALOGUE",
-          "text": "“다른 방법이 없지만, 지나온 길을 잘 기억해 보자.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F03-03",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "어른들은 남매를 전보다 깊은 숲에 남겨두었고,"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F03-03",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "이번에도 돌아오지 않았어요."
+          "text": "“여기서 기다리고 있으렴.”"
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F03-04",
+          "assetId": "deep-forest-waiting",
+          "mode": "siblings-wait-alone-on-deep-forest-path-at-dusk",
+          "time": "dusk",
+          "location": "deep-forest-path",
+          "characters": [
+            "HANSEL",
+            "GRETEL"
+          ],
+          "entryState": "adults-tell-siblings-to-wait",
+          "requiredAction": "adults-gone-siblings-wait-until-sunset",
+          "exitState": "siblings-left-deep-in-forest",
+          "exception": null
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-04",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "아버지와 새어머니는 숲길 너머로 사라졌어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-04",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "남매는 오래 기다렸지만,"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-04",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "두 사람은 해가 질 때까지 돌아오지 않았어요."
+        },
+        {
+          "kind": "visual",
+          "id": "HG-VIS-F03-05",
           "assetId": "birds-eat-breadcrumbs",
-          "mode": "moonlit-siblings-find-birds-eating-last-crumbs",
+          "mode": "moonlit-siblings-find-birds-eating-bread-pieces",
           "time": "night",
           "location": "deep-forest-trail",
           "characters": [
@@ -711,30 +906,72 @@
             "GRETEL",
             "BIRDS"
           ],
-          "entryState": "siblings-search-breadcrumb-trail",
+          "entryState": "siblings-left-deep-in-forest",
           "requiredAction": "birds-eat-last-crumbs",
           "exitState": "breadcrumb-trail-gone",
-          "exception": null
+          "exception": "failure-then-new-plan"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F03-04",
+          "visualId": "HG-VIS-F03-05",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "밤이 되자 남매는 빵 부스러기를 찾았어요."
+          "text": "밤이 되자 남매는 집으로 돌아가려고"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F03-04",
+          "visualId": "HG-VIS-F03-05",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "하지만 숲의 새들이 모두 먹어버려 작은 조각 하나 남지 않았지요."
+          "text": "빵 조각을 찾았어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-05",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "그런데 새들이 빵 조각을 쪼아 먹고 있었어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-05",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "길을 따라 떨어뜨려 둔 빵도"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-05",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "거의 남아 있지 않았어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-05",
+          "speaker": "HANSEL",
+          "role": "DIALOGUE",
+          "text": "“새들이 먹을 줄은 생각 못 했어.”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-05",
+          "speaker": "GRETEL",
+          "role": "DIALOGUE",
+          "text": "“하는 수 없지…”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-05",
+          "speaker": "GRETEL",
+          "role": "DIALOGUE",
+          "text": "“일단 우리 이쪽 길로 한 번 가볼까?”"
         },
         {
           "kind": "visual",
-          "id": "HG-VIS-F03-05",
+          "id": "HG-VIS-F03-06",
           "assetId": "lost-forest",
-          "mode": "tired-siblings-circle-same-trees-in-daylight",
+          "mode": "siblings-walk-chosen-path-and-stay-lost",
           "time": "next-day",
           "location": "repeating-forest",
           "characters": [
@@ -742,22 +979,36 @@
             "GRETEL"
           ],
           "entryState": "breadcrumb-trail-gone",
-          "requiredAction": "siblings-circle-same-trees-and-rocks",
+          "requiredAction": "siblings-walk-the-path-gretel-chose",
           "exitState": "siblings-exhausted",
           "exception": null
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F03-05",
+          "visualId": "HG-VIS-F03-06",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "남매는 다음 날 내내 같은 나무와 바위를 맴돌았어요."
+          "text": "남매는 그 길로 걸어갔어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-06",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "하지만 밤을 보내고 아침이 되어도"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F03-06",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "집으로 가는 길을 찾지 못했어요."
         },
         {
           "kind": "visual",
-          "id": "HG-VIS-F03-06",
+          "id": "HG-VIS-F03-07",
           "assetId": "morning-song",
-          "mode": "exhausted-siblings-rest-under-tree-at-dawn-hearing-song",
+          "mode": "exhausted-siblings-rest-under-tree-hearing-bird-song",
           "time": "following-dawn",
           "location": "under-large-forest-tree",
           "characters": [
@@ -765,23 +1016,23 @@
             "GRETEL"
           ],
           "entryState": "siblings-exhausted",
-          "requiredAction": "siblings-hear-clear-song-and-look-up",
+          "requiredAction": "siblings-rest-and-hear-clear-bird-song",
           "exitState": "song-source-nearby",
           "exception": null
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F03-06",
+          "visualId": "HG-VIS-F03-07",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "이튿날 아침, 지친 두 아이가 큰 나무 아래 앉았을 때"
+          "text": "큰 나무 아래에 앉아 쉬는데"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F03-06",
+          "visualId": "HG-VIS-F03-07",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "어디선가 맑은 노랫소리가 들려왔어요."
+          "text": "맑은 새소리가 들렸어요."
         },
         {
           "kind": "checkpoint",
@@ -795,12 +1046,12 @@
     },
     {
       "id": "HG-F04",
-      "title": "하얀 새와 첫 번째 질문",
+      "title": "자꾸 돌아보는 새",
       "visuals": [
         {
           "id": "HG-VIS-F04-01",
           "assetId": "white-bird",
-          "mode": "bird-on-low-branch-looking-at-siblings",
+          "mode": "bird-on-low-branch-looking-back-at-siblings",
           "time": "morning",
           "location": "forest-low-branch",
           "characters": [
@@ -809,14 +1060,14 @@
             "WHITE_BIRD"
           ],
           "entryState": "song-source-nearby",
-          "requiredAction": "white-bird-watches-and-waits",
+          "requiredAction": "white-bird-flies-ahead-and-looks-back",
           "exitState": "bird-invites-curiosity",
           "exception": "question-invite-same-moment"
         },
         {
           "id": "HG-VIS-F04-02",
           "assetId": "white-bird-leads",
-          "mode": "white-bird-flies-between-branches-siblings-follow-sweet-scent",
+          "mode": "white-bird-flies-ahead-siblings-follow-sweet-scent",
           "time": "morning",
           "location": "forest-between-branches",
           "characters": [
@@ -825,7 +1076,7 @@
             "WHITE_BIRD"
           ],
           "entryState": "bird-invites-curiosity",
-          "requiredAction": "bird-leads-siblings-toward-sweet-scent",
+          "requiredAction": "siblings-hold-hands-and-follow-bird",
           "exitState": "siblings-near-candy-house",
           "exception": null
         },
@@ -851,7 +1102,7 @@
           "kind": "visual",
           "id": "HG-VIS-F04-01",
           "assetId": "white-bird",
-          "mode": "bird-on-low-branch-looking-at-siblings",
+          "mode": "bird-on-low-branch-looking-back-at-siblings",
           "time": "morning",
           "location": "forest-low-branch",
           "characters": [
@@ -860,7 +1111,7 @@
             "WHITE_BIRD"
           ],
           "entryState": "song-source-nearby",
-          "requiredAction": "white-bird-watches-and-waits",
+          "requiredAction": "white-bird-flies-ahead-and-looks-back",
           "exitState": "bird-invites-curiosity",
           "exception": "question-invite-same-moment"
         },
@@ -869,35 +1120,35 @@
           "visualId": "HG-VIS-F04-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "낮은 가지에는 눈처럼 하얀 새 한 마리가 앉아 있었어요."
+          "text": "낮은 가지에 하얀 새 한 마리가 앉아 있었어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F04-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "새는 노래를 멈추고 남매를 바라보았어요."
+          "text": "새는 남매를 보다가"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F04-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "그러더니 몇 걸음 앞의 가지로 옮겨 앉았어요."
+          "text": "조금 앞의 가지로 날아갔어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F04-01",
           "speaker": "GRETEL",
           "role": "DIALOGUE",
-          "text": "“길은 사라졌는데, 저 새는 우리를 기다리는 것 같아.”"
+          "text": "“저 새가 자꾸 우리를 돌아봐.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F04-01",
           "speaker": "GRETEL",
           "role": "QUESTION_INVITE:A",
-          "text": "“{child_call}, 하얀 새가 우리를 바라보다가 앞쪽 가지로 옮겨 앉았어. 저 새를 보니 무엇이 궁금해지거나 어떤 생각이 들어?”"
+          "text": "“저 새를 보니 궁금한 게 있어?”"
         },
         {
           "kind": "interaction",
@@ -908,7 +1159,7 @@
           "kind": "visual",
           "id": "HG-VIS-F04-02",
           "assetId": "white-bird-leads",
-          "mode": "white-bird-flies-between-branches-siblings-follow-sweet-scent",
+          "mode": "white-bird-flies-ahead-siblings-follow-sweet-scent",
           "time": "morning",
           "location": "forest-between-branches",
           "characters": [
@@ -917,7 +1168,7 @@
             "WHITE_BIRD"
           ],
           "entryState": "bird-invites-curiosity",
-          "requiredAction": "bird-leads-siblings-toward-sweet-scent",
+          "requiredAction": "siblings-hold-hands-and-follow-bird",
           "exitState": "siblings-near-candy-house",
           "exception": null
         },
@@ -926,21 +1177,28 @@
           "visualId": "HG-VIS-F04-02",
           "speaker": "NARRATOR",
           "role": "DEFAULT_RESUME:A0",
-          "text": "남매가 잠시 지켜보자 하얀 새는 코끝을 들었어요."
+          "text": "새는 다시 앞쪽으로 날아갔어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F04-02",
           "speaker": "NARRATOR",
           "role": "DEFAULT_RESUME:A0",
-          "text": "새는 달콤한 냄새가 오는 쪽으로 날아갔어요."
+          "text": "남매는 손을 잡고 새를 따라갔어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F04-02",
           "speaker": "NARRATOR",
           "role": "DEFAULT_RESUME:A0",
-          "text": "그 냄새가 위험한 집에서 온다는 사실까지는 새도 알지 못했지요."
+          "text": "그쪽에서 달콤한 냄새가 났어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F04-02",
+          "speaker": "HANSEL",
+          "role": "DIALOGUE",
+          "text": "“무슨 냄새지?”"
         },
         {
           "kind": "anchor",
@@ -968,28 +1226,28 @@
           "visualId": "HG-VIS-F04-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "남매가 새를 따라가자 나무 사이로 집이 나타났어요."
+          "text": "나무 사이로 집이 나타났어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F04-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "그 집은 햇빛을 받아 반짝였어요."
+          "text": "지붕에는 빵과 과자가,"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F04-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "지붕은 빵과 과자로 덮여 있었고 창문은 설탕처럼 빛났어요."
+          "text": "창문에는 반짝이는 설탕이 붙어 있었어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F04-03",
-          "speaker": "HANSEL",
+          "speaker": "GRETEL",
           "role": "DIALOGUE",
-          "text": "“배가 고프지만, 누가 이런 집을 만들었는지 먼저 살펴보자.”"
+          "text": "“과자로 만든 집이야!”"
         },
         {
           "kind": "checkpoint",
@@ -1007,12 +1265,12 @@
     },
     {
       "id": "HG-F05",
-      "title": "과자집 문 앞의 두 번째 질문",
+      "title": "과자집 문 앞의 초대",
       "visuals": [
         {
           "id": "HG-VIS-F05-01",
           "assetId": "candy-house-close",
-          "mode": "siblings-observe-windows-door-and-crumbs",
+          "mode": "siblings-stand-at-closed-candy-house-door",
           "time": "day",
           "location": "candy-house-exterior",
           "characters": [
@@ -1020,14 +1278,14 @@
             "GRETEL"
           ],
           "entryState": "candy-house-found",
-          "requiredAction": "siblings-inspect-scratches-and-sugar-pattern",
-          "exitState": "suspicious-clues-seen",
+          "requiredAction": "siblings-smell-warm-bread-at-closed-door",
+          "exitState": "door-about-to-open",
           "exception": null
         },
         {
           "id": "HG-VIS-F05-02",
           "assetId": "old-woman-door",
-          "mode": "old-woman-keyring-threshold",
+          "mode": "old-woman-opens-door-and-talks-with-siblings",
           "time": "day",
           "location": "candy-house-threshold",
           "characters": [
@@ -1035,31 +1293,15 @@
             "GRETEL",
             "OLD_WOMAN"
           ],
-          "entryState": "suspicious-clues-seen",
-          "requiredAction": "old-woman-invites-siblings-inside",
-          "exitState": "invitation-questioned",
+          "entryState": "door-about-to-open",
+          "requiredAction": "old-woman-asks-and-offers-food-and-rest",
+          "exitState": "siblings-ask-for-way-home",
           "exception": "question-invite-same-moment"
         },
         {
           "id": "HG-VIS-F05-03",
-          "assetId": "black-key-glow",
-          "mode": "siblings-wait-on-threshold-black-key-activates-sugar-pattern",
-          "time": "day",
-          "location": "candy-house-threshold-close",
-          "characters": [
-            "HANSEL",
-            "GRETEL",
-            "OLD_WOMAN"
-          ],
-          "entryState": "invitation-questioned",
-          "requiredAction": "black-key-activates-sugar-pattern",
-          "exitState": "black-key-clue-remembered",
-          "exception": null
-        },
-        {
-          "id": "HG-VIS-F05-04",
           "assetId": "candy-house-interior",
-          "mode": "siblings-eat-warm-bread-while-two-beds-wait-inside",
+          "mode": "siblings-eat-bread-and-drink-water-beds-ready",
           "time": "evening",
           "location": "candy-house-dining-bedroom",
           "characters": [
@@ -1067,10 +1309,10 @@
             "GRETEL",
             "OLD_WOMAN"
           ],
-          "entryState": "black-key-clue-remembered",
-          "requiredAction": "siblings-enter-eat-and-sleep-together",
+          "entryState": "siblings-ask-for-way-home",
+          "requiredAction": "siblings-enter-eat-drink-and-sleep-side-by-side",
           "exitState": "siblings-asleep-inside",
-          "exception": null
+          "exception": "enter-eat-sleep-transition"
         }
       ],
       "segments": [
@@ -1078,7 +1320,7 @@
           "kind": "visual",
           "id": "HG-VIS-F05-01",
           "assetId": "candy-house-close",
-          "mode": "siblings-observe-windows-door-and-crumbs",
+          "mode": "siblings-stand-at-closed-candy-house-door",
           "time": "day",
           "location": "candy-house-exterior",
           "characters": [
@@ -1086,8 +1328,8 @@
             "GRETEL"
           ],
           "entryState": "candy-house-found",
-          "requiredAction": "siblings-inspect-scratches-and-sugar-pattern",
-          "exitState": "suspicious-clues-seen",
+          "requiredAction": "siblings-smell-warm-bread-at-closed-door",
+          "exitState": "door-about-to-open",
           "exception": null
         },
         {
@@ -1095,34 +1337,20 @@
           "visualId": "HG-VIS-F05-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "남매는 집을 한 바퀴 천천히 살폈어요."
+          "text": "남매는 과자집 문 앞에 섰어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F05-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "창문 가장자리에는 긁힌 자국이 있었어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F05-01",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "문 안쪽에는 설탕 소용돌이 무늬가 보였어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F05-01",
-          "speaker": "HANSEL",
-          "role": "DIALOGUE",
-          "text": "“먹을 수 있는 집이라면 왜 숲 한가운데 숨겨져 있을까?”"
+          "text": "가까이 가자 따뜻한 빵 냄새가 났어요."
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F05-02",
           "assetId": "old-woman-door",
-          "mode": "old-woman-keyring-threshold",
+          "mode": "old-woman-opens-door-and-talks-with-siblings",
           "time": "day",
           "location": "candy-house-threshold",
           "characters": [
@@ -1130,9 +1358,9 @@
             "GRETEL",
             "OLD_WOMAN"
           ],
-          "entryState": "suspicious-clues-seen",
-          "requiredAction": "old-woman-invites-siblings-inside",
-          "exitState": "invitation-questioned",
+          "entryState": "door-about-to-open",
+          "requiredAction": "old-woman-asks-and-offers-food-and-rest",
+          "exitState": "siblings-ask-for-way-home",
           "exception": "question-invite-same-moment"
         },
         {
@@ -1140,42 +1368,56 @@
           "visualId": "HG-VIS-F05-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "그때 문이 열리고 지팡이를 짚은 노파가 나왔어요."
+          "text": "그때 문이 열리고 할머니가 나왔어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F05-02",
           "speaker": "OLD_WOMAN",
           "role": "DIALOGUE",
-          "text": "“배가 고프구나.”"
+          "text": "“얘들아, 숲속에서 뭘 하고 있니?”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F05-02",
-          "speaker": "OLD_WOMAN",
+          "speaker": "HANSEL",
           "role": "DIALOGUE",
-          "text": "“안으로 들어오렴.”"
+          "text": "“길을 잃었어요.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F05-02",
-          "speaker": "OLD_WOMAN",
+          "speaker": "HANSEL",
           "role": "DIALOGUE",
-          "text": "“따뜻한 음식과 푹신한 침대가 있단다.”"
+          "text": "“집으로 돌아가고 싶어요.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F05-02",
           "speaker": "GRETEL",
           "role": "DIALOGUE",
-          "text": "“친절하게 말하지만, 우리는 이 할머니를 처음 봐.”"
+          "text": "“배도 많이 고파요.”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F05-02",
+          "speaker": "OLD_WOMAN",
+          "role": "DIALOGUE",
+          "text": "“저런, 많이 지쳤겠구나.”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F05-02",
+          "speaker": "OLD_WOMAN",
+          "role": "DIALOGUE",
+          "text": "“안에서 따뜻한 빵을 먹고 좀 쉬었다 가렴.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F05-02",
           "speaker": "GRETEL",
           "role": "QUESTION_INVITE:B",
-          "text": "“{child_call}, 처음 보는 할머니는 들어오라고 하지만 집에는 이상한 자국과 열쇠가 보여. 무엇을 더 알아보면 좋을까?”"
+          "text": "“우린 이 집에 처음 왔어. 들어가기 전에 알아보고 싶은 게 있어?”"
         },
         {
           "kind": "interaction",
@@ -1183,49 +1425,25 @@
           "slot": "B"
         },
         {
-          "kind": "visual",
-          "id": "HG-VIS-F05-03",
-          "assetId": "black-key-glow",
-          "mode": "siblings-wait-on-threshold-black-key-activates-sugar-pattern",
-          "time": "day",
-          "location": "candy-house-threshold-close",
-          "characters": [
-            "HANSEL",
-            "GRETEL",
-            "OLD_WOMAN"
-          ],
-          "entryState": "invitation-questioned",
-          "requiredAction": "black-key-activates-sugar-pattern",
-          "exitState": "black-key-clue-remembered",
-          "exception": null
+          "kind": "utterance",
+          "visualId": "HG-VIS-F05-02",
+          "speaker": "HANSEL",
+          "role": "DEFAULT_RESUME:B0",
+          "text": "“먹고 쉬면 집으로 가는 길도 알려주실 수 있어요?”"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F05-03",
-          "speaker": "NARRATOR",
-          "role": "DEFAULT_RESUME:B0",
-          "text": "남매는 곧바로 들어가지 않았어요."
+          "visualId": "HG-VIS-F05-02",
+          "speaker": "OLD_WOMAN",
+          "role": "DIALOGUE",
+          "text": "“그럼.”"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F05-03",
-          "speaker": "NARRATOR",
-          "role": "DEFAULT_RESUME:B0",
-          "text": "길을 잃었다고 말하며 정말 쉬어가도 되는지 물었어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F05-03",
-          "speaker": "NARRATOR",
-          "role": "DEFAULT_RESUME:B0",
-          "text": "노파는 미소를 지었지만, 허리춤의 검은 열쇠가 움직일 때마다"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F05-03",
-          "speaker": "NARRATOR",
-          "role": "DEFAULT_RESUME:B0",
-          "text": "문 안쪽 설탕 무늬가 희미하게 빛났어요."
+          "visualId": "HG-VIS-F05-02",
+          "speaker": "OLD_WOMAN",
+          "role": "DIALOGUE",
+          "text": "“쉬고 나면 알려주마.”"
         },
         {
           "kind": "anchor",
@@ -1233,9 +1451,9 @@
         },
         {
           "kind": "visual",
-          "id": "HG-VIS-F05-04",
+          "id": "HG-VIS-F05-03",
           "assetId": "candy-house-interior",
-          "mode": "siblings-eat-warm-bread-while-two-beds-wait-inside",
+          "mode": "siblings-eat-bread-and-drink-water-beds-ready",
           "time": "evening",
           "location": "candy-house-dining-bedroom",
           "characters": [
@@ -1243,38 +1461,45 @@
             "GRETEL",
             "OLD_WOMAN"
           ],
-          "entryState": "black-key-clue-remembered",
-          "requiredAction": "siblings-enter-eat-and-sleep-together",
+          "entryState": "siblings-ask-for-way-home",
+          "requiredAction": "siblings-enter-eat-drink-and-sleep-side-by-side",
           "exitState": "siblings-asleep-inside",
-          "exception": null
+          "exception": "enter-eat-sleep-transition"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F05-04",
+          "visualId": "HG-VIS-F05-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "남매는 이상한 점을 꼭 기억했어요."
+          "text": "지치고 배고팠던 남매는 손을 잡고"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F05-04",
+          "visualId": "HG-VIS-F05-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "서로 손을 놓지 않은 채 집 안으로 들어갔어요."
+          "text": "집 안으로 들어갔어요."
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F05-04",
+          "visualId": "HG-VIS-F05-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "두 아이는 따뜻한 빵을 먹었어요."
+          "text": "식탁에서 빵을 먹고 물을 마신 뒤,"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F05-04",
+          "visualId": "HG-VIS-F05-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "그리고 나란한 침대에서 잠들었어요."
+          "text": "할머니가 마련해 준 침대에"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F05-03",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "나란히 누워 잠들었어요."
         },
         {
           "kind": "checkpoint",
@@ -1292,70 +1517,70 @@
     },
     {
       "id": "HG-F06",
-      "title": "드러난 마녀와 열쇠의 규칙",
+      "title": "잠긴 부엌과 두 열쇠",
       "visuals": [
         {
           "id": "HG-VIS-F06-01",
-          "assetId": "witch-reveal",
-          "mode": "hansel-visibly-inside-locked-cage-witch-and-gretel-outside",
+          "assetId": "kitchen-door-locked",
+          "mode": "old-woman-locks-kitchen-hall-door-with-black-key",
           "time": "next-morning",
-          "location": "candy-house-cage-room",
+          "location": "candy-house-kitchen",
           "characters": [
             "HANSEL",
             "GRETEL",
-            "WITCH"
+            "OLD_WOMAN"
           ],
           "entryState": "siblings-asleep-inside",
-          "requiredAction": "witch-reveals-self-and-locks-hansel-fully-inside-cage",
-          "exitState": "hansel-locked-gretel-forced",
-          "exception": "same-reveal-capture"
+          "requiredAction": "siblings-enter-kitchen-old-woman-locks-hall-door-with-black-key",
+          "exitState": "kitchen-door-locked-siblings-outside-cage",
+          "exception": "same-kitchen-locking"
         },
         {
           "id": "HG-VIS-F06-02",
-          "assetId": "short-twig-check",
-          "mode": "near-sighted-witch-checks-short-bark-twig-while-hansels-hand-stays-hidden",
-          "time": "following-mornings",
-          "location": "candy-house-cage-room",
+          "assetId": "witch-reveal",
+          "mode": "hansel-inside-cage-locked-with-small-silver-key",
+          "time": "next-morning",
+          "location": "candy-house-kitchen",
           "characters": [
             "HANSEL",
             "GRETEL",
             "WITCH"
           ],
-          "entryState": "hansel-inside-locked-tall-cage",
-          "requiredAction": "hansel-keeps-hand-hidden-and-extends-only-one-short-bark-twig-from-sleeve",
-          "exitState": "plausible-twig-trick-buys-days",
-          "exception": null
+          "entryState": "kitchen-door-locked-siblings-outside-cage",
+          "requiredAction": "witch-locks-hansel-in-cage-with-silver-key",
+          "exitState": "hansel-caged-gretel-forced-to-cook",
+          "exception": "same-capture-moment"
         },
         {
           "id": "HG-VIS-F06-03",
           "assetId": "gretel-watches-keys",
-          "mode": "gretel-observes-silver-cage-key-and-black-house-key",
+          "mode": "gretel-watches-which-key-opens-which-door",
           "time": "day",
-          "location": "candy-house-cage-room",
+          "location": "candy-house-kitchen",
           "characters": [
             "HANSEL",
             "GRETEL",
             "WITCH"
           ],
-          "entryState": "plausible-twig-trick-buys-days",
-          "requiredAction": "gretel-observes-silver-and-black-key-rules",
-          "exitState": "key-rules-learned",
+          "entryState": "hansel-caged-gretel-forced-to-cook",
+          "requiredAction": "gretel-observes-silver-cage-key-and-black-kitchen-door-key",
+          "exitState": "keyring-on-witch-waist",
           "exception": null
         },
         {
           "id": "HG-VIS-F06-04",
-          "assetId": "witch-loses-patience",
-          "mode": "witch-shouts-near-cage-gretel-realizes-urgency",
-          "time": "later-day",
-          "location": "candy-house-cage-room",
+          "assetId": "gretel-whispers-keys",
+          "mode": "gretel-whispers-to-caged-hansel-while-witch-turns-away",
+          "time": "day",
+          "location": "candy-house-kitchen",
           "characters": [
             "HANSEL",
             "GRETEL",
             "WITCH"
           ],
-          "entryState": "key-rules-learned-days-passed",
-          "requiredAction": "witch-loses-patience-and-shouts",
-          "exitState": "escape-urgent",
+          "entryState": "keyring-on-witch-waist",
+          "requiredAction": "siblings-whisper-a-plan-keys-still-on-witch",
+          "exitState": "siblings-wait-for-keys-to-be-set-down",
           "exception": null
         }
       ],
@@ -1363,126 +1588,150 @@
         {
           "kind": "visual",
           "id": "HG-VIS-F06-01",
-          "assetId": "witch-reveal",
-          "mode": "hansel-visibly-inside-locked-cage-witch-and-gretel-outside",
+          "assetId": "kitchen-door-locked",
+          "mode": "old-woman-locks-kitchen-hall-door-with-black-key",
           "time": "next-morning",
-          "location": "candy-house-cage-room",
+          "location": "candy-house-kitchen",
           "characters": [
             "HANSEL",
             "GRETEL",
-            "WITCH"
+            "OLD_WOMAN"
           ],
           "entryState": "siblings-asleep-inside",
-          "requiredAction": "witch-reveals-self-and-locks-hansel-fully-inside-cage",
-          "exitState": "hansel-locked-gretel-forced",
-          "exception": "same-reveal-capture"
+          "requiredAction": "siblings-enter-kitchen-old-woman-locks-hall-door-with-black-key",
+          "exitState": "kitchen-door-locked-siblings-outside-cage",
+          "exception": "same-kitchen-locking"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F06-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "다음 날 아침, 노파의 친절한 얼굴은 사라졌어요."
+          "text": "다음 날 아침, 할머니가 아침을 먹으라며"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F06-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "그녀는 길 잃은 아이들을 과자집으로 유인해 가두는 마녀였어요."
+          "text": "남매를 부엌으로 불렀어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F06-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "마녀가 검은 열쇠를 설탕 무늬에 꽂아 돌리자"
+          "text": "두 아이가 들어오자 할머니는"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F06-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "사탕처럼 반짝이는 쇠창살이 내려와 헨젤을 가두었어요."
+          "text": "복도로 나가는 부엌 문을 닫고,"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F06-01",
-          "speaker": "WITCH",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "큰 검은 열쇠로 잠갔어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F06-01",
+          "speaker": "HANSEL",
           "role": "DIALOGUE",
-          "text": "“그레텔, 헨젤이 먹을 음식을 만들어라."
+          "text": "“왜 문을 잠그세요?”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F06-01",
-          "speaker": "WITCH",
+          "speaker": "HANSEL",
           "role": "DIALOGUE",
-          "text": "이 집의 문은 모두 내 열쇠를 따르니 달아날 생각은 마라.”"
-        },
-        {
-          "kind": "anchor",
-          "id": "HG-F06-CAPTURED-STATE"
+          "text": "“저희는 집에 가야 해요.”"
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F06-02",
-          "assetId": "short-twig-check",
-          "mode": "near-sighted-witch-checks-short-bark-twig-while-hansels-hand-stays-hidden",
-          "time": "following-mornings",
-          "location": "candy-house-cage-room",
+          "assetId": "witch-reveal",
+          "mode": "hansel-inside-cage-locked-with-small-silver-key",
+          "time": "next-morning",
+          "location": "candy-house-kitchen",
           "characters": [
             "HANSEL",
             "GRETEL",
             "WITCH"
           ],
-          "entryState": "hansel-inside-locked-tall-cage",
-          "requiredAction": "hansel-keeps-hand-hidden-and-extends-only-one-short-bark-twig-from-sleeve",
-          "exitState": "plausible-twig-trick-buys-days",
-          "exception": null
+          "entryState": "kitchen-door-locked-siblings-outside-cage",
+          "requiredAction": "witch-locks-hansel-in-cage-with-silver-key",
+          "exitState": "hansel-caged-gretel-forced-to-cook",
+          "exception": "same-capture-moment"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F06-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "마녀는 헨젤이 살이 올랐는지 확인하려고 했어요."
+          "text": "헨젤이 문손잡이를 잡자, 할머니는 헨젤을 붙잡아"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F06-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "눈이 어두운 마녀는 날마다 손가락을 내밀라고 했어요."
+          "text": "부엌 한쪽의 쇠창살 안에 가뒀어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F06-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "헨젤은 손을 소매에 숨기고, 짧은 나뭇가지를 대신 내밀었어요."
+          "text": "그리고 작은 은색 열쇠로 쇠창살 문을 잠갔어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F06-02",
+          "speaker": "WITCH",
+          "role": "DIALOGUE",
+          "text": "“집에 갈 생각은 하지 마.”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F06-02",
+          "speaker": "WITCH",
+          "role": "DIALOGUE",
+          "text": "“그레텔, 넌 내가 먹을 음식을 만들어라.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F06-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "마녀는 굵기만 만져 보고 손가락이라고 착각했지요."
+          "text": "친절한 척하던 할머니는"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F06-02",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "아이들을 붙잡아 일을 시키는 마녀였어요."
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F06-03",
           "assetId": "gretel-watches-keys",
-          "mode": "gretel-observes-silver-cage-key-and-black-house-key",
+          "mode": "gretel-watches-which-key-opens-which-door",
           "time": "day",
-          "location": "candy-house-cage-room",
+          "location": "candy-house-kitchen",
           "characters": [
             "HANSEL",
             "GRETEL",
             "WITCH"
           ],
-          "entryState": "plausible-twig-trick-buys-days",
-          "requiredAction": "gretel-observes-silver-and-black-key-rules",
-          "exitState": "key-rules-learned",
+          "entryState": "hansel-caged-gretel-forced-to-cook",
+          "requiredAction": "gretel-observes-silver-cage-key-and-black-kitchen-door-key",
+          "exitState": "keyring-on-witch-waist",
           "exception": null
         },
         {
@@ -1490,37 +1739,44 @@
           "visualId": "HG-VIS-F06-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "그동안 그레텔은 작은 은색 열쇠가 쇠창살을 열고,"
+          "text": "그레텔은 마녀가 쓴 두 열쇠를 눈여겨봤어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F06-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "검은 열쇠가 집의 문과 철문을 움직이는 것을 살폈어요."
+          "text": "작은 은색 열쇠는 헨젤의 쇠창살 문에,"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F06-03",
-          "speaker": "HANSEL",
-          "role": "DIALOGUE",
-          "text": "“내 걱정만 하지 말고, 마녀가 열쇠를 어떻게 쓰는지 기억해.”"
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "큰 검은 열쇠는 복도로 나가는 부엌 문에 썼어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F06-03",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "마녀는 두 열쇠가 달린 고리를 허리춤에 걸었어요."
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F06-04",
-          "assetId": "witch-loses-patience",
-          "mode": "witch-shouts-near-cage-gretel-realizes-urgency",
-          "time": "later-day",
-          "location": "candy-house-cage-room",
+          "assetId": "gretel-whispers-keys",
+          "mode": "gretel-whispers-to-caged-hansel-while-witch-turns-away",
+          "time": "day",
+          "location": "candy-house-kitchen",
           "characters": [
             "HANSEL",
             "GRETEL",
             "WITCH"
           ],
-          "entryState": "key-rules-learned-days-passed",
-          "requiredAction": "witch-loses-patience-and-shouts",
-          "exitState": "escape-urgent",
+          "entryState": "keyring-on-witch-waist",
+          "requiredAction": "siblings-whisper-a-plan-keys-still-on-witch",
+          "exitState": "siblings-wait-for-keys-to-be-set-down",
           "exception": null
         },
         {
@@ -1528,14 +1784,28 @@
           "visualId": "HG-VIS-F06-04",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "하지만 며칠이 지나자 마녀는 더 기다리지 않겠다고 소리쳤어요."
+          "text": "마녀가 돌아선 사이,"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F06-04",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "그레텔은 탈출할 시간이 얼마 남지 않았다는 것을 알았어요."
+          "text": "그레텔이 헨젤에게 작게 말했어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F06-04",
+          "speaker": "GRETEL",
+          "role": "DIALOGUE",
+          "text": "“두 열쇠가 있어야 우리 둘 다 나갈 수 있어.”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F06-04",
+          "speaker": "HANSEL",
+          "role": "DIALOGUE",
+          "text": "“마녀가 열쇠를 놓는지 잘 살펴보자.”"
         },
         {
           "kind": "checkpoint",
@@ -1543,120 +1813,104 @@
         }
       ],
       "questionSlots": [],
-      "anchors": [
-        "HG-F06-CAPTURED-STATE"
-      ],
+      "anchors": [],
       "rejoins": [],
       "checkpointId": "HG-F06-END"
     },
     {
       "id": "HG-F07",
-      "title": "수상한 명령과 함께 만든 탈출",
+      "title": "들키지 않고 열쇠를 가져오려면",
       "visuals": [
         {
           "id": "HG-VIS-F07-01",
-          "assetId": "oven-command",
-          "mode": "witch-orders-gretel-keeps-distance-hansel-in-tall-iron-cage",
+          "assetId": "witch-cooking-keys",
+          "mode": "witch-cooks-at-big-pot-keyring-on-worktable-end-hansel-in-cage",
           "time": "next-day",
-          "location": "candy-house-kitchen-and-cage-room",
+          "location": "candy-house-kitchen",
           "characters": [
             "HANSEL",
             "GRETEL",
             "WITCH"
           ],
-          "entryState": "escape-urgent",
-          "requiredAction": "witch-orders-gretel-toward-open-oven-while-hansel-remains-locked",
-          "exitState": "gretel-asks-for-demonstration",
+          "entryState": "siblings-wait-for-keys-to-be-set-down",
+          "requiredAction": "witch-sets-keyring-on-worktable-and-glances-back-while-cooking",
+          "exitState": "keys-on-worktable-witch-watching",
           "exception": "question-invite-same-moment"
         },
         {
-          "id": "HG-VIS-F07-02A",
-          "assetId": "witch-sets-down-keys",
-          "mode": "witch-stands-outside-open-oven-and-sets-keyring-on-worktable",
+          "id": "HG-VIS-F07-02",
+          "assetId": "wait-and-take-keys",
+          "mode": "witch-searches-back-shelf-gretel-takes-keyring-hansel-in-cage",
           "time": "day",
-          "location": "candy-house-kitchen-and-cage-room",
+          "location": "candy-house-kitchen",
           "characters": [
             "HANSEL",
             "GRETEL",
             "WITCH"
           ],
-          "entryState": "gretel-asks-for-demonstration",
-          "requiredAction": "witch-sets-keyring-on-worktable-while-standing-fully-outside-oven",
-          "exitState": "keys-left-on-worktable",
-          "exception": "same-demonstration-setup"
-        },
-        {
-          "id": "HG-VIS-F07-02",
-          "assetId": "witch-demonstrates-oven",
-          "mode": "witch-upper-body-clearly-inside-open-oven-keys-left-on-worktable",
-          "time": "day",
-          "location": "candy-house-kitchen",
-          "characters": [
-            "GRETEL",
-            "WITCH"
-          ],
-          "entryState": "keys-left-on-worktable",
-          "requiredAction": "witch-places-upper-body-inside-oven-to-demonstrate",
-          "exitState": "oven-demonstration-vulnerable",
-          "exception": null
+          "entryState": "keys-on-worktable-witch-watching",
+          "requiredAction": "gretel-waits-until-witch-turns-to-shelf-and-takes-keyring",
+          "exitState": "gretel-holds-keys-witch-at-shelf",
+          "exception": "wait-then-take-keys"
         },
         {
           "id": "HG-VIS-F07-03",
-          "assetId": "oven-secured-keys",
-          "mode": "oven-door-closed-and-latched-gretel-takes-unattended-keys",
+          "assetId": "cage-unlock-oven-secured",
+          "mode": "gretel-unlocks-cage-with-silver-key-closed-oven-in-background",
           "time": "day",
           "location": "candy-house-kitchen",
           "characters": [
+            "HANSEL",
             "GRETEL"
           ],
-          "entryState": "oven-demonstration-vulnerable",
-          "requiredAction": "gretel-closes-and-latches-oven-then-takes-keyring",
-          "exitState": "oven-secured-keys-held",
+          "entryState": "gretel-holds-keys-witch-at-shelf",
+          "requiredAction": "gretel-opens-cage-with-silver-key-hansel-steps-out-quietly",
+          "exitState": "hansel-free-kitchen-door-still-locked",
           "exception": null
         },
         {
           "id": "HG-VIS-F07-04",
-          "assetId": "cage-unlock-oven-secured",
-          "mode": "gretel-unlocks-tall-iron-cage-while-oven-remains-closed",
+          "assetId": "black-key-side-door",
+          "mode": "gretel-opens-kitchen-door-with-black-key",
           "time": "day",
-          "location": "candy-house-cage-room",
+          "location": "candy-house-kitchen-door",
           "characters": [
             "HANSEL",
             "GRETEL"
           ],
-          "entryState": "oven-secured-keys-held",
-          "requiredAction": "gretel-opens-tall-iron-cage-with-silver-key",
-          "exitState": "hansel-free-siblings-hold-keys",
+          "entryState": "hansel-free-kitchen-door-still-locked",
+          "requiredAction": "gretel-unlocks-kitchen-door-with-black-key-and-siblings-slip-out",
+          "exitState": "siblings-in-hallway-witch-turns",
           "exception": null
         },
         {
           "id": "HG-VIS-F07-05",
-          "assetId": "black-key-side-door",
-          "mode": "reunited-siblings-use-black-key-to-open-side-door",
-          "time": "day",
-          "location": "candy-house-side-door",
-          "characters": [
-            "HANSEL",
-            "GRETEL"
-          ],
-          "entryState": "hansel-free-siblings-hold-keys",
-          "requiredAction": "gretel-opens-heavy-side-door-with-black-key",
-          "exitState": "side-door-open-siblings-safe",
-          "exception": "same-side-door-unlock"
-        },
-        {
-          "id": "HG-VIS-F07-06",
-          "assetId": "escape-corridor",
-          "mode": "siblings-run-down-interior-corridor-toward-marked-storehouse-and-exit",
+          "assetId": "corridor-lock-door",
+          "mode": "siblings-lock-kitchen-door-from-hallway-with-black-key",
           "time": "day",
           "location": "candy-house-corridor",
           "characters": [
             "HANSEL",
             "GRETEL"
           ],
-          "entryState": "side-door-open-siblings-safe",
-          "requiredAction": "siblings-run-to-storehouse-and-exit-doors",
-          "exitState": "storehouse-and-exit-found",
+          "entryState": "siblings-in-hallway-witch-turns",
+          "requiredAction": "gretel-locks-kitchen-door-from-hallway-hansel-holds-it-shut",
+          "exitState": "witch-locked-in-kitchen",
+          "exception": null
+        },
+        {
+          "id": "HG-VIS-F07-06",
+          "assetId": "escape-corridor",
+          "mode": "siblings-run-down-hallway-toward-storeroom-and-outside-door",
+          "time": "day",
+          "location": "candy-house-corridor",
+          "characters": [
+            "HANSEL",
+            "GRETEL"
+          ],
+          "entryState": "witch-locked-in-kitchen",
+          "requiredAction": "siblings-hold-hands-and-run-to-outside-door",
+          "exitState": "storeroom-and-exit-found",
           "exception": null
         }
       ],
@@ -1664,18 +1918,18 @@
         {
           "kind": "visual",
           "id": "HG-VIS-F07-01",
-          "assetId": "oven-command",
-          "mode": "witch-orders-gretel-keeps-distance-hansel-in-tall-iron-cage",
+          "assetId": "witch-cooking-keys",
+          "mode": "witch-cooks-at-big-pot-keyring-on-worktable-end-hansel-in-cage",
           "time": "next-day",
-          "location": "candy-house-kitchen-and-cage-room",
+          "location": "candy-house-kitchen",
           "characters": [
             "HANSEL",
             "GRETEL",
             "WITCH"
           ],
-          "entryState": "escape-urgent",
-          "requiredAction": "witch-orders-gretel-toward-open-oven-while-hansel-remains-locked",
-          "exitState": "gretel-asks-for-demonstration",
+          "entryState": "siblings-wait-for-keys-to-be-set-down",
+          "requiredAction": "witch-sets-keyring-on-worktable-and-glances-back-while-cooking",
+          "exitState": "keys-on-worktable-witch-watching",
           "exception": "question-invite-same-moment"
         },
         {
@@ -1683,35 +1937,56 @@
           "visualId": "HG-VIS-F07-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "다음 날 마녀는 오븐 문을 열었어요."
+          "text": "그레텔이 재료를 꺼내 놓자"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F07-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "그리고 그레텔에게 안이 뜨거운지 들어가 보라고 했어요."
+          "text": "마녀가 커다란 냄비 앞으로 갔어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F07-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "자신은 열쇠고리를 꼭 쥔 채 멀찍이 서 있었지요."
+          "text": "마녀는 냄비를 옮기려고 열쇠고리를 풀어"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-01",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "작업대 끝에 놓았어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-01",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "요리를 하는 동안에도 가끔 남매 쪽을 돌아봤지요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F07-01",
           "speaker": "GRETEL",
           "role": "DIALOGUE",
-          "text": "“마녀는 자기는 가까이 가지 않으면서 나더러 들어가 보래.”"
+          "text": "“열쇠가 저기 있어.”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-01",
+          "speaker": "GRETEL",
+          "role": "DIALOGUE",
+          "text": "“하지만 마녀가 자꾸 이쪽을 보고 있어.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F07-01",
           "speaker": "GRETEL",
           "role": "QUESTION_INVITE:C",
-          "text": "“{child_call}, 마녀는 자기는 멀리 서서 나만 오븐 가까이 가라고 해. 내가 안전하려면 무엇을 먼저 생각해 보면 좋을까?”"
+          "text": "“마녀에게 들키지 않고 열쇠를 가져오려면 어떻게 하면 좋을까?”"
         },
         {
           "kind": "interaction",
@@ -1720,89 +1995,81 @@
         },
         {
           "kind": "visual",
-          "id": "HG-VIS-F07-02A",
-          "assetId": "witch-sets-down-keys",
-          "mode": "witch-stands-outside-open-oven-and-sets-keyring-on-worktable",
+          "id": "HG-VIS-F07-02",
+          "assetId": "wait-and-take-keys",
+          "mode": "witch-searches-back-shelf-gretel-takes-keyring-hansel-in-cage",
           "time": "day",
-          "location": "candy-house-kitchen-and-cage-room",
+          "location": "candy-house-kitchen",
           "characters": [
             "HANSEL",
             "GRETEL",
             "WITCH"
           ],
-          "entryState": "gretel-asks-for-demonstration",
-          "requiredAction": "witch-sets-keyring-on-worktable-while-standing-fully-outside-oven",
-          "exitState": "keys-left-on-worktable",
-          "exception": "same-demonstration-setup"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F07-02A",
-          "speaker": "NARRATOR",
-          "role": "DEFAULT_RESUME:C0",
-          "text": "그레텔은 서둘러 다가가지 않고 모르는 척했어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F07-02A",
-          "speaker": "GRETEL",
-          "role": "DIALOGUE",
-          "text": "“어떻게 확인하는지 모르겠어요.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F07-02A",
-          "speaker": "GRETEL",
-          "role": "DIALOGUE",
-          "text": "“먼저 보여주시면 따라 할게요.”"
-        },
-        {
-          "kind": "anchor",
-          "id": "HG-F07-DEMONSTRATION"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F07-02A",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "마녀는 열쇠고리를 작업대에 내려놓았어요."
-        },
-        {
-          "kind": "visual",
-          "id": "HG-VIS-F07-02",
-          "assetId": "witch-demonstrates-oven",
-          "mode": "witch-upper-body-clearly-inside-open-oven-keys-left-on-worktable",
-          "time": "day",
-          "location": "candy-house-kitchen",
-          "characters": [
-            "GRETEL",
-            "WITCH"
-          ],
-          "entryState": "keys-left-on-worktable",
-          "requiredAction": "witch-places-upper-body-inside-oven-to-demonstrate",
-          "exitState": "oven-demonstration-vulnerable",
-          "exception": null
+          "entryState": "keys-on-worktable-witch-watching",
+          "requiredAction": "gretel-waits-until-witch-turns-to-shelf-and-takes-keyring",
+          "exitState": "gretel-holds-keys-witch-at-shelf",
+          "exception": "wait-then-take-keys"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F07-02",
           "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "그리고 몸을 깊이 숙여 오븐 안을 들여다보았어요."
+          "role": "DEFAULT_RESUME:C0",
+          "text": "그레텔은 마녀가 어디를 보는지 살피며 기다렸어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-02",
+          "speaker": "NARRATOR",
+          "role": "DEFAULT_RESUME:C0",
+          "text": "마녀가 냄비 뚜껑을 찾으려고"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-02",
+          "speaker": "NARRATOR",
+          "role": "DEFAULT_RESUME:C0",
+          "text": "뒤쪽 선반으로 몸을 돌리자,"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-02",
+          "speaker": "NARRATOR",
+          "role": "DEFAULT_RESUME:C0",
+          "text": "그레텔은 조용히 작업대로 다가가"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-02",
+          "speaker": "NARRATOR",
+          "role": "DEFAULT_RESUME:C0",
+          "text": "열쇠고리를 집었어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-02",
+          "speaker": "NARRATOR",
+          "role": "DEFAULT_RESUME:C0",
+          "text": "마녀는 남매를 등진 채 선반 안을 뒤적였어요."
+        },
+        {
+          "kind": "anchor",
+          "id": "HG-F07-KEYS-TAKEN"
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F07-03",
-          "assetId": "oven-secured-keys",
-          "mode": "oven-door-closed-and-latched-gretel-takes-unattended-keys",
+          "assetId": "cage-unlock-oven-secured",
+          "mode": "gretel-unlocks-cage-with-silver-key-closed-oven-in-background",
           "time": "day",
           "location": "candy-house-kitchen",
           "characters": [
+            "HANSEL",
             "GRETEL"
           ],
-          "entryState": "oven-demonstration-vulnerable",
-          "requiredAction": "gretel-closes-and-latches-oven-then-takes-keyring",
-          "exitState": "oven-secured-keys-held",
+          "entryState": "gretel-holds-keys-witch-at-shelf",
+          "requiredAction": "gretel-opens-cage-with-silver-key-hansel-steps-out-quietly",
+          "exitState": "hansel-free-kitchen-door-still-locked",
           "exception": null
         },
         {
@@ -1810,22 +2077,36 @@
           "visualId": "HG-VIS-F07-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "그레텔은 무거운 문을 닫고 걸쇠를 건 뒤 열쇠고리를 집었어요."
+          "text": "그레텔은 작은 은색 열쇠로 쇠창살 문을 열었어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-03",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "헨젤은 소리를 내지 않고 밖으로 나왔어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-03",
+          "speaker": "GRETEL",
+          "role": "DIALOGUE",
+          "text": "“이제 부엌 문으로 가자.”"
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F07-04",
-          "assetId": "cage-unlock-oven-secured",
-          "mode": "gretel-unlocks-tall-iron-cage-while-oven-remains-closed",
+          "assetId": "black-key-side-door",
+          "mode": "gretel-opens-kitchen-door-with-black-key",
           "time": "day",
-          "location": "candy-house-cage-room",
+          "location": "candy-house-kitchen-door",
           "characters": [
             "HANSEL",
             "GRETEL"
           ],
-          "entryState": "oven-secured-keys-held",
-          "requiredAction": "gretel-opens-tall-iron-cage-with-silver-key",
-          "exitState": "hansel-free-siblings-hold-keys",
+          "entryState": "hansel-free-kitchen-door-still-locked",
+          "requiredAction": "gretel-unlocks-kitchen-door-with-black-key-and-siblings-slip-out",
+          "exitState": "siblings-in-hallway-witch-turns",
           "exception": null
         },
         {
@@ -1833,77 +2114,80 @@
           "visualId": "HG-VIS-F07-04",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "며칠 동안 보아둔 은색 열쇠로 쇠창살을 열자 헨젤이 뛰어나왔어요."
+          "text": "그레텔은 큰 검은 열쇠로 부엌 문을 열었어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-04",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "남매가 복도로 빠져나오는 순간,"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-04",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "마녀가 뒤돌아봤어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-04",
+          "speaker": "WITCH",
+          "role": "DIALOGUE",
+          "text": "“거기 서!”"
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F07-05",
-          "assetId": "black-key-side-door",
-          "mode": "reunited-siblings-use-black-key-to-open-side-door",
-          "time": "day",
-          "location": "candy-house-side-door",
-          "characters": [
-            "HANSEL",
-            "GRETEL"
-          ],
-          "entryState": "hansel-free-siblings-hold-keys",
-          "requiredAction": "gretel-opens-heavy-side-door-with-black-key",
-          "exitState": "side-door-open-siblings-safe",
-          "exception": "same-side-door-unlock"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F07-05",
-          "speaker": "HANSEL",
-          "role": "DIALOGUE",
-          "text": "“검은 열쇠가 옆문을 여는 열쇠야!”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F07-05",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "그레텔이 검은 열쇠를 자물쇠에 꽂자"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F07-05",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "남매 앞의 무거운 옆문이 열렸어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F07-05",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "마녀는 닫힌 오븐 문 밖으로 나오지 못했지요."
-        },
-        {
-          "kind": "anchor",
-          "id": "HG-F07-AFTER-PURSUIT-BLOCKED"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F07-05",
-          "speaker": "GRETEL",
-          "role": "DIALOGUE",
-          "text": "“이번에는 둘이 같이 나가는 거야.”"
-        },
-        {
-          "kind": "visual",
-          "id": "HG-VIS-F07-06",
-          "assetId": "escape-corridor",
-          "mode": "siblings-run-down-interior-corridor-toward-marked-storehouse-and-exit",
+          "assetId": "corridor-lock-door",
+          "mode": "siblings-lock-kitchen-door-from-hallway-with-black-key",
           "time": "day",
           "location": "candy-house-corridor",
           "characters": [
             "HANSEL",
             "GRETEL"
           ],
-          "entryState": "side-door-open-siblings-safe",
-          "requiredAction": "siblings-run-to-storehouse-and-exit-doors",
-          "exitState": "storehouse-and-exit-found",
+          "entryState": "siblings-in-hallway-witch-turns",
+          "requiredAction": "gretel-locks-kitchen-door-from-hallway-hansel-holds-it-shut",
+          "exitState": "witch-locked-in-kitchen",
+          "exception": null
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-05",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "그레텔은 얼른 문을 닫고"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-05",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "복도 쪽에서 같은 열쇠로 잠갔어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F07-05",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "마녀는 부엌 안에 남았어요."
+        },
+        {
+          "kind": "visual",
+          "id": "HG-VIS-F07-06",
+          "assetId": "escape-corridor",
+          "mode": "siblings-run-down-hallway-toward-storeroom-and-outside-door",
+          "time": "day",
+          "location": "candy-house-corridor",
+          "characters": [
+            "HANSEL",
+            "GRETEL"
+          ],
+          "entryState": "witch-locked-in-kitchen",
+          "requiredAction": "siblings-hold-hands-and-run-to-outside-door",
+          "exitState": "storeroom-and-exit-found",
           "exception": null
         },
         {
@@ -1911,21 +2195,7 @@
           "visualId": "HG-VIS-F07-06",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "오븐 문이 잠겨 마녀는 남매를 뒤쫓을 수 없었어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F07-06",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "헨젤과 그레텔은 손을 잡고 긴 복도 끝으로 달렸어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F07-06",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "그곳에는 바깥문과 작은 창고 문이 나란히 있었어요."
+          "text": "두 아이는 손을 잡고 바깥문 쪽으로 달렸어요."
         },
         {
           "kind": "checkpoint",
@@ -1936,57 +2206,56 @@
         "C"
       ],
       "anchors": [
-        "HG-F07-DEMONSTRATION",
-        "HG-F07-AFTER-PURSUIT-BLOCKED"
+        "HG-F07-KEYS-TAKEN"
       ],
       "rejoins": [],
       "checkpointId": "HG-F07-END"
     },
     {
       "id": "HG-F08",
-      "title": "집으로 가져갈 증거",
+      "title": "이제 집으로",
       "visuals": [
         {
           "id": "HG-VIS-F08-01",
           "assetId": "storehouse",
-          "mode": "food-belongings-ledger-keyring",
+          "mode": "half-open-storeroom-with-bread-and-water-near-exit",
           "time": "day",
           "location": "candy-house-storehouse",
           "characters": [
             "HANSEL",
             "GRETEL"
           ],
-          "entryState": "storehouse-and-exit-found",
-          "requiredAction": "siblings-discover-food-belongings-ledger-and-keys",
-          "exitState": "evidence-options-seen",
+          "entryState": "storeroom-and-exit-found",
+          "requiredAction": "siblings-find-bread-and-water-for-the-walk-home",
+          "exitState": "food-for-the-walk-found",
           "exception": null
         },
         {
           "id": "HG-VIS-F08-02",
-          "assetId": "packing-evidence",
-          "mode": "siblings-pack-only-food-water-ledger-and-keys-into-small-bag",
+          "assetId": "packing-food",
+          "mode": "siblings-pack-bread-and-water-into-small-bag",
           "time": "day",
           "location": "candy-house-storehouse",
           "characters": [
             "HANSEL",
             "GRETEL"
           ],
-          "entryState": "evidence-options-seen",
-          "requiredAction": "siblings-select-and-pack-needed-items",
+          "entryState": "food-for-the-walk-found",
+          "requiredAction": "siblings-pack-only-bread-and-water",
           "exitState": "small-bag-packed",
           "exception": null
         },
         {
           "id": "HG-VIS-F08-03",
           "assetId": "candy-house-exit",
-          "mode": "siblings-leave-candy-house-with-small-bag-at-dawn",
+          "mode": "siblings-leave-candy-house-with-small-bag",
           "time": "day",
           "location": "candy-house-exterior",
           "characters": [
             "HANSEL",
             "GRETEL"
           ],
-          "entryState": "small-bag-packed-at-exit",
+          "entryState": "small-bag-packed",
           "requiredAction": "siblings-leave-candy-house-together",
           "exitState": "siblings-outside-candy-house",
           "exception": null
@@ -1997,106 +2266,88 @@
           "kind": "visual",
           "id": "HG-VIS-F08-01",
           "assetId": "storehouse",
-          "mode": "food-belongings-ledger-keyring",
+          "mode": "half-open-storeroom-with-bread-and-water-near-exit",
           "time": "day",
           "location": "candy-house-storehouse",
           "characters": [
             "HANSEL",
             "GRETEL"
           ],
-          "entryState": "storehouse-and-exit-found",
-          "requiredAction": "siblings-discover-food-belongings-ledger-and-keys",
-          "exitState": "evidence-options-seen",
+          "entryState": "storeroom-and-exit-found",
+          "requiredAction": "siblings-find-bread-and-water-for-the-walk-home",
+          "exitState": "food-for-the-walk-found",
           "exception": null
         },
         {
-          "kind": "anchor",
-          "id": "HG-F08-AFTER-BRANCH-ESCAPE"
+          "kind": "utterance",
+          "visualId": "HG-VIS-F08-01",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "복도 끝에는 창고와 바깥문이 있었어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F08-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "밖으로 나가기 전, 남매는 작은 창고 문을 열었어요."
+          "text": "창고 문은 조금 열려 있었지요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F08-01",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "창고에는 열쇠고리와 같은 표시가 붙어 있었어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F08-01",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "안에는 빵과 물병이 있었어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F08-01",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "이름표가 달린 꾸러미와 마녀의 장부도 있었어요."
+          "speaker": "HANSEL",
+          "role": "DIALOGUE",
+          "text": "“집까지 걸어가려면 먹을 것이 필요해.”"
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F08-02",
-          "assetId": "packing-evidence",
-          "mode": "siblings-pack-only-food-water-ledger-and-keys-into-small-bag",
+          "assetId": "packing-food",
+          "mode": "siblings-pack-bread-and-water-into-small-bag",
           "time": "day",
           "location": "candy-house-storehouse",
           "characters": [
             "HANSEL",
             "GRETEL"
           ],
-          "entryState": "evidence-options-seen",
-          "requiredAction": "siblings-select-and-pack-needed-items",
+          "entryState": "food-for-the-walk-found",
+          "requiredAction": "siblings-pack-only-bread-and-water",
           "exitState": "small-bag-packed",
           "exception": null
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F08-02",
-          "speaker": "HANSEL",
-          "role": "DIALOGUE",
-          "text": "“집까지 갈 음식과 마녀가 한 일을 알릴 증거가 필요해.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F08-02",
-          "speaker": "GRETEL",
-          "role": "DIALOGUE",
-          "text": "“빵과 물, 장부와 열쇠만 챙기자."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F08-02",
-          "speaker": "GRETEL",
-          "role": "DIALOGUE",
-          "text": "나머지는 마을 사람들과 돌아와 주인을 찾아주면 돼.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F08-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "남매는 필요한 것만 가방에 넣었어요."
+          "text": "남매는 문 옆 선반에서 빵과 물을 챙겼어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F08-02",
+          "speaker": "GRETEL",
+          "role": "DIALOGUE",
+          "text": "“이제 나가자.”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F08-02",
+          "speaker": "GRETEL",
+          "role": "DIALOGUE",
+          "text": "“집에 가서 어른들에게 이야기하자.”"
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F08-03",
           "assetId": "candy-house-exit",
-          "mode": "siblings-leave-candy-house-with-small-bag-at-dawn",
+          "mode": "siblings-leave-candy-house-with-small-bag",
           "time": "day",
           "location": "candy-house-exterior",
           "characters": [
             "HANSEL",
             "GRETEL"
           ],
-          "entryState": "small-bag-packed-at-exit",
+          "entryState": "small-bag-packed",
           "requiredAction": "siblings-leave-candy-house-together",
           "exitState": "siblings-outside-candy-house",
           "exception": null
@@ -2106,7 +2357,7 @@
           "visualId": "HG-VIS-F08-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "남매는 작은 가방을 메고 마침내 과자집 밖으로 나왔어요."
+          "text": "남매는 작은 가방을 메고 과자집 밖으로 나왔어요."
         },
         {
           "kind": "checkpoint",
@@ -2114,15 +2365,13 @@
         }
       ],
       "questionSlots": [],
-      "anchors": [
-        "HG-F08-AFTER-BRANCH-ESCAPE"
-      ],
+      "anchors": [],
       "rejoins": [],
       "checkpointId": "HG-F08-END"
     },
     {
       "id": "HG-F09",
-      "title": "물길을 건너 찾은 집의 흔적",
+      "title": "물길 너머의 표시",
       "visuals": [
         {
           "id": "HG-VIS-F09-01",
@@ -2136,7 +2385,7 @@
             "WHITE_BIRD",
             "WHITE_DUCK"
           ],
-          "entryState": "siblings-away-from-candy-house",
+          "entryState": "siblings-outside-candy-house",
           "requiredAction": "siblings-find-no-bridge-and-duck-approaches",
           "exitState": "duck-waits-at-bank",
           "exception": null
@@ -2160,7 +2409,7 @@
         {
           "id": "HG-VIS-F09-03",
           "assetId": "marked-return-path",
-          "mode": "siblings-follow-axe-marks-and-white-cloth-toward-home-smoke",
+          "mode": "siblings-find-white-cloth-tied-to-branch-and-see-home",
           "time": "late-day",
           "location": "marked-forest-path",
           "characters": [
@@ -2168,8 +2417,8 @@
             "GRETEL"
           ],
           "entryState": "siblings-across-water",
-          "requiredAction": "siblings-follow-axe-marks-and-white-cloth",
-          "exitState": "home-seen-in-evening-light",
+          "requiredAction": "siblings-walk-toward-tree-with-white-cloth",
+          "exitState": "home-roof-seen",
           "exception": null
         }
       ],
@@ -2187,7 +2436,7 @@
             "WHITE_BIRD",
             "WHITE_DUCK"
           ],
-          "entryState": "siblings-away-from-candy-house",
+          "entryState": "siblings-outside-candy-house",
           "requiredAction": "siblings-find-no-bridge-and-duck-approaches",
           "exitState": "duck-waits-at-bank",
           "exception": null
@@ -2197,21 +2446,28 @@
           "visualId": "HG-VIS-F09-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "남매는 과자집에서 멀어져 다른 길로 걷다가 넓은 물길을 만났어요."
+          "text": "한참을 걷자 넓은 물길이 나왔어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F09-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "그곳에는 다리도 배도 없었어요."
+          "text": "다리도 배도 없었어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F09-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "그때 하얀 새의 노래를 듣고 흰 오리 한 마리가 다가왔어요."
+          "text": "그때 하얀 새가 노래했고,"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F09-01",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "커다란 흰 오리가 다가왔어요."
         },
         {
           "kind": "visual",
@@ -2235,27 +2491,27 @@
           "visualId": "HG-VIS-F09-02",
           "speaker": "GRETEL",
           "role": "DIALOGUE",
-          "text": "“우리를 한 명씩 건너편으로 데려다줄 수 있니?"
+          "text": "“우리 한 명씩 건너편에 데려다줄 수 있니?”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F09-02",
-          "speaker": "GRETEL",
+          "speaker": "HANSEL",
           "role": "DIALOGUE",
-          "text": "둘이 함께 타면 너무 무거울 거야.”"
+          "text": "“둘이 타면 너무 무거울 테니까.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F09-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "오리는 그레텔과 헨젤을 한 명씩 태워 건너편으로 데려다주었어요."
+          "text": "오리는 두 아이를 한 명씩 건너편으로 데려다주었어요."
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F09-03",
           "assetId": "marked-return-path",
-          "mode": "siblings-follow-axe-marks-and-white-cloth-toward-home-smoke",
+          "mode": "siblings-find-white-cloth-tied-to-branch-and-see-home",
           "time": "late-day",
           "location": "marked-forest-path",
           "characters": [
@@ -2263,8 +2519,8 @@
             "GRETEL"
           ],
           "entryState": "siblings-across-water",
-          "requiredAction": "siblings-follow-axe-marks-and-white-cloth",
-          "exitState": "home-seen-in-evening-light",
+          "requiredAction": "siblings-walk-toward-tree-with-white-cloth",
+          "exitState": "home-roof-seen",
           "exception": null
         },
         {
@@ -2272,28 +2528,28 @@
           "visualId": "HG-VIS-F09-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "물길 너머에는 새로 난 도끼 자국이 있었어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F09-03",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "하얀 천 조각도 길을 따라 이어져 있었어요."
+          "text": "물길 너머 나뭇가지에 하얀 천이 묶여 있었어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F09-03",
           "speaker": "HANSEL",
           "role": "DIALOGUE",
-          "text": "“누군가 우리를 찾으며 남긴 표시 같아.”"
+          "text": "“누군가 남긴 표시 같아.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F09-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "남매가 표시를 따라가자 저녁빛 속에서 작은 집의 굴뚝이 보였어요."
+          "text": "남매는 천이 묶인 나무 쪽으로 걸어갔어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F09-03",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "나무 사이로 익숙한 집의 지붕이 보였어요."
         },
         {
           "kind": "checkpoint",
@@ -2307,7 +2563,7 @@
     },
     {
       "id": "HG-F10",
-      "title": "돌아온 집과 다시 쌓는 약속",
+      "title": "집으로 돌아온 남매",
       "visuals": [
         {
           "id": "HG-VIS-F10-01",
@@ -2320,32 +2576,15 @@
             "GRETEL",
             "FATHER"
           ],
-          "entryState": "siblings-reach-home",
-          "requiredAction": "father-kneels-and-accepts-responsibility",
+          "entryState": "home-roof-seen",
+          "requiredAction": "father-kneels-and-admits-his-wrong",
           "exitState": "apology-heard-trust-not-yet-restored",
           "exception": "dialogue-resolution-same-moment"
         },
         {
           "id": "HG-VIS-F10-02",
-          "assetId": "village-restitution",
-          "mode": "villagers-return-labeled-bundles-while-family-shares-ledger",
-          "time": "later-days",
-          "location": "village-and-candy-house",
-          "characters": [
-            "HANSEL",
-            "GRETEL",
-            "FATHER",
-            "VILLAGERS"
-          ],
-          "entryState": "ledger-shared-village-mobilizes",
-          "requiredAction": "villagers-return-belongings-and-secure-house",
-          "exitState": "belongings-returned-witch-contained",
-          "exception": null
-        },
-        {
-          "id": "HG-VIS-F10-03",
           "assetId": "window-epilogue",
-          "mode": "family-talks-near-window-with-white-pebble-and-feather",
+          "mode": "family-talks-together-by-window-at-night",
           "time": "later-evening",
           "location": "home-window",
           "characters": [
@@ -2354,7 +2593,7 @@
             "FATHER"
           ],
           "entryState": "family-rebuilding-trust",
-          "requiredAction": "family-talks-beside-pebble-and-feather",
+          "requiredAction": "family-shares-worries-and-asks-for-help",
           "exitState": "story-complete",
           "exception": "epilogue-same-setting"
         }
@@ -2372,8 +2611,8 @@
             "GRETEL",
             "FATHER"
           ],
-          "entryState": "siblings-reach-home",
-          "requiredAction": "father-kneels-and-accepts-responsibility",
+          "entryState": "home-roof-seen",
+          "requiredAction": "father-kneels-and-admits-his-wrong",
           "exitState": "apology-heard-trust-not-yet-restored",
           "exception": "dialogue-resolution-same-moment"
         },
@@ -2382,122 +2621,104 @@
           "visualId": "HG-VIS-F10-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "집 앞에는 낡은 가방을 멘 아버지가 서 있었어요."
+          "text": "집 앞에 있던 아버지가 달려왔어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F10-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "도끼 자국과 하얀 천은 날마다 남매를 찾으며 남긴 표시였지요."
+          "text": "하얀 천은 아버지가 남매를 찾으러 다니며"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F10-01",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "아이들을 본 아버지는 달려와 두 아이 앞에 무릎을 꿇었어요."
+          "text": "묶은 것이었어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F10-01",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "아버지는 아이들 앞에 무릎을 꿇었어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F10-01",
           "speaker": "FATHER",
           "role": "DIALOGUE",
-          "text": "“내가 너희를 지켜야 했는데 그러지 못했어."
+          "text": "“내가 너희를 숲에 두고 온 건 잘못이야.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F10-01",
           "speaker": "FATHER",
           "role": "DIALOGUE",
-          "text": "두려웠다는 건 너희를 숲에 둔 이유가 될 수 없어."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F10-01",
-          "speaker": "FATHER",
-          "role": "DIALOGUE",
-          "text": "정말 미안하다.”"
+          "text": "“정말 미안해.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F10-01",
           "speaker": "GRETEL",
           "role": "DIALOGUE",
-          "text": "“우리가 돌아왔다고 무서웠던 일이 바로 사라지는 건 아니에요.”"
+          "text": "“집에 와서 좋지만, 아직 무서워요.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F10-01",
           "speaker": "FATHER",
           "role": "DIALOGUE",
-          "text": "“알고 있단다.”"
+          "text": "“그럴 수 있어.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F10-01",
           "speaker": "FATHER",
           "role": "DIALOGUE",
-          "text": "“당장 용서해 달라고 하지는 않으마.”"
+          "text": "“바로 괜찮아지지 않아도 돼.”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-F10-01",
           "speaker": "FATHER",
           "role": "DIALOGUE",
-          "text": "“약속을 지키며 다시 믿을 수 있게 하마.”"
+          "text": "“다시는 너희를 두고 가지 않을게.”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F10-01",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "새어머니는 그동안 집을 떠났어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F10-01",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "남매는 과자집에서 겪은 일도 이야기했어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F10-01",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "마을 사람들은 다른 아이들이 그 집에 가지 않도록"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-F10-01",
+          "speaker": "NARRATOR",
+          "role": "FIXED",
+          "text": "소식을 알렸어요."
         },
         {
           "kind": "visual",
           "id": "HG-VIS-F10-02",
-          "assetId": "village-restitution",
-          "mode": "villagers-return-labeled-bundles-while-family-shares-ledger",
-          "time": "later-days",
-          "location": "village-and-candy-house",
-          "characters": [
-            "HANSEL",
-            "GRETEL",
-            "FATHER",
-            "VILLAGERS"
-          ],
-          "entryState": "ledger-shared-village-mobilizes",
-          "requiredAction": "villagers-return-belongings-and-secure-house",
-          "exitState": "belongings-returned-witch-contained",
-          "exception": null
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F10-02",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "새어머니는 집을 떠난 뒤 돌아오지 않았어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F10-02",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "남매가 가져온 장부와 열쇠 덕분에 마을 사람들은 과자집을 찾아"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F10-02",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "빼앗긴 물건을 주인에게 돌려주었어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-F10-02",
-          "speaker": "NARRATOR",
-          "role": "FIXED",
-          "text": "마녀가 다시 아이들에게 다가오지 못하게 했지요."
-        },
-        {
-          "kind": "visual",
-          "id": "HG-VIS-F10-03",
           "assetId": "window-epilogue",
-          "mode": "family-talks-near-window-with-white-pebble-and-feather",
+          "mode": "family-talks-together-by-window-at-night",
           "time": "later-evening",
           "location": "home-window",
           "characters": [
@@ -2506,41 +2727,41 @@
             "FATHER"
           ],
           "entryState": "family-rebuilding-trust",
-          "requiredAction": "family-talks-beside-pebble-and-feather",
+          "requiredAction": "family-shares-worries-and-asks-for-help",
           "exitState": "story-complete",
           "exception": "epilogue-same-setting"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-03",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "아버지는 날마다 남매를 지키겠다는 약속을 행동으로 보여주었어요."
+          "text": "그 뒤 아버지는 어려운 일이 생기면"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-03",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "남매도 두렵거나 궁금한 일이 생기면 서로 이야기했지요."
+          "text": "이웃에게 도움을 구하며 남매를 돌봤어요."
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-03",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "어느 저녁, 창가에는 하얀 조약돌 하나와"
+          "text": "헨젤과 그레텔도 무섭거나 걱정되는 일이 있으면"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-03",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "작은 흰 깃털 하나가 나란히 놓였답니다."
+          "text": "서로 이야기했어요."
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-03",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "NARRATOR",
           "role": "END",
           "text": "헨젤과 그레텔의 이야기는 여기에서 끝났어요."
@@ -2565,28 +2786,34 @@
           "kind": "visual",
           "id": "HG-VIS-A_OBSERVE_BIRD-01",
           "assetId": "a-observe-bird-01",
-          "mode": "bird-turns-toward-sweet-scent"
+          "mode": "siblings-stop-and-watch-bird-look-back"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-A_OBSERVE_BIRD-01",
           "speaker": "NARRATOR",
           "role": "FALLBACK",
-          "text": "헨젤과 그레텔은 다가가지 않고 새를 조용히 지켜보았어요.\n새는 두 아이를 바라보다가 몸을 돌려 숲 안쪽으로 코끝을 들었어요.\n그쪽에서는 아주 희미한 단 냄새가 흘러왔지요."
+          "text": "남매는 발을 멈추고 새를 지켜보았어요.\n새는 앞쪽 가지에 앉았다가 다시 뒤를 돌아봤어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-A_OBSERVE_BIRD-01",
           "speaker": "GRETEL",
           "role": "DIALOGUE",
-          "text": "“우리가 아니라 저 냄새가 나는 곳을 보고 있었나 봐.”"
+          "text": "“앞으로 가다가 또 기다리네.”"
+        },
+        {
+          "kind": "visual",
+          "id": "HG-VIS-A_OBSERVE_BIRD-02",
+          "assetId": "white-bird-leads",
+          "mode": "siblings-follow-bird-toward-sweet-scent"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-A_OBSERVE_BIRD-01",
+          "visualId": "HG-VIS-A_OBSERVE_BIRD-02",
           "speaker": "NARRATOR",
           "role": "FALLBACK",
-          "text": "새는 가까운 가지로 날아가 남매가 따라오는지 기다렸어요.\n남매는 서로 손을 잡고 안전한 거리를 두어 따라갔어요."
+          "text": "그쪽에서 달콤한 냄새가 났어요.\n잠시 뒤 남매는 손을 잡고 새가 간 쪽으로 걸었어요."
         },
         {
           "kind": "rejoin",
@@ -2607,39 +2834,41 @@
           "kind": "visual",
           "id": "HG-VIS-A_SPEAK_TO_BIRD-01",
           "assetId": "a-speak-to-bird-01",
-          "mode": "gretel-greets-bird"
+          "mode": "gretel-speaks-to-bird"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-A_SPEAK_TO_BIRD-01",
           "speaker": "GRETEL",
           "role": "DIALOGUE",
-          "text": "“하얀 새야, 우리에게 알려주고 싶은 것이 있니?”"
+          "text": "“하얀 새야, 어디로 가는 거야?”"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-A_SPEAK_TO_BIRD-01",
           "speaker": "NARRATOR",
           "role": "FALLBACK",
-          "text": "새는 달아나지 않고 짧게 두 번 울었어요.\n그리고 조금 앞의 가지로 날아가 남매를 기다렸지요."
+          "text": "새가 짧게 울고 앞쪽 가지로 날아갔어요.\n그쪽에서 달콤한 냄새가 났어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-A_SPEAK_TO_BIRD-01",
           "speaker": "HANSEL",
           "role": "DIALOGUE",
-          "text": "“우리를 무서워하지는 않는 것 같아. 천천히 따라가 보자.”"
+          "text": "“말은 못 알아듣겠지만, 저쪽을 보여주려는 것 같아.”"
+        },
+        {
+          "kind": "visual",
+          "id": "HG-VIS-A_SPEAK_TO_BIRD-02",
+          "assetId": "white-bird-leads",
+          "mode": "siblings-follow-bird-toward-sweet-scent"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-A_SPEAK_TO_BIRD-01",
+          "visualId": "HG-VIS-A_SPEAK_TO_BIRD-02",
           "speaker": "NARRATOR",
           "role": "FALLBACK",
-          "text": "새가 향한 쪽에서 단 냄새가 흘러왔어요.\n남매는 손을 잡고 새의 뒤를 따라갔어요."
-        },
-        {
-          "kind": "trace",
-          "instruction": "create_if_available=ALLY(white_bird)"
+          "text": "남매는 손을 잡고 새를 따라갔어요."
         },
         {
           "kind": "rejoin",
@@ -2653,385 +2882,31 @@
       }
     },
     {
-      "id": "A_CHECK_SURROUNDINGS",
+      "id": "C_WAIT_FOR_WITCH_TURN",
       "requires": null,
       "segments": [
         {
           "kind": "visual",
-          "id": "HG-VIS-A_CHECK_SURROUNDINGS-01",
-          "assetId": "a-check-surroundings-01",
-          "mode": "crumb-footprints-feather-highlight"
+          "id": "HG-VIS-C_WAIT_FOR_WITCH_TURN-01",
+          "assetId": "c-wait-for-witch-turn-01",
+          "mode": "witch-searches-back-shelf-gretel-takes-keyring"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-A_CHECK_SURROUNDINGS-01",
+          "visualId": "HG-VIS-C_WAIT_FOR_WITCH_TURN-01",
           "speaker": "NARRATOR",
           "role": "FALLBACK",
-          "text": "남매는 새를 따라가기 전에 나무 아래부터 살펴보았어요.\n땅에는 아주 작은 빵 부스러기와 여러 새의 발자국이 남아 있었어요.\n하얀 깃털 하나는 단 냄새가 흘러오는 방향을 가리키듯 나뭇잎에 걸려 있었지요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-A_CHECK_SURROUNDINGS-01",
-          "speaker": "HANSEL",
-          "role": "DIALOGUE",
-          "text": "“이 새 혼자 빵을 먹은 건 아닌 것 같아.\n그래도 어디에서 왔는지는 알 수 있겠어.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-A_CHECK_SURROUNDINGS-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "남매는 냄새와 새가 향한 방향을 함께 확인하며 걸어갔어요."
-        },
-        {
-          "kind": "rejoin",
-          "slot": "A",
-          "target": "HG-F04-CANDY-HOUSE-REVEAL"
-        }
-      ],
-      "rejoin": {
-        "slot": "A",
-        "target": "HG-F04-CANDY-HOUSE-REVEAL"
-      }
-    },
-    {
-      "id": "A_TRY_OTHER_PATH",
-      "requires": null,
-      "segments": [
-        {
-          "kind": "visual",
-          "id": "HG-VIS-A_TRY_OTHER_PATH-01",
-          "assetId": "a-try-other-path-01",
-          "mode": "fallen-tree-and-thorns"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-A_TRY_OTHER_PATH-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "남매는 새를 바로 따라가지 않고 반대쪽 길을 먼저 확인했어요.\n하지만 조금 가자 쓰러진 나무와 가시덤불이 길을 막고 있었어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-A_TRY_OTHER_PATH-01",
-          "speaker": "GRETEL",
-          "role": "DIALOGUE",
-          "text": "“이쪽은 지나가기 어렵겠어. 그래도 직접 확인해보길 잘했어.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-A_TRY_OTHER_PATH-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "하얀 새는 남매 위를 한 바퀴 돌고 가시가 없는 열린 길의 가지에 앉았어요.\n남매는 돌아와 그 열린 길을 따라갔어요."
-        },
-        {
-          "kind": "rejoin",
-          "slot": "A",
-          "target": "HG-F04-CANDY-HOUSE-REVEAL"
-        }
-      ],
-      "rejoin": {
-        "slot": "A",
-        "target": "HG-F04-CANDY-HOUSE-REVEAL"
-      }
-    },
-    {
-      "id": "B_ASK_OLD_WOMAN",
-      "requires": null,
-      "segments": [
-        {
-          "kind": "visual",
-          "id": "HG-VIS-B_ASK_OLD_WOMAN-01",
-          "assetId": "b-ask-old-woman-01",
-          "mode": "old-woman-grips-keyring"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_ASK_OLD_WOMAN-01",
-          "speaker": "HANSEL",
-          "role": "DIALOGUE",
-          "text": "“왜 숲 한가운데에서 혼자 살고 계세요?”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_ASK_OLD_WOMAN-01",
-          "speaker": "OLD_WOMAN",
-          "role": "DIALOGUE",
-          "text": "“오래전부터 길을 잃은 손님을 기다리며 살았단다.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_ASK_OLD_WOMAN-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "여인은 다정하게 웃었지만 언제부터, 왜 기다렸는지는 말하지 않았어요.\n그리고 대답하는 동안 허리춤의 열쇠고리를 손으로 꼭 잡았지요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_ASK_OLD_WOMAN-01",
-          "speaker": "GRETEL",
-          "role": "DIALOGUE",
-          "text": "“친절한 말만으로는 아직 잘 모르겠어. 열쇠도 기억해두자.”"
-        },
-        {
-          "kind": "rejoin",
-          "slot": "B",
-          "target": "HG-F05-ENTER-HOUSE"
-        }
-      ],
-      "rejoin": {
-        "slot": "B",
-        "target": "HG-F05-ENTER-HOUSE"
-      }
-    },
-    {
-      "id": "B_CHECK_KEYS",
-      "requires": null,
-      "segments": [
-        {
-          "kind": "visual",
-          "id": "HG-VIS-B_CHECK_KEYS-01",
-          "assetId": "b-check-keys-01",
-          "mode": "black-key-and-sugar-pattern-highlight"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_CHECK_KEYS-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "그레텔은 여인의 얼굴이 아니라 손과 열쇠고리를 살펴보았어요.\n커다란 검은 열쇠가 흔들리자 현관 안쪽의 설탕 소용돌이 무늬에도\n검은 빛이 한 번 지나갔지요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_CHECK_KEYS-01",
-          "speaker": "GRETEL",
-          "role": "DIALOGUE",
-          "text": "“헨젤, 저 열쇠와 벽 무늬가 같이 움직이는 것 같아.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_CHECK_KEYS-01",
-          "speaker": "HANSEL",
-          "role": "DIALOGUE",
-          "text": "“무엇을 여는지는 모르지만 기억해두자.”"
-        },
-        {
-          "kind": "trace",
-          "instruction": "create_if_available=KNOWLEDGE(key_pattern_link)"
-        },
-        {
-          "kind": "rejoin",
-          "slot": "B",
-          "target": "HG-F05-ENTER-HOUSE"
-        }
-      ],
-      "rejoin": {
-        "slot": "B",
-        "target": "HG-F05-ENTER-HOUSE"
-      }
-    },
-    {
-      "id": "B_CHECK_HOUSE",
-      "requires": null,
-      "segments": [
-        {
-          "kind": "visual",
-          "id": "HG-VIS-B_CHECK_HOUSE-01",
-          "assetId": "b-check-house-01",
-          "mode": "window-edge-and-door-frame-highlight"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_CHECK_HOUSE-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "남매는 들어가기 전에 창문과 문틀을 살펴보았어요.\n과자 벽은 부드러웠지만 설탕 창문 가장자리에는 가느다란 철선이 숨어 있었어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_CHECK_HOUSE-01",
-          "speaker": "HANSEL",
-          "role": "DIALOGUE",
-          "text": "“평범한 과자집은 아닌 것 같아.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_CHECK_HOUSE-01",
-          "speaker": "OLD_WOMAN",
-          "role": "DIALOGUE",
-          "text": "“숲짐승이 망가뜨리지 못하게 튼튼하게 만든 것뿐이란다.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_CHECK_HOUSE-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "설명은 가능했지만 확실한 답은 아니었어요.\n남매는 철선의 위치를 기억했어요."
-        },
-        {
-          "kind": "rejoin",
-          "slot": "B",
-          "target": "HG-F05-ENTER-HOUSE"
-        }
-      ],
-      "rejoin": {
-        "slot": "B",
-        "target": "HG-F05-ENTER-HOUSE"
-      }
-    },
-    {
-      "id": "B_STEP_BACK_MARK_EXIT",
-      "requires": null,
-      "segments": [
-        {
-          "kind": "visual",
-          "id": "HG-VIS-B_STEP_BACK_MARK_EXIT-01",
-          "assetId": "b-step-back-mark-exit-01",
-          "mode": "siblings-mark-tree-and-step-away"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_STEP_BACK_MARK_EXIT-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "남매는 나무에 화살표를 그리고 과자집에서 물러났어요.\n하지만 길을 따라가자 방금 표시한 나무가 다시 나타났어요.\n숲길이 과자집 주위를 둥글게 돌고 있었던 거예요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_STEP_BACK_MARK_EXIT-01",
-          "speaker": "HANSEL",
-          "role": "DIALOGUE",
-          "text": "“집에는 들어가지 말고 여기서 더 살펴보자.”"
-        },
-        {
-          "kind": "visual",
-          "id": "HG-VIS-B_STEP_BACK_MARK_EXIT-02",
-          "assetId": "b-step-back-mark-exit-02",
-          "mode": "outdoor-candy-bars-and-witch-reveal"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_STEP_BACK_MARK_EXIT-02",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "그 순간 여인의 표정이 차갑게 변했어요.\n여인은 검은 열쇠를 바깥벽의 설탕 무늬에 돌렸고,\n사탕 쇠창살이 땅에서 올라와 헨젤을 둘러쌌어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_STEP_BACK_MARK_EXIT-02",
-          "speaker": "WITCH",
-          "role": "DIALOGUE",
-          "text": "“집에 들어오지 않아도 내 과자집 곁에서는 달아날 수 없단다.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_STEP_BACK_MARK_EXIT-02",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "여인은 아이들을 속여 가두는 마녀였어요.\n그레텔은 쇠창살 밖으로 피했지만 헨젤을 두고 떠나지 않았어요.\n헨젤은 그레텔에게 열쇠의 움직임을 잘 보라고 말했어요.\n마녀가 헨젤의 음식을 부엌에서 만들라고 명령하자,\n그레텔은 헨젤을 혼자 두지 않으려고 문 가까운 부엌으로 들어갔어요.\n하지만 자신들이 표시한 나무의 위치를 잊지 않았지요."
-        },
-        {
-          "kind": "trace",
-          "instruction": "create_if_available=ROUTE_MARK(tree_arrow)"
-        },
-        {
-          "kind": "rejoin",
-          "slot": "B",
-          "target": "HG-F06-CAPTURED-STATE"
-        }
-      ],
-      "rejoin": {
-        "slot": "B",
-        "target": "HG-F06-CAPTURED-STATE"
-      }
-    },
-    {
-      "id": "B_MAKE_SIBLING_SIGNAL",
-      "requires": null,
-      "segments": [
-        {
-          "kind": "visual",
-          "id": "HG-VIS-B_MAKE_SIBLING_SIGNAL-01",
-          "assetId": "b-make-sibling-signal-01",
-          "mode": "siblings-whisper-before-entry"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_MAKE_SIBLING_SIGNAL-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "남매는 여인에게 들리지 않게 서로 가까이 섰어요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_MAKE_SIBLING_SIGNAL-01",
-          "speaker": "GRETEL",
-          "role": "DIALOGUE",
-          "text": "“이상한 일이 생기면 무엇이든 두 번 두드리자.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_MAKE_SIBLING_SIGNAL-01",
-          "speaker": "HANSEL",
-          "role": "DIALOGUE",
-          "text": "“탁, 탁. 서로 괜찮은지 알려주는 신호로 하자.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-B_MAKE_SIBLING_SIGNAL-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "두 아이는 문, 그릇, 나무 어디에서든 쓸 수 있는 신호를 기억했어요.\n그리고 무슨 일이 생겨도 이 약속을 잊지 않기로 했어요."
-        },
-        {
-          "kind": "trace",
-          "instruction": "create=SIGNAL(two_taps)"
-        },
-        {
-          "kind": "rejoin",
-          "slot": "B",
-          "target": "HG-F05-ENTER-HOUSE"
-        }
-      ],
-      "rejoin": {
-        "slot": "B",
-        "target": "HG-F05-ENTER-HOUSE"
-      }
-    },
-    {
-      "id": "C_ASK_DEMONSTRATION",
-      "requires": null,
-      "segments": [
-        {
-          "kind": "visual",
-          "id": "HG-VIS-C_ASK_DEMONSTRATION-01",
-          "assetId": "c-ask-demonstration-01",
-          "mode": "gretel-keeps-distance"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-C_ASK_DEMONSTRATION-01",
-          "speaker": "GRETEL",
-          "role": "DIALOGUE",
-          "text": "“저는 어떻게 확인하는지 모르겠어요.\n먼저 보여주시면 그대로 따라 할게요.”"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-C_ASK_DEMONSTRATION-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "그레텔은 오븐에서 멀리 떨어진 채 마녀의 손과 열쇠를 살펴보았어요.\n마녀는 답답하다는 듯 혀를 차며 앞으로 나섰지요."
+          "text": "그레텔은 마녀가 어디를 보는지 살피며 기다렸어요.\n마녀가 냄비 뚜껑을 찾으려고 뒤쪽 선반으로 몸을 돌리자,\n그레텔은 조용히 작업대로 다가가 열쇠고리를 집었어요.\n마녀는 남매를 등진 채 선반 안을 뒤적였어요."
         },
         {
           "kind": "rejoin",
           "slot": "C",
-          "target": "HG-F07-DEMONSTRATION"
+          "target": "HG-F07-KEYS-TAKEN"
         }
       ],
       "rejoin": {
         "slot": "C",
-        "target": "HG-F07-DEMONSTRATION"
+        "target": "HG-F07-KEYS-TAKEN"
       }
     },
     {
@@ -3042,190 +2917,59 @@
           "kind": "visual",
           "id": "HG-VIS-C_DISTRACT_AND_TAKE_KEYS-01",
           "assetId": "c-distract-and-take-keys-01",
-          "mode": "witch-moves-pot-and-gretel-takes-keys"
+          "mode": "witch-looks-at-calling-hansel-gretel-takes-keyring"
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-C_DISTRACT_AND_TAKE_KEYS-01",
           "speaker": "NARRATOR",
           "role": "FALLBACK",
-          "text": "그레텔은 작업대 끝의 빈 냄비를 가리켰어요.\n“할머니, 저 냄비가 떨어질 것 같아요!”\n마녀는 열쇠고리를 작업대에 내려놓고 냄비를 안쪽으로 옮겼어요."
-        },
-        {
-          "kind": "trace",
-          "instruction": "create_if_available=DISTRACTION(loose_pot)"
+          "text": "그레텔이 헨젤에게 작게 말했어요."
         },
         {
           "kind": "utterance",
           "visualId": "HG-VIS-C_DISTRACT_AND_TAKE_KEYS-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "마녀가 냄비 쪽을 보는 순간, 그레텔은 열쇠고리를 집었어요.\n작은 은색 열쇠로 헨젤의 쇠창살을 열고, 함께 설탕 소용돌이 무늬와 옆문으로 달렸지요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-C_DISTRACT_AND_TAKE_KEYS-01",
-          "speaker": "HANSEL",
-          "role": "DIALOGUE",
-          "text": "“검은 열쇠를 마녀가 쓰던 방향과 반대로!”"
-        },
-        {
-          "kind": "visual",
-          "id": "HG-VIS-C_DISTRACT_AND_TAKE_KEYS-02",
-          "assetId": "escape-corridor",
-          "mode": "siblings-run-through-corridor-toward-storehouse-and-exit"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-C_DISTRACT_AND_TAKE_KEYS-02",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "그레텔이 열쇠를 돌리자 남매 앞의 문은 열리고 마녀 앞에는 철문이 내려왔어요.\n두 아이는 손을 잡고 긴 복도를 따라 창고와 밖으로 나가는 문 앞까지 달렸어요."
-        },
-        {
-          "kind": "rejoin",
-          "slot": "C",
-          "target": "HG-F08-AFTER-BRANCH-ESCAPE"
-        }
-      ],
-      "rejoin": {
-        "slot": "C",
-        "target": "HG-F08-AFTER-BRANCH-ESCAPE"
-      }
-    },
-    {
-      "id": "C_USE_SIGNAL",
-      "requires": null,
-      "segments": [
-        {
-          "kind": "visual",
-          "id": "HG-VIS-C_USE_SIGNAL-01",
-          "assetId": "c-use-signal-01",
-          "mode": "siblings-tap-twice-with-empty-hands"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-C_USE_SIGNAL-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "그레텔은 오븐을 확인하는 법을 먼저 보여달라고 했어요.\n마녀가 두 손을 쓰려고 열쇠고리를 작업대에 내려놓았어요.\n그레텔은 과자집 문 앞에서 헨젤과 나눈 짧은 약속을 떠올렸어요.\n“위험할 때 탁, 탁 두 번 두드리면 함께 움직이자.”\n그레텔은 헨젤을 바라보며 작업대를 탁, 탁 두드렸어요.\n헨젤은 뜻을 알아채고 쇠창살을 두 번 두드린 뒤, 마녀를 불렀어요.\n마녀는 헨젤 쪽으로 돌아서서 쇠창살에 다가갔지요."
-        },
-        {
-          "kind": "visual",
-          "id": "HG-VIS-C_USE_SIGNAL-02",
-          "assetId": "escape-corridor",
-          "mode": "siblings-run-through-corridor-toward-storehouse-and-exit"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-C_USE_SIGNAL-02",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "그 사이 그레텔은 열쇠고리를 집어 헨젤을 풀어주었어요.\n남매는 함께 검은 열쇠를 반대로 돌렸고,\n마녀 앞에 사탕 철문이 내려오자 긴 복도를 따라 창고와 밖으로 나가는 문 앞까지 달렸어요."
-        },
-        {
-          "kind": "trace",
-          "instruction": "create_if_available=COORDINATION(two_taps)"
-        },
-        {
-          "kind": "rejoin",
-          "slot": "C",
-          "target": "HG-F08-AFTER-BRANCH-ESCAPE"
-        }
-      ],
-      "rejoin": {
-        "slot": "C",
-        "target": "HG-F08-AFTER-BRANCH-ESCAPE"
-      }
-    },
-    {
-      "id": "C_CHECK_LOCK_FROM_DISTANCE",
-      "requires": null,
-      "segments": [
-        {
-          "kind": "visual",
-          "id": "HG-VIS-C_CHECK_LOCK_FROM_DISTANCE-01",
-          "assetId": "c-check-lock-from-distance-01",
-          "mode": "long-paddle-near-sugar-pattern"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-C_CHECK_LOCK_FROM_DISTANCE-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "그레텔은 오븐에 다가가지 않고 긴 빵 주걱을 집었어요.\n주걱 끝을 설탕 소용돌이 무늬 가까이에 대자\n헨젤의 쇠창살과 부엌의 철문이 함께 작게 떨렸지요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-C_CHECK_LOCK_FROM_DISTANCE-01",
           "speaker": "GRETEL",
           "role": "DIALOGUE",
-          "text": "“저 무늬와 철문들이 이어져 있어.\n검은 열쇠가 움직이면 문도 움직일 거야.”"
+          "text": "“헨젤, 잠깐 마녀를 불러 줘.”"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-C_CHECK_LOCK_FROM_DISTANCE-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "그레텔은 알아낸 사실을 숨기고 마녀에게 먼저 확인하는 법을 보여달라고 했어요."
-        },
-        {
-          "kind": "rejoin",
-          "slot": "C",
-          "target": "HG-F07-DEMONSTRATION"
-        }
-      ],
-      "rejoin": {
-        "slot": "C",
-        "target": "HG-F07-DEMONSTRATION"
-      }
-    },
-    {
-      "id": "C_BLOCK_PURSUIT_SAFELY",
-      "requires": null,
-      "segments": [
-        {
-          "kind": "visual",
-          "id": "HG-VIS-C_BLOCK_PURSUIT_SAFELY-01",
-          "assetId": "c-block-pursuit-safely-01",
-          "mode": "gretel-unlocks-cage"
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-C_BLOCK_PURSUIT_SAFELY-01",
-          "speaker": "NARRATOR",
-          "role": "FALLBACK",
-          "text": "그레텔은 마녀를 다치게 하지 않고 따라오지 못하게 하기로 했어요.\n먼저 보여달라는 말에 마녀가 열쇠고리를 작업대에 내려놓자,\n그레텔은 재빨리 열쇠를 집었어요.\n열쇠고리를 잡자 먼저 작은 은색 열쇠로 헨젤의 문을 열었지요."
-        },
-        {
-          "kind": "utterance",
-          "visualId": "HG-VIS-C_BLOCK_PURSUIT_SAFELY-01",
+          "visualId": "HG-VIS-C_DISTRACT_AND_TAKE_KEYS-01",
           "speaker": "HANSEL",
           "role": "DIALOGUE",
-          "text": "“우리를 가두던 큰 철문으로 길을 막자.”"
-        },
-        {
-          "kind": "visual",
-          "id": "HG-VIS-C_BLOCK_PURSUIT_SAFELY-02",
-          "assetId": "escape-corridor",
-          "mode": "siblings-run-through-corridor-toward-storehouse-and-exit"
+          "text": "“마녀님!”"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-C_BLOCK_PURSUIT_SAFELY-02",
+          "visualId": "HG-VIS-C_DISTRACT_AND_TAKE_KEYS-01",
           "speaker": "NARRATOR",
           "role": "FALLBACK",
-          "text": "남매는 검은 열쇠를 반대 방향으로 돌렸어요.\n두 아이 앞의 문은 열리고, 마녀 앞에는 사탕 철문이 내려왔어요.\n남매는 손을 잡고 긴 복도를 따라 창고와 밖으로 나가는 문 앞까지 달렸어요."
+          "text": "마녀가 헨젤 쪽을 돌아보는 동안,\n그레텔은 작업대에 놓인 열쇠고리를 집었어요."
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-C_DISTRACT_AND_TAKE_KEYS-01",
+          "speaker": "WITCH",
+          "role": "DIALOGUE",
+          "text": "“잠깐 기다려. 먼저 냄비 뚜껑을 찾아야겠어.”"
+        },
+        {
+          "kind": "utterance",
+          "visualId": "HG-VIS-C_DISTRACT_AND_TAKE_KEYS-01",
+          "speaker": "NARRATOR",
+          "role": "FALLBACK",
+          "text": "마녀는 다시 몸을 돌려 뒤쪽 선반 안을 뒤적였어요."
         },
         {
           "kind": "rejoin",
           "slot": "C",
-          "target": "HG-F08-AFTER-BRANCH-ESCAPE"
+          "target": "HG-F07-KEYS-TAKEN"
         }
       ],
       "rejoin": {
         "slot": "C",
-        "target": "HG-F08-AFTER-BRANCH-ESCAPE"
+        "target": "HG-F07-KEYS-TAKEN"
       }
     }
   ]

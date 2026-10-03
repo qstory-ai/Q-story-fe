@@ -177,9 +177,11 @@ export class HttpSpeechPipeline implements SpeechPipeline {
       },
       fallback: {
         kind: 'fallback',
-        familyId: fallback.id as FallbackPlan['familyId'],
-        text: '잠시 연결이 어려워서 준비된 안전 장면으로 계속할게.',
-        rejoinAt: fallback.rejoinAnchorId as FallbackPlan['rejoinAt'],
+        familyId: (fallback?.id ?? null) as FallbackPlan['familyId'],
+        text: fallback
+          ? '잠시 연결이 어려워서 준비된 안전 장면으로 계속할게.'
+          : '잠시 연결이 어려워서 이야기를 이어서 들려줄게.',
+        rejoinAt: (fallback?.rejoinAnchorId ?? null) as FallbackPlan['rejoinAt'],
       },
     };
   }

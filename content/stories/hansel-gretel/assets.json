@@ -4,14 +4,6 @@
   "root": "assets/story/hansel-gretel/",
   "assets": [
     {
-      "slug": "a-check-surroundings-01",
-      "category": "BRANCH_ART",
-      "familyId": "A_CHECK_SURROUNDINGS",
-      "panel": 1,
-      "file": "illustrations/fb-a-check-surroundings-v1.webp",
-      "integrity": "sha256-VazsFMtH6cEoc2U/c/QGPW8ES9YUwOjlN7GSKiYb8TA="
-    },
-    {
       "slug": "a-observe-bird-01",
       "category": "BRANCH_ART",
       "familyId": "A_OBSERVE_BIRD",
@@ -28,100 +20,260 @@
       "integrity": "sha256-sm7WiODs27PIYTEWghG97Iy5i6sSc3TUViPJMKVZnZY="
     },
     {
-      "slug": "a-try-other-path-01",
+      "slug": "c-wait-for-witch-turn-01",
       "category": "BRANCH_ART",
-      "familyId": "A_TRY_OTHER_PATH",
+      "familyId": "C_WAIT_FOR_WITCH_TURN",
       "panel": 1,
-      "file": "illustrations/fb-a-try-other-path-v1.webp",
-      "integrity": "sha256-zHS1sqYd2mvKazWAxjGRvoHpoQnQ/dE6aBFQRnqODaQ="
-    },
-    {
-      "slug": "b-ask-old-woman-01",
-      "category": "BRANCH_ART",
-      "familyId": "B_ASK_OLD_WOMAN",
-      "panel": 1,
-      "file": "illustrations/fb-b-ask-old-woman-v1.webp",
-      "integrity": "sha256-LTeb4l1X1YFFcgci9Fj2GrIbDodoII5/XYtWAE/nctA="
-    },
-    {
-      "slug": "b-check-house-01",
-      "category": "BRANCH_ART",
-      "familyId": "B_CHECK_HOUSE",
-      "panel": 1,
-      "file": "illustrations/fb-b-check-house-v1.webp",
-      "integrity": "sha256-tmvbDogov35xGTpbPGhhyvKAmX/IsSPaiL9a6GG6M50="
-    },
-    {
-      "slug": "b-check-keys-01",
-      "category": "BRANCH_ART",
-      "familyId": "B_CHECK_KEYS",
-      "panel": 1,
-      "file": "illustrations/fb-b-check-keys-v1.webp",
-      "integrity": "sha256-2GgjaCVtPGEkLOpfBM7YGFxmjeC+YwHv0vBDlQj/GsA="
-    },
-    {
-      "slug": "b-make-sibling-signal-01",
-      "category": "BRANCH_ART",
-      "familyId": "B_MAKE_SIBLING_SIGNAL",
-      "panel": 1,
-      "file": "illustrations/fb-b-make-sibling-signal-v1.webp",
-      "integrity": "sha256-ZiJ1J6A2kgfFZX5FTW8/R29vWTYtp1mQ5Zt7qw2rEAE="
-    },
-    {
-      "slug": "b-step-back-mark-exit-01",
-      "category": "BRANCH_ART",
-      "familyId": "B_STEP_BACK_MARK_EXIT",
-      "panel": 1,
-      "file": "illustrations/fb-b-step-back-mark-exit-v1.webp",
-      "integrity": "sha256-svlp/tAu1pkoDUa5fLUONyXalwwO2WUW9O+ewdd4AAA="
-    },
-    {
-      "slug": "b-step-back-mark-exit-02",
-      "category": "BRANCH_ART",
-      "familyId": "B_STEP_BACK_MARK_EXIT",
-      "panel": 2,
-      "file": "illustrations/fb-b-step-back-mark-exit-v2.webp",
-      "integrity": "sha256-0YYvuNygQ8r9WsW7zBeQi6Qh3G4EXgcKt0eCrshu4bU="
-    },
-    {
-      "slug": "c-ask-demonstration-01",
-      "category": "BRANCH_ART",
-      "familyId": "C_ASK_DEMONSTRATION",
-      "panel": 1,
-      "file": "illustrations/fb-c-ask-demonstration-v1.webp",
-      "integrity": "sha256-5dExV7VKwnEWvNGbQzbyHgNqEqnhqtlgdxVkubPTCCI="
-    },
-    {
-      "slug": "c-block-pursuit-safely-01",
-      "category": "BRANCH_ART",
-      "familyId": "C_BLOCK_PURSUIT_SAFELY",
-      "panel": 1,
-      "file": "illustrations/fb-c-block-pursuit-safely-v1.webp",
-      "integrity": "sha256-0zB1pxcpIwI5+zNaFDLb8vR88gXREaTRxhad1RVNZIA="
-    },
-    {
-      "slug": "c-check-lock-from-distance-01",
-      "category": "BRANCH_ART",
-      "familyId": "C_CHECK_LOCK_FROM_DISTANCE",
-      "panel": 1,
-      "file": "illustrations/fb-c-check-lock-from-distance-v1.webp",
-      "integrity": "sha256-260X0vy01wO1YIcGBC4puSaVRm0ACgEU9QgwTdhOq58="
+      "file": "illustrations/fb-c-wait-for-witch-turn-v1.webp",
+      "integrity": "sha256-g9JJVZhmyZ7p4t3QA8S/7Vl3dcQArITDDPZqCVVz/Bs="
     },
     {
       "slug": "c-distract-and-take-keys-01",
       "category": "BRANCH_ART",
       "familyId": "C_DISTRACT_AND_TAKE_KEYS",
       "panel": 1,
-      "file": "illustrations/fb-c-distract-and-take-keys-v1.webp",
-      "integrity": "sha256-rdUfZ4JDlunEZjXV13neHSxHqR50G4I3baTsj0XwzCo="
+      "file": "illustrations/fb-c-distract-and-take-keys-v2.webp",
+      "integrity": "sha256-3Xo0kTuq6CNe/Q1Zh/hQRwJFa0z4Z6wMMgseFqRppNg="
     },
     {
-      "slug": "c-use-signal-01",
-      "category": "BRANCH_ART",
-      "familyId": "C_USE_SIGNAL",
-      "panel": 1,
-      "file": "illustrations/fb-c-use-signal-v2.webp",
-      "integrity": "sha256-LGDOMqBMhQBHGDFplODe0lKH+xdO5u/jjvFXzkCC6Kk="
+      "slug": "home-table",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-01-home-table.webp",
+      "integrity": "sha256-OgZW17it40IBKYAoXZUjVUjKpRohBXkYxdLRqpAgBsg="
+    },
+    {
+      "slug": "night-plan",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-02-night-plan.webp",
+      "integrity": "sha256-DeCkH4TITpkbo+z0LwrhEg+qVE7F4L7hje4Cc1Tyv9c="
+    },
+    {
+      "slug": "pebble-collection",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-19-pebble-collection.webp",
+      "integrity": "sha256-3cCzVoAM78smsDrDGFB1lbG9hRVk17OP6h5S3UIdJmw="
+    },
+    {
+      "slug": "first-walk-pebbles",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-03-first-walk-pebbles.webp",
+      "integrity": "sha256-wU324oXPKP1ZHatP1/GRFtvs04d+cnw3MtUcWtHoYWg="
+    },
+    {
+      "slug": "forest-waiting",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-20-forest-waiting.webp",
+      "integrity": "sha256-mjIL0V49EZgHqgcK3PtdKl0yoHL2weKSsvgmNuST6cc="
+    },
+    {
+      "slug": "forest-night-waiting",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-47-forest-night-waiting.webp",
+      "integrity": "sha256-+zmP5xTM+RbBDTJW4weZQCluDGmG4RQQmE77XGncZ3E="
+    },
+    {
+      "slug": "moonlit-return",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-04-moonlit-return.webp",
+      "integrity": "sha256-oBTmgm8tvlVfbKZ10v1ZigNLcom4VS3KqkxYbdh/L3w="
+    },
+    {
+      "slug": "first-homecoming",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-21-first-homecoming.webp",
+      "integrity": "sha256-Q/6s/sF7tvN0BvspqTAl1Lud5qeuiXvpLncqJXqauVc="
+    },
+    {
+      "slug": "second-night-plan",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-36-second-night-plan.webp",
+      "integrity": "sha256-3TJImtrPoh3t8cuSPyaxRpAHsbnmZMQH63PRDskTXjo="
+    },
+    {
+      "slug": "locked-door-night",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-40-locked-door-night-v2.webp",
+      "integrity": "sha256-2+0oYSoL/MnbbnBcb0di/32jS2bMyibsIWB9hABmRSs="
+    },
+    {
+      "slug": "morning-bread-plan",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-41-morning-bread-plan-v2.webp",
+      "integrity": "sha256-Ai2bax/GcUhrciu609kckoF3X30QQa4H7psNV87JD5E="
+    },
+    {
+      "slug": "second-walk-breadcrumbs",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-22-second-walk-breadcrumbs.webp",
+      "integrity": "sha256-xuoEZCI7yhyQtIeBewT98/lC7N9tejBNIcBMRCvRVzI="
+    },
+    {
+      "slug": "deep-forest-waiting",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-48-deep-forest-waiting.webp",
+      "integrity": "sha256-fZQxF+AHgax/rqgI/0sCE44vsDOmN/auS2QPw5iwjhQ="
+    },
+    {
+      "slug": "birds-eat-breadcrumbs",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-27-birds-eat-breadcrumbs.webp",
+      "integrity": "sha256-Htf5PK1i1AmrRmZhX68X1PlRXjxXOIZkh7CGMP3dCRs="
+    },
+    {
+      "slug": "lost-forest",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-06-lost-forest-walking-v2.webp",
+      "integrity": "sha256-fagBqHU3943pivASMZauUGY35/X716ociDMe3Hx3zq8="
+    },
+    {
+      "slug": "morning-song",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-28-morning-song.webp",
+      "integrity": "sha256-LfTwWiN+5WjI9qQVpylTtof0NEAnt5ia75e8qEJ6AFM="
+    },
+    {
+      "slug": "white-bird",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-07-white-bird.webp",
+      "integrity": "sha256-c/lWb3LkIKx235OuBoFzHfRdtlp3ZHQ1Dt/0pmCvyWs="
+    },
+    {
+      "slug": "white-bird-leads",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-29-white-bird-leads.webp",
+      "integrity": "sha256-G99py36T6ye0bhQgMxWG6qCPxN2/7mPXhSRyIHLyVLI="
+    },
+    {
+      "slug": "candy-house-reveal",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-08-candy-house-reveal.webp",
+      "integrity": "sha256-9v/oZB5den0/Xr6OU/iYqFp6vQwfV1ERNiFTBRQmNe8="
+    },
+    {
+      "slug": "candy-house-close",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-09-candy-house-close-v2.webp",
+      "integrity": "sha256-3VuPdQjo+CRbnsyr36qcnEYkaADyggsBoDSZC9OQAv0="
+    },
+    {
+      "slug": "old-woman-door",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-10-old-woman-door.webp",
+      "integrity": "sha256-yqmihlqI3SVuskbq383fBxPOdRlhZ4KWGz14/XZsgMc="
+    },
+    {
+      "slug": "candy-house-interior",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-23-candy-house-interior.webp",
+      "integrity": "sha256-xcIdiP5kaTQlGjR9JWizYAT646xfOFGDLHZxHZ1h/pk="
+    },
+    {
+      "slug": "kitchen-door-locked",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-49-kitchen-door-locked.webp",
+      "integrity": "sha256-I207q/dJIc36TuGgagAR39rBbGn6QBR93kQgs10af5Y="
+    },
+    {
+      "slug": "witch-reveal",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-11-witch-reveal-v3.webp",
+      "integrity": "sha256-I/OeshZwSQ4uTwcQxMe0472tdL6EVKwM+vHZSPrkcoY="
+    },
+    {
+      "slug": "gretel-watches-keys",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-31-gretel-watches-keys.webp",
+      "integrity": "sha256-q/Edt+w8eXF6p8h/QUTaySG63TbDTFGXkU+7mzvDJr0="
+    },
+    {
+      "slug": "gretel-whispers-keys",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-50-gretel-whispers-keys.webp",
+      "integrity": "sha256-4fCCE0yd6r9wpns5YmTPHenFKKywLxcfWPwXdpJsQB0="
+    },
+    {
+      "slug": "witch-cooking-keys",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-51-witch-cooking-keys.webp",
+      "integrity": "sha256-rvH/Sfm4oE91HJWbbPh864kW/teEhzImrCCMtmvJ5MM="
+    },
+    {
+      "slug": "wait-and-take-keys",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-52-wait-and-take-keys.webp",
+      "integrity": "sha256-g9JJVZhmyZ7p4t3QA8S/7Vl3dcQArITDDPZqCVVz/Bs="
+    },
+    {
+      "slug": "cage-unlock-oven-secured",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-45-cage-unlock-oven-secured-v2.webp",
+      "integrity": "sha256-lYmLWCWJuNWC7z4umbi4jEOY4R/+RoXs2RPKOoGTqCs="
+    },
+    {
+      "slug": "black-key-side-door",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-46-black-key-side-door-v2.webp",
+      "integrity": "sha256-o8CuUmXMa/pGDv4ebjmmSJElPmL+3k47pxLKmAmobOU="
+    },
+    {
+      "slug": "corridor-lock-door",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-53-corridor-lock-door.webp",
+      "integrity": "sha256-D6VINyIKsjS/6LJF0tr4IIGhlAQMDXPUx/gALXl2shU="
+    },
+    {
+      "slug": "escape-corridor",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-34-escape-corridor.webp",
+      "integrity": "sha256-D+lz2cj20oZbmt9TiXvvfntDnDs6uRfxXH7zC7xFlPQ="
+    },
+    {
+      "slug": "storehouse",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-16-storehouse-v2.webp",
+      "integrity": "sha256-bW3nmZ9ANLZHL9k8PSVNf8lbQph4z+O91U0W4bHqYFE="
+    },
+    {
+      "slug": "packing-food",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-54-packing-food.webp",
+      "integrity": "sha256-JVN2UsjIKmsfuzRR0O5NWjjhv26o9D+G6S3M4pN5FRY="
+    },
+    {
+      "slug": "candy-house-exit",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-35-candy-house-exit.webp",
+      "integrity": "sha256-AT6k5UTKoHJQq/UY75XegMcBbfYO2gV31cv440RMFbs="
+    },
+    {
+      "slug": "waterway-obstacle",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-38-waterway-obstacle.webp",
+      "integrity": "sha256-uK9UFWB/KouJvIb/u4WYP4pLFdrx7Rge7r1+IU10Ifs="
+    },
+    {
+      "slug": "water-return",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-17-water-crossing-v2.webp",
+      "integrity": "sha256-s7xtZUK4/tWOxnC5dATuttl2Ec6Y0jasw5KmkyG1deY="
+    },
+    {
+      "slug": "marked-return-path",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-24-marked-return-path.webp",
+      "integrity": "sha256-yNzyPRjHXN6Q05VmDnrX234ARmRiZjUFdsH7BkQWIy8="
+    },
+    {
+      "slug": "home-promise",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-18-home-apology-v2.webp",
+      "integrity": "sha256-toiAZftmgK1t8F3SDT7YLc422Kiq7/wAMWh3Cw2e5wc="
+    },
+    {
+      "slug": "window-epilogue",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-26-window-epilogue-v2.webp",
+      "integrity": "sha256-DuOEsi7qapwYlP/j5bZ7SN1SIKfH7ByaBRTVsNXE9d4="
     },
     {
       "slug": "a-check-surroundings-bridge",
@@ -1336,252 +1488,6 @@
       "category": "NARRATION",
       "file": "audio/hg-f10-clip-022.mp3",
       "integrity": "sha256-kUnu/K0XLbC1kXiibwcK1Ivg/wpE3cEO8pHj510fU/8="
-    },
-    {
-      "slug": "birds-eat-breadcrumbs",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-27-birds-eat-breadcrumbs.webp",
-      "integrity": "sha256-Htf5PK1i1AmrRmZhX68X1PlRXjxXOIZkh7CGMP3dCRs="
-    },
-    {
-      "slug": "black-key-glow",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-30-black-key-glow.webp",
-      "integrity": "sha256-CyNvgEJA7fHY4wX2IsfwU9BO6LmEZN8MSuJEfEnOlNk="
-    },
-    {
-      "slug": "black-key-side-door",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-46-black-key-side-door-v2.webp",
-      "integrity": "sha256-o8CuUmXMa/pGDv4ebjmmSJElPmL+3k47pxLKmAmobOU="
-    },
-    {
-      "slug": "cage-unlock-oven-secured",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-45-cage-unlock-oven-secured-v2.webp",
-      "integrity": "sha256-lYmLWCWJuNWC7z4umbi4jEOY4R/+RoXs2RPKOoGTqCs="
-    },
-    {
-      "slug": "candy-house-close",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-09-candy-house-close.webp",
-      "integrity": "sha256-x0GJ3O3pUQzr55O2euHpmQHkUghQiJS+QvfNwZ+cOcY="
-    },
-    {
-      "slug": "candy-house-exit",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-35-candy-house-exit.webp",
-      "integrity": "sha256-AT6k5UTKoHJQq/UY75XegMcBbfYO2gV31cv440RMFbs="
-    },
-    {
-      "slug": "candy-house-interior",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-23-candy-house-interior.webp",
-      "integrity": "sha256-xcIdiP5kaTQlGjR9JWizYAT646xfOFGDLHZxHZ1h/pk="
-    },
-    {
-      "slug": "candy-house-reveal",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-08-candy-house-reveal.webp",
-      "integrity": "sha256-9v/oZB5den0/Xr6OU/iYqFp6vQwfV1ERNiFTBRQmNe8="
-    },
-    {
-      "slug": "escape-corridor",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-34-escape-corridor.webp",
-      "integrity": "sha256-D+lz2cj20oZbmt9TiXvvfntDnDs6uRfxXH7zC7xFlPQ="
-    },
-    {
-      "slug": "first-homecoming",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-21-first-homecoming.webp",
-      "integrity": "sha256-Q/6s/sF7tvN0BvspqTAl1Lud5qeuiXvpLncqJXqauVc="
-    },
-    {
-      "slug": "first-walk-pebbles",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-03-first-walk-pebbles.webp",
-      "integrity": "sha256-wU324oXPKP1ZHatP1/GRFtvs04d+cnw3MtUcWtHoYWg="
-    },
-    {
-      "slug": "forest-waiting",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-20-forest-waiting.webp",
-      "integrity": "sha256-mjIL0V49EZgHqgcK3PtdKl0yoHL2weKSsvgmNuST6cc="
-    },
-    {
-      "slug": "gretel-watches-keys",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-31-gretel-watches-keys.webp",
-      "integrity": "sha256-q/Edt+w8eXF6p8h/QUTaySG63TbDTFGXkU+7mzvDJr0="
-    },
-    {
-      "slug": "home-promise",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-18-home-apology-v2.webp",
-      "integrity": "sha256-toiAZftmgK1t8F3SDT7YLc422Kiq7/wAMWh3Cw2e5wc="
-    },
-    {
-      "slug": "home-table",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-01-home-table.webp",
-      "integrity": "sha256-OgZW17it40IBKYAoXZUjVUjKpRohBXkYxdLRqpAgBsg="
-    },
-    {
-      "slug": "locked-door-night",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-40-locked-door-night-v2.webp",
-      "integrity": "sha256-2+0oYSoL/MnbbnBcb0di/32jS2bMyibsIWB9hABmRSs="
-    },
-    {
-      "slug": "lost-forest",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-06-lost-forest-walking-v2.webp",
-      "integrity": "sha256-fagBqHU3943pivASMZauUGY35/X716ociDMe3Hx3zq8="
-    },
-    {
-      "slug": "marked-return-path",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-24-marked-return-path.webp",
-      "integrity": "sha256-yNzyPRjHXN6Q05VmDnrX234ARmRiZjUFdsH7BkQWIy8="
-    },
-    {
-      "slug": "moonlit-return",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-04-moonlit-return.webp",
-      "integrity": "sha256-oBTmgm8tvlVfbKZ10v1ZigNLcom4VS3KqkxYbdh/L3w="
-    },
-    {
-      "slug": "morning-bread-plan",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-41-morning-bread-plan-v2.webp",
-      "integrity": "sha256-Ai2bax/GcUhrciu609kckoF3X30QQa4H7psNV87JD5E="
-    },
-    {
-      "slug": "morning-song",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-28-morning-song.webp",
-      "integrity": "sha256-LfTwWiN+5WjI9qQVpylTtof0NEAnt5ia75e8qEJ6AFM="
-    },
-    {
-      "slug": "night-plan",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-02-night-plan.webp",
-      "integrity": "sha256-DeCkH4TITpkbo+z0LwrhEg+qVE7F4L7hje4Cc1Tyv9c="
-    },
-    {
-      "slug": "old-woman-door",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-10-old-woman-door.webp",
-      "integrity": "sha256-yqmihlqI3SVuskbq383fBxPOdRlhZ4KWGz14/XZsgMc="
-    },
-    {
-      "slug": "oven-command",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-13-oven-command.webp",
-      "integrity": "sha256-BLC2dizqEUQ1iSPn7GKKkh2eLhCXVyGbj8fgs4NSdLw="
-    },
-    {
-      "slug": "oven-secured-keys",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-44-oven-secured-keys-v2.webp",
-      "integrity": "sha256-wQJAsnu6lPnpUDABwZ4GtJwk+cIaTSeAmos09P+PC0Y="
-    },
-    {
-      "slug": "packing-evidence",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-37-packing-evidence.webp",
-      "integrity": "sha256-Q1Es7JpNkoLGKTpxzIYUNLvp8KOqusAgDUC4RiGM4tA="
-    },
-    {
-      "slug": "pebble-collection",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-19-pebble-collection.webp",
-      "integrity": "sha256-3cCzVoAM78smsDrDGFB1lbG9hRVk17OP6h5S3UIdJmw="
-    },
-    {
-      "slug": "second-night-plan",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-36-second-night-plan.webp",
-      "integrity": "sha256-3TJImtrPoh3t8cuSPyaxRpAHsbnmZMQH63PRDskTXjo="
-    },
-    {
-      "slug": "second-walk-breadcrumbs",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-22-second-walk-breadcrumbs.webp",
-      "integrity": "sha256-xuoEZCI7yhyQtIeBewT98/lC7N9tejBNIcBMRCvRVzI="
-    },
-    {
-      "slug": "short-twig-check",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-42-short-twig-check-v3.webp",
-      "integrity": "sha256-qimAZ1D2jfu1HFxCslrbqe8iQaHxGU1BoXC2nh7qvj4="
-    },
-    {
-      "slug": "storehouse",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-16-storehouse.webp",
-      "integrity": "sha256-9IJOryLBO0VFu64F7gr4XQBN0iEPaE8T6f5z2i261wo="
-    },
-    {
-      "slug": "village-restitution",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-25-village-restitution.webp",
-      "integrity": "sha256-lyg9QT7X1yM4mkhJi9J3ThsZo59ixp2O8Y1t3ZodTqg="
-    },
-    {
-      "slug": "water-return",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-17-water-crossing-v2.webp",
-      "integrity": "sha256-s7xtZUK4/tWOxnC5dATuttl2Ec6Y0jasw5KmkyG1deY="
-    },
-    {
-      "slug": "waterway-obstacle",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-38-waterway-obstacle.webp",
-      "integrity": "sha256-uK9UFWB/KouJvIb/u4WYP4pLFdrx7Rge7r1+IU10Ifs="
-    },
-    {
-      "slug": "white-bird",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-07-white-bird.webp",
-      "integrity": "sha256-c/lWb3LkIKx235OuBoFzHfRdtlp3ZHQ1Dt/0pmCvyWs="
-    },
-    {
-      "slug": "white-bird-leads",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-29-white-bird-leads.webp",
-      "integrity": "sha256-G99py36T6ye0bhQgMxWG6qCPxN2/7mPXhSRyIHLyVLI="
-    },
-    {
-      "slug": "window-epilogue",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-26-window-epilogue.webp",
-      "integrity": "sha256-YtKYlfPZLa93hFIsBdSKPWuI8PiEaKFClUDYwKBLX60="
-    },
-    {
-      "slug": "witch-demonstrates-oven",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-43-witch-demonstrates-oven-v2.webp",
-      "integrity": "sha256-hfI+PhuF0CQOvly6YArdMb+Uz1wB6uZOqc2twARS6TY="
-    },
-    {
-      "slug": "witch-loses-patience",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-32-witch-loses-patience.webp",
-      "integrity": "sha256-IJrO2AtErHGzDqpilyTvevJsH+u/5kvtP2vVbQy9o5c="
-    },
-    {
-      "slug": "witch-reveal",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-11-witch-reveal-v3.webp",
-      "integrity": "sha256-I/OeshZwSQ4uTwcQxMe0472tdL6EVKwM+vHZSPrkcoY="
-    },
-    {
-      "slug": "witch-sets-down-keys",
-      "category": "SCENE_ART",
-      "file": "illustrations/hg-art-33-witch-sets-down-keys-v2.webp",
-      "integrity": "sha256-B8B41G/WVqpqtgtubzJJqfKVZesO5uyuJjqRsH9oupY="
     }
   ]
 }

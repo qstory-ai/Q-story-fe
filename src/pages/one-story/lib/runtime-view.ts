@@ -148,7 +148,9 @@ export function getBranchFamily(state: StoryRuntimeState, storyPackage: StoryRun
     return null;
   }
   if (state.plan.kind === 'fallback') {
-    return storyPackage.presentation.fallbackByFamilyId[state.plan.familyId];
+    return state.plan.familyId
+      ? storyPackage.presentation.fallbackByFamilyId[state.plan.familyId]
+      : null;
   }
   if (state.plan.kind === 'story-change') {
     return storyPackage.presentation.fallbackByFamilyId[

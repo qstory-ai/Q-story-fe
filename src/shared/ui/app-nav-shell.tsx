@@ -158,7 +158,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
                 size={20}
                 color={item.active ? storybookTheme.color.primary : storybookTheme.color.onContentMuted}
               />
-              <Text style={[styles.bottomBarLabel, item.active && styles.bottomBarLabelActive]}>
+              <Text numberOfLines={1} style={[styles.bottomBarLabel, item.active && styles.bottomBarLabelActive]}>
                 {item.label}
               </Text>
             </Pressable>

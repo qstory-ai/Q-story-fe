@@ -749,8 +749,25 @@ function validateStoryPackage(source) {
     if (!speakerIds.has(anchor.primarySpeakerId) || !anchor.allowedSpeakerIds?.every((id) => speakerIds.has(id))) {
       fail(story.storyId, `${anchorId} references an unknown speaker`);
     }
-    const familyIds = new Set(anchor.actionFamilies?.map((family) => family.id));
-    if (!familyIds.has(anchor.defaultFallbackFamilyId)) fail(story.storyId, `${anchorId} default fallback is not allowed`);
+    if (!Array.isArray(anchor.actionFamilies)) fail(story.storyId, `${anchorId} actionFamilies must be a list`);
+    const familyIds = new Set(anchor.actionFamilies.map((family) => family.id));
+    // 기본 분기는 선택이다 - 없으면(null) 질문만 하거나 연결이 실패했을 때 기본 이야기로 이어 간다.
+    // 행동 분기가 하나도 없는 질문 지점(대화만 하는 지점)은 기본 분기를 둘 수 없다.
+    if (
+      anchor.defaultFallbackFamilyId != null &&
+      !familyIds.has(anchor.defaultFallbackFamilyId)
+    ) {
+      fail(story.storyId, `${anchorId} default fallback is not allowed`);
+    }
+    if (anchor.liveBranchGeneration !== undefined && typeof anchor.liveBranchGeneration !== 'boolean') {
+      fail(story.storyId, `${anchorId} liveBranchGeneration must be true or false`);
+    }
+    if (anchor.concernChoice != null) {
+      const choiceIds = anchor.concernChoice.familyIds ?? [];
+      if (choiceIds.length !== 3 || choiceIds.some((id) => !familyIds.has(id))) {
+        fail(story.storyId, `${anchorId} concernChoice needs three of its own families`);
+      }
+    }
     if (!declaredRejoins.has(anchor.defaultRejoinAt)) {
       fail(story.storyId, `${anchorId} default rejoin is not declared`);
     }

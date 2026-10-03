@@ -15,6 +15,14 @@ function defaultForInput(
   storyPackage: StoryRuntimePackage,
 ): FallbackPlan {
   const fallback = defaultFallbackFamilyFor(storyPackage, input);
+  if (!fallback) {
+    return {
+      kind: 'fallback',
+      familyId: null,
+      text: '목소리를 잘 담았어. 지금은 이야기를 이어서 들려줄게.',
+      rejoinAt: null,
+    };
+  }
   return {
     kind: 'fallback',
     familyId: fallback.id,

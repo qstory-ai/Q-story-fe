@@ -41,7 +41,7 @@ test('parent report summarizes meaning without storing the transcript', () => {
   );
   assert.equal(report.questionRecords[0].imageRef.kind, 'FIXED_STORY_ASSET');
   assert.match(report.questionRecords[0].questionTypeLabel, /행동/);
-  assert.deepEqual(report.curiosityTopics, ['하얀 새의 행동과 길 찾기']);
+  assert.deepEqual(report.curiosityTopics, ['자꾸 돌아보는 하얀 새 관찰하기']);
   assert.match(report.changedMoments[0], /실제 행동/);
   assert.match(report.coachObservation, /1개 질문 장면/);
   assert.match(report.coachEvidence[0], /하얀 새/);
@@ -55,19 +55,19 @@ test('selected path becomes the changed moment', () => {
     RouteOption,
     'label' | 'meaning' | 'actionFamilyId'
   > = {
-    label: '출구 표시하기',
-    meaning: '한 걸음 물러나 안전한 출구 위치를 표시한다.',
-    actionFamilyId: 'B_STEP_BACK_MARK_EXIT',
+    label: '헨젤이 마녀 부르기',
+    meaning: '헨젤이 마녀를 부르는 동안 그레텔이 열쇠를 가져온다.',
+    actionFamilyId: 'C_DISTRACT_AND_TAKE_KEYS',
   };
   const report = buildParentReport(
     reportCopy,
     [
       {
-        anchorId: questionAnchorId('HG-Q-B'),
-        childRelevantMeaning: '어떻게 안전을 확인할지 궁금하다.',
-        route: 'THREE_PATHS',
-        responseText: '세 가지 방법 중 하나를 골라 보자.',
-        actionFamilyId: 'B_STEP_BACK_MARK_EXIT',
+        anchorId: questionAnchorId('HG-Q-C'),
+        childRelevantMeaning: '헨젤이 마녀를 부르는 동안 열쇠를 가져오자.',
+        route: 'DIRECT_ACTION',
+        responseText: '좋아, 헨젤이 마녀를 부르는 동안 내가 열쇠를 가져올게.',
+        actionFamilyId: 'C_DISTRACT_AND_TAKE_KEYS',
         selectedOption,
       },
     ],
@@ -77,14 +77,14 @@ test('selected path becomes the changed moment', () => {
     },
   );
 
-  assert.match(report.changedMoments[0], /출구 위치를 표시/);
+  assert.match(report.changedMoments[0], /마녀를 부르는/);
   assert.equal(
     report.questionRecords[0].selectedPathTitle,
-    '출구 표시하기',
+    '헨젤이 마녀 부르기',
   );
   assert.match(
     report.questionRecords[0].selectedPathSummary,
-    /안전한 출구/,
+    /열쇠를 가져온다/,
   );
   assert.equal(
     report.questionRecords[0].imageRef.kind,
@@ -92,16 +92,15 @@ test('selected path becomes the changed moment', () => {
   );
   assert.equal(
     report.questionRecords[0].imageRef.assetId,
-    'b-step-back-mark-exit-01',
+    'c-distract-and-take-keys-01',
   );
   assert.match(
     report.questionRecords[0].storyDevelopmentSummary,
-    /과자집 주위/,
+    /시선을 돌린 사이/,
   );
-  assert.match(report.coachEvidence[0], /출구 표시하기/);
-  assert.match(report.coachInterpretations[0], /안전 확보/);
-  assert.match(report.followUpQuestions[0], /처음 만난 사람/);
-  assert.match(report.followUpQuestions[1], /다른 방법/);
+  assert.match(report.coachEvidence[0], /헨젤이 마녀 부르기/);
+  assert.match(report.coachInterpretations[0], /함께 움직일 방법/);
+  assert.match(report.followUpQuestions[0], /그레텔과 헨젤이 함께/);
 });
 
 test('question-free completion still produces a non-evaluative report', () => {
@@ -131,17 +130,16 @@ test('three question records produce one follow-up per story anchor', () => {
       },
       {
         anchorId: questionAnchorId('HG-Q-B'),
-        childRelevantMeaning: '집이 안전한지 궁금하다.',
-        route: 'DIRECT_ACTION',
-        responseText: '열쇠를 살펴보자.',
-        actionFamilyId: 'B_CHECK_KEYS',
+        childRelevantMeaning: '할머니가 누구인지 궁금하다.',
+        route: 'ANSWER_RESUME',
+        responseText: '이 집에서 나온 할머니야. 우리도 처음 만났어.',
       },
       {
         anchorId: questionAnchorId('HG-Q-C'),
-        childRelevantMeaning: '그레텔이 안전할 방법이 궁금하다.',
+        childRelevantMeaning: '마녀가 등을 돌릴 때까지 기다리자.',
         route: 'DIRECT_ACTION',
-        responseText: '멀리서 잠금을 확인하자.',
-        actionFamilyId: 'C_CHECK_LOCK_FROM_DISTANCE',
+        responseText: '좋아, 마녀가 등을 돌릴 때까지 조용히 기다려 볼게.',
+        actionFamilyId: 'C_WAIT_FOR_WITCH_TURN',
       },
     ],
     {
@@ -151,7 +149,8 @@ test('three question records produce one follow-up per story anchor', () => {
   );
 
   assert.equal(report.coachEvidence.length, 3);
-  assert.match(report.coachInterpretations[0], /3개 장면/);
+  // B는 대화만 해서 분기 전략이 없고, A·C가 같은 '관찰하고 확인하기' 전략이다.
+  assert.match(report.coachInterpretations[0], /2개 장면/);
   assert.match(report.followUpQuestions[0], /하얀 새/);
   assert.match(report.followUpQuestions[1], /처음 만난 사람/);
   assert.match(report.followUpQuestions[2], /그레텔/);
@@ -172,13 +171,13 @@ test('agency experience requires an actual action route or a selected path', () 
   assert.equal(
     hasExperiencedStoryAgency([
       {
-        anchorId: questionAnchorId('HG-Q-B'),
-        childRelevantMeaning: '창문과 출구를 확인한다.',
+        anchorId: questionAnchorId('HG-Q-C'),
+        childRelevantMeaning: '열쇠를 가져올 방법을 고른다.',
         route: 'THREE_PATHS',
         responseText: '다음 행동을 골라 보자.',
         selectedOption: {
-          label: '창문과 출구 확인하기',
-          meaning: '문턱 밖에서 다른 출구가 있는지 살펴본다.',
+          label: '등 돌릴 때 기다리기',
+          meaning: '마녀가 다른 곳을 볼 때까지 기다렸다가 열쇠를 가져온다.',
         },
       },
     ]),
@@ -188,18 +187,18 @@ test('agency experience requires an actual action route or a selected path', () 
 
 test('recent approach trend surfaces a strategy repeated across sessions', () => {
   const checkKeysOutcome = {
-    anchorId: questionAnchorId('HG-Q-B'),
-    childRelevantMeaning: '열쇠가 어디 있는지 확인한다.',
-    route: 'THREE_PATHS' as const,
-    responseText: '열쇠부터 확인하자.',
-    actionFamilyId: 'B_CHECK_KEYS',
+    anchorId: questionAnchorId('HG-Q-C'),
+    childRelevantMeaning: '마녀가 어디를 보는지 살피며 기다린다.',
+    route: 'DIRECT_ACTION' as const,
+    responseText: '마녀가 등을 돌릴 때까지 기다려 보자.',
+    actionFamilyId: 'C_WAIT_FOR_WITCH_TURN',
   };
   const markExitOutcome = {
-    anchorId: questionAnchorId('HG-Q-B'),
-    childRelevantMeaning: '출구를 미리 표시해 둔다.',
+    anchorId: questionAnchorId('HG-Q-C'),
+    childRelevantMeaning: '헨젤이 마녀를 부른다.',
     route: 'DIRECT_ACTION' as const,
-    responseText: '출구 표시부터 하자.',
-    actionFamilyId: 'B_STEP_BACK_MARK_EXIT',
+    responseText: '헨젤이 마녀를 부르는 동안 가져오자.',
+    actionFamilyId: 'C_DISTRACT_AND_TAKE_KEYS',
   };
   const noQuestionOutcome = {
     anchorId: questionAnchorId('HG-Q-A'),
@@ -217,7 +216,7 @@ test('recent approach trend surfaces a strategy repeated across sessions', () =>
   assert.equal(trend.sessionCount, 3);
   assert.equal(trend.questionSessionCount, 2);
   assert.deepEqual(trend.repeatedApproach, { label: '단서를 관찰하고 확인하기', count: 2 });
-  assert.deepEqual(trend.otherApproaches, ['미리 계획하고 안전 확보하기']);
+  assert.deepEqual(trend.otherApproaches, ['함께 움직일 방법 정하기']);
 });
 
 test('recent approach trend has no repeated approach when nothing recurs', () => {
@@ -241,4 +240,29 @@ test('recent approach trend has no repeated approach when nothing recurs', () =>
   assert.equal(trend.questionSessionCount, 1);
   assert.equal(trend.repeatedApproach, null);
   assert.deepEqual(trend.otherApproaches, ['단서를 관찰하고 확인하기']);
+});
+
+test('a record saved under a retired branch still builds a report from the story image', () => {
+  // Q-30 이전 판본의 완료 기록에는 지금은 없는 분기 id가 남아 있다 - 리포트는 깨지지 않고
+  // 그 장면의 고정 삽화와 일반 문구로 보여 준다.
+  const report = buildParentReport(
+    reportCopy,
+    [
+      {
+        anchorId: questionAnchorId('HG-Q-B'),
+        childRelevantMeaning: '한 걸음 물러나 출구를 표시한다.',
+        route: 'DIRECT_ACTION',
+        responseText: '출구 표시부터 하자.',
+        actionFamilyId: 'B_STEP_BACK_MARK_EXIT',
+      },
+    ],
+    {
+      branchAssetId: storyPackage.branchIllustrationAssetId,
+      branchSummary: storyPackage.branchReportSummary,
+    },
+  );
+
+  assert.equal(report.questionRecords.length, 1);
+  assert.equal(report.questionRecords[0].imageRef.kind, 'FIXED_STORY_ASSET');
+  assert.equal(report.questionRecords[0].imageRef.assetId, 'old-woman-door');
 });

@@ -31,7 +31,7 @@ personas:
     ageBand: 성인(아버지)
     personality:
       traits: [지치고 근심 많음, 책임감 있음, 우유부단함]
-      oneLiner: 가난 앞에서 흔들리지만 결국 책임을 인정하는 아버지
+      oneLiner: 새어머니의 고집에 끝내 동의했지만, 돌아온 아이들 앞에서 자기 잘못을 인정하는 아버지
     speechStyle:
       endings: ["~구나", "~하자"]
       catchphrases: []
@@ -49,8 +49,8 @@ personas:
       - with: STEPMOTHER
         label: 아내
     knowledgeBoundary:
-      knows: [집안 형편이 어렵다는 것, 새어머니의 제안에 동의했다는 것]
-      doesNotKnow: [아이들이 조약돌·빵 부스러기로 정확히 무엇을 준비했는지]
+      knows: [집에 먹을 것이 부족하다는 것, 새어머니의 제안에 두 번 동의했다는 것, 하얀 천을 묶으며 아이들을 찾아다녔다는 것]
+      doesNotKnow: [아이들이 하얀 돌·빵 조각으로 정확히 무엇을 준비했는지, 과자집에서 일어난 일(F10 이전)]
       neverRevealsFirst: [아이들이 숲에서 겪은 일을 해당 장면 전에]
     samePersonKey: null
   STEPMOTHER:
@@ -105,9 +105,9 @@ personas:
       - with: STEPMOTHER
         label: 새어머니
     knowledgeBoundary:
-      knows: [숲에 두 번 버려졌다는 것, 조약돌·빵 부스러기 계획]
-      doesNotKnow: [노파가 처음부터 마녀로 위장하고 있었다는 사실(F06 이전)]
-      neverRevealsFirst: [과자집의 진짜 정체(F06 이전)]
+      knows: [숲에 두 번 남겨졌다는 것, 하얀 돌과 빵 조각으로 길을 표시한 계획]
+      doesNotKnow: [할머니가 아이들을 붙잡아 일을 시키는 마녀라는 사실(F06 이전), 하얀 새가 왜 돌아보는지]
+      neverRevealsFirst: [할머니의 정체(F06 이전), 열쇠를 가져올 방법을 정답처럼 먼저 말하기]
     samePersonKey: null
   GRETEL:
     speakerId: HG-SPK-GRETEL
@@ -133,9 +133,9 @@ personas:
       - with: STEPMOTHER
         label: 새어머니
     knowledgeBoundary:
-      knows: [숲에 두 번 버려졌다는 것, 조약돌·빵 부스러기 계획]
-      doesNotKnow: [노파가 처음부터 마녀로 위장하고 있었다는 사실(F06 이전)]
-      neverRevealsFirst: [과자집의 진짜 정체(F06 이전)]
+      knows: [숲에 두 번 남겨졌다는 것, 하얀 돌과 빵 조각으로 길을 표시한 계획, 은색 열쇠는 쇠창살 문·검은 열쇠는 부엌 문을 연다는 것(F06 이후)]
+      doesNotKnow: [할머니가 아이들을 붙잡아 일을 시키는 마녀라는 사실(F06 이전), 하얀 새가 왜 돌아보는지]
+      neverRevealsFirst: [할머니의 정체(F06 이전), 열쇠를 가져올 방법을 정답처럼 먼저 말하기]
     samePersonKey: null
   OLD_WOMAN:
     speakerId: HG-SPK-OLD_WOMAN
@@ -143,7 +143,7 @@ personas:
     ageBand: 노년 여성
     personality:
       traits: [다정해 보임, 은근히 수상함]
-      oneLiner: 친절한 척하지만 사실은 마녀인 노파
+      oneLiner: 길 잃은 남매에게 빵과 쉴 곳을 권하는 할머니 - 사실은 아이들을 붙잡아 일을 시키는 마녀
     speechStyle:
       endings: ["~란다", "~구나"]
       catchphrases: []
@@ -155,7 +155,7 @@ personas:
     appearanceFacts: [회색 머리를 뒤로 올림, 어두운 보라색 옷]
     relationships: []
     knowledgeBoundary:
-      knows: [자신이 마녀라는 것, 아이들을 왜 초대했는지]
+      knows: [자신이 마녀라는 것, 아이들을 붙잡아 일을 시키려고 초대했다는 것]
       doesNotKnow: []
       neverRevealsFirst: [자신이 마녀라는 사실(F06 이전)]
     samePersonKey: OLD_WOMAN_WITCH
@@ -165,7 +165,7 @@ personas:
     ageBand: 노년 여성(정체가 드러난 뒤)
     personality:
       traits: [차가움, 조급함, 위협적]
-      oneLiner: 정체가 드러난 뒤의 노파 - 같은 인물의 다른 상태
+      oneLiner: 정체가 드러난 뒤의 할머니 - 아이들을 가두고 일을 시키는 같은 인물
     speechStyle:
       endings: ["~해라", "~다"]
       catchphrases: []
@@ -177,7 +177,7 @@ personas:
     appearanceFacts: [회색 머리를 뒤로 올림, 어두운 보라색 옷]
     relationships: []
     knowledgeBoundary:
-      knows: [아이들을 가두고 있다는 것, 열쇠 규칙]
+      knows: [헨젤을 쇠창살에 가두고 부엌 문을 잠갔다는 것, 은색 열쇠는 쇠창살 문·검은 열쇠는 부엌 문을 연다는 것]
       doesNotKnow: [아이들이 협력해서 탈출 방법을 짜고 있다는 것]
       neverRevealsFirst: [탈출 방법에 대한 힌트를 스스로 주지 않는다]
     samePersonKey: OLD_WOMAN_WITCH

@@ -12,10 +12,10 @@ topics:
       noForcedAnswer: true
       respectChildOpinion: true
   - id: HG-DISC-02
-    statement: 무서웠던 아빠의 선택은 괜찮은 걸까?
+    statement: 아빠가 잘못을 인정했을 때, 바로 괜찮아지지 않아도 될까?
     relatedSceneIds: [HG-F01, HG-F10]
     relatedAssetIds: []
-    ageHint: "5~7세: 아빠도 실수할 수 있다는 것과, 잘못을 인정하고 되돌리는 것의 가치를 함께 이야기한다"
+    ageHint: "5~7세: 아빠가 잘못을 인정한 것과, 아이의 무서운 마음이 바로 사라지지 않아도 된다는 것을 함께 이야기한다"
     safetyBoundary:
       noForcedAnswer: true
       respectChildOpinion: true

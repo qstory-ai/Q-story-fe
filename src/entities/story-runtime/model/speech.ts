@@ -68,7 +68,8 @@ export type StoryChangePlan = {
 
 export type FallbackPlan = {
   kind: 'fallback';
-  familyId: FallbackFamilyId;
+  /** 질문 지점에 기본 분기가 없으면 null - 준비된 장면 대신 기본 이야기로 이어 간다. */
+  familyId: FallbackFamilyId | null;
   text: string;
   rejoinAt: RejoinAnchorId | null;
 };

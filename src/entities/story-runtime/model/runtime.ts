@@ -255,8 +255,10 @@ function routePlanIssue(
       !anchor.fallbackFamilyIds.includes(plan.actionFamilyId) ||
       !plan.rejoinAt ||
       !anchor.allowedRejoinAnchorIds.includes(plan.rejoinAt) ||
-      !plan.fallbackFamilyId ||
-      !anchor.fallbackFamilyIds.includes(plan.fallbackFamilyId) ||
+      // 기본 분기가 없는 질문 지점에서는 서버가 fallbackFamilyId를 비워 보낼 수 있다 -
+      // normalizeActionRoutePlan이 실행할 family로 채운다.
+      (plan.fallbackFamilyId !== null &&
+        !anchor.fallbackFamilyIds.includes(plan.fallbackFamilyId)) ||
       plan.options.length > 0
     ) {
       return 'Action route contains an invalid family or rejoin.';
@@ -1015,6 +1017,7 @@ function transitionFromProcessingQuestion(
 
     if (
       event.plan.kind === 'fallback' &&
+      event.plan.familyId !== null &&
       !anchor.fallbackFamilyIds.includes(event.plan.familyId)
     ) {
       return invalidTransition(
@@ -1211,7 +1214,24 @@ function transitionFromFailedRecoverable(
     }
 
     const anchor = findAnchor(manifest, state.anchorId);
-    if (!anchor || !anchor.fallbackFamilyIds.includes(event.plan.familyId)) {
+    if (!anchor) {
+      return invalidTransition(state, event, 'Question anchor is missing.');
+    }
+    if (event.plan.familyId === null) {
+      // 기본 분기가 없는 질문 지점 - 준비된 장면 없이 기본 이야기로 이어 간다.
+      return continueFromAnchor(
+        manifest,
+        {
+          status: 'awaiting-question',
+          sceneId: state.sceneId,
+          anchorId: state.anchorId,
+          questionRound: state.questionRound ?? 1,
+          consecutiveSafetyFailures: state.consecutiveSafetyFailures ?? 0,
+        },
+        anchor,
+      );
+    }
+    if (!anchor.fallbackFamilyIds.includes(event.plan.familyId)) {
       return invalidTransition(
         state,
         event,

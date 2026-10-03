@@ -378,9 +378,9 @@ export function buildStoryRuntimePackage({
         fallbackFamilyIds: slotFallbacks.map((fallback) =>
           fallbackFamilyId(fallback.id),
         ),
-        defaultFallbackFamilyId: fallbackFamilyId(
-          anchor.defaultFallbackFamilyId,
-        ),
+        defaultFallbackFamilyId: anchor.defaultFallbackFamilyId
+          ? fallbackFamilyId(anchor.defaultFallbackFamilyId)
+          : null,
       });
     });
   }

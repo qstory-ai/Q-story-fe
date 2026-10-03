@@ -436,7 +436,7 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 “둘이 타면 너무 무거울 테니까.”
 
 [NARRATOR | FIXED]
-오리는 두 아이를 한 명씩 건너편으로 데려다주었어요.
+흰 오리는 두 아이를 한 명씩 건너편으로 데려다주었어요.
 
 [VISUAL | HG-VIS-F09-03 | asset=marked-return-path | mode=siblings-find-white-cloth-tied-to-branch-and-see-home | time=late-day | location=marked-forest-path | characters=HANSEL,GRETEL | entry=siblings-across-water | action=siblings-walk-toward-tree-with-white-cloth | exit=home-roof-seen]
 

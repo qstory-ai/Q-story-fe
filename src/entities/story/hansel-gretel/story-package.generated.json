@@ -1623,1418 +1623,1401 @@
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-26-window-epilogue-v2.webp"
     },
     {
-      "slug": "a-check-surroundings-bridge",
-      "category": "BRIDGE",
-      "familyId": "A_CHECK_SURROUNDINGS",
-      "file": "audio/bridge-a_check_surroundings.mp3",
-      "integrity": "sha256-Em2XeO+txpcchrqlN5xrlGNuNVQ/hiC+kMsI24DB1ps=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-a_check_surroundings.mp3"
+      "slug": "f01-002",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-082d8add484a.mp3",
+      "integrity": "sha256-GcmqKxIVJAnAwp9Kfa6Cb2ftAbf6BQfEpKztwnS9jyg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-082d8add484a.mp3"
+    },
+    {
+      "slug": "f01-003",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-5a3a8362e979.mp3",
+      "integrity": "sha256-kwECH7qGXRtUpmsi43FXSckq9UGuDHg898UgF+Q9k70=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-5a3a8362e979.mp3"
+    },
+    {
+      "slug": "f01-004",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-add84c5b7ac0.mp3",
+      "integrity": "sha256-IqFJ4/a2AQJgHZ8FwBit72WCjnjWKul2O63mwOygysE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-add84c5b7ac0.mp3"
+    },
+    {
+      "slug": "f01-005",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-4e74a25f04ea.mp3",
+      "integrity": "sha256-lPO7i8kRGNMMWzyeWAMO33JBFc0DYyh2lbSEhMyHnd4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-4e74a25f04ea.mp3"
+    },
+    {
+      "slug": "f01-006",
+      "category": "NARRATION",
+      "file": "audio/q30-father-3463172ec626.mp3",
+      "integrity": "sha256-lL28f8wMY9LxmwZYX2gO59kqo2TWMA8VmRS+Tm8Myc8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-3463172ec626.mp3"
+    },
+    {
+      "slug": "f01-008",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-2f2ee1198791.mp3",
+      "integrity": "sha256-x9z2lcb2bSDabpJWl+rreN7URKyvBMV2ytUFhjRl8XY=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-2f2ee1198791.mp3"
+    },
+    {
+      "slug": "f01-009",
+      "category": "NARRATION",
+      "file": "audio/q30-father-7a24670cf0e4.mp3",
+      "integrity": "sha256-fyOmVeyHZEP6BaYE8ftQq6JDX6Ia2cjX5aiEsFuvd74=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-7a24670cf0e4.mp3"
+    },
+    {
+      "slug": "f01-010",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-85655dda5382.mp3",
+      "integrity": "sha256-x6LlcNMAtuOZOaXda5s4Es/EcEWIgrmVAO1mutoLSXU=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-85655dda5382.mp3"
+    },
+    {
+      "slug": "f01-011",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-211662686722.mp3",
+      "integrity": "sha256-ocYqheFDd0Fuj6SIMqZx29lKFJG/O4pebqGcVGcjtIg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-211662686722.mp3"
+    },
+    {
+      "slug": "f01-012",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-3da000bb88d3.mp3",
+      "integrity": "sha256-/gLSW0GqU4IOXkyC1iaG/67mpS4zEXhNQ5FKItH9HKo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-3da000bb88d3.mp3"
+    },
+    {
+      "slug": "f01-013",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-f90728e586fc.mp3",
+      "integrity": "sha256-L1aeyC17q6sRa15HLODrty8rzAwxB0mm+SdIokQH220=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-f90728e586fc.mp3"
+    },
+    {
+      "slug": "f01-014",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-68e14653fb9c.mp3",
+      "integrity": "sha256-IHP/jOmpSFE9sOiqXZa3NDvgFH9lewJbzcksLagH/8Y=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-68e14653fb9c.mp3"
+    },
+    {
+      "slug": "f01-015",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-70fdb9a6d7e3.mp3",
+      "integrity": "sha256-7Yw4712G+hyyOTeaZvJogZI+PGIXHxl7TRIlCuwbAO4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-70fdb9a6d7e3.mp3"
+    },
+    {
+      "slug": "f01-016",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-f1d0a02bab71.mp3",
+      "integrity": "sha256-AcWbjknrjlgJj43qphRLJZVL0em38fWGJEtVodb0evw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-f1d0a02bab71.mp3"
+    },
+    {
+      "slug": "f01-017",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-4f2c76fb6a3f.mp3",
+      "integrity": "sha256-3dUxCEfIomE/atCY3Y500Kfpq6mSfgQqG0Y7lWtRqDM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-4f2c76fb6a3f.mp3"
+    },
+    {
+      "slug": "f02-002",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-7ead16afb06f.mp3",
+      "integrity": "sha256-SCLN19gIrUMWODi5qanj9elacoIPe2In19W1w8Xigvg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-7ead16afb06f.mp3"
+    },
+    {
+      "slug": "f02-004",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-112ee6f275ae.mp3",
+      "integrity": "sha256-SStFhnM+gMSC1Wz/bq4Clbv2DJLssrH971Dk2Sb/GDE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-112ee6f275ae.mp3"
+    },
+    {
+      "slug": "f02-005",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-a95fb0d79147.mp3",
+      "integrity": "sha256-I9wOv00mkwV0nwgWZoQWkVnjlA523A1MG1qbw6CAmlo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-a95fb0d79147.mp3"
+    },
+    {
+      "slug": "f02-007",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-bc5f68ca5fce.mp3",
+      "integrity": "sha256-WDx2FsEMddsc9yL4c5eL5g3/A8GvQ7JN+lkqsOX8nWg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-bc5f68ca5fce.mp3"
+    },
+    {
+      "slug": "f02-008",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-97de7e21d06e.mp3",
+      "integrity": "sha256-2OX8iZg1Cewgg8q3s3PrcewTqQixbBiJDee8imwmo3Q=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-97de7e21d06e.mp3"
+    },
+    {
+      "slug": "f02-010",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-3b457e6bc4b2.mp3",
+      "integrity": "sha256-imDWAU0AO7q+6Dmwmp52m1Epf7qdS4LjtqhEpHzuvTk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-3b457e6bc4b2.mp3"
+    },
+    {
+      "slug": "f02-011",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-9ddabb92df00.mp3",
+      "integrity": "sha256-PK7+wG+JVQ6L3L8/9HXnELzylB3Ti5H7gtF0bPf0Y9Y=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-9ddabb92df00.mp3"
+    },
+    {
+      "slug": "f02-012",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-ba88a3efff5f.mp3",
+      "integrity": "sha256-AGeALqGiKG5DVoam/8HskPHPGcLEFZdWPlhm2+rnxS4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-ba88a3efff5f.mp3"
+    },
+    {
+      "slug": "f02-014",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-747fbe36f9e1.mp3",
+      "integrity": "sha256-HKxuf6lB2RTKkFMtKGjXTFeECqmtc4GzLKfldD7tAZg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-747fbe36f9e1.mp3"
+    },
+    {
+      "slug": "f02-015",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-9718440a6308.mp3",
+      "integrity": "sha256-sBwdw/OvFKuWjxoaik3K0M2AbMFvb1mSvaX6ut4Pl9M=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-9718440a6308.mp3"
+    },
+    {
+      "slug": "f02-017",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-8d26c1c2ef0f.mp3",
+      "integrity": "sha256-Q1TFkSQcUPWjHUdXA6Gqft7oAwIgfSZNqRZc/sI1zIo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8d26c1c2ef0f.mp3"
+    },
+    {
+      "slug": "f02-018",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-90b530573e65.mp3",
+      "integrity": "sha256-GbDLFXO/4K6kDNbGV7MwiH0PcnEtYEsgDnMHCCFLKps=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-90b530573e65.mp3"
+    },
+    {
+      "slug": "f02-019",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-0c74b2349dc1.mp3",
+      "integrity": "sha256-cbMF0Trr0Y6Wozs1PHtKnxkmZMOPP9LsFrN83BUtLUQ=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-0c74b2349dc1.mp3"
+    },
+    {
+      "slug": "f02-021",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-8a7a61058958.mp3",
+      "integrity": "sha256-FRJvDTQMZEu/Nly2OkwdvKWwXIhVOZIFb2ido0qo1lI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8a7a61058958.mp3"
+    },
+    {
+      "slug": "f02-022",
+      "category": "NARRATION",
+      "file": "audio/q30-stepmother-0cacd471fc9a.mp3",
+      "integrity": "sha256-m1w2f56XvB2XV8T+mLlLnwDdK0ha1//rQw94AiIbnAE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-stepmother-0cacd471fc9a.mp3"
+    },
+    {
+      "slug": "f02-023",
+      "category": "NARRATION",
+      "file": "audio/q30-father-ba8a2c4235a6.mp3",
+      "integrity": "sha256-pno1rF9jF6yLkRADHgshxd54FQiWyvaLhf86ER71O4M=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-ba8a2c4235a6.mp3"
+    },
+    {
+      "slug": "f02-024",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-95799c2d3be3.mp3",
+      "integrity": "sha256-Q+bk5C7AvDUqcZMirWvlN9+84zncDlsadWs3sw4CvLc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-95799c2d3be3.mp3"
+    },
+    {
+      "slug": "f02-025",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-8440dff650c6.mp3",
+      "integrity": "sha256-3IHVTNzhRXI5kjn7CtVMlicJKm10xFWoKpgn3EB1ZSA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8440dff650c6.mp3"
+    },
+    {
+      "slug": "f02-026",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-ce3dc87adc4d.mp3",
+      "integrity": "sha256-THmH3wNtk8TReGFp8rmc3gEe0SbZ6kR03ry01DfhSTI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-ce3dc87adc4d.mp3"
+    },
+    {
+      "slug": "f02-027",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-b7b68eb88470.mp3",
+      "integrity": "sha256-Ehl0STWHorw3nLfW1/+MRkqaFdFAgW75dwJcS6KDoA0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-b7b68eb88470.mp3"
+    },
+    {
+      "slug": "f03-002",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-c45cc9650660.mp3",
+      "integrity": "sha256-HThGfiKl4rFNov1nXpjaBbzF6KCzVbBiId/qkTbqqxE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-c45cc9650660.mp3"
+    },
+    {
+      "slug": "f03-003",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-2501e2005ca0.mp3",
+      "integrity": "sha256-QqD/ApcPJdFOEqhq7YmAsa29S3ifLYic46glBYBH+O8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-2501e2005ca0.mp3"
+    },
+    {
+      "slug": "f03-004",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-54375e70c0b9.mp3",
+      "integrity": "sha256-dVovqkpO8n8Kx4JRlx7q4JB3J4ULT0FUGa6H9qiXPb8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-54375e70c0b9.mp3"
+    },
+    {
+      "slug": "f03-005",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-69410e5cd5b4.mp3",
+      "integrity": "sha256-c5vSd83TOp56ReY5lMH1l7QSqBDbYggcu0NEEjqi3a0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-69410e5cd5b4.mp3"
+    },
+    {
+      "slug": "f03-006",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-a9861512a863.mp3",
+      "integrity": "sha256-AubUHYEvM06EkJ/vyj74QHi0pvlry1fwXkzgF4ybRwA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-a9861512a863.mp3"
+    },
+    {
+      "slug": "f03-007",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-31c4e7aa2901.mp3",
+      "integrity": "sha256-ejiKw76rJ1L4QxXKUIQSvuP26tB/Bfb7qtESHR4vIlI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-31c4e7aa2901.mp3"
+    },
+    {
+      "slug": "f03-009",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-eb276aff26b4.mp3",
+      "integrity": "sha256-iJn77ghQTvDvZrKYOI6oeo37a/7UVwZRrsxGwTt8PUM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-eb276aff26b4.mp3"
+    },
+    {
+      "slug": "f03-010",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-a26ecf0f1335.mp3",
+      "integrity": "sha256-TBBtLv5qWRSM7+Nk1RH2CIAymPjB/wKsrfRlM9dLU7k=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-a26ecf0f1335.mp3"
+    },
+    {
+      "slug": "f03-011",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-4384a96925df.mp3",
+      "integrity": "sha256-0+xymTTLqY4B37eexCZ+yaf5bCWCImRaaYZj6KOOVyM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-4384a96925df.mp3"
+    },
+    {
+      "slug": "f03-012",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-bc91f37d3ae8.mp3",
+      "integrity": "sha256-vRkDc2DmzQ+jZ1otq8yHHUj2+PqgQg54Nmws4hvv4zo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-bc91f37d3ae8.mp3"
+    },
+    {
+      "slug": "f03-013",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-6f143a959acb.mp3",
+      "integrity": "sha256-XqeE+Q67GkYZBOC6VRUAoZHZg6DVIdfEy/AjjzDy8RE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-6f143a959acb.mp3"
+    },
+    {
+      "slug": "f03-015",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-4a77cdff3892.mp3",
+      "integrity": "sha256-XGPi5+z0Bb3d9diTeDp298P1HLL/Tz2Z9VWntgJhDw4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-4a77cdff3892.mp3"
+    },
+    {
+      "slug": "f03-016",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-a2a979acafce.mp3",
+      "integrity": "sha256-qPhKL/1FaGg5ObJwn4EJYt50P7WJm4Sp1Ky0MQguTO4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-a2a979acafce.mp3"
+    },
+    {
+      "slug": "f03-017",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-067649f1926d.mp3",
+      "integrity": "sha256-pn8nDsS54PBh5M65rmdFHnupBNuqpXYHh2kVlEkXHI8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-067649f1926d.mp3"
+    },
+    {
+      "slug": "f03-018",
+      "category": "NARRATION",
+      "file": "audio/q30-stepmother-9c1d023b6c9a.mp3",
+      "integrity": "sha256-4fXP954K+F9jDUJTfTQ/gDTD/4IRmCKJXnLiiYwP5bE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-stepmother-9c1d023b6c9a.mp3"
+    },
+    {
+      "slug": "f03-020",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-45d03b4c4f7a.mp3",
+      "integrity": "sha256-QHFs+DGjFtSeDQrb7Wj1UkAIkfKnVLUpUCjwsbBLwuQ=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-45d03b4c4f7a.mp3"
+    },
+    {
+      "slug": "f03-021",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-0775184e8160.mp3",
+      "integrity": "sha256-tTc1uGC0iiN+Mp+CO9k9tVpahyl7sfgVox+0rCTumvc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-0775184e8160.mp3"
+    },
+    {
+      "slug": "f03-022",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-c5c7ea523aed.mp3",
+      "integrity": "sha256-6LyBF1aEm4TsWSU/yIeiTRrNAze7ySnJ/KfhNdoqI64=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-c5c7ea523aed.mp3"
+    },
+    {
+      "slug": "f03-024",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-b2f889ba14e5.mp3",
+      "integrity": "sha256-JIduvvjB+8M4mAmpiP38vzJgGiMKFyRFygvTAy+fBNs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-b2f889ba14e5.mp3"
+    },
+    {
+      "slug": "f03-025",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-1a8a72690d94.mp3",
+      "integrity": "sha256-O6VusX33TEsRBhZrBH6gqqeLVv/qEH5AQMV1Fm3aXh4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-1a8a72690d94.mp3"
+    },
+    {
+      "slug": "f03-026",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-0adde0f57aec.mp3",
+      "integrity": "sha256-xLDthzEP6kcph+lWH9HSgOlicWAqngXVeEBiV2F7hGE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-0adde0f57aec.mp3"
+    },
+    {
+      "slug": "f03-027",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-134a848d90dc.mp3",
+      "integrity": "sha256-9gOq/7W/BsMN+2E8cUieXah9faRpTOCcPhF7Fq3ziR8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-134a848d90dc.mp3"
+    },
+    {
+      "slug": "f03-028",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-5a6584a676dc.mp3",
+      "integrity": "sha256-LsJWziPscV2hu3/HeB/WuVgRhSjAppTyeo/J6v+5wwo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-5a6584a676dc.mp3"
+    },
+    {
+      "slug": "f03-029",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-81ff5773090e.mp3",
+      "integrity": "sha256-qWzP/TLt8bK9UGwEVEJyl922DeTG0ILrlV/TReAai/M=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-81ff5773090e.mp3"
+    },
+    {
+      "slug": "f03-030",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-9bfcee88218f.mp3",
+      "integrity": "sha256-HpTaPCuiT+qHh9H9enFVZBgQ/Wqlw5ZCd4TZWM+nl5E=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-9bfcee88218f.mp3"
+    },
+    {
+      "slug": "f03-031",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-ecc5a289ffbf.mp3",
+      "integrity": "sha256-u1qdGjuw4uMpLagU9hpxGIZn2c1h+JWRbdThnOFKZYc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-ecc5a289ffbf.mp3"
+    },
+    {
+      "slug": "f03-033",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-74053c3f4ebd.mp3",
+      "integrity": "sha256-jtm2sA+AZAfvfUITTu+QN+vdc+2WH7No2z5u7Esc5yA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-74053c3f4ebd.mp3"
+    },
+    {
+      "slug": "f03-034",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-451855761ce6.mp3",
+      "integrity": "sha256-6mQsVcdHZIBiK9fuqk2959z8I5f70oCqjV+HKaKRULI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-451855761ce6.mp3"
+    },
+    {
+      "slug": "f03-035",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-43074517e798.mp3",
+      "integrity": "sha256-70C0w4AU87NL+ml8XOBXJ7Gy2Sxrj7LrGmpuY536UvA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-43074517e798.mp3"
+    },
+    {
+      "slug": "f03-037",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-163c1ccc0419.mp3",
+      "integrity": "sha256-oY/m1mq7Nvv5xeQcb908SsJNcMYBd+Lt9Uq6t0rZ61U=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-163c1ccc0419.mp3"
+    },
+    {
+      "slug": "f03-038",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-e64225c2d29f.mp3",
+      "integrity": "sha256-gkrNtajxtebA60QXz0YH54Q4BhonsysQmpVeMgHIyTo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-e64225c2d29f.mp3"
+    },
+    {
+      "slug": "f04-002",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-986111b505d7.mp3",
+      "integrity": "sha256-oHo0tUvWcp2qhH/Iny/SSyNVrLZsEDXsa1Hpj4EM1pg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-986111b505d7.mp3"
+    },
+    {
+      "slug": "f04-003",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-fc16ed1557cf.mp3",
+      "integrity": "sha256-k8EB8eZh22MguItak8o6izAOGxxXjWbAqLB1EaWdqMI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-fc16ed1557cf.mp3"
+    },
+    {
+      "slug": "f04-004",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-80a0c41a8a2c.mp3",
+      "integrity": "sha256-e6bcbI2J5FP11glDClfEshSPn4OOWMMztzXnwNcFFxU=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-80a0c41a8a2c.mp3"
+    },
+    {
+      "slug": "f04-005",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-e234368f5533.mp3",
+      "integrity": "sha256-Gd/F7dancnAH3ORewzPb2Q2bu3/nkrYiBENfn+u2TkU=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-e234368f5533.mp3"
+    },
+    {
+      "slug": "f04-006",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-7c80b7bbd945.mp3",
+      "integrity": "sha256-BMi6LRG3Fa2otasi4QbXmoquUYRjlmj3g7/xZ4PKi28=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-7c80b7bbd945.mp3"
+    },
+    {
+      "slug": "f04-009",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-a608edfe6160.mp3",
+      "integrity": "sha256-PF80gWIQnKGKmqXIPtodamg9scr/26yxSBWHlOpKRrc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-a608edfe6160.mp3"
+    },
+    {
+      "slug": "f04-010",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-8512ebef02e8.mp3",
+      "integrity": "sha256-nULExDw+HgkJHqmAV8R5f5NzShDUwOAMKHeRi8fehcA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8512ebef02e8.mp3"
+    },
+    {
+      "slug": "f04-011",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-6a7bdc7ee09a.mp3",
+      "integrity": "sha256-NCD0smVZ13laIjnxwfKvgA3AQibhfnbbEGgGe0XQk7E=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-6a7bdc7ee09a.mp3"
+    },
+    {
+      "slug": "f04-012",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-38ccff28094f.mp3",
+      "integrity": "sha256-AaTy2BBh/S/WdOWW6BPD9zxLbK9hkMLDtuD2a+EYkhI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-38ccff28094f.mp3"
+    },
+    {
+      "slug": "f04-015",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-3d4e6ba5cc7c.mp3",
+      "integrity": "sha256-WSehEv/KTXg4gnYDvPULsBQo1CYocq4YqigSKB8wlb0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-3d4e6ba5cc7c.mp3"
+    },
+    {
+      "slug": "f04-016",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-07fd6f56cf39.mp3",
+      "integrity": "sha256-Xm6Z0fkKYi7MukEHPyrTnBn7MfA6BKN9H4pdgEir1oI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-07fd6f56cf39.mp3"
+    },
+    {
+      "slug": "f04-017",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-312b43ec45e4.mp3",
+      "integrity": "sha256-HoHEk2/fz9kXjFLzU9NLqJw7qS7WgHVU+BcoAc4Wfow=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-312b43ec45e4.mp3"
+    },
+    {
+      "slug": "f04-018",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-f3cf95702461.mp3",
+      "integrity": "sha256-6HNYEbMIQLl8x5o5A2UA3ciO4CFn/xeme8OaGRY5Byc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-f3cf95702461.mp3"
+    },
+    {
+      "slug": "f05-002",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-d7512ccd7884.mp3",
+      "integrity": "sha256-6OAAMmgASCvS6FyVqJs4Z+ocIqIAvlLo5lqiLQpbA7M=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-d7512ccd7884.mp3"
+    },
+    {
+      "slug": "f05-003",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-dac7d6a39941.mp3",
+      "integrity": "sha256-Pe47GxWJTlzB+uWUuHRAm5V5kCy1bgBZts83pNuRNi4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-dac7d6a39941.mp3"
+    },
+    {
+      "slug": "f05-005",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-479764d9cbcc.mp3",
+      "integrity": "sha256-xr//I+a8ojJ++v3FMFDEP2xaiDOuIKZafMilP+V1Iug=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-479764d9cbcc.mp3"
+    },
+    {
+      "slug": "f05-006",
+      "category": "NARRATION",
+      "file": "audio/q30-old_woman-6263b2aff354.mp3",
+      "integrity": "sha256-OkMphTJ71wYrtshJ7sILIh3vl3MF0MZ+NB0fTlRwZdA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-old_woman-6263b2aff354.mp3"
+    },
+    {
+      "slug": "f05-007",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-c5171eb4d0cf.mp3",
+      "integrity": "sha256-+zSv1JJiQSyBFilCwrh0CMzqiIRMQsKCJPFZtFiGD1g=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-c5171eb4d0cf.mp3"
+    },
+    {
+      "slug": "f05-008",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-8f65bda8f444.mp3",
+      "integrity": "sha256-hiIgCZNvR2VgxzFeAo7lGeQa0HdTZf9L+fXAm2XdpWI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-8f65bda8f444.mp3"
+    },
+    {
+      "slug": "f05-009",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-19801b89cdbe.mp3",
+      "integrity": "sha256-jOHdIUeFXsCRXQ+1IX6eQM9qx6dsq6NDypWc6F9FITM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-19801b89cdbe.mp3"
+    },
+    {
+      "slug": "f05-010",
+      "category": "NARRATION",
+      "file": "audio/q30-old_woman-b0445202c4be.mp3",
+      "integrity": "sha256-wCOQEBF1eQYWg2JvzSQgtzOPtedaJLDDTiWkh0hfiKo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-old_woman-b0445202c4be.mp3"
+    },
+    {
+      "slug": "f05-011",
+      "category": "NARRATION",
+      "file": "audio/q30-old_woman-4c92e6c72ffc.mp3",
+      "integrity": "sha256-qNqGpO85cslAW6ZnxMmZwNwnGLT6e4KGV8syWWlfkpg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-old_woman-4c92e6c72ffc.mp3"
+    },
+    {
+      "slug": "f05-012",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-2920df160c5f.mp3",
+      "integrity": "sha256-NutfWa10zgEanaLkkd32G4TnTFf8mL+/2ll9hfCph8Y=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-2920df160c5f.mp3"
+    },
+    {
+      "slug": "f05-014",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-9eef52b47189.mp3",
+      "integrity": "sha256-LAfT+5zEhu1DKzI1cV8v+Yz0G29yrQ6ngnZ4ZycvLUo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-9eef52b47189.mp3"
+    },
+    {
+      "slug": "f05-015",
+      "category": "NARRATION",
+      "file": "audio/q30-old_woman-0936aac9257e.mp3",
+      "integrity": "sha256-ppKo3/t82igsbDavBunqxrX7WvC4pScbR4ymiibybHE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-old_woman-0936aac9257e.mp3"
+    },
+    {
+      "slug": "f05-016",
+      "category": "NARRATION",
+      "file": "audio/q30-old_woman-862084e36b10.mp3",
+      "integrity": "sha256-Rfy7teoecFI+SNM6V0MGdBz2I58TdAFr0pIsBmfLMqw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-old_woman-862084e36b10.mp3"
+    },
+    {
+      "slug": "f05-019",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-5a41dc5e79c5.mp3",
+      "integrity": "sha256-X7AJcqwVd4lC0m+VdjIoM15AWW1k4AsuqWl2bYJ8Igc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-5a41dc5e79c5.mp3"
+    },
+    {
+      "slug": "f05-020",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-47c4e99eb5d8.mp3",
+      "integrity": "sha256-DuErcSrAFdDY+0uneuWDz2zu6uAGmGKZO85oRdkQfa4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-47c4e99eb5d8.mp3"
+    },
+    {
+      "slug": "f05-021",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-dfa96baad371.mp3",
+      "integrity": "sha256-a9JGI2ZwWv6fXNRP2lE5LtC14gCjDJwASJ+NbTWtI7M=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-dfa96baad371.mp3"
+    },
+    {
+      "slug": "f05-022",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-0465b4adc525.mp3",
+      "integrity": "sha256-y4Y8opYi1qNtY1mT1ZqhW0oZEAFLiwCsASAWWP5Zpsw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-0465b4adc525.mp3"
+    },
+    {
+      "slug": "f05-023",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-0bacbb0ea2e4.mp3",
+      "integrity": "sha256-wyhWv/LdDHuZuKZfSqtRYWPVJCIsZKr367WYUPQYa6I=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-0bacbb0ea2e4.mp3"
+    },
+    {
+      "slug": "f06-002",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-73f73aeca47a.mp3",
+      "integrity": "sha256-B45u9LJ7SmvB4QxnnNO8FZzymAfzpymuPMvxLnfm8l8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-73f73aeca47a.mp3"
+    },
+    {
+      "slug": "f06-003",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-5dc26bd07614.mp3",
+      "integrity": "sha256-/yxDWMlyaRui+MTZulP4KgFcJD6TipTzNLRHZ+s6qIg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-5dc26bd07614.mp3"
+    },
+    {
+      "slug": "f06-004",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-69e6c831c8a3.mp3",
+      "integrity": "sha256-qA/ByzC0t7fPCql7M3mjnAImeoeTh5B7az8j8drhKPY=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-69e6c831c8a3.mp3"
+    },
+    {
+      "slug": "f06-005",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-860097fbeeda.mp3",
+      "integrity": "sha256-Jw1ihIW46/weCE2qMG3D/d8h6ZrZwuKV68sHJsHZSkM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-860097fbeeda.mp3"
+    },
+    {
+      "slug": "f06-006",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-455186457aff.mp3",
+      "integrity": "sha256-kadU6DMNlteKSBj4scGmgcfyHK7M00eh+/q1hT9EHSk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-455186457aff.mp3"
+    },
+    {
+      "slug": "f06-007",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-067daa220ff3.mp3",
+      "integrity": "sha256-3G59TvS6Dq2rJeHK1SRRCgOf+blwWXqG3e7KalByQHI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-067daa220ff3.mp3"
+    },
+    {
+      "slug": "f06-008",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-7ff8bb57aa9f.mp3",
+      "integrity": "sha256-X+RNGu9Y1Yy+O6zIFBB6aU+CUg5fTDAwr7az9TOND1E=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-7ff8bb57aa9f.mp3"
+    },
+    {
+      "slug": "f06-010",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-a96aca9f5e53.mp3",
+      "integrity": "sha256-5ohLXZ/mtJnLZ/T+HHbbgoEyE84zzyeYmouXyyPQoLY=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-a96aca9f5e53.mp3"
+    },
+    {
+      "slug": "f06-011",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-5ab2fd90e429.mp3",
+      "integrity": "sha256-r3Je3MpR3o9ySzHUntOTWiwb5A0umF7iyWQnDjtzScc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-5ab2fd90e429.mp3"
+    },
+    {
+      "slug": "f06-012",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-40a17278dba0.mp3",
+      "integrity": "sha256-/t0SQRZTnndNlhZAvo1NYUDaqGMSbsPb7ga4QMgDEFk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-40a17278dba0.mp3"
+    },
+    {
+      "slug": "f06-013",
+      "category": "NARRATION",
+      "file": "audio/q30-witch-1a4c699cba66.mp3",
+      "integrity": "sha256-IJMGD+Wjnw4Vvhjn6Y/YxsCYysoXUDRssj/W7Gm3RPM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-witch-1a4c699cba66.mp3"
+    },
+    {
+      "slug": "f06-014",
+      "category": "NARRATION",
+      "file": "audio/q30-witch-308847dd96e4.mp3",
+      "integrity": "sha256-/T0V77BW/Ra5x+v+P5TLXq1tMH924LpPRi1wlLbxSsY=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-witch-308847dd96e4.mp3"
+    },
+    {
+      "slug": "f06-015",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-df704c6be236.mp3",
+      "integrity": "sha256-Sk18tdhAXqaONaa4/pvhbFSVZ6eoXGtpoPFfVE3k5j4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-df704c6be236.mp3"
+    },
+    {
+      "slug": "f06-016",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-f836b8be5b02.mp3",
+      "integrity": "sha256-MI7W5QIXBFVDJb6DEYgQSz6QIRosx7/xeS95UqTVpx4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-f836b8be5b02.mp3"
+    },
+    {
+      "slug": "f06-018",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-1543941947c9.mp3",
+      "integrity": "sha256-Bg2oLlw4cZtRGgtnVLqohuRp9bIR3tGInH96mxHILkI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-1543941947c9.mp3"
+    },
+    {
+      "slug": "f06-019",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-cd5864ffe7d0.mp3",
+      "integrity": "sha256-um0yMg3W5AXZiK2xViAiTQRB4UtZt9g2p1ia7XtbxLQ=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-cd5864ffe7d0.mp3"
+    },
+    {
+      "slug": "f06-020",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-aa3074bb7cfd.mp3",
+      "integrity": "sha256-83HBgJBgJv+jaO8MSnOMVZdfuPqcG0kFPdfMS3rqJnA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-aa3074bb7cfd.mp3"
+    },
+    {
+      "slug": "f06-021",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-972c69a17c97.mp3",
+      "integrity": "sha256-YI+NBFSL+3P+78KfQ4D9gzShinwQ8+gaVj/MirExMtE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-972c69a17c97.mp3"
+    },
+    {
+      "slug": "f06-023",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-3812183f22d4.mp3",
+      "integrity": "sha256-hrPbKEr9nvJ0CAz7uTFhufpQovt1UafctNIQMhftd2w=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-3812183f22d4.mp3"
+    },
+    {
+      "slug": "f06-024",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-f51ae91a3081.mp3",
+      "integrity": "sha256-XGUaS5FhgLSuLoLA8/4S8zuyrRo6DxPbpiZq9gQf0v8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-f51ae91a3081.mp3"
+    },
+    {
+      "slug": "f06-025",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-7cfc3711d97e.mp3",
+      "integrity": "sha256-UslmF0ojrzqxx3raPN7BCUHsXod7bul3cEivpgQTNrc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-7cfc3711d97e.mp3"
+    },
+    {
+      "slug": "f06-026",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-868ba71df3bd.mp3",
+      "integrity": "sha256-yP2MfKg0Hq2EkjFw3F5Kgwj6DrmnPPNCo/4A6RUZiws=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-868ba71df3bd.mp3"
+    },
+    {
+      "slug": "f07-002",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-aed8b3419e98.mp3",
+      "integrity": "sha256-iwTmGpjbNcMnASQC7SVkWBBTOzbQlIMrnvahk3s76jw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-aed8b3419e98.mp3"
+    },
+    {
+      "slug": "f07-003",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-2bb33d8e5412.mp3",
+      "integrity": "sha256-qHJAOmNAwFJ7vz9Lu5dE1wkdGjtQrbzAThnzGNefVww=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-2bb33d8e5412.mp3"
+    },
+    {
+      "slug": "f07-004",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-d0cade030fd5.mp3",
+      "integrity": "sha256-Useu8oXQ+nq9hPiV1EVgbZFTHKG6NBMhWDn7uCiJjEk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-d0cade030fd5.mp3"
+    },
+    {
+      "slug": "f07-005",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-a3b4181964d5.mp3",
+      "integrity": "sha256-keAS2qf2UQ2wG4o4JrEQJH78j7j28YAEJolSw0d8J5w=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-a3b4181964d5.mp3"
+    },
+    {
+      "slug": "f07-006",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-aaa55e11d58d.mp3",
+      "integrity": "sha256-7R/sTD48QzPoD+/cE+ZTSGl5MUEKH0WpTPcRT1pCWhg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-aaa55e11d58d.mp3"
+    },
+    {
+      "slug": "f07-007",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-ea9cc721fb13.mp3",
+      "integrity": "sha256-05ulGl6DVF16O/H6yFPaJTpQrM78EuiZ4d/mCfM2//4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-ea9cc721fb13.mp3"
+    },
+    {
+      "slug": "f07-008",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-a903c8a9c248.mp3",
+      "integrity": "sha256-Blkly+pSENJBxfhWoYxkyFN0fq81xgSz+TKaFGavCuc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-a903c8a9c248.mp3"
+    },
+    {
+      "slug": "f07-009",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-e62cd3ee6550.mp3",
+      "integrity": "sha256-dI6kVfxenSFGMNgk0MB8hFyyV/c56P+nNo9qIE+ENDc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-e62cd3ee6550.mp3"
+    },
+    {
+      "slug": "f07-012",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-cb81b53d0c8f.mp3",
+      "integrity": "sha256-bsQ0itWC8vjwpfL9lLkNQ+w9PgDksNkA9tAGOeYbVbo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-cb81b53d0c8f.mp3"
+    },
+    {
+      "slug": "f07-013",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-984202f2abfe.mp3",
+      "integrity": "sha256-lWLGpicxQ8x2n14GhV1tduOKmrz3R+LRI8J8C2Vv5ag=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-984202f2abfe.mp3"
+    },
+    {
+      "slug": "f07-014",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-bbedec50d6c9.mp3",
+      "integrity": "sha256-6n+bcb+kHqVQ+4hn4PYuERBaMSADqs3BCIxUkTJ12I4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-bbedec50d6c9.mp3"
+    },
+    {
+      "slug": "f07-015",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-e3efa1a5855e.mp3",
+      "integrity": "sha256-GkEv6ubvra2CSX5X5JqX2XTZz2DJhEdUFLeIKchUoTc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-e3efa1a5855e.mp3"
+    },
+    {
+      "slug": "f07-016",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-f3fd43515c51.mp3",
+      "integrity": "sha256-eDV9TUpVL+KPhMf8R7Ev2C/bJfDWlhGUFBb9BbKjMZo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-f3fd43515c51.mp3"
+    },
+    {
+      "slug": "f07-017",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-91b08f1ae42d.mp3",
+      "integrity": "sha256-rNrJsHKl0OzTWwnoqgldptpEk6uhyLhYBaDvMDTRQJo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-91b08f1ae42d.mp3"
+    },
+    {
+      "slug": "f07-020",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-0e083d54a4e5.mp3",
+      "integrity": "sha256-/mdm/45ueN3bI2viYuwAhSFI8IKo3bHkSnMLN83AO+4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-0e083d54a4e5.mp3"
+    },
+    {
+      "slug": "f07-021",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-5d9368aefb0e.mp3",
+      "integrity": "sha256-/faVr9YQ0MYbU0avrH5lg5/Kn7ecv70LqAV/GpvMtaE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-5d9368aefb0e.mp3"
+    },
+    {
+      "slug": "f07-022",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-80ccdfe49a1d.mp3",
+      "integrity": "sha256-y+FBQ0lRtnvPkqebD2Cst4gp9+RQsRw0F8Woh2zOBwE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-80ccdfe49a1d.mp3"
+    },
+    {
+      "slug": "f07-024",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-1a049780bc92.mp3",
+      "integrity": "sha256-9ZRsSvq+NrAPTn8nDyeDqcapCxMDCbwLnLPVyV3l7YE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-1a049780bc92.mp3"
+    },
+    {
+      "slug": "f07-025",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-f9f1237a4df6.mp3",
+      "integrity": "sha256-jH7AARCahcMvX04m4KPM+Qt5uBJ468UC9bFyxs206sI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-f9f1237a4df6.mp3"
+    },
+    {
+      "slug": "f07-026",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-59fa7a88c6b5.mp3",
+      "integrity": "sha256-O6248+gwcxHgq98ZYbFTpA2XzBbBFy2Tud53n4TXSA4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-59fa7a88c6b5.mp3"
+    },
+    {
+      "slug": "f07-027",
+      "category": "NARRATION",
+      "file": "audio/q30-witch-090de03c62b1.mp3",
+      "integrity": "sha256-GGPks/OtYuc17vtdoeLMYE1aR6MibcvMRNTktGlrcZ8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-witch-090de03c62b1.mp3"
+    },
+    {
+      "slug": "f07-029",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-6e9c5e03049c.mp3",
+      "integrity": "sha256-PyMV9gfHfpdY0ogoJDLBSAJWfpV5pSrtJXSicKV7Uk8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-6e9c5e03049c.mp3"
+    },
+    {
+      "slug": "f07-030",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-c23796d6eee4.mp3",
+      "integrity": "sha256-9rmKMeSJJZwYiOyaEGb9nr5Mme+UphLn+OHUnhXnbyk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-c23796d6eee4.mp3"
+    },
+    {
+      "slug": "f07-031",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-3fe512192cb2.mp3",
+      "integrity": "sha256-J/F+a5ChulXJAFhm77BpqHU1EJETCOS1M2qQlZhvPSM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-3fe512192cb2.mp3"
+    },
+    {
+      "slug": "f07-033",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-f336aee58220.mp3",
+      "integrity": "sha256-8zdYkl+3OpNBgh20Mpds9xD5b9BRXI5KHfnx7JWAOnw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-f336aee58220.mp3"
+    },
+    {
+      "slug": "f08-002",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-9d247952df7d.mp3",
+      "integrity": "sha256-Pwe5q82SYmolv1DGijNmpZvp1U3Jn/BhYnGu5ugpJl4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-9d247952df7d.mp3"
+    },
+    {
+      "slug": "f08-003",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-cca1050de2fb.mp3",
+      "integrity": "sha256-t078JOR929DlpiqhyYnBSimBhFhZbdCuIaeWY3wIRWU=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-cca1050de2fb.mp3"
+    },
+    {
+      "slug": "f08-004",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-faca29ec7987.mp3",
+      "integrity": "sha256-jeR4VeWMjA88nY3v9MV7Mdl9MrYQ0nRDhPAXyLTyDQ0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-faca29ec7987.mp3"
+    },
+    {
+      "slug": "f08-006",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-af2c93f3fc57.mp3",
+      "integrity": "sha256-Pj78OElrMmTUxlJtMnp+SuKo4/qbuHGuHsrJ/50XvDI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-af2c93f3fc57.mp3"
+    },
+    {
+      "slug": "f08-007",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-4327ed5cd766.mp3",
+      "integrity": "sha256-AgEVeutvBMnq0OG2WujDIfTvx2E8U9YQ1VKZ5PGW67Y=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-4327ed5cd766.mp3"
+    },
+    {
+      "slug": "f08-008",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-ff6857539a0f.mp3",
+      "integrity": "sha256-SfpNLxIlWByhO+TXOLsBUo048fDUMkPvK2JdeuwsoUM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-ff6857539a0f.mp3"
+    },
+    {
+      "slug": "f08-010",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-90dde19a2904.mp3",
+      "integrity": "sha256-tvxBaQfLFEsnh4pFUcjaCSWwnuJhGnWCcoY4CghgHJM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-90dde19a2904.mp3"
+    },
+    {
+      "slug": "f09-002",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-e56f72e7bc53.mp3",
+      "integrity": "sha256-5c7ZJLE+FUCLtqGYQFJ7CgmSVoBT0R1Qjf0vsGFg3hE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-e56f72e7bc53.mp3"
+    },
+    {
+      "slug": "f09-003",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-329a591b5b4a.mp3",
+      "integrity": "sha256-iMqMB9++pkpdqbA35ugxT+YYt/pFW6s/bez4RAqv4PY=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-329a591b5b4a.mp3"
+    },
+    {
+      "slug": "f09-004",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-9866877852a5.mp3",
+      "integrity": "sha256-a2L0lcRW5rESfRuwh0EKvJhLP8alW75xgZTtSMZ+Pyk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-9866877852a5.mp3"
+    },
+    {
+      "slug": "f09-005",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-aa5393f4b2a0.mp3",
+      "integrity": "sha256-f6XamuIjDNVCEGbJysW/GBdZ//mnZj5wx4ZGNB9pVrk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-aa5393f4b2a0.mp3"
+    },
+    {
+      "slug": "f09-007",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-bbb4d149e5dc.mp3",
+      "integrity": "sha256-TEZEoETnGTQRAUWBktbv+lQ8V5o2frAoqGAkLFVCPgE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-bbb4d149e5dc.mp3"
+    },
+    {
+      "slug": "f09-008",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-d7c4b005ea3b.mp3",
+      "integrity": "sha256-E5agQps7mbZkIuR8mmbF6sRU6KTydW9ZX0W9H9m2LfA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-d7c4b005ea3b.mp3"
+    },
+    {
+      "slug": "f09-009",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-1653b34c8d05.mp3",
+      "integrity": "sha256-Vuo4DErKw2SzvCXGLRK1EBrjlnUu87F7Hd4139LtlNk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-1653b34c8d05.mp3"
+    },
+    {
+      "slug": "f09-011",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-c3d7043ef946.mp3",
+      "integrity": "sha256-3bLdeEQKOagta0RY8m1+jaO31DMwH6/Z12Q/pmP1TKw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-c3d7043ef946.mp3"
+    },
+    {
+      "slug": "f09-012",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-b7b8c26b5c38.mp3",
+      "integrity": "sha256-OAemhko1g8/WngecabCkob62Vbxulwz6omQzRa2XoxM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-b7b8c26b5c38.mp3"
+    },
+    {
+      "slug": "f09-013",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-a85da155da38.mp3",
+      "integrity": "sha256-ynYcNFxkcwQ1l1tUn0hxMKNgwJb/NQdpVS5THe0LQRw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-a85da155da38.mp3"
+    },
+    {
+      "slug": "f09-014",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-ad0181f3cff3.mp3",
+      "integrity": "sha256-cal1pAFpsE7U/gOCQViyNZ+b7YkLybesvopqA2TRecM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-ad0181f3cff3.mp3"
+    },
+    {
+      "slug": "f10-002",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-8305bca1387b.mp3",
+      "integrity": "sha256-fkvWVz4kc1dHqwNC9Y1xH1sTOpXw8r4Z+wOl/EIUwRA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8305bca1387b.mp3"
+    },
+    {
+      "slug": "f10-003",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-7598fd7169db.mp3",
+      "integrity": "sha256-YCMdOfWY9Ur8IKm4a4+0XZguhSRmUu/erBTFQOVe7T8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-7598fd7169db.mp3"
+    },
+    {
+      "slug": "f10-004",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-e59facaecb66.mp3",
+      "integrity": "sha256-k+2txDOqHI8pkeRpX9H1rLi9tWaS6xdos0So558Jy2A=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-e59facaecb66.mp3"
+    },
+    {
+      "slug": "f10-005",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-afd7ed401048.mp3",
+      "integrity": "sha256-/pOIhgZgQomTuYK2dopOGaBg/rbjYPl2QyeatIzJUIE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-afd7ed401048.mp3"
+    },
+    {
+      "slug": "f10-006",
+      "category": "NARRATION",
+      "file": "audio/q30-father-dcff336c80ee.mp3",
+      "integrity": "sha256-U8l8nK8GwnOaC3tvoqH4xoaRICB6nFLWufK0mMLFV8Y=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-dcff336c80ee.mp3"
+    },
+    {
+      "slug": "f10-007",
+      "category": "NARRATION",
+      "file": "audio/q30-father-d56d67f06bd9.mp3",
+      "integrity": "sha256-piH0dDeeRiqt7elkAadJXVTGwuWx4mfnibyRYjs+Lsg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-d56d67f06bd9.mp3"
+    },
+    {
+      "slug": "f10-008",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-5bf02fa84e2a.mp3",
+      "integrity": "sha256-zu4N2X387rG3g8QqK0D5D2XN+b/nlTZazj5i0YKLnpw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-5bf02fa84e2a.mp3"
+    },
+    {
+      "slug": "f10-009",
+      "category": "NARRATION",
+      "file": "audio/q30-father-02fa960ee1b7.mp3",
+      "integrity": "sha256-PX02wgHw9mmaKc3C9cRqZQdwTqJoZFnQ1rLmO35DnwI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-02fa960ee1b7.mp3"
+    },
+    {
+      "slug": "f10-010",
+      "category": "NARRATION",
+      "file": "audio/q30-father-93bb4544994a.mp3",
+      "integrity": "sha256-9+/NHgW1jyNWTxQQCsAVVPLhiu+vZ050OcT/On5++Js=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-93bb4544994a.mp3"
+    },
+    {
+      "slug": "f10-011",
+      "category": "NARRATION",
+      "file": "audio/q30-father-002d032f0e90.mp3",
+      "integrity": "sha256-eXx+WTQlIbG7hFOrYm+i+FarV+LVFXDWHI2r0eEojlA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-002d032f0e90.mp3"
+    },
+    {
+      "slug": "f10-012",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-8522df819638.mp3",
+      "integrity": "sha256-31/ujDa+leMG/CJF/6tz8mqhHtC78mfA88V8GfbtPmU=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8522df819638.mp3"
+    },
+    {
+      "slug": "f10-013",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-67b2d048e6ff.mp3",
+      "integrity": "sha256-DcTCVeohdSezGOhyrrTyzcEi1E8xCS8XlpB13E1qtKo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-67b2d048e6ff.mp3"
+    },
+    {
+      "slug": "f10-014",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-bed42db5afc9.mp3",
+      "integrity": "sha256-+iM1SCxUdNgripsY/uu0/sI7WgOMnnIPxyDgm9QOi7c=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-bed42db5afc9.mp3"
+    },
+    {
+      "slug": "f10-015",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-57da1733b16d.mp3",
+      "integrity": "sha256-Z32y0Fg7dXPQ3vhRY3uyeLt5qCOV3RJub9QRu3NkrxQ=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-57da1733b16d.mp3"
+    },
+    {
+      "slug": "f10-017",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-47a3cf5ae72f.mp3",
+      "integrity": "sha256-jpvBvYkTec8whERlFgIdhBLOVjA9Mbtq/qibCh5Y88Q=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-47a3cf5ae72f.mp3"
+    },
+    {
+      "slug": "f10-018",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-cb9a82dfa865.mp3",
+      "integrity": "sha256-c/+mJXFMAEXWr/Tp9Rn/MqQdgchtP5XimCM6cZtGGdg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-cb9a82dfa865.mp3"
+    },
+    {
+      "slug": "f10-019",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-8598c5827444.mp3",
+      "integrity": "sha256-RAjjDYea/bUguhan0QMH0I+DRAx6n03MI7jPPJ/Q4qg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8598c5827444.mp3"
+    },
+    {
+      "slug": "f10-020",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-b5a3e1c02684.mp3",
+      "integrity": "sha256-OiRj3/eGO4p5bMQDWSMHtkKhVKNQF4zYRRk7K7AngmI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-b5a3e1c02684.mp3"
+    },
+    {
+      "slug": "f10-021",
+      "category": "NARRATION",
+      "file": "audio/hg-f10-clip-022.mp3",
+      "integrity": "sha256-kUnu/K0XLbC1kXiibwcK1Ivg/wpE3cEO8pHj510fU/8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-022.mp3"
+    },
+    {
+      "slug": "a-observe-bird-002",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-38696d1a68d4.mp3",
+      "integrity": "sha256-EwPvfNWsILH626RnF7VfAHa971R9hACm+el0l6oP/mg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-38696d1a68d4.mp3"
+    },
+    {
+      "slug": "a-observe-bird-003",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-c3c45cea09e6.mp3",
+      "integrity": "sha256-WDEmuSLJYMFjdJ1mt6qpm0mJQPm0fbNas8AoFQTMoDQ=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-c3c45cea09e6.mp3"
+    },
+    {
+      "slug": "a-observe-bird-005",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-90746e8ede24.mp3",
+      "integrity": "sha256-mCh2fPAgScvRP0/mbLmkjzYc+Vz6yYUmBWrv7qGjzlk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-90746e8ede24.mp3"
+    },
+    {
+      "slug": "a-speak-to-bird-002",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-26948115b271.mp3",
+      "integrity": "sha256-Womaw6nbequfm41AzfVapu5LgQxZE9qKXqiwxk7YZ7I=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-26948115b271.mp3"
+    },
+    {
+      "slug": "a-speak-to-bird-003",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-194688a9834f.mp3",
+      "integrity": "sha256-Az/XPQEYwP30WStK8K2GbOOGq/Vv3d8BUn1mWvKxP74=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-194688a9834f.mp3"
+    },
+    {
+      "slug": "a-speak-to-bird-004",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-aa3437d25f06.mp3",
+      "integrity": "sha256-oPFt+Qr21FLvGX4DCvrq1ZfVYQ2W4+VtKIcuuIbPPhs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-aa3437d25f06.mp3"
+    },
+    {
+      "slug": "a-speak-to-bird-006",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-8512ebef02e8.mp3",
+      "integrity": "sha256-nULExDw+HgkJHqmAV8R5f5NzShDUwOAMKHeRi8fehcA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8512ebef02e8.mp3"
+    },
+    {
+      "slug": "c-wait-for-witch-turn-002",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-51d5c6ec4c99.mp3",
+      "integrity": "sha256-Wuy3WsdHfOxrZ05+sBiH310/ZJ3YqBVq5z8E+dkThoo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-51d5c6ec4c99.mp3"
+    },
+    {
+      "slug": "c-distract-and-take-keys-002",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-f51ae91a3081.mp3",
+      "integrity": "sha256-XGUaS5FhgLSuLoLA8/4S8zuyrRo6DxPbpiZq9gQf0v8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-f51ae91a3081.mp3"
+    },
+    {
+      "slug": "c-distract-and-take-keys-003",
+      "category": "NARRATION",
+      "file": "audio/q30-gretel-7c4e92990536.mp3",
+      "integrity": "sha256-skwBgExzXAeEhDwPEvhTNdqlEIGa/bOmMnZ6Y6kf/Gg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-7c4e92990536.mp3"
+    },
+    {
+      "slug": "c-distract-and-take-keys-004",
+      "category": "NARRATION",
+      "file": "audio/q30-hansel-ceb36e99133b.mp3",
+      "integrity": "sha256-uRn4ctgXelwEV7nhxk7nSu6AoZnAp68w6/gqFuJnzEk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-ceb36e99133b.mp3"
+    },
+    {
+      "slug": "c-distract-and-take-keys-005",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-262ff78fd128.mp3",
+      "integrity": "sha256-N0auTxqen9e/b8xqDCxAK6V0fydUKZzrvx56N5HCxck=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-262ff78fd128.mp3"
+    },
+    {
+      "slug": "c-distract-and-take-keys-006",
+      "category": "NARRATION",
+      "file": "audio/q30-witch-a69453fb9cb7.mp3",
+      "integrity": "sha256-aqxp50WJeXPfMvUvgb+eCyFSSLdtbYgBtVLoAIB+YKY=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-witch-a69453fb9cb7.mp3"
+    },
+    {
+      "slug": "c-distract-and-take-keys-007",
+      "category": "NARRATION",
+      "file": "audio/q30-narrator-e3ea24c61dc6.mp3",
+      "integrity": "sha256-mtNvApDkuvVxy1EVoX6EnVsXnLgDzEJ6VTnFXyIv84E=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-e3ea24c61dc6.mp3"
     },
     {
       "slug": "a-observe-bird-bridge",
       "category": "BRIDGE",
       "familyId": "A_OBSERVE_BIRD",
-      "file": "audio/bridge-a_observe_bird.mp3",
-      "integrity": "sha256-atcGzNGxAcTFj2hQp2u0lI57pKVVusGD/UVwSPZhAlA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-a_observe_bird.mp3"
+      "file": "audio/q30-gretel-12a7bdb63140.mp3",
+      "integrity": "sha256-QD3MybeMTkeSqj6CkupXktzdg6rN7VqulEgtvIFRYFU=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-12a7bdb63140.mp3"
     },
     {
       "slug": "a-speak-to-bird-bridge",
       "category": "BRIDGE",
       "familyId": "A_SPEAK_TO_BIRD",
-      "file": "audio/bridge-a_speak_to_bird.mp3",
-      "integrity": "sha256-6CADuAaJGETQ1OeTcL8C4BTpq/byMPnqZyTso/pvxjg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-a_speak_to_bird.mp3"
+      "file": "audio/q30-gretel-c15249fc7bd8.mp3",
+      "integrity": "sha256-Y+XTKuPVvTjTs2WBW3NnMrloKwwbV4wpKU6QiKvi4Xs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-c15249fc7bd8.mp3"
     },
     {
-      "slug": "a-try-other-path-bridge",
+      "slug": "c-wait-for-witch-turn-bridge",
       "category": "BRIDGE",
-      "familyId": "A_TRY_OTHER_PATH",
-      "file": "audio/bridge-a_try_other_path.mp3",
-      "integrity": "sha256-1UmJO8fRnnnOiYl9QVRpiA1ztCJxcgSYpyYi3HbeUy0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-a_try_other_path.mp3"
-    },
-    {
-      "slug": "b-ask-old-woman-bridge",
-      "category": "BRIDGE",
-      "familyId": "B_ASK_OLD_WOMAN",
-      "file": "audio/bridge-b_ask_old_woman.mp3",
-      "integrity": "sha256-1jYC5vqCqJGTUuJKxwER0xtv4CumYLwCz1zaQ8kLZBY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-b_ask_old_woman.mp3"
-    },
-    {
-      "slug": "b-check-house-bridge",
-      "category": "BRIDGE",
-      "familyId": "B_CHECK_HOUSE",
-      "file": "audio/bridge-b_check_house.mp3",
-      "integrity": "sha256-qRkeUu+fnQbhAHtB4rZ/w+DSDdBQyoSLFDpTsATOohE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-b_check_house.mp3"
-    },
-    {
-      "slug": "b-check-keys-bridge",
-      "category": "BRIDGE",
-      "familyId": "B_CHECK_KEYS",
-      "file": "audio/bridge-b_check_keys.mp3",
-      "integrity": "sha256-Nfk4JXcMPgZFhLoPcCCakU7kdchuRFA4Iygev5WRBY0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-b_check_keys.mp3"
-    },
-    {
-      "slug": "b-make-sibling-signal-bridge",
-      "category": "BRIDGE",
-      "familyId": "B_MAKE_SIBLING_SIGNAL",
-      "file": "audio/bridge-b_make_sibling_signal.mp3",
-      "integrity": "sha256-Vq5XicUk2rgFVkFy10I+9uPa5rEEwOPQDtqsSwBC72U=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-b_make_sibling_signal.mp3"
-    },
-    {
-      "slug": "b-step-back-mark-exit-bridge",
-      "category": "BRIDGE",
-      "familyId": "B_STEP_BACK_MARK_EXIT",
-      "file": "audio/bridge-b_step_back_mark_exit.mp3",
-      "integrity": "sha256-O6SpjitIx3GAlnYEPxo6JTSAOYic2IerBDJ/VpbhbdQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-b_step_back_mark_exit.mp3"
-    },
-    {
-      "slug": "c-ask-demonstration-bridge",
-      "category": "BRIDGE",
-      "familyId": "C_ASK_DEMONSTRATION",
-      "file": "audio/bridge-c_ask_demonstration.mp3",
-      "integrity": "sha256-R5IrNu905cIs7PcJGSA2bK+57cMk0nzFwGKSoVXSbv0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-c_ask_demonstration.mp3"
-    },
-    {
-      "slug": "c-block-pursuit-safely-bridge",
-      "category": "BRIDGE",
-      "familyId": "C_BLOCK_PURSUIT_SAFELY",
-      "file": "audio/bridge-c_block_pursuit_safely.mp3",
-      "integrity": "sha256-qnq+0ZqJClVKLubMmU8o1TZLb7briUH5Msk/JbTxAsw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-c_block_pursuit_safely.mp3"
-    },
-    {
-      "slug": "c-check-lock-from-distance-bridge",
-      "category": "BRIDGE",
-      "familyId": "C_CHECK_LOCK_FROM_DISTANCE",
-      "file": "audio/bridge-c_check_lock_from_distance.mp3",
-      "integrity": "sha256-pbZQMi2XpNCF/mWyY3gyCFnVB4pt0GzrgGcyo8AyeQg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-c_check_lock_from_distance.mp3"
+      "familyId": "C_WAIT_FOR_WITCH_TURN",
+      "file": "audio/q30-gretel-0d6e88cbd140.mp3",
+      "integrity": "sha256-WRD1xYygZK2TDys+FEj8FuHr2SEOFlxFzptMtrH/8C8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-0d6e88cbd140.mp3"
     },
     {
       "slug": "c-distract-and-take-keys-bridge",
       "category": "BRIDGE",
       "familyId": "C_DISTRACT_AND_TAKE_KEYS",
-      "file": "audio/bridge-c_distract_and_take_keys.mp3",
-      "integrity": "sha256-/YhMEAOzVjhb9NWljNIvrJFpYyVCyyEoHnN4KAAkeBE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-c_distract_and_take_keys.mp3"
-    },
-    {
-      "slug": "c-use-signal-bridge",
-      "category": "BRIDGE",
-      "familyId": "C_USE_SIGNAL",
-      "file": "audio/bridge-c_use_signal.mp3",
-      "integrity": "sha256-u2ZvxaAFegNx+GtWRp5lB4F83GfWp7+re55h+yFD5YI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/bridge-c_use_signal.mp3"
-    },
-    {
-      "slug": "a-check-surroundings-002",
-      "category": "NARRATION",
-      "file": "audio/fb-a_check_surroundings-clip-002.mp3",
-      "integrity": "sha256-mhJVAzBnt2BzsNUOquNpCP3NKvFsRWCdrQ2ZPZhiMxc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-a_check_surroundings-clip-002.mp3"
-    },
-    {
-      "slug": "a-check-surroundings-003",
-      "category": "NARRATION",
-      "file": "audio/fb-a_check_surroundings-clip-003.mp3",
-      "integrity": "sha256-pLifONDFtrq9wM4tTsDMaPxprbYHOnqXL21sG1JoHFs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-a_check_surroundings-clip-003.mp3"
-    },
-    {
-      "slug": "a-check-surroundings-004",
-      "category": "NARRATION",
-      "file": "audio/fb-a_check_surroundings-clip-004.mp3",
-      "integrity": "sha256-bbfNBKSBNf74dc/T08njLysdTZCdsK85Ax+L7a0EItA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-a_check_surroundings-clip-004.mp3"
-    },
-    {
-      "slug": "a-observe-bird-002",
-      "category": "NARRATION",
-      "file": "audio/fb-a_observe_bird-clip-002.mp3",
-      "integrity": "sha256-4hee3QC4E/WDec3g4vOwGKktPCRy8vYSLm63EDhLvVk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-a_observe_bird-clip-002.mp3"
-    },
-    {
-      "slug": "a-observe-bird-003",
-      "category": "NARRATION",
-      "file": "audio/fb-a_observe_bird-clip-003.mp3",
-      "integrity": "sha256-AUyjx4aOedC+6J89WzZnGltvwmwIa6W6fC/WURen2oE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-a_observe_bird-clip-003.mp3"
-    },
-    {
-      "slug": "a-observe-bird-004",
-      "category": "NARRATION",
-      "file": "audio/fb-a_observe_bird-clip-004.mp3",
-      "integrity": "sha256-v/3Hzflvh87724fBA2HMvqaGWJrNotq9318ExWG+ffw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-a_observe_bird-clip-004.mp3"
-    },
-    {
-      "slug": "a-speak-to-bird-002",
-      "category": "NARRATION",
-      "file": "audio/fb-a_speak_to_bird-clip-002.mp3",
-      "integrity": "sha256-z1KX/nqD95nUdqapumGasC2baikH6saVnYm4UmS+PGg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-a_speak_to_bird-clip-002.mp3"
-    },
-    {
-      "slug": "a-speak-to-bird-003",
-      "category": "NARRATION",
-      "file": "audio/fb-a_speak_to_bird-clip-003.mp3",
-      "integrity": "sha256-pysmhuJYV96xoKoiAIK9ej9Uh9YqyCvfLpmDFrCyzSg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-a_speak_to_bird-clip-003.mp3"
-    },
-    {
-      "slug": "a-speak-to-bird-004",
-      "category": "NARRATION",
-      "file": "audio/fb-a_speak_to_bird-clip-004.mp3",
-      "integrity": "sha256-gkEyjGbSzTfECeCoqvNnLJ+pSNP6uC8ksBTje1zGdbQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-a_speak_to_bird-clip-004.mp3"
-    },
-    {
-      "slug": "a-speak-to-bird-005",
-      "category": "NARRATION",
-      "file": "audio/fb-a_speak_to_bird-clip-005.mp3",
-      "integrity": "sha256-FMPbYcy/ZxfpD2vY4L/30EJs9hH+QqYat9pbRBEHuZE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-a_speak_to_bird-clip-005.mp3"
-    },
-    {
-      "slug": "a-try-other-path-002",
-      "category": "NARRATION",
-      "file": "audio/fb-a_try_other_path-clip-002.mp3",
-      "integrity": "sha256-0nBPtwj1P3b6VHC2d+lcgcp50id+KotHTDdhv16+7Gg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-a_try_other_path-clip-002.mp3"
-    },
-    {
-      "slug": "a-try-other-path-003",
-      "category": "NARRATION",
-      "file": "audio/fb-a_try_other_path-clip-003.mp3",
-      "integrity": "sha256-JfyermciGXhTkesr2snczqDP9hTcdjiAuM1HYJ4I7dk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-a_try_other_path-clip-003.mp3"
-    },
-    {
-      "slug": "a-try-other-path-004",
-      "category": "NARRATION",
-      "file": "audio/fb-a_try_other_path-clip-004.mp3",
-      "integrity": "sha256-xg9qJwttEVG+uucsm78ej08lciGF1oBvhXOrZqhfyFM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-a_try_other_path-clip-004.mp3"
-    },
-    {
-      "slug": "b-ask-old-woman-002",
-      "category": "NARRATION",
-      "file": "audio/fb-b_ask_old_woman-clip-002.mp3",
-      "integrity": "sha256-f3o34MMbYjnEfunBokalpG0gC8SlDg43MlG2dBLHXZw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_ask_old_woman-clip-002.mp3"
-    },
-    {
-      "slug": "b-ask-old-woman-003",
-      "category": "NARRATION",
-      "file": "audio/fb-b_ask_old_woman-clip-003.mp3",
-      "integrity": "sha256-Gj3T1EQ7nPp3sa4CubclWp7/Vh+DGkyqeicc2YDi9jA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_ask_old_woman-clip-003.mp3"
-    },
-    {
-      "slug": "b-ask-old-woman-004",
-      "category": "NARRATION",
-      "file": "audio/fb-b_ask_old_woman-clip-004.mp3",
-      "integrity": "sha256-Ms3X3ExINy1OcKtUpVOqMfFKnBLT9TmFtHosGNGxoz8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_ask_old_woman-clip-004.mp3"
-    },
-    {
-      "slug": "b-ask-old-woman-005",
-      "category": "NARRATION",
-      "file": "audio/fb-b_ask_old_woman-clip-005.mp3",
-      "integrity": "sha256-4ieR7GtvjQW8JxmxuTb/n1RF/ruTl1luLwWuuTrrf5A=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_ask_old_woman-clip-005.mp3"
-    },
-    {
-      "slug": "b-check-house-002",
-      "category": "NARRATION",
-      "file": "audio/fb-b_check_house-clip-002.mp3",
-      "integrity": "sha256-6DC1ZVoquDmJ+p2qUkfkLGu7R9Bfk3A89tMdxf4zxaI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_check_house-clip-002.mp3"
-    },
-    {
-      "slug": "b-check-house-003",
-      "category": "NARRATION",
-      "file": "audio/fb-b_check_house-clip-003.mp3",
-      "integrity": "sha256-woG1On8g8vL5CBDxT3pulRo/E9lh0zS3wCJN7UMRJLA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_check_house-clip-003.mp3"
-    },
-    {
-      "slug": "b-check-house-004",
-      "category": "NARRATION",
-      "file": "audio/fb-b_check_house-clip-004.mp3",
-      "integrity": "sha256-floPz6ps961NW+dUiZ5dcs5nWu7d9jEiabJzgDS5blA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_check_house-clip-004.mp3"
-    },
-    {
-      "slug": "b-check-house-005",
-      "category": "NARRATION",
-      "file": "audio/fb-b_check_house-clip-005.mp3",
-      "integrity": "sha256-v1GNIMSw9jRXKitswlvPVR9+JU+WvicY/S9zhZCdu/c=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_check_house-clip-005.mp3"
-    },
-    {
-      "slug": "b-check-keys-002",
-      "category": "NARRATION",
-      "file": "audio/fb-b_check_keys-clip-002.mp3",
-      "integrity": "sha256-cZTA9q3FOH45U+DK3nYQ4/mzlRbaYe19BKzOrLT1wg4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_check_keys-clip-002.mp3"
-    },
-    {
-      "slug": "b-check-keys-003",
-      "category": "NARRATION",
-      "file": "audio/fb-b_check_keys-clip-003.mp3",
-      "integrity": "sha256-v2Er1PtXfDGz43CWCv1GmeB95DggO1b3UJ3b6207xOM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_check_keys-clip-003.mp3"
-    },
-    {
-      "slug": "b-check-keys-004",
-      "category": "NARRATION",
-      "file": "audio/fb-b_check_keys-clip-004.mp3",
-      "integrity": "sha256-+iEpDQXZhTIP+zigVW4xShBKOkzQnP4ADe6/BMs0X3s=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_check_keys-clip-004.mp3"
-    },
-    {
-      "slug": "b-make-sibling-signal-002",
-      "category": "NARRATION",
-      "file": "audio/fb-b_make_sibling_signal-clip-002.mp3",
-      "integrity": "sha256-++6Ui8qSYpCzcP5A8wkosA0t5gvV/+Gf2JiY71M9bpk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_make_sibling_signal-clip-002.mp3"
-    },
-    {
-      "slug": "b-make-sibling-signal-003",
-      "category": "NARRATION",
-      "file": "audio/fb-b_make_sibling_signal-clip-003.mp3",
-      "integrity": "sha256-yqUXa+Z7VJqHbvz0rPboF7ArTcLysq2cp57ECHGO+u8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_make_sibling_signal-clip-003.mp3"
-    },
-    {
-      "slug": "b-make-sibling-signal-004",
-      "category": "NARRATION",
-      "file": "audio/fb-b_make_sibling_signal-clip-004.mp3",
-      "integrity": "sha256-sn9Qbm7kQVqAf71ng8VwCbkkkOWTj9/m8EUPzvLihqo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_make_sibling_signal-clip-004.mp3"
-    },
-    {
-      "slug": "b-make-sibling-signal-005",
-      "category": "NARRATION",
-      "file": "audio/fb-b_make_sibling_signal-clip-005.mp3",
-      "integrity": "sha256-22JxW+ZRvIdv6UYjfQgkfyUIHxYoSL07N9IrOg9/lZM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_make_sibling_signal-clip-005.mp3"
-    },
-    {
-      "slug": "b-step-back-mark-exit-002",
-      "category": "NARRATION",
-      "file": "audio/fb-b_step_back_mark_exit-clip-002.mp3",
-      "integrity": "sha256-K+JotzmdACmMg76dhVRJEpfeFPfwNYZMjFE78LrQcb4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_step_back_mark_exit-clip-002.mp3"
-    },
-    {
-      "slug": "b-step-back-mark-exit-003",
-      "category": "NARRATION",
-      "file": "audio/fb-b_step_back_mark_exit-clip-003.mp3",
-      "integrity": "sha256-rQ6zOxFTE1f6sfYX1LUpDImZnQ5oKIKsCeW3fKVbeaw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_step_back_mark_exit-clip-003.mp3"
-    },
-    {
-      "slug": "b-step-back-mark-exit-005",
-      "category": "NARRATION",
-      "file": "audio/fb-b_step_back_mark_exit-clip-005.mp3",
-      "integrity": "sha256-g638R0bRM4ywsKg1r4kFiCrI01VWIdRUVh188Hv9dxs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_step_back_mark_exit-clip-005.mp3"
-    },
-    {
-      "slug": "b-step-back-mark-exit-006",
-      "category": "NARRATION",
-      "file": "audio/fb-b_step_back_mark_exit-clip-006.mp3",
-      "integrity": "sha256-T8hfXfdfvGVcSvi7ouYNWIGgle6DsbBVe+ED6FLhHLA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_step_back_mark_exit-clip-006.mp3"
-    },
-    {
-      "slug": "b-step-back-mark-exit-007",
-      "category": "NARRATION",
-      "file": "audio/fb-b_step_back_mark_exit-clip-007.mp3",
-      "integrity": "sha256-Nhr/43wBT/rNr/LW7C02ueZy17IIXrRMy+gZD8JWdrM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-b_step_back_mark_exit-clip-007.mp3"
-    },
-    {
-      "slug": "c-ask-demonstration-002",
-      "category": "NARRATION",
-      "file": "audio/fb-c_ask_demonstration-clip-002.mp3",
-      "integrity": "sha256-fSC+OV0N7fiMX/uVTZTb4A/L5p5iBENhGrZ3i1GusEY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_ask_demonstration-clip-002.mp3"
-    },
-    {
-      "slug": "c-ask-demonstration-003",
-      "category": "NARRATION",
-      "file": "audio/fb-c_ask_demonstration-clip-003.mp3",
-      "integrity": "sha256-2HBeOY5YNWYxaCQNqdDFFN+V00tmxG7ss/1UyaiiNhI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_ask_demonstration-clip-003.mp3"
-    },
-    {
-      "slug": "c-block-pursuit-safely-002",
-      "category": "NARRATION",
-      "file": "audio/fb-c_block_pursuit_safely-clip-002.mp3",
-      "integrity": "sha256-f80FBM+EcClQs8N/VLJIF//3dJfA2ThHJO8kstMRsPc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_block_pursuit_safely-clip-002.mp3"
-    },
-    {
-      "slug": "c-block-pursuit-safely-003",
-      "category": "NARRATION",
-      "file": "audio/fb-c_block_pursuit_safely-clip-003.mp3",
-      "integrity": "sha256-mgaw+dSYS7O2YR2w+67hrWdBQR6B7cXT4hEq95WeAGQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_block_pursuit_safely-clip-003.mp3"
-    },
-    {
-      "slug": "c-block-pursuit-safely-005",
-      "category": "NARRATION",
-      "file": "audio/fb-c_block_pursuit_safely-clip-005.mp3",
-      "integrity": "sha256-P0bgxQi6HYza9eVo5PRDtin5nJKBGuujUfK0Q7z+PIA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_block_pursuit_safely-clip-005.mp3"
-    },
-    {
-      "slug": "c-check-lock-from-distance-002",
-      "category": "NARRATION",
-      "file": "audio/fb-c_check_lock_from_distance-clip-002.mp3",
-      "integrity": "sha256-o+K6vL7/QMq1kJ0FxtdiAF1IcwZDCICEep1Cosjt4ho=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_check_lock_from_distance-clip-002.mp3"
-    },
-    {
-      "slug": "c-check-lock-from-distance-003",
-      "category": "NARRATION",
-      "file": "audio/fb-c_check_lock_from_distance-clip-003.mp3",
-      "integrity": "sha256-hxfoHdfyKcs+ThW1FFFKIuWCNkZ1tmkSR8Mm/ffWAEQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_check_lock_from_distance-clip-003.mp3"
-    },
-    {
-      "slug": "c-check-lock-from-distance-004",
-      "category": "NARRATION",
-      "file": "audio/fb-c_check_lock_from_distance-clip-004.mp3",
-      "integrity": "sha256-DjN7Gwbhf0gSE114268Bw3KSP1I2m5MT/ShvzQSGhG8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_check_lock_from_distance-clip-004.mp3"
-    },
-    {
-      "slug": "c-distract-and-take-keys-002",
-      "category": "NARRATION",
-      "file": "audio/fb-c_distract_and_take_keys-clip-002.mp3",
-      "integrity": "sha256-6JxmAqKEeoofVCV7WqDZsqhY1ErhHAanCj8NhtPb0ac=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_distract_and_take_keys-clip-002.mp3"
-    },
-    {
-      "slug": "c-distract-and-take-keys-004",
-      "category": "NARRATION",
-      "file": "audio/fb-c_distract_and_take_keys-clip-004.mp3",
-      "integrity": "sha256-9tTaFSqrD14O382OnciUo3VvXLK8McqX/uNpizqVpxM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_distract_and_take_keys-clip-004.mp3"
-    },
-    {
-      "slug": "c-distract-and-take-keys-005",
-      "category": "NARRATION",
-      "file": "audio/fb-c_distract_and_take_keys-clip-005.mp3",
-      "integrity": "sha256-DwPRZLfwAxd8TjXbQOLFHTUXa98qA+7c8SYdbEMXWy4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_distract_and_take_keys-clip-005.mp3"
-    },
-    {
-      "slug": "c-distract-and-take-keys-007",
-      "category": "NARRATION",
-      "file": "audio/fb-c_distract_and_take_keys-clip-007.mp3",
-      "integrity": "sha256-PnWhiF5OoZohQGThkDOC6NZkvgejFdli22bZfwrjX1c=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_distract_and_take_keys-clip-007.mp3"
-    },
-    {
-      "slug": "c-use-signal-002",
-      "category": "NARRATION",
-      "file": "audio/fb-c_use_signal-clip-002.mp3",
-      "integrity": "sha256-fr+NqoltO9iDymO4fwFuplQqx9sS6q9ceD8qqUh9Uec=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_use_signal-clip-002.mp3"
-    },
-    {
-      "slug": "c-use-signal-004",
-      "category": "NARRATION",
-      "file": "audio/fb-c_use_signal-clip-004.mp3",
-      "integrity": "sha256-VbsL4p7raC3ePLmuf7iuXIhmU4qz5Pb010ZJ5/GPW8Y=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/fb-c_use_signal-clip-004.mp3"
-    },
-    {
-      "slug": "f01-002",
-      "category": "NARRATION",
-      "file": "audio/hg-f01-clip-002.mp3",
-      "integrity": "sha256-FfJuR8N8HBXYn5FZjVkIzig5QIpKvKEl1YW+kCy4IM0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f01-clip-002.mp3"
-    },
-    {
-      "slug": "f01-003",
-      "category": "NARRATION",
-      "file": "audio/hg-f01-clip-003.mp3",
-      "integrity": "sha256-pu/1JinKe4iEpYZkN2pHlnsyqLTmZPkjHTdVNsV6gwA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f01-clip-003.mp3"
-    },
-    {
-      "slug": "f01-004",
-      "category": "NARRATION",
-      "file": "audio/hg-f01-clip-004.mp3",
-      "integrity": "sha256-LZTquZXe+mLZLuftJiNHZiB9GwRWgtN04JNgDxa6UwY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f01-clip-004.mp3"
-    },
-    {
-      "slug": "f01-005",
-      "category": "NARRATION",
-      "file": "audio/hg-f01-clip-005.mp3",
-      "integrity": "sha256-Dw4eIkZo5pfZXrahRQVPzPkr+sLYDQI554LVg80b4dk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f01-clip-005.mp3"
-    },
-    {
-      "slug": "f01-006",
-      "category": "NARRATION",
-      "file": "audio/hg-f01-clip-006.mp3",
-      "integrity": "sha256-MFeusr3l7VQObbvY6ysyWe51GCgvF5Od4atGCQDnjF4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f01-clip-006.mp3"
-    },
-    {
-      "slug": "f01-008",
-      "category": "NARRATION",
-      "file": "audio/hg-f01-clip-008.mp3",
-      "integrity": "sha256-EpecnfxMXbx7Dxqom86MSzIjgJJSqkqqCij8W06ZPh0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f01-clip-008.mp3"
-    },
-    {
-      "slug": "f01-009",
-      "category": "NARRATION",
-      "file": "audio/hg-f01-clip-009.mp3",
-      "integrity": "sha256-Hh8ONun6CWpu3Fn+sGw/7f68ooDMpMB/erwEFAalfno=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f01-clip-009.mp3"
-    },
-    {
-      "slug": "f01-010",
-      "category": "NARRATION",
-      "file": "audio/hg-f01-clip-010.mp3",
-      "integrity": "sha256-lJt8pJmAFrgNh8m8CBsLgiRA//BMBq+AJ2LTRJdFkws=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f01-clip-010.mp3"
-    },
-    {
-      "slug": "f01-011",
-      "category": "NARRATION",
-      "file": "audio/hg-f01-clip-011.mp3",
-      "integrity": "sha256-sXXoHb4yw919iPewGNd8FiBZWHR6/oV6V3cHDZ+lpHw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f01-clip-011.mp3"
-    },
-    {
-      "slug": "f01-012",
-      "category": "NARRATION",
-      "file": "audio/hg-f01-clip-012.mp3",
-      "integrity": "sha256-9KyyyvXtkLD9QJfBM5az7N/VvvJ9UB/NN6ukudMOStQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f01-clip-012.mp3"
-    },
-    {
-      "slug": "f01-013",
-      "category": "NARRATION",
-      "file": "audio/hg-f01-clip-013.mp3",
-      "integrity": "sha256-MODuxPCpSD5BM1VgGFDy7S1LDSmmeDvygkiZKJb/+l8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f01-clip-013.mp3"
-    },
-    {
-      "slug": "f02-002",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-002.mp3",
-      "integrity": "sha256-NB3Q8G9Pe9R31RVg7g7SpBF57Iyggh+1OPV9EcGRwZs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-002.mp3"
-    },
-    {
-      "slug": "f02-004",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-004.mp3",
-      "integrity": "sha256-/swbBJyYbQiJpPDkKCBrQ1YkcnrzPZdsSGJQXHwpyfU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-004.mp3"
-    },
-    {
-      "slug": "f02-006",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-006.mp3",
-      "integrity": "sha256-JNTY8dmqxTyk/fHiAbMFk4sEvyyyURXEeg+GXaA4YxM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-006.mp3"
-    },
-    {
-      "slug": "f02-007",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-007.mp3",
-      "integrity": "sha256-45V7EFjuww504Ka1LW6Vvkir7FRtez6KX1QEyqW3zRg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-007.mp3"
-    },
-    {
-      "slug": "f02-008",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-008.mp3",
-      "integrity": "sha256-X9Ox9OaSlGLUP/SLktd0x9q12laMMUplMCGhytCpTV4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-008.mp3"
-    },
-    {
-      "slug": "f02-009",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-009.mp3",
-      "integrity": "sha256-udZRMJqTm3tv5gtAeG70LArHPxkeMZQvV8BweFHO37w=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-009.mp3"
-    },
-    {
-      "slug": "f02-010",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-010.mp3",
-      "integrity": "sha256-nzsb49vq+lPxeLacInGqP+OUGIbEld+d/Wr6p4ujHj8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-010.mp3"
-    },
-    {
-      "slug": "f02-012",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-012.mp3",
-      "integrity": "sha256-bVWDRr3HSNl3tSQ2PdSdmPOQkqJNhOKThNaWUpdke2c=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-012.mp3"
-    },
-    {
-      "slug": "f02-013",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-013.mp3",
-      "integrity": "sha256-WeJCyGdFTB6FyDwr0Icz5zawMnipbnTU4hujZxMkPcQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-013.mp3"
-    },
-    {
-      "slug": "f02-014",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-014.mp3",
-      "integrity": "sha256-XMHJDDiVbmR7KByKF47sT+rFXZY2kvSu9R3MhmwRMYc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-014.mp3"
-    },
-    {
-      "slug": "f02-015",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-015.mp3",
-      "integrity": "sha256-ljO1uXzTYmIpny8eRzgbDP+99LdY6N1bzyGHi0FRQWk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-015.mp3"
-    },
-    {
-      "slug": "f02-017",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-017.mp3",
-      "integrity": "sha256-gS93ykKEvf89D6NSlJ17LFJub4d4pceA9yeHevZumVk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-017.mp3"
-    },
-    {
-      "slug": "f02-018",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-018.mp3",
-      "integrity": "sha256-HkiII65zwxAgdQaem4v1t81c1SPLrrQTC/rQ3W2hG+c=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-018.mp3"
-    },
-    {
-      "slug": "f02-020",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-020.mp3",
-      "integrity": "sha256-+tB9qK6WHv0AGuR23Mk0h0Y18UUt3heMJAF5kGNFvrU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-020.mp3"
-    },
-    {
-      "slug": "f02-021",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-021.mp3",
-      "integrity": "sha256-xZlAufmWQMsg62Qk4gAC/x6EkMRZUnfIncZXl1jJ2ug=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-021.mp3"
-    },
-    {
-      "slug": "f02-022",
-      "category": "NARRATION",
-      "file": "audio/hg-f02-clip-022.mp3",
-      "integrity": "sha256-wHhJnzLuY/t40nVM1Eee/zL8LIvlWl5WNpwc5s+Etgk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f02-clip-022.mp3"
-    },
-    {
-      "slug": "f03-002",
-      "category": "NARRATION",
-      "file": "audio/hg-f03-clip-002.mp3",
-      "integrity": "sha256-8Sua7x0N0vOd6zliTfvAdqnIp0K2zgm7uaKrLf4GaJU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f03-clip-002.mp3"
-    },
-    {
-      "slug": "f03-004",
-      "category": "NARRATION",
-      "file": "audio/hg-f03-clip-004.mp3",
-      "integrity": "sha256-p+tZSTS2ljoOQ0r8RWzqmlcxtSzPCR7nKOnKb4pP6FE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f03-clip-004.mp3"
-    },
-    {
-      "slug": "f03-006",
-      "category": "NARRATION",
-      "file": "audio/hg-f03-clip-006.mp3",
-      "integrity": "sha256-3g6I4obpCnZzmBXAA5HS/cTbkAGdSBKRREiO9kVH82o=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f03-clip-006.mp3"
-    },
-    {
-      "slug": "f03-007",
-      "category": "NARRATION",
-      "file": "audio/hg-f03-clip-007.mp3",
-      "integrity": "sha256-mmv46FQQ7R7OlmgXEKR4Xv2fmwpYsORr89z+5GSQnrY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f03-clip-007.mp3"
-    },
-    {
-      "slug": "f03-008",
-      "category": "NARRATION",
-      "file": "audio/hg-f03-clip-008.mp3",
-      "integrity": "sha256-nl+I57mW2gHCGdPWORO0qqJPlZ3Vi4GAYUeTmSaovbA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f03-clip-008.mp3"
-    },
-    {
-      "slug": "f03-009",
-      "category": "NARRATION",
-      "file": "audio/hg-f03-clip-009.mp3",
-      "integrity": "sha256-/iHQAvVlxPPelylt8zc0e6z9JyNcZ0kVPENwNYoz3dg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f03-clip-009.mp3"
-    },
-    {
-      "slug": "f03-010",
-      "category": "NARRATION",
-      "file": "audio/hg-f03-clip-010.mp3",
-      "integrity": "sha256-0ccllqXhYzI4yi5DjyrTnEroDmuLCKVhnEHCGyzzJjg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f03-clip-010.mp3"
-    },
-    {
-      "slug": "f03-012",
-      "category": "NARRATION",
-      "file": "audio/hg-f03-clip-012.mp3",
-      "integrity": "sha256-/9q3oclZ1qmcKasqD8dyBQ4cfo22ZUZoGg0WlFjsZbg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f03-clip-012.mp3"
-    },
-    {
-      "slug": "f03-013",
-      "category": "NARRATION",
-      "file": "audio/hg-f03-clip-013.mp3",
-      "integrity": "sha256-GEtCFOPvNZeFUUsjH8aZ2r/lwUAyh2DoYGUVC3l2Xls=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f03-clip-013.mp3"
-    },
-    {
-      "slug": "f03-015",
-      "category": "NARRATION",
-      "file": "audio/hg-f03-clip-015.mp3",
-      "integrity": "sha256-s0Etdd29yTsFtU2qAwwiKgTKwgfs+sQRpjnlpSsRTEk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f03-clip-015.mp3"
-    },
-    {
-      "slug": "f03-017",
-      "category": "NARRATION",
-      "file": "audio/hg-f03-clip-017.mp3",
-      "integrity": "sha256-KH+IYmJ3PIk6CngKJbKZQvhZRnafpQEaE3eoYoddKMo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f03-clip-017.mp3"
-    },
-    {
-      "slug": "f03-018",
-      "category": "NARRATION",
-      "file": "audio/hg-f03-clip-018.mp3",
-      "integrity": "sha256-56irBDPgd2Ln2SYOuAmk9F0D6Pyo5WN55weMlv/XdtE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f03-clip-018.mp3"
-    },
-    {
-      "slug": "f04-002",
-      "category": "NARRATION",
-      "file": "audio/hg-f04-clip-002.mp3",
-      "integrity": "sha256-o7EGP9UlSJkVaniZP94JxdkgJLgI5s6eDvifPG1pRo4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f04-clip-002.mp3"
-    },
-    {
-      "slug": "f04-003",
-      "category": "NARRATION",
-      "file": "audio/hg-f04-clip-003.mp3",
-      "integrity": "sha256-USuDv40Bk5xXIa34wKrJX9xPgbw5XP20y4LrjE2PEOk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f04-clip-003.mp3"
-    },
-    {
-      "slug": "f04-004",
-      "category": "NARRATION",
-      "file": "audio/hg-f04-clip-004.mp3",
-      "integrity": "sha256-1NXC3PKCspshTu5v7PaeMxJ6YY2bI3ll1Ay8AsAH9WE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f04-clip-004.mp3"
-    },
-    {
-      "slug": "f04-005",
-      "category": "NARRATION",
-      "file": "audio/hg-f04-clip-005.mp3",
-      "integrity": "sha256-zCklWjIunDs09HcuYRHAVWBLb5PiFz6v/d3YiP58DOc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f04-clip-005.mp3"
-    },
-    {
-      "slug": "f04-009",
-      "category": "NARRATION",
-      "file": "audio/hg-f04-clip-009.mp3",
-      "integrity": "sha256-ACMU7iiT9LwEAIOX8S/zHaLUTKMgbnxYwDkRwvE47iM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f04-clip-009.mp3"
-    },
-    {
-      "slug": "f04-010",
-      "category": "NARRATION",
-      "file": "audio/hg-f04-clip-010.mp3",
-      "integrity": "sha256-V5RtvnUPegngQkrUKAhd0ppGmVMhc7U5RRCPHC1tj9E=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f04-clip-010.mp3"
-    },
-    {
-      "slug": "f04-011",
-      "category": "NARRATION",
-      "file": "audio/hg-f04-clip-011.mp3",
-      "integrity": "sha256-Z1w/23KzUzTsJ9OwsCL3ClJYd+9PsZXFpYFHlfDtLIM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f04-clip-011.mp3"
-    },
-    {
-      "slug": "f04-014",
-      "category": "NARRATION",
-      "file": "audio/hg-f04-clip-014.mp3",
-      "integrity": "sha256-gbHsBMto9IgeIVL4ZOj2aKfeoEXnCNW6Pp5djkCqH7c=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f04-clip-014.mp3"
-    },
-    {
-      "slug": "f04-015",
-      "category": "NARRATION",
-      "file": "audio/hg-f04-clip-015.mp3",
-      "integrity": "sha256-vorpLxOyjoZOEFRoqEuiWHZT9uAFIjZISRqy3mva4VI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f04-clip-015.mp3"
-    },
-    {
-      "slug": "f04-016",
-      "category": "NARRATION",
-      "file": "audio/hg-f04-clip-016.mp3",
-      "integrity": "sha256-gVaGoN42ltv9vZpEgJZjzOirxu0RnOMRLG5ovWVnln4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f04-clip-016.mp3"
-    },
-    {
-      "slug": "f04-017",
-      "category": "NARRATION",
-      "file": "audio/hg-f04-clip-017.mp3",
-      "integrity": "sha256-Fghkv1rRdAKXtdmPlWDJaU3G4nwEgwfYjXIum7Zc7UE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f04-clip-017.mp3"
-    },
-    {
-      "slug": "f05-002",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-002.mp3",
-      "integrity": "sha256-WU/VcW/KJgiMKOigK385meRFzJVbElJJ4Vse2pUyMXQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-002.mp3"
-    },
-    {
-      "slug": "f05-003",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-003.mp3",
-      "integrity": "sha256-89oXQfMKdffn7471vu2KpfeApzWW/X0JOsP/57bsiQ0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-003.mp3"
-    },
-    {
-      "slug": "f05-004",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-004.mp3",
-      "integrity": "sha256-n6SzfRw73zA/0QQ2EscTYhInDzcQ0udcdQwUxqlkZnc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-004.mp3"
-    },
-    {
-      "slug": "f05-005",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-005.mp3",
-      "integrity": "sha256-LHc4CdaIpUPWyP8cmp9rNtaCrOfUuG+hJC6gwQ2mL7U=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-005.mp3"
-    },
-    {
-      "slug": "f05-007",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-007.mp3",
-      "integrity": "sha256-LcwbAq9CSTIvrSDsGbUzRBz1LoU2wsOeDkpO8Ibp7cM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-007.mp3"
-    },
-    {
-      "slug": "f05-008",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-008.mp3",
-      "integrity": "sha256-QZT8pwmKfLcdwajL0Ih33CcGospwbUUn7A66DgWjjLQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-008.mp3"
-    },
-    {
-      "slug": "f05-009",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-009.mp3",
-      "integrity": "sha256-FqSBDQRGfS3bISwXvcFF8Nxcn2RisbeHmokI/FB4PNE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-009.mp3"
-    },
-    {
-      "slug": "f05-010",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-010.mp3",
-      "integrity": "sha256-guWCCkT0AVge5VLJJFdkrRR1XIxuOyN85nljbvoDpyE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-010.mp3"
-    },
-    {
-      "slug": "f05-011",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-011.mp3",
-      "integrity": "sha256-CffW+nFNNoTMjG/79EkBLZHKMayMqHp+9ToXlQgxOEM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-011.mp3"
-    },
-    {
-      "slug": "f05-015",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-015.mp3",
-      "integrity": "sha256-0R/aPgBpxHXh+8PPkdiutiptDX5k0JRCbmvY4dNedig=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-015.mp3"
-    },
-    {
-      "slug": "f05-016",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-016.mp3",
-      "integrity": "sha256-pyBYfF9H42Tg8tz9+i/uw0XHqLope6OLUqglGn//bGo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-016.mp3"
-    },
-    {
-      "slug": "f05-017",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-017.mp3",
-      "integrity": "sha256-0UKZDFfHEx2eNx/kJyPTF1Cd4niYQWdR+ncYxhyo1C4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-017.mp3"
-    },
-    {
-      "slug": "f05-018",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-018.mp3",
-      "integrity": "sha256-qWa46E5WkzylRADqlpiAnb4c6ZcY3vfu9kqVOtoyUOc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-018.mp3"
-    },
-    {
-      "slug": "f05-021",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-021.mp3",
-      "integrity": "sha256-S5Lm4jXfZ18rqpMf9ZZVBMyL03FraugcGlUDUfeVrqc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-021.mp3"
-    },
-    {
-      "slug": "f05-022",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-022.mp3",
-      "integrity": "sha256-Ous1pCzJzdPT8apEmYQgqizf7t758Ofi8mZcQtoBKiw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-022.mp3"
-    },
-    {
-      "slug": "f05-023",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-023.mp3",
-      "integrity": "sha256-8AmNG+USvwgwZfItx2QxLrw7MAC+/er6/NLdd6HbQS0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-023.mp3"
-    },
-    {
-      "slug": "f05-024",
-      "category": "NARRATION",
-      "file": "audio/hg-f05-clip-024.mp3",
-      "integrity": "sha256-Dxtr2fSLS5LjaAN/oWLfQq4ka4XRUtdpT+SUkynE+Wo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f05-clip-024.mp3"
-    },
-    {
-      "slug": "f06-002",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-002.mp3",
-      "integrity": "sha256-UF7JFvLAbX+wXE9C1z8+TlQoJY0uWySa5Z+GpniEJW8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-002.mp3"
-    },
-    {
-      "slug": "f06-003",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-003.mp3",
-      "integrity": "sha256-jE9mP2ekvzf83IGzJ9EpXZ0IdEEf3rWgOTEmROn3CuQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-003.mp3"
-    },
-    {
-      "slug": "f06-004",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-004.mp3",
-      "integrity": "sha256-PtuzrF51vz17Khz4Bjrv93d7WolEwl7ScCfp/2SLAy8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-004.mp3"
-    },
-    {
-      "slug": "f06-005",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-005.mp3",
-      "integrity": "sha256-axA66Uwymo/vhErBB6agrF6bISlSEivHNPX8LOSYCHk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-005.mp3"
-    },
-    {
-      "slug": "f06-006",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-006.mp3",
-      "integrity": "sha256-Y6Y0RoiXU5Iwp9lJlV4e4DJc5+iBxWYzUWi7y1PLBQg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-006.mp3"
-    },
-    {
-      "slug": "f06-007",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-007.mp3",
-      "integrity": "sha256-5LieCxOw22YbA2dl5ENiWSa/IxQXD6LF046bybBF07s=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-007.mp3"
-    },
-    {
-      "slug": "f06-010",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-010.mp3",
-      "integrity": "sha256-7Fytbua4xFxtZSEYW7E68oD2BvNe0FHLgPfyJUxZlI0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-010.mp3"
-    },
-    {
-      "slug": "f06-011",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-011.mp3",
-      "integrity": "sha256-mcUlALEw79yMKFRJMPPqeYe1h+buRPI1JYjrhgBRyYE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-011.mp3"
-    },
-    {
-      "slug": "f06-012",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-012.mp3",
-      "integrity": "sha256-l2F0wqdn5s5yvBuN2+PfVpbidwTFp1+9ik4EtGlKxg4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-012.mp3"
-    },
-    {
-      "slug": "f06-013",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-013.mp3",
-      "integrity": "sha256-LbA6x3m0Jhj+Z0Y9ilbrtGhuYrN41AQqkZR3volzIjo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-013.mp3"
-    },
-    {
-      "slug": "f06-015",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-015.mp3",
-      "integrity": "sha256-jQsvrdajWzF7gMngx0ltcg6wns7VEWLkY0pZ8j9CYgE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-015.mp3"
-    },
-    {
-      "slug": "f06-016",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-016.mp3",
-      "integrity": "sha256-S2trL2pz4HP18vcB3fP4sqOKTdbzrUd/DOX6QeiZZqE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-016.mp3"
-    },
-    {
-      "slug": "f06-017",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-017.mp3",
-      "integrity": "sha256-R9IXGySnOBEf1vQ/Dw584tMbCKbABfg6kopK62C6Mes=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-017.mp3"
-    },
-    {
-      "slug": "f06-019",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-019.mp3",
-      "integrity": "sha256-mB1ht2eAdKVOF0IlbfAQlFXNdxlgUT5Q0vNB2iq/J4s=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-019.mp3"
-    },
-    {
-      "slug": "f06-020",
-      "category": "NARRATION",
-      "file": "audio/hg-f06-clip-020.mp3",
-      "integrity": "sha256-sdLoFVFlrPGGrhUApau0Sy4oR3fHrktyLVdXEu8FhqU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f06-clip-020.mp3"
-    },
-    {
-      "slug": "f07-002",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-002.mp3",
-      "integrity": "sha256-Wwr3pi9vNKdZEVmElMgq3G0LzozL1KDaEKtcZuftQ2w=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-002.mp3"
-    },
-    {
-      "slug": "f07-003",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-003.mp3",
-      "integrity": "sha256-56kDtgrWEWj6UpdhMdLnekkM4Yy3U8oB+FBwt/JkFp8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-003.mp3"
-    },
-    {
-      "slug": "f07-004",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-004.mp3",
-      "integrity": "sha256-5vRpTTKLg3S2z8iQhSyPbNGdmjfNXeEXPaT3HO/FxOg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-004.mp3"
-    },
-    {
-      "slug": "f07-005",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-005.mp3",
-      "integrity": "sha256-BNIlDyWRgXyznS70x7MnjooETQp4vfKtzSZA7ycQCPg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-005.mp3"
-    },
-    {
-      "slug": "f07-009",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-009.mp3",
-      "integrity": "sha256-OTXrCckqsuy3Jtn7dE2oEhmXWvAHUQ7aBuLIuHk4oso=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-009.mp3"
-    },
-    {
-      "slug": "f07-010",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-010.mp3",
-      "integrity": "sha256-/UUoV/hGAjwr1QoTVxxvefXvmUUUwrz8pzsIcTzMsY4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-010.mp3"
-    },
-    {
-      "slug": "f07-011",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-011.mp3",
-      "integrity": "sha256-xmLFW4mFTq9dSfAS+Dg6UDIaiR7Y6FkSGLKLyVfYxi8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-011.mp3"
-    },
-    {
-      "slug": "f07-013",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-013.mp3",
-      "integrity": "sha256-EoR0S+ksh3cFCLDy+oINxrZjORMkG0OLKuZWY4UWAzA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-013.mp3"
-    },
-    {
-      "slug": "f07-015",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-015.mp3",
-      "integrity": "sha256-Yw/efuA5vLEM0YNp6rNiYgRQbZysKY42m6syndGF9gU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-015.mp3"
-    },
-    {
-      "slug": "f07-017",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-017.mp3",
-      "integrity": "sha256-CVWM5jbuC7M1hOfK20FPnQ+upIt+OZngxAdWSKvxSIE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-017.mp3"
-    },
-    {
-      "slug": "f07-019",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-019.mp3",
-      "integrity": "sha256-L/4su0DQXUpejKBmBSgb9cJ3lywyIKdX4oyqygJMFCI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-019.mp3"
-    },
-    {
-      "slug": "f07-021",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-021.mp3",
-      "integrity": "sha256-GMNmzJUWqa8zfxw/MVWSCk6D8uAcCkH3KwIJu5ooZ2c=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-021.mp3"
-    },
-    {
-      "slug": "f07-022",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-022.mp3",
-      "integrity": "sha256-WkdvA+ykMidz6xv6shooPsjyXCEMIKVdzI+5T0mg/mM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-022.mp3"
-    },
-    {
-      "slug": "f07-023",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-023.mp3",
-      "integrity": "sha256-tXVPHxybHVAIEAFxCMna84GvQwkZPZdVlI+4yuhmcQE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-023.mp3"
-    },
-    {
-      "slug": "f07-024",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-024.mp3",
-      "integrity": "sha256-xVcza2YaG5dWkVz0Qd8R86tEm1OU50+E2+g+own72FY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-024.mp3"
-    },
-    {
-      "slug": "f07-026",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-026.mp3",
-      "integrity": "sha256-G44TEQnC3nEHWM1t+RXNTgG7meqpOb3UAeKA7C0t3KA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-026.mp3"
-    },
-    {
-      "slug": "f07-028",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-028.mp3",
-      "integrity": "sha256-ozgIMIjywZy1RuCrttIhkqEKrw0c0L3l3LalOX9EHj8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-028.mp3"
-    },
-    {
-      "slug": "f07-029",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-029.mp3",
-      "integrity": "sha256-Wh52nRUwkSoR8WY/OiRXKLAaUNNF6V8rK4iGQjahVKc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-029.mp3"
-    },
-    {
-      "slug": "f07-030",
-      "category": "NARRATION",
-      "file": "audio/hg-f07-clip-030.mp3",
-      "integrity": "sha256-GXD2xUV18QnC0gR2AtWUQSxm7HN1w+MPslP6KT77Q4A=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f07-clip-030.mp3"
-    },
-    {
-      "slug": "f08-003",
-      "category": "NARRATION",
-      "file": "audio/hg-f08-clip-003.mp3",
-      "integrity": "sha256-/uJ2uwg4Ll8xxYesJnT+Vn6boTNELjki539WBxvdxwI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f08-clip-003.mp3"
-    },
-    {
-      "slug": "f08-004",
-      "category": "NARRATION",
-      "file": "audio/hg-f08-clip-004.mp3",
-      "integrity": "sha256-qMeWNx1CD1JN51LR11qB4cnNPY6QlWN0ZNgRMn+mUQU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f08-clip-004.mp3"
-    },
-    {
-      "slug": "f08-005",
-      "category": "NARRATION",
-      "file": "audio/hg-f08-clip-005.mp3",
-      "integrity": "sha256-YDAAgLnB8JBAGnv5gbUyektRya/f5yRMb2O2doXogrI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f08-clip-005.mp3"
-    },
-    {
-      "slug": "f08-006",
-      "category": "NARRATION",
-      "file": "audio/hg-f08-clip-006.mp3",
-      "integrity": "sha256-MIBEYkbKgdDJi7kqtF3/oARSyam3w81GKhxQuLi/3aU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f08-clip-006.mp3"
-    },
-    {
-      "slug": "f08-008",
-      "category": "NARRATION",
-      "file": "audio/hg-f08-clip-008.mp3",
-      "integrity": "sha256-XNE8j7IdInRl8e6z8vrzn80cpErPsvNXTQd2y6pQvDo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f08-clip-008.mp3"
-    },
-    {
-      "slug": "f08-009",
-      "category": "NARRATION",
-      "file": "audio/hg-f08-clip-009.mp3",
-      "integrity": "sha256-KoswnZ8U/F4mTAnulsAEFVeb2srbd3sWyIr84zEh1LI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f08-clip-009.mp3"
-    },
-    {
-      "slug": "f08-010",
-      "category": "NARRATION",
-      "file": "audio/hg-f08-clip-010.mp3",
-      "integrity": "sha256-xFkvhYStIkl+EId3s9qL6OXe9njddhk5oBwt3VOg0xg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f08-clip-010.mp3"
-    },
-    {
-      "slug": "f08-011",
-      "category": "NARRATION",
-      "file": "audio/hg-f08-clip-011.mp3",
-      "integrity": "sha256-M1t4iw7La+vSFmx2n8lLvh7Gh31OsUkr11un2xNJRLs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f08-clip-011.mp3"
-    },
-    {
-      "slug": "f08-013",
-      "category": "NARRATION",
-      "file": "audio/hg-f08-clip-013.mp3",
-      "integrity": "sha256-YnpA6z5XflD6DjstkuBmcj6IwW7lP23WCF9/OGUwVXM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f08-clip-013.mp3"
-    },
-    {
-      "slug": "f09-002",
-      "category": "NARRATION",
-      "file": "audio/hg-f09-clip-002.mp3",
-      "integrity": "sha256-SAx0YZxXs+la2HUpusiCnNUZZiUs0pk+hlJB7OiCoJo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f09-clip-002.mp3"
-    },
-    {
-      "slug": "f09-003",
-      "category": "NARRATION",
-      "file": "audio/hg-f09-clip-003.mp3",
-      "integrity": "sha256-YClefi68uinC4gTtNkAFh6oain7MoTHhP0YqnzVFh3s=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f09-clip-003.mp3"
-    },
-    {
-      "slug": "f09-004",
-      "category": "NARRATION",
-      "file": "audio/hg-f09-clip-004.mp3",
-      "integrity": "sha256-EE2fyXxYwcVKd9vxdCOHAHmFKruRWsYkZTyJzHZ1fdw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f09-clip-004.mp3"
-    },
-    {
-      "slug": "f09-006",
-      "category": "NARRATION",
-      "file": "audio/hg-f09-clip-006.mp3",
-      "integrity": "sha256-GjOQA6JksR3hJQLXgBNxpWmlNOi7w5hB1ILAt9f5EoQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f09-clip-006.mp3"
-    },
-    {
-      "slug": "f09-007",
-      "category": "NARRATION",
-      "file": "audio/hg-f09-clip-007.mp3",
-      "integrity": "sha256-keTpWcz3wPO+SWbV+se+QEShxXU0xfB4tkQ70PHcQk0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f09-clip-007.mp3"
-    },
-    {
-      "slug": "f09-008",
-      "category": "NARRATION",
-      "file": "audio/hg-f09-clip-008.mp3",
-      "integrity": "sha256-uz39kfDLmtyamKbuzdUpUTUO/fth9uBZFTO4kv8Gwuk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f09-clip-008.mp3"
-    },
-    {
-      "slug": "f09-010",
-      "category": "NARRATION",
-      "file": "audio/hg-f09-clip-010.mp3",
-      "integrity": "sha256-7IlEil86fInLO4DO5RteB50ABxSFKTeggjfn/WMk6RA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f09-clip-010.mp3"
-    },
-    {
-      "slug": "f09-011",
-      "category": "NARRATION",
-      "file": "audio/hg-f09-clip-011.mp3",
-      "integrity": "sha256-Wr+sSfjk18pCh1jdRNiVc7cAabYNR5v+zC3MAUCLBoQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f09-clip-011.mp3"
-    },
-    {
-      "slug": "f09-012",
-      "category": "NARRATION",
-      "file": "audio/hg-f09-clip-012.mp3",
-      "integrity": "sha256-lMiuLfVSOkjya1/tbIFXZkZV2xvL8RSdsqCZJB+E8iw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f09-clip-012.mp3"
-    },
-    {
-      "slug": "f09-013",
-      "category": "NARRATION",
-      "file": "audio/hg-f09-clip-013.mp3",
-      "integrity": "sha256-UcGUvI11/SgWZe9S8V3BK5ukheDouRVrxCkEwILMDMU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f09-clip-013.mp3"
-    },
-    {
-      "slug": "f10-002",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-002.mp3",
-      "integrity": "sha256-OYhdPTt2ee3tj6mTnmM8WK9RYJDQqw7IpqGn8szOUr0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-002.mp3"
-    },
-    {
-      "slug": "f10-003",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-003.mp3",
-      "integrity": "sha256-lVPleXEaWaGUOwE4V2qvdrEl2Tryqq9QXxfKV4s6Q0s=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-003.mp3"
-    },
-    {
-      "slug": "f10-004",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-004.mp3",
-      "integrity": "sha256-DMY4FhKb234bZAM8m51cgoF2snN5KiUwF1RKu4QTBnk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-004.mp3"
-    },
-    {
-      "slug": "f10-005",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-005.mp3",
-      "integrity": "sha256-H+qfxjY5V1+IRF9R+2JFeLlWGRlqflpDcsvXuXn/bqs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-005.mp3"
-    },
-    {
-      "slug": "f10-006",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-006.mp3",
-      "integrity": "sha256-yiMuWeM97xy8h1gJdwJvMflwiCsTzLOuXrfSmSgxuw0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-006.mp3"
-    },
-    {
-      "slug": "f10-007",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-007.mp3",
-      "integrity": "sha256-tl8lDjqZUiz272a6X5wD8YdZfA5c0HS2/aPHPzbReOM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-007.mp3"
-    },
-    {
-      "slug": "f10-008",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-008.mp3",
-      "integrity": "sha256-vNbN8zgLVt5pXCyS1evNq4vfeY+NBSvoVaHwprfTxgc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-008.mp3"
-    },
-    {
-      "slug": "f10-009",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-009.mp3",
-      "integrity": "sha256-ZmbOQZeaN1QcBR84BbkcBOG1oFL/QWfVYfNS4+wUI90=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-009.mp3"
-    },
-    {
-      "slug": "f10-010",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-010.mp3",
-      "integrity": "sha256-EIaAeEx7zIc1/WnESeuyPAu2YNtzUluPTyMteCvDUy8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-010.mp3"
-    },
-    {
-      "slug": "f10-011",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-011.mp3",
-      "integrity": "sha256-/3a3QP2GhEiiFDzq/C4xcjxsLC9BlIb7tHqh6uNGODg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-011.mp3"
-    },
-    {
-      "slug": "f10-013",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-013.mp3",
-      "integrity": "sha256-25et2c+OoCnWiFCucjt+i9MpmwZsoHlCqQxjuWswq8I=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-013.mp3"
-    },
-    {
-      "slug": "f10-014",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-014.mp3",
-      "integrity": "sha256-Sw0kvSILZlJLZTYPk+7HQrcHz8mCIe6u0JqsX58UCc0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-014.mp3"
-    },
-    {
-      "slug": "f10-015",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-015.mp3",
-      "integrity": "sha256-w+w470Zzsr0lP8mpDZYdgK/umNDugVuzfSsKbo70cjY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-015.mp3"
-    },
-    {
-      "slug": "f10-016",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-016.mp3",
-      "integrity": "sha256-zh/Qg5BR5slBhqrUZ6OUOd/v5pG27ty/aBVXO51B13o=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-016.mp3"
-    },
-    {
-      "slug": "f10-018",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-018.mp3",
-      "integrity": "sha256-hElFrEzkkuUNlAS8txfTJT85QHwChkKyDkgrTJeQjrE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-018.mp3"
-    },
-    {
-      "slug": "f10-019",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-019.mp3",
-      "integrity": "sha256-pT2KZ+MhWk/H1YjHVcZhuLH1CdJ49BuANRu7IOdlkJg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-019.mp3"
-    },
-    {
-      "slug": "f10-020",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-020.mp3",
-      "integrity": "sha256-dT8XQe5cps0unwYVwPvhiaHXhXUueYVez5YV/iougNU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-020.mp3"
-    },
-    {
-      "slug": "f10-021",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-021.mp3",
-      "integrity": "sha256-gkJCJGZobuoUQbySzxmVXveSGEoKw1hIO3wKdqHoKh0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-021.mp3"
-    },
-    {
-      "slug": "f10-022",
-      "category": "NARRATION",
-      "file": "audio/hg-f10-clip-022.mp3",
-      "integrity": "sha256-kUnu/K0XLbC1kXiibwcK1Ivg/wpE3cEO8pHj510fU/8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/hg-f10-clip-022.mp3"
+      "file": "audio/q30-gretel-b4f9cbe771ad.mp3",
+      "integrity": "sha256-MOvBMSn2utgwF8eG4ehm35Fp3cJLvI7yC87VAyvMD1A=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-b4f9cbe771ad.mp3"
     }
   ],
   "prompt": {
@@ -3624,5 +3607,5 @@
       }
     }
   },
-  "sourceDigest": "2b7cc8f3b704645b6a65fa84d86790d449fb0d69ca3dfd5ce062ad205085774a"
+  "sourceDigest": "2122af4df2a6202671e1941c83754ae175c6ad3eadd91f793f9d2b930d3c5344"
 }

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": {
     "package": "content/stories/hansel-gretel",
-    "digest": "2b7cc8f3b704645b6a65fa84d86790d449fb0d69ca3dfd5ce062ad205085774a"
+    "digest": "2122af4df2a6202671e1941c83754ae175c6ad3eadd91f793f9d2b930d3c5344"
   },
   "story": {
     "id": "HG",
@@ -2505,7 +2505,7 @@
           "visualId": "HG-VIS-F09-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
-          "text": "오리는 두 아이를 한 명씩 건너편으로 데려다주었어요."
+          "text": "흰 오리는 두 아이를 한 명씩 건너편으로 데려다주었어요."
         },
         {
           "kind": "visual",

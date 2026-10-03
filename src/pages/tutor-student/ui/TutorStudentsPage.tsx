@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, EmptyState, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
 import { listTutorClasses, listTutorStudents, type TutorClass, type TutorStudent } from '@/entities/tutor';
 
 type LoadState =
@@ -18,9 +18,12 @@ const STATUS_LABEL: Record<TutorStudent['status'], string> = {
 };
 
 /**
- * 반과 학생. 선생님은 반 단위로만 일한다(1:1 과외도 아이 한 명짜리 반) - 학생을 한 명씩 등록하거나
- * 학생별 부모 초대를 보내지 않고, 반 초대 링크로 부모님이 아이를 연결하면 명단에 자동으로 올라온다.
- * 그래서 학생 목록은 읽기 전용 명단이고, 학생별로는 상세·메모만 남긴다.
+ * 선생님 "반·학생" 탭(/tutor/classes). 선생님은 반 단위로만 일한다(1:1 과외도 아이 한 명짜리 반) - 학생을
+ * 한 명씩 등록하지 않고, 반 초대 링크로 보호자가 아이를 연결하면 명단에 자동으로 올라온다. 내 반 목록(누르면
+ * 반 상세)과 반에 들어온 아이(누르면 학생 상세·리포트)를 함께 본다.
+ *
+ * <p>"새 반 만들기"는 이 화면이 기본 진입점이다(Q-35). 반이 하나도 없을 때는 빈 화면의 버튼 하나만, 반이
+ * 있으면 머리말의 버튼 하나만 보인다.
  */
 export function TutorStudentsPage() {
   const navigate = useNavigate();
@@ -28,7 +31,7 @@ export function TutorStudentsPage() {
   const { state } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
-  // 담임인 반 - 반마다 초대 링크 하나와 부모 연결 현황을 보는 반 화면으로 간다. 부가 정보라 실패해도 목록은 보인다.
+  // 담임인 반. 부가 정보라 실패해도 학생 목록은 보인다.
   // null = 아직 불러오는 중이거나 실패 - 그동안 "아직 만든 반이 없어요"를 보이지 않는다.
   const [homeroomClasses, setHomeroomClasses] = useState<TutorClass[] | null>(null);
 
@@ -68,68 +71,78 @@ export function TutorStudentsPage() {
 
   if (state.status !== 'authenticated') return null;
 
+  const hasNoClass = homeroomClasses?.length === 0;
+  const newClass = () => navigate(TUTOR_PATHS.newClass);
+
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
       <View style={styles.content}>
         <View style={styles.headerRow}>
-          <Text style={styles.title} accessibilityRole="header">반과 학생</Text>
-          <View style={styles.headerActions}>
-            <ActionButton label="새 반 만들기" icon="+" size="sm" onPress={() => navigate('/tutor/class-groups/new')} />
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>내 반</Text>
-          <Text style={styles.cardBody}>
-            학생을 미리 등록하지 않아도 돼요. 반 초대 링크 하나를 알림장에 올리면 부모님이 아이를 연결할 때 명단에 자동으로 올라가요.
-          </Text>
-          <View style={styles.actions}>
-            {(homeroomClasses ?? []).map((classGroup) => (
-              <ActionButton
-                key={classGroup.id}
-                variant="secondary"
-                label={`${classGroup.name} 초대·명단`}
-                onPress={() => navigate(`/tutor/class-groups/${classGroup.id}`)}
-              />
-            ))}
-          </View>
-          {homeroomClasses?.length === 0 ? (
-            <Text style={styles.cardBody}>아직 만든 반이 없어요. 위 "새 반 만들기"로 시작해 보세요.</Text>
+          <Text style={styles.title} accessibilityRole="header">반·학생</Text>
+          {homeroomClasses && homeroomClasses.length > 0 ? (
+            <ActionButton label="새 반 만들기" icon="+" size="sm" onPress={newClass} />
           ) : null}
         </View>
 
-        <Text style={styles.cardTitle} accessibilityRole="header">반에 들어온 아이</Text>
-        <Text style={styles.cardBody}>부모님이 반 초대 링크로 아이를 연결하면 여기에 올라와요.</Text>
+        {hasNoClass ? (
+          <EmptyState
+            title="아직 만든 반이 없어요"
+            body="반을 만들면 초대 링크가 생겨요. 알림장에 올리면 보호자가 아이를 연결할 때 명단에 자동으로 올라가요. 1:1 과외도 아이 한 명짜리 반으로 시작해요."
+            cta={{ label: '새 반 만들기', onPress: newClass }}
+          />
+        ) : (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>내 반</Text>
+            {(homeroomClasses ?? []).map((classGroup) => (
+              <Pressable
+                key={classGroup.id}
+                accessibilityRole="link"
+                accessibilityLabel={`${classGroup.name} 반 상세 열기`}
+                onPress={() => navigate(TUTOR_PATHS.classDetail(classGroup.id))}
+                style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+              >
+                <View style={styles.rowText}>
+                  <Text style={styles.rowTitle}>{classGroup.name}</Text>
+                  <Text style={styles.rowMeta}>초대 링크 · 명단 · 보호자 연결 현황</Text>
+                </View>
+                <Text style={styles.chevron}>›</Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
+
+        <Text style={styles.sectionTitle} accessibilityRole="header">반에 들어온 아이</Text>
 
         {load.status === 'loading' && <LoadingState label="학생 목록을 불러오는 중이에요…" />}
 
         {load.status === 'ready' && load.students.length === 0 && (
-          <EmptyState
-            title="아직 학생이 없어요"
-            body="반을 만들어 초대 링크를 보내면 부모님이 아이를 연결할 때 여기에 올라와요."
-            cta={{ label: '새 반 만들기', onPress: () => navigate('/tutor/class-groups/new') }}
-          />
+          <Text style={styles.cardBody}>
+            아직 들어온 아이가 없어요. 반 상세의 초대 링크를 보내면 보호자가 아이를 연결할 때 여기에 올라와요.
+          </Text>
         )}
 
-        {load.status === 'ready' &&
-          load.students.map((student) => (
-            <View key={student.id} style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>
-                  {student.name} · {student.ageBand}
-                </Text>
+        {load.status === 'ready' && load.students.length > 0 && (
+          <View style={styles.card}>
+            {load.students.map((student) => (
+              <Pressable
+                key={student.id}
+                accessibilityRole="link"
+                accessibilityLabel={`${student.name} 학생 상세 열기`}
+                onPress={() => navigate(TUTOR_PATHS.student(student.id))}
+                style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+              >
+                <View style={styles.rowText}>
+                  <Text style={styles.rowTitle}>
+                    {student.name} · {student.ageBand}
+                  </Text>
+                  {student.classGroupName ? <Text style={styles.rowMeta}>{student.classGroupName}</Text> : null}
+                </View>
                 <Pill label={STATUS_LABEL[student.status]} />
-              </View>
-              {student.classGroupName ? <Text style={styles.cardBody}>{student.classGroupName}</Text> : null}
-              <View style={styles.actions}>
-                <ActionButton
-                  variant="secondary"
-                  label="상세 · 메모"
-                  onPress={() => navigate(`/tutor/students/${student.id}`)}
-                />
-              </View>
-            </View>
-          ))}
+                <Text style={styles.chevron}>›</Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
 
         {load.status === 'error' && <ErrorState message={load.message} onRetry={refresh} />}
       </View>
@@ -148,7 +161,6 @@ const styles = StyleSheet.create({
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
   },
-  headerActions: { flexDirection: 'row', gap: storybookTheme.spacing.sm, flexWrap: 'wrap', flexShrink: 1 },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -161,16 +173,33 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onContent,
   },
+  sectionTitle: {
+    fontSize: storybookTheme.type.md,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.onContent,
+    marginTop: storybookTheme.spacing.sm,
+  },
   card: {
-    gap: storybookTheme.spacing.sm,
+    gap: storybookTheme.spacing.xs,
     padding: storybookTheme.spacing.md,
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceWhite,
     borderWidth: 1,
     borderColor: storybookTheme.color.lightCardBorder,
   },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: storybookTheme.spacing.sm },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: storybookTheme.spacing.sm, marginTop: storybookTheme.spacing.xs },
   cardTitle: { fontSize: storybookTheme.type.md, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onCardTitle },
-  cardBody: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onCardBody },
+  cardBody: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onContentMuted },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: storybookTheme.spacing.sm,
+    paddingVertical: storybookTheme.spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: storybookTheme.color.pillBorder,
+  },
+  pressed: { opacity: 0.85 },
+  rowText: { flex: 1, gap: 2 },
+  rowTitle: { fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onCardTitle },
+  rowMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
+  chevron: { fontSize: storybookTheme.type.lg, color: storybookTheme.color.onCardMuted, paddingHorizontal: 4 },
 });

@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-n
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { dashboardNavItems, reportsPathFor, useAuth } from '@/entities/auth';
 import { buildParentReport, type ParentReport } from '@/entities/analytics';
 import { refetchStoryPackage, type StoryRuntimePackage } from '@/entities/story';
 import { ReportContent } from '@/pages/one-story';
@@ -22,7 +22,7 @@ export function ReportHistoryDetailPage() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { state } = useAuth();
-  const reportsFallback = state.status === 'authenticated' && state.user.role === 'TUTOR' ? '/tutor/reports' : '/reports';
+  const reportsFallback = state.status === 'authenticated' ? reportsPathFor(state.user) : '/reports';
   const goBack = useBackOr(reportsFallback);
   const { width } = useWindowDimensions();
   const isWide = width >= 900;
@@ -30,10 +30,11 @@ export function ReportHistoryDetailPage() {
   const requestKey = `${completionId ?? ''}:${attempt}`;
   const [load, setLoad] = useState<LoadState>({ requestKey, status: 'loading' });
 
-  // TUTOR도 자기가 진행한 세션의 상세는 볼 수 있어야 한다 - 선생님 리포트 탭에서 세션을
-  // 탭했을 때 여기로 오게 되어 있다. BE의 getStoryCompletion은 이미 완료 기록 소유자가
-  // 아닌 사용자를 차단하므로, 여기서는 role 기반 페이지 접근만 허용한다.
-  const canView = state.status === 'authenticated' && (state.user.role === 'PARENT' || state.user.role === 'TUTOR');
+  // TUTOR는 자기가 진행한 세션, DIRECTOR는 자기 기관의 수업 기록(Q-35)을 연다 - 학생 상세·리포트 탭에서 여기로 온다.
+  // 누가 어떤 기록을 열 수 있는지는 BE getStoryCompletion이 막으므로, 여기서는 역할 기반 페이지 접근만 허용한다.
+  const canView =
+    state.status === 'authenticated'
+    && (state.user.role === 'PARENT' || state.user.role === 'TUTOR' || state.user.role === 'DIRECTOR');
 
   useEffect(() => {
     if (state.status === 'loading') return;

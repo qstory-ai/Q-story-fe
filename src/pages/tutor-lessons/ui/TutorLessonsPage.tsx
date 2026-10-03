@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, EmptyState, ErrorState, FilterChip, Icon, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
 import { listLessons, type Lesson, type LessonStatus } from '@/entities/lesson';
 import { LessonFormModal } from '@/features/lesson-form';
 
@@ -22,11 +22,11 @@ type LoadState =
   | { status: 'error'; message: string };
 
 /**
- * IA "[3] 수업" 화면. 상단 서브탭 세 개(예정/진행/완료)로 lesson.status를 필터하고, 각 카드
+ * 선생님 "수업" 탭(/tutor/lessons). 상단 서브탭 세 개(예정/진행/완료)로 lesson.status를 필터하고, 각 카드
  * 탭 → /tutor/lessons/{id} 상세 페이지로 이동. '새 수업 만들기'는 LessonFormModal.
- * 학생 뷰는 /tutor/students가 맡고, 이 화면은 "수업" 축만 다룬다.
+ * 반과 학생은 "반·학생" 탭(/tutor/classes)이 맡고, 이 화면은 "수업" 축만 다룬다.
  */
-export function TutorClassesPage() {
+export function TutorLessonsPage() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { state } = useAuth();
@@ -100,18 +100,12 @@ export function TutorClassesPage() {
               <LessonRow
                 key={lesson.id}
                 lesson={lesson}
-                onPress={() => navigate(`/tutor/lessons/${lesson.id}`)}
+                onPress={() => navigate(TUTOR_PATHS.lesson(lesson.id))}
                 onEdit={lesson.status === 'SCHEDULED' ? () => setEditingLesson(lesson) : undefined}
               />
             ))}
           </View>
         )}
-
-        <ActionButton
-          variant="secondaryFull"
-          label="학생 관리로 이동"
-          onPress={() => navigate('/tutor/students')}
-        />
       </View>
 
       {/* key로 open/closed(+ 편집 대상)를 걸어 열 때마다 폼을 초기값으로 remount한다. */}

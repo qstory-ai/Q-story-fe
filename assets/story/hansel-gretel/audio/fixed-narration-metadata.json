@@ -2391,6 +2391,138 @@
       "castVersion": "hg-gemini-tts-cast-v2",
       "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
       "byteSize": 57888
+    },
+    {
+      "clipId": "dialogue-HG-Q-A-help-1",
+      "sceneId": "HG-Q-A",
+      "speaker": "GRETEL",
+      "text": "저 새가 앞으로 갔다가 우리를 다시 돌아봤어. 새를 같이 살펴볼까?",
+      "fileName": "q31-gretel-6e12103e5ab9.mp3",
+      "model": "google/gemini-2.5-flash-preview-tts",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v2",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 72000
+    },
+    {
+      "clipId": "dialogue-HG-Q-A-help-2",
+      "sceneId": "HG-Q-A",
+      "speaker": "GRETEL",
+      "text": "새가 어디로 가는지, 왜 우리를 돌아보는지… 너는 어떤 게 더 궁금해?",
+      "fileName": "q31-gretel-67ac1ceceaa7.mp3",
+      "model": "google/gemini-2.5-flash-preview-tts",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v2",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 67680
+    },
+    {
+      "clipId": "dialogue-HG-Q-A-help-3",
+      "sceneId": "HG-Q-A",
+      "speaker": "GRETEL",
+      "text": "나는 ‘새야, 어디로 가는 거야?’라고 물어보고 싶어. 너도 알고 싶은 걸 물어봐도 돼.",
+      "fileName": "q31-gretel-61b8d37b0171.mp3",
+      "model": "google/gemini-2.5-flash-preview-tts",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v2",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 74880
+    },
+    {
+      "clipId": "dialogue-HG-Q-B-help-1",
+      "sceneId": "HG-Q-B",
+      "speaker": "GRETEL",
+      "text": "할머니는 안에서 먹고 쉬라고 했어. 그런데 우리는 이 집과 할머니를 아직 잘 몰라.",
+      "fileName": "q31-gretel-430e1eb1271e.mp3",
+      "model": "google/gemini-2.5-flash-preview-tts",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v2",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 101088
+    },
+    {
+      "clipId": "dialogue-HG-Q-B-help-2",
+      "sceneId": "HG-Q-B",
+      "speaker": "GRETEL",
+      "text": "우리는 배도 고프고 집에도 돌아가고 싶잖아. 할머니에게 어떤 걸 물어보면 좋을까?",
+      "fileName": "q31-gretel-96b5959384f5.mp3",
+      "model": "google/gemini-2.5-flash-preview-tts",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v2",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 76608
+    },
+    {
+      "clipId": "dialogue-HG-Q-B-help-3",
+      "sceneId": "HG-Q-B",
+      "speaker": "GRETEL",
+      "text": "예를 들면 ‘집으로 가는 길을 알려주실 수 있나요?’라고 물어볼 수 있어. 너라면 무엇을 물어보고 싶어?",
+      "fileName": "q31-gretel-9750295529cd.mp3",
+      "model": "google/gemini-2.5-flash-preview-tts",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v2",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 96768
+    },
+    {
+      "clipId": "dialogue-HG-Q-B-continue",
+      "sceneId": "HG-Q-B",
+      "speaker": "GRETEL",
+      "text": "그럼 남매는 어떻게 했는지 이어서 볼까?",
+      "fileName": "q31-gretel-19edd8cb5804.mp3",
+      "model": "google/gemini-2.5-flash-preview-tts",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v2",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 39744
+    },
+    {
+      "clipId": "dialogue-HG-Q-C-help-1",
+      "sceneId": "HG-Q-C",
+      "speaker": "GRETEL",
+      "text": "마녀가 두 열쇠를 작업대 끝에 내려놨어. 저 열쇠가 있어야 문을 열 수 있어.",
+      "fileName": "q31-gretel-72cfd29f06f2.mp3",
+      "model": "google/gemini-2.5-flash-preview-tts",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v2",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 78624
+    },
+    {
+      "clipId": "dialogue-HG-Q-C-help-2",
+      "sceneId": "HG-Q-C",
+      "speaker": "GRETEL",
+      "text": "그런데 마녀가 자꾸 이쪽을 돌아봐. 지금 가져가면 들킬 수도 있겠어.",
+      "fileName": "q31-gretel-438ceae5b2e1.mp3",
+      "model": "google/gemini-2.5-flash-preview-tts",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v2",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 75744
+    },
+    {
+      "clipId": "dialogue-HG-Q-C-help-3",
+      "sceneId": "HG-Q-C",
+      "speaker": "GRETEL",
+      "text": "마녀가 우리 쪽을 보고 있지 않을 때라면 어떨까? 그런 순간을 기다리거나 만들 수 있을까?",
+      "fileName": "q31-gretel-f4105894e6e6.mp3",
+      "model": "google/gemini-2.5-flash-preview-tts",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v2",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 89280
+    },
+    {
+      "clipId": "dialogue-HG-Q-C-help-4",
+      "sceneId": "HG-Q-C",
+      "speaker": "GRETEL",
+      "text": "마녀가 다른 곳을 볼 때까지 기다릴 수도 있고, 헨젤이 마녀를 불러볼 수도 있겠어. 어떤 방법으로 해보고 싶어?",
+      "fileName": "q31-gretel-4766558f0d4b.mp3",
+      "model": "google/gemini-2.5-flash-preview-tts",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v2",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 98784
     }
   ]
 }

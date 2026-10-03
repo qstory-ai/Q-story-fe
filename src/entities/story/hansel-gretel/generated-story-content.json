@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "source": {
     "package": "content/stories/hansel-gretel",
-    "digest": "2803ac72b2837e69e9e8a061414c95668250852c0f749c001d1efe15e9ace1b3"
+    "digest": "95c7e7b9fa292d4b9bd32d29d8c1f012b9aaf454de194d5bd1cc7ad915af009b"
   },
   "story": {
     "id": "HG",
     "title": "헨젤과 그레텔",
-    "contentVersion": "q30-final-script-v1"
+    "contentVersion": "q31-dialogue-v1"
   },
   "scenes": [
     {

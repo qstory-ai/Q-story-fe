@@ -1472,6 +1472,72 @@
       "familyId": "C_DISTRACT_AND_TAKE_KEYS",
       "file": "audio/q30-gretel-b4f9cbe771ad.mp3",
       "integrity": "sha256-MOvBMSn2utgwF8eG4ehm35Fp3cJLvI7yC87VAyvMD1A="
+    },
+    {
+      "slug": "dialogue-HG-Q-A-help-1",
+      "category": "NARRATION",
+      "file": "audio/q31-gretel-6e12103e5ab9.mp3",
+      "integrity": "sha256-ZYOAtwXCvuiVl6ppNKTs7cjQxHbVUJYXc1phgIYsdgY="
+    },
+    {
+      "slug": "dialogue-HG-Q-A-help-2",
+      "category": "NARRATION",
+      "file": "audio/q31-gretel-67ac1ceceaa7.mp3",
+      "integrity": "sha256-Xk+lZ6ViRVanC06uTxYOaGVxI1D4rJRBQc5ylttJiFw="
+    },
+    {
+      "slug": "dialogue-HG-Q-A-help-3",
+      "category": "NARRATION",
+      "file": "audio/q31-gretel-61b8d37b0171.mp3",
+      "integrity": "sha256-6QFaOMiydgXU08iSOXCD8DGe9tja1wuQwpm+ABKf/NA="
+    },
+    {
+      "slug": "dialogue-HG-Q-B-help-1",
+      "category": "NARRATION",
+      "file": "audio/q31-gretel-430e1eb1271e.mp3",
+      "integrity": "sha256-CSR4XsjJkoLJ0/m/KCnuC+GgGykUIywM0M2JuTGmfpY="
+    },
+    {
+      "slug": "dialogue-HG-Q-B-help-2",
+      "category": "NARRATION",
+      "file": "audio/q31-gretel-96b5959384f5.mp3",
+      "integrity": "sha256-3O47bkY4khs2W5JJ81/CXOVce7QzBM9XhlvtX61hmiA="
+    },
+    {
+      "slug": "dialogue-HG-Q-B-help-3",
+      "category": "NARRATION",
+      "file": "audio/q31-gretel-9750295529cd.mp3",
+      "integrity": "sha256-R4Ku5LHM6L3X0rVGloRE7FEmigRL7OxoX40LysSTMso="
+    },
+    {
+      "slug": "dialogue-HG-Q-B-continue",
+      "category": "NARRATION",
+      "file": "audio/q31-gretel-19edd8cb5804.mp3",
+      "integrity": "sha256-7KISWVMZUVNvR37GYsjd3/EqmiX6d3dgiR5bePslzIE="
+    },
+    {
+      "slug": "dialogue-HG-Q-C-help-1",
+      "category": "NARRATION",
+      "file": "audio/q31-gretel-72cfd29f06f2.mp3",
+      "integrity": "sha256-Bx/Sho9ckYovIW3uwp9LC+1WfILvX6JjtGWMQje1KrM="
+    },
+    {
+      "slug": "dialogue-HG-Q-C-help-2",
+      "category": "NARRATION",
+      "file": "audio/q31-gretel-438ceae5b2e1.mp3",
+      "integrity": "sha256-jCLX+VOxgHYTXCUSAEtVhu422R1BkPdNzqZEB7Y5TfQ="
+    },
+    {
+      "slug": "dialogue-HG-Q-C-help-3",
+      "category": "NARRATION",
+      "file": "audio/q31-gretel-f4105894e6e6.mp3",
+      "integrity": "sha256-FYh+n49yDUoclgf92omUcxlXuJGe31nrcOZ08huDIdI="
+    },
+    {
+      "slug": "dialogue-HG-Q-C-help-4",
+      "category": "NARRATION",
+      "file": "audio/q31-gretel-4766558f0d4b.mp3",
+      "integrity": "sha256-2bCRlXF5xFde1tzYUWG+vBxdzqok0xMKVoIyJSxgGMY="
     }
   ]
 }

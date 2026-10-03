@@ -2,7 +2,7 @@ schemaVersion: 1
 storyId: HG
 slug: hansel-gretel
 title: 헨젤과 그레텔
-contentVersion: q30-final-script-v1
+contentVersion: q31-dialogue-v1
 availability: BETA
 targetAge:
   min: 6

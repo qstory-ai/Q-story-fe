@@ -118,8 +118,7 @@ function ParentMenu({ user, navigate }: { user: UserSummary; navigate: (path: st
       </MenuGroup>
 
       <MenuGroup title="계정">
-        <MenuRow label="내 정보 관리" onPress={() => navigate('/mypage/profile')} />
-        <MenuRow label="계정 관리" hint="아이디 확인·비밀번호 변경" onPress={() => navigate('/mypage/account')} />
+        <MenuRow label="내 정보·계정" hint="이름·아이디 확인·비밀번호 변경" onPress={() => navigate('/mypage/account')} />
         <MenuRow
           label="이용권"
           hint={`${subscriptionStatusLabel(user.subscriptionStatus)}${expiry}`}
@@ -128,8 +127,7 @@ function ParentMenu({ user, navigate }: { user: UserSummary; navigate: (path: st
       </MenuGroup>
 
       <MenuGroup title="설정과 도움">
-        <MenuRow label="알림 설정" onPress={() => navigate('/mypage/notifications')} />
-        <MenuRow label="개인정보 및 데이터" onPress={() => navigate('/mypage/privacy')} />
+        <MenuRow label="설정" hint="알림·개인정보와 데이터" onPress={() => navigate('/mypage/settings')} />
         <MenuRow label="고객지원" onPress={() => navigate('/mypage/support')} />
       </MenuGroup>
     </View>
@@ -153,8 +151,7 @@ function GenericMenu({ user, navigate }: { user: UserSummary; navigate: (path: s
         </MenuGroup>
       ) : null}
       <MenuGroup title="계정">
-        <MenuRow label="내 정보 관리" onPress={() => navigate('/mypage/profile')} />
-        <MenuRow label="계정 관리" hint="아이디 확인·비밀번호 변경" onPress={() => navigate('/mypage/account')} />
+        <MenuRow label="내 정보·계정" hint="이름·아이디 확인·비밀번호 변경" onPress={() => navigate('/mypage/account')} />
         <MenuRow
           label="이용권"
           hint={user.role === 'PARENT' ? undefined : user.grantsAccess ? BETA_OPEN_ACCESS_NOTICE : '이용권은 관리자에게 문의해 주세요.'}
@@ -162,8 +159,7 @@ function GenericMenu({ user, navigate }: { user: UserSummary; navigate: (path: s
         />
       </MenuGroup>
       <MenuGroup title="설정과 도움">
-        <MenuRow label="알림 설정" onPress={() => navigate('/mypage/notifications')} />
-        <MenuRow label="개인정보 및 데이터" onPress={() => navigate('/mypage/privacy')} />
+        <MenuRow label="설정" hint="알림·개인정보와 데이터" onPress={() => navigate('/mypage/settings')} />
         <MenuRow label="고객지원" onPress={() => navigate('/mypage/support')} />
       </MenuGroup>
     </View>

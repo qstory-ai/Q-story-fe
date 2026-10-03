@@ -243,7 +243,10 @@ export function listClassStudents(
   return request(`/v1/classes/${classId}/students`, { method: 'GET' }, { ...options, token });
 }
 
-/** 담임이 없는 반에 담임을 배정한다 - 그때까지 명단에 올라온 학생이 그 선생님의 학생이 된다. */
+/**
+ * 담임을 배정하거나 바꾼다(관리자만). 명단 학생과 아직 시작하지 않은 수업은 새 담임에게 넘어가고, 지난 수업과
+ * 리포트는 그때 진행한 선생님 것으로 남는다.
+ */
 export function assignClassHomeroom(
   token: string,
   classId: string,
@@ -255,6 +258,45 @@ export function assignClassHomeroom(
     { method: 'PUT', body: JSON.stringify({ tutorId }) },
     { ...options, token },
   );
+}
+
+/** 반 담임 이력 한 구간. endedAt이 null이면 지금 담임. */
+export type HomeroomHistoryEntry = {
+  tutorId: string;
+  tutorDisplayName: string;
+  startedAt: string;
+  endedAt: string | null;
+};
+
+/** 반 담임 이력(관리자만) - 오래된 순. */
+export function listClassHomeroomHistory(
+  token: string,
+  classId: string,
+  options?: RequestOptions,
+): Promise<HomeroomHistoryEntry[]> {
+  return request(`/v1/classes/${classId}/homeroom-history`, { method: 'GET' }, { ...options, token });
+}
+
+/** 반 학생 상세의 리포트 한 줄 - 그 수업을 진행한 선생님이 함께 온다. */
+export type ClassStudentReport = {
+  id: string;
+  storyId: string;
+  completedAt: string;
+  durationSeconds: number | null;
+  sessionKind: 'CLASS' | 'TUTOR' | 'HOME';
+  lessonId: string | null;
+  tutorId: string;
+  tutorDisplayName: string;
+};
+
+/** 반 학생 한 명의 수업 리포트. 관리자는 담임이 바뀌기 전 기록까지 전부, 담임은 자기가 진행한 것만 받는다. */
+export function listClassStudentReports(
+  token: string,
+  classId: string,
+  studentId: string,
+  options?: RequestOptions,
+): Promise<ClassStudentReport[]> {
+  return request(`/v1/classes/${classId}/students/${studentId}/reports`, { method: 'GET' }, { ...options, token });
 }
 
 /** 반 코드로 학부모 계정을 만들고 아이를 그 반의 학생으로 올린다 - 아이 이름과 출생연도가 필요하다. */

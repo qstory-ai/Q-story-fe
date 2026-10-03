@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ActionButton, AppNavShell, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { useBackOr } from '@/shared/lib';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
 import { createTutorClass } from '@/entities/tutor';
 import { listMyOrganizations, type TutorOrganizationLink } from '@/entities/organization-tutor';
 
@@ -17,7 +17,7 @@ const NO_ORGANIZATION = 'none';
  */
 export function TutorClassGroupNewPage() {
   const navigate = useNavigate();
-  const goBack = useBackOr('/tutor/students');
+  const goBack = useBackOr(TUTOR_PATHS.classes);
   const { pathname } = useLocation();
   const { state } = useAuth();
   const [name, setName] = useState('');
@@ -62,7 +62,7 @@ export function TutorClassGroupNewPage() {
         name: name.trim(),
         organizationId: organizationId === NO_ORGANIZATION ? undefined : organizationId,
       });
-      navigate(`/tutor/class-groups/${created.id}`, { replace: true });
+      navigate(TUTOR_PATHS.classDetail(created.id), { replace: true });
     } catch (failure: unknown) {
       setError(messageForError(failure, '반을 만들지 못했어요.'));
       setSubmitting(false);

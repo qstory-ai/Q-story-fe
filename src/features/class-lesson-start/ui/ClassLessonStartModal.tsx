@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ActionButton, Modal, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { withParticle } from '@/shared/lib';
+import { TUTOR_PATHS } from '@/entities/auth';
 import { createLesson, listLessons, updateLesson, type Lesson } from '@/entities/lesson';
 import { listTutorClasses, type TutorClass } from '@/entities/tutor';
 
@@ -101,7 +102,7 @@ export function ClassLessonStartModal({ visible, token, tutorId, storyId, storyT
               label="새 반 만들기"
               onPress={() => {
                 onClose();
-                navigate('/tutor/class-groups/new');
+                navigate(TUTOR_PATHS.newClass);
               }}
             />
           </View>

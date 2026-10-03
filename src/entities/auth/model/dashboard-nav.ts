@@ -1,7 +1,8 @@
 import type { Role, UserSummary } from '../api/auth-api';
+import { ORGANIZATION_PATHS, TUTOR_PATHS } from './app-paths';
 import { homePathFor } from './home-path';
 
-export type DashboardNavKey = 'home' | 'library' | 'classes' | 'tutors' | 'usage' | 'reports' | 'mypage';
+export type DashboardNavKey = 'home' | 'library' | 'classes' | 'lessons' | 'tutors' | 'reports' | 'mypage';
 
 // entities 레이어는 shared/ui 컴포넌트에 의존하지 않는다 - AppNavShellItem과 구조적으로
 // 호환되는 형태(key/label/icon/active/onPress)만 여기서 만들고, 실제 컴포넌트 타입에 대한
@@ -13,7 +14,11 @@ const COMMON_TABS: Array<[string, DashboardNavKey]> = [
   ['/payment', 'mypage'],
 ];
 
-/** 역할별 "경로 접두사 → 탭". 가장 긴 접두사가 이긴다. 선생님 반·학생 탭 재편은 2번 하위 프로젝트에서. */
+/**
+ * 역할별 "경로 접두사 → 탭". 가장 긴 접두사가 이긴다. 예전 경로(/tutor/students, /tutor/class-groups,
+ * /organization/usage)는 App의 리다이렉트로 새 경로로 옮겨지지만, 리다이렉트 직전 한 번의 렌더에서도 같은 탭이
+ * 강조되도록 남겨 둔다.
+ */
 const PATH_TABS: Record<Role, Array<[string, DashboardNavKey]>> = {
   PARENT: [
     ['/parent', 'home'],
@@ -27,9 +32,9 @@ const PATH_TABS: Record<Role, Array<[string, DashboardNavKey]>> = {
     ['/tutor/library', 'library'],
     ['/stories', 'library'],
     ['/tutor/classes', 'classes'],
-    ['/tutor/lessons', 'classes'],
     ['/tutor/students', 'classes'],
     ['/tutor/class-groups', 'classes'],
+    ['/tutor/lessons', 'lessons'],
     ['/tutor/reports', 'reports'],
     ['/reports', 'reports'],
     ['/tutor/join-organization', 'mypage'],
@@ -40,8 +45,9 @@ const PATH_TABS: Record<Role, Array<[string, DashboardNavKey]>> = {
     ['/stories', 'home'],
     ['/organization/classes', 'classes'],
     ['/organization/tutors', 'tutors'],
-    ['/organization/usage', 'usage'],
+    ['/organization/usage', 'reports'],
     ['/organization/reports', 'reports'],
+    ['/reports', 'reports'],
     ['/organization/subscription', 'mypage'],
     ...COMMON_TABS,
   ],
@@ -58,8 +64,8 @@ export function navKeyForPath(role: Role, pathname: string): DashboardNavKey | n
 }
 
 /**
- * AppNavShell에 넣을 항목들. 부모/선생님은 "서재" 탭을 갖고 선생님은 "수업" 탭이 하나 더 붙는다.
- * 좁은 화면에서 5탭이 되는 것은 TUTOR만이다. STAFF는 각 화면이 자체 항목을 구성한다.
+ * AppNavShell에 넣을 항목들. 보호자 4탭, 관리자 5탭(홈·반·학생·선생님·리포트·마이페이지 - 이용 현황은 리포트에
+ * 합쳤다), 선생님 6탭(홈·반·학생·수업·서재·리포트·마이페이지)이다. STAFF는 각 화면이 자체 항목을 구성한다.
  */
 export function dashboardNavItems(
   user: UserSummary,
@@ -75,17 +81,15 @@ export function dashboardNavItems(
     entries.push({ key: 'reports', label: '리포트', icon: 'report', path: '/reports' });
   }
   if (user.role === 'TUTOR') {
+    entries.push({ key: 'classes', label: '반·학생', icon: 'graduationCap', path: TUTOR_PATHS.classes });
+    entries.push({ key: 'lessons', label: '수업', icon: 'calendarDays', path: TUTOR_PATHS.lessons });
     entries.push({ key: 'library', label: '서재', icon: 'book', path: '/tutor/library' });
-    entries.push({ key: 'classes', label: '수업', icon: 'graduationCap', path: '/tutor/classes' });
+    entries.push({ key: 'reports', label: '리포트', icon: 'report', path: '/tutor/reports' });
   }
   if (user.role === 'DIRECTOR') {
     entries.push({ key: 'classes', label: '반·학생', icon: 'graduationCap', path: '/organization/classes' });
     entries.push({ key: 'tutors', label: '선생님', icon: 'users', path: '/organization/tutors' });
-    entries.push({ key: 'usage', label: '이용 현황', icon: 'calendarDays', path: '/organization/usage' });
-    entries.push({ key: 'reports', label: '리포트', icon: 'report', path: '/organization/reports' });
-  }
-  if (user.role === 'TUTOR') {
-    entries.push({ key: 'reports', label: '리포트', icon: 'report', path: '/tutor/reports' });
+    entries.push({ key: 'reports', label: '리포트', icon: 'report', path: ORGANIZATION_PATHS.reports });
   }
   entries.push({ key: 'mypage', label: '마이페이지', icon: 'user', path: '/mypage' });
 

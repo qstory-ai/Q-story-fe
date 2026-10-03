@@ -538,10 +538,20 @@ test('all versioned master illustrations and every fixed narration clip are pack
         ).length,
       0,
     );
+  // Q-31 그레텔 도움·이어 보기 대사도 미리 녹음한다 - use-dialogue가 같은 id로 고정 음성을 찾는다.
+  const dialogueLines = Object.entries(packageData.story.inviteHelp ?? {}).flatMap(([anchorId, help]) => [
+    ...help.steps.map((text, index) => ({ clipId: `dialogue-${anchorId}-help-${index + 1}`, text })),
+    ...(help.continueLine ? [{ clipId: `dialogue-${anchorId}-continue`, text: help.continueLine }] : []),
+  ]);
   assert.equal(
     narrationMetadata.clips.length,
-    expectedFixedClipCount + branchInteractionEntries.length,
+    expectedFixedClipCount + branchInteractionEntries.length + dialogueLines.length,
   );
+  for (const line of dialogueLines) {
+    const clip = narrationMetadata.clips.find((candidate) => candidate.clipId === line.clipId);
+    assert.equal(clip?.text, line.text, `${line.clipId} has no matching recording`);
+    assert.equal(audioFileBySlug.get(line.clipId), `${packagedAssets.root}audio/${clip.fileName}`);
+  }
   const metadataByClipId = new Map(
     narrationMetadata.clips.map((clip) => [clip.clipId, clip]),
   );

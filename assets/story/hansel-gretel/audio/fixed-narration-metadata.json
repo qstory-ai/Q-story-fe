@@ -1,5 +1,5 @@
 {
-  "contentVersion": "q30-final-script-v1",
+  "contentVersion": "q31-dialogue-v1",
   "model": "google/gemini-3.1-flash-tts-preview",
   "castVersion": "hg-gemini-tts-cast-v2",
   "sourceDigest": "5ad3abb7b061c732fb52ae7cb52e9e9a529a4268433f430c0a12c5778b1d874c",

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import { LaunchNotificationGate } from '@/features/launch-notification-gate';
 import {
@@ -9,7 +9,7 @@ import {
   type StoryLoadFailure,
   type StoryRuntimePackage,
 } from '@/entities/story';
-import { AuthProvider } from '@/entities/auth';
+import { AuthProvider, legacyRedirectPath } from '@/entities/auth';
 import { BookmarksProvider } from '@/entities/bookmark';
 import { ChildrenProvider } from '@/entities/child';
 import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
@@ -27,7 +27,7 @@ const OnboardingTutorPage = lazy(() =>
 );
 const OneStoryPage = lazy(() => import('@/pages/one-story').then((m) => ({ default: m.OneStoryPage })));
 const LoginPage = lazy(() => import('@/pages/login').then((m) => ({ default: m.LoginPage })));
-const TutorClassGroupPage = lazy(() => import('@/pages/tutor-class-group').then((m) => ({ default: m.TutorClassGroupPage })));
+const ClassDetailPage = lazy(() => import('@/pages/class-detail').then((m) => ({ default: m.ClassDetailPage })));
 const TutorClassGroupNewPage = lazy(() => import('@/pages/tutor-class-group').then((m) => ({ default: m.TutorClassGroupNewPage })));
 const JoinClassPage = lazy(() => import('@/pages/join-class').then((m) => ({ default: m.JoinClassPage })));
 const SignupPage = lazy(() => import('@/pages/signup').then((m) => ({ default: m.SignupPage })));
@@ -78,7 +78,7 @@ const TutorStudentsPage = lazy(() =>
 const StoryDetailPage = lazy(() => import('@/pages/story-detail').then((m) => ({ default: m.StoryDetailPage })));
 const LibraryPage = lazy(() => import('@/pages/library').then((m) => ({ default: m.LibraryPage })));
 const TutorLibraryPage = lazy(() => import('@/pages/tutor-library').then((m) => ({ default: m.TutorLibraryPage })));
-const TutorClassesPage = lazy(() => import('@/pages/tutor-classes').then((m) => ({ default: m.TutorClassesPage })));
+const TutorLessonsPage = lazy(() => import('@/pages/tutor-lessons').then((m) => ({ default: m.TutorLessonsPage })));
 const TutorReportsPage = lazy(() => import('@/pages/tutor-reports').then((m) => ({ default: m.TutorReportsPage })));
 const OrganizationTutorsPage = lazy(() =>
   import('@/pages/organization-tutors').then((m) => ({ default: m.OrganizationTutorsPage })),
@@ -89,11 +89,8 @@ const OrganizationTutorDetailPage = lazy(() =>
 const OrganizationClassesPage = lazy(() =>
   import('@/pages/organization-classes').then((m) => ({ default: m.OrganizationClassesPage })),
 );
-const OrganizationClassDetailPage = lazy(() =>
-  import('@/pages/organization-class-detail').then((m) => ({ default: m.OrganizationClassDetailPage })),
-);
-const OrganizationUsagePage = lazy(() =>
-  import('@/pages/organization-usage').then((m) => ({ default: m.OrganizationUsagePage })),
+const OrganizationStudentDetailPage = lazy(() =>
+  import('@/pages/organization-student-detail').then((m) => ({ default: m.OrganizationStudentDetailPage })),
 );
 const OrganizationReportPage = lazy(() =>
   import('@/pages/organization-report').then((m) => ({ default: m.OrganizationReportPage })),
@@ -140,6 +137,19 @@ function RouteLoadingFallback() {
     >
       <LoadingState label="화면을 준비하고 있어요." />
     </SafeAreaView>
+  );
+}
+
+/**
+ * 예전 경로(북마크·알림 링크)를 새 경로로 옮긴다(Q-35) - 쿼리와 해시는 그대로 둔다. 대상 표는 legacyRedirectPath.
+ */
+function LegacyRedirect() {
+  const location = useLocation();
+  return (
+    <Navigate
+      replace
+      to={{ pathname: legacyRedirectPath(location.pathname) ?? '/', search: location.search, hash: location.hash }}
+    />
   );
 }
 
@@ -229,21 +239,26 @@ export function App() {
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/tutor" element={<TutorHomePage />} />
             <Route path="/tutor/library" element={<TutorLibraryPage />} />
-            <Route path="/tutor/classes" element={<TutorClassesPage />} />
-            <Route path="/tutor/class-groups/new" element={<TutorClassGroupNewPage />} />
-            <Route path="/tutor/class-groups/:classId" element={<TutorClassGroupPage />} />
+            <Route path="/tutor/classes" element={<TutorStudentsPage />} />
+            <Route path="/tutor/classes/new" element={<TutorClassGroupNewPage />} />
+            <Route path="/tutor/classes/:classId" element={<ClassDetailPage />} />
+            <Route path="/tutor/lessons" element={<TutorLessonsPage />} />
+            <Route path="/tutor/class-groups" element={<LegacyRedirect />} />
+            <Route path="/tutor/class-groups/new" element={<LegacyRedirect />} />
+            <Route path="/tutor/class-groups/:classId" element={<LegacyRedirect />} />
             <Route path="/tutor/reports" element={<TutorReportsPage />} />
             <Route path="/tutor/join-organization" element={<TutorJoinOrganizationPage />} />
             <Route path="/organization/tutors" element={<OrganizationTutorsPage />} />
             <Route path="/organization/tutors/:tutorId" element={<OrganizationTutorDetailPage />} />
             <Route path="/organization/classes" element={<OrganizationClassesPage />} />
-            <Route path="/organization/classes/:classId" element={<OrganizationClassDetailPage />} />
-            <Route path="/organization/usage" element={<OrganizationUsagePage />} />
+            <Route path="/organization/classes/:classId" element={<ClassDetailPage />} />
+            <Route path="/organization/classes/:classId/students/:studentId" element={<OrganizationStudentDetailPage />} />
+            <Route path="/organization/usage" element={<LegacyRedirect />} />
             <Route path="/organization/reports" element={<OrganizationReportPage />} />
             <Route path="/organization/subscription" element={<OrganizationSubscriptionPage />} />
             <Route path="/org-invite/:token" element={<OrgInviteAcceptPage />} />
             <Route path="/org-invite/code/:code" element={<OrgInviteAcceptPage />} />
-            <Route path="/tutor/students" element={<TutorStudentsPage />} />
+            <Route path="/tutor/students" element={<LegacyRedirect />} />
             <Route path="/tutor/students/:studentId" element={<TutorStudentDetailPage />} />
             <Route path="/tutor/lessons/:lessonId" element={<TutorLessonDetailPage />} />
             <Route path="/mypage" element={<MyPage />} />

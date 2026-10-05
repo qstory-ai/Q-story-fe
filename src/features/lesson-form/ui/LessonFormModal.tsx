@@ -1,13 +1,26 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useNavigate } from 'react-router-dom';
 
 import { Modal, TextField, TextareaField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, useAuth } from '@/entities/auth';
 import { createLesson, updateLesson, type Lesson } from '@/entities/lesson';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { listTutorStudents, type TutorStudent } from '@/entities/tutor';
 import { TutorClassPicker } from '@/features/tutor-class-picker';
+
+import {
+  DEFAULT_RECURRING_COUNT,
+  MAX_RECURRING_COUNT,
+  WEEKDAY_LABELS,
+  computeRecurringDates,
+  defaultFirstLessonInput,
+  describeRecurrence,
+  formatDateTimeForInput,
+  parseDateTime,
+  parseLessonDateTime,
+} from '../lib/lesson-schedule';
 
 type Props = {
   visible: boolean;
@@ -26,20 +39,24 @@ type RefsLoad =
   | { status: 'error'; message: string };
 
 /**
- * IA "새 수업 만들기" 스텝을 한 모달에 담는다: 이름/목표(선택)/일정(선택) + 반 + 참여 학생 + 사용
- * 이야기. 수업은 언제나 반 수업이다(1:1 과외도 아이 한 명짜리 반) - 반을 골라야 만들 수 있고,
- * 학생은 반 초대 링크로 들어오므로 여기서 등록하지 않는다. 학생과 이야기는 각각 체크리스트로 여러 개 선택할 수 있어서, "한 수업에 여러 학생/
- * 여러 이야기" 요구를 그대로 반영. 실패 시 폼 값은 유지되고 에러만 표시.
+ * 새 수업 만들기 / 수업 편집 모달. 수업은 언제나 반 수업이다(1:1 과외도 아이 한 명짜리 반).
+ *
+ * <p>Q-35에서 만들기 단계를 줄였다: 반 → 첫 수업 일시(텍스트 "YYYY-MM-DD HH:MM") → 반복(기본 "매주 12회")만 정하면
+ * 된다. 수업 이름은 비워 두면 "{반 이름} 수업", 요일은 첫 수업의 요일, 참여 학생은 반 학생 전원이다. 여러 요일·
+ * 종료일·수업 목표는 "자세히"를 펼쳐서 정한다(기능은 그대로).
  */
 export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved }: Props) {
+  const navigate = useNavigate();
   const { state } = useAuth();
   const token = state.status === 'authenticated' ? state.token : null;
   const [refs, setRefs] = useState<RefsLoad>({ status: 'loading' });
   // 초기값은 editing에서 lazy-init - 편집 대상이 바뀌면 부모가 key로 remount시킨다.
   const [name, setName] = useState(() => editing?.name ?? '');
+  const [className, setClassName] = useState('');
   const [goal, setGoal] = useState(() => editing?.goal ?? '');
-  const [scheduledAtInput, setScheduledAtInput] = useState(() =>
-    editing?.scheduledAt ? formatDateTimeForInput(editing.scheduledAt) : '',
+  // 편집: 그 회차의 일시(비우면 일정 미정). 새 수업: 첫 수업 일시(기본 오늘 15:00).
+  const [dateTimeInput, setDateTimeInput] = useState(() =>
+    editing ? (editing.scheduledAt ? formatDateTimeForInput(editing.scheduledAt) : '') : defaultFirstLessonInput(new Date()),
   );
   const [selectedStudentIds, setSelectedStudentIds] = useState<Set<string>>(
     () => new Set(editing?.students.map((s) => s.id) ?? []),
@@ -50,22 +67,19 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
   // 반을 고르면 그 반의 학생이 참여 학생으로 자동 선택된다(BE도 studentIds가 비어 오면 반 학생으로
   // 채우지만 화면에서 바로 보이게). 결석한 아이는 참여 학생 칩에서 빼면 된다.
   const [classGroupId, setClassGroupId] = useState<string | null>(() => editing?.classGroupId ?? null);
+  // 학생 목록이 반보다 늦게 오면(반이 하나라 자동으로 골라진 경우) 도착했을 때 반 학생을 채운다.
+  const [studentsSeededFor, setStudentsSeededFor] = useState<string | null>(() => editing?.classGroupId ?? null);
   const needsClass = !classGroupId;
-  // 수업 형태 - 신규 생성 시 기본값은 '정기'(사용자 관행 상 대부분 반복). 편집 모드는 강제
-  // '단발성'(=단일 Lesson 하나 수정)만 지원. 정기 → 단발 변환은 데이터 손실이 있어 UI에서 잠금.
-  const [kind, setKind] = useState<'RECURRING' | 'ONE_OFF'>(() =>
-    editing != null ? 'ONE_OFF' : 'RECURRING',
-  );
+  // 수업 형태 - 신규 생성 기본값은 정기(매주 12회). 편집은 언제나 회차 하나만 고친다.
+  const [kind, setKind] = useState<'RECURRING' | 'ONE_OFF'>(() => (editing != null ? 'ONE_OFF' : 'RECURRING'));
   // 정기 수업 회차(seriesId 있음) 편집 시 적용 범위 - "향후 모든 수업"이면 같은 시리즈의 이후
   // 예정 회차에도 변경을 반영한다(BE LessonService.applyToFutureSiblings). 회차마다 별도 Lesson이라
   // 조용한 기본값은 혼란을 주므로 null로 시작해 명시적으로 고르기 전엔 저장을 막는다.
   const [applyScope, setApplyScope] = useState<'THIS' | 'FUTURE' | null>(null);
-  // 정기 수업: 다중 요일 선택 (0=일 ... 6=토). 기본은 오늘 요일 하나만.
-  const [weekdays, setWeekdays] = useState<Set<number>>(() => new Set([new Date().getDay()]));
-  const [startTime, setStartTime] = useState('15:00');
-  const [startDateInput, setStartDateInput] = useState(() => formatDateOnly(new Date()));
-  const [endMode, setEndMode] = useState<'COUNT' | 'DATE'>('COUNT');
-  const [endCount, setEndCount] = useState('12'); // "12회" - 학기 3개월 기준 근사치
+  const [showDetails, setShowDetails] = useState(false);
+  // 비어 있으면 첫 수업의 요일 하나("매주 같은 요일").
+  const [weekdays, setWeekdays] = useState<Set<number>>(() => new Set());
+  const [endCount, setEndCount] = useState(String(DEFAULT_RECURRING_COUNT));
   const [endDateInput, setEndDateInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitProgress, setSubmitProgress] = useState<{ done: number; total: number } | null>(null);
@@ -73,26 +87,27 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
 
   const isEdit = editing != null;
   const isSeriesEdit = isEdit && editing?.seriesId != null;
-  const recurringPreviewCount = useMemo(() => {
-    if (kind !== 'RECURRING') return 0;
+  const firstLesson = useMemo(() => parseLessonDateTime(dateTimeInput), [dateTimeInput]);
+  const recurringDates = useMemo(() => {
+    if (isEdit || kind !== 'RECURRING') return [];
     return computeRecurringDates({
-      startDate: startDateInput,
-      startTime,
+      firstLesson: dateTimeInput,
+      count: Number(endCount) || 0,
       weekdays,
-      endMode,
-      endCount: Number(endCount) || 0,
-      endDate: endDateInput,
-    }).length;
-  }, [kind, startDateInput, startTime, weekdays, endMode, endCount, endDateInput]);
+      endDate: endDateInput.trim() || undefined,
+    });
+  }, [isEdit, kind, dateTimeInput, endCount, weekdays, endDateInput]);
+  const lessonName = name.trim() || (className ? `${className} 수업` : '');
+  // 단발·편집은 비우면 "일정 미정"으로 저장되지만, 무언가 적었는데 형식이 틀리면 조용히 미정으로 넘기지 않는다.
+  const dateTimeInvalid = dateTimeInput.trim().length > 0 && firstLesson == null;
 
-  const canSubmit = useMemo(() => {
-    if (submitting) return false;
-    if (name.trim().length === 0) return false;
-    if (kind === 'RECURRING' && recurringPreviewCount === 0) return false;
-    if (isSeriesEdit && applyScope === null) return false;
-    if (needsClass) return false;
-    return true;
-  }, [name, submitting, kind, recurringPreviewCount, isSeriesEdit, applyScope, needsClass]);
+  const canSubmit =
+    !submitting
+    && lessonName.length > 0
+    && !(kind === 'RECURRING' && !isEdit && recurringDates.length === 0)
+    && !dateTimeInvalid
+    && !(isSeriesEdit && applyScope === null)
+    && !needsClass;
 
   // auth state 객체 전체가 아니라 token에만 의존해야 프로필 갱신 등으로 목록을 다시 받지 않는다.
   useEffect(() => {
@@ -112,6 +127,19 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
     };
   }, [visible, token]);
 
+  const pickClass = useCallback((nextClassGroupId: string, nextClassName: string) => {
+    setClassGroupId(nextClassGroupId);
+    setClassName(nextClassName);
+  }, []);
+
+  // 반이 바뀌었거나 학생 목록이 막 도착했으면 그 반 학생 전원을 참여 학생으로 채운다(렌더 중 파생 상태 갱신).
+  if (refs.status === 'ready' && classGroupId && studentsSeededFor !== classGroupId) {
+    setStudentsSeededFor(classGroupId);
+    setSelectedStudentIds(
+      new Set(refs.students.filter((student) => student.classGroupId === classGroupId).map((student) => student.id)),
+    );
+  }
+
   async function handleSubmit() {
     if (!canSubmit || state.status !== 'authenticated') return;
     setSubmitting(true);
@@ -119,7 +147,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
     setError(null);
     try {
       const baseInput = {
-        name: name.trim(),
+        name: lessonName,
         goal: goal.trim() || null,
         studentIds: Array.from(selectedStudentIds),
         storyIds: Array.from(selectedStoryIds),
@@ -128,14 +156,14 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
       if (editing) {
         const updated = await updateLesson(state.token, editing.id, {
           ...baseInput,
-          scheduledAt: parseDateTime(scheduledAtInput),
+          scheduledAt: parseDateTime(dateTimeInput),
           applyToFutureInSeries: editing.seriesId != null && applyScope === 'FUTURE',
         });
         onSaved?.(updated);
       } else if (kind === 'ONE_OFF') {
         const created = await createLesson(state.token, {
           ...baseInput,
-          scheduledAt: parseDateTime(scheduledAtInput),
+          scheduledAt: parseDateTime(dateTimeInput),
         });
         onCreated?.(created);
       } else {
@@ -144,14 +172,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
         // (부분 성공은 상세 페이지에서 정리).
         // seriesId는 이 제출 하나에서만 쓰는 클라이언트 생성 UUID - N번의 create 호출 전체가
         // 같은 값을 실어 보내야 나중에 "향후 모든 수업 수정"으로 형제들을 함께 찾을 수 있다.
-        const dates = computeRecurringDates({
-          startDate: startDateInput,
-          startTime,
-          weekdays,
-          endMode,
-          endCount: Number(endCount) || 0,
-          endDate: endDateInput,
-        });
+        const dates = recurringDates;
         const seriesId = crypto.randomUUID();
         setSubmitProgress({ done: 0, total: dates.length });
         let lastCreated: Lesson | null = null;
@@ -172,14 +193,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
         // 부모는 이 콜백 이후 listLessons를 다시 호출해 전체를 새로 받는다.
         if (lastCreated) onCreated?.(lastCreated);
       }
-      // 같은 인스턴스로 다시 열 때를 위해 폼을 비우고 닫는다.
-      setName('');
-      setGoal('');
-      setScheduledAtInput('');
-      setSelectedStudentIds(new Set());
-      setSelectedStoryIds(new Set());
-      setClassGroupId(null);
-      setApplyScope(null);
+      // 부모가 닫힘 상태로 key를 바꿔 remount하므로 폼을 따로 비우지 않는다.
       onClose();
     } catch (failure: unknown) {
       const fallback = editing
@@ -194,6 +208,8 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
     }
   }
 
+  const recurrenceSummary = describeRecurrence(recurringDates, weekdays.size > 0 ? weekdays : null);
+
   return (
     <Modal
       visible={visible}
@@ -207,8 +223,8 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
               : (isEdit ? '저장 중…' : '만드는 중…'))
           : (isEdit
               ? (isSeriesEdit && applyScope === 'FUTURE' ? '향후 수업까지 저장' : '변경 저장')
-              : kind === 'RECURRING' && recurringPreviewCount > 0
-                ? `${recurringPreviewCount}회 수업 만들기`
+              : kind === 'RECURRING' && recurringDates.length > 0
+                ? `${recurringDates.length}회 수업 만들기`
                 : '수업 만들기'),
         onPress: handleSubmit,
         disabled: !canSubmit,
@@ -217,33 +233,28 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
       negativeAction={{ label: '취소', onPress: onClose, disabled: submitting }}
     >
       <View style={styles.body}>
-        <TextField
-          label="수업 이름"
-          value={name}
-          onChangeText={setName}
-          placeholder="예: 목요일 동화 수업"
-          maxLength={80}
-        />
-        <TextareaField
-          label="수업 목표 (선택)"
-          value={goal}
-          onChangeText={setGoal}
-          placeholder="예: 헨젤과 그레텔에서 아이의 질문을 세 개 이상 이끌어내기"
-        />
-        {/* 수업 형태 - 신규 생성 시만. 편집은 항상 단일 lesson이라 토글 숨김. */}
-        {!isEdit ? (
+        {state.status === 'authenticated' ? (
           <View style={styles.group}>
-            <Text style={styles.groupLabel}>수업 형태</Text>
-            <ChoiceRow
-              options={[
-                { value: 'RECURRING', label: '정기 수업' },
-                { value: 'ONE_OFF', label: '단발성 수업' },
-              ]}
-              value={kind}
-              onChange={setKind}
+            <Text style={styles.groupLabel}>반</Text>
+            <TutorClassPicker
+              token={state.token}
+              value={classGroupId}
+              onChange={pickClass}
+              onCreateClass={() => {
+                onClose();
+                navigate(TUTOR_PATHS.newClass);
+              }}
             />
           </View>
         ) : null}
+
+        <TextField
+          label={isEdit ? '수업 이름' : '수업 이름 (선택)'}
+          value={name}
+          onChangeText={setName}
+          placeholder={className ? `비워 두면 "${className} 수업"` : '예: 목요일 동화 수업'}
+          maxLength={80}
+        />
 
         {/* 정기 수업의 한 회차를 편집할 때만. applyScope가 null이면 저장 비활성(canSubmit). */}
         {isSeriesEdit ? (
@@ -273,123 +284,45 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
           </View>
         ) : null}
 
-        {/* 단발성과 편집: 단일 datetime 입력. */}
-        {isEdit || kind === 'ONE_OFF' ? (
-          <TextField
-            label="수업 일정 (선택)"
-            value={scheduledAtInput}
-            onChangeText={setScheduledAtInput}
-            placeholder="예: 2026-03-05 15:00"
-            description="YYYY-MM-DD HH:MM 형식으로 적어 주세요. 비워 두면 일정 미정으로 저장돼요."
-          />
-        ) : null}
+        <TextField
+          label={!isEdit && kind === 'RECURRING' ? '첫 수업 일시' : '수업 일시 (선택)'}
+          value={dateTimeInput}
+          onChangeText={setDateTimeInput}
+          placeholder="예: 2026-03-05 15:00"
+          description={
+            !isEdit && kind === 'RECURRING'
+              ? 'YYYY-MM-DD HH:MM 형식으로 적어 주세요. 이 날부터 같은 요일·시각으로 반복해요.'
+              : 'YYYY-MM-DD HH:MM 형식으로 적어 주세요. 비워 두면 일정 미정으로 저장돼요.'
+          }
+          errorText={dateTimeInvalid ? '날짜를 2026-03-05 15:00처럼 적어 주세요.' : undefined}
+        />
 
-        {/* 정기: 요일 + 시작 시간 + 시작일 + 종료 조건. 아래 실제로 몇 회 생성될지 미리보기. */}
-        {!isEdit && kind === 'RECURRING' ? (
-          <View style={styles.recurringBlock}>
-            <View style={styles.group}>
-              <Text style={styles.groupLabel}>반복 요일</Text>
-              <View style={styles.weekdayRow}>
-                {WEEKDAY_LABELS.map((label, day) => {
-                  const selected = weekdays.has(day);
-                  return (
-                    <Pressable
-                      key={day}
-                      accessibilityRole="checkbox"
-                      aria-checked={selected}
-                      onPress={() => setWeekdays((prev) => toggleInSet(prev, day))}
-                      style={({ pressed }) => [
-                        styles.weekdayChip,
-                        selected && styles.weekdayChipSelected,
-                        day === 0 && !selected && styles.weekdayChipSunday,
-                        day === 6 && !selected && styles.weekdayChipSaturday,
-                        pressed && styles.chipPressed,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.weekdayChipLabel,
-                          selected && styles.weekdayChipLabelSelected,
-                        ]}
-                      >
-                        {label}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
-            <TextField
-              label="시작 시간"
-              value={startTime}
-              onChangeText={setStartTime}
-              placeholder="15:00"
-              description="HH:MM 형식 (예: 15:00, 09:30)."
-            />
-            <TextField
-              label="시작 날짜"
-              value={startDateInput}
-              onChangeText={setStartDateInput}
-              placeholder="예: 2026-03-05"
-              description="YYYY-MM-DD 형식. 이 날짜 포함 이후 첫 번째 해당 요일부터 시작해요."
-            />
-            <View style={styles.group}>
-              <Text style={styles.groupLabel}>종료 조건</Text>
-              <ChoiceRow
-                options={[
-                  { value: 'COUNT', label: '횟수 지정' },
-                  { value: 'DATE', label: '종료일 지정' },
-                ]}
-                value={endMode}
-                onChange={setEndMode}
-              />
-            </View>
-            {endMode === 'COUNT' ? (
-              <TextField
-                label="총 회차"
-                value={endCount}
-                onChangeText={setEndCount}
-                placeholder="예: 12"
-                description="선택한 요일 기준 총 몇 회 만들지 (최대 60회)."
-                keyboardType="numeric"
-              />
-            ) : (
-              <TextField
-                label="종료 날짜"
-                value={endDateInput}
-                onChangeText={setEndDateInput}
-                placeholder="예: 2026-06-30"
-                description="YYYY-MM-DD 형식. 이 날짜 포함 이전까지 생성."
-              />
-            )}
-            <Text style={styles.helper}>
-              {recurringPreviewCount > 0
-                ? `총 ${recurringPreviewCount}회의 수업이 만들어져요.`
-                : '요일/시작일/종료 조건을 확인해 주세요. 아직 만들 수 있는 수업이 없어요.'}
-            </Text>
-          </View>
-        ) : null}
-
-        {state.status === 'authenticated' ? (
+        {!isEdit ? (
           <View style={styles.group}>
-            <Text style={styles.groupLabel}>반</Text>
-            <TutorClassPicker
-              token={state.token}
-              value={classGroupId}
-              onChange={(nextClassGroupId) => {
-                setClassGroupId(nextClassGroupId);
-                if (refs.status === 'ready') {
-                  setSelectedStudentIds(
-                    new Set(refs.students.filter((student) => student.classGroupId === nextClassGroupId).map((student) => student.id)),
-                  );
-                }
-              }}
+            <Text style={styles.groupLabel}>반복</Text>
+            <ChoiceRow
+              options={[
+                { value: 'RECURRING', label: '매주 반복' },
+                { value: 'ONE_OFF', label: '한 번만' },
+              ]}
+              value={kind}
+              onChange={setKind}
             />
-            {needsClass ? (
-              <Text style={styles.helper}>반을 고르거나 새 반을 만들어 주세요.</Text>
-            ) : (
-              <Text style={styles.helper}>반 학생이 참여 학생으로 자동 선택됐어요. 학생을 미리 넣지 않아도, 반 초대 링크로 들어온 아이는 수업에 함께 기록돼요.</Text>
-            )}
+            {kind === 'RECURRING' ? (
+              <>
+                <TextField
+                  label="총 회차"
+                  value={endCount}
+                  onChangeText={setEndCount}
+                  placeholder={String(DEFAULT_RECURRING_COUNT)}
+                  description={`최대 ${MAX_RECURRING_COUNT}회. 자세히에서 종료일을 정하면 그날까지 만들어요.`}
+                  keyboardType="numeric"
+                />
+                <Text style={styles.helper}>
+                  {recurrenceSummary ?? '첫 수업 일시와 회차를 확인해 주세요. 아직 만들 수 있는 수업이 없어요.'}
+                </Text>
+              </>
+            ) : null}
           </View>
         ) : null}
 
@@ -403,7 +336,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
             <Text style={styles.helper}>반을 고르면 그 반의 아이들이 참여 학생으로 선택돼요.</Text>
           ) : refs.students.every((student) => student.classGroupId !== classGroupId) ? (
             <Text style={styles.helper}>
-              아직 반에 들어온 아이가 없어요. 반 초대 링크로 부모님이 아이를 연결하면 이 수업에 자동으로 참여해요.
+              아직 반에 들어온 아이가 없어요. 반 초대 링크로 보호자가 아이를 연결하면 이 수업에 자동으로 참여해요.
             </Text>
           ) : (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
@@ -428,8 +361,8 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
         </View>
 
         <View style={styles.group}>
-          <Text style={styles.groupLabel}>사용 이야기</Text>
-          <Text style={styles.helper}>눌러서 고르세요. 비워 두면 수업 날 서재에서 이야기를 시작할 때 정해져요.</Text>
+          <Text style={styles.groupLabel}>사용 이야기 (선택)</Text>
+          <Text style={styles.helper}>비워 두면 수업 날 서재에서 이야기를 시작할 때 정해져요.</Text>
           {refs.status === 'loading' ? (
             <Text style={styles.helper}>이야기 목록을 불러오는 중이에요…</Text>
           ) : refs.status === 'ready' && refs.stories.length === 0 ? (
@@ -454,13 +387,83 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
           ) : null}
         </View>
 
+        <Pressable
+          accessibilityRole="button"
+          aria-expanded={showDetails}
+          onPress={() => setShowDetails((open) => !open)}
+          style={styles.detailsToggle}
+        >
+          <Text style={styles.detailsToggleLabel}>
+            {showDetails
+              ? '자세히 접기'
+              : !isEdit && kind === 'RECURRING'
+                ? '요일·종료일·수업 목표 자세히'
+                : '수업 목표 적기'}
+          </Text>
+        </Pressable>
+
+        {showDetails || (isEdit && goal.trim().length > 0) ? (
+          <View style={styles.detailsBlock}>
+            {!isEdit && kind === 'RECURRING' ? (
+              <>
+                <View style={styles.group}>
+                  <Text style={styles.groupLabel}>반복 요일</Text>
+                  <Text style={styles.helper}>따로 고르지 않으면 첫 수업의 요일에만 해요.</Text>
+                  <View style={styles.weekdayRow}>
+                    {WEEKDAY_LABELS.map((label, day) => {
+                      const selected = weekdays.size > 0 ? weekdays.has(day) : firstLesson?.getDay() === day;
+                      return (
+                        <Pressable
+                          key={day}
+                          accessibilityRole="checkbox"
+                          aria-checked={selected}
+                          onPress={() =>
+                            setWeekdays((prev) => {
+                              // 처음 누를 때는 지금 보이는 선택(첫 수업 요일)에서 출발한다.
+                              const base = prev.size > 0 || !firstLesson ? prev : new Set([firstLesson.getDay()]);
+                              return toggleInSet(base, day);
+                            })
+                          }
+                          style={({ pressed }) => [
+                            styles.weekdayChip,
+                            selected && styles.weekdayChipSelected,
+                            day === 0 && !selected && styles.weekdayChipSunday,
+                            day === 6 && !selected && styles.weekdayChipSaturday,
+                            pressed && styles.chipPressed,
+                          ]}
+                        >
+                          <Text style={[styles.weekdayChipLabel, selected && styles.weekdayChipLabelSelected]}>
+                            {label}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </View>
+                <TextField
+                  label="종료 날짜 (선택)"
+                  value={endDateInput}
+                  onChangeText={setEndDateInput}
+                  placeholder="예: 2026-06-30"
+                  description="YYYY-MM-DD 형식. 적으면 회차 대신 이 날짜(포함)까지 만들어요."
+                />
+              </>
+            ) : null}
+            <TextareaField
+              label="수업 목표 (선택)"
+              value={goal}
+              onChangeText={setGoal}
+              placeholder="예: 헨젤과 그레텔에서 아이의 질문을 세 개 이상 이끌어내기"
+            />
+          </View>
+        ) : null}
+
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
       </View>
     </Modal>
   );
 }
 
-const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const;
 /** 정기 수업 회차를 한 번에 몇 개씩 만들지 - 순차(1)는 너무 느리고, 한꺼번에 60개는 rate limit 위험. */
 const RECURRING_CREATE_CONCURRENCY = 4;
 
@@ -495,90 +498,6 @@ function ChoiceRow<T extends string>({
       })}
     </View>
   );
-}
-
-/**
- * 정기 수업의 실제 회차(datetime 목록)를 계산한다. startDate 이후로 하루씩 넘기며,
- * weekdays에 포함된 요일이면 startTime을 붙여 ISO 문자열로 push. 종료 조건:
- *  - COUNT: 개수가 count에 도달하면 중단 (최대 60회 상한 - 실수로 몇백개를 만들지 못하게).
- *  - DATE: endDate 포함 이후엔 중단. endDate 자체도 매칭되면 포함.
- * 입력이 이상하면 빈 배열을 반환해 UI가 "만들 수 있는 수업이 없어요"로 안내한다.
- */
-function computeRecurringDates(input: {
-  startDate: string;
-  startTime: string;
-  weekdays: Set<number>;
-  endMode: 'COUNT' | 'DATE';
-  endCount: number;
-  endDate: string;
-}): string[] {
-  const MAX_TOTAL = 60;
-  const start = parseDateOnly(input.startDate);
-  const [hh, mm] = parseHourMinute(input.startTime);
-  if (!start || hh == null || mm == null || input.weekdays.size === 0) return [];
-  const end = input.endMode === 'DATE' ? parseDateOnly(input.endDate) : null;
-  if (input.endMode === 'DATE' && !end) return [];
-  const count = input.endMode === 'COUNT' ? Math.min(Math.max(input.endCount, 0), MAX_TOTAL) : MAX_TOTAL;
-  if (count === 0) return [];
-
-  const dates: string[] = [];
-  // 안전 상한 - startDate와 end가 아주 멀거나 weekdays가 하나뿐이어도 무한 루프 방지.
-  const HARD_DAY_LIMIT = 366 * 2;
-  const cursor = new Date(start);
-  for (let i = 0; i < HARD_DAY_LIMIT; i += 1) {
-    if (end && cursor > end) break;
-    if (input.weekdays.has(cursor.getDay())) {
-      const withTime = new Date(cursor);
-      withTime.setHours(hh, mm, 0, 0);
-      dates.push(withTime.toISOString());
-      if (dates.length >= count) break;
-    }
-    cursor.setDate(cursor.getDate() + 1);
-  }
-  return dates;
-}
-
-function parseDateOnly(raw: string): Date | null {
-  const match = raw.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return null;
-  const [, y, mo, d] = match;
-  const date = new Date(Number(y), Number(mo) - 1, Number(d));
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-
-function parseHourMinute(raw: string): [number, number] | [null, null] {
-  const match = raw.trim().match(/^(\d{1,2}):(\d{2})$/);
-  if (!match) return [null, null];
-  const hh = Number(match[1]);
-  const mm = Number(match[2]);
-  if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return [null, null];
-  return [hh, mm];
-}
-
-const pad2 = (n: number) => String(n).padStart(2, '0');
-
-function formatDateOnly(date: Date): string {
-  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
-}
-
-/**
- * "YYYY-MM-DD HH:MM" 형태를 ISO 문자열로 변환. 빈 값이나 파싱 실패는 null - BE가 "일정 미정"으로
- * 저장하므로 사용자를 막지 않는다.
- */
-function parseDateTime(raw: string): string | null {
-  const trimmed = raw.trim();
-  if (!trimmed) return null;
-  const normalized = trimmed.replace(' ', 'T');
-  const date = new Date(normalized);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toISOString();
-}
-
-/** ISO 문자열을 로컬 시각 기준 "YYYY-MM-DD HH:MM" 입력 형식으로 되돌린다 - parseDateTime의 역함수. */
-function formatDateTimeForInput(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return '';
-  return `${formatDateOnly(date)} ${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
 }
 
 function toggleInSet<T>(prev: Set<T>, value: T): Set<T> {
@@ -641,7 +560,14 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContentMuted,
   },
   kindOptionLabelSelected: { color: storybookTheme.color.onDark },
-  recurringBlock: {
+  detailsToggle: { alignSelf: 'flex-start', paddingVertical: 4 },
+  detailsToggleLabel: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.primary,
+    textDecorationLine: 'underline',
+  },
+  detailsBlock: {
     gap: 14,
     padding: 14,
     borderRadius: storybookTheme.radius.card,

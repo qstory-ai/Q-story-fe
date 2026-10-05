@@ -58,10 +58,7 @@ export function OnboardingTutorPage() {
   return (
     <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.progressRow}>
-          <View style={[styles.progressPip, styles.progressPipFilled]} />
-          <View style={styles.progressPip} />
-        </View>
+        {/* 소속 설정 한 단계뿐이라 진행 표시(예전 2칸)는 두지 않는다(Q-35). */}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="온보딩 나중에 하기"
@@ -173,18 +170,9 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     gap: 12,
   },
-  progressRow: { flexDirection: 'row', gap: 6, flex: 1 },
-  progressPip: {
-    flex: 1,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: storybookTheme.color.contentPanelBorder,
-    maxWidth: 60,
-  },
-  progressPipFilled: { backgroundColor: storybookTheme.color.gold },
   skipLabel: {
     color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,

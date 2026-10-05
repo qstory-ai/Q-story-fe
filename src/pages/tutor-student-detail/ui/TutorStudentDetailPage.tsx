@@ -5,8 +5,24 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, StatusBanner, TextField, TextareaField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { formatStudentAge } from '@/entities/child';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
-import { deleteTutorStudent, getTutorStudent, updateTutorStudent, type TutorStudent } from '@/entities/tutor';
+import { TUTOR_PATHS, dashboardNavItems, reportDetailPath, useAuth } from '@/entities/auth';
+import { listStories, type StoryCatalogEntry } from '@/entities/story';
+import type { StoryCompletionSummary } from '@/entities/story-completion';
+import {
+  deleteTutorStudent,
+  getTutorStudent,
+  listTutorStudentCompletions,
+  updateTutorStudent,
+  type TutorStudent,
+} from '@/entities/tutor';
+import { formatReportDuration } from '@/pages/one-story';
+import { StudentReportList, sessionKindLabel } from '@/features/student-reports';
+import { useBackOr } from '@/shared/lib';
+
+type ReportsLoad =
+  | { requestKey: string; status: 'loading' }
+  | { requestKey: string; status: 'ready'; reports: StoryCompletionSummary[]; titleByStoryId: Record<string, string> }
+  | { requestKey: string; status: 'error'; message: string };
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -14,8 +30,8 @@ type LoadState =
   | { requestKey: string; status: 'error'; message: string };
 
 /**
- * IA "[3] 수업 상세 > 학생 상세" 화면. 기본 정보(이름/연령대/반) + 메모 편집 +
- * 보호자 연결 상태 뱃지(연결됨 녹색 / 대기 빨간색).
+ * 선생님의 학생 상세. 기본 정보(이름/연령대/반) + 메모 편집 + 보호자 연결 상태 + 이 학생의 수업 리포트
+ * (누르면 리포트 상세). 리포트는 이 선생님이 진행한 수업만 - 담임이 바뀐 반이면 지난 담임의 기록은 지난 담임 것이다.
  *
  * <p>선생님은 반 단위로만 일한다 - 학생은 부모님이 반 초대 링크로 아이를 연결할 때 명단에 올라오므로,
  * 여기서 반을 바꾸거나 학생별 부모 초대를 보내지 않는다. 메모만 편집한다.
@@ -39,6 +55,8 @@ export function TutorStudentDetailPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteInFlight, setDeleteInFlight] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [reports, setReports] = useState<ReportsLoad>({ requestKey, status: 'loading' });
+  const goBack = useBackOr(TUTOR_PATHS.classes);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -63,6 +81,27 @@ export function TutorStudentDetailPage() {
         if (cancelled) return;
         const message = messageForError(failure, '학생을 불러오지 못했어요.');
         setLoad({ requestKey, status: 'error', message });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token, studentId, requestKey]);
+
+  useEffect(() => {
+    if (!token || !studentId) return;
+    let cancelled = false;
+    Promise.all([listTutorStudentCompletions(token, studentId), listStories().catch(() => [] as StoryCatalogEntry[])])
+      .then(([completions, stories]) => {
+        if (cancelled) return;
+        setReports({
+          requestKey,
+          status: 'ready',
+          reports: completions,
+          titleByStoryId: Object.fromEntries(stories.map((story) => [story.storyId, story.title])),
+        });
+      })
+      .catch((failure: unknown) => {
+        if (!cancelled) setReports({ requestKey, status: 'error', message: messageForError(failure, '리포트를 불러오지 못했어요.') });
       });
     return () => {
       cancelled = true;
@@ -97,7 +136,7 @@ export function TutorStudentDetailPage() {
     try {
       await deleteTutorStudent(token, studentId);
       // 성공 - 학생 목록으로 replace 이동 (뒤로가기로 삭제된 학생 상세로 돌아가지 못하게).
-      navigate('/tutor/students', { replace: true });
+      navigate(TUTOR_PATHS.classes, { replace: true });
     } catch (failure: unknown) {
       setDeleteError(messageForError(failure, '학생을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.'));
       setDeleteInFlight(false);
@@ -110,7 +149,7 @@ export function TutorStudentDetailPage() {
   const effective = load.requestKey === requestKey ? load : { requestKey, status: 'loading' as const };
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor/students')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
       <View style={styles.content}>
         {effective.status === 'loading' && <LoadingState label="학생 정보를 불러오는 중이에요…" />}
 
@@ -170,6 +209,29 @@ export function TutorStudentDetailPage() {
               )}
             </View>
 
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>리포트</Text>
+              {reports.requestKey !== requestKey || reports.status === 'loading' ? (
+                <Text style={styles.body}>리포트를 불러오는 중이에요…</Text>
+              ) : reports.status === 'error' ? (
+                <Text style={styles.body}>{reports.message}</Text>
+              ) : (
+                <StudentReportList
+                  rows={reports.reports.map((report) => ({
+                    id: report.id,
+                    title: reports.titleByStoryId[report.storyId] ?? report.storyId,
+                    meta: [
+                      REPORT_DATE_FORMAT.format(new Date(report.completedAt)),
+                      formatReportDuration(report.durationSeconds),
+                      sessionKindLabel(report.sessionKind),
+                    ].join(' · '),
+                  }))}
+                  emptyMessage="아직 이 학생과 진행한 수업 리포트가 없어요."
+                  onOpen={(completionId) => navigate(reportDetailPath(completionId))}
+                />
+              )}
+            </View>
+
             {/* 학생 삭제 - 마이너 액션이라 카드 밖 얇은 링크로 둔다. 확인 모달이 방어막. */}
             <Pressable
               accessibilityRole="button"
@@ -224,6 +286,8 @@ function ParentConnectionBadge({ status }: { status: TutorStudent['status'] }) {
     </View>
   );
 }
+
+const REPORT_DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
 const DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
 

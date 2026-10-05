@@ -11,15 +11,24 @@ type Props = {
    * 홈의 브랜딩 문구가 이 컴포넌트 밖(브랜드 로고 헤더)에 이미 있어서 여긴 생략도 가능하다.
    */
   greeting?: string;
+  /**
+   * 맨 앞의 "전체" 같은 보기 전용 선택지(리포트의 "전체 아이"). 켜져 있으면 어떤 아이도 강조하지 않는다.
+   * 전역 선택 아이는 그대로 두므로, 아이를 다시 누르면 그 아이 보기로 돌아온다.
+   */
+  allOption?: { label: string; selected: boolean; onPress: () => void };
+  /** 아이를 누른 뒤 호출 - 전역 선택(selectChild)은 이 컴포넌트가 이미 바꿨다. */
+  onSelect?: (childId: string) => void;
+  /** "아이 추가" 버튼 노출(기본 true). */
+  showAdd?: boolean;
 };
 
 /**
  * 넷플릭스식 아이 선택기 - 가로 스크롤 아바타 리스트 뒤에 "+" 원형 버튼이 붙는다. 각 아바타를
- * 누르면 ChildrenProvider의 selectedChild가 갱신되고, 그 결과 부모 홈의 다른 섹션들이
- * 새 아이 기준으로 리렌더된다. 아이가 하나도 없을 땐 "아이를 먼저 등록해 주세요" 안내와
+ * 누르면 ChildrenProvider의 selectedChild가 갱신되고, 그 결과 보호자 홈·리포트가
+ * 같은 아이 기준으로 리렌더된다 - 아이 선택 상태는 이 전역 선택 하나뿐이다. 아이가 하나도 없을 땐 "아이를 먼저 등록해 주세요" 안내와
  * "+" 버튼만 노출한다.
  */
-export function ChildSelector({ greeting }: Props) {
+export function ChildSelector({ greeting, allOption, onSelect, showAdd = true }: Props) {
   const { load, children, selectedChild, selectChild } = useChildren();
   const [addOpen, setAddOpen] = useState(false);
 
@@ -41,14 +50,40 @@ export function ChildSelector({ greeting }: Props) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
       >
+        {allOption && hasChildren ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${allOption.label} 보기`}
+            aria-selected={allOption.selected}
+            onPress={allOption.onPress}
+            style={({ pressed }) => [styles.avatarButton, pressed && styles.pressed]}
+          >
+            <View
+              style={[
+                styles.avatarFrame,
+                styles.allFrame,
+                allOption.selected && { borderColor: storybookTheme.color.gold },
+              ]}
+            >
+              <Icon name="users" size={24} color={storybookTheme.color.onContent} />
+            </View>
+            <Text style={[styles.avatarName, allOption.selected && styles.avatarNameSelected]} numberOfLines={1}>
+              {allOption.label}
+            </Text>
+          </Pressable>
+        ) : null}
         {children.map((child) => (
           <ChildAvatarButton
             key={child.id}
             child={child}
-            selected={child.id === selectedChild?.id}
-            onPress={() => selectChild(child.id)}
+            selected={!allOption?.selected && child.id === selectedChild?.id}
+            onPress={() => {
+              selectChild(child.id);
+              onSelect?.(child.id);
+            }}
           />
         ))}
+        {showAdd ? (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="아이 추가"
@@ -60,6 +95,7 @@ export function ChildSelector({ greeting }: Props) {
           </View>
           <Text style={styles.addLabel} numberOfLines={1}>아이 추가</Text>
         </Pressable>
+        ) : null}
       </ScrollView>
 
       {load.status === 'error' ? (
@@ -142,6 +178,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   avatarEmoji: { fontSize: 28 },
+  allFrame: { borderColor: 'transparent', backgroundColor: storybookTheme.color.contentPanel },
   avatarName: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onContentMuted,

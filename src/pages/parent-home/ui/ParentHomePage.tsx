@@ -4,14 +4,14 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { BrandLockup, AppNavShell, Card, EmptyState, Icon, LoadingState, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { relativeDayLabel } from '@/shared/lib';
+import { relativeDayLabel, withParticle } from '@/shared/lib';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
-import { storyDestination } from '@/features/story-library';
+import { resumeStart, startStoryFromHome, storyDestination, storyPlayPath, type StartDecision } from '@/features/story-library';
 import { HomeSection } from '@/features/home-section';
 import { ChildSelector } from '@/features/child-selector';
-import { MonthCalendar } from '@/features/month-calendar';
+import { ChildPickerModal } from '@/features/child-picker';
 import { AGE_BAND_CATEGORY_HINTS, AGE_BAND_LABELS, useChildren, type AgeBand } from '@/entities/child';
 import { hasKoreanBatchim } from '@/entities/narration';
 import { loadLocalStoryProgress, type LocalStoryProgress } from '@/entities/analytics';
@@ -26,11 +26,12 @@ import { formatReportDuration } from '@/pages/one-story';
  *   2. 아이 선택 - 넷플릭스식 아바타 로우. 이 컴포넌트가 selectedChild를 바꿔 놓으면 아래
  *      섹션들이 그 아이 기준으로 다시 계산된다.
  *   3. 메인 추천 히어로 - 아이 연령대에 맞는 대표 이야기 한 편(크게). 매칭 규칙은 아래 함수
- *      참조. 폴백은 카탈로그의 첫 번째 이야기.
- *   4. 이어서 읽기 - 브라우저 하나당 최대 1개인 LocalStoryProgress를 그대로 카드화.
- *   5. 아이에게 추천하는 작품 - 아이 연령대 카테고리 힌트로 필터한 스토리 리스트.
- *   6. 새로운 작품 - contentVersion 내림차순.
- *   7. 이 달의 활동 - 완주 기록 + 선생님 리포트 병합 캘린더.
+ *      참조. 폴백은 카탈로그의 첫 번째 이야기. 누르면 상세를 거치지 않고 선택된 아이로 바로
+ *      플레이어를 연다(startStoryFromHome).
+ *   4. 이어서 읽기 - 브라우저 하나당 최대 1개인 LocalStoryProgress를 그대로 카드화. 진행을 남긴
+ *      아이로 재생한다(resumeStart).
+ *   5. 아이에게 추천하는 작품 - 아이 연령대 카테고리 힌트에 맞는 이야기 먼저, 나머지는 새 작품 순.
+ *   6. 최근 리포트 - 가장 최근 리포트 몇 건만. 전체 목록·달력은 리포트 탭이 맡는다.
  *
  * 전체 카탈로그는 /library 탭이 맡는다.
  */
@@ -40,7 +41,9 @@ export function ParentHomePage() {
   const { state } = useAuth();
   const { width } = useWindowDimensions();
   const isWide = width >= 640;
-  const { selectedChild } = useChildren();
+  const { children, selectedChild } = useChildren();
+  // 아이가 없거나(등록) 누구의 진행인지 모를 때(이어서 읽기) 띄우는 아이 선택 - 고르면 그 아이로 재생한다.
+  const [picker, setPicker] = useState<{ storyId: string; resume: boolean } | null>(null);
 
   const [stories, setStories] = useState<StoryCatalogEntry[] | null>(null);
   const [storyLoadError, setStoryLoadError] = useState<string | null>(null);
@@ -130,15 +133,22 @@ export function ParentHomePage() {
     () => pickForChild(stories ?? [], selectedAgeBand, hero?.storyId),
     [stories, selectedAgeBand, hero],
   );
-  const newStories = useMemo(() => pickNew(stories ?? [], hero?.storyId), [stories, hero]);
   const recentActivity = useMemo(
-    () => mergeRecentActivity(completions, tutorReports, stories ?? []),
+    () => mergeRecentActivity(completions, tutorReports, stories ?? []).slice(0, RECENT_REPORT_LIMIT),
     [completions, tutorReports, stories],
   );
 
   if (state.status !== 'authenticated') return null;
 
   const displayName = selectedChild?.name ?? state.user.displayName;
+  const follow = (decision: StartDecision, storyId: string, resume: boolean) => {
+    if (decision.kind === 'navigate') navigate(decision.path);
+    else setPicker({ storyId, resume });
+  };
+  // 아이가 둘 이상이면 버튼에 누구와 시작하는지 적는다 - 상세 화면의 아이 선택 단계를 이 문구가 대신한다.
+  const heroCtaLabel = selectedChild && children.length > 1
+    ? `${withParticle(selectedChild.name, '과/와')} 이야기 시작하기`
+    : '이야기 시작하기';
 
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)}>
@@ -165,7 +175,14 @@ export function ParentHomePage() {
         {hero ? (
           <HeroRecommendation
             story={hero}
-            onPress={() => navigate(storyDestination(hero, state))}
+            ctaLabel={heroCtaLabel}
+            onPress={() =>
+              follow(
+                startStoryFromHome({ story: hero, auth: state, children, selectedChildId: selectedChild?.id ?? null }),
+                hero.storyId,
+                false,
+              )
+            }
             locked={unlockStateFor(hero, state) === 'locked'}
           />
         ) : catalogLoading ? (
@@ -183,7 +200,7 @@ export function ParentHomePage() {
               <ContinueReadingCard
                 progress={progress}
                 stories={stories ?? []}
-                onPress={() => navigate(`/stories/${progress.storyId}/play`)}
+                onPress={() => follow(resumeStart({ progress, children }), progress.storyId, true)}
               />
             </HomeSection>
           </View>
@@ -210,54 +227,49 @@ export function ParentHomePage() {
           </View>
         ) : null}
 
-        {newStories.length > 0 ? (
-          <View style={styles.section}>
-            <HomeSection title="새로운 작품" subtitle="새로 준비한 이야기들이에요." onSeeAll={() => navigate('/library')}>
-              {newStories.map((story) => (
-                <StoryCard
-                  key={story.storyId}
-                  size="mini"
-                  title={story.title}
-                  coverImageUrl={story.coverImageUrl}
-                  onPress={() => navigate(storyDestination(story, state))}
-                  locked={unlockStateFor(story, state) === 'locked'}
-                />
-              ))}
-            </HomeSection>
-          </View>
-        ) : null}
-
-        {/* 월 그리드에 완주/리포트를 dot으로 표시하고, 일자를 탭하면 그 날 목록이 뜬다. */}
-        <Card variant="panel" padding="md" title="이 달의 활동" style={styles.calendarPanel}>
-          {activityLoading ? (
-            <LoadingState compact label="활동 기록을 불러오는 중이에요…" />
-          ) : recentActivity.length === 0 ? (
-            <EmptyState
-              title="아직 활동 기록이 없어요"
-              body="첫 이야기를 끝까지 읽으면 여기에 기록이 남아요."
-            />
-          ) : (
-            <MonthCalendar
-              items={recentActivity.map((entry) => ({ id: entry.id, date: new Date(entry.iso), entry }))}
-              emptyDayMessage="이 날에는 활동 기록이 없어요."
-              renderItem={(item) => (
+        {/* 리포트 목록·달력은 리포트 탭에 하나로 둔다 - 홈에는 최근 몇 건과 바로가기만. */}
+        <View style={styles.section}>
+          <HomeSection title="최근 리포트" layout="list" onSeeAll={() => navigate('/reports')}>
+            {activityLoading ? (
+              <LoadingState compact label="리포트를 불러오는 중이에요…" />
+            ) : recentActivity.length === 0 ? (
+              <EmptyState
+                title="아직 리포트가 없어요"
+                body="첫 이야기를 끝까지 읽으면 여기에 리포트가 생겨요."
+              />
+            ) : (
+              recentActivity.map((entry) => (
                 <RecentActivityRow
-                  key={item.entry.id}
-                  entry={item.entry}
-                  onPress={() => navigate(`/reports/${item.entry.id}`)}
+                  key={entry.id}
+                  entry={entry}
+                  onPress={() => navigate(`/reports/${entry.id}`)}
                 />
-              )}
-            />
-          )}
-        </Card>
+              ))
+            )}
+          </HomeSection>
+        </View>
 
         {storyLoadError && (stories?.length ?? 0) === 0 ? (
           <Text style={styles.errorText}>{storyLoadError}</Text>
         ) : null}
       </View>
+
+      <ChildPickerModal
+        visible={picker !== null}
+        subtitle={picker?.resume ? '누구의 이야기를 이어서 읽을까요?' : '어떤 아이와 함께 볼까요?'}
+        onClose={() => setPicker(null)}
+        onSelected={(child) => {
+          if (!picker) return;
+          setPicker(null);
+          navigate(storyPlayPath(picker.storyId, { childId: child.id, resume: picker.resume }));
+        }}
+      />
     </AppNavShell>
   );
 }
+
+/** 홈의 최근 리포트 개수 - 나머지는 리포트 탭에서 본다. */
+const RECENT_REPORT_LIMIT = 3;
 
 /* -------------------------------------------------------------------- helpers */
 
@@ -272,17 +284,19 @@ function TopBar({ token }: { token: string }) {
 
 function HeroRecommendation({
   story,
+  ctaLabel,
   onPress,
   locked,
 }: {
   story: StoryCatalogEntry;
+  ctaLabel: string;
   onPress: () => void;
   locked: boolean;
 }) {
   return (
     <Pressable
-      accessibilityRole="link"
-      accessibilityLabel={`${story.title} 자세히 보기`}
+      accessibilityRole="button"
+      accessibilityLabel={`${story.title} ${ctaLabel}`}
       onPress={onPress}
       style={({ pressed }) => [styles.hero, pressed && styles.pressed]}
     >
@@ -308,7 +322,7 @@ function HeroRecommendation({
           <Text style={styles.heroDescription} numberOfLines={3}>{story.description}</Text>
         ) : null}
         <View style={styles.heroCta}>
-          <Text style={styles.heroCtaLabel}>이야기 시작하기</Text>
+          <Text style={styles.heroCtaLabel}>{ctaLabel}</Text>
           <Icon name="chevronRight" size={16} color={storybookTheme.color.gold} />
         </View>
       </View>
@@ -396,21 +410,17 @@ function pickForChild(
 ): StoryCatalogEntry[] {
   if (stories.length === 0) return [];
   const filtered = stories.filter((story) => story.storyId !== excludeStoryId);
-  if (!ageBand) return filtered.slice(0, 8);
+  if (!ageBand) {
+    return [...filtered].sort((a, b) => (b.contentVersion || '').localeCompare(a.contentVersion || '')).slice(0, 8);
+  }
   const hints = AGE_BAND_CATEGORY_HINTS[ageBand];
   const matches = filtered.filter((story) => story.category && hints.includes(story.category));
-  // 매칭이 부족할 땐 나머지로 채운다 - 빈 캐러셀보다는 큐레이션 완화가 낫다.
-  const rest = filtered.filter((story) => !matches.includes(story));
+  // 매칭이 부족할 땐 나머지를 새 작품 순으로 채운다 - 따로 있던 "새로운 작품" 줄을 이 줄에 합쳤다.
+  // 신작 플래그가 아직 스키마에 없어 contentVersion 내림차순으로 대신한다.
+  const rest = filtered
+    .filter((story) => !matches.includes(story))
+    .sort((a, b) => (b.contentVersion || '').localeCompare(a.contentVersion || ''));
   return [...matches, ...rest].slice(0, 8);
-}
-
-function pickNew(stories: StoryCatalogEntry[], excludeStoryId: string | null | undefined): StoryCatalogEntry[] {
-  // 신작 플래그가 아직 스키마에 없어 contentVersion 내림차순으로 대체 - 새 콘텐츠 버전이 곧
-  // 최신 릴리즈라는 팀 관행에 기대는 근사치.
-  return [...stories]
-    .filter((story) => story.storyId !== excludeStoryId)
-    .sort((a, b) => (b.contentVersion || '').localeCompare(a.contentVersion || ''))
-    .slice(0, 8);
 }
 
 function mergeRecentActivity(
@@ -435,10 +445,7 @@ function mergeRecentActivity(
     meta: `${formatDate(report.completedAt)} · ${formatReportDuration(report.durationSeconds)}`,
     iso: report.completedAt,
   }));
-  // 캘린더가 이 달 전체의 dot을 그리도록 넉넉한 상한(60)만 둔다 - 최신순 정렬 후 오래된 것부터 잘린다.
-  return [...completionEntries, ...tutorEntries]
-    .sort((a, b) => (b.iso > a.iso ? 1 : -1))
-    .slice(0, 60);
+  return [...completionEntries, ...tutorEntries].sort((a, b) => (b.iso > a.iso ? 1 : -1));
 }
 
 const MONTH_DAY_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric' });
@@ -550,12 +557,6 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.goldText,
-  },
-  calendarPanel: {
-    width: '100%',
-    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
-    alignSelf: 'center',
-    gap: storybookTheme.spacing.ms,
   },
   recentRow: {
     flexDirection: 'row',

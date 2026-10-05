@@ -15,8 +15,6 @@ import {
 } from '@/entities/child';
 
 
-type Step = 'child' | 'consent' | 'done';
-
 /** 온보딩을 마친 뒤 갈 앱 내부 경로 - 반 코드로 가입했으면 그 반에 아이를 연결하는 화면(/join?code=). */
 function readNext(state: unknown): string | null {
   const next = (state as { next?: unknown } | null)?.next;
@@ -24,10 +22,10 @@ function readNext(state: unknown): string | null {
 }
 
 /**
- * IA "부모 온보딩" - 회원가입 성공 직후 자동 진입. IA의 네 스텝(보호자 정보/아이 등록/필수
- * 동의/완료) 중 보호자 정보는 signup 폼에서 이미 받았으므로 여기선 아이 등록 → 필수 동의 →
- * 완료 세 스텝만 다룬다. 마친 계정이 다시 들어오면 홈으로 보내고, 사용자가 "나중에" 링크를 누르면
- * 아이 없이도 홈으로 진입할 수 있다(이후 마이페이지에서 언제든 아이 등록 가능).
+ * IA "보호자 온보딩" - 회원가입 성공 직후 자동 진입. 보호자 정보는 가입 폼에서 이미 받았으므로 아이 등록과
+ * 아이 관련 필수 동의만 다룬다. 둘을 한 화면에 두고 완료 확인 화면 없이 곧장 홈(또는 반 연결 화면)으로
+ * 보낸다(Q-36: 단계 2개 + 완료 화면 → 한 화면). 아이 등록은 "나중에" 할 수 있지만 동의는 그때도 받는다.
+ * 마친 계정이 다시 들어오면 홈으로 보낸다.
  */
 export function OnboardingParentPage() {
   const navigate = useNavigate();
@@ -36,7 +34,6 @@ export function OnboardingParentPage() {
   const { addChild, children, load } = useChildren();
   const [next] = useState(() => readNext(location.state));
 
-  const [rawStep, setStep] = useState<Step>('child');
   const [name, setName] = useState('');
   const [birthYear, setBirthYear] = useState<number>(() => defaultBirthYearForBand());
   const [avatarKey, setAvatarKey] = useState<ChildAvatarKey>(CHILD_AVATARS[0].key);
@@ -54,14 +51,18 @@ export function OnboardingParentPage() {
     }
   }, [state, navigate, next]);
 
-  // 이미 아이 프로필이 있는 계정이면 같은 아이를 또 만들지 않도록 프로필 단계를 건너뛰고 동의 단계로
-  // 바로 간다. 프로필 수정(아바타 등)은 홈의 아이 관리에서 할 수 있다.
-  const invitedChildExists = load.status === 'ready' && children.length > 0;
-  // 상태를 effect에서 바꾸지 않고 파생값으로 건너뛴다 - 아이가 이미 있으면 'child' 단계는 'consent'로 읽힌다.
-  const step: Step = rawStep === 'child' && invitedChildExists ? 'consent' : rawStep;
+  // 이미 아이 프로필이 있는 계정이면 같은 아이를 또 만들지 않도록 아이 입력을 숨기고 동의만 받는다.
+  // 프로필 수정(아바타 등)은 홈의 아이 관리에서 할 수 있다.
+  const childExists = load.status === 'ready' && children.length > 0;
 
-  const canCreateChild = name.trim().length > 0 && !submitting;
-  const canConfirmConsent = consentAudio && consentReport;
+  const consented = consentAudio && consentReport;
+  const canCreateChild = name.trim().length > 0 && consented && !submitting;
+
+  function finish() {
+    if (state.status !== 'authenticated') return;
+    markOnboardingDone('parent', state.user.id);
+    navigate(next ?? homePathFor(state.user), { replace: true });
+  }
 
   async function submitChild() {
     if (!canCreateChild) return;
@@ -69,47 +70,24 @@ export function OnboardingParentPage() {
     setError(null);
     try {
       await addChild({ name: name.trim(), birthYear, ageBand: ageBandFromBirthYear(birthYear), avatarKey });
-      setStep('consent');
+      finish();
     } catch (failure: unknown) {
       const message = messageForError(failure, '아이 프로필을 만들지 못했어요. 잠시 후 다시 시도해 주세요.');
       setError(message);
-    } finally {
       setSubmitting(false);
     }
   }
 
-  function markDoneAndGoHome() {
-    if (state.status !== 'authenticated') return;
-    markOnboardingDone('parent', state.user.id);
-    navigate(next ?? homePathFor(state.user), { replace: true });
-  }
-
   if (state.status !== 'authenticated') return null;
+
+  const finishLabel = next ? '반에 아이 연결하기' : '시작하기';
 
   return (
     <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.progressRow}>
-          <ProgressPip filled />
-          <ProgressPip filled={step === 'consent' || step === 'done'} />
-          <ProgressPip filled={step === 'done'} />
-        </View>
-        {step === 'child' ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="아이 등록 나중에 하기"
-            onPress={() => setStep('consent')}
-            style={styles.skipButton}
-          >
-            <Text style={styles.skipLabel}>나중에</Text>
-          </Pressable>
-        ) : null}
-      </View>
-
       <ScrollView contentContainerStyle={styles.content}>
-        {step === 'child' && (
+        {!childExists && (
           <>
-            <Text style={styles.eyebrow}>1 · 아이 등록</Text>
+            <Text style={styles.eyebrow}>아이 등록</Text>
             <Text style={styles.title} accessibilityRole="header">아이 프로필을 만들어 주세요</Text>
             <Text style={styles.body}>
               이야기 속에서 부를 이름과 아이의 출생연도, 아바타를 골라 주세요. 나이는 자동으로 계산돼요. 언제든 마이페이지에서 바꿀 수 있어요.
@@ -149,58 +127,62 @@ export function OnboardingParentPage() {
                 })}
               </View>
             </View>
+          </>
+        )}
 
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        <Text style={[styles.eyebrow, !childExists && styles.sectionGap]}>아이 관련 필수 동의</Text>
+        {childExists ? (
+          <Text style={styles.title} accessibilityRole="header">아이 데이터를 안전하게 다뤄요</Text>
+        ) : null}
+        <Text style={styles.body}>
+          아이의 음성과 리포트에 대한 처리 방식을 확인하고 동의해 주세요.
+        </Text>
+
+        <ConsentBlock
+          title="모두 동의"
+          checked={consented}
+          onChange={(value) => {
+            setConsentAudio(value);
+            setConsentReport(value);
+          }}
+        />
+        <ConsentBlock
+          title="아이 음성 보관"
+          body="아이의 질문 음성은 음성 인식 개선을 위해 90일간 비공개로 보관한 뒤 지워요. 리포트에는 아이가 한 말의 뜻만 남아요. 마이페이지 > 설정에서 언제든 끌 수 있어요."
+          checked={consentAudio}
+          onChange={setConsentAudio}
+        />
+        <ConsentBlock
+          title="리포트 표시 범위"
+          body="완주 리포트는 보호자(그리고 아이가 속한 반의 담임 선생님과 관리자)에게만 노출돼요. 외부 공유는 별도 동의 없이는 하지 않아요."
+          checked={consentReport}
+          onChange={setConsentReport}
+        />
+
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        {childExists ? (
+          <ActionButton variant="gold" label={`동의하고 ${finishLabel}`} onPress={finish} disabled={!consented} />
+        ) : (
+          <>
             <ActionButton
               variant="gold"
-              label={submitting ? '만드는 중…' : '아이 등록하고 다음'}
+              label={submitting ? '만드는 중…' : `등록하고 ${finishLabel}`}
               onPress={submitChild}
               disabled={!canCreateChild}
               loading={submitting}
             />
-          </>
-        )}
-
-        {step === 'consent' && (
-          <>
-            <Text style={styles.eyebrow}>2 · 아이 관련 필수 동의</Text>
-            <Text style={styles.title} accessibilityRole="header">아이 데이터를 안전하게 다뤄요</Text>
-            <Text style={styles.body}>
-              아이의 음성과 리포트에 대한 처리 방식을 확인하고 동의해 주세요.
-            </Text>
-
-            <ConsentBlock
-              title="아이 음성 보관"
-              body="아이의 질문 음성은 음성 인식 개선을 위해 90일간 비공개로 보관한 뒤 지워요. 리포트에는 아이가 한 말의 뜻만 남아요. 마이페이지 > 설정에서 언제든 끌 수 있어요."
-              checked={consentAudio}
-              onChange={setConsentAudio}
-            />
-            <ConsentBlock
-              title="리포트 표시 범위"
-              body="완주 리포트는 보호자(그리고 아이가 속한 반의 담임 선생님과 관리자)에게만 노출돼요. 외부 공유는 별도 동의 없이는 하지 않아요."
-              checked={consentReport}
-              onChange={setConsentReport}
-            />
-
-            <ActionButton
-              variant="gold"
-              label="동의하고 다음"
-              onPress={() => setStep('done')}
-              disabled={!canConfirmConsent}
-            />
-          </>
-        )}
-
-        {step === 'done' && (
-          <>
-            <Text style={styles.eyebrow}>3 · 완료</Text>
-            <Text style={styles.title} accessibilityRole="header">{next ? '거의 다 됐어요' : '준비가 끝났어요'}</Text>
-            <Text style={styles.body}>
-              {next
-                ? '이제 반에 연결할 아이를 고르면 끝이에요. 반 수업 리포트도 여기서 받아 볼 수 있어요.'
-                : '지금부터 아이와 함께 이야기를 시작해 보세요. 홈에서 오늘의 이야기와 지난 리포트를 확인할 수 있어요.'}
-            </Text>
-            <ActionButton variant="gold" label={next ? '반에 아이 연결하기' : '홈으로'} onPress={markDoneAndGoHome} />
+            {/* 아이 등록만 미룬다 - 동의는 그때도 필요하다(아이를 나중에 등록해도 같은 처리 방식이 적용된다). */}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="아이 등록 나중에 하기"
+              onPress={finish}
+              disabled={!consented || submitting}
+              style={styles.skipButton}
+            >
+              <Text style={[styles.skipLabel, (!consented || submitting) && styles.skipLabelDisabled]}>
+                아이 등록은 나중에 할게요
+              </Text>
+            </Pressable>
           </>
         )}
       </ScrollView>
@@ -210,10 +192,6 @@ export function OnboardingParentPage() {
 
 /* -------------------------------------------------------------- helpers */
 
-function ProgressPip({ filled }: { filled: boolean }) {
-  return <View style={[styles.progressPip, filled && styles.progressPipFilled]} />;
-}
-
 function ConsentBlock({
   title,
   body,
@@ -221,7 +199,7 @@ function ConsentBlock({
   onChange,
 }: {
   title: string;
-  body: string;
+  body?: string;
   checked: boolean;
   onChange: (next: boolean) => void;
 }) {
@@ -242,31 +220,16 @@ function ConsentBlock({
         </View>
         <Text style={styles.consentTitle}>{title}</Text>
       </View>
-      <Text style={styles.consentBody}>{body}</Text>
+      {body ? <Text style={styles.consentBody}>{body}</Text> : null}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: storybookTheme.color.background },
-  header: {
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  progressRow: { flexDirection: 'row', gap: 6, flex: 1 },
-  progressPip: {
-    flex: 1,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: storybookTheme.color.contentPanelBorder,
-    maxWidth: 60,
-  },
-  progressPipFilled: { backgroundColor: storybookTheme.color.primary },
   skipButton: { minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' },
+  skipLabelDisabled: { opacity: 0.5 },
+  sectionGap: { marginTop: storybookTheme.spacing.lg },
   skipLabel: {
     color: storybookTheme.color.onContentMuted,
     fontSize: storybookTheme.type.sm,
@@ -274,6 +237,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: storybookTheme.spacing.lg,
+    paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xxl,
     gap: storybookTheme.spacing.ms,
     // 온보딩은 폼(420)보다는 조금 넓고 리스트(560)보다는 좁은 중간 폭이 편해서, 두 페이지가

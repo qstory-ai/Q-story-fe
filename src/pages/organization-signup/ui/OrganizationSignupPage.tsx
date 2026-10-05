@@ -175,13 +175,8 @@ function ClassManagementStep({
             onPress={() => navigate('/organization/tutors')}
           />
           <DashboardCard
-            title="이용 현황"
-            body="기관 전체의 최근 완주 활동과 요약 지표를 확인해요."
-            onPress={() => navigate('/organization/usage')}
-          />
-          <DashboardCard
-            title="기관 리포트"
-            body="반별 활동·질문 수와 많이 읽은 작품을 기관 단위로 확인해요."
+            title="리포트"
+            body="이용 현황과 반별 활동을 보고, 수업 기록은 개별 리포트로 열어 봐요."
             onPress={() => navigate('/organization/reports')}
           />
           <DashboardCard

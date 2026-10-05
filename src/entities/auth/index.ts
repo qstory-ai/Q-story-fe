@@ -1,5 +1,6 @@
 export * from './api/auth-api';
 export * from './model/current-user';
+export * from './model/app-paths';
 export * from './model/dashboard-nav';
 export * from './model/director-session';
 export * from './model/google-identity';

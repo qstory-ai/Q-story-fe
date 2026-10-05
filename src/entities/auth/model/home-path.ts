@@ -34,3 +34,10 @@ export function libraryPathFor(user: UserSummary): string {
 export function subscriptionPathFor(user: UserSummary): string {
   return user.role === 'DIRECTOR' ? '/organization/subscription' : '/mypage/subscription';
 }
+
+/** 역할별 리포트 목록 - 리포트 상세의 뒤로가기 대체 경로. 관리자는 기관 리포트(이용 현황 통합) 화면. */
+export function reportsPathFor(user: UserSummary): string {
+  if (user.role === 'TUTOR') return '/tutor/reports';
+  if (user.role === 'DIRECTOR') return '/organization/reports';
+  return '/reports';
+}

@@ -11,6 +11,7 @@ import { useBookmarks } from '@/entities/bookmark';
 import { useChildren } from '@/entities/child';
 import { ChildPickerModal } from '@/features/child-picker';
 import { ClassLessonStartModal } from '@/features/class-lesson-start';
+import { storyPlayPath } from '@/features/story-library';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -106,8 +107,9 @@ export function StoryDetailPage() {
       setClassPickerOpen(true);
       return;
     }
-    navigate(`/stories/${targetStoryId}/play`);
-  }, [isParent, isTutor, children.length, navigate]);
+    // 아이가 한 명이면 그 아이로 기록한다 - 경로에 실어 플레이어가 전역 선택을 그 아이로 맞추게 한다.
+    navigate(storyPlayPath(targetStoryId, { childId: isParent ? children[0]?.id : null }));
+  }, [isParent, isTutor, children, navigate]);
 
   // 마지막으로 커밋된 로드 이후 storyId/attempt가 바뀌었다 - setState-in-effect 없이
   // 로딩 중인 것처럼 렌더링한다 (react-hooks/set-state-in-effect 참고).
@@ -175,10 +177,9 @@ export function StoryDetailPage() {
             visible={childPickerOpen}
             subtitle={`${withParticle(effectiveLoad.story.title, '을/를')} 어떤 아이와 함께 볼까요?`}
             onClose={() => setChildPickerOpen(false)}
-            onSelected={() => {
+            onSelected={(child) => {
               setChildPickerOpen(false);
-              // selectChild는 ChildPickerModal 내부에서 이미 호출됐다 - 여기선 플레이어로 이동만.
-              navigate(`/stories/${effectiveLoad.story.storyId}/play`);
+              navigate(storyPlayPath(effectiveLoad.story.storyId, { childId: child.id }));
             }}
           />
         ) : null}

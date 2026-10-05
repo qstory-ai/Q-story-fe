@@ -1,5 +1,5 @@
 export type OnboardingEntry = {
-  step: 'welcome' | 'role' | 'sign-up' | 'sign-in';
+  step: 'role' | 'sign-up' | 'sign-in';
   role?: 'PARENT' | 'DIRECTOR' | 'TUTOR';
   /** 반 초대 링크(/join?code=)에서 "계정 만들기"로 왔을 때 보호자 가입 폼에 미리 채울 반 코드. */
   classCode?: string;
@@ -15,15 +15,15 @@ export function safeNextPath(value: string | null): string | undefined {
 
 /**
  * `?flow=sign-in|sign-up|welcome` + 선택적 `?role=parent|organization|tutor` (+ `classCode`, `next`)를
- * OnboardingEntry로 정규화한다. 역할 없이 가입으로 오면(튜토리얼의 "회원가입하기") 가입/로그인을 다시
- * 묻지 않고 역할 선택부터 보여 준다.
+ * OnboardingEntry로 정규화한다. 역할 없이 가입으로 오면(튜토리얼의 "선생님·기관으로 시작하기") 역할 선택부터
+ * 보여 준다. 환영 화면은 없앴으므로 예전 `flow=welcome` 링크도 역할 선택으로 받는다.
  */
 export function readOnboardingParams(params: URLSearchParams): OnboardingEntry | null {
   const flow = params.get('flow');
   if (flow !== 'sign-in' && flow !== 'sign-up' && flow !== 'welcome') return null;
   const next = safeNextPath(params.get('next'));
   if (flow === 'sign-in') return { step: 'sign-in', next };
-  if (flow === 'welcome') return { step: 'welcome' };
+  if (flow === 'welcome') return { step: 'role' };
   const roleParam = params.get('role');
   const role: OnboardingEntry['role'] =
     roleParam === 'organization' ? 'DIRECTOR'

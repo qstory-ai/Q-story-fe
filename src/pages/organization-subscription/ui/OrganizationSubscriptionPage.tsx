@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner } from '@/shared/ui';
 import { dashboardNavItems, fetchEntitlement, useDirectorSession, type EntitlementResponse } from '@/entities/auth';
 import { getOrganizationQuote, type OrganizationQuote } from '@/entities/payment';
 import { messageForError } from '@/shared/api';
 import { BETA_OPEN_ACCESS_NOTICE, subscriptionStatusLabel } from '@/shared/config';
+import {
+  BillingGuidanceCard,
+  PaymentHistorySection,
+  SubscriptionPageTitle,
+  SubscriptionStatusCard,
+  subscriptionPageStyles as styles,
+} from '@/features/subscription-overview';
 
 type LoadState =
   | { status: 'loading' }
@@ -34,28 +41,31 @@ export function OrganizationSubscriptionPage() {
   return (
     <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization')}>
       <View style={styles.content}>
-        <Text style={styles.title} accessibilityRole="header">이용권</Text>
+        <SubscriptionPageTitle />
         {load.status === 'loading' ? <LoadingState label="이용권 정보를 불러오는 중이에요." /> : null}
         {load.status === 'error' ? <ErrorState message={load.message} onRetry={() => window.location.reload()} /> : null}
         {load.status === 'ready' ? (
-          <View style={styles.card}>
-            <Text style={styles.heading}>{subscriptionStatusLabel(load.entitlement.subscriptionStatus)}</Text>
-            {load.entitlement.grantsAccess ? (
-              <StatusBanner label="기관 구성원이 전체 이야기를 이용할 수 있어요." variant="info" />
-            ) : director.user.grantsAccess ? (
-              <StatusBanner label={BETA_OPEN_ACCESS_NOTICE} variant="info" />
-            ) : (
-              <StatusBanner label="지금은 무료 이야기만 이용할 수 있어요." variant="warning" />
-            )}
-            {load.entitlement.subscriptionExpiresAt ? <Text style={styles.body}>이용권 만료일 · {formatDate(load.entitlement.subscriptionExpiresAt)}</Text> : null}
-            <QuoteSection quote={load.quote} />
-            <ActionButton
-              label={load.entitlement.grantsAccess ? '기관 이용권 연장하기' : '기관 이용권 결제하기'}
-              onPress={() => navigate('/payment/checkout?target=ORGANIZATION')}
-              disabled={!canPay(load.quote)}
-            />
-          </View>
+          <>
+            <SubscriptionStatusCard
+              statusLabel={subscriptionStatusLabel(load.entitlement.subscriptionStatus)}
+              banner={load.entitlement.grantsAccess
+                ? { label: '기관 구성원이 전체 이야기를 이용할 수 있어요.', variant: 'info' }
+                : director.user.grantsAccess
+                  ? { label: BETA_OPEN_ACCESS_NOTICE, variant: 'info' }
+                  : { label: '지금은 무료 이야기만 이용할 수 있어요.', variant: 'warning' }}
+              expiresAt={load.entitlement.subscriptionExpiresAt}
+            >
+              <QuoteSection quote={load.quote} />
+              <ActionButton
+                label={load.entitlement.grantsAccess ? '기관 이용권 연장하기' : '기관 이용권 결제하기'}
+                onPress={() => navigate('/payment/checkout?target=ORGANIZATION')}
+                disabled={!canPay(load.quote)}
+              />
+            </SubscriptionStatusCard>
+            <BillingGuidanceCard accessDays={load.quote.accessDays} onContactSupport={() => navigate('/mypage/support')} />
+          </>
         ) : null}
+        {token ? <PaymentHistorySection token={token} emptyLabel="아직 결제한 기관 이용권이 없어요." /> : null}
       </View>
     </AppNavShell>
   );
@@ -96,14 +106,3 @@ function QuoteSection({ quote }: { quote: OrganizationQuote }) {
   );
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(value));
-}
-
-const styles = StyleSheet.create({
-  content: { flex: 1, width: '100%', maxWidth: storybookTheme.layout.contentMaxWidth, alignSelf: 'center', paddingHorizontal: storybookTheme.spacing.ml, paddingVertical: storybookTheme.spacing.lg, gap: storybookTheme.spacing.md },
-  title: { fontSize: storybookTheme.type.xl, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onContent },
-  card: { borderRadius: storybookTheme.radius.card, backgroundColor: storybookTheme.color.surfaceCard, borderWidth: 1, borderColor: storybookTheme.color.surfaceCardBorder, padding: storybookTheme.spacing.lg, gap: storybookTheme.spacing.md },
-  heading: { fontSize: storybookTheme.type.lg, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onCardTitle },
-  body: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onCardBody },
-});

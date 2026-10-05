@@ -8,11 +8,13 @@ type HomeSectionProps = {
   subtitle?: string;
   /** 우측 상단의 "더 보기" 버튼 - 없으면 렌더링하지 않는다. */
   onSeeAll?: () => void;
+  /** strip(기본): 가로 카드 스트립, list: 세로로 쌓는 행 목록(최근 리포트 등). */
+  layout?: 'strip' | 'list';
   children: ReactNode;
 };
 
-/** 부모 홈 섹션 하나(제목 + 가로 카드 스트립)의 공통 껍데기. 자식 카드는 호출부가 결정한다. */
-export function HomeSection({ title, subtitle, onSeeAll, children }: HomeSectionProps) {
+/** 보호자 홈 섹션 하나(제목 + 가로 카드 스트립 또는 세로 목록)의 공통 껍데기. 자식은 호출부가 결정한다. */
+export function HomeSection({ title, subtitle, onSeeAll, layout = 'strip', children }: HomeSectionProps) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -32,13 +34,17 @@ export function HomeSection({ title, subtitle, onSeeAll, children }: HomeSection
           </Pressable>
         ) : null}
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.stripContent}
-      >
-        {children}
-      </ScrollView>
+      {layout === 'list' ? (
+        <View style={styles.listContent}>{children}</View>
+      ) : (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.stripContent}
+        >
+          {children}
+        </ScrollView>
+      )}
     </View>
   );
 }
@@ -56,6 +62,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   headerText: { flex: 1, gap: 2 },
+  listContent: { gap: 8 },
   title: {
     color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.md,

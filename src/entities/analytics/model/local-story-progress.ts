@@ -12,6 +12,12 @@ export type LocalStoryProgress = {
   state: StoryRuntimeState;
   storyId: string;
   childName: string;
+  /**
+   * 보호자 세션에서 이 진행을 남긴 아이 프로필 id. 저장소에는 기기당 한 건만 남으므로, 이어서 읽기가
+   * 지금 선택된 아이가 아니라 이 아이로 재생·기록되게 하는 기준이다. 이 필드가 생기기 전 기록과
+   * 데모·선생님 세션에는 없다.
+   */
+  childId?: string;
   elapsedSeconds: number;
   questionOutcomes: QuestionOutcome[];
 };
@@ -89,6 +95,7 @@ export function saveLocalStoryProgress(
     state,
     storyId: input.storyId,
     childName: input.childName.trim().slice(0, 10),
+    ...(input.childId ? { childId: input.childId } : {}),
     elapsedSeconds: Math.max(0, Math.round(input.elapsedSeconds)),
     questionOutcomes: input.questionOutcomes,
   };
@@ -118,6 +125,7 @@ export function loadLocalStoryProgress(
       !isRuntimeState(value.state) ||
       typeof value.storyId !== 'string' ||
       typeof value.childName !== 'string' ||
+      (value.childId !== undefined && typeof value.childId !== 'string') ||
       typeof value.elapsedSeconds !== 'number' ||
       !Array.isArray(value.questionOutcomes)
     ) {
@@ -143,10 +151,17 @@ export function clearLocalStoryProgress(
 
 export const localStoryProgressStorageKey = STORAGE_KEY;
 
-/** 저장된 진행 기록이 지금 연 이야기의 것일 때만 이어듣기 후보로 쓴다 - 저장소에는 한 건만 남는다. */
+/**
+ * 저장된 진행 기록이 지금 연 이야기의 것일 때만 이어듣기 후보로 쓴다 - 저장소에는 한 건만 남는다.
+ * childId를 넘기면 다른 아이가 남긴 기록(childId가 저장된 경우)도 후보에서 뺀다 - 형제 계정에서
+ * 다른 아이의 진행을 이어 받아 그 아이 이름으로 듣고 지금 아이 리포트로 저장되는 걸 막는다.
+ */
 export function resumableProgressFor(
   progress: LocalStoryProgress | null,
   storyId: string,
+  childId?: string | null,
 ): LocalStoryProgress | null {
-  return progress && progress.storyId === storyId ? progress : null;
+  if (!progress || progress.storyId !== storyId) return null;
+  if (childId && progress.childId && progress.childId !== childId) return null;
+  return progress;
 }

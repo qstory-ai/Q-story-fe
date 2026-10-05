@@ -4,7 +4,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
 import {
   completeLesson,
   deleteLesson,
@@ -105,7 +105,7 @@ export function TutorLessonDetailPage() {
     setDeleteInFlight(true);
     try {
       await deleteLesson(token, lessonId);
-      navigate('/tutor/classes', { replace: true });
+      navigate(TUTOR_PATHS.lessons, { replace: true });
     } catch (failure: unknown) {
       setTransitionError(messageForError(failure, '수업을 삭제하지 못했어요.'));
     } finally {
@@ -119,7 +119,7 @@ export function TutorLessonDetailPage() {
   const effective = load.requestKey === requestKey ? load : { requestKey, status: 'loading' as const };
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor/classes')}>
+    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate(TUTOR_PATHS.lessons)}>
       <View style={styles.content}>
         {effective.status === 'loading' && <LoadingState label="수업 정보를 불러오는 중이에요…" />}
 
@@ -248,7 +248,7 @@ export function TutorLessonDetailPage() {
               <ActionButton
                 variant="secondaryFull"
                 label="반 초대 링크·명단 보기"
-                onPress={() => navigate(`/tutor/class-groups/${effective.lesson.classGroupId}`)}
+                onPress={() => navigate(TUTOR_PATHS.classDetail(effective.lesson.classGroupId ?? ''))}
               />
             ) : null}
 

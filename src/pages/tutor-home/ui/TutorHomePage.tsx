@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { BrandLockup, ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { NotificationBell } from '@/features/notification-center';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
 import { listTutorStudents, type TutorStudent } from '@/entities/tutor';
 import { listLessons, type Lesson } from '@/entities/lesson';
 import { MonthCalendar } from '@/features/month-calendar';
@@ -23,7 +23,7 @@ type LoadState =
  *   1. 상단 바 - 브랜드 라벨 + 알림 벨.
  *   2. 인사말 카드.
  *   3. 캘린더 - 월 그리드, 일자별 dot, 선택된 일자의 수업 목록.
- *   4. CTA - 새 반 만들기 / 학생 관리 / 수업 관리 (홈에서 원터치 진입점을 늘림).
+ *   4. 첫 방문에는 "새 반 만들기", 그 뒤로는 반·학생 / 수업 바로가기.
  *   5. 부모 연결 대기 학생 - 아직 부모님이 반 초대 링크로 연결하지 않은 학생 목록.
  */
 export function TutorHomePage() {
@@ -84,25 +84,27 @@ export function TutorHomePage() {
 
   if (state.status !== 'authenticated') return null;
 
-  const ctaRow = (
-    <View style={styles.ctaRow}>
-      <ActionButton label="새 반 만들기" onPress={() => navigate('/tutor/class-groups/new')} />
-      <View style={styles.linkRow}>
-        <Pressable
-          accessibilityRole="link"
-          onPress={() => navigate('/tutor/students')}
-          style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
-        >
-          <Text style={styles.linkLabel}>학생 관리 →</Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="link"
-          onPress={() => navigate('/tutor/classes')}
-          style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
-        >
-          <Text style={styles.linkLabel}>수업 관리 →</Text>
-        </Pressable>
-      </View>
+  // 반 만들기는 반·학생 탭이 기본 진입점이다(Q-35). 홈에서는 반도 수업도 없는 첫 방문에만 시작 버튼을 보이고,
+  // 그 뒤로는 탭과 같은 곳으로 가는 바로가기만 둔다.
+  const firstVisitCta = (
+    <ActionButton label="새 반 만들기" onPress={() => navigate(TUTOR_PATHS.newClass)} />
+  );
+  const shortcutRow = (
+    <View style={styles.linkRow}>
+      <Pressable
+        accessibilityRole="link"
+        onPress={() => navigate(TUTOR_PATHS.classes)}
+        style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
+      >
+        <Text style={styles.linkLabel}>반·학생 →</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="link"
+        onPress={() => navigate(TUTOR_PATHS.lessons)}
+        style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
+      >
+        <Text style={styles.linkLabel}>수업 →</Text>
+      </Pressable>
     </View>
   );
 
@@ -115,12 +117,12 @@ export function TutorHomePage() {
           <Text style={styles.title} accessibilityRole="header">{teacherTitle(state.user.displayName)}</Text>
           <Text style={styles.body}>
             {isFirstVisit
-              ? '반을 만들고 초대 링크를 부모님께 보내면 아이들이 명단에 들어와요. 1:1 과외도 아이 한 명짜리 반으로 시작해요.'
+              ? '반을 만들고 초대 링크를 보호자에게 보내면 아이들이 명단에 들어와요. 1:1 과외도 아이 한 명짜리 반으로 시작해요.'
               : '오늘 만날 아이와 수업을 준비해 보세요.'}
           </Text>
         </Card>
 
-        {isFirstVisit ? ctaRow : null}
+        {isFirstVisit ? firstVisitCta : null}
 
         <Card variant="panel" padding="md" title="수업 캘린더" style={styles.panel}>
           {load.status === 'loading' ? (
@@ -134,7 +136,7 @@ export function TutorHomePage() {
                   key={item.id}
                   accessibilityRole="link"
                   accessibilityLabel={`${item.lesson.name} 수업 상세 열기`}
-                  onPress={() => navigate(`/tutor/lessons/${item.lesson.id}`)}
+                  onPress={() => navigate(TUTOR_PATHS.lesson(item.lesson.id))}
                   style={({ pressed }) => [styles.lessonRow, pressed && styles.pressed]}
                 >
                   <View style={styles.timeCol}>
@@ -158,16 +160,15 @@ export function TutorHomePage() {
           )}
         </Card>
 
-        {/* 튜터의 주 액션을 캘린더 바로 아래에 모아 원터치로 진입하게 한다. */}
-        {isFirstVisit ? null : ctaRow}
+        {isFirstVisit ? null : shortcutRow}
 
         <Card variant="panel" padding="md" title="보호자 연결 대기" style={styles.panel}>
           {load.status === 'loading' ? (
             <LoadingState compact label="학생 목록을 불러오는 중이에요…" />
           ) : load.status === 'ready' && load.students.length === 0 ? (
-            <Text style={styles.panelBody}>아직 반에 들어온 아이가 없어요. 반 초대 링크를 보내면 부모님이 아이를 연결해요.</Text>
+            <Text style={styles.panelBody}>아직 반에 들어온 아이가 없어요. 반 초대 링크를 보내면 보호자가 아이를 연결해요.</Text>
           ) : pendingStudents.length === 0 ? (
-            <Text style={styles.panelBody}>모든 아이와 부모 연결이 완료됐어요.</Text>
+            <Text style={styles.panelBody}>모든 아이의 보호자 연결이 끝났어요.</Text>
           ) : (
             pendingStudents.map((student) => (
               <View key={student.id} style={styles.studentRow}>
@@ -303,7 +304,6 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContent,
   },
   studentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onContentMuted },
-  ctaRow: { gap: storybookTheme.spacing.sm },
   linkRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, justifyContent: 'center', flexWrap: 'wrap' },
   linkChip: {
     paddingHorizontal: 12,

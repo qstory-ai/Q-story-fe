@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, EmptyState, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, reportDetailPath, useAuth } from '@/entities/auth';
 import { listStories } from '@/entities/story';
 import { formatReportDuration } from '@/pages/one-story';
 import {
@@ -131,8 +131,8 @@ export function TutorReportsPage() {
         {studentsLoad.status === 'ready' && studentsLoad.students.length === 0 && (
           <EmptyState
             title="반에 들어온 학생이 아직 없어요"
-            body="반을 만들어 초대 링크를 보내면 부모님이 아이를 연결할 때 학생이 생겨요."
-            cta={{ label: '새 반 만들기', onPress: () => navigate('/tutor/class-groups/new') }}
+            body="반 초대 링크를 보내면 보호자가 아이를 연결할 때 학생이 생겨요."
+            cta={{ label: '반·학생으로 가기', onPress: () => navigate(TUTOR_PATHS.classes) }}
           />
         )}
 
@@ -141,7 +141,7 @@ export function TutorReportsPage() {
             key={section.student.id}
             section={section}
             titleByStoryId={titleByStoryId}
-            onOpen={(completionId) => navigate(`/reports/${completionId}`)}
+            onOpen={(completionId) => navigate(reportDetailPath(completionId))}
           />
         ))}
       </View>

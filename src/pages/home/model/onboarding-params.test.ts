@@ -24,6 +24,10 @@ test('외부로 튕기는 next는 버린다', () => {
   assert.equal(safeNextPath('/stories/HG'), '/stories/HG');
 });
 
+test('환영 화면은 없앴으므로 예전 welcome 링크는 역할 선택으로', () => {
+  assert.deepEqual(read('flow=welcome'), { step: 'role' });
+});
+
 test('알 수 없는 flow는 null', () => {
   assert.equal(read('flow=x'), null);
 });

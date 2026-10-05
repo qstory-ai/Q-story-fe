@@ -5,7 +5,7 @@ import { VOICE_RESEARCH_CONSENT_VERSION } from '../model/voice-research';
 
 /**
  * BE의 /v1/me/voice-research-consent 세 엔드포인트(보호자 계정 단위 음성 연구 동의)를 감싼다.
- * 마이페이지 "개인정보 및 데이터"에서 보고 끄고 다시 켜며, 이야기 화면은 세션을 시작할 때 이 상태로
+ * 마이페이지 "설정"에서 보고 끄고 다시 켜며, 이야기 화면은 세션을 시작할 때 이 상태로
  * 녹음 저장 여부를 정한다. 보호자(PARENT) 계정만 쓸 수 있다.
  */
 export type VoiceResearchAccountConsent = {

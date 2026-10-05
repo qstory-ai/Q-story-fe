@@ -52,3 +52,20 @@ export function confirmPayment(
 ): Promise<PaymentOrder> {
   return request<PaymentOrder>('/v1/payments/confirm', { method: 'POST', body: JSON.stringify(input) }, token, options);
 }
+
+/** 결제 내역 한 줄(BE PaymentHistoryItemResponse). 승인까지 끝난 결제만 온다. receiptUrl은 저장된 결제에만 있다. */
+export type PaymentHistoryItem = {
+  orderId: string;
+  target: PaymentTarget;
+  status: 'READY' | 'PAID' | 'FAILED';
+  amount: number;
+  orderName: string;
+  paidAt: string | null;
+  accessExpiresAt: string | null;
+  receiptUrl: string | null;
+};
+
+/** 보호자는 본인 결제, 관리자는 소속 기관 결제(최근 순, 최대 50건). */
+export function getPaymentHistory(token: string, options?: RequestOptions): Promise<PaymentHistoryItem[]> {
+  return request<PaymentHistoryItem[]>('/v1/payments/history', { method: 'GET' }, token, options);
+}

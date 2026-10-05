@@ -30,6 +30,7 @@ import type {
   GeneratedStorySegment,
   StoryPackageData,
   StoryReportCopy,
+  InviteHelp,
 } from './story-package-types';
 
 type UtterancePresentation = Extract<
@@ -71,6 +72,11 @@ export type StoryRuntimePackage = {
   ) => RoutePlan;
   speakerIdForTag: (tag: string) => string;
   narratorSpeakerId: string;
+  /** Q-31 그레텔 대화용 콘텐츠 - story.yaml의 sceneSynopses·inviteHelp. 없으면 빈 값. */
+  dialogue: {
+    sceneSynopses: Readonly<Record<string, string>>;
+    inviteHelp: Readonly<Record<string, InviteHelp>>;
+  };
 };
 
 function nextUtteranceIndex(
@@ -535,5 +541,9 @@ export function buildStoryRuntimePackage({
     },
     speakerIdForTag: (tag) => resolveCastByTag(tag)?.speakerId ?? narratorSpeakerId,
     narratorSpeakerId,
+    dialogue: {
+      sceneSynopses: packageData.story.sceneSynopses ?? {},
+      inviteHelp: packageData.story.inviteHelp ?? {},
+    },
   };
 }

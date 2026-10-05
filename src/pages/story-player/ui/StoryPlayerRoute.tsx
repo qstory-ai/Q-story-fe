@@ -32,6 +32,8 @@ export function StoryPlayerRoute() {
   // 홈 히어로·이어서 읽기·상세·리포트 "다시 읽기"가 이 재생을 기록할 아이를 싣는다. 플레이어는 전역 선택
   // 아이로 이름을 부르고 완주를 저장하므로, 띄우기 전에 전역 선택을 이 아이로 맞춘다.
   const requestedChildId = searchParams.get('childId');
+  // resume=1은 "이어서 읽기", childId만 있으면 홈에서 아이를 골라 시작 - 플레이어가 시작 화면을 건너뛴다.
+  const entry = searchParams.get('resume') === '1' ? 'resume' : requestedChildId ? 'start' : undefined;
   const { load: childrenLoad, children, selectedChild, selectChild } = useChildren();
   const childSync = playerChildSync({
     requestedChildId,
@@ -71,7 +73,7 @@ export function StoryPlayerRoute() {
   const effectiveState: LoadState = state.requestKey === requestKey ? state : { requestKey, status: 'loading' };
 
   if (effectiveState.status === 'ready' && childSync.kind === 'ready') {
-    return <OneStoryPage storyPackage={effectiveState.storyPackage} tutorStudentId={tutorStudentId} lessonId={lessonId} />;
+    return <OneStoryPage storyPackage={effectiveState.storyPackage} tutorStudentId={tutorStudentId} lessonId={lessonId} entry={entry} />;
   }
 
   return (

@@ -788,6 +788,23 @@ function validateStoryPackage(source) {
       anchor.actionFamilies.map((family) => family.id),
     ),
   );
+  // Q-31 그레텔 대화: 장면별 줄거리와 질문 초대 도움 단계(선택). 있는 장면·질문 지점만 가리키게 한다.
+  for (const sceneId of Object.keys(story.sceneSynopses ?? {})) {
+    if (!sceneIds.has(sceneId)) fail(story.storyId, `sceneSynopses names unknown scene ${sceneId}`);
+  }
+  for (const [anchorId, help] of Object.entries(story.inviteHelp ?? {})) {
+    const anchor = routeContext.anchors?.[anchorId];
+    if (!anchor) fail(story.storyId, `inviteHelp names unknown anchor ${anchorId}`);
+    if (!Array.isArray(help.steps) || help.steps.length === 0 || help.steps.some((step) => typeof step !== 'string' || !step.trim())) {
+      fail(story.storyId, `inviteHelp ${anchorId} needs non-empty steps`);
+    }
+    const anchorFamilyIds = new Set(anchor.actionFamilies.map((family) => family.id));
+    for (const suggestion of help.suggestions ?? []) {
+      if (!suggestion.label || !anchorFamilyIds.has(suggestion.familyId)) {
+        fail(story.storyId, `inviteHelp ${anchorId} suggests ${suggestion.familyId}, which is not one of its families`);
+      }
+    }
+  }
   for (const [anchorId, anchor] of anchorEntries) {
     for (const family of anchor.actionFamilies) {
       const prerequisites = family.requiresPriorFamilyIds ?? [];

@@ -3,7 +3,6 @@ import type {
   AudioGroupId,
   FallbackFamilyId,
   QuestionAnchorId,
-  RejoinAnchorId,
   SceneId,
   StoryId,
 } from './ids';
@@ -112,11 +111,6 @@ export type StoryRuntimeState =
       plan: ResponsePlan;
     }
   | {
-      status: 'rejoining';
-      sceneId: SceneId;
-      rejoinAnchorId: RejoinAnchorId;
-    }
-  | {
       status: 'failed-recoverable';
       sceneId: SceneId;
       anchorId?: QuestionAnchorId;
@@ -139,6 +133,8 @@ export type StoryRuntimeEvent =
   | { type: 'ASK_SELECTED' }
   | { type: 'TYPE_SELECTED' }
   | { type: 'CONTINUE_SELECTED' }
+  /** 질문 초대 대화에서 아이가 뜻을 확인한 행동을 실행한다(Q-31) - plan은 DIRECT_ACTION route여야 한다. */
+  | { type: 'ACTION_CONFIRMED'; plan: RoutePlan }
   | { type: 'RECORDING_STARTED' }
   | { type: 'RECORDING_STOPPED'; recording: LocalRecordingArtifact }
   | { type: 'TEXT_SUBMITTED'; transcript: string }
@@ -806,6 +802,29 @@ function transitionSharedQuestionAnchorActions(
       return anchor.allowedActions.includes('continue-story')
         ? continueFromAnchor(manifest, waitingState, anchor)
         : invalidTransition(state, event, 'Continue is not allowed.');
+    }
+
+    if (event.type === 'ACTION_CONFIRMED') {
+      if (event.plan.route !== 'DIRECT_ACTION') {
+        return invalidTransition(state, event, 'Only a confirmed action can run from the dialogue.');
+      }
+      const issue = routePlanIssue(manifest, anchor, event.plan);
+      if (issue) {
+        return invalidTransition(state, event, issue);
+      }
+      const plan = normalizeActionRoutePlan(manifest, event.plan);
+      return {
+        ok: true,
+        state: {
+          status: 'playing-response',
+          sceneId: state.sceneId,
+          anchorId: anchor.id,
+          questionRound: state.questionRound ?? 1,
+          consecutiveSafetyFailures: state.consecutiveSafetyFailures ?? 0,
+          plan,
+        },
+        commands: [{ type: 'PLAY_RESPONSE', plan }],
+      };
     }
 
     if (event.type === 'ASK_SELECTED' || event.type === 'TYPE_SELECTED') {

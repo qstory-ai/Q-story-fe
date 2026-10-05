@@ -215,8 +215,6 @@ export function statusCopy(state: StoryRuntimeState, isClassLesson = false) {
       return '안전하게 다시 한 번 물어보는 중';
     case 'playing-response':
       return '아이의 생각으로 달라진 순간';
-    case 'rejoining':
-      return '이야기로 돌아가는 중';
     case 'failed-recoverable':
       return '안전한 이야기 길을 찾는 중';
     case 'complete':

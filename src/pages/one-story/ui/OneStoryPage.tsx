@@ -5,9 +5,9 @@ import { SafeAreaView } from '@/shared/ui';
 import type { StoryRuntimePackage } from '@/entities/story';
 import { CompletionSurveyModal } from '@/features/completion-survey-modal';
 
-import { useCompanionChat, useOneStoryRuntime } from '../model';
+import { useDialogue, useOneStoryRuntime } from '../model';
 import { ChapterSidebar } from './chapter-sidebar';
-import { CompanionChatModal } from './modals/companion-chat-modal';
+import { DialoguePanel } from './dialogue-panel';
 import { HomeMenuModal } from './modals/home-menu-modal';
 import { ResumeModal } from './modals/resume-modal';
 import { PlaybackDock } from './playback-dock';
@@ -20,17 +20,20 @@ export function OneStoryPage({
   storyPackage,
   tutorStudentId,
   lessonId,
+  entry,
 }: {
   storyPackage: StoryRuntimePackage;
   /** 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 넘긴다(StoryPlayerRoute 참고). */
   tutorStudentId?: string;
   /** 수업 상세에서 시작한 세션이면 그 수업 id - 완주 기록이 수업과 참여 학생 전원에 연결된다. */
   lessonId?: string;
+  /** 홈에서 바로 들어온 재생(Q-36) - use-one-story-runtime의 entry 참고. */
+  entry?: 'resume' | 'start';
 }) {
   // conversationId는 세션 하나 = 하나. runtime의 완주 저장과 chat의 대화 요청이 같은 id를
   // 공유해야 서버가 companion_chat_turn 태그를 story_completion에 스냅샷으로 붙일 수 있다.
   const [companionConversationId] = useState(() => crypto.randomUUID());
-  const runtime = useOneStoryRuntime(storyPackage, tutorStudentId, companionConversationId, lessonId);
+  const runtime = useOneStoryRuntime(storyPackage, tutorStudentId, companionConversationId, lessonId, entry);
   const {
     isWide,
     isShort,
@@ -41,11 +44,9 @@ export function OneStoryPage({
     scene,
     illustration,
   } = runtime;
-  const chat = useCompanionChat({
-    storyId: storyPackage.storyId,
-    sceneId: scene?.id ?? null,
+  const dialogue = useDialogue({
+    runtime,
     conversationId: companionConversationId,
-    childId: runtime.conversationAttribution.childId,
     tutorStudentId,
     lessonId,
   });
@@ -73,7 +74,7 @@ export function OneStoryPage({
 
         {/* onOpenChapters를 항상 넘겨도 된다 - TopBar 자신이 이미 같은 조건(idle 아님 && 리포트
             아님)으로 다른 버튼들과 함께 보임/숨김을 판단한다. */}
-        <TopBar runtime={runtime} chat={chat} onOpenChapters={() => setChaptersOpen(true)} />
+        <TopBar runtime={runtime} dialogue={dialogue} onOpenChapters={() => setChaptersOpen(true)} />
         <SceneProgressBar runtime={runtime} />
 
         <ScrollView
@@ -101,10 +102,11 @@ export function OneStoryPage({
               ]}
             />
           )}
-          <ReaderCard runtime={runtime} />
+          {!dialogue.open && <ReaderCard runtime={runtime} />}
         </ScrollView>
 
-        <PlaybackDock runtime={runtime} />
+        {!dialogue.open && <PlaybackDock runtime={runtime} />}
+        <DialoguePanel dialogue={dialogue} hidden={runtime.homeMenuVisible || chaptersOpen} />
 
         <ChapterSidebar
           runtime={runtime}
@@ -114,7 +116,6 @@ export function OneStoryPage({
 
         <ResumeModal runtime={runtime} />
         <HomeMenuModal runtime={runtime} />
-        <CompanionChatModal chat={chat} homeMenuOpen={runtime.homeMenuVisible} />
         <CompletionSurveyModal
           visible={runtime.completionSurveyVisible}
           storyId={storyPackage.storyId}

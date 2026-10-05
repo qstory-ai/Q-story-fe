@@ -56,6 +56,14 @@ export type GeneratedStoryContent = {
 };
 
 /** One asset row as the backend serves it - see StoryContentAssemblyService. */
+/** 질문 초대 도움 - 아이가 요청할 때만 한 단계씩. suggestions는 마지막 단계에서만 보여 주는 방법 예시다. */
+export type InviteHelp = {
+  steps: string[];
+  /** 대화를 마치고 이야기로 돌아갈 때 그레텔이 하는 말(예: 그럼 남매는 어떻게 했는지 이어서 볼까?). */
+  continueLine?: string;
+  suggestions?: { label: string; familyId: string }[];
+};
+
 export type ServedStoryAsset = {
   slug: string;
   category: 'SCENE_ART' | 'BRANCH_ART' | 'NARRATION' | 'BRIDGE';
@@ -76,6 +84,10 @@ export type StoryPackageData = {
     contentVersion: string;
     entrySceneId: string;
     endingSceneId: string;
+    /** Q-31: 그레텔 대화가 "지금까지 일어난 일"로 쓰는 장면별 줄거리. */
+    sceneSynopses?: Record<string, string>;
+    /** Q-31: 질문 초대의 도움 단계(앵커 id별). */
+    inviteHelp?: Record<string, InviteHelp>;
   };
   routeContext: {
     routePromptVersion: string;

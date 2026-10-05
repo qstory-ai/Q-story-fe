@@ -53,7 +53,7 @@ function isRuntimeState(value: unknown): value is StoryRuntimeState {
 export function resumableRuntimeState(
   state: StoryRuntimeState,
 ): StoryRuntimeState | null {
-  if (state.status === 'idle' || state.status === 'rejoining') {
+  if (state.status === 'idle') {
     return null;
   }
   if (

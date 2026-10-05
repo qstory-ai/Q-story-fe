@@ -538,10 +538,20 @@ test('all versioned master illustrations and every fixed narration clip are pack
         ).length,
       0,
     );
+  // Q-31 그레텔 도움·이어 보기 대사도 미리 녹음한다 - use-dialogue가 같은 id로 고정 음성을 찾는다.
+  const dialogueLines = Object.entries(packageData.story.inviteHelp ?? {}).flatMap(([anchorId, help]) => [
+    ...help.steps.map((text, index) => ({ clipId: `dialogue-${anchorId}-help-${index + 1}`, text })),
+    ...(help.continueLine ? [{ clipId: `dialogue-${anchorId}-continue`, text: help.continueLine }] : []),
+  ]);
   assert.equal(
     narrationMetadata.clips.length,
-    expectedFixedClipCount + branchInteractionEntries.length,
+    expectedFixedClipCount + branchInteractionEntries.length + dialogueLines.length,
   );
+  for (const line of dialogueLines) {
+    const clip = narrationMetadata.clips.find((candidate) => candidate.clipId === line.clipId);
+    assert.equal(clip?.text, line.text, `${line.clipId} has no matching recording`);
+    assert.equal(audioFileBySlug.get(line.clipId), `${packagedAssets.root}audio/${clip.fileName}`);
+  }
   const metadataByClipId = new Map(
     narrationMetadata.clips.map((clip) => [clip.clipId, clip]),
   );
@@ -661,4 +671,55 @@ test('visual continuity follows the final script through the forest and the kitc
   assert.equal(visualById['HG-VIS-F08-02'].exitState, 'small-bag-packed');
   assert.equal(visualById['HG-VIS-F08-03'].exitState, 'siblings-outside-candy-house');
   assert.ok(visuals.every((visual) => !/oven|twig|ledger|evidence|pebble-and-feather/.test(visual.requiredAction)));
+});
+
+test('a dialogue-confirmed action plays its prepared branch and rejoins (Q-31)', () => {
+  const anchor = hanselGretelManifest.questionAnchors.find((candidate) => candidate.id === 'HG-Q-C');
+  const family = hanselGretelManifest.fallbackFamilies.find(
+    (candidate) => candidate.id === 'C_WAIT_FOR_WITCH_TURN',
+  );
+  assert.ok(anchor && family);
+  const awaiting = {
+    status: 'awaiting-question',
+    sceneId: anchor.sceneId,
+    anchorId: anchor.id,
+    questionRound: 1,
+    consecutiveSafetyFailures: 0,
+  };
+  const plan = {
+    kind: 'route',
+    route: 'DIRECT_ACTION',
+    childRelevantMeaning: '마녀가 등 돌릴 때까지 기다려',
+    coverageStatus: 'exact',
+    coverageReason: 'dialogue-confirmed',
+    text: family.acknowledgementText,
+    speakerId: anchor.promptSpeakerId,
+    actionFamilyId: family.id,
+    rejoinAt: family.rejoinAnchorId,
+    fallbackFamilyId: family.id,
+    options: [],
+    versions: {
+      modelId: 'dialogue',
+      promptVersion: 'dialogue',
+      storyManifestVersion: hanselGretelManifest.contentVersion,
+      routePolicyVersion: 'dialogue',
+    },
+  };
+  const confirmed = transitionStoryRuntime(hanselGretelManifest, awaiting, { type: 'ACTION_CONFIRMED', plan });
+  assert.equal(confirmed.ok, true);
+  assert.equal(confirmed.state.status, 'playing-response');
+  assert.equal(confirmed.state.plan.actionFamilyId, family.id);
+  assert.deepEqual(confirmed.commands.map((command) => command.type), ['PLAY_RESPONSE']);
+
+  // 다른 지점의 행동이나 DIRECT_ACTION이 아닌 계획은 받지 않는다.
+  const otherFamily = transitionStoryRuntime(hanselGretelManifest, awaiting, {
+    type: 'ACTION_CONFIRMED',
+    plan: { ...plan, actionFamilyId: 'A_OBSERVE_BIRD', fallbackFamilyId: 'A_OBSERVE_BIRD' },
+  });
+  assert.equal(otherFamily.ok, false);
+  const notAction = transitionStoryRuntime(hanselGretelManifest, awaiting, {
+    type: 'ACTION_CONFIRMED',
+    plan: { ...plan, route: 'ANSWER_RESUME' },
+  });
+  assert.equal(notAction.ok, false);
 });

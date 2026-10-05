@@ -88,6 +88,11 @@ export function useOneStoryRuntime(
   tutorStudentId?: string,
   companionConversationId?: string,
   lessonId?: string,
+  /**
+   * 어디서 들어왔는지(Q-36). resume = 홈의 "이어서 읽기" - 이어 듣기를 묻지 않고 바로 이어 간다.
+   * start = 홈에서 아이를 골라 "이야기 시작하기" - 저장된 진행이 없으면 시작 화면 없이 바로 시작한다.
+   */
+  entry?: 'resume' | 'start',
 ) {
   // 실시간 새 분기 생성이 READY가 되면(폴링 effect 아래 참고) GET /v1/stories/{storyId}/content를
   // 재조회해 이 값을 교체한다 - storyPackage를 부모로부터 받은 그대로 쓰지 않고 로컬 상태로 감싸는
@@ -222,7 +227,7 @@ export function useOneStoryRuntime(
     useState<CompanionChatSummary | null>(null);
   const [resumeCandidate, setResumeCandidate] =
     useState<LocalStoryProgress | null>(() =>
-      resumableProgressFor(loadLocalStoryProgress(), storyPackage.storyId),
+      resumableProgressFor(loadLocalStoryProgress(), storyPackage.storyId, selectedChild?.id),
     );
   const [homeMenuVisible, setHomeMenuVisible] = useState(false);
   const [exitReasonVisible, setExitReasonVisible] = useState(false);
@@ -252,10 +257,12 @@ export function useOneStoryRuntime(
       state: runtimeRef.current,
       storyId: storyPackage.storyId,
       childName,
+      // 이어서 읽기가 이 진행을 남긴 아이로 재생·기록되게 한다(Q-36). 데모·선생님 세션은 없다.
+      childId: conversationAttribution.childId,
       elapsedSeconds: elapsedStorySeconds(),
       questionOutcomes,
     });
-  }, [childName, elapsedStorySeconds, questionOutcomes, storyPackage.storyId]);
+  }, [childName, conversationAttribution.childId, elapsedStorySeconds, questionOutcomes, storyPackage.storyId]);
 
   useEffect(() => {
     if (runtimeState.status !== 'idle') {
@@ -1872,6 +1879,22 @@ export function useOneStoryRuntime(
     activeNarrationIdRef.current = null;
     void trackStoryEvent('story_started', { resume: true });
   }, [resumeCandidate, stopNarration, trackStoryEvent]);
+
+  // 홈에서 곧장 들어온 재생은 시작 화면·이어 듣기 질문을 건너뛴다(Q-36). 마운트 때 한 번만.
+  const entryHandledRef = useRef(false);
+  useEffect(() => {
+    if (entryHandledRef.current || !entry) return;
+    // 다음 틱에 실행한다 - effect 안에서 곧장 상태를 바꾸지 않고, 개발 모드의 effect 두 번 실행에도 한 번만 돈다.
+    const timer = setTimeout(() => {
+      entryHandledRef.current = true;
+      if (entry === 'resume' && resumeCandidate) {
+        void resumeStory();
+      } else if (entry === 'start' && !resumeCandidate) {
+        startStory();
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [entry, resumeCandidate, resumeStory, startStory]);
 
   const dismissResumeAndRestart = useCallback(() => {
     clearLocalStoryProgress();

@@ -20,17 +20,20 @@ export function OneStoryPage({
   storyPackage,
   tutorStudentId,
   lessonId,
+  entry,
 }: {
   storyPackage: StoryRuntimePackage;
   /** 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 넘긴다(StoryPlayerRoute 참고). */
   tutorStudentId?: string;
   /** 수업 상세에서 시작한 세션이면 그 수업 id - 완주 기록이 수업과 참여 학생 전원에 연결된다. */
   lessonId?: string;
+  /** 홈에서 바로 들어온 재생(Q-36) - use-one-story-runtime의 entry 참고. */
+  entry?: 'resume' | 'start';
 }) {
   // conversationId는 세션 하나 = 하나. runtime의 완주 저장과 chat의 대화 요청이 같은 id를
   // 공유해야 서버가 companion_chat_turn 태그를 story_completion에 스냅샷으로 붙일 수 있다.
   const [companionConversationId] = useState(() => crypto.randomUUID());
-  const runtime = useOneStoryRuntime(storyPackage, tutorStudentId, companionConversationId, lessonId);
+  const runtime = useOneStoryRuntime(storyPackage, tutorStudentId, companionConversationId, lessonId, entry);
   const {
     isWide,
     isShort,

@@ -171,7 +171,7 @@ export function OnboardingParentPage() {
 
             <ConsentBlock
               title="아이 음성 보관"
-              body="아이의 질문 음성은 음성 인식 개선을 위해 90일간 비공개로 보관한 뒤 지워요. 리포트에는 아이가 한 말의 뜻만 남아요. 마이페이지 > 개인정보 및 데이터에서 언제든 끌 수 있어요."
+              body="아이의 질문 음성은 음성 인식 개선을 위해 90일간 비공개로 보관한 뒤 지워요. 리포트에는 아이가 한 말의 뜻만 남아요. 마이페이지 > 설정에서 언제든 끌 수 있어요."
               checked={consentAudio}
               onChange={setConsentAudio}
             />

@@ -26,6 +26,7 @@ import {
   createVoiceResearchConsent,
   getVoiceResearchAccountConsent,
   storeVoiceResearchSample,
+  reportClientError,
   trackBetaEvent,
   type BetaEventName,
   type CompanionChatSummary,
@@ -106,12 +107,22 @@ export function useOneStoryRuntime(
     [storyPackage],
   );
   const trackStoryEvent = useCallback(
-    (eventName: BetaEventName, metadata: Record<string, string | number | boolean> = {}) =>
-      trackBetaEvent(eventName, {
+    (eventName: BetaEventName, metadata: Record<string, string | number | boolean> = {}) => {
+      // 재생 실패는 퍼널 이벤트와 별개로 운영 알림(Grafana client-error-spike)에도 보낸다.
+      if (eventName === 'playback_issue') {
+        reportClientError({
+          kind: 'PLAYBACK',
+          message: [metadata.issue_type, metadata.audio_source, metadata.failure_code].filter(Boolean).join(' '),
+          storyId: storyManifest.storyId,
+          sceneId: typeof metadata.scene_id === 'string' ? metadata.scene_id : undefined,
+        });
+      }
+      return trackBetaEvent(eventName, {
         story_version: storyManifest.contentVersion,
         ...metadata,
-      }),
-    [storyManifest.contentVersion],
+      });
+    },
+    [storyManifest.contentVersion, storyManifest.storyId],
   );
   const getSceneIndex = useCallback(
     (state: Parameters<typeof getSceneIndexForPackage>[0]) =>
@@ -321,6 +332,12 @@ export function useOneStoryRuntime(
     ].join(':');
     if (trackedFailuresRef.current.has(failureKey)) return;
     trackedFailuresRef.current.add(failureKey);
+    reportClientError({
+      kind: 'RUNTIME_FAILURE',
+      message: `${runtimeState.failure.stage} ${runtimeState.failure.code}`,
+      storyId: storyManifest.storyId,
+      sceneId: runtimeState.sceneId,
+    });
     void trackStoryEvent('question_result', {
       ...(runtimeState.anchorId ? { anchor_id: runtimeState.anchorId } : {}),
       result: 'failed',
@@ -332,7 +349,7 @@ export function useOneStoryRuntime(
       transcript_corrected: transcriptCorrectedRef.current,
       switched_input: questionInputSwitchedRef.current,
     });
-  }, [runtimeState, trackStoryEvent]);
+  }, [runtimeState, storyManifest.storyId, trackStoryEvent]);
 
   const rememberQuestionOutcome = useCallback(
     (

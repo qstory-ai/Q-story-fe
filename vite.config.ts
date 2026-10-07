@@ -6,6 +6,9 @@ import { defineConfig } from 'vite';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// 브라우저 에러 보고에 어느 배포인지 붙인다(Vercel이 빌드 때 커밋 SHA를 준다). 로컬은 비워 두면 dev.
+process.env.VITE_QSTORY_RELEASE ??= (process.env.VERCEL_GIT_COMMIT_SHA ?? '').slice(0, 7);
+
 export default defineConfig({
   plugins: [react()],
   resolve: {

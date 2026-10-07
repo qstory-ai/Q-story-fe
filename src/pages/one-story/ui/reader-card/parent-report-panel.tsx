@@ -17,7 +17,7 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
     parentReport,
     openCompletionSurvey,
     finishExperience,
-    restartStory,
+    requestRestart,
     storyPackage,
     liveTurns,
     completedRecordId,
@@ -125,7 +125,7 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
               style={styles.reportSecondaryAction}
               onPress={() => {
                 trackReportAction('reread_click');
-                restartStory();
+                requestRestart();
               }}
             >
               <Text style={styles.reportSecondaryActionText}>

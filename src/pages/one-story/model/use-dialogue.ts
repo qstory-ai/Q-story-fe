@@ -5,7 +5,13 @@ import {
   primeResponseAudio,
   type BufferedResponseAudio,
 } from '@/features/route-question';
-import { useAudioRecorderAdapter } from '@/features/record-question';
+import {
+  LISTEN_NOW_COPY,
+  NO_SPEECH_REPROMPT_COPY,
+  primeRecorderAudio,
+  useAudioRecorderAdapter,
+  useSpeechAutoStop,
+} from '@/features/record-question';
 import { reportClientError } from '@/entities/analytics';
 import {
   CompanionChatError,
@@ -18,6 +24,7 @@ import type { PlayTurnInput } from '@/entities/play-session';
 
 import { GRETEL_COMPANION } from '../lib/companion-character';
 import { buildDialogueScene, wrapUpFor, type WrapUpSignal } from '../lib/dialogue-context';
+import type { QuestionSkipReason } from '../lib/question-skip';
 import type { OneStoryRuntime } from './use-one-story-runtime';
 
 /** CHAT = 아이가 스스로 연 그레텔 대화, INVITE = 이야기 속 질문 초대에서 이어지는 대화. */
@@ -56,12 +63,6 @@ export type DialoguePhase =
   | 'suggest-return'
   | 'error';
 
-/** 말이 끝났다고 보는 기준 - 말소리가 한 번 들린 뒤 이만큼 조용하면 녹음을 끝낸다. */
-const SPEECH_DB = -42;
-const SILENCE_DB = -50;
-const SILENCE_AFTER_SPEECH_MS = 1_400;
-const NO_SPEECH_TIMEOUT_MS = 8_000;
-const MAX_RECORDING_MS = 20_000;
 const MAX_TEXT = 160;
 
 type Proposal = { familyId: string; childMeaning: string };
@@ -73,11 +74,14 @@ export function useDialogue({
   conversationId,
   tutorStudentId,
   lessonId,
+  paused = false,
 }: {
   runtime: OneStoryRuntime;
   conversationId: string;
   tutorStudentId?: string;
   lessonId?: string;
+  /** 챕터·홈 메뉴가 패널을 가리는 중 - 듣기를 멈춘다(보이지 않는 패널이 녹음·자동 종료하지 않게). */
+  paused?: boolean;
 }) {
   const {
     storyPackage,
@@ -92,6 +96,9 @@ export function useDialogue({
     visualAssetId,
   } = runtime;
   const character = GRETEL_COMPANION;
+  // 자동 전송 안내에 쓰는 이름 - 이야기 데이터의 화자 이름을 우선 쓰고, 없으면 '친구'.
+  const characterName =
+    storyPackage.manifest.speakers.find((speaker) => speaker.id === character.speakerId)?.displayName ?? '친구';
   const recorder = useAudioRecorderAdapter();
 
   const [open, setOpen] = useState(false);
@@ -316,7 +323,10 @@ export function useDialogue({
 
   /** 대화를 닫고 이야기로 돌아간다. 일반 대화는 멈춘 문장부터, 질문 초대는 기본 이야기로 이어 간다. */
   const close = useCallback(
-    async (reason: 'CONTINUE' | 'CLOSED_BY_REPLY' | 'CHILD_ENDED' = 'CONTINUE') => {
+    async (
+      reason: 'CONTINUE' | 'CLOSED_BY_REPLY' | 'CHILD_ENDED' = 'CONTINUE',
+      skipReason?: QuestionSkipReason,
+    ) => {
       cancelPending();
       stopSpeaking();
       if (recorder.isRecording) await recorder.stopRecording();
@@ -332,7 +342,8 @@ export function useDialogue({
           await sayFixedLine(`dialogue-${anchorId}-continue`, continueLine);
         }
         setOpen(false);
-        await runtime.continueStory();
+        // 그 사이 이야기가 이미 다른 상태로 넘어갔으면(행동 실행·처음부터 다시 등) 다시 넘기지 않는다.
+        await runtime.continueFromInvite(anchorId, skipReason);
         return;
       }
       setOpen(false);
@@ -481,14 +492,19 @@ export function useDialogue({
 
   // 조용해짐 감지와 '다 말했어' 버튼이 겹쳐도 녹음은 한 번만 끝낸다.
   const stoppingRef = useRef(false);
+  // 듣기가 막힐 때(패널 닫힘·가려짐)마다 올린다 - 그 전에 시작한 녹음 시작·받아 적기는 버린다.
+  const listenSeqRef = useRef(0);
+  // 받아 적은 문장 하나는 한 번만 보낸다(자동 전송과 확인 버튼이 겹쳐도).
+  const confirmSentRef = useRef(false);
   const transcribe = useCallback(async () => {
     if (stoppingRef.current) return;
     stoppingRef.current = true;
     const seqAtStop = requestSeqRef.current;
+    const listenSeqAtStop = listenSeqRef.current;
     const recording = await recorder.stopRecording().finally(() => {
       stoppingRef.current = false;
     });
-    if (seqAtStop !== requestSeqRef.current) return;
+    if (seqAtStop !== requestSeqRef.current || listenSeqAtStop !== listenSeqRef.current) return;
     if (!recording?.uploadBlob || !sceneId) {
       setErrorMessage('잘 안 들렸어. 다시 말해 줄래?');
       setPhase('error');
@@ -516,6 +532,7 @@ export function useDialogue({
       );
       if (seq !== requestSeqRef.current) return;
       inputModeRef.current = 'VOICE';
+      confirmSentRef.current = false;
       sttDraftRef.current = transcript.slice(0, MAX_TEXT);
       setDraft(transcript.slice(0, MAX_TEXT));
       setPhase('confirm');
@@ -544,11 +561,18 @@ export function useDialogue({
   /** 말하기 - 그레텔이 말하는 중이면 끊고 바로 듣는다. 말이 끝나면(조용해지면) 저절로 멈춘다. */
   const startTalking = useCallback(async () => {
     primeResponseAudio();
+    primeRecorderAudio();
+    // 확인 단계에서 "다시 말하기"를 눌렀으면 마이크가 켜지는 사이 자동 전송이 끼어들지 않게 막는다.
+    confirmSentRef.current = true;
     cancelPending();
     stopSpeaking();
     setErrorMessage(null);
+    const seq = requestSeqRef.current;
+    const listenSeq = listenSeqRef.current;
+    const stillWanted = () => seq === requestSeqRef.current && listenSeq === listenSeqRef.current;
     if (recorder.permissionState !== 'granted') {
       const granted = await recorder.requestPermission();
+      if (!stillWanted()) return;
       if (!granted) {
         setErrorMessage(recorder.error ?? '마이크를 쓸 수 없어. 글로 써 줄래?');
         setPhase('error');
@@ -557,8 +581,14 @@ export function useDialogue({
     }
     try {
       await recorder.startRecording();
+      // 마이크가 켜지는 사이 패널이 닫혔거나 가려졌거나 다른 입력이 시작됐으면 바로 끈다.
+      if (!stillWanted()) {
+        void recorder.stopRecording();
+        return;
+      }
       setPhase('recording');
     } catch {
+      if (!stillWanted()) return;
       setErrorMessage(recorder.error ?? '녹음을 시작하지 못했어. 글로 써 줄래?');
       setPhase('error');
     }
@@ -568,32 +598,66 @@ export function useDialogue({
     if (recorder.isRecording) void transcribe();
   }, [recorder.isRecording, transcribe]);
 
-  // 말소리가 들린 뒤 조용해지면, 또는 오래 말이 없거나 너무 길면 녹음을 끝낸다.
-  const heardSpeechRef = useRef(false);
-  const silentSinceRef = useRef<number | null>(null);
-  useEffect(() => {
-    if (!recorder.isRecording) {
-      heardSpeechRef.current = false;
-      silentSinceRef.current = null;
+  /**
+   * 마이크를 켰는데 끝내 말이 없었다(Q-34 무응답) - 녹음은 보내지 않고 버린다. 질문 초대에서 아직 한 마디도
+   * 안 했으면 질문을 건너뛰고 이야기를 이어 가고, 대화 중이었으면 아이 차례로 돌아간다.
+   */
+  const giveUpListening = useCallback(async () => {
+    if (stoppingRef.current) return;
+    if (mode === 'INVITE' && childTurnCountRef.current === 0) {
+      await close('CONTINUE', 'no_speech_timeout');
       return;
     }
-    const db = recorder.meteringDb ?? -160;
-    const now = Date.now();
-    if (db > SPEECH_DB) {
-      heardSpeechRef.current = true;
-      silentSinceRef.current = null;
-    } else if (db < SILENCE_DB) {
-      silentSinceRef.current ??= now;
-    }
-    const silentFor = silentSinceRef.current ? now - silentSinceRef.current : 0;
-    const shouldStop =
-      (heardSpeechRef.current && silentFor >= SILENCE_AFTER_SPEECH_MS) ||
-      (!heardSpeechRef.current && recorder.durationMillis >= NO_SPEECH_TIMEOUT_MS) ||
-      recorder.durationMillis >= MAX_RECORDING_MS;
-    if (shouldStop) void transcribe();
-  }, [recorder.durationMillis, recorder.isRecording, recorder.meteringDb, transcribe]);
+    cancelPending();
+    if (recorder.isRecording) await recorder.stopRecording();
+    setPhase('ready');
+  }, [cancelPending, close, mode, recorder]);
+
+  // 말한 뒤 조용해지면 저절로 끝내고, 15초 말이 없으면 다시 묻고, 그 뒤 15초도 없으면 포기한다(30초 상한 포함).
+  // 패널이 닫히거나(초대가 끝남·닫기) 메뉴에 가려지면 듣기를 멈춘다: 단계는 렌더 중에 맞추고,
+  // 녹음 끄기와 늦게 올 결과 버리기는 effect에서 한다. 자동 종료·무응답 타이머는 enabled가 꺼지며 정리된다.
+  const listeningBlocked = !open || paused;
+  if (listeningBlocked && phase === 'recording') {
+    setPhase('ready');
+  }
+  useEffect(() => {
+    if (!listeningBlocked) return;
+    listenSeqRef.current += 1;
+    void recorder.stopRecording();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listeningBlocked]);
+
+  const autoStop = useSpeechAutoStop(recorder, {
+    enabled: phase === 'recording' && !listeningBlocked,
+    onSpeechEnd: () => void transcribe(),
+    onGiveUp: () => void giveUpListening(),
+  });
+
+  // Q-34: 가정 세션은 질문 초대 낭독이 끝나면(awaiting-question) 탭 없이 바로 듣기 시작한다.
+  // 이 화면에서 초대 낭독을 실제로 들었을 때만(이어 듣기로 곧장 초대 상태에 들어온 경우 제외),
+  // 마이크 권한을 이미 받았을 때만 - 거절·미지원·반 수업이면 기존처럼 "말하기" 버튼을 기다린다.
+  // 초대 낭독을 들은 앵커 - 낭독이 끊기고 다른 상태로 가면(건너뛰기·되감기 등) 지운다.
+  const inviteHeardAnchorRef = useRef<string | null>(null);
+  const { activeQuestionAnchorId } = runtime;
+  useEffect(() => {
+    if (isQuestionInvitePlayback) inviteHeardAnchorRef.current = activeQuestionAnchorId;
+    else if (!invitedAnchorId) inviteHeardAnchorRef.current = null;
+  }, [activeQuestionAnchorId, invitedAnchorId, isQuestionInvitePlayback]);
+  const autoListenPermitted = !lessonId && !paused && recorder.permissionState === 'granted';
+  useEffect(() => {
+    if (!invitedAnchorId || inviteHeardAnchorRef.current !== invitedAnchorId) return;
+    // 다음 틱에 시작한다 - effect 안에서 곧장 상태를 바꾸지 않고, 개발 모드의 effect 두 번 실행에도 한 번만 돈다.
+    const timer = setTimeout(() => {
+      inviteHeardAnchorRef.current = null;
+      if (autoListenPermitted) void startTalking();
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invitedAnchorId]);
 
   const confirmTranscript = useCallback(() => {
+    if (confirmSentRef.current) return;
+    confirmSentRef.current = true;
     void send(draft, 'VOICE');
   }, [draft, send]);
 
@@ -697,6 +761,7 @@ export function useDialogue({
     [],
   );
 
+  const listenPrompt = autoStop.reprompted ? NO_SPEECH_REPROMPT_COPY : LISTEN_NOW_COPY;
   const meterPercent = Math.max(8, Math.min(100, (((recorder.meteringDb ?? -60) + 60) / 48) * 100));
 
   return {
@@ -710,6 +775,8 @@ export function useDialogue({
     setDraft: (value: string) => setDraft(value.slice(0, MAX_TEXT)),
     errorMessage,
     meterPercent,
+    listenPrompt,
+    characterName,
     canAskHelp: mode === 'INVITE' && helpStep < helpSteps.length,
     helpStep,
     suggestions,

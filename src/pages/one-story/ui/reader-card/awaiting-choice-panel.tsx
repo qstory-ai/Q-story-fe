@@ -77,7 +77,7 @@ export function AwaitingChoicePanel({ runtime }: { runtime: OneStoryRuntime }) {
       </View>
       <ActionButton
         variant="secondaryFull"
-        label="선택하지 않고 계속 듣기"
+        label="이야기 계속 듣기"
         onPress={continueStory}
       />
     </View>

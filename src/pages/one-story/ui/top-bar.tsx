@@ -1,5 +1,4 @@
 import { Image, Pressable, Text, View } from 'react-native';
-import { useNavigate } from 'react-router-dom';
 
 import { Icon, storybookTheme } from '@/shared/ui';
 
@@ -41,7 +40,6 @@ export function TopBar({
     openHomeMenu,
     closeParentReport,
   } = runtime;
-  const navigate = useNavigate();
   const inStory = runtimeState.status !== 'idle' && !isParentReport;
   const chapterCaption = inStory && scene?.title ? `${displayedSceneIndex + 1}화 · ${scene.title}` : null;
   const progressLabel = `${Math.min(displayedSceneIndex + 1, totalScenes)} / ${totalScenes}`;
@@ -56,18 +54,8 @@ export function TopBar({
       ]}
     >
       <View style={styles.topBarRow}>
-      {/* 이야기 중에 로고를 눌러 곧장 홈으로 튕기면 세션이 확인 없이 버려지므로, 화면 폭과 상관없이
-          이야기 화면에서는 홈 메뉴(계속 듣기 / 잠시 나가기)를 연다(Q-34). idle 화면에서만 바로 홈으로 간다. */}
-      <Pressable
-        accessibilityRole={inStory ? 'button' : 'link'}
-        // 오른쪽 "이야기 홈 메뉴" 버튼과 접근성 이름이 겹치지 않게 회차 캡션을 앞에 붙인다.
-        accessibilityLabel={inStory ? `${chapterCaption ?? parentReport.storyTitle}, 메뉴 열기` : 'Q-Story 처음으로'}
-        onPress={() => {
-          if (inStory) void openHomeMenu();
-          else navigate('/');
-        }}
-        style={[styles.brandLockup, compactLockup && styles.brandLockupNarrow]}
-      >
+      {/* 로고는 눌러도 아무 일도 없는 정적 표시 - 나가기는 오른쪽 홈 버튼(확인 모달) 한 길뿐이다(Q-34). */}
+      <View style={[styles.brandLockup, compactLockup && styles.brandLockupNarrow]}>
         <View
           style={[
             styles.brandLogoFrame,
@@ -112,10 +100,10 @@ export function TopBar({
             )}
           </View>
         )}
-      </Pressable>
+      </View>
       <View style={styles.topRight}>
         {/* 홈은 오른쪽 버튼 묶음의 맨 왼쪽(챕터 앞) - 재생 컨트롤 사이에 끼면 아이가 "나가기"를
-            찾기 어렵다. 홈 메뉴(계속 듣기 / 잠시 나가기)를 연다. */}
+            찾기 어렵다. 홈 메뉴(계속 듣기 / 나가기)를 연다. */}
         {inStory && (
           <Pressable
             accessibilityRole="button"

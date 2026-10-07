@@ -1039,33 +1039,6 @@ export const styles = StyleSheet.create({
     lineHeight: 21,
     textAlign: 'center',
   },
-  modalTextButton: {
-    minHeight: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modalTextButtonLabel: {
-    color: '#6A4B7C',
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    textDecorationLine: 'underline',
-  },
-  exitReasonList: { gap: 8 },
-  exitReasonButton: {
-    minHeight: 46,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#DDD0E5',
-    backgroundColor: '#F7F1FA',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 12,
-  },
-  exitReasonButtonText: {
-    color: '#4E3267',
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.semibold,
-  },
   parentMessage: {
     borderRadius: 15,
     borderWidth: 1,

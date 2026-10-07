@@ -1099,3 +1099,27 @@ test('a third consecutive safety-gate redirect stops re-asking and continues the
   assert.equal(result.state.status, 'playing-fixed');
   assert.equal(result.state.audioGroupId, IDS.groupResume);
 });
+
+test('typed question goes straight to processing and text routing without a confirm step', () => {
+  const manifest = createManifest();
+  const result = transitionStoryRuntime(
+    manifest,
+    {
+      status: 'recording-question',
+      sceneId: IDS.scene1,
+      anchorId: IDS.question,
+      questionRound: 1,
+      consecutiveSafetyFailures: 0,
+      inputMode: 'text',
+    },
+    { type: 'TEXT_SUBMITTED', transcript: '  저 새는 어디로 가?  ' },
+  );
+  assert.equal(result.ok, true);
+  if (!result.ok) {
+    return;
+  }
+  assert.equal(result.state.status, 'processing-question');
+  assert.deepEqual(result.commands, [
+    { type: 'PROCESS_TEXT', transcript: '저 새는 어디로 가?' },
+  ]);
+});

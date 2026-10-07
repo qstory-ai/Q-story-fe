@@ -51,13 +51,13 @@ export function RecordingTextPanel({ runtime }: { runtime: OneStoryRuntime }) {
         />
         <ActionButton
           variant="secondary"
-          label="계속 듣기"
+          label="이야기 계속 듣기"
           onPress={continueStory}
         />
       </View>
       <ActionButton
         variant="primary"
-        label="질문 내용 확인하기"
+        label="질문 보내기"
         disabled={!typedQuestion.trim()}
         onPress={processTypedQuestion}
       />

@@ -7,6 +7,16 @@ import type {
   RecorderRuntimeInfo,
   RecordingResult,
 } from './types';
+import {
+  getSharedMicPermission,
+  setSharedMicPermission,
+  subscribeSharedMicPermission,
+} from './mic-permission-store';
+import {
+  ensureMeteringRunning,
+  getMeteringAudioContext,
+} from './metering-audio-context';
+import type { LevelFrame } from './silence-detector';
 
 const MIME_CANDIDATES = [
   'audio/webm;codecs=opus',
@@ -148,14 +158,17 @@ function selectWebMimeType() {
   );
 }
 
-/** 실시간 미터링 바에 사용하기 위해 AnalyserNode에서 읽은 선형 진폭(0..1). */
-function readPeakAmplitude(analyser: AnalyserNode, buffer: Uint8Array<ArrayBuffer>) {
+/** AnalyserNode에서 읽은 선형 진폭(0..1) - 미터링 바용 피크와 무음 판정용 RMS. */
+function readAmplitude(analyser: AnalyserNode, buffer: Uint8Array<ArrayBuffer>) {
   analyser.getByteTimeDomainData(buffer);
   let peak = 0;
+  let sumSquares = 0;
   for (let i = 0; i < buffer.length; i += 1) {
-    peak = Math.max(peak, Math.abs(buffer[i] - 128) / 128);
+    const sample = Math.abs(buffer[i] - 128) / 128;
+    peak = Math.max(peak, sample);
+    sumSquares += sample * sample;
   }
-  return peak;
+  return { peak, rms: Math.sqrt(sumSquares / Math.max(1, buffer.length)) };
 }
 
 /** 선형 피크 진폭으로부터 expo-audio의 dBFS 미터링 스케일을 근사한다. */
@@ -169,7 +182,7 @@ function amplitudeToDb(amplitude: number) {
 export function useAudioRecorderAdapter(): AudioRecorderAdapter {
   const mimeType = useMemo(() => selectWebMimeType(), []);
   const [permissionState, setPermissionState] =
-    useState<RecorderPermissionState>('unknown');
+    useState<RecorderPermissionState>(getSharedMicPermission);
   const [permissionRequestPending, setPermissionRequestPending] = useState(false);
   const [permissionFailure, setPermissionFailure] =
     useState<RecorderPermissionFailure | null>(null);
@@ -187,8 +200,9 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
-  const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const levelListenersRef = useRef(new Set<(frame: LevelFrame) => void>());
   const meteringBufferRef = useRef<Uint8Array<ArrayBuffer> | null>(null);
   const meteringIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const durationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -216,15 +230,45 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
       clearInterval(durationIntervalRef.current);
       durationIntervalRef.current = null;
     }
+    // AudioContext는 페이지에서 함께 쓰므로 닫지 않고 이 녹음의 노드만 떼어 낸다.
+    try {
+      sourceNodeRef.current?.disconnect();
+      analyserRef.current?.disconnect();
+    } catch {
+      // 이미 끊긴 노드
+    }
+    sourceNodeRef.current = null;
     analyserRef.current = null;
     meteringBufferRef.current = null;
-    void audioContextRef.current?.close().catch(() => {});
-    audioContextRef.current = null;
   }, []);
+
+  const subscribeLevel = useCallback((listener: (frame: LevelFrame) => void) => {
+    const listeners = levelListenersRef.current;
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }, []);
+
+  useEffect(
+    () =>
+      subscribeSharedMicPermission((state) => {
+        setPermissionState(state);
+      }),
+    [],
+  );
 
   const releaseStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
+  }, []);
+
+  const mountedRef = useRef(false);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   useEffect(
@@ -244,17 +288,13 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
     navigator.permissions
       .query({ name: 'microphone' as PermissionName })
       .then(({ state }) => {
-        setPermissionState(
-          state === 'granted'
-            ? 'granted'
-            : state === 'denied'
-              ? 'denied'
-              : 'unknown',
-        );
+        if (state === 'granted' || state === 'denied') {
+          setSharedMicPermission(state);
+          setPermissionState(state);
+        }
+        // 'prompt'는 그대로 둔다 - Safari는 이번 방문에서 허용한 뒤에도 'prompt'를 돌려줄 수 있다.
       })
-      .catch(() => {
-        setPermissionState('unknown');
-      });
+      .catch(() => {});
   }, []);
 
   const requestPermission = useCallback(async () => {
@@ -304,11 +344,15 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
 
       stream.getTracks().forEach((track) => track.stop());
       setPermissionState('granted');
+      setSharedMicPermission('granted');
       setPermissionFailure(null);
       return true;
     } catch (permissionError) {
       const details = permissionErrorDetails(permissionError);
       setPermissionState(details.permissionState);
+      if (details.permissionState === 'denied') {
+        setSharedMicPermission('denied');
+      }
       setPermissionFailure(details.failure);
       setError(details.message);
       return false;
@@ -335,24 +379,43 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
-      const AudioContextCtor =
-        window.AudioContext ??
-        (window as typeof window & { webkitAudioContext?: typeof AudioContext })
-          .webkitAudioContext;
-      if (AudioContextCtor) {
-        const audioContext = new AudioContextCtor();
+      const audioContext = getMeteringAudioContext();
+      if (audioContext) {
         const source = audioContext.createMediaStreamSource(stream);
         const analyser = audioContext.createAnalyser();
         analyser.fftSize = 512;
         source.connect(analyser);
-        audioContextRef.current = audioContext;
+        sourceNodeRef.current = source;
         analyserRef.current = analyser;
         meteringBufferRef.current = new Uint8Array(analyser.fftSize);
+        // 탭 밖(자동 녹음)이면 깨우지 못할 수 있다. 멈춘 AudioContext는 0만 읽히므로 그때는 프레임을 내보내지 않는다
+        // - 무음 판정·무응답 처리가 "조용하다"고 잘못 판단하지 않게(버튼과 30초 상한으로 끝난다).
+        await ensureMeteringRunning(audioContext);
+        if (!mountedRef.current || streamRef.current !== stream) {
+          // 기다리는 사이 화면을 떠났거나 다른 녹음이 시작됐다 - 이 마이크는 끄고 녹음하지 않는다.
+          try {
+            source.disconnect();
+            analyser.disconnect();
+          } catch {
+            // 이미 끊긴 노드
+          }
+          stream.getTracks().forEach((track) => track.stop());
+          if (streamRef.current === stream) {
+            stopMetering();
+            streamRef.current = null;
+          }
+          return;
+        }
+        const meteringStartedAt = Date.now();
         meteringIntervalRef.current = setInterval(() => {
-          if (!analyserRef.current || !meteringBufferRef.current) {
+          if (
+            !analyserRef.current ||
+            !meteringBufferRef.current ||
+            audioContext.state !== 'running'
+          ) {
             return;
           }
-          const peak = readPeakAmplitude(
+          const { peak, rms } = readAmplitude(
             analyserRef.current,
             meteringBufferRef.current,
           );
@@ -360,6 +423,8 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
           meteringObservedRef.current = true;
           peakMeteringRef.current = Math.max(peakMeteringRef.current, db);
           setMeteringDb(db);
+          const frame: LevelFrame = { atMs: Date.now() - meteringStartedAt, rms };
+          levelListenersRef.current.forEach((listener) => listener(frame));
         }, METERING_INTERVAL_MS);
       }
 
@@ -467,5 +532,6 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
     startRecording,
     stopRecording,
     resetRecording,
+    subscribeLevel,
   };
 }

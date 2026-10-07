@@ -13,7 +13,7 @@ export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
     isParentReport,
     openParentReport,
     finishExperience,
-    restartStory,
+    requestRestart,
     parentReport,
   } = runtime;
 
@@ -47,7 +47,7 @@ export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
             <ActionButton
               variant="secondary"
               label="다시 읽기"
-              onPress={restartStory}
+              onPress={requestRestart}
             />
           </View>
         </>

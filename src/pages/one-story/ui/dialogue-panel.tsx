@@ -194,7 +194,8 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
   // ready · speaking · error - 아이 차례. 그레텔이 말하는 중에 말하기를 누르면 음성을 끊고 듣는다.
   return (
     <View style={panel.column}>
-      {phase === 'ready' && dialogue.suggestions.length > 0 && (
+      {/* 마지막 도움 대사를 듣는 중에도 예시를 고를 수 있게 한다 - 아이는 다 듣기 전에 누르기도 한다. */}
+      {(phase === 'ready' || phase === 'speaking') && dialogue.suggestions.length > 0 && (
         <View style={panel.controls}>
           {dialogue.suggestions.map((suggestion) => (
             <Chip

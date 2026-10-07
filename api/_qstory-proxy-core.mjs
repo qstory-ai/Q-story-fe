@@ -5,6 +5,8 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/narrations', true],
   ['POST v1/narrations/stream', true],
   ['POST v1/beta-events', true],
+  // 브라우저 에러 보고(entities/analytics/model/client-errors.ts) - 서버가 로그로만 남긴다.
+  ['POST v1/client-errors', true],
   ['POST v1/voice-research', true],
   ['POST v1/voice-research/withdraw', true],
   // 마이페이지 계정 단위 음성 연구 동의(조회/동의/철회) - 본문은 약관 버전 한 줄뿐이다.

@@ -1,4 +1,5 @@
 export * from './api/auth-api';
+export * from './model/consent';
 export * from './model/current-user';
 export * from './model/app-paths';
 export * from './model/dashboard-nav';

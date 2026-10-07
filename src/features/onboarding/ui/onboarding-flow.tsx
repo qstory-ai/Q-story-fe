@@ -16,11 +16,11 @@ import {
   signupOrganizationOwner,
   signupParent,
   signupTutor,
+  toConsentPayload,
   useAuth,
   type UserSummary,
 } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
-import { updateNotificationSettings } from '@/entities/notification-settings';
 import {
   EMPTY_TERMS_CONSENT,
   TermsConsent,
@@ -239,7 +239,13 @@ function SignUpStep({
     setError(null);
     setSubmitting(true);
     try {
-      const input = { loginId: loginId.trim(), email: email.trim(), password, displayName: displayName.trim() };
+      const input = {
+        loginId: loginId.trim(),
+        email: email.trim(),
+        password,
+        displayName: displayName.trim(),
+        consents: toConsentPayload(terms),
+      };
       if (role === 'DIRECTOR') {
         // 계정 생성 직후 같은 화면에서 받은 기관명으로 바로 기관을 만든다.
         const signupResponse = await signupOrganizationOwner(input);
@@ -253,11 +259,7 @@ function SignUpStep({
       const joinCode = useJoinFlow ? classCode.trim().toUpperCase() : null;
       if (joinCode) await previewClassByCode(joinCode);
       const response = role === 'TUTOR' ? await signupTutor(input) : await signupParent(input);
-      // 마케팅 동의 값을 알림 설정에 즉시 반영 - 실패해도 회원가입 자체는 완료된 상태라 조용히
-      // 넘긴다(사용자가 마이페이지 알림 설정에서 다시 조정할 수 있다).
-      if (response.user.role === 'PARENT' || response.user.role === 'TUTOR') {
-        void updateNotificationSettings(response.token, { marketingEnabled: terms.marketing }).catch(() => {});
-      }
+      // 마케팅 동의는 가입 요청의 consents로 서버가 가입 트랜잭션에서 저장한다.
       onAuthed(response.token, response.user, joinCode ? `/join?code=${encodeURIComponent(joinCode)}` : undefined);
     } catch (failure) {
       const fallback =
@@ -282,7 +284,7 @@ function SignUpStep({
     password,
     confirmPassword,
     displayName,
-    terms.marketing,
+    terms,
     onAuthed,
   ]);
 
@@ -380,7 +382,15 @@ function SignUpStep({
         disabled={submitting || !canSubmit}
       />
       {/* 소셜 가입은 반 코드를 싣지 못해 아이가 반에 연결되지 않는다 - 그 경로에서는 숨긴다. */}
-      {!initialClassCode && <SocialLoginButtons role={role} onAuthed={onAuthed} />}
+      {!initialClassCode && (
+        <SocialLoginButtons
+          role={role}
+          onAuthed={onAuthed}
+          consents={termsConsentIsValid(terms) ? toConsentPayload(terms) : undefined}
+          disabled={!termsConsentIsValid(terms)}
+          disabledHint="약관에 동의하면 소셜 계정으로 가입할 수 있어요."
+        />
+      )}
     </View>
   );
 }

@@ -166,5 +166,6 @@ export function useOneStoryDerivedView({
     branchCaptionSpeaker,
     displayedBranchSubtitle,
     illustration,
+    visualAssetId,
   };
 }

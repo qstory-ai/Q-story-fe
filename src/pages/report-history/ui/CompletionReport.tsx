@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { buildParentReport, type ParentReport } from '@/entities/analytics';
 import { refetchStoryPackage, type StoryRuntimePackage } from '@/entities/story';
-import { ReportContent } from '@/pages/one-story';
+import {
+  ReportContent,
+  SessionReport,
+  TeacherNoteEditor,
+  readAgainChoice,
+  useCompletionDetail,
+  type SessionReportView,
+} from '@/pages/one-story';
+import { useAuth } from '@/entities/auth';
 import { getStoryCompletion, type StoryCompletionDetail } from '@/entities/story-completion';
 import { messageForError } from '@/shared/api';
 import { teacherTitle } from '@/shared/lib';
@@ -66,10 +74,54 @@ export function CompletionReport({
   }, [token, completionId, requestKey]);
 
   const effectiveLoad: LoadState = load.requestKey === requestKey ? load : { requestKey, status: 'loading' };
+  const { state: authState } = useAuth();
+  // 분석이 아직 만들어지는 중이면 상세를 다시 받아 관심·대화 카드를 채운다(Q-39).
+  const polled = useCompletionDetail(
+    effectiveLoad.status === 'ready' && needsPolling(effectiveLoad.detail) ? token : null,
+    completionId,
+  );
 
   if (effectiveLoad.status === 'loading') return <LoadingState label="리포트를 불러오는 중이에요…" />;
   if (effectiveLoad.status === 'error') {
     return <ErrorState message={effectiveLoad.message} onRetry={() => setAttempt((n) => n + 1)} />;
+  }
+  const detail = polled.detail ?? effectiveLoad.detail;
+  const view = reportView(detail, isParent);
+  const readAgain = isParent ? (
+    <ReadAgainButtons detail={detail} onOpen={(childId) => navigate(storyPlayPath(detail.storyId, { childId }))} />
+  ) : null;
+  if (view) {
+    const isTutor = authState.status === 'authenticated' && authState.user.role === 'TUTOR';
+    return (
+      <View style={styles.body}>
+        <SessionHeader detail={detail} storyTitle={effectiveLoad.parentReport.storyTitle} />
+        <SessionReport
+          storyPackage={effectiveLoad.storyPackage}
+          isWide={isWide}
+          view={view}
+          data={{
+            sessionKind: detail.sessionKind,
+            className: detail.className,
+            tutorDisplayName: detail.tutorDisplayName,
+            completedAt: detail.completedAt,
+            endStatus: detail.endStatus ?? 'COMPLETED',
+            readFromSceneId: detail.readFromSceneId,
+            readThroughSceneId: detail.readThroughSceneId,
+            turns: detail.turns ?? [],
+            outcomes: detail.outcomes,
+            analysis: detail.analysis,
+            teacherNote: detail.teacherNote,
+          }}
+          onRetryAnalysis={() => void polled.retry()}
+          teacherNoteSlot={
+            view === 'teacher' && isTutor ? (
+              <TeacherNoteEditor token={token} completionId={detail.id} initial={detail.teacherNote} />
+            ) : undefined
+          }
+          readAgainSlot={readAgain}
+        />
+      </View>
+    );
   }
   return (
     <View style={styles.body}>
@@ -94,9 +146,55 @@ export function CompletionReport({
   );
 }
 
+/**
+ * 대화 기록이 있는 기록(Q-39 이후)은 새 리포트로 그린다. 보관 기간이 지나 원문이 지워진 기록·옛 기록은
+ * 저장된 요약(outcomes)으로 그리는 기존 리포트를 쓴다.
+ */
+function reportView(detail: StoryCompletionDetail, isParent: boolean): SessionReportView | null {
+  if (!detail.turns || detail.turnsAvailable === false) return null;
+  if (detail.sessionKind === 'HOME') return 'home';
+  if (!isParent) return 'teacher';
+  return detail.sessionKind === 'CLASS' ? 'class-parent' : 'home';
+}
+
+function needsPolling(detail: StoryCompletionDetail) {
+  return Boolean(detail.turns) && (!detail.analysis || detail.analysis.status === 'PENDING');
+}
+
+/**
+ * "아이랑 다시 읽기" - 이 기록과 이어진 우리 아이의 새 가정 회차로 첫 장면부터 연다. 이어진 아이가 여럿이면
+ * 고르게 하고, 정보가 없으면(옛 서버) 기록의 아이(가정 기록) 또는 지금 선택된 아이로 연다.
+ */
+function ReadAgainButtons({ detail, onOpen }: { detail: StoryCompletionDetail; onOpen: (childId: string | null) => void }) {
+  const choice = readAgainChoice(detail.linkedChildren);
+  if (choice.kind === 'pick') {
+    return (
+      <View style={styles.readAgain}>
+        <Text style={styles.headerHint}>누구와 다시 읽을까요? 고른 아이의 새 기록으로 첫 장면부터 시작해요.</Text>
+        <View style={styles.readAgainChoices}>
+          {choice.children.map((child) => (
+            <Pressable key={child.id} accessibilityRole="button" onPress={() => onOpen(child.id)} style={styles.childChoice}>
+              <Text style={styles.childChoiceText}>{child.name}와 다시 읽기</Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
+    );
+  }
+  return (
+    <View style={styles.readAgain}>
+      <ActionButton
+        label="아이랑 다시 읽기"
+        onPress={() => onOpen(choice.kind === 'one' ? choice.childId : detail.childId)}
+      />
+    </View>
+  );
+}
+
 /** 다시 읽기는 이 리포트의 아이로 기록한다 - 반 수업 리포트(아이 미지정)는 지금 선택된 아이 그대로. */
 function readAgainPath(detail: StoryCompletionDetail): string {
-  return storyPlayPath(detail.storyId, { childId: detail.childId });
+  const choice = readAgainChoice(detail.linkedChildren);
+  return storyPlayPath(detail.storyId, { childId: choice.kind === 'one' ? choice.childId : detail.childId });
 }
 
 function readAgainLabel(detail: StoryCompletionDetail): string {
@@ -174,4 +272,17 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
   },
   body: { gap: 16 },
+  readAgain: { gap: storybookTheme.spacing.sm },
+  readAgainChoices: { flexDirection: 'row', flexWrap: 'wrap', gap: storybookTheme.spacing.sm },
+  childChoice: {
+    borderRadius: storybookTheme.radius.pill,
+    backgroundColor: storybookTheme.color.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  childChoiceText: {
+    color: storybookTheme.color.onDark,
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
+  },
 });

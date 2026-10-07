@@ -49,6 +49,12 @@ import { homePathForAuth, useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { recordStoryCompletion } from '@/entities/story-completion';
 import {
+  TurnRecorder,
+  appendPlaySessionTurns,
+  type PlayTurn,
+  type PlayTurnInput,
+} from '@/entities/play-session';
+import {
   useStoryNarration,
   preloadFixedNarration,
 } from '@/features/narrate-story';
@@ -144,11 +150,14 @@ export function useOneStoryRuntime(
   const recorder = useAudioRecorderAdapter();
   const { state: authState } = useAuth();
   const { selectedChild } = useChildren();
+  // Q-39: 이 회차의 id(= 상시대화 conversationId, 서버 play_session id). 처음엔 OneStoryPage가 준 id를 쓰고,
+  // 처음부터 다시 읽으면 새 id, 이어서 읽으면 저장해 둔 회차 id로 바꿔 대화 기록과 리포트가 한 회차로 이어진다.
+  const [sessionId, setSessionId] = useState(() => companionConversationId ?? crypto.randomUUID());
   // 대화 원장(BE conversation_record) 귀속 - 아이는 완주 기록과 같은 규칙으로 정한다: 선생님
   // 세션은 tutorStudentId만, 부모 세션은 홈에서 고른 아이. 세션 id는 상시대화와 같은 conversationId.
   const conversationAttribution = useMemo(
     () => ({
-      sessionId: companionConversationId,
+      sessionId,
       childId:
         !tutorStudentId && authState.status === 'authenticated' && authState.user.role === 'PARENT'
           ? selectedChild?.id
@@ -156,8 +165,76 @@ export function useOneStoryRuntime(
       tutorStudentId,
       lessonId,
     }),
-    [companionConversationId, tutorStudentId, lessonId, authState, selectedChild?.id],
+    [sessionId, tutorStudentId, lessonId, authState, selectedChild?.id],
   );
+  // Q-39 대화 기록기 - 그레텔 대화·질문 초대의 줄을 모아 몇 초에 한 번 서버로 보낸다. 로그인하지 않았으면
+  // 보내지 않고 방금 끝난 회차 리포트용으로만 모은다. 토큰은 ref로 읽어 기록기를 다시 만들지 않는다.
+  const turnTokenRef = useRef<string | null>(null);
+  const sessionIdRef = useRef(sessionId);
+  const turnRecorderRef = useRef<TurnRecorder | null>(null);
+  /** 기록기는 처음 쓸 때 만든다(렌더 중이 아니라 effect·핸들러에서만 부른다). */
+  const getTurnRecorder = useCallback(() => {
+    turnRecorderRef.current ??= new TurnRecorder(
+      sessionIdRef.current,
+      { storyId: storyManifest.storyId, contentVersion: storyManifest.contentVersion },
+      {
+        send: (id, batch) => {
+          const token = turnTokenRef.current;
+          if (!token) return Promise.reject(new Error('signed out'));
+          return appendPlaySessionTurns(token, id, batch).then(() => undefined);
+        },
+      },
+      false,
+    );
+    return turnRecorderRef.current;
+  }, [storyManifest.contentVersion, storyManifest.storyId]);
+  useEffect(() => {
+    sessionIdRef.current = sessionId;
+    getTurnRecorder().startSession(sessionId);
+  }, [getTurnRecorder, sessionId]);
+  const [liveTurns, setLiveTurns] = useState<PlayTurn[]>([]);
+  // 방금 저장한 완주 기록 id - 실시간 리포트가 서버 분석(관심·대화 카드)을 받아 오는 데 쓴다.
+  const [completedRecordId, setCompletedRecordId] = useState<string | null>(null);
+  // 이 회차에서 처음 읽은 장면과 가장 멀리 읽은 장면 - 리포트의 "읽은 범위".
+  const readFromSceneRef = useRef<string | null>(null);
+  const readThroughSceneRef = useRef<string | null>(null);
+  const turnToken = authState.status === 'authenticated' ? authState.token : null;
+  useEffect(() => {
+    turnTokenRef.current = turnToken;
+    getTurnRecorder().enabled = Boolean(turnToken);
+  }, [getTurnRecorder, turnToken]);
+  useEffect(() => {
+    getTurnRecorder().setContext({
+      storyId: storyManifest.storyId,
+      contentVersion: storyManifest.contentVersion,
+      childId: conversationAttribution.childId ?? null,
+      tutorStudentId: tutorStudentId ?? null,
+      lessonId: lessonId ?? null,
+    });
+  }, [conversationAttribution.childId, lessonId, storyManifest.contentVersion, storyManifest.storyId, getTurnRecorder, tutorStudentId]);
+  // 화면을 떠날 때 남은 줄을 보낸다.
+  useEffect(() => () => {
+    void getTurnRecorder().flush();
+  }, [getTurnRecorder]);
+  /** 대화 한 줄을 기록한다(seq·시각은 기록기가 붙인다). */
+  const recordTurn = useCallback(
+    (input: PlayTurnInput) => {
+      const turn = getTurnRecorder().record(input);
+      setLiveTurns(getTurnRecorder().history.slice());
+      return turn;
+    },
+    [getTurnRecorder],
+  );
+  /** 새 읽기(처음부터)를 새 회차로 시작한다 - 앞 회차의 완주 기록을 덮어쓰지 않게. */
+  const beginNewSession = useCallback(() => {
+    const next = crypto.randomUUID();
+    getTurnRecorder().startSession(next, 1);
+    setSessionId(next);
+    setLiveTurns([]);
+    setCompletedRecordId(null);
+    readFromSceneRef.current = null;
+    readThroughSceneRef.current = null;
+  }, [getTurnRecorder]);
   const {
     speak: speakNarration,
     stop: stopNarration,
@@ -275,8 +352,28 @@ export function useOneStoryRuntime(
       childId: conversationAttribution.childId,
       elapsedSeconds: elapsedStorySeconds(),
       questionOutcomes,
+      // Q-39: 이어서 읽으면 같은 회차·다음 줄 번호로 이어 간다.
+      sessionId,
+      nextTurnSeq: getTurnRecorder().nextSeq,
+      readFromSceneId: readFromSceneRef.current ?? undefined,
+      readThroughSceneId: readThroughSceneRef.current ?? undefined,
     });
-  }, [childName, conversationAttribution.childId, elapsedStorySeconds, questionOutcomes, storyPackage.storyId]);
+  }, [childName, conversationAttribution.childId, elapsedStorySeconds, questionOutcomes, sessionId, storyPackage.storyId, getTurnRecorder]);
+
+  // 읽은 범위 - 장면이 바뀔 때마다 처음 장면과 가장 멀리 간 장면을 갱신한다.
+  useEffect(() => {
+    if (!('sceneId' in runtimeState)) return;
+    const current = runtimeState.sceneId;
+    const order = storyManifest.scenes.map((candidate) => candidate.id as string);
+    readFromSceneRef.current ??= current;
+    if (!readThroughSceneRef.current || order.indexOf(current) > order.indexOf(readThroughSceneRef.current)) {
+      readThroughSceneRef.current = current;
+    }
+    getTurnRecorder().setContext({
+      readFromSceneId: readFromSceneRef.current,
+      readThroughSceneId: readThroughSceneRef.current,
+    });
+  }, [runtimeState, storyManifest.scenes, getTurnRecorder]);
 
   useEffect(() => {
     if (runtimeState.status !== 'idle') {
@@ -362,6 +459,7 @@ export function useOneStoryRuntime(
         RouteOption,
         'label' | 'meaning' | 'actionFamilyId'
       >,
+      extras?: Pick<QuestionOutcome, 'viaSuggestion' | 'suggestionLabel'>,
     ) => {
       if (
         plan.route === 'CLARIFY_ONCE' ||
@@ -377,6 +475,7 @@ export function useOneStoryRuntime(
         actionFamilyId:
           selectedOption?.actionFamilyId ?? plan.actionFamilyId ?? null,
         selectedOption,
+        ...extras,
       };
       setQuestionOutcomes((current) => [
         ...current.filter((item) => item.anchorId !== anchorId),
@@ -444,6 +543,7 @@ export function useOneStoryRuntime(
     branchCaptionSpeaker,
     displayedBranchSubtitle,
     illustration,
+    visualAssetId,
   } = useOneStoryDerivedView({
     runtimeState,
     storyPackage,
@@ -645,19 +745,34 @@ export function useOneStoryRuntime(
           && selectedChild?.id
           ? selectedChild.id
           : undefined;
-        void recordStoryCompletion(authState.token, {
-          storyId: storyPackage.storyId,
-          durationSeconds,
-          outcomes: questionOutcomes,
-          tutorStudentId,
-          childId: childIdForRecord,
-          companionConversationId,
-          lessonId,
-        })
+        const token = authState.token;
+        readThroughSceneRef.current = storyManifest.endingSceneId;
+        const readRange = {
+          readFromSceneId: readFromSceneRef.current ?? undefined,
+          readThroughSceneId: readThroughSceneRef.current ?? undefined,
+        };
+        // 대화 줄을 먼저 다 보낸 뒤 완주를 저장한다 - 서버 분석이 이 회차 대화를 빠짐없이 보게.
+        void getTurnRecorder()
+          .flush()
+          .then(() =>
+            recordStoryCompletion(token, {
+              storyId: storyPackage.storyId,
+              durationSeconds,
+              outcomes: questionOutcomes,
+              tutorStudentId,
+              childId: childIdForRecord,
+              companionConversationId: sessionId,
+              lessonId,
+              endStatus: 'COMPLETED',
+              contentVersion: storyManifest.contentVersion,
+              ...readRange,
+            }),
+          )
           .then((saved) => {
             if (saved.companionChatSummary) {
               setCompanionChatSummary(saved.companionChatSummary);
             }
+            setCompletedRecordId(saved.id);
           })
           .catch(() => {});
       }
@@ -666,8 +781,11 @@ export function useOneStoryRuntime(
     authState,
     selectedChild,
     tutorStudentId,
-    companionConversationId,
+    sessionId,
     lessonId,
+    getTurnRecorder,
+    storyManifest.contentVersion,
+    storyManifest.endingSceneId,
     parentReport.changedSceneCount,
     questionOutcomes,
     runtimeState.status,
@@ -685,6 +803,10 @@ export function useOneStoryRuntime(
       ? createVoiceResearchConsent(voiceResearchAccountRef.current.ownerId)
       : null;
     pendingVoiceResearchSampleRef.current = null;
+    // 이 화면에서 이미 한 번 읽었다면(대화 기록이나 완주 기록이 있음) 새 회차로 시작한다.
+    if (getTurnRecorder().nextSeq > 1 || completionTrackedRef.current) beginNewSession();
+    readFromSceneRef.current = null;
+    readThroughSceneRef.current = null;
     clearLocalStoryProgress();
     setResumeCandidate(null);
     storyStartedAtRef.current = Date.now();
@@ -716,12 +838,14 @@ export function useOneStoryRuntime(
       void trackStoryEvent('story_started', { resume: false });
     }
   }, [
+    beginNewSession,
     childNameInput,
     commitEvent,
     recorder,
     storyManifest.questionAnchors,
     storyManifest.storyId,
     trackStoryEvent,
+    getTurnRecorder,
   ]);
 
   const discardActiveQuestionAttempt = useCallback(async () => {
@@ -1656,7 +1780,11 @@ export function useOneStoryRuntime(
    * 미리 녹음됨)를 말한 뒤 분기 장면을 재생하고 정해진 합류 지점으로 이어진다.
    */
   const confirmDialogueAction = useCallback(
-    async (familyId: string, childMeaning: string) => {
+    async (
+      familyId: string,
+      childMeaning: string,
+      choice?: { viaSuggestion?: boolean; suggestionLabel?: string },
+    ) => {
       const state = runtimeRef.current;
       if (state.status !== 'awaiting-question') return false;
       const anchor = storyManifest.questionAnchors.find((candidate) => candidate.id === state.anchorId);
@@ -1665,9 +1793,12 @@ export function useOneStoryRuntime(
       const plan: RoutePlan = {
         kind: 'route',
         route: 'DIRECT_ACTION',
-        childRelevantMeaning: childMeaning || family.meaning,
+        // 도움 예시를 보고 고른 행동은 아이 생각처럼 쓰지 않는다(버튼 글자를 아이 말로 남기지 않게).
+        childRelevantMeaning: choice?.viaSuggestion
+          ? `도움 예시 "${choice.suggestionLabel ?? family.meaning}"를 골랐어요`
+          : childMeaning || family.meaning,
         coverageStatus: 'exact',
-        coverageReason: 'dialogue-confirmed',
+        coverageReason: choice?.viaSuggestion ? 'dialogue-suggestion' : 'dialogue-confirmed',
         text: family.acknowledgementText ?? '좋아, 그렇게 해 보자.',
         speakerId: anchor.promptSpeakerId,
         actionFamilyId: family.id,
@@ -1686,7 +1817,12 @@ export function useOneStoryRuntime(
       setPendingResponseAudio(null);
       setBranchCaption(null);
       if (!commitEvent({ type: 'ACTION_CONFIRMED', plan })) return false;
-      rememberQuestionOutcome(anchor.id, plan);
+      rememberQuestionOutcome(
+        anchor.id,
+        plan,
+        undefined,
+        choice?.viaSuggestion ? { viaSuggestion: true, suggestionLabel: choice.suggestionLabel } : undefined,
+      );
       void trackStoryEvent('dialogue_step', {
         anchor_id: anchor.id,
         scene_id: anchor.sceneId,
@@ -1834,7 +1970,8 @@ export function useOneStoryRuntime(
     setExitReasonVisible(false);
     setResumeCandidate(null);
     clearLocalStoryProgress();
-  }, [recorder, resetQuestionAttemptTracking, stopNarration, storyManifest]);
+    beginNewSession();
+  }, [beginNewSession, recorder, resetQuestionAttemptTracking, stopNarration, storyManifest]);
 
   /**
    * 챕터 사이드바에서 지난 장면(또는 현재 장면의 처음)을 눌렀을 때 - restartStory()와 달리
@@ -1901,8 +2038,16 @@ export function useOneStoryRuntime(
     setParentReportVisible(false);
     setResumeCandidate(null);
     activeNarrationIdRef.current = null;
+    // Q-39: 저장해 둔 회차를 이어 간다 - 대화 기록·완주 리포트가 한 회차로 남는다(옛 진행 기록은 새 회차).
+    if (resumeCandidate.sessionId) {
+      getTurnRecorder().startSession(resumeCandidate.sessionId, resumeCandidate.nextTurnSeq ?? 1);
+      setSessionId(resumeCandidate.sessionId);
+    }
+    setLiveTurns([]);
+    readFromSceneRef.current = resumeCandidate.readFromSceneId ?? null;
+    readThroughSceneRef.current = resumeCandidate.readThroughSceneId ?? null;
     void trackStoryEvent('story_started', { resume: true });
-  }, [resumeCandidate, stopNarration, trackStoryEvent]);
+  }, [resumeCandidate, stopNarration, trackStoryEvent, getTurnRecorder]);
 
   // 홈에서 곧장 들어온 재생은 시작 화면·이어 듣기 질문을 건너뛴다(Q-36). 마운트 때 한 번만.
   const entryHandledRef = useRef(false);
@@ -1955,13 +2100,61 @@ export function useOneStoryRuntime(
 
   // Q-34: 이야기에서 나가는 길은 모두 앱 홈(homePathForAuth) 한 곳으로 간다 - 잠시 나가기는
   // 진행을 저장해 두고, 다시 들어오면 이어 듣기를 묻는다.
+  /**
+   * 중간에 나갈 때(잠시 나가기·오늘 체험 마치기) - 읽거나 말한 게 있으면 "멈춘 회차"로 저장해 리포트에 남긴다.
+   * 같은 회차를 이어 읽어 끝내면 서버가 같은 기록을 완주로 갱신한다. 로그인한 경우만, 실패해도 화면은 그대로.
+   */
+  const saveExitedSession = useCallback(() => {
+    const state = runtimeRef.current;
+    if (authState.status !== 'authenticated' || state.status === 'idle' || state.status === 'complete') return;
+    if (getTurnRecorder().nextSeq <= 1 && !readThroughSceneRef.current) return;
+    const token = authState.token;
+    const childIdForRecord =
+      !tutorStudentId && authState.user.role === 'PARENT' && selectedChild?.id ? selectedChild.id : undefined;
+    const durationSeconds = elapsedStorySeconds();
+    const outcomes = questionOutcomes;
+    const readRange = {
+      readFromSceneId: readFromSceneRef.current ?? undefined,
+      readThroughSceneId: readThroughSceneRef.current ?? undefined,
+    };
+    void getTurnRecorder()
+      .flush()
+      .then(() =>
+        recordStoryCompletion(token, {
+          storyId: storyPackage.storyId,
+          durationSeconds,
+          outcomes,
+          tutorStudentId,
+          childId: childIdForRecord,
+          companionConversationId: sessionId,
+          lessonId,
+          endStatus: 'EXITED',
+          contentVersion: storyManifest.contentVersion,
+          ...readRange,
+        }),
+      )
+      .catch(() => {});
+  }, [
+    authState,
+    elapsedStorySeconds,
+    lessonId,
+    questionOutcomes,
+    selectedChild,
+    sessionId,
+    storyManifest.contentVersion,
+    storyPackage.storyId,
+    getTurnRecorder,
+    tutorStudentId,
+  ]);
+
   const leaveTemporarily = useCallback(async () => {
     persistCurrentProgress();
+    saveExitedSession();
     processingAbortRef.current?.abort();
     await stopNarration();
     setHomeMenuVisible(false);
     navigate(homePathForAuth(authState));
-  }, [authState, navigate, persistCurrentProgress, stopNarration]);
+  }, [authState, navigate, persistCurrentProgress, saveExitedSession, stopNarration]);
 
   const finishExperience = useCallback(async () => {
     processingAbortRef.current?.abort();
@@ -2005,6 +2198,7 @@ export function useOneStoryRuntime(
         reason_code: EXIT_REASON_CODES[reason],
         ...diagnostics,
       });
+      saveExitedSession();
       clearLocalStoryProgress();
       // restartStory()(이야기 처음 화면으로)가 아니라 navigate('/')(진짜 홈으로) - "오늘 체험
       // 마치기"는 이 이야기를 그만 보겠다는 뜻이지 같은 이야기를 처음부터 다시 보겠다는 뜻이
@@ -2019,6 +2213,7 @@ export function useOneStoryRuntime(
       authState,
       navigate,
       questionOutcomes,
+      saveExitedSession,
       storyPackage,
       trackStoryEvent,
     ],
@@ -2102,6 +2297,8 @@ export function useOneStoryRuntime(
     totalScenes: TOTAL_SCENES,
     scenes: storyPresentation.scenes,
     illustration,
+    // 지금 보이는 삽화 asset id - 대화 기록(Q-39)에 그 줄을 말할 때의 그림으로 남긴다.
+    visualAssetId,
     currentClip,
     isQuestionInvitePlayback,
     isBranchPlaybackState,
@@ -2182,6 +2379,12 @@ export function useOneStoryRuntime(
     completionSurveyVisible,
     closeCompletionSurvey,
     getSceneIndex,
+    // Q-39 회차·대화 기록
+    sessionId,
+    recordTurn,
+    liveTurns,
+    completedRecordId,
+    flushTurns: () => getTurnRecorder().flush(),
   };
 }
 

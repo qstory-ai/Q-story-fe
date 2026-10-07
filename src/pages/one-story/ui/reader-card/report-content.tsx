@@ -25,7 +25,7 @@ const REPORT_COPY = {
     heroBody: '점수가 아니라, 오늘 아이가 무엇을 궁금해하고 어떤 이야기 길을 만들었는지 담았어요.',
     questionStat: '아이 질문',
     questionsTitle: '아이가 실제로 만든 질문과 선택',
-    questionsBody: '원본 음성이나 전사 전문 대신, 아이가 확인한 질문의 뜻과 그 생각으로 달라진 이야기 길을 보여드려요.',
+    questionsBody: '아이가 한 질문의 뜻과 그 생각으로 달라진 이야기 길이에요. 질문의 뜻은 요약이고, 아이가 한 말 그대로는 대화 기록에서 볼 수 있어요.',
     branchCaption: '아이가 고른 선택으로 이어진 캐시 장면',
     originCaption: '아이의 질문이 나온 원래 장면',
     coachBody: '아이가 남긴 질문과 선택을 바탕으로 오늘의 관찰을 정리했어요.',
@@ -38,7 +38,7 @@ const REPORT_COPY = {
       '오늘 반 친구들이 함께 읽으며 어떤 질문을 하고 어떤 이야기 길을 만들었는지 담았어요. 여러 아이가 함께 만든 기록이라 우리 아이 한 명의 말은 아니에요.',
     questionStat: '반에서 나온 질문',
     questionsTitle: '우리 반이 함께 만든 질문과 선택',
-    questionsBody: '원본 음성이나 전사 전문 대신, 반에서 나온 질문의 뜻과 그 생각으로 달라진 이야기 길을 보여드려요.',
+    questionsBody: '반에서 나온 질문의 뜻(요약)과 그 생각으로 달라진 이야기 길이에요. 반 전체의 기록이라 아이 한 명의 말로 나누지 않았어요.',
     branchCaption: '반이 고른 선택으로 이어진 캐시 장면',
     originCaption: '질문이 나온 원래 장면',
     coachBody: '반에서 나온 질문과 선택을 바탕으로 오늘 수업의 흐름을 정리했어요.',
@@ -134,7 +134,7 @@ export function ReportContent({ parentReport, isWide, illustrationForAssetId, au
                   </View>
                   <View style={styles.reportQuestionHeading}>
                     <Text style={styles.reportQuestionText}>
-                      “{record.questionMeaning}”
+                      {record.questionMeaning}
                     </Text>
                     <View style={styles.reportQuestionType}>
                       <Text style={styles.reportQuestionTypeText}>

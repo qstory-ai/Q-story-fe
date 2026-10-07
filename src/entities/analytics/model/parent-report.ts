@@ -23,6 +23,10 @@ export type QuestionOutcome = {
     RouteOption,
     'label' | 'meaning' | 'actionFamilyId'
   >;
+  /** 그레텔 도움의 예시를 보고 고른 행동(Q-31 "예시 후 선택") - 아이가 스스로 낸 생각과 구분한다. */
+  viaSuggestion?: boolean;
+  /** 예시 버튼에 적혀 있던 글자. */
+  suggestionLabel?: string;
 };
 
 export type ParentReportQuestionRecord = {

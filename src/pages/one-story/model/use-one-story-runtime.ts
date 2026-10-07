@@ -66,6 +66,8 @@ import {
   getQuestionNarration,
   preloadQuestionNarration,
   getResponseNarration,
+  prefetchResponseNarration,
+  createChoicePrefetcher,
   type ResponseAudio,
 } from '@/features/route-question';
 
@@ -94,6 +96,13 @@ import { playResponseWithFallback } from '../lib/play-clip-with-fallback';
 import { resolveVoiceResearchEnabled } from './voice-research-enabled';
 import { useOneStoryDerivedView } from './use-one-story-derived-view';
 import { useLiveBranchPolling } from './use-live-branch-polling';
+
+// Q-34: 선택지 음성 미리 만들기 캐시. 모듈 단위라 409 PREFETCH_DISABLED 후 세션 내내 멈춘다.
+const choicePrefetcher = createChoicePrefetcher<ResponseAudio>({
+  dispose: (audio) => {
+    if (audio.kind === 'pcm-stream') void audio.stream.cancel().catch(() => undefined);
+  },
+});
 
 export function useOneStoryRuntime(
   initialStoryPackage: StoryRuntimePackage,
@@ -1324,7 +1333,14 @@ export function useOneStoryRuntime(
 
       // 선택지의 branchLine은 LLM이 옵션마다 따로 쓴 대사라(OpenRouterClient.generatePlan() 스키마
       // 참고) 오디오가 미리 준비되어 있지 않다 - 라우팅 응답과 같은 audioReadyWithin 경합으로 준비한다.
-      if (selectedOption?.branchLine) {
+      const prefetchedAudio = selectedOption?.branchLine
+        ? choicePrefetcher.take(selectedOption.id)
+        : null;
+      choicePrefetcher.abort();
+      if (prefetchedAudio) {
+        // 미리 만든 음성이 준비돼 있으면 로딩 패널 없이 바로 이어간다.
+        setPendingResponseAudio(prefetchedAudio);
+      } else if (selectedOption?.branchLine) {
         const anchor = storyManifest.questionAnchors.find(
           (candidate) => candidate.id === choiceState.anchorId,
         );
@@ -1374,6 +1390,31 @@ export function useOneStoryRuntime(
       trackStoryEvent,
     ],
   );
+
+  const choiceStatus = runtimeState.status;
+  const choiceKey =
+    runtimeState.status === 'awaiting-choice'
+      ? `${runtimeState.anchorId}-${runtimeState.questionRound}`
+      : null;
+  useEffect(() => {
+    const current = runtimeRef.current;
+    if (choiceStatus !== 'awaiting-choice' || current.status !== 'awaiting-choice') {
+      return;
+    }
+    const anchor = storyManifest.questionAnchors.find(
+      (candidate) => candidate.id === current.anchorId,
+    );
+    if (!anchor) return;
+    choicePrefetcher.start(
+      current.plan.options.map((option) => ({ id: option.id, text: option.branchLine })),
+      (item, signal) =>
+        prefetchResponseNarration(
+          { storyId: storyManifest.storyId, anchor, text: item.text },
+          signal,
+        ),
+    );
+    return () => choicePrefetcher.abort();
+  }, [choiceStatus, choiceKey, storyManifest]);
 
   useEffect(() => {
     if (runtimeState.status !== 'awaiting-choice') {

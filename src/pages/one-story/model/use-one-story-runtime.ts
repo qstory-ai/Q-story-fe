@@ -45,7 +45,7 @@ import {
   isSttUnavailableCode,
 } from '@/entities/speech-pipeline';
 import { narrationUtteranceSlug, type StoryRuntimePackage } from '@/entities/story';
-import { homePathForAuth, useAuth } from '@/entities/auth';
+import { useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { recordStoryCompletion } from '@/entities/story-completion';
 import {
@@ -59,7 +59,11 @@ import {
   preloadFixedNarration,
 } from '@/features/narrate-story';
 import {
+  LISTEN_NOW_COPY,
+  NO_SPEECH_REPROMPT_COPY,
+  primeRecorderAudio,
   useAudioRecorderAdapter,
+  useSpeechAutoStop,
   type RecordingResult,
 } from '@/features/record-question';
 import {
@@ -68,12 +72,12 @@ import {
   getQuestionNarration,
   preloadQuestionNarration,
   getResponseNarration,
+  prefetchResponseNarration,
+  createChoicePrefetcher,
   type ResponseAudio,
 } from '@/features/route-question';
 
 import {
-  EXIT_REASONS,
-  EXIT_REASON_CODES,
   FIXED_AUDIO_FAILURE_RECOVERY_MS,
   QUESTION_AUDIO_HEAD_START_MS,
   RESPONSE_AUDIO_PREPARE_MS,
@@ -87,11 +91,26 @@ import {
   runtimeTransitionFailureCopy,
   splitQuestionOutcomesAtScene,
 } from '../lib/runtime-view';
+import { resolveExit } from '../lib/exit-destination';
+import {
+  isAwaitingInviteFor,
+  questionSkipMetadata,
+  type QuestionSkipReason,
+} from '../lib/question-skip';
 import { preloadImages } from '../lib/preload-images';
 import { playResponseWithFallback } from '../lib/play-clip-with-fallback';
 import { resolveVoiceResearchEnabled } from './voice-research-enabled';
 import { useOneStoryDerivedView } from './use-one-story-derived-view';
 import { useLiveBranchPolling } from './use-live-branch-polling';
+
+// Q-34: 선택지 음성 미리 만들기 캐시. 모듈 단위라 409 PREFETCH_DISABLED 후 세션 내내 멈춘다.
+function disposeResponseAudio(audio: ResponseAudio) {
+  if (audio.kind === 'pcm-stream') void audio.stream.cancel().catch(() => undefined);
+}
+
+const choicePrefetcher = createChoicePrefetcher<ResponseAudio>({
+  dispose: disposeResponseAudio,
+});
 
 export function useOneStoryRuntime(
   initialStoryPackage: StoryRuntimePackage,
@@ -321,7 +340,7 @@ export function useOneStoryRuntime(
       resumableProgressFor(loadLocalStoryProgress(), storyPackage.storyId, selectedChild?.id),
     );
   const [homeMenuVisible, setHomeMenuVisible] = useState(false);
-  const [exitReasonVisible, setExitReasonVisible] = useState(false);
+  const [chaptersOpen, setChaptersOpen] = useState(false);
   const parentReport = useMemo(
     () =>
       buildParentReport(storyPackage.reportCopy, questionOutcomes, {
@@ -794,8 +813,22 @@ export function useOneStoryRuntime(
     trackStoryEvent,
   ]);
 
+  /**
+   * Q-34: 가정 세션은 "이야기 시작하기"(이어서 듣기) 탭에서 마이크 권한을 미리 받아 둔다 - 질문 초대가 끝나면
+   * 탭 없이 바로 녹음을 시작하려고. 결과는 페이지 안 녹음기끼리 공유된다. 거절·미지원이면 아무 안내 없이
+   * 기존 "말하기" 버튼 방식으로 남는다. 반 수업은 버튼으로 시작하므로 미리 묻지 않는다.
+   */
+  const prepareMicrophoneForAutoListen = useCallback(() => {
+    primeRecorderAudio();
+    if (lessonId || recorder.permissionState !== 'unknown' || recorder.permissionRequestPending) {
+      return;
+    }
+    void recorder.requestPermission();
+  }, [lessonId, recorder]);
+
   const startStory = useCallback(() => {
     primeResponseAudio();
+    prepareMicrophoneForAutoListen();
     const normalizedName = childNameInput.trim().slice(0, 10);
     // 질문 원음은 보호자가 온보딩/마이페이지에서 현재 약관에 동의한 계정만 저장한다(이야기 화면에 별도
     // 동의 UI 없음) - 저장 호출부가 이 ref가 non-null인지로 판단하므로 세션 시작 시 동의된 경우에만 채운다.
@@ -841,6 +874,7 @@ export function useOneStoryRuntime(
     beginNewSession,
     childNameInput,
     commitEvent,
+    prepareMicrophoneForAutoListen,
     recorder,
     storyManifest.questionAnchors,
     storyManifest.storyId,
@@ -863,23 +897,8 @@ export function useOneStoryRuntime(
     pendingVoiceResearchSampleRef.current = null;
   }, [recorder]);
 
-  const continueStory = useCallback(async () => {
-    const questionState = runtimeRef.current;
-    const skippedQuestion =
-      questionState.status === 'awaiting-question' ||
-      questionState.status === 'awaiting-clarification' ||
-      questionState.status === 'awaiting-safety-retry'
-        ? {
-            anchor_id: questionState.anchorId,
-            scene_id: questionState.sceneId,
-            skip_reason:
-              questionState.status === 'awaiting-clarification'
-                ? 'clarification_continue'
-                : questionState.status === 'awaiting-safety-retry'
-                  ? 'safety_retry_continue'
-                  : 'continue_listening',
-          }
-        : null;
+  const continueStoryWithReason = useCallback(async (skipReason?: QuestionSkipReason) => {
+    const skippedQuestion = questionSkipMetadata(runtimeRef.current, skipReason);
     await discardActiveQuestionAttempt();
     await stopNarration();
     setParentMessage(null);
@@ -891,6 +910,22 @@ export function useOneStoryRuntime(
       void trackStoryEvent('question_skipped', skippedQuestion);
     }
   }, [commitEvent, discardActiveQuestionAttempt, stopNarration, trackStoryEvent]);
+
+  // 버튼 onPress에 바로 넘기므로 인자를 받지 않는다(이벤트 객체가 사유로 들어가지 않게).
+  const continueStory = useCallback(() => continueStoryWithReason(), [continueStoryWithReason]);
+
+  /**
+   * 질문 초대 대화(그레텔 패널)에서 이야기로 돌아간다 - 이야기가 아직 그 앵커의 초대를 기다릴 때만.
+   * 이미 다른 상태로 넘어갔으면(행동 실행·처음부터 다시 등) 아무 것도 하지 않고 false.
+   */
+  const continueFromInvite = useCallback(
+    async (anchorId: string, skipReason?: QuestionSkipReason) => {
+      if (!isAwaitingInviteFor(runtimeRef.current, anchorId)) return false;
+      await continueStoryWithReason(skipReason);
+      return true;
+    },
+    [continueStoryWithReason],
+  );
 
   const resetQuestionAttemptTracking = useCallback(() => {
     questionAttemptCountRef.current = 0;
@@ -932,6 +967,7 @@ export function useOneStoryRuntime(
   const beginQuestion = useCallback(
     async () => {
       primeResponseAudio();
+      primeRecorderAudio();
       setParentMessage(null);
       await stopNarration();
       await discardActiveQuestionAttempt();
@@ -1016,34 +1052,6 @@ export function useOneStoryRuntime(
     trackStoryEvent,
   ]);
 
-  const processTypedQuestion = useCallback(async () => {
-    const transcript = typedQuestion.trim().slice(0, 240);
-    if (!transcript) {
-      setParentMessage('궁금한 것을 한 글자 이상 적어 주세요.');
-      return;
-    }
-    setParentMessage(null);
-    setLastTranscript(null);
-    setPendingTranscription(null);
-    pendingSttMsRef.current = null;
-    if (!commitEvent({ type: 'TEXT_SUBMITTED', transcript })) {
-      return;
-    }
-    const state = runtimeRef.current;
-    if (state.status !== 'processing-question') {
-      return;
-    }
-    setPendingTranscription({
-      ok: true,
-      speech: {
-        status: 'speech',
-        transcript,
-        locale: 'ko',
-        normalizedMimeType: 'text/plain',
-      },
-    });
-  }, [commitEvent, typedQuestion]);
-
   const transcribeRecording = useCallback(async (
     recording: RecordingResult,
   ) => {
@@ -1123,8 +1131,14 @@ export function useOneStoryRuntime(
     }
   }, [beginTypedQuestion, commitEvent, conversationAttribution, speechPipeline, storyManifest.storyId]);
 
+  // 무음 자동 종료·30초 상한·"다 했어요" 버튼이 겹쳐도 녹음은 한 번만 끝낸다.
+  const finishingQuestionRef = useRef(false);
   const finishQuestion = useCallback(async () => {
-    const recording = await recorder.stopRecording();
+    if (finishingQuestionRef.current) return;
+    finishingQuestionRef.current = true;
+    const recording = await recorder.stopRecording().finally(() => {
+      finishingQuestionRef.current = false;
+    });
     if (!recording) {
       commitEvent({
         type: 'FAILURE',
@@ -1139,25 +1153,24 @@ export function useOneStoryRuntime(
     await transcribeRecording(recording);
   }, [commitEvent, recorder, transcribeRecording]);
 
-  useEffect(() => {
-    if (
-      runtimeState.status !== 'recording-question' ||
-      runtimeState.inputMode !== 'voice' ||
-      !recorder.isRecording
-    ) {
-      return;
-    }
-    const timer = setTimeout(() => {
-      void finishQuestion();
-    }, 30_000);
-    return () => clearTimeout(timer);
-  }, [finishQuestion, recorder.isRecording, runtimeState]);
+  const isVoiceRecordingState =
+    runtimeState.status === 'recording-question' &&
+    runtimeState.inputMode === 'voice';
+  // Q-34: 말한 뒤 1.5초 조용하면 저절로 끝내고, 15초 말이 없으면 다시 묻고, 그 뒤 15초도 없으면
+  // 질문을 보내지 않고 이야기를 이어 간다. 30초 상한도 여기서 센다. "다 했어요" 버튼은 그대로 둔다.
+  const voiceAutoStop = useSpeechAutoStop(recorder, {
+    // 홈 메뉴·챕터 사이드바가 위에 떠 있는 동안은 끄고(타이머 정리), 닫히면 새로 센다.
+    enabled: isVoiceRecordingState && !homeMenuVisible && !chaptersOpen,
+    onSpeechEnd: () => void finishQuestion(),
+    onGiveUp: () => void continueStoryWithReason('no_speech_timeout'),
+  });
 
-  const confirmTranscript = useCallback(async () => {
-    if (!pendingTranscription || isRoutingQuestion) {
+  const routeConfirmedSpeech = useCallback(async (
+    confirmedSpeech: TranscriptionSuccess['speech'],
+  ) => {
+    if (isRoutingQuestion) {
       return;
     }
-    const confirmedSpeech = pendingTranscription.speech;
     const pendingVoiceResearchSample = pendingVoiceResearchSampleRef.current;
     pendingVoiceResearchSampleRef.current = null;
     setLastTranscript(confirmedSpeech.transcript);
@@ -1376,7 +1389,6 @@ export function useOneStoryRuntime(
     conversationAttribution,
     childName,
     isRoutingQuestion,
-    pendingTranscription,
     questionOutcomes,
     rememberQuestionOutcome,
     speechPipeline,
@@ -1385,6 +1397,36 @@ export function useOneStoryRuntime(
     storyManifest.storyId,
     trackStoryEvent,
   ]);
+
+  const confirmTranscript = useCallback(async () => {
+    if (!pendingTranscription) {
+      return;
+    }
+    await routeConfirmedSpeech(pendingTranscription.speech);
+  }, [pendingTranscription, routeConfirmedSpeech]);
+
+  // 글 질문은 이미 아이가 직접 쓴 문장이라 확인 단계 없이 바로 라우팅한다.
+  const processTypedQuestion = useCallback(async () => {
+    const transcript = typedQuestion.trim().slice(0, 240);
+    if (!transcript) {
+      setParentMessage('궁금한 것을 한 글자 이상 적어 주세요.');
+      return;
+    }
+    setParentMessage(null);
+    setLastTranscript(null);
+    setPendingTranscription(null);
+    pendingSttMsRef.current = null;
+    pendingVoiceResearchSampleRef.current = null;
+    if (!commitEvent({ type: 'TEXT_SUBMITTED', transcript })) {
+      return;
+    }
+    await routeConfirmedSpeech({
+      status: 'speech',
+      transcript,
+      locale: 'ko',
+      normalizedMimeType: 'text/plain',
+    });
+  }, [commitEvent, routeConfirmedSpeech, typedQuestion]);
 
   const retryAfterTranscript = useCallback(async () => {
     if (questionMode === 'text') {
@@ -1419,35 +1461,64 @@ export function useOneStoryRuntime(
 
       // 선택지의 branchLine은 LLM이 옵션마다 따로 쓴 대사라(OpenRouterClient.generatePlan() 스키마
       // 참고) 오디오가 미리 준비되어 있지 않다 - 라우팅 응답과 같은 audioReadyWithin 경합으로 준비한다.
-      if (selectedOption?.branchLine) {
+      const taken = selectedOption?.branchLine
+        ? choicePrefetcher.take(selectedOption.id)
+        : null;
+      choicePrefetcher.abort(); // 고른 항목은 take로 분리돼 있어 다른 선택지만 취소된다.
+      let responseAudio: ResponseAudio | null = null;
+      if (taken?.audio) {
+        // 미리 만든 음성이 준비돼 있으면 로딩 패널 없이 바로 이어간다.
+        responseAudio = taken.audio;
+      } else if (selectedOption?.branchLine) {
         const anchor = storyManifest.questionAnchors.find(
           (candidate) => candidate.id === choiceState.anchorId,
         );
         if (anchor) {
           setIsPreparingResponseAudio(true);
-          const controller = new AbortController();
-          const audio = await audioReadyWithin(
-            getResponseNarration(
-              {
-                storyId: storyManifest.storyId,
-                anchor,
-                text: selectedOption.branchLine,
-              },
-              controller.signal,
-            ),
-            RESPONSE_AUDIO_PREPARE_MS,
-          );
-          setIsPreparingResponseAudio(false);
-          if (runtimeRef.current.status === 'awaiting-choice') {
-            setPendingResponseAudio(audio);
+          // 진행 중인 미리 만들기가 있으면 그것을 기다리고, 실패·시간초과일 때만 기존 요청으로 폴백한다.
+          // 시간초과면 폴백을 새로 시작하지 않는다(대기 총합 상한 = RESPONSE_AUDIO_PREPARE_MS).
+          // 빠르게 실패했다면 남은 시간만큼만 기존 요청으로 폴백한다.
+          let fallbackBudgetMs = RESPONSE_AUDIO_PREPARE_MS;
+          let skipFallback = false;
+          if (taken?.pending) {
+            const awaited = await choicePrefetcher.awaitTaken(
+              taken,
+              RESPONSE_AUDIO_PREPARE_MS,
+            );
+            responseAudio = awaited.audio;
+            skipFallback = awaited.timedOut;
+            fallbackBudgetMs = Math.max(0, RESPONSE_AUDIO_PREPARE_MS - awaited.elapsedMs);
           }
+          if (!responseAudio && !skipFallback) {
+            const controller = new AbortController();
+            responseAudio = await audioReadyWithin(
+              getResponseNarration(
+                {
+                  storyId: storyManifest.storyId,
+                  anchor,
+                  text: selectedOption.branchLine,
+                },
+                controller.signal,
+              ),
+              fallbackBudgetMs,
+            );
+          }
+          setIsPreparingResponseAudio(false);
         }
       }
+      if (responseAudio && runtimeRef.current.status === 'awaiting-choice') {
+        setPendingResponseAudio(responseAudio);
+      } else if (responseAudio) {
+        disposeResponseAudio(responseAudio);
+        responseAudio = null;
+      }
 
-      if (
-        commitEvent({ type: 'CHOICE_SELECTED', optionId }) &&
-        selectedOption
-      ) {
+      const committed = commitEvent({ type: 'CHOICE_SELECTED', optionId });
+      if (!committed && responseAudio) {
+        setPendingResponseAudio(null);
+        disposeResponseAudio(responseAudio);
+      }
+      if (committed && selectedOption) {
         rememberQuestionOutcome(
           choiceState.anchorId,
           choiceState.plan,
@@ -1469,6 +1540,33 @@ export function useOneStoryRuntime(
       trackStoryEvent,
     ],
   );
+
+  const choiceStatus = runtimeState.status;
+  const choiceKey =
+    runtimeState.status === 'awaiting-choice'
+      ? `${runtimeState.anchorId}-${runtimeState.questionRound}`
+      : null;
+  useEffect(() => {
+    const current = runtimeRef.current;
+    if (choiceStatus !== 'awaiting-choice' || current.status !== 'awaiting-choice') {
+      return;
+    }
+    const anchor = storyManifest.questionAnchors.find(
+      (candidate) => candidate.id === current.anchorId,
+    );
+    if (!anchor) return;
+    choicePrefetcher.start(
+      current.plan.options.map((option) => ({ id: option.id, text: option.branchLine })),
+      (item, signal) =>
+        prefetchResponseNarration(
+          { storyId: storyManifest.storyId, anchor, text: item.text },
+          signal,
+        ),
+    );
+    return () => choicePrefetcher.abort();
+    // storyId가 같으면 앵커 목록도 같다 - manifest 객체 정체성 대신 안정 키를 쓴다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [choiceStatus, choiceKey, storyManifest.storyId]);
 
   useEffect(() => {
     if (runtimeState.status !== 'awaiting-choice') {
@@ -1967,7 +2065,6 @@ export function useOneStoryRuntime(
     setStoryDurationSeconds(null);
     setParentReportVisible(false);
     setHomeMenuVisible(false);
-    setExitReasonVisible(false);
     setResumeCandidate(null);
     clearLocalStoryProgress();
     beginNewSession();
@@ -2012,7 +2109,6 @@ export function useOneStoryRuntime(
       setStoryDurationSeconds(null);
       setParentReportVisible(false);
       setHomeMenuVisible(false);
-      setExitReasonVisible(false);
       setResumeCandidate(null);
     },
     [recorder, resetQuestionAttemptTracking, stopNarration, storyManifest],
@@ -2022,6 +2118,7 @@ export function useOneStoryRuntime(
     if (!resumeCandidate) {
       return;
     }
+    prepareMicrophoneForAutoListen();
     await stopNarration();
     runtimeRef.current = resumeCandidate.state;
     setRuntimeState(resumeCandidate.state);
@@ -2047,7 +2144,7 @@ export function useOneStoryRuntime(
     readFromSceneRef.current = resumeCandidate.readFromSceneId ?? null;
     readThroughSceneRef.current = resumeCandidate.readThroughSceneId ?? null;
     void trackStoryEvent('story_started', { resume: true });
-  }, [resumeCandidate, stopNarration, trackStoryEvent, getTurnRecorder]);
+  }, [getTurnRecorder, prepareMicrophoneForAutoListen, resumeCandidate, stopNarration, trackStoryEvent]);
 
   // 홈에서 곧장 들어온 재생은 시작 화면·이어 듣기 질문을 건너뛴다(Q-36). 마운트 때 한 번만.
   const entryHandledRef = useRef(false);
@@ -2071,37 +2168,27 @@ export function useOneStoryRuntime(
   }, []);
 
   const openHomeMenu = useCallback(async () => {
-    if (runtimeRef.current.status === 'complete') {
-      clearLocalStoryProgress();
-      await restartStory();
-      return;
-    }
     if (narrationState.isSpeaking && !narrationState.isPaused) {
       await pauseNarration();
     }
     persistCurrentProgress();
-    setExitReasonVisible(false);
     setHomeMenuVisible(true);
   }, [
     narrationState.isPaused,
     narrationState.isSpeaking,
     pauseNarration,
     persistCurrentProgress,
-    restartStory,
   ]);
 
   const continueFromHomeMenu = useCallback(async () => {
     setHomeMenuVisible(false);
-    setExitReasonVisible(false);
     if (narrationState.isPaused) {
       await resumeNarration();
     }
   }, [narrationState.isPaused, resumeNarration]);
 
-  // Q-34: 이야기에서 나가는 길은 모두 앱 홈(homePathForAuth) 한 곳으로 간다 - 잠시 나가기는
-  // 진행을 저장해 두고, 다시 들어오면 이어 듣기를 묻는다.
   /**
-   * 중간에 나갈 때(잠시 나가기·오늘 체험 마치기) - 읽거나 말한 게 있으면 "멈춘 회차"로 저장해 리포트에 남긴다.
+   * 중간에 나갈 때(leaveStory, 도중) - 읽거나 말한 게 있으면 "멈춘 회차"로 저장해 리포트에 남긴다.
    * 같은 회차를 이어 읽어 끝내면 서버가 같은 기록을 완주로 갱신한다. 로그인한 경우만, 실패해도 화면은 그대로.
    */
   const saveExitedSession = useCallback(() => {
@@ -2147,77 +2234,57 @@ export function useOneStoryRuntime(
     tutorStudentId,
   ]);
 
-  const leaveTemporarily = useCallback(async () => {
-    persistCurrentProgress();
+  // Q-34: 나가기는 한 길 - 도중이면 진행을 저장하고(돌아오면 이어 듣기), 완주 후 로그인 상태면
+  // 기록을 정리한 뒤 홈(homePathForAuth)으로 간다. 외부 사이트로는 가지 않는다.
+  const leaveStory = useCallback(async () => {
+    const plan = resolveExit(authState, runtimeRef.current.status);
+    if (plan.saveProgress) persistCurrentProgress();
+    // Q-39: 도중에 나가면 "멈춘 회차"(EXITED)로 저장해 리포트에 남긴다(로그인·도중일 때만, 안에서 거른다).
     saveExitedSession();
-    processingAbortRef.current?.abort();
-    await stopNarration();
-    setHomeMenuVisible(false);
-    navigate(homePathForAuth(authState));
-  }, [authState, navigate, persistCurrentProgress, saveExitedSession, stopNarration]);
-
-  const finishExperience = useCallback(async () => {
-    processingAbortRef.current?.abort();
-    await stopNarration();
-    // 익명 데모(/demo)에서는 지우지 않는다 - 로그인/회원가입하면 이 기록으로 계정에
-    // 리포트를 저장해 준다(useSyncDemoCompletionOnAuth 참고). 이미 로그인된 상태라면
-    // 완료 시점에 서버로 저장이 끝났으니 로컬 사본은 정리한다.
-    if (authState.status === 'authenticated') {
-      clearLocalStoryProgress();
-    }
-    navigate(homePathForAuth(authState));
-  }, [authState, navigate, stopNarration]);
-
-  const finishToday = useCallback(
-    (reason: (typeof EXIT_REASONS)[number]) => {
-      const latestState = runtimeRef.current;
-      const diagnosticClipId =
+    const latestState = runtimeRef.current;
+    const diagnostics = buildExitDiagnostics({
+      state: latestState,
+      questionOutcomes,
+      clipId:
         getRuntimeClip(latestState, storyPackage)?.id ??
         activeNarrationIdRef.current ??
-        narrationState.captionRequestId;
-      const diagnostics = buildExitDiagnostics({
-        state: latestState,
-        questionOutcomes,
-        clipId: diagnosticClipId,
-        narration: {
-          isSpeaking: narrationState.isSpeaking,
-          isPaused: narrationState.isPaused,
-          source: narrationState.source,
-        },
-      });
-      try {
-        globalThis.localStorage?.setItem(
-          'qstory.hg.last-explicit-exit.v1',
-          JSON.stringify({ reason, at: new Date().toISOString() }),
-        );
-      } catch {
-        // 종료 피드백 저장 실패로 인해 가족이 플레이어 안에 갇히는 일이 있어서는 절대 안 된다.
-      }
-      // 홈으로 나가는 게 목적이라 전송 완료를 기다리지 않는다(fire-and-forget).
-      void trackStoryEvent('explicit_exit', {
-        reason_code: EXIT_REASON_CODES[reason],
-        ...diagnostics,
-      });
-      saveExitedSession();
-      clearLocalStoryProgress();
-      // restartStory()(이야기 처음 화면으로)가 아니라 navigate('/')(진짜 홈으로) - "오늘 체험
-      // 마치기"는 이 이야기를 그만 보겠다는 뜻이지 같은 이야기를 처음부터 다시 보겠다는 뜻이
-      // 아니다. finishExperience()(완주 뒤 "홈으로 돌아가기")와 같은 목적지로 맞춘다.
-      navigate(homePathForAuth(authState));
-    },
-    [
-      narrationState.captionRequestId,
-      narrationState.isPaused,
-      narrationState.isSpeaking,
-      narrationState.source,
-      authState,
-      navigate,
-      questionOutcomes,
-      saveExitedSession,
-      storyPackage,
-      trackStoryEvent,
-    ],
-  );
+        narrationState.captionRequestId,
+      narration: {
+        isSpeaking: narrationState.isSpeaking,
+        isPaused: narrationState.isPaused,
+        source: narrationState.source,
+      },
+    });
+    // 도중 이탈만 explicit_exit로 센다(완주 후 나가기는 제외). 전송 완료를 기다리지 않는다(fire-and-forget). 사유 설문은 없어 reason_code는 보내지 않는다.
+    if (plan.saveProgress) void trackStoryEvent('explicit_exit', diagnostics);
+    processingAbortRef.current?.abort();
+    await stopNarration();
+    if (plan.clearProgress) clearLocalStoryProgress();
+    setHomeMenuVisible(false);
+    navigate(plan.path);
+  }, [
+    authState,
+    navigate,
+    narrationState.captionRequestId,
+    narrationState.isPaused,
+    narrationState.isSpeaking,
+    narrationState.source,
+    persistCurrentProgress,
+    questionOutcomes,
+    saveExitedSession,
+    stopNarration,
+    storyPackage,
+    trackStoryEvent,
+  ]);
+
+  // "처음부터 다시"는 기록이 지워지므로 확인 모달을 거친 뒤에만 실행한다.
+  const [restartConfirmVisible, setRestartConfirmVisible] = useState(false);
+  const requestRestart = useCallback(() => setRestartConfirmVisible(true), []);
+  const cancelRestart = useCallback(() => setRestartConfirmVisible(false), []);
+  const confirmRestart = useCallback(async () => {
+    setRestartConfirmVisible(false);
+    await restartStory();
+  }, [restartStory]);
 
   const openParentReport = useCallback(() => {
     setParentReportVisible(true);
@@ -2311,6 +2378,10 @@ export function useOneStoryRuntime(
     displayedBranchSubtitle,
     narrationState,
     meterPercent,
+    // 녹음 중 아이에게 보이는 한 줄 - 15초 말이 없으면 다시 묻는 문구로 바뀐다(서버 음성 없이 글로만).
+    voiceListenPrompt: voiceAutoStop.reprompted
+      ? NO_SPEECH_REPROMPT_COPY
+      : LISTEN_NOW_COPY,
     activeQuestionPrompt,
     activeQuestionOrdinal,
     plan,
@@ -2340,12 +2411,17 @@ export function useOneStoryRuntime(
     questionOutcomes,
     resumeCandidate,
     homeMenuVisible,
-    exitReasonVisible,
-    setExitReasonVisible,
-    exitReasons: EXIT_REASONS,
+    chaptersOpen,
+    setChaptersOpen,
+    restartConfirmVisible,
+    requestRestart,
+    cancelRestart,
+    confirmRestart,
     // 핸들러
     startStory,
     continueStory,
+    continueFromInvite,
+    activeQuestionAnchorId: activeQuestionAnchor?.id ?? null,
     beginQuestion,
     beginTypedQuestion,
     processTypedQuestion,
@@ -2370,9 +2446,8 @@ export function useOneStoryRuntime(
     dismissResumeAndRestart,
     openHomeMenu,
     continueFromHomeMenu,
-    leaveTemporarily,
-    finishExperience,
-    finishToday,
+    leaveStory,
+    finishExperience: leaveStory,
     openParentReport,
     closeParentReport,
     openCompletionSurvey,

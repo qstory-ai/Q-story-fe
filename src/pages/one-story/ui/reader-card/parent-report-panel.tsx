@@ -15,7 +15,7 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
     parentReport,
     openCompletionSurvey,
     finishExperience,
-    restartStory,
+    requestRestart,
     storyPackage,
     liveTurns,
     completedRecordId,
@@ -106,7 +106,7 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
             <Pressable
               accessibilityRole="button"
               style={styles.reportSecondaryAction}
-              onPress={restartStory}
+              onPress={requestRestart}
             >
               <Text style={styles.reportSecondaryActionText}>
                 같은 이야기 다시 읽기

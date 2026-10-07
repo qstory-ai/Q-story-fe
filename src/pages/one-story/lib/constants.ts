@@ -1,25 +1,3 @@
-export const EXIT_REASONS = [
-  '기다림이 길었어요',
-  '음성 질문이 어려웠어요',
-  '소리가 끊기거나 이상했어요',
-  '자막이 음성과 맞지 않았어요',
-  '그림이나 내용이 어색했어요',
-  '아이가 흥미를 잃었어요',
-  '이야기나 화면이 어려웠어요',
-  '시간이 부족했어요',
-] as const;
-
-export const EXIT_REASON_CODES: Record<(typeof EXIT_REASONS)[number], string> = {
-  '기다림이 길었어요': 'long_wait',
-  '음성 질문이 어려웠어요': 'voice_difficulty',
-  '소리가 끊기거나 이상했어요': 'audio_issue',
-  '자막이 음성과 맞지 않았어요': 'caption_sync_issue',
-  '그림이나 내용이 어색했어요': 'visual_or_story_issue',
-  '아이가 흥미를 잃었어요': 'lost_interest',
-  '이야기나 화면이 어려웠어요': 'content_difficulty',
-  '시간이 부족했어요': 'not_enough_time',
-};
-
 export const QUESTION_AUDIO_HEAD_START_MS = 2_000;
 // 운영 환경 점검 결과 TTS 준비에 최대 약 10.7초까지 걸리는 것을 확인했다. 8초 만에
 // 기기 TTS로 폴백하면 Gretel의 목소리가 로봇 같은 음성으로 바뀌어버리므로,
@@ -34,3 +12,5 @@ export const FIXED_AUDIO_FAILURE_RECOVERY_MS = 2_500;
 export const LIVE_BRANCH_POLL_INTERVAL_MS = 1_800;
 export const LIVE_BRANCH_POLL_TIMEOUT_MS = 90_000;
 
+// 음성 인식 문장이 보이면 이 시간 뒤에 자동으로 질문을 보낸다(Q-34). "다시 말하기"로 취소할 수 있다.
+export const AUTO_CONFIRM_MS = 2_500;

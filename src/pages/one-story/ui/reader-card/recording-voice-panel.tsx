@@ -12,6 +12,7 @@ export function RecordingVoicePanel({ runtime }: { runtime: OneStoryRuntime }) {
     questionMode,
     recorder,
     meterPercent,
+    voiceListenPrompt,
     beginTypedQuestion,
     continueStory,
     finishQuestion,
@@ -25,7 +26,7 @@ export function RecordingVoicePanel({ runtime }: { runtime: OneStoryRuntime }) {
 
   return (
     <View style={styles.contentGroup}>
-      <Text style={styles.recordingTitle}>목소리를 듣고 있어요</Text>
+      <Text style={styles.recordingTitle}>{voiceListenPrompt}</Text>
       <Text style={styles.recordingTime}>
         {formatDuration(recorder.durationMillis)}
       </Text>
@@ -34,8 +35,8 @@ export function RecordingVoicePanel({ runtime }: { runtime: OneStoryRuntime }) {
       </View>
       <Text style={styles.recordingGuide}>
         {typeof recorder.meteringDb === 'number'
-          ? '막대가 움직이면 목소리가 잘 담기고 있어요.'
-          : '녹음 시간이 흐르고 있어요. 말한 뒤 문장 확인을 눌러 주세요.'}
+          ? '말을 멈추면 저절로 끝나요.'
+          : '말한 뒤 아래 버튼을 눌러 주세요.'}
       </Text>
       <View style={styles.splitRow}>
         <ActionButton
@@ -45,7 +46,7 @@ export function RecordingVoicePanel({ runtime }: { runtime: OneStoryRuntime }) {
         />
         <ActionButton
           variant="secondary"
-          label="계속 듣기"
+          label="그만할래"
           onPress={continueStory}
         />
       </View>

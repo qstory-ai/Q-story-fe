@@ -4,7 +4,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { hasCompletedOnboarding, homePathFor, markOnboardingDone, useAuth } from '@/entities/auth';
+import {
+  CONSENT_VERSION,
+  hasCompletedOnboarding,
+  homePathFor,
+  markOnboardingDone,
+  recordConsents,
+  useAuth,
+} from '@/entities/auth';
+import { grantVoiceResearchAccountConsent } from '@/entities/analytics';
 import {
   BirthYearChips,
   ageBandFromBirthYear,
@@ -55,11 +63,31 @@ export function OnboardingParentPage() {
   // 프로필 수정(아바타 등)은 홈의 아이 관리에서 할 수 있다.
   const childExists = load.status === 'ready' && children.length > 0;
 
-  const consented = consentAudio && consentReport;
+  // 리포트 표시 범위만 필수다. 음성 원본 보관은 선택이라 체크하지 않아도 다음으로 넘어간다.
+  const consented = consentReport;
   const canCreateChild = name.trim().length > 0 && consented && !submitting;
 
-  function finish() {
-    if (state.status !== 'authenticated') return;
+  /** 동의 이력을 서버에 남긴다. 하나라도 실패하면 던져서 다음 단계로 넘어가지 않게 한다. */
+  async function saveConsents() {
+    if (state.status !== 'authenticated') throw new Error('not authenticated');
+    await recordConsents(state.token, {
+      source: 'ONBOARDING',
+      items: [{ type: 'CHILD_REPORT_SCOPE', agreed: true, version: CONSENT_VERSION }],
+    });
+    if (consentAudio) await grantVoiceResearchAccountConsent(state.token);
+  }
+
+  async function finish() {
+    if (state.status !== 'authenticated' || submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      await saveConsents();
+    } catch (failure: unknown) {
+      setError(messageForError(failure, '동의 내용을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.'));
+      setSubmitting(false);
+      return;
+    }
     markOnboardingDone('parent', state.user.id);
     navigate(next ?? homePathFor(state.user), { replace: true });
   }
@@ -69,13 +97,23 @@ export function OnboardingParentPage() {
     setSubmitting(true);
     setError(null);
     try {
+      await saveConsents();
+    } catch (failure: unknown) {
+      setError(messageForError(failure, '동의 내용을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.'));
+      setSubmitting(false);
+      return;
+    }
+    try {
       await addChild({ name: name.trim(), birthYear, ageBand: ageBandFromBirthYear(birthYear), avatarKey });
-      finish();
     } catch (failure: unknown) {
       const message = messageForError(failure, '아이 프로필을 만들지 못했어요. 잠시 후 다시 시도해 주세요.');
       setError(message);
       setSubmitting(false);
+      return;
     }
+    if (state.status !== 'authenticated') return;
+    markOnboardingDone('parent', state.user.id);
+    navigate(next ?? homePathFor(state.user), { replace: true });
   }
 
   if (state.status !== 'authenticated') return null;
@@ -139,29 +177,21 @@ export function OnboardingParentPage() {
         </Text>
 
         <ConsentBlock
-          title="모두 동의"
-          checked={consented}
-          onChange={(value) => {
-            setConsentAudio(value);
-            setConsentReport(value);
-          }}
-        />
-        <ConsentBlock
-          title="아이 음성 보관"
-          body="아이의 질문 음성은 음성 인식 개선을 위해 90일간 비공개로 보관한 뒤 지워요. 리포트에는 아이가 한 말의 뜻만 남아요. 마이페이지 > 설정에서 언제든 끌 수 있어요."
-          checked={consentAudio}
-          onChange={setConsentAudio}
-        />
-        <ConsentBlock
-          title="리포트 표시 범위"
+          title="리포트 표시 범위 (필수)"
           body="완주 리포트는 보호자(그리고 아이가 속한 반의 담임 선생님과 관리자)에게만 노출돼요. 외부 공유는 별도 동의 없이는 하지 않아요."
           checked={consentReport}
           onChange={setConsentReport}
         />
+        <ConsentBlock
+          title="아이 음성 원본 보관 (선택)"
+          body="아이의 질문 음성 원본을 음성 인식 개선을 위해 1년간 비공개로 보관해요. 체크하지 않아도 질문은 문장으로 바뀌어 그대로 이용할 수 있어요. 마이페이지에서 언제든 끌 수 있어요."
+          checked={consentAudio}
+          onChange={setConsentAudio}
+        />
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
         {childExists ? (
-          <ActionButton variant="gold" label={`동의하고 ${finishLabel}`} onPress={finish} disabled={!consented} />
+          <ActionButton variant="gold" label={`동의하고 ${finishLabel}`} onPress={finish} disabled={!consented || submitting} loading={submitting} />
         ) : (
           <>
             <ActionButton

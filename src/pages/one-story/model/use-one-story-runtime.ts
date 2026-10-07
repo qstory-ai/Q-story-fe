@@ -81,6 +81,7 @@ import {
 } from '../lib/runtime-view';
 import { preloadImages } from '../lib/preload-images';
 import { playResponseWithFallback } from '../lib/play-clip-with-fallback';
+import { resolveVoiceResearchEnabled } from './voice-research-enabled';
 import { useOneStoryDerivedView } from './use-one-story-derived-view';
 import { useLiveBranchPolling } from './use-live-branch-polling';
 
@@ -194,7 +195,7 @@ export function useOneStoryRuntime(
   // 연결하게 한다(마이페이지 철회 시 삭제 대상). 비로그인·선생님 세션은 기존처럼 익명으로 저장한다.
   const voiceResearchAccountRef = useRef<{ token: string | null; enabled: boolean; ownerId: string | null }>({
     token: null,
-    enabled: true,
+    enabled: false,
     ownerId: null,
   });
   // 홈에서 아이를 선택하고 들어왔으면 그 이름으로 미리 채운다. 데모(/demo)처럼 선택된 아이가
@@ -288,14 +289,14 @@ export function useOneStoryRuntime(
   const parentUserId =
     authState.status === 'authenticated' && authState.user.role === 'PARENT' ? authState.user.id : null;
   useEffect(() => {
-    voiceResearchAccountRef.current = { token: parentToken, enabled: true, ownerId: parentUserId };
+    voiceResearchAccountRef.current = { token: parentToken, enabled: false, ownerId: parentUserId };
     if (!parentToken) return;
     let cancelled = false;
-    // 조회에 실패하면 켜 둔 채로 두되, 서버가 업로드 때 계정 동의를 다시 확인해 꺼진 계정은 거절한다.
+    // 기본은 꺼짐 - 보호자가 명시적으로 동의한 것이 확인될 때만 켜고, 조회에 실패하면 꺼 둔다(서버도 같은 기준으로 거절).
     getVoiceResearchAccountConsent(parentToken)
       .then((consent) => {
         if (!cancelled) {
-          voiceResearchAccountRef.current = { token: parentToken, enabled: consent.enabled, ownerId: parentUserId };
+          voiceResearchAccountRef.current = { token: parentToken, enabled: resolveVoiceResearchEnabled('PARENT', consent), ownerId: parentUserId };
         }
       })
       .catch(() => {});

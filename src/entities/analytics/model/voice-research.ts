@@ -13,7 +13,7 @@ const VOICE_RESEARCH_CONSENTS_STORAGE_KEY =
  * 문구를 바꾸면 버전(여기와 BE VoiceResearchService.CONSENT_VERSION)도 함께 올려야 한다.
  */
 export const VOICE_RESEARCH_CONSENT_TERMS =
-  '아이의 질문 원음을 Q-Story 음성 인식 개선을 위해 90일간 비공개 저장합니다. 동의하지 않아도 질문 문장으로 체험할 수 있고, 원음은 저장되지 않아요.';
+  '아이의 질문 음성 원본을 음성 인식 개선을 위해 1년간 비공개로 보관해요. 동의하지 않아도 질문은 문장으로 바뀌어 그대로 이용할 수 있고, 음성 원본은 저장되지 않아요.';
 
 const DEFAULT_ENDPOINT = readEnv('VITE_QSTORY_VOICE_RESEARCH_URL');
 

@@ -163,3 +163,18 @@ test('UT 회차 조건과 답 시간·실패 코드가 묶음에 함께 간다(Q
     ],
   );
 });
+
+test('flush with no lines still creates the session once (Q-40 UT session code)', async () => {
+  const sent = [];
+  const recorder = new TurnRecorder('s-empty', { storyId: 'HG' }, {
+    send: async (sessionId, body) => { sent.push({ sessionId, count: body.turns.length }); },
+    schedule: () => 0,
+    cancel: () => {},
+  });
+  await recorder.flush();
+  await recorder.flush();
+  assert.deepEqual(sent, [{ sessionId: 's-empty', count: 0 }]);
+  recorder.startSession('s-next');
+  await recorder.flush();
+  assert.deepEqual(sent.at(-1), { sessionId: 's-next', count: 0 });
+});

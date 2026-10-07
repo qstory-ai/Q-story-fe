@@ -858,6 +858,8 @@ export function useOneStoryRuntime(
         // 바로 위에서 새 회차를 열었을 수 있다 - 기록기가 지금 회차 id를 바로 갖고 있다.
         play_session_id: getTurnRecorder().sessionId,
       });
+      // 대화가 없어도 회차를 서버에 바로 만든다 - UT 회차 코드로 찾고, 읽은 범위·사용 조건을 남기기 위해(Q-40).
+      void getTurnRecorder().flush();
     }
   }, [
     beginNewSession,

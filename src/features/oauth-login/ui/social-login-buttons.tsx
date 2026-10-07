@@ -43,9 +43,11 @@ export function SocialLoginButtons({ role, onAuthed, consents, disabled, disable
   const [kakaoSubmitting, setKakaoSubmitting] = useState(false);
   // 구글 버튼은 SDK가 한 번 그려 두고 콜백만 호출하므로, 최신 동의/잠금 상태는 ref로 읽는다.
   const consentsRef = useRef(consents);
-  consentsRef.current = consents;
   const disabledRef = useRef(disabled);
-  disabledRef.current = disabled;
+  useEffect(() => {
+    consentsRef.current = consents;
+    disabledRef.current = disabled;
+  }, [consents, disabled]);
 
   const handleFailure = useCallback((failure: unknown) => {
     // OAUTH_ROLE_REQUIRED는 사전 카피(회원가입 유도)로 덮어 쓰고, 나머지는 공통 유틸에 맡긴다.

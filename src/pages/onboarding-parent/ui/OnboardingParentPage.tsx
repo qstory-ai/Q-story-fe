@@ -74,7 +74,7 @@ export function OnboardingParentPage() {
       source: 'ONBOARDING',
       items: [{ type: 'CHILD_REPORT_SCOPE', agreed: true, version: CONSENT_VERSION }],
     });
-    if (consentAudio) await grantVoiceResearchAccountConsent(state.token);
+    if (consentAudio) await grantVoiceResearchAccountConsent(state.token, 'ONBOARDING');
   }
 
   async function finish() {

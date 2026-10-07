@@ -294,7 +294,7 @@ export function useOneStoryRuntime(
     voiceResearchAccountRef.current = { token: parentToken, enabled: false, ownerId: parentUserId };
     if (!parentToken) return;
     let cancelled = false;
-    // 기본은 꺼짐 - 보호자가 명시적으로 동의한 것이 확인될 때만 켜고, 조회에 실패하면 꺼 둔다(서버도 같은 기준으로 거절).
+    // 기본은 꺼짐 - 보호자가 현재 약관에 명시적으로 동의한 것이 확인될 때만 켜고, 조회에 실패하면 꺼 둔다(서버도 같은 기준으로 거절).
     getVoiceResearchAccountConsent(parentToken)
       .then((consent) => {
         if (!cancelled) {
@@ -679,9 +679,8 @@ export function useOneStoryRuntime(
   const startStory = useCallback(() => {
     primeResponseAudio();
     const normalizedName = childNameInput.trim().slice(0, 10);
-    // 질문 원음은 음성 인식 개선 연구용으로 저장한다(이야기 화면에 별도 동의 UI 없음) - 저장 호출부가
-    // 이 ref가 non-null인지로 판단하므로 세션 시작 시 채운다. 보호자가 마이페이지에서 음성 연구
-    // 동의를 껐으면 만들지 않는다.
+    // 질문 원음은 보호자가 온보딩/마이페이지에서 현재 약관에 동의한 계정만 저장한다(이야기 화면에 별도
+    // 동의 UI 없음) - 저장 호출부가 이 ref가 non-null인지로 판단하므로 세션 시작 시 동의된 경우에만 채운다.
     voiceResearchConsentRef.current = voiceResearchAccountRef.current.enabled
       ? createVoiceResearchConsent(voiceResearchAccountRef.current.ownerId)
       : null;

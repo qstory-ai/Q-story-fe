@@ -45,11 +45,12 @@ export function getVoiceResearchAccountConsent(
 /** 화면에 보여 준 약관(VOICE_RESEARCH_CONSENT_TERMS)의 버전으로 동의한다 - 서버 버전과 다르면 409. */
 export function grantVoiceResearchAccountConsent(
   token: string,
+  source?: 'ONBOARDING' | 'MYPAGE',
   options?: RequestOptions,
 ): Promise<VoiceResearchAccountConsent> {
   return request(
     '/v1/me/voice-research-consent',
-    { method: 'POST', body: JSON.stringify({ consentVersion: VOICE_RESEARCH_CONSENT_VERSION }) },
+    { method: 'POST', body: JSON.stringify({ consentVersion: VOICE_RESEARCH_CONSENT_VERSION, ...(source ? { source } : {}) }) },
     token,
     options,
   );

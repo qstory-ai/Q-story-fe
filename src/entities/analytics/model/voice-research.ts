@@ -3,7 +3,7 @@ import { readEnv } from '@/shared/config';
 import { UUID_PATTERN, createUuid, isHttpUrl } from './endpoint-utils';
 
 export const VOICE_RESEARCH_CONSENT_VERSION =
-  'voice-research-v2-shadow-family';
+  'voice-research-v3-1y';
 const VOICE_RESEARCH_CONSENTS_STORAGE_KEY =
   'qstory.voice-research.consents.v2';
 

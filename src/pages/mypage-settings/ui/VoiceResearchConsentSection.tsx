@@ -5,6 +5,7 @@ import { ActionButton, ErrorState, LoadingState, Modal, StatusBanner, storybookT
 import { messageForError } from '@/shared/api';
 import {
   VOICE_RESEARCH_CONSENT_TERMS,
+  VOICE_RESEARCH_CONSENT_VERSION,
   getVoiceResearchAccountConsent,
   grantVoiceResearchAccountConsent,
   withdrawStoredVoiceResearchConsents,
@@ -25,9 +26,11 @@ function formatDate(value: string) {
 
 function statusDetail(consent: VoiceResearchAccountConsent) {
   if (consent.enabled) {
-    return consent.consentedAt
-      ? `${formatDate(consent.consentedAt)}에 동의했어요.`
-      : '기본 설정으로 저장하고 있어요. 마이페이지에서 따로 동의한 기록은 없어요.';
+    return consent.consentedAt ? `${formatDate(consent.consentedAt)}에 동의했어요.` : '동의한 상태예요.';
+  }
+  // 예전 약관 버전에 동의한 계정은 서버가 enabled=false로 내려 준다 - 새 약관으로 다시 물어본다.
+  if (!consent.withdrawnAt && consent.consentVersion && consent.consentVersion !== VOICE_RESEARCH_CONSENT_VERSION) {
+    return '약관이 바뀌어 다시 동의가 필요해요. 동의하기 전까지는 녹음을 저장하지 않아요.';
   }
   return consent.withdrawnAt ? `${formatDate(consent.withdrawnAt)}에 동의를 철회했어요.` : '동의하지 않은 상태예요.';
 }
@@ -92,7 +95,7 @@ export function VoiceResearchConsentSection({ token, userId }: { token: string; 
     setSaving(true);
     setNotice(null);
     try {
-      const consent = await grantVoiceResearchAccountConsent(token);
+      const consent = await grantVoiceResearchAccountConsent(token, 'MYPAGE');
       setLoad({ status: 'ready', consent });
       setNotice({ variant: 'success', label: '동의했어요. 다음 이야기부터 질문 원음을 저장해요.' });
     } catch (error: unknown) {

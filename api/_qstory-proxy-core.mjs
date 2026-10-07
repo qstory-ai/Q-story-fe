@@ -79,6 +79,10 @@ const DYNAMIC_ROUTES = [
   // NEW_CHOICES 실시간 생성 job 폴링(entities/live-branch/api/live-branch-api.ts) - jobId는 UUID.
   { method: 'GET', pattern: new RegExp(`^v1/live-branch/${UUID_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/story-completions/${UUID_SEGMENT}$`) },
+  // Q-39: 교사 메모 저장, 분석 다시 시도, 회차 대화 줄 저장(sessionId = conversationId, UUID).
+  { method: 'PUT', pattern: new RegExp(`^v1/story-completions/${UUID_SEGMENT}/teacher-note$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/story-completions/${UUID_SEGMENT}/analysis/retry$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/play-sessions/${UUID_SEGMENT}/turns$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/entitlement$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/usage$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/reports$`) },

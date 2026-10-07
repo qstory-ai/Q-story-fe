@@ -14,6 +14,7 @@ import {
   type CompanionReplyKind,
 } from '@/entities/companion-chat';
 import { STT_UNAVAILABLE_CHILD_COPY, isSttUnavailableCode } from '@/entities/speech-pipeline';
+import type { PlayTurnInput } from '@/entities/play-session';
 
 import { GRETEL_COMPANION } from '../lib/companion-character';
 import { buildDialogueScene, wrapUpFor, type WrapUpSignal } from '../lib/dialogue-context';
@@ -87,6 +88,8 @@ export function useDialogue({
     questionOutcomes,
     conversationAttribution,
     trackStoryEvent,
+    recordTurn,
+    visualAssetId,
   } = runtime;
   const character = GRETEL_COMPANION;
   const recorder = useAudioRecorderAdapter();
@@ -101,6 +104,8 @@ export function useDialogue({
   const [helpStep, setHelpStep] = useState(0);
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [extended, setExtended] = useState(false);
+  // 보호자가 아이 대신 글을 썼다고 표시했는지(Q-39 입력 주체) - 앱은 누가 말했는지 스스로 판별하지 않는다.
+  const [guardianProxy, setGuardianProxy] = useState(false);
 
   const childTurnCountRef = useRef(0);
   const openedAtRef = useRef(0);
@@ -108,6 +113,10 @@ export function useDialogue({
   const lastChildMeaningRef = useRef('');
   const lastReplyRef = useRef('');
   const inputModeRef = useRef<'VOICE' | 'TEXT'>('TEXT');
+  // 받아 적은 문장 그대로(고쳐 썼는지 비교용).
+  const sttDraftRef = useRef<string | null>(null);
+  // 이번 질문 초대에서 아이가 한 번이라도 말했는지 - 닫을 때 건너뜀/대화 후 닫음을 가른다.
+  const inviteChildSpokeRef = useRef(false);
   // 요청마다 번호를 붙여, 닫았거나 새 말을 시작한 뒤에 도착한 답·전사는 버린다.
   const requestSeqRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
@@ -160,6 +169,22 @@ export function useDialogue({
     [anchorId, sceneId, trackStoryEvent],
   );
 
+  /** 대화 한 줄을 회차 기록(Q-39)에 남긴다 - 장면·그림·질문 지점·진입 방식은 지금 상태로 채운다. */
+  const logTurn = useCallback(
+    (input: Omit<PlayTurnInput, 'sceneId'> & { sceneId?: string }) => {
+      const turnSceneId = input.sceneId ?? sceneId;
+      if (!turnSceneId) return;
+      recordTurn({
+        visualId: visualAssetId,
+        anchorId: mode === 'INVITE' ? anchorId : null,
+        entryMode: entryModeRef.current,
+        ...input,
+        sceneId: turnSceneId,
+      });
+    },
+    [anchorId, mode, recordTurn, sceneId, visualAssetId],
+  );
+
   const stopSpeaking = useCallback(() => {
     audioAbortRef.current?.abort();
     audioAbortRef.current = null;
@@ -181,9 +206,16 @@ export function useDialogue({
 
   /** 그레텔의 고정 대사를 기록에 남기고 그레텔 목소리로 말한다(미리 녹음한 음성이 있으면 그것). */
   const sayFixedLine = useCallback(
-    async (lineId: string, text: string) => {
+    async (lineId: string, text: string, helpStepNumber?: number) => {
       const seq = requestSeqRef.current;
       addTurn({ role: 'CHARACTER', text, fixed: true });
+      logTurn({
+        role: 'CHARACTER',
+        text,
+        fixed: true,
+        characterSpeakerId: character.speakerId,
+        ...(helpStepNumber ? { helpStep: helpStepNumber, entryMode: 'HELP' as const } : {}),
+      });
       setPhase('speaking');
       try {
         await runtime.speakDialogueLine(lineId, text, character.speakerId);
@@ -192,7 +224,7 @@ export function useDialogue({
       }
       if (seq === requestSeqRef.current) setPhase('ready');
     },
-    [addTurn, character.speakerId, runtime],
+    [addTurn, character.speakerId, logTurn, runtime],
   );
 
   // ── 열고 닫기 ─────────────────────────────────────────────
@@ -221,13 +253,13 @@ export function useDialogue({
     resetSessionRefs('SPONTANEOUS');
     setMode('CHAT');
     setAnchorId(null);
-    setTurns([
-      { id: 'greeting', role: 'CHARACTER', text: '응, 나 여기 있어. 무슨 이야기 하고 싶어?', fixed: true },
-    ]);
+    const greeting = '응, 나 여기 있어. 무슨 이야기 하고 싶어?';
+    setTurns([{ id: 'greeting', role: 'CHARACTER', text: greeting, fixed: true }]);
     setOpen(true);
     await runtime.pauseForDialogue();
     logStep('OPEN');
-  }, [logStep, open, resetSessionRefs, runtime]);
+    logTurn({ role: 'CHARACTER', text: greeting, fixed: true, characterSpeakerId: character.speakerId, anchorId: null, entryMode: 'SPONTANEOUS' });
+  }, [character.speakerId, logStep, logTurn, open, resetSessionRefs, runtime]);
 
   // 질문 초대 대사가 끝나면(awaiting-question) 같은 패널을 질문 초대 모드로 연다.
   // 초대 대사는 이미 낭독으로 들었으므로 다시 말하지 않고 첫 말풍선으로만 둔다.
@@ -250,9 +282,22 @@ export function useDialogue({
   useEffect(() => {
     if (invitedAnchorId) {
       resetSessionRefs('INVITE');
+      inviteChildSpokeRef.current = false;
       const payload: StepMetadata = { entry_mode: 'INVITE', turn_kind: 'OPEN', anchor_id: invitedAnchorId };
       if (sceneId) payload.scene_id = sceneId;
       void trackStoryEvent('dialogue_step', payload);
+      if (sceneId) {
+        recordTurn({
+          sceneId,
+          visualId: visualAssetId,
+          anchorId: invitedAnchorId,
+          entryMode: 'INVITE',
+          role: 'CHARACTER',
+          text: activeQuestionPrompt,
+          fixed: true,
+          characterSpeakerId: character.speakerId,
+        });
+      }
       return;
     }
     // 초대가 끝났으면 늦게 올 답·전사를 버리고 소리·녹음을 멈춘다(닫힌 패널이 말하지 않게).
@@ -277,6 +322,7 @@ export function useDialogue({
       if (recorder.isRecording) await recorder.stopRecording();
       logStep('CLOSE', { reply_kind: reason, turn_number: childTurnCountRef.current });
       if (mode === 'INVITE' && anchorId) {
+        logTurn({ role: 'SYSTEM', event: inviteChildSpokeRef.current ? 'INVITE_CLOSED' : 'INVITE_SKIPPED' });
         if (childTurnCountRef.current > 0) {
           runtime.recordDialogueOutcome(anchorId, lastChildMeaningRef.current, lastReplyRef.current);
         }
@@ -292,7 +338,7 @@ export function useDialogue({
       setOpen(false);
       await runtime.resumeAfterDialogue();
     },
-    [anchorId, cancelPending, inviteHelp?.continueLine, logStep, mode, recorder, runtime, sayFixedLine, stopSpeaking],
+    [anchorId, cancelPending, inviteHelp?.continueLine, logStep, logTurn, mode, recorder, runtime, sayFixedLine, stopSpeaking],
   );
 
   // ── 그레텔에게 보내기 ─────────────────────────────────────
@@ -312,6 +358,17 @@ export function useDialogue({
       const turnNumber = childTurnCountRef.current;
       const wrapUp: WrapUpSignal = wrapUpFor(turnNumber, extended);
       addTurn({ role: 'CHILD', text });
+      if (mode === 'INVITE') inviteChildSpokeRef.current = true;
+      logTurn({
+        role: 'CHILD',
+        text,
+        inputMode,
+        // 반 수업은 선생님이 반을 대신해 입력한다. 가정은 보호자가 대신 썼다고 고른 경우만 표시한다.
+        speaker: lessonId ? 'TEACHER_RELAY' : guardianProxy ? 'GUARDIAN_PROXY' : 'UNVERIFIED',
+        transcriptEdited: inputMode === 'VOICE' && sttDraftRef.current !== null ? text !== sttDraftRef.current.trim() : null,
+        ...(helpStep > 0 ? { helpStep } : {}),
+      });
+      sttDraftRef.current = null;
       setDraft('');
       setProposal(null);
       setErrorMessage(null);
@@ -345,6 +402,13 @@ export function useDialogue({
         if (signal.childMeaning) lastChildMeaningRef.current = signal.childMeaning;
         addTurn({ role: 'CHARACTER', text: reply.responseText });
         logStep('REPLY', { reply_kind: signal.replyKind, turn_number: turnNumber });
+        const replyTurn = {
+          role: 'CHARACTER' as const,
+          text: reply.responseText,
+          characterSpeakerId: character.speakerId,
+          replyKind: signal.replyKind,
+          proposedFamilyId: mode === 'INVITE' ? signal.proposedActionFamilyId : null,
+        };
 
         const ending =
           signal.replyKind === 'CLOSE' || signal.childWantsToEnd || wrapUp === 'CLOSE';
@@ -368,12 +432,16 @@ export function useDialogue({
           setPhase('speaking');
           const audioController = new AbortController();
           audioAbortRef.current = audioController;
+          let played = false;
           try {
-            await playResponseAudio(reply.audio as BufferedResponseAudio, audioController.signal);
+            played = await playResponseAudio(reply.audio as BufferedResponseAudio, audioController.signal);
           } catch {
             // 음성이 실패해도 글 답은 패널에 있다.
           }
+          logTurn({ ...replyTurn, replyAudioPlayed: played && !audioController.signal.aborted });
           if (audioController.signal.aborted || seq !== requestSeqRef.current) return;
+        } else {
+          logTurn({ ...replyTurn, replyAudioPlayed: false });
         }
         if (ending) {
           await close(signal.childWantsToEnd ? 'CHILD_ENDED' : 'CLOSED_BY_REPLY');
@@ -398,8 +466,8 @@ export function useDialogue({
     },
     [
       addTurn, anchorId, cancelPending, character.speakerId, close, conversationAttribution.childId,
-      conversationId, executedActions, extended, heardClipId, helpStep, helpSteps.length, lessonId, logStep, mode,
-      sceneId, stopSpeaking, storyPackage, turns, tutorStudentId,
+      conversationId, executedActions, extended, guardianProxy, heardClipId, helpStep, helpSteps.length, lessonId,
+      logStep, logTurn, mode, sceneId, stopSpeaking, storyPackage, turns, tutorStudentId,
     ],
   );
 
@@ -441,6 +509,7 @@ export function useDialogue({
       );
       if (seq !== requestSeqRef.current) return;
       inputModeRef.current = 'VOICE';
+      sttDraftRef.current = transcript.slice(0, MAX_TEXT);
       setDraft(transcript.slice(0, MAX_TEXT));
       setPhase('confirm');
     } catch (error) {
@@ -523,8 +592,12 @@ export function useDialogue({
     stopSpeaking();
     if (recorder.isRecording) void recorder.stopRecording();
     setErrorMessage(null);
-    if (phase !== 'confirm') setDraft('');
-    inputModeRef.current = 'TEXT';
+    // 받아 적은 문장을 고쳐 쓰는 거면 음성 입력으로 남기고(고쳐 씀 표시), 새로 쓰는 거면 글 입력이다.
+    if (phase !== 'confirm') {
+      setDraft('');
+      sttDraftRef.current = null;
+      inputModeRef.current = 'TEXT';
+    }
     setPhase('typing');
   }, [cancelPending, phase, recorder, stopSpeaking]);
 
@@ -552,7 +625,7 @@ export function useDialogue({
     setHelpStep(step);
     if (childTurnCountRef.current === 0) entryModeRef.current = 'HELP';
     logStep('HELP', { help_step: step });
-    await sayFixedLine(`dialogue-${anchorId}-help-${step}`, helpSteps[step - 1]);
+    await sayFixedLine(`dialogue-${anchorId}-help-${step}`, helpSteps[step - 1], step);
   }, [anchorId, cancelPending, helpStep, helpSteps, logStep, sayFixedLine, stopSpeaking]);
 
   /** 마지막 도움 단계에서 보여 주는 예시(C) - 고르면 바로 그 행동으로 이어 간다("예시 후 선택"). */
@@ -561,15 +634,25 @@ export function useDialogue({
   // ── 행동 확인 ─────────────────────────────────────────────
 
   const runAction = useCallback(
-    async (familyId: string, childMeaning: string, viaSuggestion: boolean) => {
+    async (familyId: string, childMeaning: string, viaSuggestion: boolean, suggestionLabel?: string) => {
       cancelPending();
       stopSpeaking();
       if (recorder.isRecording) await recorder.stopRecording();
       logStep('CONFIRM', { family_id: familyId, via_suggestion: viaSuggestion, help_step: helpStep });
+      logTurn({
+        role: 'SYSTEM',
+        event: 'ACTION_CONFIRMED',
+        familyId,
+        viaSuggestion,
+        suggestionLabel: suggestionLabel ?? null,
+        resultVisualId: storyPackage.branchIllustrationAssetId(familyId),
+        ...(helpStep > 0 ? { helpStep } : {}),
+      });
+      inviteChildSpokeRef.current = true;
       setOpen(false);
-      await runtime.confirmDialogueAction(familyId, childMeaning);
+      await runtime.confirmDialogueAction(familyId, childMeaning, { viaSuggestion, suggestionLabel });
     },
-    [cancelPending, helpStep, logStep, recorder, runtime, stopSpeaking],
+    [cancelPending, helpStep, logStep, logTurn, recorder, runtime, stopSpeaking, storyPackage],
   );
 
   const acceptProposal = useCallback(() => {
@@ -578,7 +661,7 @@ export function useDialogue({
 
   const chooseSuggestion = useCallback(
     (familyId: string, label: string) => {
-      void runAction(familyId, label, true);
+      void runAction(familyId, label, true, label);
     },
     [runAction],
   );
@@ -587,9 +670,11 @@ export function useDialogue({
   const keepTalking = useCallback(() => {
     if (phase === 'suggest-return') setExtended(true);
     logStep('KEEP_TALKING', { reply_kind: phase });
+    // 제안한 행동을 지금은 하지 않기로 함 - 제안과 실제 실행을 구분해 남긴다.
+    if (phase === 'proposal' && proposal) logTurn({ role: 'SYSTEM', event: 'ACTION_DECLINED', familyId: proposal.familyId });
     setProposal(null);
     setPhase('ready');
-  }, [logStep, phase]);
+  }, [logStep, logTurn, phase, proposal]);
 
   // 이야기 화면을 떠나면 진행 중인 요청·음성을 멈춘다.
   useEffect(
@@ -632,6 +717,10 @@ export function useDialogue({
     chooseSuggestion,
     keepTalking,
     stopSpeaking,
+    // 반 수업이 아닐 때만 보여 준다(반 수업은 늘 선생님 입력).
+    canMarkGuardianProxy: !lessonId,
+    guardianProxy,
+    setGuardianProxy,
   };
 }
 

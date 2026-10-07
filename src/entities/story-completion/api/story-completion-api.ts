@@ -1,6 +1,7 @@
 import { apiBaseUrl } from '@/shared/config';
 import { requestJson, type PublicRequestOptions as RequestOptions } from '@/shared/api';
 import type { CompanionChatSummary, QuestionOutcome } from '@/entities/analytics';
+import type { PlayTurn } from '@/entities/play-session';
 
 export type StoryCompletionSummary = {
   id: string;
@@ -29,12 +30,77 @@ export type StoryCompletionSummary = {
  */
 export type StorySessionKind = 'CLASS' | 'TUTOR' | 'HOME';
 
+/** COMPLETED: 끝까지 읽음. EXITED: 중간에 나감(잠시 나가기·오늘 체험 마치기) - 이어 읽으면 COMPLETED로 바뀐다. */
+export type StoryEndStatus = 'COMPLETED' | 'EXITED';
+
+export type ReportFollowUp = {
+  type: 'REASON' | 'POSSIBILITY' | 'EXPERIENCE' | 'LOOK_TOGETHER' | 'RECALL';
+  text: string;
+};
+
+/** 아이 말에서 드러난 관심·생각 하나 - 근거는 그 회차 대화 줄의 seq로 가리킨다. */
+export type ReportObservation = {
+  key: string;
+  sceneId: string;
+  anchorId: string | null;
+  evidenceSeqs: number[];
+  expressionTypes: string[];
+  signals: string[];
+  initiative: string;
+  observation: string;
+};
+
+export type ReportTalkCard = {
+  key: string;
+  headline: string;
+  explanation: string;
+  acknowledge: string | null;
+  openingLine: string;
+  followUps: ReportFollowUp[];
+};
+
+/** 아이 말이 없을 때·반 수업에서 쓰는 "이 장면으로 나눌 수 있는 이야기". */
+export type ReportSceneTalk = {
+  sceneId: string;
+  openingLine: string;
+  followUps: ReportFollowUp[];
+};
+
+export type ReportAnalysis = {
+  status: 'PENDING' | 'READY' | 'FAILED' | 'SKIPPED';
+  modelId?: string | null;
+  promptVersion?: string | null;
+  observations: ReportObservation[];
+  cards: ReportTalkCard[];
+  commonScenes: ReportSceneTalk[];
+};
+
+export type TeacherNote = {
+  /** 선생님만 보는 메모 - 기록 주인 선생님과 같은 기관 관리자에게만 온다. */
+  internal: string | null;
+  /** 부모에게 공유하는 한마디. */
+  forParents: string | null;
+};
+
 export type StoryCompletionDetail = StoryCompletionSummary & {
   outcomes: QuestionOutcome[];
   /** 리포트 머리말용 - 반 수업이면 반 이름, 기관 반이면 기관 이름, 선생님 세션이면 진행한 선생님. */
   className: string | null;
   organizationName: string | null;
   tutorDisplayName: string | null;
+  /** Q-39 - 옛 서버·옛 기록에는 없을 수 있다. */
+  contentVersion?: string | null;
+  endStatus?: StoryEndStatus | null;
+  readFromSceneId?: string | null;
+  readThroughSceneId?: string | null;
+  /** 그 회차 대화 전부(seq 순). 반 수업을 부모가 보면 아이 말 text는 비어 온다. */
+  turns?: PlayTurn[] | null;
+  /** false면 보관 기간이 지나 대화 원문이 지워진 기록 - outcomes 요약으로만 보여 준다. */
+  turnsAvailable?: boolean | null;
+  teacherNote?: TeacherNote | null;
+  analysis?: ReportAnalysis | null;
+  /** 보는 사람이 부모일 때 이 기록과 이어진 자기 아이 - "아이랑 다시 읽기"가 이 중에서 고른다. */
+  linkedChildren?: { id: string; name: string }[] | null;
 };
 
 export class StoryCompletionApiError extends Error {
@@ -71,6 +137,11 @@ export function recordStoryCompletion(
     companionConversationId?: string;
     /** 수업 상세에서 시작한 세션이면 그 수업 id. 반 수업이면 서버가 참여 학생 전원을 묶어 기록 한 건으로 남긴다. */
     lessonId?: string;
+    /** 끝까지 읽었는지(COMPLETED, 기본) 중간에 나갔는지(EXITED). 같은 회차를 다시 저장하면 서버가 갱신한다. */
+    endStatus?: StoryEndStatus;
+    contentVersion?: string;
+    readFromSceneId?: string;
+    readThroughSceneId?: string;
   },
   options?: RequestOptions,
 ): Promise<StoryCompletionSummary> {
@@ -104,4 +175,19 @@ export function listRecentStoryCompletions(
   const params = new URLSearchParams({ limit: String(limit) });
   if (filters?.childId) params.set('childId', filters.childId);
   return request(`/v1/story-completions/recent?${params.toString()}`, { method: 'GET' }, token, options);
+}
+
+/** 반·개별 수업 기록의 교사 메모 저장 - 기록 주인 선생님만. */
+export function saveTeacherNote(
+  token: string,
+  id: string,
+  note: { internal: string | null; forParents: string | null },
+  options?: RequestOptions,
+): Promise<TeacherNote> {
+  return request(`/v1/story-completions/${id}/teacher-note`, { method: 'PUT', body: JSON.stringify(note) }, token, options);
+}
+
+/** 분석이 실패한 기록의 분석만 다시 만든다(기본 기록은 그대로). */
+export function retryReportAnalysis(token: string, id: string, options?: RequestOptions): Promise<unknown> {
+  return request(`/v1/story-completions/${id}/analysis/retry`, { method: 'POST' }, token, options);
 }

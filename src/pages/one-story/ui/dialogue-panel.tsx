@@ -130,6 +130,21 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
           <Chip label="말로 할래" onPress={() => void dialogue.startTalking()} />
           <Chip label="취소" onPress={dialogue.cancelInput} />
         </View>
+        {dialogue.canMarkGuardianProxy && (
+          // 리포트에 "보호자가 대신 입력"으로 남긴다 - 아이 말과 구분해 관심 분석에서 빼기 위한 작은 표시.
+          <Pressable
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: dialogue.guardianProxy }}
+            onPress={() => dialogue.setGuardianProxy(!dialogue.guardianProxy)}
+            style={panel.proxyRow}
+            hitSlop={8}
+          >
+            <View style={[panel.proxyBox, dialogue.guardianProxy && panel.proxyBoxChecked]}>
+              {dialogue.guardianProxy && <Text style={panel.proxyCheck}>✓</Text>}
+            </View>
+            <Text style={panel.proxyLabel}>보호자가 대신 입력</Text>
+          </Pressable>
+        )}
       </View>
     );
   }
@@ -179,7 +194,8 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
   // ready · speaking · error - 아이 차례. 그레텔이 말하는 중에 말하기를 누르면 음성을 끊고 듣는다.
   return (
     <View style={panel.column}>
-      {phase === 'ready' && dialogue.suggestions.length > 0 && (
+      {/* 마지막 도움 대사를 듣는 중에도 예시를 고를 수 있게 한다 - 아이는 다 듣기 전에 누르기도 한다. */}
+      {(phase === 'ready' || phase === 'speaking') && dialogue.suggestions.length > 0 && (
         <View style={panel.controls}>
           {dialogue.suggestions.map((suggestion) => (
             <Chip
@@ -313,4 +329,17 @@ const panel = StyleSheet.create({
   chipPressed: { opacity: 0.8 },
   chipText: { color: storybookTheme.color.onDark, fontSize: 15, fontWeight: '600' },
   chipTextPrimary: { color: storybookTheme.color.onCardTitle },
+  proxyRow: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
+  proxyBox: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: storybookTheme.color.onDarkMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  proxyBoxChecked: { backgroundColor: storybookTheme.color.gold, borderColor: storybookTheme.color.gold },
+  proxyCheck: { color: storybookTheme.color.onCardTitle, fontSize: 12, fontWeight: '700' },
+  proxyLabel: { color: storybookTheme.color.onDarkMuted, fontSize: 13 },
 });

@@ -1,7 +1,7 @@
 import { sanitizeNarrationText } from '@/entities/narration';
 
 import type { BufferedResponseAudio, PcmStreamResponseAudio } from './response-audio';
-import { PrefetchDisabledError } from './choice-prefetch';
+import { isPrefetchDisabledBody, PrefetchDisabledError } from './choice-prefetch';
 import { positiveHeader } from './response-audio';
 
 /** /v1/narrations(·/stream) 요청 본문. anchorId가 비어 있으면 백엔드는 스토리 캐스트인지만 확인한다. */
@@ -82,8 +82,8 @@ export async function fetchPcmNarrationStream(
       body: requestBody(fields),
     });
     if (fields.prefetch && response.status === 409) {
-      const failure = (await response.json().catch(() => null)) as { code?: string } | null;
-      if (failure?.code === 'PREFETCH_DISABLED') throw new PrefetchDisabledError();
+      const failure = await response.json().catch(() => null);
+      if (isPrefetchDisabledBody(failure)) throw new PrefetchDisabledError();
     }
     const contentType = response.headers.get('content-type') ?? '';
     if (!response.ok || !contentType.includes('audio/pcm') || !response.body) {

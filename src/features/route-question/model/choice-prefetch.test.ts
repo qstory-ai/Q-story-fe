@@ -2,7 +2,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { createChoicePrefetcher, PrefetchDisabledError } from './choice-prefetch';
+import {
+  createChoicePrefetcher,
+  isPrefetchDisabledBody,
+  PrefetchDisabledError,
+} from './choice-prefetch';
 
 const items = [
   { id: 'OPTION_1', text: 'a' },
@@ -13,25 +17,79 @@ const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 test('cache hit returns audio once without any further fetch', async () => {
   let calls = 0;
-  const p = createChoicePrefetcher({ fetcher: async (item) => { calls += 1; return `audio-${item.id}`; } });
+  const p = createChoicePrefetcher({
+    fetcher: async (item) => {
+      calls += 1;
+      return `audio-${item.id}`;
+    },
+  });
   p.start(items);
   await tick();
   assert.equal(calls, 3);
-  assert.equal(p.take('OPTION_2'), 'audio-OPTION_2');
+  assert.deepEqual(p.take('OPTION_2'), { audio: 'audio-OPTION_2', pending: null });
   assert.equal(p.take('OPTION_2'), null);
   assert.equal(calls, 3);
 });
 
-test('not-ready entry returns null so caller falls back', async () => {
-  const p = createChoicePrefetcher({ fetcher: () => new Promise(() => {}) });
-  p.start(items);
-  assert.equal(p.take('OPTION_1'), null);
+test('pending take survives abort and resolves via awaitTaken', async () => {
+  let resolve;
+  const p = createChoicePrefetcher({
+    fetcher: () => new Promise((r) => { resolve = r; }),
+  });
+  p.start([items[0]]);
+  const taken = p.take('OPTION_1');
+  assert.equal(taken.audio, null);
+  p.abort();
+  resolve('late-ok');
+  assert.equal(await p.awaitTaken(taken, 100), 'late-ok');
+});
+
+test('pending failure resolves null so caller falls back', async () => {
+  const p = createChoicePrefetcher({
+    fetcher: async () => {
+      throw new Error('x');
+    },
+  });
+  p.start([items[0]]);
+  const taken = p.take('OPTION_1');
+  assert.equal(await p.awaitTaken(taken, 100), null);
+});
+
+test('timeout returns null and disposes the late result', async () => {
+  let resolve;
+  const disposed = [];
+  const p = createChoicePrefetcher({
+    fetcher: () => new Promise((r) => { resolve = r; }),
+    dispose: (a) => disposed.push(a),
+  });
+  p.start([items[0]]);
+  const taken = p.take('OPTION_1');
+  assert.equal(await p.awaitTaken(taken, 5), null);
+  resolve('late');
+  await tick();
+  assert.deepEqual(disposed, ['late']);
+});
+
+test('real FailureBody shape is recognised as PREFETCH_DISABLED', () => {
+  assert.equal(
+    isPrefetchDisabledBody({
+      ok: false,
+      failure: { code: 'PREFETCH_DISABLED', stage: 'narration', retryable: false },
+    }),
+    true,
+  );
+  assert.equal(isPrefetchDisabledBody({ code: 'PREFETCH_DISABLED' }), true);
+  assert.equal(isPrefetchDisabledBody({ ok: false, failure: { code: 'OTHER' } }), false);
+  assert.equal(isPrefetchDisabledBody(null), false);
 });
 
 test('409 disables prefetch for the rest of the session', async () => {
   let calls = 0;
   const p = createChoicePrefetcher({
-    fetcher: async () => { calls += 1; throw new PrefetchDisabledError(); },
+    fetcher: async () => {
+      calls += 1;
+      throw new PrefetchDisabledError();
+    },
   });
   p.start(items);
   await tick();
@@ -44,11 +102,15 @@ test('409 disables prefetch for the rest of the session', async () => {
 
 test('other failures are not retried and do not disable', async () => {
   let calls = 0;
-  const p = createChoicePrefetcher({ fetcher: async () => { calls += 1; return null; } });
+  const p = createChoicePrefetcher({
+    fetcher: async () => {
+      calls += 1;
+      return null;
+    },
+  });
   p.start(items);
   await tick();
   assert.equal(p.isDisabled(), false);
-  assert.equal(p.take('OPTION_1'), null);
   assert.equal(calls, 3);
 });
 
@@ -72,10 +134,15 @@ test('abort cancels pending requests and disposes ready audio', async () => {
 
 test('taken audio is not aborted by later abort', async () => {
   let signal;
-  const p = createChoicePrefetcher({ fetcher: async (_i, s) => { signal = s; return 'x'; } });
+  const p = createChoicePrefetcher({
+    fetcher: async (_i, s) => {
+      signal = s;
+      return 'x';
+    },
+  });
   p.start([items[0]]);
   await tick();
-  assert.equal(p.take('OPTION_1'), 'x');
+  assert.equal(p.take('OPTION_1').audio, 'x');
   p.abort();
   assert.equal(signal.aborted, false);
 });

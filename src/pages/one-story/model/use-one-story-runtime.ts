@@ -98,10 +98,12 @@ import { useOneStoryDerivedView } from './use-one-story-derived-view';
 import { useLiveBranchPolling } from './use-live-branch-polling';
 
 // Q-34: 선택지 음성 미리 만들기 캐시. 모듈 단위라 409 PREFETCH_DISABLED 후 세션 내내 멈춘다.
+function disposeResponseAudio(audio: ResponseAudio) {
+  if (audio.kind === 'pcm-stream') void audio.stream.cancel().catch(() => undefined);
+}
+
 const choicePrefetcher = createChoicePrefetcher<ResponseAudio>({
-  dispose: (audio) => {
-    if (audio.kind === 'pcm-stream') void audio.stream.cancel().catch(() => undefined);
-  },
+  dispose: disposeResponseAudio,
 });
 
 export function useOneStoryRuntime(
@@ -1333,42 +1335,57 @@ export function useOneStoryRuntime(
 
       // 선택지의 branchLine은 LLM이 옵션마다 따로 쓴 대사라(OpenRouterClient.generatePlan() 스키마
       // 참고) 오디오가 미리 준비되어 있지 않다 - 라우팅 응답과 같은 audioReadyWithin 경합으로 준비한다.
-      const prefetchedAudio = selectedOption?.branchLine
+      const taken = selectedOption?.branchLine
         ? choicePrefetcher.take(selectedOption.id)
         : null;
-      choicePrefetcher.abort();
-      if (prefetchedAudio) {
+      choicePrefetcher.abort(); // 고른 항목은 take로 분리돼 있어 다른 선택지만 취소된다.
+      let responseAudio: ResponseAudio | null = null;
+      if (taken?.audio) {
         // 미리 만든 음성이 준비돼 있으면 로딩 패널 없이 바로 이어간다.
-        setPendingResponseAudio(prefetchedAudio);
+        responseAudio = taken.audio;
       } else if (selectedOption?.branchLine) {
         const anchor = storyManifest.questionAnchors.find(
           (candidate) => candidate.id === choiceState.anchorId,
         );
         if (anchor) {
           setIsPreparingResponseAudio(true);
-          const controller = new AbortController();
-          const audio = await audioReadyWithin(
-            getResponseNarration(
-              {
-                storyId: storyManifest.storyId,
-                anchor,
-                text: selectedOption.branchLine,
-              },
-              controller.signal,
-            ),
-            RESPONSE_AUDIO_PREPARE_MS,
-          );
-          setIsPreparingResponseAudio(false);
-          if (runtimeRef.current.status === 'awaiting-choice') {
-            setPendingResponseAudio(audio);
+          // 진행 중인 미리 만들기가 있으면 그것을 기다리고, 실패·시간초과일 때만 기존 요청으로 폴백한다.
+          if (taken?.pending) {
+            responseAudio = await choicePrefetcher.awaitTaken(
+              taken,
+              RESPONSE_AUDIO_PREPARE_MS,
+            );
           }
+          if (!responseAudio) {
+            const controller = new AbortController();
+            responseAudio = await audioReadyWithin(
+              getResponseNarration(
+                {
+                  storyId: storyManifest.storyId,
+                  anchor,
+                  text: selectedOption.branchLine,
+                },
+                controller.signal,
+              ),
+              RESPONSE_AUDIO_PREPARE_MS,
+            );
+          }
+          setIsPreparingResponseAudio(false);
         }
       }
+      if (responseAudio && runtimeRef.current.status === 'awaiting-choice') {
+        setPendingResponseAudio(responseAudio);
+      } else if (responseAudio) {
+        disposeResponseAudio(responseAudio);
+        responseAudio = null;
+      }
 
-      if (
-        commitEvent({ type: 'CHOICE_SELECTED', optionId }) &&
-        selectedOption
-      ) {
+      const committed = commitEvent({ type: 'CHOICE_SELECTED', optionId });
+      if (!committed && responseAudio) {
+        setPendingResponseAudio(null);
+        disposeResponseAudio(responseAudio);
+      }
+      if (committed && selectedOption) {
         rememberQuestionOutcome(
           choiceState.anchorId,
           choiceState.plan,
@@ -1414,7 +1431,9 @@ export function useOneStoryRuntime(
         ),
     );
     return () => choicePrefetcher.abort();
-  }, [choiceStatus, choiceKey, storyManifest]);
+    // storyId가 같으면 앵커 목록도 같다 - manifest 객체 정체성 대신 안정 키를 쓴다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [choiceStatus, choiceKey, storyManifest.storyId]);
 
   useEffect(() => {
     if (runtimeState.status !== 'awaiting-choice') {

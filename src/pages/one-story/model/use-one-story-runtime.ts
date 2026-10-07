@@ -1350,13 +1350,20 @@ export function useOneStoryRuntime(
         if (anchor) {
           setIsPreparingResponseAudio(true);
           // 진행 중인 미리 만들기가 있으면 그것을 기다리고, 실패·시간초과일 때만 기존 요청으로 폴백한다.
+          // 시간초과면 폴백을 새로 시작하지 않는다(대기 총합 상한 = RESPONSE_AUDIO_PREPARE_MS).
+          // 빠르게 실패했다면 남은 시간만큼만 기존 요청으로 폴백한다.
+          let fallbackBudgetMs = RESPONSE_AUDIO_PREPARE_MS;
+          let skipFallback = false;
           if (taken?.pending) {
-            responseAudio = await choicePrefetcher.awaitTaken(
+            const awaited = await choicePrefetcher.awaitTaken(
               taken,
               RESPONSE_AUDIO_PREPARE_MS,
             );
+            responseAudio = awaited.audio;
+            skipFallback = awaited.timedOut;
+            fallbackBudgetMs = Math.max(0, RESPONSE_AUDIO_PREPARE_MS - awaited.elapsedMs);
           }
-          if (!responseAudio) {
+          if (!responseAudio && !skipFallback) {
             const controller = new AbortController();
             responseAudio = await audioReadyWithin(
               getResponseNarration(
@@ -1367,7 +1374,7 @@ export function useOneStoryRuntime(
                 },
                 controller.signal,
               ),
-              RESPONSE_AUDIO_PREPARE_MS,
+              fallbackBudgetMs,
             );
           }
           setIsPreparingResponseAudio(false);

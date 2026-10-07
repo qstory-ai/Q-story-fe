@@ -34,6 +34,13 @@ type Options<T> = {
   maxItems?: number;
 };
 
+export type AwaitedPrefetch<T> = {
+  audio: T | null;
+  /** true면 시간 안에 못 끝났다 - 호출자는 폴백 요청을 새로 시작하지 않는다. */
+  timedOut: boolean;
+  elapsedMs: number;
+};
+
 export type TakenPrefetch<T> = {
   /** 이미 준비된 음성. */
   audio: T | null;
@@ -119,12 +126,17 @@ export function createChoicePrefetcher<T>({
   }
 
   /**
-   * 꺼낸 항목을 최대 waitMs 기다린다. 실패·시간초과는 null(호출자가 기존 요청으로 폴백).
+   * 꺼낸 항목을 최대 waitMs 기다린다. 실패는 audio:null(빠른 실패면 호출자가 남은 시간으로 폴백), 시간초과는 timedOut:true.
    * 시간초과 뒤 늦게 도착한 음성은 정리한다.
    */
-  async function awaitTaken(taken: TakenPrefetch<T>, waitMs: number): Promise<T | null> {
-    if (taken.audio) return taken.audio;
-    if (!taken.pending) return null;
+  async function awaitTaken(
+    taken: TakenPrefetch<T>,
+    waitMs: number,
+    now: () => number = Date.now,
+  ): Promise<AwaitedPrefetch<T>> {
+    if (taken.audio) return { audio: taken.audio, timedOut: false, elapsedMs: 0 };
+    if (!taken.pending) return { audio: null, timedOut: false, elapsedMs: 0 };
+    const startedAt = now();
     let timedOut = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
     const timeout = new Promise<null>((resolve) => {
@@ -139,9 +151,9 @@ export function createChoicePrefetcher<T>({
       void taken.pending.then((late) => {
         if (late) dispose?.(late);
       });
-      return null;
+      return { audio: null, timedOut: true, elapsedMs: now() - startedAt };
     }
-    return result;
+    return { audio: result, timedOut: false, elapsedMs: now() - startedAt };
   }
 
   return { start, take, awaitTaken, abort, isDisabled: () => disabled };

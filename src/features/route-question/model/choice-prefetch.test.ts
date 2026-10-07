@@ -41,7 +41,7 @@ test('pending take survives abort and resolves via awaitTaken', async () => {
   assert.equal(taken.audio, null);
   p.abort();
   resolve('late-ok');
-  assert.equal(await p.awaitTaken(taken, 100), 'late-ok');
+  assert.equal((await p.awaitTaken(taken, 100)).audio, 'late-ok');
 });
 
 test('pending failure resolves null so caller falls back', async () => {
@@ -52,7 +52,10 @@ test('pending failure resolves null so caller falls back', async () => {
   });
   p.start([items[0]]);
   const taken = p.take('OPTION_1');
-  assert.equal(await p.awaitTaken(taken, 100), null);
+  const result = await p.awaitTaken(taken, 100);
+  assert.equal(result.audio, null);
+  assert.equal(result.timedOut, false);
+  assert.ok(result.elapsedMs < 100);
 });
 
 test('timeout returns null and disposes the late result', async () => {
@@ -64,7 +67,10 @@ test('timeout returns null and disposes the late result', async () => {
   });
   p.start([items[0]]);
   const taken = p.take('OPTION_1');
-  assert.equal(await p.awaitTaken(taken, 5), null);
+  const result = await p.awaitTaken(taken, 5);
+  assert.equal(result.audio, null);
+  assert.equal(result.timedOut, true);
+  assert.ok(result.elapsedMs < 100);
   resolve('late');
   await tick();
   assert.deepEqual(disposed, ['late']);

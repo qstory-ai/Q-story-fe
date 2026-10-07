@@ -2,6 +2,11 @@ import type { FallbackPlan } from '@/entities/story-runtime';
 import type { StoryRuntimePackage } from '@/entities/story';
 
 import { defaultFallbackFamilyFor } from './default-fallback';
+import {
+  STT_UNAVAILABLE_CHILD_COPY,
+  STT_UNAVAILABLE_CODE,
+  isSttUnavailableBody,
+} from './stt-unavailable';
 import type {
   ConversationAttributionInput,
   SpeechPipeline,
@@ -81,6 +86,7 @@ async function requestStructuredOutput<T>(
   payload: T | null;
   status: number | null;
   transportError: Error | null;
+  sttUnavailable: boolean;
 }> {
   let lastStatus: number | null = null;
   let transportError: Error | null = null;
@@ -95,6 +101,10 @@ async function requestStructuredOutput<T>(
         payload = JSON.parse(body);
       } catch {
         payload = null;
+      }
+      // 음성 인식 공급자 장애(503 FailureBody)는 재시도해도 같으니 바로 돌려준다.
+      if (isSttUnavailableBody(payload)) {
+        return { payload: null, status: response.status, transportError: null, sttUnavailable: true };
       }
       if (guard(payload)) {
         const retryableFailure =
@@ -114,6 +124,7 @@ async function requestStructuredOutput<T>(
           payload,
           status: response.status,
           transportError: null,
+          sttUnavailable: false,
         };
       }
       if (attempt === 0) {
@@ -130,7 +141,7 @@ async function requestStructuredOutput<T>(
       }
     }
   }
-  return { payload: null, status: lastStatus, transportError };
+  return { payload: null, status: lastStatus, transportError, sttUnavailable: false };
 }
 
 function transportErrorDetail(
@@ -276,7 +287,7 @@ export class HttpSpeechPipeline implements SpeechPipeline {
     }
 
     try {
-      const { payload, status, transportError } =
+      const { payload, status, transportError, sttUnavailable } =
         await requestStructuredOutput(
           () =>
             this.fetchImpl(uploadUrl, {
@@ -288,6 +299,11 @@ export class HttpSpeechPipeline implements SpeechPipeline {
           isTranscriptionOutput,
           signal,
         );
+      if (sttUnavailable) {
+        const output = this.transportFallback(input, STT_UNAVAILABLE_CODE, STT_UNAVAILABLE_CHILD_COPY);
+        if (!output.ok) output.failure = { ...output.failure, stage: 'stt', retryable: false };
+        return output;
+      }
       if (!payload) {
         return this.transportFallback(
           input,

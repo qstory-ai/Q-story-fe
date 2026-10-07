@@ -41,6 +41,8 @@ import {
 import {
   createConfiguredSpeechPipeline,
   type TranscriptionSuccess,
+  STT_UNAVAILABLE_CHILD_COPY,
+  isSttUnavailableCode,
 } from '@/entities/speech-pipeline';
 import { narrationUtteranceSlug, type StoryRuntimePackage } from '@/entities/story';
 import { homePathForAuth, useAuth } from '@/entities/auth';
@@ -968,6 +970,11 @@ export function useOneStoryRuntime(
             }
           : null;
         setPendingTranscription(result);
+      } else if (isSttUnavailableCode(result.failure.code)) {
+        // 음성 인식이 막혔다 - 질문 기회를 쓰지 않고 안내와 함께 글 질문 입력으로 바로 넘긴다.
+        pendingVoiceResearchSampleRef.current = null;
+        await beginTypedQuestion();
+        setParentMessage(STT_UNAVAILABLE_CHILD_COPY);
       } else {
         pendingVoiceResearchSampleRef.current = null;
         setParentMessage(questionFailureCopy(result.failure).help);
@@ -991,7 +998,7 @@ export function useOneStoryRuntime(
         processingAbortRef.current = null;
       }
     }
-  }, [commitEvent, conversationAttribution, speechPipeline, storyManifest.storyId]);
+  }, [beginTypedQuestion, commitEvent, conversationAttribution, speechPipeline, storyManifest.storyId]);
 
   const finishQuestion = useCallback(async () => {
     const recording = await recorder.stopRecording();

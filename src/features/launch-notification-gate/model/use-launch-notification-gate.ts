@@ -6,6 +6,11 @@ import {
 } from '@/entities/launch-notification';
 import { messageForError } from '@/shared/api';
 
+import {
+  canSubmitLaunchNotification,
+  launchNotificationPhone,
+} from './launch-notification-form';
+
 /**
  * 데모 앞 연락처를 이미 남긴 브라우저인지. 계정이 아니라 브라우저 기준이다 - 같은 브라우저에서 로그인·로그아웃하거나
  * 다른 계정으로 바꿔도(대개 같은 가정) 다시 묻지 않는다. 예전 버전이 남긴 계정별 키(`…:account:<id>`)는 항상 이
@@ -42,25 +47,24 @@ export function useLaunchNotificationGate() {
   // 어느 버튼을 눌렀는지 구분해야 그 버튼에만 로딩 스피너가 뜬다.
   const [submittingIntent, setSubmittingIntent] = useState<'contact' | 'decline' | null>(null);
 
-  // 이메일은 선택 입력이지만, 나머지는 "연락 받고 싶어요"/"괜찮아요" 둘 다 동일하게 받는다 -
-  // "괜찮아요"도 신청 자체는 남기고 능동적 연락만 안 하는 것이다.
-  const canSubmit =
-    parentName.trim().length > 0 &&
-    phone.trim().length > 0 &&
-    childGender !== null &&
-    childAge.trim().length > 0 &&
-    discoverySource.trim().length > 0;
+  // 이메일은 항상 선택, 전화번호는 "연락 받고 싶어요"일 때만 필수다.
+  const values = { parentName, phone, childGender, childAge, discoverySource };
+  const canSubmitFor = useCallback(
+    (wantsContact: boolean) => canSubmitLaunchNotification(values, wantsContact),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [parentName, phone, childGender, childAge, discoverySource],
+  );
 
   const submit = useCallback(
     async (wantsContact: boolean) => {
-      if (!canSubmit || childGender === null) return;
+      if (!canSubmitFor(wantsContact) || childGender === null) return;
       setError(null);
       setSubmittingIntent(wantsContact ? 'contact' : 'decline');
       try {
         await submitLaunchNotification({
           parentName: parentName.trim(),
           email: email.trim() || undefined,
-          phone: phone.trim(),
+          phone: launchNotificationPhone(phone, wantsContact),
           childGender,
           childAge: childAge.trim(),
           discoverySource: discoverySource.trim(),
@@ -74,7 +78,7 @@ export function useLaunchNotificationGate() {
         setSubmittingIntent(null);
       }
     },
-    [canSubmit, parentName, email, phone, childGender, childAge, discoverySource],
+    [canSubmitFor, parentName, email, phone, childGender, childAge, discoverySource],
   );
 
   return {
@@ -93,7 +97,7 @@ export function useLaunchNotificationGate() {
     setDiscoverySource,
     error,
     submittingIntent,
-    canSubmit,
+    canSubmitFor,
     submit,
   };
 }

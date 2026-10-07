@@ -890,34 +890,6 @@ export function useOneStoryRuntime(
     trackStoryEvent,
   ]);
 
-  const processTypedQuestion = useCallback(async () => {
-    const transcript = typedQuestion.trim().slice(0, 240);
-    if (!transcript) {
-      setParentMessage('궁금한 것을 한 글자 이상 적어 주세요.');
-      return;
-    }
-    setParentMessage(null);
-    setLastTranscript(null);
-    setPendingTranscription(null);
-    pendingSttMsRef.current = null;
-    if (!commitEvent({ type: 'TEXT_SUBMITTED', transcript })) {
-      return;
-    }
-    const state = runtimeRef.current;
-    if (state.status !== 'processing-question') {
-      return;
-    }
-    setPendingTranscription({
-      ok: true,
-      speech: {
-        status: 'speech',
-        transcript,
-        locale: 'ko',
-        normalizedMimeType: 'text/plain',
-      },
-    });
-  }, [commitEvent, typedQuestion]);
-
   const transcribeRecording = useCallback(async (
     recording: RecordingResult,
   ) => {
@@ -1027,11 +999,12 @@ export function useOneStoryRuntime(
     return () => clearTimeout(timer);
   }, [finishQuestion, recorder.isRecording, runtimeState]);
 
-  const confirmTranscript = useCallback(async () => {
-    if (!pendingTranscription || isRoutingQuestion) {
+  const routeConfirmedSpeech = useCallback(async (
+    confirmedSpeech: TranscriptionSuccess['speech'],
+  ) => {
+    if (isRoutingQuestion) {
       return;
     }
-    const confirmedSpeech = pendingTranscription.speech;
     const pendingVoiceResearchSample = pendingVoiceResearchSampleRef.current;
     pendingVoiceResearchSampleRef.current = null;
     setLastTranscript(confirmedSpeech.transcript);
@@ -1250,7 +1223,6 @@ export function useOneStoryRuntime(
     conversationAttribution,
     childName,
     isRoutingQuestion,
-    pendingTranscription,
     questionOutcomes,
     rememberQuestionOutcome,
     speechPipeline,
@@ -1259,6 +1231,36 @@ export function useOneStoryRuntime(
     storyManifest.storyId,
     trackStoryEvent,
   ]);
+
+  const confirmTranscript = useCallback(async () => {
+    if (!pendingTranscription) {
+      return;
+    }
+    await routeConfirmedSpeech(pendingTranscription.speech);
+  }, [pendingTranscription, routeConfirmedSpeech]);
+
+  // 글 질문은 이미 아이가 직접 쓴 문장이라 확인 단계 없이 바로 라우팅한다.
+  const processTypedQuestion = useCallback(async () => {
+    const transcript = typedQuestion.trim().slice(0, 240);
+    if (!transcript) {
+      setParentMessage('궁금한 것을 한 글자 이상 적어 주세요.');
+      return;
+    }
+    setParentMessage(null);
+    setLastTranscript(null);
+    setPendingTranscription(null);
+    pendingSttMsRef.current = null;
+    pendingVoiceResearchSampleRef.current = null;
+    if (!commitEvent({ type: 'TEXT_SUBMITTED', transcript })) {
+      return;
+    }
+    await routeConfirmedSpeech({
+      status: 'speech',
+      transcript,
+      locale: 'ko',
+      normalizedMimeType: 'text/plain',
+    });
+  }, [commitEvent, routeConfirmedSpeech, typedQuestion]);
 
   const retryAfterTranscript = useCallback(async () => {
     if (questionMode === 'text') {

@@ -51,7 +51,7 @@ export function RecordingTextPanel({ runtime }: { runtime: OneStoryRuntime }) {
         />
         <ActionButton
           variant="secondary"
-          label="계속 듣기"
+          label="이야기 계속 듣기"
           onPress={continueStory}
         />
       </View>

@@ -5,7 +5,13 @@ import {
   primeResponseAudio,
   type BufferedResponseAudio,
 } from '@/features/route-question';
-import { useAudioRecorderAdapter } from '@/features/record-question';
+import {
+  LISTEN_NOW_COPY,
+  NO_SPEECH_REPROMPT_COPY,
+  primeRecorderAudio,
+  useAudioRecorderAdapter,
+  useSpeechAutoStop,
+} from '@/features/record-question';
 import { reportClientError } from '@/entities/analytics';
 import {
   CompanionChatError,
@@ -55,12 +61,6 @@ export type DialoguePhase =
   | 'suggest-return'
   | 'error';
 
-/** 말이 끝났다고 보는 기준 - 말소리가 한 번 들린 뒤 이만큼 조용하면 녹음을 끝낸다. */
-const SPEECH_DB = -42;
-const SILENCE_DB = -50;
-const SILENCE_AFTER_SPEECH_MS = 1_400;
-const NO_SPEECH_TIMEOUT_MS = 8_000;
-const MAX_RECORDING_MS = 20_000;
 const MAX_TEXT = 160;
 
 type Proposal = { familyId: string; childMeaning: string };
@@ -463,6 +463,7 @@ export function useDialogue({
   /** 말하기 - 그레텔이 말하는 중이면 끊고 바로 듣는다. 말이 끝나면(조용해지면) 저절로 멈춘다. */
   const startTalking = useCallback(async () => {
     primeResponseAudio();
+    primeRecorderAudio();
     cancelPending();
     stopSpeaking();
     setErrorMessage(null);
@@ -487,30 +488,46 @@ export function useDialogue({
     if (recorder.isRecording) void transcribe();
   }, [recorder.isRecording, transcribe]);
 
-  // 말소리가 들린 뒤 조용해지면, 또는 오래 말이 없거나 너무 길면 녹음을 끝낸다.
-  const heardSpeechRef = useRef(false);
-  const silentSinceRef = useRef<number | null>(null);
-  useEffect(() => {
-    if (!recorder.isRecording) {
-      heardSpeechRef.current = false;
-      silentSinceRef.current = null;
+  /**
+   * 마이크를 켰는데 끝내 말이 없었다(Q-34 무응답) - 녹음은 보내지 않고 버린다. 질문 초대에서 아직 한 마디도
+   * 안 했으면 질문을 건너뛰고 이야기를 이어 가고, 대화 중이었으면 아이 차례로 돌아간다.
+   */
+  const giveUpListening = useCallback(async () => {
+    if (stoppingRef.current) return;
+    if (mode === 'INVITE' && childTurnCountRef.current === 0) {
+      await close('CONTINUE');
       return;
     }
-    const db = recorder.meteringDb ?? -160;
-    const now = Date.now();
-    if (db > SPEECH_DB) {
-      heardSpeechRef.current = true;
-      silentSinceRef.current = null;
-    } else if (db < SILENCE_DB) {
-      silentSinceRef.current ??= now;
-    }
-    const silentFor = silentSinceRef.current ? now - silentSinceRef.current : 0;
-    const shouldStop =
-      (heardSpeechRef.current && silentFor >= SILENCE_AFTER_SPEECH_MS) ||
-      (!heardSpeechRef.current && recorder.durationMillis >= NO_SPEECH_TIMEOUT_MS) ||
-      recorder.durationMillis >= MAX_RECORDING_MS;
-    if (shouldStop) void transcribe();
-  }, [recorder.durationMillis, recorder.isRecording, recorder.meteringDb, transcribe]);
+    cancelPending();
+    if (recorder.isRecording) await recorder.stopRecording();
+    setPhase('ready');
+  }, [cancelPending, close, mode, recorder]);
+
+  // 말한 뒤 조용해지면 저절로 끝내고, 15초 말이 없으면 다시 묻고, 그 뒤 15초도 없으면 포기한다(30초 상한 포함).
+  const autoStop = useSpeechAutoStop(recorder, {
+    enabled: phase === 'recording',
+    onSpeechEnd: () => void transcribe(),
+    onGiveUp: () => void giveUpListening(),
+  });
+
+  // Q-34: 가정 세션은 질문 초대 낭독이 끝나면(awaiting-question) 탭 없이 바로 듣기 시작한다.
+  // 이 화면에서 초대 낭독을 실제로 들었을 때만(이어 듣기로 곧장 초대 상태에 들어온 경우 제외),
+  // 마이크 권한을 이미 받았을 때만 - 거절·미지원·반 수업이면 기존처럼 "말하기" 버튼을 기다린다.
+  const inviteHeardRef = useRef(false);
+  useEffect(() => {
+    if (isQuestionInvitePlayback) inviteHeardRef.current = true;
+  }, [isQuestionInvitePlayback]);
+  const autoListenPermitted = !lessonId && recorder.permissionState === 'granted';
+  useEffect(() => {
+    if (!invitedAnchorId || !inviteHeardRef.current) return;
+    // 다음 틱에 시작한다 - effect 안에서 곧장 상태를 바꾸지 않고, 개발 모드의 effect 두 번 실행에도 한 번만 돈다.
+    const timer = setTimeout(() => {
+      inviteHeardRef.current = false;
+      if (autoListenPermitted) void startTalking();
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invitedAnchorId]);
 
   const confirmTranscript = useCallback(() => {
     void send(draft, 'VOICE');
@@ -600,6 +617,7 @@ export function useDialogue({
     [],
   );
 
+  const listenPrompt = autoStop.reprompted ? NO_SPEECH_REPROMPT_COPY : LISTEN_NOW_COPY;
   const meterPercent = Math.max(8, Math.min(100, (((recorder.meteringDb ?? -60) + 60) / 48) * 100));
 
   return {
@@ -613,6 +631,7 @@ export function useDialogue({
     setDraft: (value: string) => setDraft(value.slice(0, MAX_TEXT)),
     errorMessage,
     meterPercent,
+    listenPrompt,
     canAskHelp: mode === 'INVITE' && helpStep < helpSteps.length,
     helpStep,
     suggestions,

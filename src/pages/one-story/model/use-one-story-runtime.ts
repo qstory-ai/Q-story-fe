@@ -53,7 +53,11 @@ import {
   preloadFixedNarration,
 } from '@/features/narrate-story';
 import {
+  LISTEN_NOW_COPY,
+  NO_SPEECH_REPROMPT_COPY,
+  primeRecorderAudio,
   useAudioRecorderAdapter,
+  useSpeechAutoStop,
   type RecordingResult,
 } from '@/features/record-question';
 import {
@@ -674,8 +678,22 @@ export function useOneStoryRuntime(
     trackStoryEvent,
   ]);
 
+  /**
+   * Q-34: 가정 세션은 "이야기 시작하기"(이어서 듣기) 탭에서 마이크 권한을 미리 받아 둔다 - 질문 초대가 끝나면
+   * 탭 없이 바로 녹음을 시작하려고. 결과는 페이지 안 녹음기끼리 공유된다. 거절·미지원이면 아무 안내 없이
+   * 기존 "말하기" 버튼 방식으로 남는다. 반 수업은 버튼으로 시작하므로 미리 묻지 않는다.
+   */
+  const prepareMicrophoneForAutoListen = useCallback(() => {
+    primeRecorderAudio();
+    if (lessonId || recorder.permissionState !== 'unknown' || recorder.permissionRequestPending) {
+      return;
+    }
+    void recorder.requestPermission();
+  }, [lessonId, recorder]);
+
   const startStory = useCallback(() => {
     primeResponseAudio();
+    prepareMicrophoneForAutoListen();
     const normalizedName = childNameInput.trim().slice(0, 10);
     // 질문 원음은 보호자가 온보딩/마이페이지에서 현재 약관에 동의한 계정만 저장한다(이야기 화면에 별도
     // 동의 UI 없음) - 저장 호출부가 이 ref가 non-null인지로 판단하므로 세션 시작 시 동의된 경우에만 채운다.
@@ -716,6 +734,7 @@ export function useOneStoryRuntime(
   }, [
     childNameInput,
     commitEvent,
+    prepareMicrophoneForAutoListen,
     recorder,
     storyManifest.questionAnchors,
     storyManifest.storyId,
@@ -806,6 +825,7 @@ export function useOneStoryRuntime(
   const beginQuestion = useCallback(
     async () => {
       primeResponseAudio();
+      primeRecorderAudio();
       setParentMessage(null);
       await stopNarration();
       await discardActiveQuestionAttempt();
@@ -969,8 +989,14 @@ export function useOneStoryRuntime(
     }
   }, [beginTypedQuestion, commitEvent, conversationAttribution, speechPipeline, storyManifest.storyId]);
 
+  // 무음 자동 종료·30초 상한·"다 했어요" 버튼이 겹쳐도 녹음은 한 번만 끝낸다.
+  const finishingQuestionRef = useRef(false);
   const finishQuestion = useCallback(async () => {
-    const recording = await recorder.stopRecording();
+    if (finishingQuestionRef.current) return;
+    finishingQuestionRef.current = true;
+    const recording = await recorder.stopRecording().finally(() => {
+      finishingQuestionRef.current = false;
+    });
     if (!recording) {
       commitEvent({
         type: 'FAILURE',
@@ -985,19 +1011,16 @@ export function useOneStoryRuntime(
     await transcribeRecording(recording);
   }, [commitEvent, recorder, transcribeRecording]);
 
-  useEffect(() => {
-    if (
-      runtimeState.status !== 'recording-question' ||
-      runtimeState.inputMode !== 'voice' ||
-      !recorder.isRecording
-    ) {
-      return;
-    }
-    const timer = setTimeout(() => {
-      void finishQuestion();
-    }, 30_000);
-    return () => clearTimeout(timer);
-  }, [finishQuestion, recorder.isRecording, runtimeState]);
+  const isVoiceRecordingState =
+    runtimeState.status === 'recording-question' &&
+    runtimeState.inputMode === 'voice';
+  // Q-34: 말한 뒤 1.5초 조용하면 저절로 끝내고, 15초 말이 없으면 다시 묻고, 그 뒤 15초도 없으면
+  // 질문을 보내지 않고 이야기를 이어 간다. 30초 상한도 여기서 센다. "다 했어요" 버튼은 그대로 둔다.
+  const voiceAutoStop = useSpeechAutoStop(recorder, {
+    enabled: isVoiceRecordingState,
+    onSpeechEnd: () => void finishQuestion(),
+    onGiveUp: () => void continueStory(),
+  });
 
   const routeConfirmedSpeech = useCallback(async (
     confirmedSpeech: TranscriptionSuccess['speech'],
@@ -1883,6 +1906,7 @@ export function useOneStoryRuntime(
     if (!resumeCandidate) {
       return;
     }
+    prepareMicrophoneForAutoListen();
     await stopNarration();
     runtimeRef.current = resumeCandidate.state;
     setRuntimeState(resumeCandidate.state);
@@ -1900,7 +1924,7 @@ export function useOneStoryRuntime(
     setResumeCandidate(null);
     activeNarrationIdRef.current = null;
     void trackStoryEvent('story_started', { resume: true });
-  }, [resumeCandidate, stopNarration, trackStoryEvent]);
+  }, [prepareMicrophoneForAutoListen, resumeCandidate, stopNarration, trackStoryEvent]);
 
   // 홈에서 곧장 들어온 재생은 시작 화면·이어 듣기 질문을 건너뛴다(Q-36). 마운트 때 한 번만.
   const entryHandledRef = useRef(false);
@@ -2082,6 +2106,10 @@ export function useOneStoryRuntime(
     displayedBranchSubtitle,
     narrationState,
     meterPercent,
+    // 녹음 중 아이에게 보이는 한 줄 - 15초 말이 없으면 다시 묻는 문구로 바뀐다(서버 음성 없이 글로만).
+    voiceListenPrompt: voiceAutoStop.reprompted
+      ? NO_SPEECH_REPROMPT_COPY
+      : LISTEN_NOW_COPY,
     activeQuestionPrompt,
     activeQuestionOrdinal,
     plan,

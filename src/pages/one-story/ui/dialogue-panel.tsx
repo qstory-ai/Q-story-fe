@@ -87,12 +87,18 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
 
   if (phase === 'recording') {
     return (
-      <View style={panel.controls}>
-        <View style={panel.meterTrack}>
-          <View style={[panel.meterFill, { width: `${dialogue.meterPercent}%` }]} />
+      <View style={panel.column}>
+        {/* Q-34: 탭 없이 듣기 시작했을 수 있으니 지금 말하면 된다고 알려 준다. 15초 말이 없으면 다시 묻는다. */}
+        <Text style={panel.listenPrompt} accessibilityLiveRegion="polite">
+          {dialogue.listenPrompt}
+        </Text>
+        <View style={panel.controls}>
+          <View style={panel.meterTrack}>
+            <View style={[panel.meterFill, { width: `${dialogue.meterPercent}%` }]} />
+          </View>
+          <Chip primary label="다 말했어" onPress={dialogue.stopTalking} />
+          <Chip label="그만" onPress={dialogue.cancelInput} />
         </View>
-        <Chip primary label="다 말했어" onPress={dialogue.stopTalking} />
-        <Chip label="그만" onPress={dialogue.cancelInput} />
       </View>
     );
   }
@@ -282,6 +288,7 @@ const panel = StyleSheet.create({
   column: { gap: 8 },
   controls: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 },
   status: { color: storybookTheme.color.onDarkMuted, fontSize: 14, flexGrow: 1 },
+  listenPrompt: { color: storybookTheme.color.onDark, fontSize: 18, fontWeight: '700' },
   confirmText: { color: storybookTheme.color.onDark, fontSize: 16, lineHeight: 23 },
   input: {
     minHeight: 44,

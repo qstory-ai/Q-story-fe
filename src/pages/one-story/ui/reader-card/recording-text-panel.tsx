@@ -57,7 +57,7 @@ export function RecordingTextPanel({ runtime }: { runtime: OneStoryRuntime }) {
       </View>
       <ActionButton
         variant="primary"
-        label="질문 내용 확인하기"
+        label="질문 보내기"
         disabled={!typedQuestion.trim()}
         onPress={processTypedQuestion}
       />

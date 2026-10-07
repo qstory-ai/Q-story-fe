@@ -44,13 +44,14 @@ export function OneStoryPage({
     scene,
     illustration,
   } = runtime;
+  const [chaptersOpen, setChaptersOpen] = useState(false);
   const dialogue = useDialogue({
     runtime,
     conversationId: companionConversationId,
     tutorStudentId,
     lessonId,
+    paused: runtime.homeMenuVisible || chaptersOpen,
   });
-  const [chaptersOpen, setChaptersOpen] = useState(false);
   const closeChapters = useCallback(() => setChaptersOpen(false), []);
 
   return (

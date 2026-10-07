@@ -84,6 +84,11 @@ import {
   splitQuestionOutcomesAtScene,
 } from '../lib/runtime-view';
 import { resolveExit } from '../lib/exit-destination';
+import {
+  isAwaitingInviteFor,
+  questionSkipMetadata,
+  type QuestionSkipReason,
+} from '../lib/question-skip';
 import { preloadImages } from '../lib/preload-images';
 import { playResponseWithFallback } from '../lib/play-clip-with-fallback';
 import { resolveVoiceResearchEnabled } from './voice-research-enabled';
@@ -756,23 +761,8 @@ export function useOneStoryRuntime(
     pendingVoiceResearchSampleRef.current = null;
   }, [recorder]);
 
-  const continueStory = useCallback(async () => {
-    const questionState = runtimeRef.current;
-    const skippedQuestion =
-      questionState.status === 'awaiting-question' ||
-      questionState.status === 'awaiting-clarification' ||
-      questionState.status === 'awaiting-safety-retry'
-        ? {
-            anchor_id: questionState.anchorId,
-            scene_id: questionState.sceneId,
-            skip_reason:
-              questionState.status === 'awaiting-clarification'
-                ? 'clarification_continue'
-                : questionState.status === 'awaiting-safety-retry'
-                  ? 'safety_retry_continue'
-                  : 'continue_listening',
-          }
-        : null;
+  const continueStoryWithReason = useCallback(async (skipReason?: QuestionSkipReason) => {
+    const skippedQuestion = questionSkipMetadata(runtimeRef.current, skipReason);
     await discardActiveQuestionAttempt();
     await stopNarration();
     setParentMessage(null);
@@ -784,6 +774,22 @@ export function useOneStoryRuntime(
       void trackStoryEvent('question_skipped', skippedQuestion);
     }
   }, [commitEvent, discardActiveQuestionAttempt, stopNarration, trackStoryEvent]);
+
+  // 버튼 onPress에 바로 넘기므로 인자를 받지 않는다(이벤트 객체가 사유로 들어가지 않게).
+  const continueStory = useCallback(() => continueStoryWithReason(), [continueStoryWithReason]);
+
+  /**
+   * 질문 초대 대화(그레텔 패널)에서 이야기로 돌아간다 - 이야기가 아직 그 앵커의 초대를 기다릴 때만.
+   * 이미 다른 상태로 넘어갔으면(행동 실행·처음부터 다시 등) 아무 것도 하지 않고 false.
+   */
+  const continueFromInvite = useCallback(
+    async (anchorId: string, skipReason?: QuestionSkipReason) => {
+      if (!isAwaitingInviteFor(runtimeRef.current, anchorId)) return false;
+      await continueStoryWithReason(skipReason);
+      return true;
+    },
+    [continueStoryWithReason],
+  );
 
   const resetQuestionAttemptTracking = useCallback(() => {
     questionAttemptCountRef.current = 0;
@@ -2146,6 +2152,8 @@ export function useOneStoryRuntime(
     // 핸들러
     startStory,
     continueStory,
+    continueFromInvite,
+    activeQuestionAnchorId: activeQuestionAnchor?.id ?? null,
     beginQuestion,
     beginTypedQuestion,
     processTypedQuestion,

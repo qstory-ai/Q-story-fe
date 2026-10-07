@@ -263,6 +263,14 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
     streamRef.current = null;
   }, []);
 
+  const mountedRef = useRef(false);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   useEffect(
     () => () => {
       stopMetering();
@@ -383,6 +391,21 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
         // 탭 밖(자동 녹음)이면 깨우지 못할 수 있다. 멈춘 AudioContext는 0만 읽히므로 그때는 프레임을 내보내지 않는다
         // - 무음 판정·무응답 처리가 "조용하다"고 잘못 판단하지 않게(버튼과 30초 상한으로 끝난다).
         await ensureMeteringRunning(audioContext);
+        if (!mountedRef.current || streamRef.current !== stream) {
+          // 기다리는 사이 화면을 떠났거나 다른 녹음이 시작됐다 - 이 마이크는 끄고 녹음하지 않는다.
+          try {
+            source.disconnect();
+            analyser.disconnect();
+          } catch {
+            // 이미 끊긴 노드
+          }
+          stream.getTracks().forEach((track) => track.stop());
+          if (streamRef.current === stream) {
+            stopMetering();
+            streamRef.current = null;
+          }
+          return;
+        }
         const meteringStartedAt = Date.now();
         meteringIntervalRef.current = setInterval(() => {
           if (

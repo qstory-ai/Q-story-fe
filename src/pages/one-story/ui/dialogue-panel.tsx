@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ComponentRef } from 'react';
+import { useEffect, useRef, useState, type ComponentRef } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -12,12 +12,14 @@ import {
 
 import { storybookTheme } from '@/shared/ui';
 
+import { countdownSeconds, createAutoConfirm } from '../lib/auto-confirm';
+import { AUTO_CONFIRM_MS } from '../lib/constants';
 import type { UseDialogue } from '../model/use-dialogue';
 
 /**
  * Q-31 그레텔 대화 패널. 삽화를 가리지 않도록 화면 아래에만 붙는다 - 아이 말하기·그레텔 답·도움·
  * 행동 확인이 모두 이 패널 하나에서 이어진다. 버튼 묶음은 dialogue.phase 하나로 정해지고,
- * 어느 단계에서든 "이야기 계속"으로 이야기에 돌아갈 수 있다(패널이 막혀 못 돌아가는 일이 없게).
+ * 어느 단계에서든 "이야기 계속 듣기"로 이야기에 돌아갈 수 있다(패널이 막혀 못 돌아가는 일이 없게).
  */
 export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialogue; hidden?: boolean }) {
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
@@ -49,10 +51,10 @@ export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialo
         </View>
         <Text style={panel.name}>{character.displayName}</Text>
         <View style={panel.headerSpacer} />
-        {/* 버튼 줄에 '이야기 계속'이 없는 단계에서도 언제든 이야기로 돌아갈 수 있게 머리에 둔다. */}
+        {/* 버튼 줄에 '이야기 계속 듣기'가 없는 단계에서도 언제든 이야기로 돌아갈 수 있게 머리에 둔다. */}
         {PHASES_WITHOUT_CONTINUE_CHIP.has(phase) && (
           <Pressable accessibilityRole="button" onPress={continueStory} hitSlop={10}>
-            <Text style={panel.continueLink}>이야기 계속 ›</Text>
+            <Text style={panel.continueLink}>이야기 계속 듣기 ›</Text>
           </Pressable>
         )}
       </View>
@@ -97,23 +99,14 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
             <View style={[panel.meterFill, { width: `${dialogue.meterPercent}%` }]} />
           </View>
           <Chip primary label="다 말했어" onPress={dialogue.stopTalking} />
-          <Chip label="그만" onPress={dialogue.cancelInput} />
+          <Chip label="그만할래" onPress={dialogue.cancelInput} />
         </View>
       </View>
     );
   }
 
   if (phase === 'confirm') {
-    return (
-      <View style={panel.column}>
-        <Text style={panel.confirmText}>“{dialogue.draft}”</Text>
-        <View style={panel.controls}>
-          <Chip primary label="응, 이렇게 말했어" onPress={dialogue.confirmTranscript} />
-          <Chip label="다시 말하기" onPress={() => void dialogue.startTalking()} />
-          <Chip label="고쳐 쓰기" onPress={dialogue.startTyping} />
-        </View>
-      </View>
-    );
+    return <ConfirmControls dialogue={dialogue} />;
   }
 
   if (phase === 'typing') {
@@ -146,7 +139,7 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
         <Text style={panel.status}>
           {phase === 'transcribing' ? '무슨 말인지 듣는 중…' : '그레텔이 생각하는 중…'}
         </Text>
-        <Chip label="이야기 계속" onPress={onContinue} />
+        <Chip label="이야기 계속 듣기" onPress={onContinue} />
       </View>
     );
   }
@@ -177,7 +170,7 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
       <View style={panel.controls}>
         <Chip primary label="응, 도와줘" onPress={() => void dialogue.askHelp()} />
         <Chip label="말하기" onPress={() => void dialogue.startTalking()} />
-        <Chip label="이야기 계속" onPress={onContinue} />
+        <Chip label="이야기 계속 듣기" onPress={onContinue} />
       </View>
     );
   }
@@ -200,7 +193,50 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
         <Chip primary label={phase === 'error' ? '● 다시 말하기' : '● 말하기'} onPress={() => void dialogue.startTalking()} />
         <Chip label="글로 쓰기" onPress={dialogue.startTyping} />
         {dialogue.canAskHelp && <Chip label="도와줘" onPress={() => void dialogue.askHelp()} />}
-        <Chip label="이야기 계속" onPress={onContinue} />
+        <Chip label="이야기 계속 듣기" onPress={onContinue} />
+      </View>
+    </View>
+  );
+}
+
+/**
+ * 받아 적은 말 확인(Q-34 결정 5) - 약 2.5초 카운트다운 뒤 저절로 보낸다. "다시 말하기"·"고쳐 쓰기"·닫기·단계 변경이면
+ * 이 컴포넌트가 사라지며 카운트다운도 취소된다. 확인 버튼을 먼저 눌러도 한 번만 보낸다(confirmTranscript 가드).
+ */
+function ConfirmControls({ dialogue }: { dialogue: UseDialogue }) {
+  const confirmRef = useRef(dialogue.confirmTranscript);
+  useEffect(() => {
+    confirmRef.current = dialogue.confirmTranscript;
+  }, [dialogue.confirmTranscript]);
+  const [secondsLeft, setSecondsLeft] = useState(countdownSeconds(AUTO_CONFIRM_MS));
+  const { draft } = dialogue;
+
+  useEffect(() => {
+    const controller = createAutoConfirm(AUTO_CONFIRM_MS, () => {
+      confirmRef.current();
+    });
+    controller.start();
+    const ticker = setInterval(() => {
+      setSecondsLeft(countdownSeconds(controller.remainingMs()));
+    }, 250);
+    return () => {
+      clearInterval(ticker);
+      controller.cancel();
+    };
+  }, [draft]);
+
+  return (
+    <View style={panel.column}>
+      <Text style={panel.confirmText}>“{draft}”</Text>
+      {secondsLeft > 0 && (
+        <Text style={panel.status} accessibilityLiveRegion="polite">
+          {secondsLeft}초 뒤에 {dialogue.characterName}에게 보낼게
+        </Text>
+      )}
+      <View style={panel.controls}>
+        <Chip primary label="응, 이렇게 말했어" onPress={dialogue.confirmTranscript} />
+        <Chip label="다시 말하기" onPress={() => void dialogue.startTalking()} />
+        <Chip label="고쳐 쓰기" onPress={dialogue.startTyping} />
       </View>
     </View>
   );

@@ -374,6 +374,8 @@ export function useDialogue({
       setErrorMessage(null);
       setPhase('thinking');
       logStep('CHILD_TURN', { turn_number: turnNumber, help_step: helpStep });
+      // 아이 말을 보낸 뒤 그레텔 답이 화면에 나오기까지(Q-40 UT - 기다림이 대화를 끊는지 본다).
+      const sentAt = Date.now();
 
       try {
         const reply = await sendCompanionChatMessage(
@@ -401,9 +403,11 @@ export function useDialogue({
         lastReplyRef.current = reply.responseText;
         if (signal.childMeaning) lastChildMeaningRef.current = signal.childMeaning;
         addTurn({ role: 'CHARACTER', text: reply.responseText });
-        logStep('REPLY', { reply_kind: signal.replyKind, turn_number: turnNumber });
+        const latencyMs = Date.now() - sentAt;
+        logStep('REPLY', { reply_kind: signal.replyKind, turn_number: turnNumber, latency_ms: latencyMs });
         const replyTurn = {
           role: 'CHARACTER' as const,
+          latencyMs,
           text: reply.responseText,
           characterSpeakerId: character.speakerId,
           replyKind: signal.replyKind,
@@ -455,7 +459,9 @@ export function useDialogue({
           error instanceof CompanionChatError ? error.message : '지금은 그레텔이 대답을 준비하지 못했어.',
         );
         setPhase('error');
-        logStep('ERROR', { turn_number: turnNumber });
+        const errorCode = error instanceof CompanionChatError ? (error.code ?? 'FAILED') : 'FAILED';
+        logStep('ERROR', { turn_number: turnNumber, error_code: errorCode, latency_ms: Date.now() - sentAt });
+        logTurn({ role: 'SYSTEM', event: 'REPLY_FAILED', errorCode });
         reportClientError({
           kind: 'NETWORK',
           message: `dialogue ${error instanceof CompanionChatError ? (error.code ?? 'failed') : 'failed'}`,
@@ -486,6 +492,7 @@ export function useDialogue({
     if (!recording?.uploadBlob || !sceneId) {
       setErrorMessage('잘 안 들렸어. 다시 말해 줄래?');
       setPhase('error');
+      logTurn({ role: 'SYSTEM', event: 'STT_FAILED', errorCode: 'NO_RECORDING' });
       return;
     }
     cancelPending();
@@ -514,6 +521,11 @@ export function useDialogue({
       setPhase('confirm');
     } catch (error) {
       if (controller.signal.aborted || seq !== requestSeqRef.current) return;
+      logTurn({
+        role: 'SYSTEM',
+        event: 'STT_FAILED',
+        errorCode: error instanceof CompanionChatError ? (error.code ?? 'FAILED') : 'FAILED',
+      });
       if (error instanceof CompanionChatError && isSttUnavailableCode(error.code)) {
         // 음성 인식이 막혔다 - 안내 문구와 함께 글로 쓰는 입력으로 바로 넘긴다.
         setDraft('');
@@ -527,7 +539,7 @@ export function useDialogue({
       );
       setPhase('error');
     }
-  }, [cancelPending, conversationAttribution.childId, conversationId, lessonId, recorder, sceneId, storyPackage.storyId, tutorStudentId]);
+  }, [cancelPending, conversationAttribution.childId, conversationId, lessonId, logTurn, recorder, sceneId, storyPackage.storyId, tutorStudentId]);
 
   /** 말하기 - 그레텔이 말하는 중이면 끊고 바로 듣는다. 말이 끝나면(조용해지면) 저절로 멈춘다. */
   const startTalking = useCallback(async () => {

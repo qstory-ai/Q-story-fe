@@ -101,6 +101,8 @@ export type StoryCompletionDetail = StoryCompletionSummary & {
   analysis?: ReportAnalysis | null;
   /** 보는 사람이 부모일 때 이 기록과 이어진 자기 아이 - "아이랑 다시 읽기"가 이 중에서 고른다. */
   linkedChildren?: { id: string; name: string }[] | null;
+  /** 이 기록의 회차 id(play_session) - 서버가 내려 줄 때만 리포트 아래 UT 회차 코드를 보여 준다(Q-40). */
+  sessionId?: string | null;
 };
 
 export class StoryCompletionApiError extends Error {

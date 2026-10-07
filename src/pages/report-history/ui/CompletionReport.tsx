@@ -11,10 +11,13 @@ import {
   TeacherNoteEditor,
   readAgainChoice,
   useCompletionDetail,
+  useReportTracking,
+  type ReportViewSource,
   type SessionReportView,
 } from '@/pages/one-story';
 import { useAuth } from '@/entities/auth';
 import { getStoryCompletion, type StoryCompletionDetail } from '@/entities/story-completion';
+import { SessionCodeNote } from '@/entities/play-session';
 import { messageForError } from '@/shared/api';
 import { teacherTitle } from '@/shared/lib';
 import { storyPlayPath } from '@/features/story-library';
@@ -32,10 +35,13 @@ export function CompletionReport({
   token,
   completionId,
   isParent,
+  viewSource = 'history',
 }: {
   token: string;
   completionId: string;
   isParent: boolean;
+  /** 리포트를 연 곳(통계) - 상세 화면은 주소의 from=으로 정한다. */
+  viewSource?: ReportViewSource;
 }) {
   const navigate = useNavigate();
   const { width } = useWindowDimensions();
@@ -80,15 +86,33 @@ export function CompletionReport({
     effectiveLoad.status === 'ready' && needsPolling(effectiveLoad.detail) ? token : null,
     completionId,
   );
+  const loadedKind = effectiveLoad.status === 'ready' ? effectiveLoad.detail.sessionKind : null;
+  const trackReportAction = useReportTracking({
+    kind: loadedKind,
+    source: viewSource,
+    completionId,
+    viewerRole: authState.status === 'authenticated' ? authState.user.role : null,
+    ready: effectiveLoad.status === 'ready',
+  });
 
   if (effectiveLoad.status === 'loading') return <LoadingState label="리포트를 불러오는 중이에요…" />;
   if (effectiveLoad.status === 'error') {
     return <ErrorState message={effectiveLoad.message} onRetry={() => setAttempt((n) => n + 1)} />;
   }
   const detail = polled.detail ?? effectiveLoad.detail;
+  const readAgainLegacy = (target: StoryCompletionDetail) => {
+    trackReportAction('reread_click');
+    navigate(readAgainPath(target));
+  };
   const view = reportView(detail, isParent);
   const readAgain = isParent ? (
-    <ReadAgainButtons detail={detail} onOpen={(childId) => navigate(storyPlayPath(detail.storyId, { childId }))} />
+    <ReadAgainButtons
+      detail={detail}
+      onOpen={(childId) => {
+        trackReportAction('reread_click');
+        navigate(storyPlayPath(detail.storyId, { childId, from: 'report' }));
+      }}
+    />
   ) : null;
   if (view) {
     const isTutor = authState.status === 'authenticated' && authState.user.role === 'TUTOR';
@@ -113,13 +137,20 @@ export function CompletionReport({
             teacherNote: detail.teacherNote,
           }}
           onRetryAnalysis={() => void polled.retry()}
+          onAction={trackReportAction}
           teacherNoteSlot={
             view === 'teacher' && isTutor ? (
-              <TeacherNoteEditor token={token} completionId={detail.id} initial={detail.teacherNote} />
+              <TeacherNoteEditor
+                token={token}
+                completionId={detail.id}
+                initial={detail.teacherNote}
+                onSaved={() => trackReportAction('teacher_note_saved')}
+              />
             ) : undefined
           }
           readAgainSlot={readAgain}
         />
+        <SessionCodeNote sessionId={detail.sessionId} />
       </View>
     );
   }
@@ -128,7 +159,7 @@ export function CompletionReport({
       <SessionHeader
         detail={effectiveLoad.detail}
         storyTitle={effectiveLoad.parentReport.storyTitle}
-        onReadAgain={isParent ? () => navigate(readAgainPath(effectiveLoad.detail)) : undefined}
+        onReadAgain={isParent ? () => readAgainLegacy(effectiveLoad.detail) : undefined}
       />
       <ReportContent
         parentReport={effectiveLoad.parentReport}
@@ -139,9 +170,10 @@ export function CompletionReport({
       {isParent && effectiveLoad.detail.sessionKind === 'HOME' && (
         <ActionButton
           label={readAgainLabel(effectiveLoad.detail)}
-          onPress={() => navigate(readAgainPath(effectiveLoad.detail))}
+          onPress={() => readAgainLegacy(effectiveLoad.detail)}
         />
       )}
+      <SessionCodeNote sessionId={effectiveLoad.detail.sessionId} />
     </View>
   );
 }
@@ -194,7 +226,7 @@ function ReadAgainButtons({ detail, onOpen }: { detail: StoryCompletionDetail; o
 /** 다시 읽기는 이 리포트의 아이로 기록한다 - 반 수업 리포트(아이 미지정)는 지금 선택된 아이 그대로. */
 function readAgainPath(detail: StoryCompletionDetail): string {
   const choice = readAgainChoice(detail.linkedChildren);
-  return storyPlayPath(detail.storyId, { childId: choice.kind === 'one' ? choice.childId : detail.childId });
+  return storyPlayPath(detail.storyId, { childId: choice.kind === 'one' ? choice.childId : detail.childId, from: 'report' });
 }
 
 function readAgainLabel(detail: StoryCompletionDetail): string {

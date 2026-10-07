@@ -28,6 +28,8 @@ import {
   storeVoiceResearchSample,
   reportClientError,
   trackBetaEvent,
+  currentClientDiagnostics,
+  viewportClassForWidth,
   type BetaEventName,
   type CompanionChatSummary,
   type QuestionOutcome,
@@ -51,6 +53,9 @@ import { recordStoryCompletion } from '@/entities/story-completion';
 import {
   TurnRecorder,
   appendPlaySessionTurns,
+  sessionShortCode,
+  type PlayEntrySource,
+  type PlaySetting,
   type PlayTurn,
   type PlayTurnInput,
 } from '@/entities/play-session';
@@ -103,7 +108,11 @@ export function useOneStoryRuntime(
    * start = 홈에서 아이를 골라 "이야기 시작하기" - 저장된 진행이 없으면 시작 화면 없이 바로 시작한다.
    */
   entry?: 'resume' | 'start',
+  /** Q-40 UT - 회차를 시작한 곳과 진행 형태(가정 HOME, 반 수업은 선생님이 고른 형태). */
+  utContext?: { entrySource?: PlayEntrySource; playSetting?: PlaySetting },
 ) {
+  const entrySource = utContext?.entrySource ?? (lessonId ? 'lesson' : 'detail');
+  const playSetting: PlaySetting = utContext?.playSetting ?? (lessonId ? 'WHOLE_CLASS' : 'HOME');
   // 실시간 새 분기 생성이 READY가 되면(폴링 effect 아래 참고) GET /v1/stories/{storyId}/content를
   // 재조회해 이 값을 교체한다 - storyPackage를 부모로부터 받은 그대로 쓰지 않고 로컬 상태로 감싸는
   // 이유는 이것 하나뿐이다. 그 갱신 전까지는 항상 부모가 최초에 넘긴 패키지와 동일하다.
@@ -204,14 +213,21 @@ export function useOneStoryRuntime(
     getTurnRecorder().enabled = Boolean(turnToken);
   }, [getTurnRecorder, turnToken]);
   useEffect(() => {
+    const diagnostics = currentClientDiagnostics();
     getTurnRecorder().setContext({
       storyId: storyManifest.storyId,
       contentVersion: storyManifest.contentVersion,
       childId: conversationAttribution.childId ?? null,
       tutorStudentId: tutorStudentId ?? null,
       lessonId: lessonId ?? null,
+      // Q-40 UT - 회차 조건(어디서 시작했는지, 진행 형태, 기기). 서버는 처음 값을 남긴다.
+      entrySource,
+      playSetting,
+      devicePlatform: diagnostics.platform_class,
+      deviceBrowser: diagnostics.browser_family,
+      viewportClass: viewportClassForWidth(typeof window === 'undefined' ? null : window.innerWidth),
     });
-  }, [conversationAttribution.childId, lessonId, storyManifest.contentVersion, storyManifest.storyId, getTurnRecorder, tutorStudentId]);
+  }, [conversationAttribution.childId, entrySource, lessonId, playSetting, storyManifest.contentVersion, storyManifest.storyId, getTurnRecorder, tutorStudentId]);
   // 화면을 떠날 때 남은 줄을 보낸다.
   useEffect(() => () => {
     void getTurnRecorder().flush();
@@ -835,11 +851,19 @@ export function useOneStoryRuntime(
       });
     });
     if (commitEvent({ type: 'START' })) {
-      void trackStoryEvent('story_started', { resume: false });
+      void trackStoryEvent('story_started', {
+        resume: false,
+        entry_source: entrySource,
+        play_setting: playSetting,
+        // 바로 위에서 새 회차를 열었을 수 있다 - 기록기가 지금 회차 id를 바로 갖고 있다.
+        play_session_id: getTurnRecorder().sessionId,
+      });
     }
   }, [
     beginNewSession,
     childNameInput,
+    entrySource,
+    playSetting,
     commitEvent,
     recorder,
     storyManifest.questionAnchors,
@@ -1766,14 +1790,29 @@ export function useOneStoryRuntime(
     trackStoryEvent,
   ]);
 
+  /** 재생 조작 한 번(Q-40 UT) - 어느 장면·문장에서 멈추고 다시 듣고 건너뛰는지 본다. */
+  const trackPlaybackControl = useCallback(
+    (action: 'pause' | 'resume' | 'replay' | 'skip_scene' | 'chapter_jump' | 'home_menu' | 'exit') => {
+      const state = runtimeRef.current;
+      void trackStoryEvent('playback_control', {
+        action,
+        scene_id: 'sceneId' in state ? state.sceneId : undefined,
+        clip_id: getRuntimeClip(state, storyPackage)?.id,
+        play_session_id: getTurnRecorder().sessionId,
+      } as Record<string, string | number | boolean>);
+    },
+    [getTurnRecorder, storyPackage, trackStoryEvent],
+  );
+
   const replayCurrent = useCallback(async () => {
     if (!currentClip && !isBranchPlaybackState) {
       return;
     }
+    trackPlaybackControl('replay');
     activeNarrationIdRef.current = null;
     await stopNarration();
     setNarrationAttempt((attempt) => attempt + 1);
-  }, [currentClip, isBranchPlaybackState, stopNarration]);
+  }, [currentClip, isBranchPlaybackState, stopNarration, trackPlaybackControl]);
 
   /**
    * Q-31 그레텔 대화: 질문 초대에서 아이가 뜻을 확인한 준비된 행동을 실행한다. 확인 문구(acknowledgementText,
@@ -1878,6 +1917,7 @@ export function useOneStoryRuntime(
 
   const toggleNarration = useCallback(async () => {
     setParentMessage(null);
+    trackPlaybackControl(narrationState.isPaused ? 'resume' : 'pause');
     const changed = narrationState.isPaused
       ? await resumeNarration()
       : await pauseNarration();
@@ -1888,9 +1928,11 @@ export function useOneStoryRuntime(
     narrationState.isPaused,
     pauseNarration,
     resumeNarration,
+    trackPlaybackControl,
   ]);
 
   const skipCurrentScene = useCallback(async () => {
+    trackPlaybackControl('skip_scene');
     if (runtimeRef.current.status === 'playing-response') {
       await stopNarration();
       activeNarrationIdRef.current = null;
@@ -1938,6 +1980,7 @@ export function useOneStoryRuntime(
     questionOutcomes,
     stopNarration,
     storyManifest.questionAnchors,
+    trackPlaybackControl,
     trackStoryEvent,
   ]);
 
@@ -1984,6 +2027,7 @@ export function useOneStoryRuntime(
    */
   const jumpToScene = useCallback(
     async (sceneId: SceneId) => {
+      trackPlaybackControl('chapter_jump');
       processingAbortRef.current?.abort();
       await stopNarration();
       recorder.resetRecording();
@@ -2015,7 +2059,7 @@ export function useOneStoryRuntime(
       setExitReasonVisible(false);
       setResumeCandidate(null);
     },
-    [recorder, resetQuestionAttemptTracking, stopNarration, storyManifest],
+    [recorder, resetQuestionAttemptTracking, stopNarration, storyManifest, trackPlaybackControl],
   );
 
   const resumeStory = useCallback(async () => {
@@ -2046,8 +2090,13 @@ export function useOneStoryRuntime(
     setLiveTurns([]);
     readFromSceneRef.current = resumeCandidate.readFromSceneId ?? null;
     readThroughSceneRef.current = resumeCandidate.readThroughSceneId ?? null;
-    void trackStoryEvent('story_started', { resume: true });
-  }, [resumeCandidate, stopNarration, trackStoryEvent, getTurnRecorder]);
+    void trackStoryEvent('story_started', {
+      resume: true,
+      entry_source: 'resume',
+      play_setting: playSetting,
+      play_session_id: resumeCandidate.sessionId ?? sessionIdRef.current,
+    });
+  }, [resumeCandidate, stopNarration, trackStoryEvent, getTurnRecorder, playSetting]);
 
   // 홈에서 곧장 들어온 재생은 시작 화면·이어 듣기 질문을 건너뛴다(Q-36). 마운트 때 한 번만.
   const entryHandledRef = useRef(false);
@@ -2071,6 +2120,7 @@ export function useOneStoryRuntime(
   }, []);
 
   const openHomeMenu = useCallback(async () => {
+    trackPlaybackControl('home_menu');
     if (runtimeRef.current.status === 'complete') {
       clearLocalStoryProgress();
       await restartStory();
@@ -2088,6 +2138,7 @@ export function useOneStoryRuntime(
     pauseNarration,
     persistCurrentProgress,
     restartStory,
+    trackPlaybackControl,
   ]);
 
   const continueFromHomeMenu = useCallback(async () => {
@@ -2148,13 +2199,14 @@ export function useOneStoryRuntime(
   ]);
 
   const leaveTemporarily = useCallback(async () => {
+    trackPlaybackControl('exit');
     persistCurrentProgress();
     saveExitedSession();
     processingAbortRef.current?.abort();
     await stopNarration();
     setHomeMenuVisible(false);
     navigate(homePathForAuth(authState));
-  }, [authState, navigate, persistCurrentProgress, saveExitedSession, stopNarration]);
+  }, [authState, navigate, persistCurrentProgress, saveExitedSession, stopNarration, trackPlaybackControl]);
 
   const finishExperience = useCallback(async () => {
     processingAbortRef.current?.abort();
@@ -2381,6 +2433,8 @@ export function useOneStoryRuntime(
     getSceneIndex,
     // Q-39 회차·대화 기록
     sessionId,
+    // Q-40 UT 회차 코드 - 서버에 기록되는 회차(로그인)일 때만 보여 준다.
+    sessionCode: turnToken ? sessionShortCode(sessionId) : null,
     recordTurn,
     liveTurns,
     completedRecordId,

@@ -12,7 +12,7 @@ import {
   recordConsents,
   useAuth,
 } from '@/entities/auth';
-import { grantVoiceResearchAccountConsent } from '@/entities/analytics';
+import { ageYearsFromBirthYear, grantVoiceResearchAccountConsent, trackBetaEvent } from '@/entities/analytics';
 import {
   BirthYearChips,
   ageBandFromBirthYear,
@@ -75,6 +75,7 @@ export function OnboardingParentPage() {
       items: [{ type: 'CHILD_REPORT_SCOPE', agreed: true, version: CONSENT_VERSION }],
     });
     if (consentAudio) await grantVoiceResearchAccountConsent(state.token, 'ONBOARDING');
+    void trackBetaEvent('consent_saved', { voice_research: consentAudio, report_scope: true });
   }
 
   async function finish() {
@@ -104,7 +105,9 @@ export function OnboardingParentPage() {
       return;
     }
     try {
-      await addChild({ name: name.trim(), birthYear, ageBand: ageBandFromBirthYear(birthYear), avatarKey });
+      const ageBand = ageBandFromBirthYear(birthYear);
+      await addChild({ name: name.trim(), birthYear, ageBand, avatarKey });
+      void trackBetaEvent('child_registered', { age_years: ageYearsFromBirthYear(birthYear), age_band: ageBand });
     } catch (failure: unknown) {
       const message = messageForError(failure, '아이 프로필을 만들지 못했어요. 잠시 후 다시 시도해 주세요.');
       setError(message);

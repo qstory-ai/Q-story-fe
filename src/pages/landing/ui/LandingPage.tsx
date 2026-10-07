@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
+import { trackLandingCta, trackLandingView, type LandingCtaLocation } from '@/entities/analytics';
 import { homePathFor, useAuth } from '@/entities/auth';
 import { BrandLockup, SafeAreaView, storybookTheme } from '@/shared/ui';
 
@@ -29,8 +30,14 @@ export function LandingPage() {
   const isWide = width >= 860;
   const [activeSection, setActiveSection] = useState<SectionKey>('experience');
 
+  // 소개 화면을 연 것과 어느 버튼으로 체험에 들어갔는지 - 소개 이후 어디서 멈추는지 본다(Q-40 UT).
+  useEffect(() => {
+    trackLandingView('landing');
+  }, []);
+
   // 로그인된 사용자는 데모가 아니라 자신의 역할 홈으로 보낸다.
-  const goToDemo = () => {
+  const goToDemo = (ctaLocation: LandingCtaLocation) => {
+    trackLandingCta(ctaLocation);
     if (authState.status === 'authenticated') {
       navigate(homePathFor(authState.user));
       return;
@@ -131,7 +138,7 @@ export function LandingPage() {
           <BrandLockup size="compact" />
           <Pressable
             accessibilityRole="button"
-            onPress={goToDemo}
+            onPress={() => goToDemo('header_demo')}
             style={({ pressed }) => [styles.headerCta, pressed && sectionStyles.pressed]}
           >
             <Text style={styles.headerCtaText}>무료 체험</Text>
@@ -156,14 +163,21 @@ export function LandingPage() {
             </ScrollView>
           )}
 
-          <HeroSection isWide={isWide} onGoToDemo={goToDemo} onExploreExperience={() => scrollToSection('experience')} />
+          <HeroSection
+            isWide={isWide}
+            onGoToDemo={() => goToDemo('hero_start')}
+            onExploreExperience={() => {
+              trackLandingCta('hero_explore');
+              scrollToSection('experience');
+            }}
+          />
           <ExperienceSection isWide={isWide} sectionRef={experienceRef} />
           <DifferenceSection isWide={isWide} sectionRef={differenceRef} />
           <TrustSection isWide={isWide} sectionRef={trustRef} />
-          <BetaSection isWide={isWide} sectionRef={betaRef} onGoToDemo={goToDemo} />
+          <BetaSection isWide={isWide} sectionRef={betaRef} onGoToDemo={() => goToDemo('beta_demo')} />
           <FaqSection sectionRef={faqRef} />
-          <PreviewStripSection onGoToDemo={goToDemo} />
-          <FinalCtaSection onGoToDemo={goToDemo} />
+          <PreviewStripSection onGoToDemo={() => goToDemo('preview_demo')} />
+          <FinalCtaSection onGoToDemo={() => goToDemo('final_demo')} />
           <FooterSection onNavigateToSection={scrollToSection} />
         </ScrollView>
       </SafeAreaView>

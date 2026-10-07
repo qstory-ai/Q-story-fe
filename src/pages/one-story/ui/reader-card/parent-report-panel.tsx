@@ -1,9 +1,11 @@
 import { Pressable, Text, View } from 'react-native';
 
 import { useAuth } from '@/entities/auth';
+import { SessionCodeNote } from '@/entities/play-session';
 
 import type { OneStoryRuntime } from '../../model';
 import { useCompletionDetail } from '../../model/use-completion-detail';
+import { useReportTracking } from '../../model/use-report-tracking';
 import { styles } from '../styles';
 import { ReportContent } from './report-content';
 import { SessionReport } from './session-report';
@@ -22,6 +24,7 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
     childName,
     questionOutcomes,
     isClassLesson,
+    sessionCode,
   } = runtime;
   const { state: authState } = useAuth();
   const token = authState.status === 'authenticated' ? authState.token : null;
@@ -34,6 +37,14 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
     ? (detail?.analysis ?? null)
     : { status: 'SKIPPED' as const, observations: [], cards: [], commonScenes: [] };
   const isTutor = authState.status === 'authenticated' && authState.user.role === 'TUTOR';
+  // 로그인 회차는 기록이 저장돼 id가 생긴 뒤에 열람을 남긴다(기록 id로 회차와 잇기 위해).
+  const trackReportAction = useReportTracking({
+    kind: detail?.sessionKind ?? (isClassLesson ? 'CLASS' : 'HOME'),
+    source: 'live',
+    completionId: completedRecordId,
+    viewerRole: authState.status === 'authenticated' ? authState.user.role : 'GUEST',
+    ready: !token || Boolean(completedRecordId),
+  });
 
   return (
     <View style={styles.parentReportContent}>
@@ -56,9 +67,15 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
             teacherNote: detail?.teacherNote,
           }}
           onRetryAnalysis={() => void retry()}
+          onAction={trackReportAction}
           teacherNoteSlot={
             isClassLesson && isTutor && token && completedRecordId ? (
-              <TeacherNoteEditor token={token} completionId={completedRecordId} initial={detail?.teacherNote} />
+              <TeacherNoteEditor
+                token={token}
+                completionId={completedRecordId}
+                initial={detail?.teacherNote}
+                onSaved={() => trackReportAction('teacher_note_saved')}
+              />
             ) : isClassLesson ? (
               <Text style={styles.reportPanelDescription}>기록이 저장되면 여기서 메모를 남길 수 있어요.</Text>
             ) : undefined
@@ -106,7 +123,10 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
             <Pressable
               accessibilityRole="button"
               style={styles.reportSecondaryAction}
-              onPress={restartStory}
+              onPress={() => {
+                trackReportAction('reread_click');
+                restartStory();
+              }}
             >
               <Text style={styles.reportSecondaryActionText}>
                 같은 이야기 다시 읽기
@@ -115,6 +135,7 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
           </View>
         </View>
       </View>
+      <SessionCodeNote code={sessionCode} />
     </View>
   );
 }

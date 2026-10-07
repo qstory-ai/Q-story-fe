@@ -19,7 +19,10 @@ import {
   skippedInviteScenes,
   storyChanges,
 } from '../../lib/session-report';
+import type { SessionReportAction } from '../../lib/report-tracking';
 import { styles } from '../styles';
+
+export type { SessionReportAction };
 
 /** 리포트 한 회차에 필요한 저장값 - 상세 API 응답이나 방금 끝난 회차의 화면 상태에서 만든다. */
 export type SessionReportData = {
@@ -70,6 +73,7 @@ export function SessionReport({
   onRetryAnalysis,
   teacherNoteSlot,
   readAgainSlot,
+  onAction,
 }: {
   data: SessionReportData;
   storyPackage: StoryRuntimePackage;
@@ -80,7 +84,15 @@ export function SessionReport({
   teacherNoteSlot?: ReactNode;
   /** "아이랑 다시 읽기" 버튼 묶음. */
   readAgainSlot?: ReactNode;
+  /** 리포트에서 누른 것(Q-40 UT 통계) - 펼치기는 열 때만 알린다. */
+  onAction?: (action: SessionReportAction) => void;
 }) {
+  const retryAnalysis = onRetryAnalysis
+    ? () => {
+        onAction?.('retry_analysis');
+        onRetryAnalysis();
+      }
+    : undefined;
   const changes = storyChanges(storyPackage, data.turns, data.outcomes);
   const range = readRangeLabel(storyPackage, data.readFromSceneId, data.readThroughSceneId, data.endStatus);
   const title = storyPackage.reportCopy.storyTitle;
@@ -144,7 +156,7 @@ export function SessionReport({
           title="집에서 나눌 대화 거리"
           description="반 수업에서 나온 말은 우리 아이 말인지 알 수 없어 넣지 않았어요. 실제로 읽은 장면으로만 만들었어요."
         >
-          <AnalysisState analysis={data.analysis} onRetry={onRetryAnalysis} personal={false} />
+          <AnalysisState analysis={data.analysis} onRetry={retryAnalysis} personal={false} />
           <TalkCards analysis={data.analysis} storyPackage={storyPackage} isWide={isWide} />
         </Section>
         {readAgainSlot}
@@ -167,7 +179,13 @@ export function SessionReport({
           <Text style={sr.empty}>이번 회차에는 아이가 남긴 말이 없어요.</Text>
         ) : (
           exchanges.map((exchange) => (
-            <ExchangeBlock key={exchange.sceneId} storyPackage={storyPackage} exchange={exchange} isWide={isWide} />
+            <ExchangeBlock
+              key={exchange.sceneId}
+              storyPackage={storyPackage}
+              exchange={exchange}
+              isWide={isWide}
+              onExpand={() => onAction?.('expand_dialogue')}
+            />
           ))
         )}
       </Section>
@@ -206,7 +224,7 @@ export function SessionReport({
           <Text style={sr.empty}>아이가 남긴 말이 없어 이번에는 관심을 추측하지 않았어요.</Text>
         ) : (
           <>
-            <AnalysisState analysis={data.analysis} onRetry={onRetryAnalysis} personal />
+            <AnalysisState analysis={data.analysis} onRetry={retryAnalysis} personal />
             {data.analysis?.status === 'READY' && data.analysis.observations.length === 0 && (
               <Text style={sr.empty}>관심이나 생각을 판단할 만한 말이 없어 이번에는 개인 분석을 하지 않았어요.</Text>
             )}
@@ -217,6 +235,7 @@ export function SessionReport({
                   observation={observation.observation}
                   evidence={evidenceTurns(data.turns, observation.evidenceSeqs)}
                   explanation={data.analysis?.cards.find((card) => card.key === observation.key)?.explanation ?? null}
+                  onExpand={() => onAction?.('expand_reason')}
                 />
               ))}
           </>
@@ -225,7 +244,7 @@ export function SessionReport({
 
       <Section title="⑤ 함께 이야기할 카드" description="질문을 순서대로 다 묻기보다, 아이 반응에 맞춰 골라 써 보세요.">
         {!data.analysis || data.analysis.status === 'PENDING' ? (
-          <AnalysisState analysis={data.analysis} onRetry={onRetryAnalysis} personal={false} />
+          <AnalysisState analysis={data.analysis} onRetry={retryAnalysis} personal={false} />
         ) : null}
         <TalkCards analysis={data.analysis} storyPackage={storyPackage} isWide={isWide} />
       </Section>
@@ -300,10 +319,12 @@ function ExchangeBlock({
   storyPackage,
   exchange,
   isWide,
+  onExpand,
 }: {
   storyPackage: StoryRuntimePackage;
   exchange: ReturnType<typeof groupExchanges>[number];
   isWide: boolean;
+  onExpand?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const sceneNo = sceneNumberOf(storyPackage, exchange.sceneId);
@@ -328,7 +349,14 @@ function ExchangeBlock({
           <Bubble key={turn.seq} turn={turn} />
         ))}
         {exchange.rest.length > 0 && (
-          <Pressable accessibilityRole="button" onPress={() => setOpen((value) => !value)} hitSlop={6}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => {
+              if (!open) onExpand?.();
+              setOpen(!open);
+            }}
+            hitSlop={6}
+          >
             <Text style={sr.link}>{open ? '앞뒤 대화 접기' : `앞뒤 대화 ${exchange.rest.length}개 펼치기`}</Text>
           </Pressable>
         )}
@@ -342,10 +370,12 @@ function ObservationItem({
   observation,
   evidence,
   explanation,
+  onExpand,
 }: {
   observation: string;
   evidence: PlayTurn[];
   explanation: string | null;
+  onExpand?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -356,7 +386,14 @@ function ObservationItem({
       )}
       {explanation ? (
         <>
-          <Pressable accessibilityRole="button" onPress={() => setOpen((value) => !value)} hitSlop={6}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => {
+              if (!open) onExpand?.();
+              setOpen(!open);
+            }}
+            hitSlop={6}
+          >
             <Text style={sr.link}>{open ? '설명 접기' : '이렇게 본 이유'}</Text>
           </Pressable>
           {open && <Text style={sr.body}>{explanation}</Text>}

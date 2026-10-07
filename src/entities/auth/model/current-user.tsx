@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
+import { setBetaEventAuthToken } from '@/entities/analytics';
+
 import { fetchCurrentUser, type UserSummary } from '../api/auth-api';
 import { clearStoredToken, getStoredToken, storeToken } from './session';
 
@@ -64,6 +66,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateUser = useCallback((user: UserSummary) => {
     setState((prev) => (prev.status === 'authenticated' ? { ...prev, user } : prev));
   }, []);
+
+  // 로그인 상태면 통계 이벤트에 토큰을 실어 그 통계 세션을 계정에 연결한다(Q-40 UT).
+  const authToken = state.status === 'authenticated' ? state.token : null;
+  useEffect(() => {
+    setBetaEventAuthToken(authToken);
+  }, [authToken]);
 
   const value = useMemo(
     () => ({ state, setSession, logout, refresh, updateUser }),

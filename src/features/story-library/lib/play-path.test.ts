@@ -23,12 +23,13 @@ test('플레이어 경로는 아이와 이어듣기 여부를 쿼리로 싣는�
   assert.equal(storyPlayPath('HG', { childId: 'child-a' }), '/stories/HG/play?childId=child-a');
   assert.equal(storyPlayPath('HG', { childId: 'child-a', resume: true }), '/stories/HG/play?childId=child-a&resume=1');
   assert.equal(storyPlayPath('a b'), '/stories/a%20b/play');
+  assert.equal(storyPlayPath('HG', { childId: 'child-a', from: 'report' }), '/stories/HG/play?childId=child-a&from=report');
 });
 
 test('홈 히어로는 상세를 거치지 않고 선택된 아이로 바로 재생한다', () => {
   assert.deepEqual(
     startStoryFromHome({ story: story('HG'), auth: parent, children: [A, B], selectedChildId: 'child-b' }),
-    { kind: 'navigate', path: '/stories/HG/play?childId=child-b' },
+    { kind: 'navigate', path: '/stories/HG/play?childId=child-b&from=home' },
   );
 });
 

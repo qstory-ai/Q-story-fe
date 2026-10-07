@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
@@ -6,6 +6,7 @@ import { OneStoryPage } from '@/pages/one-story';
 import { loadStoryPackage, type StoryRuntimePackage } from '@/entities/story';
 import { homePathForAuth, useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
+import { parsePlaySetting, playEntrySource } from '@/entities/play-session';
 import { playerChildSync } from '../model/player-child-sync';
 import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/shared/ui';
 
@@ -34,6 +35,14 @@ export function StoryPlayerRoute() {
   const requestedChildId = searchParams.get('childId');
   // resume=1은 "이어서 읽기", childId만 있으면 홈에서 아이를 골라 시작 - 플레이어가 시작 화면을 건너뛴다.
   const entry = searchParams.get('resume') === '1' ? 'resume' : requestedChildId ? 'start' : undefined;
+  // Q-40 UT - 회차를 시작한 곳(리포트 다시 읽기·서재는 from=)과 수업 진행 형태(setting=, 선생님이 시작할 때 고름).
+  const utContext = useMemo(
+    () => ({
+      entrySource: playEntrySource({ from: searchParams.get('from'), entry, lessonId }),
+      playSetting: lessonId ? (parsePlaySetting(searchParams.get('setting')) ?? 'WHOLE_CLASS') : ('HOME' as const),
+    }),
+    [entry, lessonId, searchParams],
+  );
   const { load: childrenLoad, children, selectedChild, selectChild } = useChildren();
   const childSync = playerChildSync({
     requestedChildId,
@@ -73,7 +82,7 @@ export function StoryPlayerRoute() {
   const effectiveState: LoadState = state.requestKey === requestKey ? state : { requestKey, status: 'loading' };
 
   if (effectiveState.status === 'ready' && childSync.kind === 'ready') {
-    return <OneStoryPage storyPackage={effectiveState.storyPackage} tutorStudentId={tutorStudentId} lessonId={lessonId} entry={entry} />;
+    return <OneStoryPage storyPackage={effectiveState.storyPackage} tutorStudentId={tutorStudentId} lessonId={lessonId} entry={entry} utContext={utContext} />;
   }
 
   return (

@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Modal, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
+import { ageYearsFromBirthYear, trackBetaEvent } from '@/entities/analytics';
 import {
   BirthYearChips,
   CHILD_AVATARS,
@@ -63,7 +64,9 @@ function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: (
       if (editing) {
         await editChild(editing.id, { name: name.trim(), birthYear, ageBand: ageBandFromBirthYear(birthYear), avatarKey });
       } else {
-        await addChild({ name: name.trim(), birthYear, ageBand: ageBandFromBirthYear(birthYear), avatarKey });
+        const ageBand = ageBandFromBirthYear(birthYear);
+        await addChild({ name: name.trim(), birthYear, ageBand, avatarKey });
+        void trackBetaEvent('child_registered', { age_years: ageYearsFromBirthYear(birthYear), age_band: ageBand });
       }
       onClose();
     } catch (submitError: unknown) {

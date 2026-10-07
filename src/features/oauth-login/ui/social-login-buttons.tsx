@@ -17,7 +17,8 @@ import {
 type SocialLoginButtonsProps = {
   /** 처음 가입하는 경우에만 쓰인다 - 로그인 화면(SignInStep)에서는 생략한다. */
   role?: Role;
-  onAuthed: (token: string, user: UserSummary) => void;
+  /** provider는 가입 통계(Q-40 UT)용 - 쓰지 않는 호출부는 무시해도 된다. */
+  onAuthed: (token: string, user: UserSummary, provider?: 'google' | 'kakao') => void;
   /** 가입 화면에서 약관 동의가 끝난 뒤 서버로 보낼 동의 내용. 로그인 화면에서는 생략한다. */
   consents?: ConsentPayload;
   /** true면 버튼을 누를 수 없다(약관 동의 전). */
@@ -74,7 +75,7 @@ export function SocialLoginButtons({ role, onAuthed, consents, disabled, disable
       if (disabledRef.current) return;
       setError(null);
       oauthLogin('GOOGLE', { token: idToken, role, consents: consentsRef.current })
-        .then((response) => onAuthed(response.token, response.user))
+        .then((response) => onAuthed(response.token, response.user, 'google'))
         .catch(handleFailure);
     });
   }, [role, onAuthed, handleFailure]);
@@ -86,7 +87,7 @@ export function SocialLoginButtons({ role, onAuthed, consents, disabled, disable
     try {
       const accessToken = await requestKakaoAccessToken();
       const response = await oauthLogin('KAKAO', { token: accessToken, role, consents: consentsRef.current });
-      onAuthed(response.token, response.user);
+      onAuthed(response.token, response.user, 'kakao');
     } catch (failure) {
       handleFailure(failure);
     } finally {

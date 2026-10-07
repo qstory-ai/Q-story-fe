@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 
 import { ActionButton, Modal } from '@/shared/ui';
+import { SessionCodeNote } from '@/entities/play-session';
 
 import type { OneStoryRuntime } from '../../model';
 import { styles } from '../styles';
@@ -20,6 +21,7 @@ export function HomeMenuModal({ runtime }: { runtime: OneStoryRuntime }) {
     leaveTemporarily,
     finishToday,
     exitReasons,
+    sessionCode,
   } = runtime;
 
   return (
@@ -68,6 +70,7 @@ export function HomeMenuModal({ runtime }: { runtime: OneStoryRuntime }) {
           </Pressable>
         </>
       )}
+      <SessionCodeNote code={sessionCode} />
     </Modal>
   );
 }

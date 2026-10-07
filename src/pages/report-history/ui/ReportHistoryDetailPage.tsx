@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 
 import { AppNavShell, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, reportsPathFor, useAuth } from '@/entities/auth';
 import { useBackOr } from '@/shared/lib';
+import { reportViewSourceFrom } from '@/pages/one-story';
 import { CompletionReport } from './CompletionReport';
 
 /** 지난 "오늘의 질문 기록" 하나를 읽기 전용으로 보여주는 화면. 본문은 CompletionReport가 그린다. */
@@ -12,6 +13,7 @@ export function ReportHistoryDetailPage() {
   const { completionId } = useParams<{ completionId: string }>();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
   const { state } = useAuth();
   const reportsFallback = state.status === 'authenticated' ? reportsPathFor(state.user) : '/reports';
   const goBack = useBackOr(reportsFallback);
@@ -37,7 +39,12 @@ export function ReportHistoryDetailPage() {
       onBack={goBack}
     >
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <CompletionReport token={state.token} completionId={completionId} isParent={state.user.role === 'PARENT'} />
+        <CompletionReport
+          token={state.token}
+          completionId={completionId}
+          isParent={state.user.role === 'PARENT'}
+          viewSource={reportViewSourceFrom(searchParams.get('from'))}
+        />
       </ScrollView>
     </AppNavShell>
   );

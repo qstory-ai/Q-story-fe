@@ -14,6 +14,7 @@ import {
 } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { withParticle, teacherTitle } from '@/shared/lib';
+import { betaErrorCode, trackBetaEvent } from '@/entities/analytics';
 import { homePathFor, joinExistingClass, previewClassByCode, useAuth, type ClassPreview } from '@/entities/auth';
 import { BirthYearChips, listChildren, useChildren, type Child } from '@/entities/child';
 import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
@@ -50,6 +51,7 @@ function ClassInvite({ code }: { code: string }) {
         if (!cancelled) setLoad({ code, status: 'ready', preview });
       })
       .catch((failure: unknown) => {
+        void trackBetaEvent('class_join', { step: 'error', via: 'invite_link', error_code: betaErrorCode(failure) });
         if (!cancelled) setLoad({ code, status: 'error', message: messageForError(failure, '반 초대를 확인하지 못했어요.') });
       });
     return () => {
@@ -204,6 +206,7 @@ function ChildPicker({
   async function submit() {
     setError(null);
     setSubmitting(true);
+    void trackBetaEvent('class_join', { step: 'attempt', via: 'invite_link' });
     try {
       const response = await joinExistingClass(
         token,
@@ -216,10 +219,12 @@ function ChildPicker({
       );
       // 반 소속으로 기관 이용권이 생길 수 있어 응답의 사용자 정보로 세션을 갱신한다.
       setSession(response.token, response.user);
+      void trackBetaEvent('class_join', { step: 'success', via: 'invite_link' });
       if (isNew) void reloadChildren();
       const name = isNew ? childName.trim() : (children?.find((child) => child.id === selected)?.name ?? '아이');
       setJoined({ childName: name, homePath: homePathFor(response.user) });
     } catch (failure) {
+      void trackBetaEvent('class_join', { step: 'error', via: 'invite_link', error_code: betaErrorCode(failure) });
       setError(messageForError(failure, '반에 들어가지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);

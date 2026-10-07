@@ -15,6 +15,7 @@ import {
 } from '@/entities/lesson';
 import type { StoryCompletionSummary } from '@/entities/story-completion';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
+import { LessonPlaySettingPicker, type PlaySetting } from '@/entities/play-session';
 import { LessonFormModal } from '@/features/lesson-form';
 
 type LoadState =
@@ -46,6 +47,8 @@ export function TutorLessonDetailPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteInFlight, setDeleteInFlight] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  // 수업 진행 형태(Q-40) - 기본은 전체 반.
+  const [playSetting, setPlaySetting] = useState<PlaySetting>('WHOLE_CLASS');
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -177,6 +180,9 @@ export function TutorLessonDetailPage() {
 
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>사용 이야기 {effective.lesson.storyIds.length}편</Text>
+              {effective.lesson.storyIds.length > 0 && (
+                <LessonPlaySettingPicker value={playSetting} onChange={setPlaySetting} align="start" />
+              )}
               {effective.lesson.storyIds.length === 0 ? (
                 <Text style={styles.helper}>담긴 이야기가 없어요.</Text>
               ) : (
@@ -195,7 +201,7 @@ export function TutorLessonDetailPage() {
                           // lessonId를 붙여 서버가 참여 학생 전원을 한 기록으로 묶게 한다(반 수업이면 반 수업 리포트).
                           // 개별 수업은 tutorStudentId의 학생 기록이 된다.
                           const firstStudent = effective.lesson.students[0];
-                          const params = new URLSearchParams({ lessonId: effective.lesson.id });
+                          const params = new URLSearchParams({ lessonId: effective.lesson.id, setting: playSetting });
                           if (firstStudent) params.set('tutorStudentId', firstStudent.id);
                           navigate(`/stories/${storyId}/play?${params.toString()}`);
                         }}

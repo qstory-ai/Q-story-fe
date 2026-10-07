@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,6 +21,7 @@ import {
   type UserSummary,
 } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
+import { betaErrorCode, trackBetaEvent } from '@/entities/analytics';
 import {
   EMPTY_TERMS_CONSENT,
   TermsConsent,
@@ -211,6 +212,18 @@ function SignUpStep({
   const [submitting, setSubmitting] = useState(false);
   const [terms, setTerms] = useState<TermsConsentState>(EMPTY_TERMS_CONSENT);
 
+  // 가입 폼을 연 것과 끝낸 것(Q-40 UT) - 가입·연결에서 막히는 지점을 본다.
+  const signupEntry = initialClassCode ? 'class_link' : 'direct';
+  useEffect(() => {
+    void trackBetaEvent('signup_started', { role, entry: signupEntry });
+  }, [role, signupEntry]);
+  const trackSignupCompleted = useCallback(
+    (method: 'password' | 'google' | 'kakao', hasClassCode: boolean) => {
+      void trackBetaEvent('signup_completed', { role, method, has_class_code: hasClassCode });
+    },
+    [role],
+  );
+
   // 반 코드로 가입하면 계정만 먼저 만들고, 아이 프로필을 만든 뒤 반 연결 화면(/join?code=)에서 그 아이를 고른다 -
   // 아이 이름·출생연도를 여기서 따로 적지 않는다.
   const useJoinFlow = role === 'PARENT' && hasClass;
@@ -252,13 +265,28 @@ function SignUpStep({
         const orgResponse = await createOrganization(signupResponse.token, {
           name: orgName.trim(),
         });
+        trackSignupCompleted('password', false);
         onAuthed(orgResponse.token, orgResponse.user);
         return;
       }
       // 반 코드가 틀렸으면 계정을 만들기 전에 알린다.
       const joinCode = useJoinFlow ? classCode.trim().toUpperCase() : null;
-      if (joinCode) await previewClassByCode(joinCode);
+      if (joinCode) {
+        const via = initialClassCode ? 'invite_link' : 'code_input';
+        void trackBetaEvent('class_join', { step: 'attempt', via });
+        try {
+          await previewClassByCode(joinCode);
+        } catch (failure) {
+          void trackBetaEvent('class_join', {
+            step: 'error',
+            via,
+            error_code: betaErrorCode(failure),
+          });
+          throw failure;
+        }
+      }
       const response = role === 'TUTOR' ? await signupTutor(input) : await signupParent(input);
+      trackSignupCompleted('password', Boolean(joinCode));
       // 마케팅 동의는 가입 요청의 consents로 서버가 가입 트랜잭션에서 저장한다.
       onAuthed(response.token, response.user, joinCode ? `/join?code=${encodeURIComponent(joinCode)}` : undefined);
     } catch (failure) {
@@ -278,6 +306,8 @@ function SignUpStep({
     role,
     useJoinFlow,
     classCode,
+    initialClassCode,
+    trackSignupCompleted,
     orgName,
     loginId,
     email,
@@ -385,7 +415,11 @@ function SignUpStep({
       {!initialClassCode && (
         <SocialLoginButtons
           role={role}
-          onAuthed={onAuthed}
+          onAuthed={(token, user, provider) => {
+            // 이미 있는 소셜 계정이면 로그인이지만, 가입 화면에서 누른 것이라 가입 완료로 센다(대부분 새 계정).
+            if (provider) trackSignupCompleted(provider, false);
+            onAuthed(token, user);
+          }}
           consents={termsConsentIsValid(terms) ? toConsentPayload(terms) : undefined}
           disabled={!termsConsentIsValid(terms)}
           disabledHint="약관에 동의하면 소셜 계정으로 가입할 수 있어요."

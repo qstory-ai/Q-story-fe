@@ -113,3 +113,43 @@ test('다른 아이가 남긴 진행은 이어듣기 후보가 아니다', () =>
   assert.equal(resumableProgressFor({ ...progress, childId: undefined }, 'hansel-gretel', 'child-a')?.storyId, 'hansel-gretel');
   assert.equal(resumableProgressFor(progress, 'hansel-gretel'), progress);
 });
+
+test('이어서 읽기는 같은 회차 id와 다음 대화 줄 번호, 읽은 범위를 이어 받는다(Q-39)', () => {
+  const storage = memoryStorage();
+  saveLocalStoryProgress(
+    {
+      state: { status: 'playing-fixed', sceneId: 'HG-F06', audioGroupId: 'HG-F06-AG01', clipIndex: 0 },
+      storyId: 'HG',
+      childName: '서아',
+      elapsedSeconds: 300,
+      questionOutcomes: [],
+      sessionId: '6f1c3c1e-1b1a-4b7e-9a51-2a8f5f2e4c10',
+      nextTurnSeq: 14,
+      readFromSceneId: 'HG-F01',
+      readThroughSceneId: 'HG-F06',
+    },
+    storage,
+  );
+  const loaded = loadLocalStoryProgress(storage);
+  assert.equal(loaded.sessionId, '6f1c3c1e-1b1a-4b7e-9a51-2a8f5f2e4c10');
+  assert.equal(loaded.nextTurnSeq, 14);
+  assert.equal(loaded.readFromSceneId, 'HG-F01');
+  assert.equal(loaded.readThroughSceneId, 'HG-F06');
+});
+
+test('회차 id가 없는 옛 진행 기록도 그대로 이어 읽을 수 있다', () => {
+  const storage = memoryStorage();
+  saveLocalStoryProgress(
+    {
+      state: { status: 'playing-fixed', sceneId: 'HG-F02', audioGroupId: 'HG-F02-AG01', clipIndex: 0 },
+      storyId: 'HG',
+      childName: '',
+      elapsedSeconds: 10,
+      questionOutcomes: [],
+    },
+    storage,
+  );
+  const loaded = loadLocalStoryProgress(storage);
+  assert.ok(loaded);
+  assert.equal(loaded.sessionId, undefined);
+});

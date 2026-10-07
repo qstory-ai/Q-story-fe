@@ -1,8 +1,13 @@
 import { Pressable, Text, View } from 'react-native';
 
+import { useAuth } from '@/entities/auth';
+
 import type { OneStoryRuntime } from '../../model';
+import { useCompletionDetail } from '../../model/use-completion-detail';
 import { styles } from '../styles';
 import { ReportContent } from './report-content';
+import { SessionReport } from './session-report';
+import { TeacherNoteEditor } from './teacher-note-editor';
 
 export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
   const {
@@ -12,15 +17,60 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
     finishExperience,
     requestRestart,
     storyPackage,
+    liveTurns,
+    completedRecordId,
+    childName,
+    questionOutcomes,
+    isClassLesson,
   } = runtime;
+  const { state: authState } = useAuth();
+  const token = authState.status === 'authenticated' ? authState.token : null;
+  // 방금 저장한 기록을 받아 와 서버 분석(관심·대화 카드)과 이어 읽기 전 대화까지 채운다(Q-39).
+  const { detail, retry } = useCompletionDetail(token, completedRecordId);
+  const turns = detail?.turns && detail.turns.length > 0 ? detail.turns : liveTurns;
+  const useSessionReport = turns.length > 0 || Boolean(detail?.turns);
+  // 로그인하지 않은 데모는 서버 분석이 없다 - 기다리는 표시 대신 생략으로 보여 준다.
+  const analysis = token
+    ? (detail?.analysis ?? null)
+    : { status: 'SKIPPED' as const, observations: [], cards: [], commonScenes: [] };
+  const isTutor = authState.status === 'authenticated' && authState.user.role === 'TUTOR';
 
   return (
     <View style={styles.parentReportContent}>
-      <ReportContent
-        parentReport={parentReport}
-        isWide={isWide}
-        illustrationForAssetId={storyPackage.illustrationForAssetId}
-      />
+      {useSessionReport ? (
+        <SessionReport
+          storyPackage={storyPackage}
+          isWide={isWide}
+          view={isClassLesson ? 'teacher' : 'home'}
+          data={{
+            sessionKind: detail?.sessionKind ?? (isClassLesson ? 'CLASS' : 'HOME'),
+            childName,
+            className: detail?.className,
+            completedAt: detail?.completedAt ?? null,
+            endStatus: 'COMPLETED',
+            readFromSceneId: detail?.readFromSceneId ?? storyPackage.presentation.scenes[0]?.id,
+            readThroughSceneId: detail?.readThroughSceneId ?? storyPackage.manifest.endingSceneId,
+            turns,
+            outcomes: questionOutcomes,
+            analysis,
+            teacherNote: detail?.teacherNote,
+          }}
+          onRetryAnalysis={() => void retry()}
+          teacherNoteSlot={
+            isClassLesson && isTutor && token && completedRecordId ? (
+              <TeacherNoteEditor token={token} completionId={completedRecordId} initial={detail?.teacherNote} />
+            ) : isClassLesson ? (
+              <Text style={styles.reportPanelDescription}>기록이 저장되면 여기서 메모를 남길 수 있어요.</Text>
+            ) : undefined
+          }
+        />
+      ) : (
+        <ReportContent
+          parentReport={parentReport}
+          isWide={isWide}
+          illustrationForAssetId={storyPackage.illustrationForAssetId}
+        />
+      )}
 
       <View
         style={[styles.reportActionPanel, isWide && styles.reportActionPanelWide]}

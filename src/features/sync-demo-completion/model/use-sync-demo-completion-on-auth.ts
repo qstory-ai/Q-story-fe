@@ -26,10 +26,18 @@ export function useSyncDemoCompletionOnAuth() {
     }
 
     syncingRef.current = true;
+    // 로그인한 채로 끝까지 읽은 회차도 완료 상태로 기기에 남아 있다 - 그 회차는 이미 서버에 저장됐으므로 같은 회차 id를
+    // 실어 보내 서버가 새 기록을 만들지 않고 그 기록을 갱신하게 한다(같은 회차 id·같은 사용자면 갱신). 회차 id가 없는
+    // 예전 데모 기록만 새로 저장된다.
     void recordStoryCompletion(state.token, {
       storyId: progress.storyId,
       durationSeconds: progress.elapsedSeconds,
       outcomes: progress.questionOutcomes,
+      ...(progress.sessionId ? { companionConversationId: progress.sessionId } : {}),
+      ...(progress.childId ? { childId: progress.childId } : {}),
+      ...(progress.readFromSceneId ? { readFromSceneId: progress.readFromSceneId } : {}),
+      ...(progress.readThroughSceneId ? { readThroughSceneId: progress.readThroughSceneId } : {}),
+      endStatus: 'COMPLETED',
     })
       .then(() => {
         clearLocalStoryProgress();

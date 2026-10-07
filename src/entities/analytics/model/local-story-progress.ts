@@ -20,6 +20,15 @@ export type LocalStoryProgress = {
   childId?: string;
   elapsedSeconds: number;
   questionOutcomes: QuestionOutcome[];
+  /**
+   * 이 진행의 회차 id(conversationId)와 다음 대화 줄 번호(Q-39). 이어서 읽으면 같은 회차로 대화 기록과
+   * 리포트가 이어진다 - 이 필드가 생기기 전 기록에는 없고, 그때는 새 회차로 시작한다.
+   */
+  sessionId?: string;
+  nextTurnSeq?: number;
+  /** 이 회차에서 처음 읽은 장면과 가장 멀리 읽은 장면 - 리포트의 "읽은 범위". */
+  readFromSceneId?: string;
+  readThroughSceneId?: string;
 };
 
 function browserStorage(): StorageLike | null {
@@ -98,6 +107,10 @@ export function saveLocalStoryProgress(
     ...(input.childId ? { childId: input.childId } : {}),
     elapsedSeconds: Math.max(0, Math.round(input.elapsedSeconds)),
     questionOutcomes: input.questionOutcomes,
+    ...(input.sessionId ? { sessionId: input.sessionId } : {}),
+    ...(typeof input.nextTurnSeq === 'number' ? { nextTurnSeq: Math.max(1, Math.floor(input.nextTurnSeq)) } : {}),
+    ...(input.readFromSceneId ? { readFromSceneId: input.readFromSceneId } : {}),
+    ...(input.readThroughSceneId ? { readThroughSceneId: input.readThroughSceneId } : {}),
   };
   try {
     storage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -127,7 +140,9 @@ export function loadLocalStoryProgress(
       typeof value.childName !== 'string' ||
       (value.childId !== undefined && typeof value.childId !== 'string') ||
       typeof value.elapsedSeconds !== 'number' ||
-      !Array.isArray(value.questionOutcomes)
+      !Array.isArray(value.questionOutcomes) ||
+      (value.sessionId !== undefined && typeof value.sessionId !== 'string') ||
+      (value.nextTurnSeq !== undefined && typeof value.nextTurnSeq !== 'number')
     ) {
       storage.removeItem(STORAGE_KEY);
       return null;

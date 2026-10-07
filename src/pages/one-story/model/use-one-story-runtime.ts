@@ -45,7 +45,7 @@ import {
   isSttUnavailableCode,
 } from '@/entities/speech-pipeline';
 import { narrationUtteranceSlug, type StoryRuntimePackage } from '@/entities/story';
-import { homePathForAuth, useAuth } from '@/entities/auth';
+import { useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { recordStoryCompletion } from '@/entities/story-completion';
 import {
@@ -66,8 +66,6 @@ import {
 } from '@/features/route-question';
 
 import {
-  EXIT_REASONS,
-  EXIT_REASON_CODES,
   FIXED_AUDIO_FAILURE_RECOVERY_MS,
   QUESTION_AUDIO_HEAD_START_MS,
   RESPONSE_AUDIO_PREPARE_MS,
@@ -81,6 +79,7 @@ import {
   runtimeTransitionFailureCopy,
   splitQuestionOutcomesAtScene,
 } from '../lib/runtime-view';
+import { resolveExit } from '../lib/exit-destination';
 import { preloadImages } from '../lib/preload-images';
 import { playResponseWithFallback } from '../lib/play-clip-with-fallback';
 import { resolveVoiceResearchEnabled } from './voice-research-enabled';
@@ -244,7 +243,6 @@ export function useOneStoryRuntime(
       resumableProgressFor(loadLocalStoryProgress(), storyPackage.storyId, selectedChild?.id),
     );
   const [homeMenuVisible, setHomeMenuVisible] = useState(false);
-  const [exitReasonVisible, setExitReasonVisible] = useState(false);
   const parentReport = useMemo(
     () =>
       buildParentReport(storyPackage.reportCopy, questionOutcomes, {
@@ -1831,7 +1829,6 @@ export function useOneStoryRuntime(
     setStoryDurationSeconds(null);
     setParentReportVisible(false);
     setHomeMenuVisible(false);
-    setExitReasonVisible(false);
     setResumeCandidate(null);
     clearLocalStoryProgress();
   }, [recorder, resetQuestionAttemptTracking, stopNarration, storyManifest]);
@@ -1875,8 +1872,7 @@ export function useOneStoryRuntime(
       setStoryDurationSeconds(null);
       setParentReportVisible(false);
       setHomeMenuVisible(false);
-      setExitReasonVisible(false);
-      setResumeCandidate(null);
+        setResumeCandidate(null);
     },
     [recorder, resetQuestionAttemptTracking, stopNarration, storyManifest],
   );
@@ -1926,103 +1922,73 @@ export function useOneStoryRuntime(
   }, []);
 
   const openHomeMenu = useCallback(async () => {
-    if (runtimeRef.current.status === 'complete') {
-      clearLocalStoryProgress();
-      await restartStory();
-      return;
-    }
     if (narrationState.isSpeaking && !narrationState.isPaused) {
       await pauseNarration();
     }
     persistCurrentProgress();
-    setExitReasonVisible(false);
     setHomeMenuVisible(true);
   }, [
     narrationState.isPaused,
     narrationState.isSpeaking,
     pauseNarration,
     persistCurrentProgress,
-    restartStory,
   ]);
 
   const continueFromHomeMenu = useCallback(async () => {
     setHomeMenuVisible(false);
-    setExitReasonVisible(false);
     if (narrationState.isPaused) {
       await resumeNarration();
     }
   }, [narrationState.isPaused, resumeNarration]);
 
-  // Q-34: 이야기에서 나가는 길은 모두 앱 홈(homePathForAuth) 한 곳으로 간다 - 잠시 나가기는
-  // 진행을 저장해 두고, 다시 들어오면 이어 듣기를 묻는다.
-  const leaveTemporarily = useCallback(async () => {
-    persistCurrentProgress();
-    processingAbortRef.current?.abort();
-    await stopNarration();
-    setHomeMenuVisible(false);
-    navigate(homePathForAuth(authState));
-  }, [authState, navigate, persistCurrentProgress, stopNarration]);
-
-  const finishExperience = useCallback(async () => {
-    processingAbortRef.current?.abort();
-    await stopNarration();
-    // 익명 데모(/demo)에서는 지우지 않는다 - 로그인/회원가입하면 이 기록으로 계정에
-    // 리포트를 저장해 준다(useSyncDemoCompletionOnAuth 참고). 이미 로그인된 상태라면
-    // 완료 시점에 서버로 저장이 끝났으니 로컬 사본은 정리한다.
-    if (authState.status === 'authenticated') {
-      clearLocalStoryProgress();
-    }
-    navigate(homePathForAuth(authState));
-  }, [authState, navigate, stopNarration]);
-
-  const finishToday = useCallback(
-    (reason: (typeof EXIT_REASONS)[number]) => {
-      const latestState = runtimeRef.current;
-      const diagnosticClipId =
+  // Q-34: 나가기는 한 길 - 도중이면 진행을 저장하고(돌아오면 이어 듣기), 완주 후 로그인 상태면
+  // 기록을 정리한 뒤 홈(homePathForAuth)으로 간다. 외부 사이트로는 가지 않는다.
+  const leaveStory = useCallback(async () => {
+    const plan = resolveExit(authState, runtimeRef.current.status);
+    if (plan.saveProgress) persistCurrentProgress();
+    const latestState = runtimeRef.current;
+    const diagnostics = buildExitDiagnostics({
+      state: latestState,
+      questionOutcomes,
+      clipId:
         getRuntimeClip(latestState, storyPackage)?.id ??
         activeNarrationIdRef.current ??
-        narrationState.captionRequestId;
-      const diagnostics = buildExitDiagnostics({
-        state: latestState,
-        questionOutcomes,
-        clipId: diagnosticClipId,
-        narration: {
-          isSpeaking: narrationState.isSpeaking,
-          isPaused: narrationState.isPaused,
-          source: narrationState.source,
-        },
-      });
-      try {
-        globalThis.localStorage?.setItem(
-          'qstory.hg.last-explicit-exit.v1',
-          JSON.stringify({ reason, at: new Date().toISOString() }),
-        );
-      } catch {
-        // 종료 피드백 저장 실패로 인해 가족이 플레이어 안에 갇히는 일이 있어서는 절대 안 된다.
-      }
-      // 홈으로 나가는 게 목적이라 전송 완료를 기다리지 않는다(fire-and-forget).
-      void trackStoryEvent('explicit_exit', {
-        reason_code: EXIT_REASON_CODES[reason],
-        ...diagnostics,
-      });
-      clearLocalStoryProgress();
-      // restartStory()(이야기 처음 화면으로)가 아니라 navigate('/')(진짜 홈으로) - "오늘 체험
-      // 마치기"는 이 이야기를 그만 보겠다는 뜻이지 같은 이야기를 처음부터 다시 보겠다는 뜻이
-      // 아니다. finishExperience()(완주 뒤 "홈으로 돌아가기")와 같은 목적지로 맞춘다.
-      navigate(homePathForAuth(authState));
-    },
-    [
-      narrationState.captionRequestId,
-      narrationState.isPaused,
-      narrationState.isSpeaking,
-      narrationState.source,
-      authState,
-      navigate,
-      questionOutcomes,
-      storyPackage,
-      trackStoryEvent,
-    ],
-  );
+        narrationState.captionRequestId,
+      narration: {
+        isSpeaking: narrationState.isSpeaking,
+        isPaused: narrationState.isPaused,
+        source: narrationState.source,
+      },
+    });
+    // 전송 완료를 기다리지 않는다(fire-and-forget). 사유 설문은 없어 reason_code는 보내지 않는다.
+    void trackStoryEvent('explicit_exit', diagnostics);
+    processingAbortRef.current?.abort();
+    await stopNarration();
+    if (plan.clearProgress) clearLocalStoryProgress();
+    setHomeMenuVisible(false);
+    navigate(plan.path);
+  }, [
+    authState,
+    navigate,
+    narrationState.captionRequestId,
+    narrationState.isPaused,
+    narrationState.isSpeaking,
+    narrationState.source,
+    persistCurrentProgress,
+    questionOutcomes,
+    stopNarration,
+    storyPackage,
+    trackStoryEvent,
+  ]);
+
+  // "처음부터 다시"는 기록이 지워지므로 확인 모달을 거친 뒤에만 실행한다.
+  const [restartConfirmVisible, setRestartConfirmVisible] = useState(false);
+  const requestRestart = useCallback(() => setRestartConfirmVisible(true), []);
+  const cancelRestart = useCallback(() => setRestartConfirmVisible(false), []);
+  const confirmRestart = useCallback(async () => {
+    setRestartConfirmVisible(false);
+    await restartStory();
+  }, [restartStory]);
 
   const openParentReport = useCallback(() => {
     setParentReportVisible(true);
@@ -2143,9 +2109,10 @@ export function useOneStoryRuntime(
     questionOutcomes,
     resumeCandidate,
     homeMenuVisible,
-    exitReasonVisible,
-    setExitReasonVisible,
-    exitReasons: EXIT_REASONS,
+    restartConfirmVisible,
+    requestRestart,
+    cancelRestart,
+    confirmRestart,
     // 핸들러
     startStory,
     continueStory,
@@ -2173,9 +2140,8 @@ export function useOneStoryRuntime(
     dismissResumeAndRestart,
     openHomeMenu,
     continueFromHomeMenu,
-    leaveTemporarily,
-    finishExperience,
-    finishToday,
+    leaveStory,
+    finishExperience: leaveStory,
     openParentReport,
     closeParentReport,
     openCompletionSurvey,

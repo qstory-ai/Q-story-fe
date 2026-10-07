@@ -1,73 +1,35 @@
-import { Pressable, Text, View } from 'react-native';
-
 import { ActionButton, Modal } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../../model';
-import { styles } from '../styles';
 
 /**
- * 1단계(계속 듣기/잠시 나가기 + 링크)와 2단계(가변 개수 exitReason 리스트 + 링크)를
- * 오가는 미니 위저드라서, Modal의 positiveAction/negativeAction 슬롯(고정 2버튼)에
- * 억지로 끼워 맞추지 않는다 - Modal은 크롬(스크림+카드+애니메이션)만 맡고, 단계별
- * 마크업은 그대로 children으로 둔다.
+ * 나가기 확인(Q-34): "계속 듣기 / 나가기" 두 개뿐. 나가면 진행이 저장돼 다시 오면 이어 들을 수 있다.
+ * 아래 RestartConfirmModal은 "처음부터 다시" 확인 - 기록이 지워지므로 한 번 더 묻는다.
  */
 export function HomeMenuModal({ runtime }: { runtime: OneStoryRuntime }) {
   const {
     homeMenuVisible,
-    exitReasonVisible,
-    setExitReasonVisible,
     continueFromHomeMenu,
-    leaveTemporarily,
-    finishToday,
-    exitReasons,
+    leaveStory,
+    restartConfirmVisible,
+    cancelRestart,
+    confirmRestart,
   } = runtime;
 
   return (
-    <Modal visible={homeMenuVisible} eyebrow="이야기 홈" title="이야기를 어떻게 할까요?" accessibilityLabel="이야기 홈 메뉴">
-      {!exitReasonVisible ? (
-        <>
-          <ActionButton
-            variant="primary"
-            label="계속 듣기"
-            onPress={continueFromHomeMenu}
-          />
-          <ActionButton
-            variant="secondaryFull"
-            label="잠시 나가기"
-            onPress={leaveTemporarily}
-          />
-          <Pressable
-            style={styles.modalTextButton}
-            onPress={() => setExitReasonVisible(true)}
-          >
-            <Text style={styles.modalTextButtonLabel}>오늘 체험 마치기</Text>
-          </Pressable>
-        </>
-      ) : (
-        <>
-          <Text style={styles.modalBody}>
-            오늘 여기서 마치는 가장 큰 이유 하나만 알려주세요. 선택하지
-            않고 돌아갈 수도 있어요.
-          </Text>
-          <View style={styles.exitReasonList}>
-            {exitReasons.map((reason) => (
-              <Pressable
-                key={reason}
-                style={styles.exitReasonButton}
-                onPress={() => finishToday(reason)}
-              >
-                <Text style={styles.exitReasonButtonText}>{reason}</Text>
-              </Pressable>
-            ))}
-          </View>
-          <Pressable
-            style={styles.modalTextButton}
-            onPress={() => setExitReasonVisible(false)}
-          >
-            <Text style={styles.modalTextButtonLabel}>이야기로 돌아가기</Text>
-          </Pressable>
-        </>
-      )}
-    </Modal>
+    <>
+      <Modal visible={homeMenuVisible} eyebrow="이야기 홈" title="이야기를 그만 들을까요?" accessibilityLabel="이야기 홈 메뉴">
+        <ActionButton variant="primary" label="계속 듣기" onPress={continueFromHomeMenu} />
+        <ActionButton variant="secondaryFull" label="나가기" onPress={leaveStory} />
+      </Modal>
+      <Modal
+        visible={restartConfirmVisible}
+        eyebrow="처음부터"
+        title="처음부터 다시 들을까요?"
+        positiveAction={{ label: '처음부터 듣기', onPress: confirmRestart }}
+        negativeAction={{ label: '아니요', onPress: cancelRestart }}
+        accessibilityLabel="처음부터 다시 듣기 확인"
+      />
+    </>
   );
 }

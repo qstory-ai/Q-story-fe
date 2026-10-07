@@ -12,6 +12,5 @@ export const FIXED_AUDIO_FAILURE_RECOVERY_MS = 2_500;
 export const LIVE_BRANCH_POLL_INTERVAL_MS = 1_800;
 export const LIVE_BRANCH_POLL_TIMEOUT_MS = 90_000;
 
-
 // 음성 인식 문장이 보이면 이 시간 뒤에 자동으로 질문을 보낸다(Q-34). "다시 말하기"로 취소할 수 있다.
 export const AUTO_CONFIRM_MS = 2_500;

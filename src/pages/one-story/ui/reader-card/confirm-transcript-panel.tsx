@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 
+import { withParticle } from '@/shared/lib/korean-particle';
 import { ActionButton } from '@/shared/ui';
 
 import { countdownSeconds, createAutoConfirm } from '../../lib/auto-confirm';
@@ -11,6 +12,8 @@ import { styles } from '../styles';
 export function ConfirmTranscriptPanel({ runtime }: { runtime: OneStoryRuntime }) {
   const {
     runtimeState,
+    speaker,
+    branchCaptionSpeaker,
     pendingTranscription,
     questionMode,
     isRoutingQuestion,
@@ -21,6 +24,8 @@ export function ConfirmTranscriptPanel({ runtime }: { runtime: OneStoryRuntime }
     retryAfterTranscript,
   } = runtime;
 
+  const friendName =
+    speaker?.displayName ?? branchCaptionSpeaker?.displayName ?? '친구';
   const visible =
     runtimeState.status === 'processing-question' && !!pendingTranscription;
   const autoConfirmActive =
@@ -70,14 +75,14 @@ export function ConfirmTranscriptPanel({ runtime }: { runtime: OneStoryRuntime }
       </View>
       <Text style={styles.questionHelp}>
         {autoConfirmActive && secondsLeft > 0
-          ? `${secondsLeft}초 뒤에 그레텔에게 보낼게요`
-          : '맞으면 바로 그레텔에게 질문을 보낼게요.'}
+          ? `${secondsLeft}초 뒤에 ${friendName}에게 보낼게요`
+          : `맞으면 바로 ${friendName}에게 질문을 보낼게요.`}
       </Text>
       <ActionButton
         variant="primary"
         disabled={isRoutingQuestion}
         label={
-          isRoutingQuestion ? '그레텔이 답을 찾고 있어요' : '네, 이대로 질문할게요'
+          isRoutingQuestion ? `${withParticle(friendName, '이/가')} 답을 찾고 있어요` : '네, 이대로 질문할게요'
         }
         onPress={confirmTranscript}
       />

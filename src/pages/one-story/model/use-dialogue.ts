@@ -6,6 +6,7 @@ import {
   type BufferedResponseAudio,
 } from '@/features/route-question';
 import { useAudioRecorderAdapter } from '@/features/record-question';
+import { reportClientError } from '@/entities/analytics';
 import {
   CompanionChatError,
   sendCompanionChatMessage,
@@ -386,6 +387,12 @@ export function useDialogue({
         );
         setPhase('error');
         logStep('ERROR', { turn_number: turnNumber });
+        reportClientError({
+          kind: 'NETWORK',
+          message: `dialogue ${error instanceof CompanionChatError ? (error.code ?? 'failed') : 'failed'}`,
+          storyId: storyPackage.storyId,
+          sceneId: sceneId ?? undefined,
+        });
       }
     },
     [

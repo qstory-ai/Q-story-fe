@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { normalizeInviteCode, isValidInviteCode, withParticle, teacherTitle } from '@/shared/lib';
+import { betaErrorCode, trackBetaEvent } from '@/entities/analytics';
 import {
   dashboardNavItems,
   joinExistingClass,
@@ -83,6 +84,7 @@ export function MyPageClassesPage() {
       return;
     }
     setJoiningClass(true);
+    void trackBetaEvent('class_join', { step: 'attempt', via: 'mypage' });
     try {
       // 아이가 기관 반에 들어가면 기관 이용권이 적용될 수 있어 응답의 사용자 정보(grantsAccess)로 세션을 갱신한다.
       const response = await joinExistingClass(state.token, {
@@ -91,11 +93,13 @@ export function MyPageClassesPage() {
         rosterStudentId: rosterSelection.kind === 'student' ? rosterSelection.id : undefined,
       });
       setSession(response.token, response.user);
+      void trackBetaEvent('class_join', { step: 'success', via: 'mypage' });
       setClassCodeInput('');
       setPickedChildId(null);
       setClassJoinSuccess(true);
       setReloadKey((n) => n + 1);
     } catch (error: unknown) {
+      void trackBetaEvent('class_join', { step: 'error', via: 'mypage', error_code: betaErrorCode(error) });
       setClassCodeError(messageForError(error, '반에 연결하지 못했어요. 반 코드를 다시 확인해 주세요.'));
     } finally {
       setJoiningClass(false);

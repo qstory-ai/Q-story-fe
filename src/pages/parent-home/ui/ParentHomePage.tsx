@@ -242,7 +242,7 @@ export function ParentHomePage() {
                 <RecentActivityRow
                   key={entry.id}
                   entry={entry}
-                  onPress={() => navigate(`/reports/${entry.id}`)}
+                  onPress={() => navigate(`/reports/${entry.id}?from=home_card`)}
                 />
               ))
             )}
@@ -261,7 +261,7 @@ export function ParentHomePage() {
         onSelected={(child) => {
           if (!picker) return;
           setPicker(null);
-          navigate(storyPlayPath(picker.storyId, { childId: child.id, resume: picker.resume }));
+          navigate(storyPlayPath(picker.storyId, { childId: child.id, resume: picker.resume, from: picker.resume ? undefined : 'home' }));
         }}
       />
     </AppNavShell>

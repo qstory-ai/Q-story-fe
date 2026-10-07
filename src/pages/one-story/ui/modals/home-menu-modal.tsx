@@ -1,4 +1,5 @@
 import { ActionButton, Modal } from '@/shared/ui';
+import { SessionCodeNote } from '@/entities/play-session';
 
 import type { OneStoryRuntime } from '../../model';
 
@@ -14,6 +15,7 @@ export function HomeMenuModal({ runtime }: { runtime: OneStoryRuntime }) {
     restartConfirmVisible,
     cancelRestart,
     confirmRestart,
+    sessionCode,
   } = runtime;
 
   return (
@@ -21,6 +23,7 @@ export function HomeMenuModal({ runtime }: { runtime: OneStoryRuntime }) {
       <Modal visible={homeMenuVisible} eyebrow="이야기 홈" title="이야기를 그만 들을까요?" accessibilityLabel="이야기 홈 메뉴">
         <ActionButton variant="primary" label="계속 듣기" onPress={continueFromHomeMenu} />
         <ActionButton variant="secondaryFull" label="나가기" onPress={leaveStory} />
+        <SessionCodeNote code={sessionCode} />
       </Modal>
       <Modal
         visible={restartConfirmVisible}

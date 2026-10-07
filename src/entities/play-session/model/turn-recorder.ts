@@ -32,6 +32,8 @@ export class TurnRecorder {
   private historyValue: PlayTurn[] = [];
   private timer: Timer | null = null;
   private inFlight: Promise<void> | null = null;
+  /** 서버에 회차가 만들어진 회차 id - 대화가 없어도 회차(읽은 범위·사용 조건)는 남아야 UT 회차 코드로 찾을 수 있다. */
+  private registeredSessionId: string | null = null;
   enabled: boolean;
 
   constructor(sessionId: string, context: PlaySessionContext, options: TurnRecorderOptions, enabled = true) {
@@ -133,6 +135,16 @@ export class TurnRecorder {
       this.timer = null;
     }
     const run = async () => {
+      // 아직 서버에 없는 회차면 줄이 없어도 빈 묶음으로 회차부터 만든다(이야기를 시작할 때 부른다).
+      if (this.enabled && this.queue.length === 0 && this.registeredSessionId !== this.sessionIdValue) {
+        const sessionId = this.sessionIdValue;
+        try {
+          await this.options.send(sessionId, { ...this.context, turns: [] });
+          this.registeredSessionId = sessionId;
+        } catch {
+          return;
+        }
+      }
       while (this.enabled && this.queue.length > 0) {
         const sessionId = this.sessionIdValue;
         const turns = this.queue.slice(0, this.options.batchLimit);
@@ -141,6 +153,7 @@ export class TurnRecorder {
         } catch {
           return; // 다음 flush에서 같은 줄을 다시 보낸다(서버가 seq로 중복을 거른다).
         }
+        this.registeredSessionId = sessionId;
         // 보내는 동안 회차가 바뀌었으면 새 회차 큐는 건드리지 않는다.
         if (sessionId !== this.sessionIdValue) return;
         const sent = new Set(turns.map((turn) => turn.seq));

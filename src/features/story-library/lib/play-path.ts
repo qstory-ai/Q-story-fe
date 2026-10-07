@@ -8,14 +8,21 @@ import { storyDestination } from './story-destination';
 /**
  * 플레이어("/stories/:storyId/play") 경로. childId는 이 재생을 기록할 아이 프로필 - StoryPlayerRoute가
  * 플레이어를 띄우기 전에 전역 선택 아이를 이 아이로 맞춘다. resume=1은 "이어서 읽기"로 들어왔다는 표시다.
+ * from=은 시작한 곳(Q-40 UT 통계) - 홈 히어로·리포트 "다시 읽기"·서재.
  */
-export function storyPlayPath(storyId: string, options: { childId?: string | null; resume?: boolean } = {}): string {
+export function storyPlayPath(
+  storyId: string,
+  options: { childId?: string | null; resume?: boolean; from?: StoryPlayFrom } = {},
+): string {
   const params = new URLSearchParams();
   if (options.childId) params.set('childId', options.childId);
   if (options.resume) params.set('resume', '1');
+  if (options.from) params.set('from', options.from);
   const query = params.toString();
   return `/stories/${encodeURIComponent(storyId)}/play${query ? `?${query}` : ''}`;
 }
+
+export type StoryPlayFrom = 'home' | 'report' | 'library';
 
 export type StartDecision = { kind: 'navigate'; path: string } | { kind: 'pick-child' };
 
@@ -41,7 +48,7 @@ export function startStoryFromHome({
   }
   if (children.length === 0) return { kind: 'pick-child' };
   const childId = children.some((child) => child.id === selectedChildId) ? selectedChildId : children[0].id;
-  return { kind: 'navigate', path: storyPlayPath(story.storyId, { childId }) };
+  return { kind: 'navigate', path: storyPlayPath(story.storyId, { childId, from: 'home' }) };
 }
 
 /**

@@ -124,3 +124,57 @@ test('starting a new session still sends what was left of the previous one under
   await new Promise((resolve) => setTimeout(resolve, 0));
   assert.deepEqual(sent.sort(), [['first', [1]], ['second', [1]]]);
 });
+
+test('UT 회차 조건과 답 시간·실패 코드가 묶음에 함께 간다(Q-40)', async () => {
+  const sent = [];
+  const timers = manualTimers();
+  const recorder = new TurnRecorder('s-ut', CONTEXT, {
+    send: async (sessionId, batch) => sent.push({ sessionId, batch }),
+    schedule: timers.schedule,
+    cancel: timers.cancel,
+  });
+  recorder.setContext({
+    entrySource: 'lesson',
+    playSetting: 'SMALL_GROUP',
+    devicePlatform: 'tablet',
+    deviceBrowser: 'safari',
+    viewportClass: 'regular',
+  });
+  recorder.record({ role: 'CHILD', sceneId: 'HG-F04', text: '새는 어디 가?', speaker: 'UNVERIFIED' });
+  recorder.record({ role: 'CHARACTER', sceneId: 'HG-F04', text: '숲 쪽으로 날아가.', latencyMs: 1830 });
+  recorder.record({ role: 'SYSTEM', sceneId: 'HG-F04', event: 'REPLY_FAILED', errorCode: 'TIMEOUT' });
+  recorder.record({ role: 'SYSTEM', sceneId: 'HG-F04', event: 'STT_FAILED', errorCode: 'NO_RECORDING' });
+  timers.fire();
+  await Promise.resolve();
+
+  assert.equal(sent.length, 1);
+  const { batch } = sent[0];
+  assert.equal(batch.entrySource, 'lesson');
+  assert.equal(batch.playSetting, 'SMALL_GROUP');
+  assert.equal(batch.devicePlatform, 'tablet');
+  assert.equal(batch.deviceBrowser, 'safari');
+  assert.equal(batch.viewportClass, 'regular');
+  assert.equal(batch.turns[1].latencyMs, 1830);
+  assert.deepEqual(
+    batch.turns.slice(2).map((turn) => [turn.event, turn.errorCode]),
+    [
+      ['REPLY_FAILED', 'TIMEOUT'],
+      ['STT_FAILED', 'NO_RECORDING'],
+    ],
+  );
+});
+
+test('flush with no lines still creates the session once (Q-40 UT session code)', async () => {
+  const sent = [];
+  const recorder = new TurnRecorder('s-empty', { storyId: 'HG' }, {
+    send: async (sessionId, body) => { sent.push({ sessionId, count: body.turns.length }); },
+    schedule: () => 0,
+    cancel: () => {},
+  });
+  await recorder.flush();
+  await recorder.flush();
+  assert.deepEqual(sent, [{ sessionId: 's-empty', count: 0 }]);
+  recorder.startSession('s-next');
+  await recorder.flush();
+  assert.deepEqual(sent.at(-1), { sessionId: 's-next', count: 0 });
+});

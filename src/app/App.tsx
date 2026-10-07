@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
+import { trackAppEntryOnce } from '@/entities/analytics';
 import { LaunchNotificationGate } from '@/features/launch-notification-gate';
 import {
   describeStoryLoadFailure,
@@ -153,6 +154,9 @@ function LegacyRedirect() {
   );
 }
 
+/** 데모는 늘 가정 회차 - UT에서 데모로 시작한 회차를 따로 본다(Q-40). */
+const DEMO_UT_CONTEXT = { entrySource: 'demo', playSetting: 'HOME' } as const;
+
 /** The free anonymous demo (no account needed) lives at "/demo". */
 function DemoStoryRoute() {
   const [state, setState] = useState<LoadState>({ status: 'loading' });
@@ -183,7 +187,7 @@ function DemoStoryRoute() {
     return (
       <LaunchNotificationGate>
         <Suspense fallback={<RouteLoadingFallback />}>
-          <OneStoryPage storyPackage={state.storyPackage} />
+          <OneStoryPage storyPackage={state.storyPackage} utContext={DEMO_UT_CONTEXT} />
         </Suspense>
       </LaunchNotificationGate>
     );
@@ -216,6 +220,11 @@ function DemoStoryRoute() {
 }
 
 export function App() {
+  // 앱을 연 경로(초대 링크·반 링크·알림·직접)를 탭당 한 번 남긴다(Q-40 UT).
+  useEffect(() => {
+    trackAppEntryOnce();
+  }, []);
+
   return (
     <AuthProvider>
       <ChildrenProvider>

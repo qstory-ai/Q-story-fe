@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
+import { trackLandingCta, trackLandingView } from '@/entities/analytics';
 import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
 
 const TUTORIAL_SEEN_KEY = 'qstory.tutorial.seen.v1';
@@ -20,6 +22,11 @@ const BULLETS = [
 export function TutorialPage() {
   const navigate = useNavigate();
 
+  // 앱 안의 소개 화면 - 웹사이트 소개를 본 뒤 가입·로그인·둘러보기 중 어디로 가는지 본다(Q-40 UT).
+  useEffect(() => {
+    trackLandingView('tutorial');
+  }, []);
+
   function completeTo(path: string) {
     try {
       if (typeof window !== 'undefined') window.localStorage.setItem(TUTORIAL_SEEN_KEY, '1');
@@ -35,7 +42,10 @@ export function TutorialPage() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="소개 건너뛰고 서재 둘러보기"
-          onPress={() => completeTo('/')}
+          onPress={() => {
+            trackLandingCta('tutorial_skip');
+            completeTo('/');
+          }}
           hitSlop={8}
         >
           <Text style={styles.skipLabel}>둘러보기</Text>
@@ -56,11 +66,28 @@ export function TutorialPage() {
       </View>
 
       <View style={styles.footer}>
-        <ActionButton variant="gold" label="보호자로 시작하기" onPress={() => completeTo('/signup?role=parent')} />
-        <ActionButton variant="secondaryFull" label="선생님·기관으로 시작하기" onPress={() => completeTo('/signup')} />
+        <ActionButton
+          variant="gold"
+          label="보호자로 시작하기"
+          onPress={() => {
+            trackLandingCta('tutorial_signup_parent');
+            completeTo('/signup?role=parent');
+          }}
+        />
+        <ActionButton
+          variant="secondaryFull"
+          label="선생님·기관으로 시작하기"
+          onPress={() => {
+            trackLandingCta('tutorial_signup_teacher');
+            completeTo('/signup');
+          }}
+        />
         <Pressable
           accessibilityRole="link"
-          onPress={() => completeTo('/login')}
+          onPress={() => {
+            trackLandingCta('tutorial_login');
+            completeTo('/login');
+          }}
           style={styles.footerLink}
         >
           <Text style={styles.footerLinkText}>이미 계정이 있어요</Text>

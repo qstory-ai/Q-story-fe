@@ -8,3 +8,5 @@ export * from './model/parent-report';
 export * from './model/comprehensive-report';
 export * from './model/voice-research';
 export * from './api/voice-research-consent-api';
+export * from './model/app-entry';
+export * from './model/landing-events';

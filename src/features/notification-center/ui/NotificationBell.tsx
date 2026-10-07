@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { Icon, Modal, storybookTheme, type IconName } from '@/shared/ui';
+import { hrefWithFrom } from '@/entities/analytics';
 import {
   deleteNotification,
   listNotifications,
@@ -139,7 +140,7 @@ export function NotificationBell({ token }: Props) {
       }
       if (n.href) {
         setOpen(false);
-        navigate(n.href);
+        navigate(hrefWithFrom(n.href, 'notification'));
       }
     },
     [token, navigate],

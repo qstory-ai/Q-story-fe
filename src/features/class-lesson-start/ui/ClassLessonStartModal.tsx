@@ -8,6 +8,7 @@ import { withParticle } from '@/shared/lib';
 import { TUTOR_PATHS } from '@/entities/auth';
 import { createLesson, listLessons, updateLesson, type Lesson } from '@/entities/lesson';
 import { listTutorClasses, type TutorClass } from '@/entities/tutor';
+import { LessonPlaySettingPicker, type PlaySetting } from '@/entities/play-session';
 
 type Props = {
   visible: boolean;
@@ -36,6 +37,8 @@ export function ClassLessonStartModal({ visible, token, tutorId, storyId, storyT
   const [load, setLoad] = useState<Load>({ status: 'loading' });
   const [startingClassId, setStartingClassId] = useState<string | null>(null);
   const [startError, setStartError] = useState<string | null>(null);
+  // 수업 진행 형태 - 고르지 않으면 전체 반(가장 흔한 형태).
+  const [playSetting, setPlaySetting] = useState<PlaySetting>('WHOLE_CLASS');
 
   useEffect(() => {
     if (!visible) return;
@@ -71,7 +74,7 @@ export function ClassLessonStartModal({ visible, token, tutorId, storyId, storyT
         studentIds: [],
         scheduledAt: new Date().toISOString(),
       });
-      navigate(`/stories/${storyId}/play?lessonId=${lesson.id}`);
+      navigate(`/stories/${storyId}/play?${new URLSearchParams({ lessonId: lesson.id, setting: playSetting }).toString()}`);
     } catch (failure: unknown) {
       setStartError(messageForError(failure, '수업을 시작하지 못했어요. 잠시 후 다시 시도해 주세요.'));
       setStartingClassId(null);
@@ -108,6 +111,7 @@ export function ClassLessonStartModal({ visible, token, tutorId, storyId, storyT
           </View>
         ) : (
           <View style={styles.list}>
+            <LessonPlaySettingPicker value={playSetting} onChange={setPlaySetting} />
             {load.classes.map((classGroup) => (
               <Pressable
                 key={classGroup.id}

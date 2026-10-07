@@ -340,6 +340,7 @@ export function useOneStoryRuntime(
       resumableProgressFor(loadLocalStoryProgress(), storyPackage.storyId, selectedChild?.id),
     );
   const [homeMenuVisible, setHomeMenuVisible] = useState(false);
+  const [chaptersOpen, setChaptersOpen] = useState(false);
   const parentReport = useMemo(
     () =>
       buildParentReport(storyPackage.reportCopy, questionOutcomes, {
@@ -1158,9 +1159,10 @@ export function useOneStoryRuntime(
   // Q-34: 말한 뒤 1.5초 조용하면 저절로 끝내고, 15초 말이 없으면 다시 묻고, 그 뒤 15초도 없으면
   // 질문을 보내지 않고 이야기를 이어 간다. 30초 상한도 여기서 센다. "다 했어요" 버튼은 그대로 둔다.
   const voiceAutoStop = useSpeechAutoStop(recorder, {
-    enabled: isVoiceRecordingState,
+    // 홈 메뉴·챕터 사이드바가 위에 떠 있는 동안은 끄고(타이머 정리), 닫히면 새로 센다.
+    enabled: isVoiceRecordingState && !homeMenuVisible && !chaptersOpen,
     onSpeechEnd: () => void finishQuestion(),
-    onGiveUp: () => void continueStory(),
+    onGiveUp: () => void continueStoryWithReason('no_speech_timeout'),
   });
 
   const routeConfirmedSpeech = useCallback(async (
@@ -2107,7 +2109,7 @@ export function useOneStoryRuntime(
       setStoryDurationSeconds(null);
       setParentReportVisible(false);
       setHomeMenuVisible(false);
-        setResumeCandidate(null);
+      setResumeCandidate(null);
     },
     [recorder, resetQuestionAttemptTracking, stopNarration, storyManifest],
   );
@@ -2253,8 +2255,8 @@ export function useOneStoryRuntime(
         source: narrationState.source,
       },
     });
-    // 전송 완료를 기다리지 않는다(fire-and-forget). 사유 설문은 없어 reason_code는 보내지 않는다.
-    void trackStoryEvent('explicit_exit', diagnostics);
+    // 도중 이탈만 explicit_exit로 센다(완주 후 나가기는 제외). 전송 완료를 기다리지 않는다(fire-and-forget). 사유 설문은 없어 reason_code는 보내지 않는다.
+    if (plan.saveProgress) void trackStoryEvent('explicit_exit', diagnostics);
     processingAbortRef.current?.abort();
     await stopNarration();
     if (plan.clearProgress) clearLocalStoryProgress();
@@ -2409,6 +2411,8 @@ export function useOneStoryRuntime(
     questionOutcomes,
     resumeCandidate,
     homeMenuVisible,
+    chaptersOpen,
+    setChaptersOpen,
     restartConfirmVisible,
     requestRestart,
     cancelRestart,

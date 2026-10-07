@@ -45,7 +45,7 @@ export function OneStoryPage({
     scene,
     illustration,
   } = runtime;
-  const [chaptersOpen, setChaptersOpen] = useState(false);
+  const { chaptersOpen, setChaptersOpen } = runtime;
   const dialogue = useDialogue({
     runtime,
     conversationId: runtime.sessionId,
@@ -53,7 +53,7 @@ export function OneStoryPage({
     lessonId,
     paused: runtime.homeMenuVisible || chaptersOpen,
   });
-  const closeChapters = useCallback(() => setChaptersOpen(false), []);
+  const closeChapters = useCallback(() => setChaptersOpen(false), [setChaptersOpen]);
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>

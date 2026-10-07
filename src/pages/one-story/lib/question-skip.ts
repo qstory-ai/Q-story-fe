@@ -14,11 +14,16 @@ export function isAwaitingInviteFor(state: StoryRuntimeState, anchorId: string |
   return anchorId !== null && state.status === 'awaiting-question' && state.anchorId === anchorId;
 }
 
-/** 질문을 건너뛰고 이야기를 이어 갈 때 남기는 question_skipped 메타데이터. 질문 상태가 아니면 null. */
+/** 질문을 건너뛰고 이야기를 이어 갈 때 남기는 question_skipped 메타데이터. 질문 상태가 아니면 null(녹음 중에는 무응답 포기만 기록). */
 export function questionSkipMetadata(
   state: StoryRuntimeState,
   reasonOverride?: QuestionSkipReason,
 ): { anchor_id: string; scene_id: string; skip_reason: QuestionSkipReason } | null {
+  // 음성 녹음 중 무응답 포기(reader-card 경로)는 recording-question 상태에서 no_speech_timeout로만 남긴다.
+  if (state.status === 'recording-question') {
+    if (reasonOverride !== 'no_speech_timeout') return null;
+    return { anchor_id: state.anchorId, scene_id: state.sceneId, skip_reason: reasonOverride };
+  }
   if (
     state.status !== 'awaiting-question' &&
     state.status !== 'awaiting-clarification' &&

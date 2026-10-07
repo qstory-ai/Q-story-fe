@@ -22,6 +22,8 @@ export function ConfirmTranscriptPanel({ runtime }: { runtime: OneStoryRuntime }
     beginQuestion,
     continueStory,
     retryAfterTranscript,
+    homeMenuVisible,
+    chaptersOpen,
   } = runtime;
 
   const friendName =
@@ -29,8 +31,13 @@ export function ConfirmTranscriptPanel({ runtime }: { runtime: OneStoryRuntime }
   const visible =
     runtimeState.status === 'processing-question' && !!pendingTranscription;
   const autoConfirmActive =
-    visible && questionMode === 'voice' && !isRoutingQuestion;
+    visible &&
+    questionMode === 'voice' &&
+    !isRoutingQuestion &&
+    !homeMenuVisible &&
+    !chaptersOpen;
   const transcriptText = pendingTranscription?.speech.transcript ?? null;
+  const countdownRef = useRef<ReturnType<typeof createAutoConfirm> | null>(null);
   const confirmRef = useRef(confirmTranscript);
   useEffect(() => {
     confirmRef.current = confirmTranscript;
@@ -45,6 +52,7 @@ export function ConfirmTranscriptPanel({ runtime }: { runtime: OneStoryRuntime }
     const controller = createAutoConfirm(AUTO_CONFIRM_MS, () => {
       void confirmRef.current();
     });
+    countdownRef.current = controller;
     controller.start();
     const ticker = setInterval(() => {
       setSecondsLeft(countdownSeconds(controller.remainingMs()));
@@ -53,6 +61,7 @@ export function ConfirmTranscriptPanel({ runtime }: { runtime: OneStoryRuntime }
       clearInterval(ticker);
       setSecondsLeft(countdownSeconds(AUTO_CONFIRM_MS));
       controller.cancel();
+      if (countdownRef.current === controller) countdownRef.current = null;
     };
   }, [autoConfirmActive, transcriptText]);
 
@@ -101,7 +110,11 @@ export function ConfirmTranscriptPanel({ runtime }: { runtime: OneStoryRuntime }
       <ActionButton
         variant="secondaryFull"
         label={`다시 ${questionMode === 'text' ? '쓰기' : '말하기'}`}
-        onPress={retryAfterTranscript}
+        onPress={() => {
+          // 다시 말하기: 기다리는 사이 카운트다운이 끝나 보내지 않게 먼저 멈춘다.
+          countdownRef.current?.cancel();
+          void retryAfterTranscript();
+        }}
       />
     </View>
   );

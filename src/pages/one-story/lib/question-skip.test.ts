@@ -43,3 +43,13 @@ test('건너뛴 질문 기록 - 상태별 기본 사유', () => {
 test('무응답으로 건너뛰면 사유를 no_speech_timeout으로 남긴다', () => {
   assert.equal(questionSkipMetadata(awaiting('A1'), 'no_speech_timeout').skip_reason, 'no_speech_timeout');
 });
+
+test('녹음 중 무응답 포기만 recording-question에서 기록한다', () => {
+  const recording = { ...awaiting('A1'), status: 'recording-question', inputMode: 'voice' };
+  assert.deepEqual(questionSkipMetadata(recording, 'no_speech_timeout'), {
+    anchor_id: 'A1',
+    scene_id: 'S1',
+    skip_reason: 'no_speech_timeout',
+  });
+  assert.equal(questionSkipMetadata(recording), null);
+});

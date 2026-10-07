@@ -13,6 +13,7 @@ import {
   transcribeCompanionChatAudio,
   type CompanionReplyKind,
 } from '@/entities/companion-chat';
+import { STT_UNAVAILABLE_CHILD_COPY, isSttUnavailableCode } from '@/entities/speech-pipeline';
 
 import { GRETEL_COMPANION } from '../lib/companion-character';
 import { buildDialogueScene, wrapUpFor, type WrapUpSignal } from '../lib/dialogue-context';
@@ -444,6 +445,14 @@ export function useDialogue({
       setPhase('confirm');
     } catch (error) {
       if (controller.signal.aborted || seq !== requestSeqRef.current) return;
+      if (error instanceof CompanionChatError && isSttUnavailableCode(error.code)) {
+        // 음성 인식이 막혔다 - 안내 문구와 함께 글로 쓰는 입력으로 바로 넘긴다.
+        setDraft('');
+        inputModeRef.current = 'TEXT';
+        setErrorMessage(STT_UNAVAILABLE_CHILD_COPY);
+        setPhase('typing');
+        return;
+      }
       setErrorMessage(
         error instanceof CompanionChatError ? error.message : '이번에는 말소리를 알아듣지 못했어.',
       );

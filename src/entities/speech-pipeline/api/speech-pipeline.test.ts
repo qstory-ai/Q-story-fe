@@ -474,3 +474,39 @@ test('HTTP pipeline retries once when a hosting layer replaces JSON with HTML', 
   assert.equal(result.ok, true);
   assert.equal(attempts, 2);
 });
+
+test('HTTP pipeline reports STT_UNAVAILABLE from a 503 FailureBody without retrying', async () => {
+  let calls = 0;
+  const pipeline = new HttpSpeechPipeline(
+    'https://api.q-story.test',
+    storyPackage,
+    (async (input: RequestInfo | URL) => {
+      if (String(input).includes('recording')) {
+        return new Response(new Uint8Array([1, 2, 3]), { status: 200 });
+      }
+      calls += 1;
+      return new Response(
+        JSON.stringify({ ok: false, failure: { code: 'STT_UNAVAILABLE', stage: 'stt', retryable: false } }),
+        { status: 503, headers: { 'content-type': 'application/json' } },
+      );
+    }) as typeof fetch,
+  );
+  const result = await pipeline.transcribe(
+    {
+      recording: { ...recording, uri: 'https://device.test/recording' },
+      storyId: storyId('HG'),
+      sceneId: sceneId('HG-F05'),
+      anchorId: questionAnchorId('HG-Q-B'),
+      questionRound: 1,
+    },
+    new AbortController().signal,
+  );
+
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.equal(result.failure.code, 'STT_UNAVAILABLE');
+    assert.equal(result.failure.stage, 'stt');
+    assert.equal(result.failure.safeDetail, '지금은 말로 질문하기가 어려워요. 글로 물어봐 줄래?');
+  }
+  assert.equal(calls, 1);
+});

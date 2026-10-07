@@ -1,6 +1,8 @@
 import { apiBaseUrl } from '@/shared/config';
 import { requestJson, type RequestOptions } from '@/shared/api';
 
+import type { ConsentPayload } from '../model/consent';
+
 export type Role = 'DIRECTOR' | 'PARENT' | 'TUTOR' | 'STAFF';
 
 export type SubscriptionStatus = 'NONE' | 'TRIALING' | 'ACTIVE' | 'EXPIRED';
@@ -84,7 +86,7 @@ function request<T>(path: string, init: RequestInit, options: RequestOptions = {
 }
 
 export function signupOrganizationOwner(
-  input: { loginId: string; email: string; password: string; displayName: string },
+  input: { loginId: string; email: string; password: string; displayName: string; consents: ConsentPayload },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/auth/signup/organization', { method: 'POST', body: JSON.stringify(input) }, options);
@@ -92,7 +94,7 @@ export function signupOrganizationOwner(
 
 /** 반 코드 없이 가입하는 "독립" 학부모용 - 반 코드로 가입하려면 joinClass()를 대신 쓴다. */
 export function signupParent(
-  input: { loginId: string; email: string; password: string; displayName: string },
+  input: { loginId: string; email: string; password: string; displayName: string; consents: ConsentPayload },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/auth/signup/parent', { method: 'POST', body: JSON.stringify(input) }, options);
@@ -100,7 +102,7 @@ export function signupParent(
 
 /** 선생님 - 1:1 수업을 진행하는 셀프서비스 역할. 조직/반 없이 바로 가입된다. */
 export function signupTutor(
-  input: { loginId: string; email: string; password: string; displayName: string },
+  input: { loginId: string; email: string; password: string; displayName: string; consents: ConsentPayload },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/auth/signup/tutor', { method: 'POST', body: JSON.stringify(input) }, options);
@@ -121,7 +123,7 @@ export function login(
  */
 export function oauthLogin(
   provider: 'GOOGLE' | 'KAKAO',
-  input: { token: string; role?: Role },
+  input: { token: string; role?: Role; consents?: ConsentPayload },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   const path = provider === 'GOOGLE' ? '/v1/auth/oauth/google' : '/v1/auth/oauth/kakao';
@@ -145,6 +147,18 @@ export function confirmPasswordReset(
 
 export function fetchCurrentUser(token: string, options?: RequestOptions): Promise<UserSummary> {
   return request('/v1/auth/me', { method: 'GET' }, { ...options, token });
+}
+
+export type ConsentRecordType = 'TERMS' | 'PRIVACY' | 'MARKETING' | 'CHILD_REPORT_SCOPE' | 'VOICE_RAW';
+export type ConsentRecordSource = 'SIGNUP' | 'OAUTH_SIGNUP' | 'CLASS_JOIN_SIGNUP' | 'ONBOARDING' | 'MYPAGE';
+
+/** 로그인한 계정의 동의 이력을 남긴다(204). 온보딩 동의 단계와 마이페이지가 쓴다. */
+export function recordConsents(
+  token: string,
+  input: { source: ConsentRecordSource; items: { type: ConsentRecordType; agreed: boolean; version: string }[] },
+  options?: RequestOptions,
+): Promise<void> {
+  return request('/v1/me/consents', { method: 'POST', body: JSON.stringify(input) }, { ...options, token });
 }
 
 /** displayName은 모든 역할에 필수. childName은 PARENT가 아니면 백엔드가 조용히 무시한다. */
@@ -309,6 +323,7 @@ export function joinClass(
     displayName: string;
     childName: string;
     childBirthYear: number;
+    consents: ConsentPayload;
     /** 이름이 명단과 달라도 명단의 이 학생과 잇는다(listClassRosterByCode의 id). */
     rosterStudentId?: string;
   },

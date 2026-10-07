@@ -14,19 +14,22 @@ const GENDER_OPTIONS: { value: ChildGender; label: string }[] = [
 
 /**
  * 무료 데모("/demo")에 들어가기 전 거치는 연락처 수집 모달 - DemoStoryRoute 전용(정식 플레이
- * 경로는 이미 가입한 사용자라 걸지 않는다). "연락 받고 싶어요"/"괜찮아요" 둘 다 같은 필드를
- * 요구하고 서버에 보내며, 차이는 wantsContact 플래그뿐이다. linkAction/scrim 닫기를 주지 않아
+ * 경로는 이미 가입한 사용자라 걸지 않는다). "연락 받고 싶어요"는 전화번호까지, "괜찮아요"는
+ * 전화번호 없이 나머지 필드만 요구하고(전화번호는 보내지 않는다), 서버에는 wantsContact 플래그로 구분한다. linkAction/scrim 닫기를 주지 않아
  * 정보 없이 지나치는 경로를 막는다.
  */
 export function LaunchNotificationGate({ children }: { children: ReactNode }) {
   const form = useLaunchNotificationGate();
   // 미완성 상태로 한 번 누른 뒤부터 어떤 항목이 비었는지 각 필드 아래 보여준다.
   const [showValidation, setShowValidation] = useState(false);
+  // 마지막으로 누른 버튼 - 전화번호 필수 여부를 이 선택으로 판단한다.
+  const [wantsContactAttempt, setWantsContactAttempt] = useState(true);
 
   if (form.passed) return <>{children}</>;
 
   const attempt = (wantsContact: boolean) => {
-    if (!form.canSubmit) {
+    setWantsContactAttempt(wantsContact);
+    if (!form.canSubmitFor(wantsContact)) {
       setShowValidation(true);
       return;
     }
@@ -60,7 +63,7 @@ export function LaunchNotificationGate({ children }: { children: ReactNode }) {
         전화로는 연락드리지 않아요. 정식 출시 소식은 이메일과 문자로만 안내해 드려요.
       </ModalBody>
       <Text style={styles.requiredNotice}>
-        무료 데모를 시작하려면 아래 항목을 모두 입력해야 해요 (이메일 제외).
+        무료 데모를 시작하려면 아래 항목을 입력해야 해요 (이메일 제외, 전화번호는 연락을 받고 싶을 때만).
       </Text>
 
       <TextField
@@ -78,12 +81,12 @@ export function LaunchNotificationGate({ children }: { children: ReactNode }) {
         placeholder="parent@example.com"
       />
       <TextField
-        label="전화번호"
+        label="전화번호 (연락 받고 싶을 때만)"
         value={form.phone}
         onChangeText={form.setPhone}
         keyboardType="phone-pad"
         placeholder="010-0000-0000"
-        errorText={fieldError(form.phone.trim().length > 0, '전화번호를 입력해 주세요.')}
+        errorText={fieldError(!wantsContactAttempt || form.phone.trim().length > 0, '연락을 받으시려면 전화번호를 입력해 주세요.')}
       />
 
       <View style={styles.field}>

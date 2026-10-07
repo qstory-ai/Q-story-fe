@@ -73,7 +73,7 @@ export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialo
         )}
       </ScrollView>
 
-      {dialogue.errorMessage && phase === 'error' && (
+      {dialogue.errorMessage && (phase === 'error' || phase === 'typing') && (
         <Text style={panel.error}>{dialogue.errorMessage}</Text>
       )}
 

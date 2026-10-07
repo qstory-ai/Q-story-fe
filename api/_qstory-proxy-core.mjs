@@ -13,6 +13,8 @@ const ALLOWED_ROUTES = new Map([
   ['GET v1/me/voice-research-consent', true],
   ['POST v1/me/voice-research-consent', true],
   ['POST v1/me/voice-research-consent/withdraw', true],
+  // 개인정보·약관 동의 기록(보호자 계정) - 가입/온보딩에서 한 번에 보낸다.
+  ['POST v1/me/consents', true],
   ['POST v1/companion-chat/messages', true],
   ['POST v1/companion-chat/transcriptions/base64', true],
   ['POST v1/auth/signup/organization', true],

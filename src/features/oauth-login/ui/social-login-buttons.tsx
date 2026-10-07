@@ -9,6 +9,7 @@ import {
   oauthLogin,
   renderGoogleButton,
   requestKakaoAccessToken,
+  type ConsentPayload,
   type Role,
   type UserSummary,
 } from '@/entities/auth';
@@ -17,6 +18,12 @@ type SocialLoginButtonsProps = {
   /** 처음 가입하는 경우에만 쓰인다 - 로그인 화면(SignInStep)에서는 생략한다. */
   role?: Role;
   onAuthed: (token: string, user: UserSummary) => void;
+  /** 가입 화면에서 약관 동의가 끝난 뒤 서버로 보낼 동의 내용. 로그인 화면에서는 생략한다. */
+  consents?: ConsentPayload;
+  /** true면 버튼을 누를 수 없다(약관 동의 전). */
+  disabled?: boolean;
+  /** disabled일 때 버튼 아래에 보이는 안내 문구. */
+  disabledHint?: string;
 };
 
 /**
@@ -28,16 +35,28 @@ type SocialLoginButtonsProps = {
  * 두 provider 모두 아직 설정 안 됐으면(client-id/JS 키 미발급) 아무것도 렌더링하지 않는다 -
  * 눌러도 실패하는 버튼을 보여주는 것보다 조용히 숨기는 편이 낫다.
  */
-export function SocialLoginButtons({ role, onAuthed }: SocialLoginButtonsProps) {
+export function SocialLoginButtons({ role, onAuthed, consents, disabled, disabledHint }: SocialLoginButtonsProps) {
   // react-native-web의 View ref 타입(ReactNativeElement)은 그대로 쓰기 번거롭고, 아래
   // effect에서 곧바로 HTMLElement로 캐스팅해 구글 SDK에 넘길 뿐이라 any로 충분하다.
   const googleContainerRef = useRef<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [kakaoSubmitting, setKakaoSubmitting] = useState(false);
+  // 구글 버튼은 SDK가 한 번 그려 두고 콜백만 호출하므로, 최신 동의/잠금 상태는 ref로 읽는다.
+  const consentsRef = useRef(consents);
+  const disabledRef = useRef(disabled);
+  useEffect(() => {
+    consentsRef.current = consents;
+    disabledRef.current = disabled;
+  }, [consents, disabled]);
 
   const handleFailure = useCallback((failure: unknown) => {
     // OAUTH_ROLE_REQUIRED는 사전 카피(회원가입 유도)로 덮어 쓰고, 나머지는 공통 유틸에 맡긴다.
     const code = (failure as ApiErrorLike | null)?.code;
+    if (code === 'CONSENT_REQUIRED' && !consentsRef.current) {
+      // 로그인 화면에서 처음 보는 소셜 계정 - 약관 동의는 회원가입 화면에서 받는다.
+      setError('회원가입에서 약관에 동의한 뒤 소셜 계정으로 가입해 주세요.');
+      return;
+    }
     if (code === 'OAUTH_ROLE_REQUIRED') {
       setError('아직 가입되지 않은 계정이에요. 역할을 선택해서 먼저 가입해 주세요.');
       return;
@@ -52,19 +71,21 @@ export function SocialLoginButtons({ role, onAuthed }: SocialLoginButtonsProps) 
     const node = googleContainerRef.current as unknown as HTMLElement | null;
     if (!node) return;
     void renderGoogleButton(node, (idToken) => {
+      if (disabledRef.current) return;
       setError(null);
-      oauthLogin('GOOGLE', { token: idToken, role })
+      oauthLogin('GOOGLE', { token: idToken, role, consents: consentsRef.current })
         .then((response) => onAuthed(response.token, response.user))
         .catch(handleFailure);
     });
   }, [role, onAuthed, handleFailure]);
 
   const onKakaoPress = useCallback(async () => {
+    if (disabledRef.current) return;
     setError(null);
     setKakaoSubmitting(true);
     try {
       const accessToken = await requestKakaoAccessToken();
-      const response = await oauthLogin('KAKAO', { token: accessToken, role });
+      const response = await oauthLogin('KAKAO', { token: accessToken, role, consents: consentsRef.current });
       onAuthed(response.token, response.user);
     } catch (failure) {
       handleFailure(failure);
@@ -84,18 +105,25 @@ export function SocialLoginButtons({ role, onAuthed }: SocialLoginButtonsProps) 
         <Text style={styles.dividerText}>또는</Text>
         <View style={styles.dividerLine} />
       </View>
-      {googleOAuthConfigured && <View ref={googleContainerRef} style={styles.googleContainer} />}
+      {googleOAuthConfigured && (
+        <View
+          ref={googleContainerRef}
+          style={[styles.googleContainer, disabled && styles.googleContainerDisabled]}
+          pointerEvents={disabled ? 'none' : 'auto'}
+        />
+      )}
       {kakaoOAuthConfigured && (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="카카오로 계속하기"
-          style={[styles.kakaoButton, kakaoSubmitting && styles.kakaoButtonDisabled]}
+          style={[styles.kakaoButton, (kakaoSubmitting || disabled) && styles.kakaoButtonDisabled]}
           onPress={onKakaoPress}
-          disabled={kakaoSubmitting}
+          disabled={kakaoSubmitting || disabled}
         >
           <Text style={styles.kakaoButtonText}>{kakaoSubmitting ? '카카오 로그인 중…' : '카카오로 계속하기'}</Text>
         </Pressable>
       )}
+      {disabled && disabledHint ? <Text style={styles.hintText}>{disabledHint}</Text> : null}
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
@@ -107,6 +135,8 @@ const styles = StyleSheet.create({
   dividerLine: { flex: 1, height: 1, backgroundColor: storybookTheme.color.contentPanelBorder },
   dividerText: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onContentMuted },
   googleContainer: { alignItems: 'center', minHeight: 44 },
+  googleContainerDisabled: { opacity: 0.4 },
+  hintText: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onContentMuted, textAlign: 'center' },
   kakaoButton: {
     minHeight: 50,
     borderRadius: 15,

@@ -64,8 +64,12 @@ const CODE_MESSAGES: Record<string, string> = {
   INVALID_JSON: '요청 형식이 잘못됐어요.',
 
   // ---- consent
+  CONSENT_REQUIRED: '이용약관과 개인정보 수집·이용에 동의해 주세요.',
   CONSENT_INVALID: '동의 정보를 다시 확인해 주세요.',
   INVALID_CONSENT_TIME: '동의 시각이 유효하지 않아요.',
+
+  // ---- speech
+  STT_UNAVAILABLE: '지금은 말로 질문하기가 어려워요. 글로 물어봐 줄래?',
 
   // ---- server / catch-all
   INTERNAL_ERROR: '서버가 잠깐 문제가 생겼어요. 잠시 후 다시 시도해 주세요.',

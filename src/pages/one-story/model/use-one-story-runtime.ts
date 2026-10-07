@@ -41,6 +41,8 @@ import {
 import {
   createConfiguredSpeechPipeline,
   type TranscriptionSuccess,
+  STT_UNAVAILABLE_CHILD_COPY,
+  isSttUnavailableCode,
 } from '@/entities/speech-pipeline';
 import { narrationUtteranceSlug, type StoryRuntimePackage } from '@/entities/story';
 import { homePathForAuth, useAuth } from '@/entities/auth';
@@ -81,6 +83,7 @@ import {
 } from '../lib/runtime-view';
 import { preloadImages } from '../lib/preload-images';
 import { playResponseWithFallback } from '../lib/play-clip-with-fallback';
+import { resolveVoiceResearchEnabled } from './voice-research-enabled';
 import { useOneStoryDerivedView } from './use-one-story-derived-view';
 import { useLiveBranchPolling } from './use-live-branch-polling';
 
@@ -194,7 +197,7 @@ export function useOneStoryRuntime(
   // 연결하게 한다(마이페이지 철회 시 삭제 대상). 비로그인·선생님 세션은 기존처럼 익명으로 저장한다.
   const voiceResearchAccountRef = useRef<{ token: string | null; enabled: boolean; ownerId: string | null }>({
     token: null,
-    enabled: true,
+    enabled: false,
     ownerId: null,
   });
   // 홈에서 아이를 선택하고 들어왔으면 그 이름으로 미리 채운다. 데모(/demo)처럼 선택된 아이가
@@ -288,14 +291,14 @@ export function useOneStoryRuntime(
   const parentUserId =
     authState.status === 'authenticated' && authState.user.role === 'PARENT' ? authState.user.id : null;
   useEffect(() => {
-    voiceResearchAccountRef.current = { token: parentToken, enabled: true, ownerId: parentUserId };
+    voiceResearchAccountRef.current = { token: parentToken, enabled: false, ownerId: parentUserId };
     if (!parentToken) return;
     let cancelled = false;
-    // 조회에 실패하면 켜 둔 채로 두되, 서버가 업로드 때 계정 동의를 다시 확인해 꺼진 계정은 거절한다.
+    // 기본은 꺼짐 - 보호자가 현재 약관에 명시적으로 동의한 것이 확인될 때만 켜고, 조회에 실패하면 꺼 둔다(서버도 같은 기준으로 거절).
     getVoiceResearchAccountConsent(parentToken)
       .then((consent) => {
         if (!cancelled) {
-          voiceResearchAccountRef.current = { token: parentToken, enabled: consent.enabled, ownerId: parentUserId };
+          voiceResearchAccountRef.current = { token: parentToken, enabled: resolveVoiceResearchEnabled('PARENT', consent), ownerId: parentUserId };
         }
       })
       .catch(() => {});
@@ -676,9 +679,8 @@ export function useOneStoryRuntime(
   const startStory = useCallback(() => {
     primeResponseAudio();
     const normalizedName = childNameInput.trim().slice(0, 10);
-    // 질문 원음은 음성 인식 개선 연구용으로 저장한다(이야기 화면에 별도 동의 UI 없음) - 저장 호출부가
-    // 이 ref가 non-null인지로 판단하므로 세션 시작 시 채운다. 보호자가 마이페이지에서 음성 연구
-    // 동의를 껐으면 만들지 않는다.
+    // 질문 원음은 보호자가 온보딩/마이페이지에서 현재 약관에 동의한 계정만 저장한다(이야기 화면에 별도
+    // 동의 UI 없음) - 저장 호출부가 이 ref가 non-null인지로 판단하므로 세션 시작 시 동의된 경우에만 채운다.
     voiceResearchConsentRef.current = voiceResearchAccountRef.current.enabled
       ? createVoiceResearchConsent(voiceResearchAccountRef.current.ownerId)
       : null;
@@ -967,6 +969,11 @@ export function useOneStoryRuntime(
             }
           : null;
         setPendingTranscription(result);
+      } else if (isSttUnavailableCode(result.failure.code)) {
+        // 음성 인식이 막혔다 - 질문 기회를 쓰지 않고 안내와 함께 글 질문 입력으로 바로 넘긴다.
+        pendingVoiceResearchSampleRef.current = null;
+        await beginTypedQuestion();
+        setParentMessage(STT_UNAVAILABLE_CHILD_COPY);
       } else {
         pendingVoiceResearchSampleRef.current = null;
         setParentMessage(questionFailureCopy(result.failure).help);
@@ -990,7 +997,7 @@ export function useOneStoryRuntime(
         processingAbortRef.current = null;
       }
     }
-  }, [commitEvent, conversationAttribution, speechPipeline, storyManifest.storyId]);
+  }, [beginTypedQuestion, commitEvent, conversationAttribution, speechPipeline, storyManifest.storyId]);
 
   const finishQuestion = useCallback(async () => {
     const recording = await recorder.stopRecording();

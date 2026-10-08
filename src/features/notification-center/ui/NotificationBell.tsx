@@ -18,9 +18,10 @@ import {
  * 이 표에 항목을 넣고, 없으면 default가 사용된다.
  *
  * tone은 배지 배경(투명도 낮은)과 아이콘 색을 함께 결정하는 시맨틱 라벨이라, 색 자체가 아니라
- * '이 알림이 어떤 성격인지'를 코드에 남긴다 - gold=콘텐츠 도착, positive=관계 성사, brand=신규 참여.
+ * '이 알림이 어떤 성격인지'를 코드에 남긴다 - gold=콘텐츠 도착, positive=관계 성사, brand=신규 참여,
+ * warning=손봐야 할 일(초대 만료).
  */
-type Presentation = { icon: IconName; tone: 'gold' | 'positive' | 'brand' };
+type Presentation = { icon: IconName; tone: 'gold' | 'positive' | 'brand' | 'warning' };
 
 const KIND_PRESENTATION: Record<string, Presentation> = {
   // 튜터 세션 완주 → 부모: 리포트 도착
@@ -36,6 +37,17 @@ const KIND_PRESENTATION: Record<string, Presentation> = {
   'org-tutor-invite-accepted': { icon: 'graduationCap', tone: 'positive' },
   // 부모가 반 가입 → 원장: 새 반원
   'class-parent-joined': { icon: 'users', tone: 'brand' },
+  // 반 수업 기록 도착 → 원장: 반 리포트(반 상세로 이동)
+  'class-report': { icon: 'report', tone: 'gold' },
+  // 선생님이 담임 초대 수락 → 원장: 반에 담임이 생김
+  'homeroom-invite-accepted': { icon: 'users', tone: 'positive' },
+  // 원장이 담임으로 정함 → 선생님: 새로 맡은 반
+  'homeroom-assigned': { icon: 'users', tone: 'brand' },
+  // 담임이 다른 선생님으로 바뀜 → 이전 담임·원장
+  'homeroom-changed': { icon: 'users', tone: 'brand' },
+  // 담임·기관 초대가 만료됐거나 곧 만료 → 원장: 새 코드가 필요할 수 있음
+  'invite-expired': { icon: 'clock', tone: 'warning' },
+  'invite-expiring': { icon: 'clock', tone: 'warning' },
 };
 
 const DEFAULT_PRESENTATION: Presentation = { icon: 'bell', tone: 'gold' };
@@ -50,6 +62,11 @@ function toneColors(tone: Presentation['tone']): { background: string; icon: str
       return {
         background: storybookTheme.semantic.positive.background,
         icon: storybookTheme.semantic.positive.text,
+      };
+    case 'warning':
+      return {
+        background: storybookTheme.status.warning.background,
+        icon: storybookTheme.status.warning.text,
       };
     case 'brand':
       return {

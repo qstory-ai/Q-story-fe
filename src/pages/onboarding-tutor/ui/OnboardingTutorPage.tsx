@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ActionButton, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
 import { hasCompletedOnboarding, homePathFor, markOnboardingDone, useAuth } from '@/entities/auth';
+import { previewHomeroomInviteByCode, tutorInviteCodeDestination } from '@/entities/homeroom-invite';
 
 type Choice = 'independent' | 'organization';
 
@@ -12,7 +13,7 @@ type Choice = 'independent' | 'organization';
  * IA "선생님 온보딩" - 회원가입 성공 직후 자동 진입. IA의 두 스텝(선생님 정보/소속 설정) 중
  * 이름·프로필 이미지는 signup 폼에서 이미 받았으므로 소속 설정만 다룬다. 개인 활동은 곧바로
  * 완료, 기관 참여는 코드 입력 → /org-invite/code/:code로 위임한다(그 페이지가 미리보기 +
- * 수락을 처리).
+ * 수락을 처리). 관리자에게 받은 코드가 담임 초대 코드면 /homeroom-invite로 보낸다.
  */
 export function OnboardingTutorPage() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export function OnboardingTutorPage() {
   const [choice, setChoice] = useState<Choice>('independent');
   const [code, setCode] = useState('');
   const [codeError, setCodeError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -35,7 +37,7 @@ export function OnboardingTutorPage() {
     markOnboardingDone('tutor', state.user.id);
   }
 
-  function finish() {
+  async function finish() {
     if (state.status !== 'authenticated') return;
     if (choice === 'independent') {
       markDone();
@@ -50,7 +52,10 @@ export function OnboardingTutorPage() {
       setCodeError('영문·숫자 4-16자리 코드를 입력해 주세요.');
       return;
     }
-    navigate(`/org-invite/code/${encodeURIComponent(normalized)}`);
+    setChecking(true);
+    const destination = await tutorInviteCodeDestination(normalized, previewHomeroomInviteByCode);
+    setChecking(false);
+    navigate(destination);
   }
 
   if (state.status !== 'authenticated') return null;
@@ -91,14 +96,14 @@ export function OnboardingTutorPage() {
           <ChoiceCard
             selected={choice === 'organization'}
             title="기관에 소속돼 있어요"
-            body="관리자에게 받은 코드를 입력해 소속을 완성해요."
+            body="관리자에게 받은 기관 초대나 담임 초대 코드를 입력해 소속을 완성해요."
             onPress={() => setChoice('organization')}
           />
         </View>
 
         {choice === 'organization' ? (
           <TextField
-            label="기관 초대 코드"
+            label="초대 코드(기관·담임)"
             value={code}
             onChangeText={(value) => {
               setCode(value);
@@ -112,9 +117,10 @@ export function OnboardingTutorPage() {
 
         <ActionButton
           variant="gold"
-          label={choice === 'independent' ? '개인으로 시작' : '코드로 소속 완성'}
-          onPress={finish}
-          disabled={choice === 'organization' && code.trim().length === 0}
+          label={choice === 'independent' ? '개인으로 시작' : checking ? '코드 확인 중…' : '코드로 소속 완성'}
+          onPress={() => { void finish(); }}
+          loading={checking}
+          disabled={checking || (choice === 'organization' && code.trim().length === 0)}
         />
 
         {choice === 'independent' ? (

@@ -103,6 +103,9 @@ const OrganizationSubscriptionPage = lazy(() =>
 const OrgInviteAcceptPage = lazy(() =>
   import('@/pages/org-invite-accept').then((m) => ({ default: m.OrgInviteAcceptPage })),
 );
+const HomeroomInvitePage = lazy(() =>
+  import('@/pages/homeroom-invite').then((m) => ({ default: m.HomeroomInvitePage })),
+);
 const TutorJoinOrganizationPage = lazy(() =>
   import('@/pages/tutor-join-organization').then((m) => ({ default: m.TutorJoinOrganizationPage })),
 );
@@ -273,6 +276,7 @@ export function App() {
             <Route path="/organization/subscription" element={<OrganizationSubscriptionPage />} />
             <Route path="/org-invite/:token" element={<OrgInviteAcceptPage />} />
             <Route path="/org-invite/code/:code" element={<OrgInviteAcceptPage />} />
+            <Route path="/homeroom-invite" element={<HomeroomInvitePage />} />
             <Route path="/tutor/students" element={<LegacyRedirect />} />
             <Route path="/tutor/students/:studentId" element={<TutorStudentDetailPage />} />
             <Route path="/tutor/lessons/:lessonId" element={<TutorLessonDetailPage />} />

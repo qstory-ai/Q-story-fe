@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ActionButton, AppNavShell, TextField, storybookTheme } from '@/shared/ui';
 import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { previewHomeroomInviteByCode, tutorInviteCodeDestination } from '@/entities/homeroom-invite';
 import {
   listMyOrganizations,
   type TutorOrganizationLink,
@@ -16,7 +17,7 @@ type OrgsLoad = { status: 'loading' } | { status: 'ready'; organizations: TutorO
 /**
  * IA "선생님 온보딩 > 소속 설정 > 기관 연결(고유 코드)" + 이미 활동 중인 선생님이 나중에 기관에
  * 합류하는 경우를 모두 커버하는 코드 입력 화면. 코드를 확인하면 /org-invite/code/:code로 이동해
- * OrgInviteAcceptPage가 미리보기 + 수락을 처리한다.
+ * OrgInviteAcceptPage가 미리보기 + 수락을 처리한다. 담임 초대 코드면 /homeroom-invite로 보낸다.
  */
 export function TutorJoinOrganizationPage() {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ export function TutorJoinOrganizationPage() {
   const { state } = useAuth();
   const [codeInput, setCodeInput] = useState('');
   const [codeError, setCodeError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
   const [inviteInput, setInviteInput] = useState('');
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [orgs, setOrgs] = useState<OrgsLoad>({ status: 'loading' });
@@ -56,14 +58,17 @@ export function TutorJoinOrganizationPage() {
     };
   }, [token]);
 
-  function goToCode() {
+  async function goToCode() {
     setCodeError(null);
     const normalized = normalizeInviteCode(codeInput);
     if (!isValidInviteCode(normalized)) {
       setCodeError('영문·숫자 4-16자리 코드를 입력해 주세요.');
       return;
     }
-    navigate(`/org-invite/code/${encodeURIComponent(normalized)}`);
+    setChecking(true);
+    const destination = await tutorInviteCodeDestination(normalized, previewHomeroomInviteByCode);
+    setChecking(false);
+    navigate(destination);
   }
 
   function goToLink() {
@@ -83,7 +88,7 @@ export function TutorJoinOrganizationPage() {
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">기관 소속 참여</Text>
         <Text style={styles.subtitle}>
-          관리자에게 받은 초대 코드나 링크로 소속을 완성해요.
+          관리자에게 받은 초대 코드나 링크로 소속을 완성해요. 담임 초대 코드도 여기에 넣으면 돼요.
         </Text>
 
         <View style={styles.card}>
@@ -99,7 +104,12 @@ export function TutorJoinOrganizationPage() {
             autoCapitalize="characters"
             errorText={codeError ?? undefined}
           />
-          <ActionButton label="코드로 확인하기" onPress={goToCode} disabled={codeInput.trim().length === 0} />
+          <ActionButton
+            label={checking ? '코드 확인 중…' : '코드로 확인하기'}
+            onPress={() => { void goToCode(); }}
+            loading={checking}
+            disabled={checking || codeInput.trim().length === 0}
+          />
         </View>
 
         <View style={styles.card}>

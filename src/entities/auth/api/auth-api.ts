@@ -222,7 +222,7 @@ export function fetchEntitlement(
 export function createClass(
   token: string,
   organizationId: string,
-  input: { name: string; homeroomTutorId?: string },
+  input: { name: string },
   options?: RequestOptions,
 ): Promise<ClassResponse> {
   return request(

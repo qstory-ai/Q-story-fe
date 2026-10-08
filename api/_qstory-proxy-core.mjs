@@ -110,6 +110,11 @@ const DYNAMIC_ROUTES = [
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/students/${UUID_SEGMENT}/reports$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/homeroom-history$`) },
   { method: 'PUT', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/homeroom$`) },
+  // 담임 초대 - 관리자가 만들기·지금 코드 보기, 선생님이 코드로 미리 보기(로그인 없이)·수락.
+  { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/homeroom-invites$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/homeroom-invites/current$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/class-homeroom-invites/by-code/${SHORT_CODE_SEGMENT}$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/class-homeroom-invites/by-code/${SHORT_CODE_SEGMENT}/accept$`) },
   { method: 'DELETE', pattern: new RegExp(`^v1/classes/memberships/${UUID_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}$`) },
   { method: 'PATCH', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}$`) },

@@ -27,3 +27,13 @@ export function formatInviteExpiry(iso: string): string | undefined {
   const date = new Date(iso);
   return Number.isNaN(date.getTime()) ? undefined : INVITE_EXPIRY_FORMAT.format(date);
 }
+
+/** 담임 초대 링크 - 선생님이 열면 가입·로그인 뒤 이 반 담임으로 연결된다. */
+export function homeroomInviteLink(shortCode: string) {
+  return `${webOrigin()}/homeroom-invite?code=${encodeURIComponent(shortCode)}`;
+}
+
+export function homeroomInviteShareMessage(className: string, organizationName?: string | null) {
+  const where = organizationName ? `${organizationName} ${className}` : className;
+  return `${where} 담임 선생님 초대예요. 아래 링크로 가입하면 바로 ${className} 담임으로 연결돼요.`;
+}

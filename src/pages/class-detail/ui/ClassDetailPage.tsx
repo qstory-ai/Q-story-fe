@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, Pill, RadioGroup, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, Pill, RadioGroup, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { useBackOr } from '@/shared/lib';
 import {
@@ -32,7 +32,7 @@ import {
   type ClassReportItem,
 } from '@/entities/story-completion';
 import { LessonFormModal } from '@/features/lesson-form';
-import { InviteCodeCard, classInviteLink, classInviteShareMessage } from '@/features/invite-issue';
+import { HomeroomInvitePanel, InviteCodeCard, classInviteLink, classInviteShareMessage } from '@/features/invite-issue';
 
 type Viewer = 'TUTOR' | 'DIRECTOR';
 
@@ -52,7 +52,7 @@ type LoadState =
 /**
  * 반 상세 - 선생님(/tutor/classes/:id)과 관리자(/organization/classes/:id)가 같은 화면을 본다(Q-35에서 통합).
  * 반 초대 링크, 학생 명단(누르면 학생 상세), 보호자 연결 현황은 공통이고, 관리자에게만 담임 배정·변경과 담임
- * 이력이 붙는다. 담임을 바꿔도 지난 수업·리포트는 그때 선생님 것으로 남고, 이후 수업만 새 담임에게 간다.
+ * 이력, 담임 초대(선생님이 링크로 가입·수락하면 이 반 담임이 된다)가 붙는다. 담임을 바꿔도 지난 수업·리포트는 그때 선생님 것으로 남고, 이후 수업만 새 담임에게 간다.
  */
 export function ClassDetailPage() {
   const { classId } = useParams<{ classId: string }>();
@@ -70,6 +70,7 @@ export function ClassDetailPage() {
   const [pickedTutorId, setPickedTutorId] = useState<string | null>(null);
   const [assigning, setAssigning] = useState(false);
   const [assignError, setAssignError] = useState<string | null>(null);
+  const [inviteOtherOpen, setInviteOtherOpen] = useState(false);
   const [lessonFormOpen, setLessonFormOpen] = useState(false);
   const [lessonsReload, setLessonsReload] = useState(0);
 
@@ -162,6 +163,16 @@ export function ClassDetailPage() {
               shareMessage={classInviteShareMessage(effective.classGroup.name, effective.organizationName)}
             />
 
+            {viewer === 'DIRECTOR' && !effective.classGroup.tutorId ? (
+              <HomeroomInvitePanel
+                token={state.token}
+                classId={effective.classGroup.id}
+                className={effective.classGroup.name}
+                organizationName={effective.organizationName}
+                replacesHomeroom={false}
+              />
+            ) : null}
+
             {viewer === 'DIRECTOR' ? (
               <View style={styles.card}>
                 <Text style={styles.sectionTitle}>담임 선생님</Text>
@@ -176,13 +187,15 @@ export function ClassDetailPage() {
                   </View>
                 ) : (
                   <Text style={styles.body}>
-                    아직 담임이 없어요. 배정하면 지금까지 명단에 올라온 학생이 그 선생님의 학생이 되고, 이후 수업과 리포트는 선생님 계정에서 이어져요.
+                    아직 담임이 없어요. 위 담임 초대를 선생님께 보내거나, 이미 기관에 소속된 선생님을 바로 담임으로 정할 수 있어요. 담임이 정해지면 지금까지 명단에 올라온 학생이 그 선생님의 학생이 되고, 이후 수업과 리포트는 선생님 계정에서 이어져요.
                   </Text>
                 )}
 
                 {!effective.classGroup.tutorId || changing ? (
                   effective.tutors.length === 0 ? (
-                    <Text style={styles.body}>기관에 소속된 선생님이 없어요. 선생님 메뉴에서 초대해 주세요.</Text>
+                    effective.classGroup.tutorId ? (
+                      <Text style={styles.body}>기관에 소속된 다른 선생님이 없어요. 아래 담임 초대로 새 선생님을 초대해 주세요.</Text>
+                    ) : null
                   ) : (
                     <>
                       {changing ? (
@@ -219,6 +232,31 @@ export function ClassDetailPage() {
                       </View>
                     </>
                   )
+                ) : null}
+
+                {effective.classGroup.tutorId ? (
+                  <View style={styles.inviteOther}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityState={{ expanded: inviteOtherOpen }}
+                      onPress={() => setInviteOtherOpen((open) => !open)}
+                      style={({ pressed }) => [styles.inviteOtherToggle, pressed && styles.pressed]}
+                    >
+                      <Text style={styles.inviteOtherLabel}>다른 선생님을 담임으로 초대</Text>
+                      <View style={inviteOtherOpen ? styles.flipped : undefined}>
+                        <Icon name="chevronDown" size={16} color={storybookTheme.color.primary} />
+                      </View>
+                    </Pressable>
+                    {inviteOtherOpen ? (
+                      <HomeroomInvitePanel
+                        token={state.token}
+                        classId={effective.classGroup.id}
+                        className={effective.classGroup.name}
+                        organizationName={effective.organizationName}
+                        replacesHomeroom
+                      />
+                    ) : null}
+                  </View>
                 ) : null}
 
                 {effective.history.length > 1 ? (
@@ -517,6 +555,19 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardTitle,
   },
   homeroomRow: { flexDirection: 'row', alignItems: 'center', gap: storybookTheme.spacing.sm },
+  inviteOther: {
+    gap: storybookTheme.spacing.sm,
+    paddingTop: storybookTheme.spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: storybookTheme.color.pillBorder,
+  },
+  inviteOtherToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 },
+  flipped: { transform: [{ rotate: '180deg' }] },
+  inviteOtherLabel: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.primary,
+  },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: storybookTheme.spacing.sm },
   history: {
     gap: 4,

@@ -10,6 +10,7 @@ import { dashboardNavItems, libraryPathFor, useAuth } from '@/entities/auth';
 import { useBookmarks } from '@/entities/bookmark';
 import { useChildren } from '@/entities/child';
 import { ChildPickerModal } from '@/features/child-picker';
+import { primeResponseAudio } from '@/features/route-question';
 import { ClassLessonStartModal } from '@/features/class-lesson-start';
 import { storyPlayPath } from '@/features/story-library';
 
@@ -99,6 +100,8 @@ export function StoryDetailPage() {
    *   (선생님은 반 단위로만 일한다. 반이 하나여도 새 수업 기록이 생기므로 확인을 받는다).
    */
   const startPlay = useCallback((targetStoryId: string) => {
+    // 시작 탭 순간에 응답 오디오를 준비한다(iOS 자동재생 제한).
+    primeResponseAudio();
     if (isParent && children.length !== 1) {
       setChildPickerOpen(true);
       return;

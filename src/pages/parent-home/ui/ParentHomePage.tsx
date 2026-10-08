@@ -12,6 +12,7 @@ import { resumeStart, startStoryFromHome, storyDestination, storyPlayPath, type 
 import { HomeSection } from '@/features/home-section';
 import { ChildSelector } from '@/features/child-selector';
 import { ChildPickerModal } from '@/features/child-picker';
+import { primeResponseAudio } from '@/features/route-question';
 import { AGE_BAND_CATEGORY_HINTS, AGE_BAND_LABELS, useChildren, type AgeBand } from '@/entities/child';
 import { hasKoreanBatchim } from '@/entities/narration';
 import { loadLocalStoryProgress, progressForSelectedChild, type LocalStoryProgress } from '@/entities/analytics';
@@ -145,6 +146,8 @@ export function ParentHomePage() {
 
   const displayName = selectedChild?.name ?? state.user.displayName;
   const follow = (decision: StartDecision, storyId: string, resume: boolean) => {
+    // 탭 핸들러 안에서 동기로 - iOS는 사용자 탭 뒤에 준비된 오디오만 이후 낭독 재생을 허용한다.
+    primeResponseAudio();
     if (decision.kind === 'navigate') navigate(decision.path);
     else setPicker({ storyId, resume });
   };
@@ -181,7 +184,7 @@ export function ParentHomePage() {
             ctaLabel={heroCtaLabel}
             onPress={() =>
               follow(
-                startStoryFromHome({ story: hero, auth: state, children, selectedChildId: selectedChild?.id ?? null }),
+                startStoryFromHome({ story: hero, auth: state, children, selectedChildId: selectedChild?.id ?? null, progress }),
                 hero.storyId,
                 false,
               )

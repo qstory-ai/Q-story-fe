@@ -10,9 +10,11 @@ import {
   unlockStateFor,
   type StoryCatalogEntry,
 } from '@/entities/story';
-import { storyDestination } from '@/features/story-library';
+import { startFromLibraryCard, storyPlayPath } from '@/features/story-library';
+import { ChildPickerModal } from '@/features/child-picker';
+import { primeResponseAudio } from '@/features/route-question';
 import { useBookmarks } from '@/entities/bookmark';
-import { useChildren } from '@/entities/child';
+import { useChildren, type Child } from '@/entities/child';
 import { completedOnly, listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
 import { loadLocalStoryProgress, progressForSelectedChild, type LocalStoryProgress } from '@/entities/analytics';
 
@@ -53,6 +55,7 @@ export function LibraryPage() {
     () => progressForSelectedChild(loadLocalStoryProgress(), myChildren.map((child) => child.id), selectedChild?.id),
     [myChildren, selectedChild?.id],
   );
+  const [pickerStoryId, setPickerStoryId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>('all');
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<string | null>(null);
@@ -201,6 +204,8 @@ export function LibraryPage() {
                   story={story}
                   auth={state}
                   navigate={navigate}
+                  myChildren={myChildren}
+                  onPickChild={setPickerStoryId}
                   progress={progress}
                   onUnbookmark={tab === 'saved' ? () => bookmarks.toggle(story.storyId) : undefined}
                 />
@@ -209,6 +214,16 @@ export function LibraryPage() {
           </View>
         )}
       </View>
+      <ChildPickerModal
+        visible={pickerStoryId !== null}
+        subtitle="누구의 이야기를 이어서 읽을까요?"
+        onClose={() => setPickerStoryId(null)}
+        onSelected={(child) => {
+          const storyId = pickerStoryId;
+          setPickerStoryId(null);
+          if (storyId) navigate(storyPlayPath(storyId, { childId: child.id, resume: true }));
+        }}
+      />
     </AppNavShell>
   );
 }
@@ -219,12 +234,16 @@ function StoryCardWithFallback({
   story,
   auth,
   navigate,
+  myChildren,
+  onPickChild,
   progress,
   onUnbookmark,
 }: {
   story: StoryCatalogEntry;
   auth: AuthState;
   navigate: (path: string) => void;
+  myChildren: readonly Child[];
+  onPickChild: (storyId: string) => void;
   progress: LocalStoryProgress | null;
   onUnbookmark?: () => void;
 }) {
@@ -242,7 +261,13 @@ function StoryCardWithFallback({
       lockedCaption={locked ? '이용권으로 잠금 해제' : undefined}
       onRemove={onUnbookmark}
       removeLabel={onUnbookmark ? `${story.title} 저장 해제` : undefined}
-      onPress={() => navigate(storyDestination(story, auth))}
+      onPress={() => {
+        // 읽는 중 카드는 상세를 거치지 않고 바로 이어 읽는다. 탭 안에서 오디오를 먼저 준비(iOS).
+        primeResponseAudio();
+        const decision = startFromLibraryCard({ story, auth, children: myChildren, progress });
+        if (decision.kind === 'navigate') navigate(decision.path);
+        else onPickChild(story.storyId);
+      }}
     />
   );
 }

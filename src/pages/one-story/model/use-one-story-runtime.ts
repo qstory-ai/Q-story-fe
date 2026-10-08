@@ -21,6 +21,7 @@ import {
   hasExperiencedStoryAgency,
   clearLocalStoryProgress,
   loadLocalStoryProgress,
+  isUtMode,
   resumableProgressFor,
   saveLocalStoryProgress,
   createVoiceResearchConsent,
@@ -2089,6 +2090,7 @@ export function useOneStoryRuntime(
   ]);
 
   const restartStory = useCallback(async () => {
+    primeResponseAudio();
     processingAbortRef.current?.abort();
     await stopNarration();
     recorder.resetRecording();
@@ -2220,7 +2222,9 @@ export function useOneStoryRuntime(
   const dismissResumeAndRestart = useCallback(() => {
     clearLocalStoryProgress();
     setResumeCandidate(null);
-  }, []);
+    // 시작 버튼으로 들어온 경우엔 "처음부터"를 누른 그 탭에서 바로 시작한다(오디오 프라이밍도 이 탭 안).
+    if (entry === 'start') startStory();
+  }, [entry, startStory]);
 
   const openHomeMenu = useCallback(async () => {
     trackPlaybackControl('home_menu');
@@ -2515,8 +2519,8 @@ export function useOneStoryRuntime(
     getSceneIndex,
     // Q-39 회차·대화 기록
     sessionId,
-    // Q-40 UT 회차 코드 - 서버에 기록되는 회차(로그인)일 때만 보여 준다.
-    sessionCode: turnToken ? sessionShortCode(sessionId) : null,
+    // Q-40 UT 회차 코드 - 서버에 기록되는 회차(로그인)이면서 UT 플래그(ut=1)일 때만 보여 준다.
+    sessionCode: turnToken && isUtMode() ? sessionShortCode(sessionId) : null,
     recordTurn,
     liveTurns,
     completedRecordId,

@@ -21,7 +21,6 @@ import {
   hasExperiencedStoryAgency,
   clearLocalStoryProgress,
   loadLocalStoryProgress,
-  isUtMode,
   resumableProgressFor,
   saveLocalStoryProgress,
   createVoiceResearchConsent,
@@ -2519,8 +2518,8 @@ export function useOneStoryRuntime(
     getSceneIndex,
     // Q-39 회차·대화 기록
     sessionId,
-    // Q-40 UT 회차 코드 - 서버에 기록되는 회차(로그인)이면서 UT 플래그(ut=1)일 때만 보여 준다.
-    sessionCode: turnToken && isUtMode() ? sessionShortCode(sessionId) : null,
+    // Q-40 UT 회차 코드 - 서버에 기록되는 회차(로그인)일 때만 보여 준다.
+    sessionCode: turnToken ? sessionShortCode(sessionId) : null,
     recordTurn,
     liveTurns,
     completedRecordId,

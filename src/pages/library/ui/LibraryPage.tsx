@@ -221,7 +221,7 @@ export function LibraryPage() {
         onSelected={(child) => {
           const storyId = pickerStoryId;
           setPickerStoryId(null);
-          if (storyId) navigate(storyPlayPath(storyId, { childId: child.id, resume: true }));
+          if (storyId) navigate(storyPlayPath(storyId, { childId: child.id, resume: progress?.storyId === storyId && progress.childId === child.id }));
         }}
       />
     </AppNavShell>

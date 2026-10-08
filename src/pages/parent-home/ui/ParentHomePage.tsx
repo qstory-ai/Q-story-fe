@@ -267,7 +267,9 @@ export function ParentHomePage() {
         onSelected={(child) => {
           if (!picker) return;
           setPicker(null);
-          navigate(storyPlayPath(picker.storyId, { childId: child.id, resume: picker.resume, from: picker.resume ? undefined : 'home' }));
+          // 고른 아이가 진행을 남긴 아이일 때만 이어 읽고, 아니면 처음부터 시작한다(이어 읽기 후보가 없으면 플레이어가 멈춘다).
+          const ownsProgress = picker.resume && progress?.storyId === picker.storyId && progress.childId === child.id;
+          navigate(storyPlayPath(picker.storyId, { childId: child.id, resume: ownsProgress, from: ownsProgress ? undefined : 'home' }));
         }}
       />
     </AppNavShell>

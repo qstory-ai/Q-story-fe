@@ -70,7 +70,10 @@ export function ChildPickerModal({ visible, subtitle, onClose, onSelected }: Pro
         visible={addOpen}
         onClose={() => setAddOpen(false)}
         onSubmitTap={primeResponseAudio}
-        onCreated={(child) => onSelected(child)}
+        onCreated={(child) => {
+          selectChild(child.id);
+          onSelected(child);
+        }}
       />
     </>
   );

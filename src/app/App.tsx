@@ -17,6 +17,7 @@ import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
 import { ActionButton, LoadingState, SafeAreaView, storybookTheme } from '@/shared/ui';
 
 import { LEGACY_REDIRECTS } from './legacy-redirects';
+import { UsageTracking } from './usage-tracking';
 
 const HomePage = lazy(() => import('@/pages/home').then((m) => ({ default: m.HomePage })));
 const TutorialPage = lazy(() => import('@/pages/tutorial').then((m) => ({ default: m.TutorialPage })));
@@ -119,6 +120,10 @@ const PaymentCheckoutPage = lazy(() =>
 );
 const PaymentSuccessPage = lazy(() =>
   import('@/pages/payment-success').then((m) => ({ default: m.PaymentSuccessPage })),
+);
+// 팀 내부 화면 녹화 다시 보기 - 메뉴에 걸지 않는다. rrweb 플레이어는 이 화면에서만 불러온다.
+const InternalReplayPage = lazy(() =>
+  import('@/pages/internal-replay').then((m) => ({ default: m.InternalReplayPage })),
 );
 const PaymentFailPage = lazy(() =>
   import('@/pages/payment-fail').then((m) => ({ default: m.PaymentFailPage })),
@@ -231,6 +236,7 @@ export function App() {
         <BookmarksProvider>
           <SyncDemoCompletionOnAuth />
           <BrowserRouter>
+          <UsageTracking />
         <Suspense fallback={<RouteLoadingFallback />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -291,6 +297,7 @@ export function App() {
             <Route path="/staff/:storyId/scenes/:sceneId" element={<StaffScenePage />} />
             <Route path="/stories/:storyId" element={<StoryDetailPage />} />
             <Route path="/stories/:storyId/play" element={<StoryPlayerRoute />} />
+            <Route path="/internal/replay" element={<InternalReplayPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
           </Suspense>

@@ -10,3 +10,8 @@ export * from './model/voice-research';
 export * from './api/voice-research-consent-api';
 export * from './model/app-entry';
 export * from './model/landing-events';
+export * from './model/interaction-shapes';
+export * from './model/interaction-tracker';
+export * from './model/recording-chunks';
+export * from './model/session-recorder';
+export * from './api/session-recording-admin-api';

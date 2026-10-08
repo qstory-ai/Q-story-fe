@@ -7,6 +7,11 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/beta-events', true],
   // 브라우저 에러 보고(entities/analytics/model/client-errors.ts) - 서버가 로그로만 남긴다.
   ['POST v1/client-errors', true],
+  // 화면 사용 기록(누른 곳·스크롤·머뭇거림)과 화면 녹화 조각 - 로그인 없이도 betaSessionId로 받는다.
+  ['POST v1/interactions', true],
+  ['POST v1/session-recordings/chunks', true],
+  // 팀 내부 화면 녹화 다시 보기(STAFF) - 코드는 쿼리(?code=)로 넘어간다.
+  ['GET v1/admin/session-recordings', true],
   ['POST v1/voice-research', true],
   ['POST v1/voice-research/withdraw', true],
   // 마이페이지 계정 단위 음성 연구 동의(조회/동의/철회) - 본문은 약관 버전 한 줄뿐이다.
@@ -125,6 +130,7 @@ const DYNAMIC_ROUTES = [
   { method: 'POST', pattern: new RegExp(`^v1/notifications/${UUID_SEGMENT}/read$`) },
   { method: 'DELETE', pattern: new RegExp(`^v1/notifications/${UUID_SEGMENT}$`) },
   // Staff CMS (story-admin-api.ts) - storyId/sceneId are content ids, segmentId is a UUID.
+  { method: 'GET', pattern: new RegExp(`^v1/admin/session-recordings/${UUID_SEGMENT}/chunks$`) },
   { method: 'GET', pattern: new RegExp(`^v1/admin/stories/${STORY_ID_SEGMENT}/scenes$`) },
   { method: 'PATCH', pattern: new RegExp(`^v1/admin/stories/${STORY_ID_SEGMENT}/scenes/${STORY_ID_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/admin/stories/${STORY_ID_SEGMENT}/scenes/${STORY_ID_SEGMENT}/segments$`) },
@@ -153,6 +159,10 @@ const MAX_TRANSCRIPTION_BODY_BYTES = Math.ceil(MAX_RAW_AUDIO_BYTES / 3) * 4 + 4_
 const MAX_VOICE_RESEARCH_BODY_BYTES = 4 * 1024 * 1024;
 // Matches BetaEventController's own payload cap.
 const MAX_BETA_EVENT_BODY_BYTES = 8_192;
+// 화면 사용 기록은 한 번에 최대 200건 - InteractionController의 본문 상한(512KB)과 같게.
+const MAX_INTERACTIONS_BODY_BYTES = 512 * 1024;
+// 녹화 조각(data 1,000,000자까지, 프런트는 900,000자로 자른다) - SessionRecordingController의 본문 상한(2MB)과 같게.
+const MAX_RECORDING_CHUNK_BODY_BYTES = 2 * 1024 * 1024;
 // Auth/org/class bodies are small JSON structs (email/password/names), never audio-sized.
 const MAX_AUTH_BODY_BYTES = 8_192;
 // Two optional free-text fields (topPriority/oneLineReview, 500 chars each server-side) plus
@@ -166,6 +176,8 @@ const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes', 'v1/tu
 function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath === 'v1/voice-research') return MAX_VOICE_RESEARCH_BODY_BYTES;
   if (upstreamPath === 'v1/beta-events') return MAX_BETA_EVENT_BODY_BYTES;
+  if (upstreamPath === 'v1/interactions') return MAX_INTERACTIONS_BODY_BYTES;
+  if (upstreamPath === 'v1/session-recordings/chunks') return MAX_RECORDING_CHUNK_BODY_BYTES;
   if (upstreamPath.startsWith('v1/me/voice-research-consent')) return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/launch-notifications') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/completion-surveys') return MAX_COMPLETION_SURVEY_BODY_BYTES;

@@ -16,9 +16,10 @@ export class PlaySessionApiError extends Error {
 /**
  * 회차의 대화 줄을 한 묶음 보낸다(최대 50줄). 서버는 (sessionId, seq)로 멱등이라 같은 줄을 다시 보내도
  * 중복되지 않는다 - 실패하면 기록기가 다음에 같은 줄을 그대로 다시 보낸다.
+ * 로그인하지 않았으면 token 없이 보낸다 - 서버는 본문의 betaSessionId로 받는다.
  */
 export function appendPlaySessionTurns(
-  token: string,
+  token: string | null,
   sessionId: string,
   batch: PlayTurnBatch,
   options?: RequestOptions,

@@ -24,6 +24,20 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+type BeforeLogoutHook = (token: string) => void;
+const beforeLogoutHooks = new Set<BeforeLogoutHook>();
+
+/**
+ * 로그아웃 직전(저장된 토큰을 지우기 전)에 불릴 함수를 등록한다 - 그 토큰으로 서버에 정리 요청(예: 이 기기의
+ * 푸시 토큰 해제)을 보내야 하는 기능용. 반환값으로 등록을 해제한다. hook은 동기로 불리니 요청은 띄워만 둔다.
+ */
+export function onBeforeLogout(hook: BeforeLogoutHook): () => void {
+  beforeLogoutHooks.add(hook);
+  return () => {
+    beforeLogoutHooks.delete(hook);
+  };
+}
+
 async function resolveInitialAuthState(): Promise<AuthState> {
   const token = getStoredToken();
   if (!token) {
@@ -62,6 +76,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
+    const token = getStoredToken();
+    if (token) {
+      for (const hook of beforeLogoutHooks) {
+        try {
+          hook(token);
+        } catch {
+          // 정리 요청이 실패해도 로그아웃은 막지 않는다.
+        }
+      }
+    }
     // 같은 기기의 다음 사용자에게 이어 읽기 기록이 보이지 않게 이 계정의 진행을 지운다(선택 아이는 ChildrenProvider가 지운다).
     clearLocalStoryProgress();
     setLocalProgressOwner(null);

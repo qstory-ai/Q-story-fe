@@ -13,6 +13,7 @@ import {
 import { AuthProvider, legacyRedirectPath } from '@/entities/auth';
 import { BookmarksProvider } from '@/entities/bookmark';
 import { ChildrenProvider } from '@/entities/child';
+import { PushNotificationsBridge } from '@/features/push-notifications';
 import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
 import { ActionButton, LoadingState, SafeAreaView, storybookTheme } from '@/shared/ui';
 
@@ -237,6 +238,7 @@ export function App() {
           <SyncDemoCompletionOnAuth />
           <BrowserRouter>
           <UsageTracking />
+          <PushNotificationsBridge />
         <Suspense fallback={<RouteLoadingFallback />}>
           <Routes>
             <Route path="/" element={<HomePage />} />

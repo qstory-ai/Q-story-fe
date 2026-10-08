@@ -21,7 +21,7 @@ import {
   type UserSummary,
 } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
-import { betaErrorCode, trackBetaEvent } from '@/entities/analytics';
+import { betaErrorCode, recordingConsentStore, trackBetaEvent } from '@/entities/analytics';
 import {
   EMPTY_TERMS_CONSENT,
   TermsConsent,
@@ -215,6 +215,8 @@ function SignUpStep({
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [terms, setTerms] = useState<TermsConsentState>(EMPTY_TERMS_CONSENT);
+  // 보호자 가입의 선택 항목 - 가입 뒤 계정의 화면 녹화 결정으로 남긴다(체크 안 함도 결정).
+  const [allowRecording, setAllowRecording] = useState(false);
 
   // 가입 폼을 연 것과 끝낸 것(Q-40 UT) - 가입·연결에서 막히는 지점을 본다.
   const signupEntry = initialClassCode ? 'class_link' : 'direct';
@@ -285,6 +287,9 @@ function SignUpStep({
       }
       const response = role === 'TUTOR' ? await signupTutor(input) : await signupParent(input);
       trackSignupCompleted('password', Boolean(joinCode));
+      // 화면 녹화 허용(선택) - 체크하지 않았어도 "허용 안 함"으로 남겨 이야기 시작 화면에서 다시 묻지 않는다.
+      // 세션을 넘기기 전에 남긴다 - 로그인 직후 계정 설정을 불러올 때 이 결정이 보이게. 실패해도 가입은 그대로.
+      if (role === 'PARENT') await recordingConsentStore().recordSignupDecision(response.token, allowRecording);
       // 마케팅 동의는 가입 요청의 consents로 서버가 가입 트랜잭션에서 저장한다.
       onAuthed(response.token, response.user, joinCode ? `/join?code=${encodeURIComponent(joinCode)}` : undefined);
     } catch (failure) {
@@ -312,6 +317,7 @@ function SignUpStep({
     password,
     displayName,
     terms,
+    allowRecording,
     onAuthed,
   ]);
 
@@ -384,6 +390,7 @@ function SignUpStep({
       <TermsConsent
         value={terms}
         onChange={setTerms}
+        recording={role === 'PARENT' ? { checked: allowRecording, onChange: setAllowRecording } : undefined}
         onOpenDoc={(kind) => {
           if (typeof window !== 'undefined') {
             window.alert?.(

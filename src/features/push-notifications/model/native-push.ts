@@ -23,10 +23,13 @@ export function isPushSupported(): boolean {
   return Capacitor.getPlatform() === 'android';
 }
 
-let pluginPromise: Promise<PushNotificationsPlugin> | null = null;
-function plugin(): Promise<PushNotificationsPlugin> {
+// 플러그인 객체를 Promise 값으로 그대로 넘기면 안 된다 - Capacitor 플러그인은 프록시라 Promise가 then()이 있는지
+// 확인하려고 부르는 순간 '"PushNotifications.then()" is not implemented on android'로 거부된다(운영 기기에서 실제로 발생).
+// 그래서 객체에 감싸서 넘긴다.
+let pluginPromise: Promise<{ push: PushNotificationsPlugin }> | null = null;
+function plugin(): Promise<{ push: PushNotificationsPlugin }> {
   // 웹 번들 첫 화면에 플러그인 코드를 싣지 않도록 안드로이드에서만 불러온다.
-  pluginPromise ??= import('@capacitor/push-notifications').then((m) => m.PushNotifications);
+  pluginPromise ??= import('@capacitor/push-notifications').then((m) => ({ push: m.PushNotifications }));
   return pluginPromise;
 }
 
@@ -67,7 +70,7 @@ async function syncToken(): Promise<void> {
 /** 앱 시작 때 한 번 - 채널을 만들고 알림 탭을 받는다. 반환 함수로 리스너를 뗀다. */
 export async function startPush(onOpenHref: (href: string) => void): Promise<() => void> {
   if (!isPushSupported()) return () => {};
-  const push = await plugin();
+  const { push } = await plugin();
   try {
     await push.createChannel({
       id: PUSH_CHANNEL_ID,
@@ -93,7 +96,7 @@ export async function startPush(onOpenHref: (href: string) => void): Promise<() 
 export async function beginPushSession(authToken: string, userId: string): Promise<void> {
   if (!isPushSupported()) return;
   session = { authToken, userId };
-  const push = await plugin();
+  const { push } = await plugin();
   sessionListeners ??= Promise.all([
     push.addListener('registration', (t) => {
       fcmToken = t.value;

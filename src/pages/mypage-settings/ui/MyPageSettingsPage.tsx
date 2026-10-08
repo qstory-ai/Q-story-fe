@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { AppNavShell, ErrorState, Icon, LoadingState, StatusBanner, SwitchField, storybookTheme } from '@/shared/ui';
+import { AppNavShell, ErrorState, Icon, LoadingState, StatusBanner, SwitchField, storybookTheme, openSupportMail } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type UserSummary } from '@/entities/auth';
 import {
@@ -160,7 +160,6 @@ type Section = {
 // docSection이 "곧 공개" pill 대신 클릭 가능한 링크를 붙여 준다.
 const TERMS_URL = '';
 const PRIVACY_URL = '';
-const SUPPORT_EMAIL = 'support@qstory.co.kr';
 
 async function openDoc(url: string) {
   try {
@@ -176,15 +175,6 @@ function docSection(title: string, body: string, url: string, label: string): Se
     return { title, body, action: { label, onPress: () => openDoc(url) } };
   }
   return { title, body, pendingLabel: '곧 공개' };
-}
-
-async function openMail(subject: string) {
-  const href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}`;
-  try {
-    await Linking.openURL(href);
-  } catch {
-    if (typeof window !== 'undefined') window.alert?.(`문의 메일: ${SUPPORT_EMAIL}`);
-  }
 }
 
 function PrivacySections({ onDeleteAccount }: { onDeleteAccount: () => void }) {
@@ -206,7 +196,7 @@ function PrivacySections({ onDeleteAccount }: { onDeleteAccount: () => void }) {
       body: '프로필, 수업 또는 완주 리포트, 질문 기록 등 계정에 저장된 데이터의 사본을 요청할 수 있어요.',
       action: {
         label: '메일로 요청하기',
-        onPress: () => openMail('[Q-Story] 데이터 열람·내보내기 요청'),
+        onPress: () => openSupportMail('[Q-Story] 데이터 열람·내보내기 요청'),
       },
     },
     {

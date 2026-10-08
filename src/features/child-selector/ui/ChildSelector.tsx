@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Icon, storybookTheme } from '@/shared/ui';
-import { findChildAvatar, useChildren, type Child } from '@/entities/child';
+import { AddChildAvatar, ChildAvatar, useChildren, type Child } from '@/entities/child';
 import { AddChildModal } from './AddChildModal';
 
 type Props = {
@@ -23,7 +23,9 @@ type Props = {
 };
 
 /**
- * 넷플릭스식 아이 선택기 - 가로 스크롤 아바타 리스트 뒤에 "+" 원형 버튼이 붙는다. 각 아바타를
+ * 넷플릭스식 아이 선택기 - 가로 스크롤 아바타 리스트 뒤에 "+" 원형 버튼이 붙는다. 이야기 시작 전 선택
+ * (ChildPickerModal)과 같은 아바타(ChildAvatar)·같은 금색 선택 표시를 쓴다(Q-36).
+ * 각 아바타를
  * 누르면 ChildrenProvider의 selectedChild가 갱신되고, 그 결과 보호자 홈·리포트가
  * 같은 아이 기준으로 리렌더된다 - 아이 선택 상태는 이 전역 선택 하나뿐이다. 아이가 하나도 없을 땐 "아이를 먼저 등록해 주세요" 안내와
  * "+" 버튼만 노출한다.
@@ -90,9 +92,7 @@ export function ChildSelector({ greeting, allOption, onSelect, showAdd = true }:
           onPress={() => setAddOpen(true)}
           style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}
         >
-          <View style={styles.addFrame}>
-            <Icon name="plus" size={22} color={storybookTheme.color.onContent} />
-          </View>
+          <AddChildAvatar size="md" />
           <Text style={styles.addLabel} numberOfLines={1}>아이 추가</Text>
         </Pressable>
         ) : null}
@@ -116,7 +116,6 @@ function ChildAvatarButton({
   selected: boolean;
   onPress: () => void;
 }) {
-  const preset = findChildAvatar(child.avatarKey);
   return (
     <Pressable
       accessibilityRole="button"
@@ -125,17 +124,7 @@ function ChildAvatarButton({
       onPress={onPress}
       style={({ pressed }) => [styles.avatarButton, pressed && styles.pressed]}
     >
-      <View
-        style={[
-          styles.avatarFrame,
-          {
-            borderColor: selected ? storybookTheme.color.gold : 'transparent',
-            backgroundColor: `${preset.accent}33`,
-          },
-        ]}
-      >
-        <Text style={styles.avatarEmoji}>{preset.emoji}</Text>
-      </View>
+      <ChildAvatar avatarKey={child.avatarKey} size="md" selected={selected} />
       <Text style={[styles.avatarName, selected && styles.avatarNameSelected]} numberOfLines={1}>
         {child.name}
       </Text>
@@ -177,7 +166,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarEmoji: { fontSize: 28 },
   allFrame: { borderColor: 'transparent', backgroundColor: storybookTheme.color.contentPanel },
   avatarName: {
     fontSize: storybookTheme.type.xs,
@@ -194,17 +182,6 @@ const styles = StyleSheet.create({
     width: 64,
     gap: 4,
     alignItems: 'center',
-  },
-  addFrame: {
-    width: 60,
-    height: 60,
-    borderRadius: storybookTheme.radius.pill,
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: storybookTheme.color.contentPanelBorder,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: storybookTheme.color.contentPanel,
   },
   pressed: { opacity: 0.8 },
   addLabel: {

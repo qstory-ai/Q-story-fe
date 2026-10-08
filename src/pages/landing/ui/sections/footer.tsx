@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { BrandLockup, storybookTheme } from '@/shared/ui';
+import { trackLandingCta } from '@/entities/analytics';
+import { BrandLockup, storybookTheme, SUPPORT_EMAIL, openSupportMail } from '@/shared/ui';
 
 import { NAV_SECTIONS, type SectionKey } from '../../model/content';
 
@@ -24,6 +25,20 @@ export function FooterSection({ onNavigateToSection }: FooterSectionProps) {
             <Text style={styles.footerNavText}>{item.label}</Text>
           </Pressable>
         ))}
+      </View>
+      <View style={styles.contactRow}>
+        <Pressable
+          accessibilityRole="link"
+          accessibilityLabel={`문의하기, ${SUPPORT_EMAIL}로 메일 보내기`}
+          style={styles.contactButton}
+          onPress={() => {
+            trackLandingCta('footer_contact');
+            void openSupportMail('[Q-Story] 문의');
+          }}
+        >
+          <Text style={styles.contactButtonText}>문의하기</Text>
+        </Pressable>
+        <Text selectable style={styles.contactEmail}>{SUPPORT_EMAIL}</Text>
       </View>
       <View style={styles.footerBottom}>
         <Text style={styles.footerBottomText}>© 2026 Q-Story. All rights reserved.</Text>
@@ -61,6 +76,28 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContent,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.medium,
+  },
+  contactRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 12,
+  },
+  contactButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: storybookTheme.radius.pill,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.contentPanelBorder,
+  },
+  contactButtonText: {
+    color: storybookTheme.color.onContent,
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.medium,
+  },
+  contactEmail: {
+    color: storybookTheme.color.onContentMuted,
+    fontSize: storybookTheme.type.sm,
   },
   footerBottom: {
     gap: 4,

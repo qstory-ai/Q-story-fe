@@ -268,6 +268,11 @@ jobs:
           PROFILE_PATH=~/Library/MobileDevice/Provisioning\ Profiles/qstory.mobileprovision
           PROFILE_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin <<<"$(security cms -D -i "$PROFILE_PATH")")
           echo "Using provisioning profile: $PROFILE_NAME"
+          # 프로파일을 명령줄 오버라이드(PROVISIONING_PROFILE_SPECIFIER=...)로 넘기면 모든 타깃에 걸린다 - Firebase
+          # SDK(SPM)의 리소스 번들 타깃은 프로파일을 받지 못해("does not support provisioning profiles") 아카이브가
+          # 깨진다. 그래서 App 타깃의 Release 설정(Release 엔타이틀먼트 줄 옆)에만 넣는다. 러너의 작업 사본만 고친다.
+          /usr/bin/sed -i '' "s|CODE_SIGN_ENTITLEMENTS = App/App.entitlements;|& PROVISIONING_PROFILE_SPECIFIER = \"$PROFILE_NAME\";|" App.xcodeproj/project.pbxproj
+          grep -q "PROVISIONING_PROFILE_SPECIFIER = \"$PROFILE_NAME\";" App.xcodeproj/project.pbxproj
           # TestFlight는 같은 빌드 번호(CFBundleVersion)를 두 번 받지 않는다 - pbxproj의 1을 그대로 두면
           # 두 번째 업로드부터 ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE로 실패한다. 워크플로 실행 번호는
           # 단조 증가하므로 그것을 빌드 번호로 쓴다(마케팅 버전 1.0은 pbxproj 값 유지).
@@ -278,7 +283,6 @@ jobs:
             DEVELOPMENT_TEAM="$TEAM_ID" \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" \
             archive
           # ExportOptions.plist도 manual + provisioningProfiles 매핑. bundle id → 프로파일 이름.
           BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' build/App.xcarchive/Info.plist 2>/dev/null || echo "kr.ai.qstory")

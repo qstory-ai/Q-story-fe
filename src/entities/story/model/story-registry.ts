@@ -1,6 +1,6 @@
 import { apiBaseUrl } from '@/shared/config';
 
-import { currentStoryAuthToken } from './story-auth';
+import { currentRequestAuthToken } from '@/shared/api';
 
 import type { AudioSource, ImageSource } from './media-source';
 import { buildStoryRuntimePackage, type StoryRuntimePackage } from './story-package';
@@ -51,7 +51,7 @@ export function describeStoryLoadFailure(error: unknown): StoryLoadFailure {
 type LoadStoryPackageOptions = {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
-  /** 기본값은 현재 로그인 토큰(story-auth). 테스트가 직접 넘긴다. */
+  /** 기본값은 현재 로그인 토큰(shared/api auth-token). 테스트가 직접 넘긴다. */
   token?: string | null;
 };
 
@@ -98,7 +98,7 @@ export function refetchStoryPackage(
 
 async function fetchStoryPackage(
   storyId: string,
-  { baseUrl = apiBaseUrl, fetchImpl = fetch, token = currentStoryAuthToken() }: LoadStoryPackageOptions,
+  { baseUrl = apiBaseUrl, fetchImpl = fetch, token = currentRequestAuthToken() }: LoadStoryPackageOptions,
 ): Promise<StoryRuntimePackage> {
   if (!baseUrl) {
     throw new StoryLoadError(

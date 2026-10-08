@@ -12,7 +12,7 @@ import {
   DEFAULT_BETA_STORY_ID,
 } from './story-registry';
 import { buildStoryRuntimePackage } from './story-package';
-import { setStoryAuthToken } from './story-auth';
+import { setRequestAuthToken } from '@/shared/api';
 import {
   fallbackFamilyId,
   rejoinAnchorId,
@@ -240,7 +240,7 @@ test('loadStoryPackage sends the signed-in token so entitlement-gated stories ar
     );
   }) as typeof fetch;
 
-  setStoryAuthToken('signed-in-token');
+  setRequestAuthToken('signed-in-token');
   try {
     await assert.rejects(loadStoryPackage('HG-auth-test', { baseUrl: 'https://api.q-story.test', fetchImpl }), (error: unknown) => {
       const failure = describeStoryLoadFailure(error);
@@ -249,7 +249,7 @@ test('loadStoryPackage sends the signed-in token so entitlement-gated stories ar
       return true;
     });
   } finally {
-    setStoryAuthToken(null);
+    setRequestAuthToken(null);
   }
   assert.deepEqual(authHeaders, ['Bearer signed-in-token']);
 });

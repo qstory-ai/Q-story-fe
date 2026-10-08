@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ActionButton, AppNavShell, EmptyState, ErrorState, Icon, LoadingState, Modal, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
-import { findChildAvatar, formatChildAge, useChildren, type Child } from '@/entities/child';
+import { ChildAvatar, formatChildAge, useChildren, type Child } from '@/entities/child';
 import { AddChildModal } from '@/features/child-selector';
 
 /**
@@ -125,12 +125,9 @@ function ChildRow({
   onEdit: () => void;
   onDelete: () => void;
 }) {
-  const preset = findChildAvatar(child.avatarKey);
   return (
     <View style={styles.row}>
-      <View style={[styles.avatar, { backgroundColor: `${preset.accent}33` }]}>
-        <Text style={styles.avatarEmoji}>{preset.emoji}</Text>
-      </View>
+      <ChildAvatar avatarKey={child.avatarKey} size="sm" />
       <View style={styles.rowBody}>
         <Text style={styles.rowName} numberOfLines={1}>{child.name}</Text>
         <Text style={styles.rowMeta} numberOfLines={1}>{formatChildAge(child)}</Text>
@@ -191,14 +188,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: storybookTheme.color.surfaceCardBorder,
   },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: storybookTheme.radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarEmoji: { fontSize: storybookTheme.type.xl },
   rowBody: { flex: 1, gap: 2 },
   rowName: {
     fontSize: storybookTheme.type.sm,

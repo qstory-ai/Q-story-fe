@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { SUPPORT_EMAIL } from '@/shared/config';
-import { AppNavShell, Icon, storybookTheme } from '@/shared/ui';
+import { AppNavShell, Icon, storybookTheme, SUPPORT_EMAIL, openSupportMail } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { FeedbackModal, type FeedbackKind } from '@/features/feedback-modal';
 
@@ -25,15 +24,6 @@ export function MyPageSupportPage() {
   }, [state, navigate]);
 
   if (state.status !== 'authenticated') return null;
-
-  async function openEmail(subject: string) {
-    const href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}`;
-    try {
-      await Linking.openURL(href);
-    } catch {
-      if (typeof window !== 'undefined') window.alert?.(`문의 메일: ${SUPPORT_EMAIL}`);
-    }
-  }
 
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
@@ -58,7 +48,7 @@ export function MyPageSupportPage() {
           title="이메일로 문의"
           body={`빠른 답이 필요하면 ${SUPPORT_EMAIL}로 메일을 보내 주세요.`}
           label="메일 앱 열기"
-          onPress={() => openEmail('[Q-Story] 문의')}
+          onPress={() => openSupportMail('[Q-Story] 문의')}
         />
 
         <View style={styles.card}>

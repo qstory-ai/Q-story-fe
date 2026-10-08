@@ -1,8 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { clearLocalStoryProgress, setBetaEventAuthToken, setLocalProgressOwner } from '@/entities/analytics';
-import { setStoryAuthToken } from '@/entities/story';
+import { setRequestAuthToken } from '@/shared/api';
 
 import { fetchCurrentUser, type UserSummary } from '../api/auth-api';
 import { clearStoredToken, getStoredToken, storeToken } from './session';
@@ -80,9 +80,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 로그인 상태면 통계 이벤트에 토큰을 실어 그 통계 세션을 계정에 연결하고(Q-40 UT),
   // 이야기 요청에도 실어 이용권이 필요한 이야기를 막지 않게 한다(Q-33).
   const authToken = state.status === 'authenticated' ? state.token : null;
-  useEffect(() => {
+  // layout effect - 자식 화면의 요청 effect보다 먼저 돌아야 로그인 직후 첫 요청에도 토큰이 실린다.
+  useLayoutEffect(() => {
     setBetaEventAuthToken(authToken);
-    setStoryAuthToken(authToken);
+    setRequestAuthToken(authToken);
   }, [authToken]);
 
   const value = useMemo(

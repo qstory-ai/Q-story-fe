@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ActionButton, Modal, storybookTheme } from '@/shared/ui';
-import { findChildAvatar, useChildren, type Child } from '@/entities/child';
-import { AddChildModal } from '@/features/child-selector';
+import { AddChildAvatar, ChildAvatar, useChildren, type Child } from '@/entities/child';
 import { primeResponseAudio } from '@/features/route-question';
+
+import { AddChildModal } from './AddChildModal';
 
 type Props = {
   visible: boolean;
@@ -16,7 +17,8 @@ type Props = {
 };
 
 /**
- * IA "이야기 시작 전 아이 선택" - 넷플릭스 프로필 선택기와 같은 UX. 부모 홈의 작은 아이 셀렉터
+ * IA "이야기 시작 전 아이 선택" - 넷플릭스 프로필 선택기와 같은 UX. 홈·리포트의 선택 줄(ChildSelector)과 같은
+ * 아바타·같은 금색 선택 표시를 쓰고, 지금 선택된 아이를 미리 표시한다(Q-36). 부모 홈의 작은 아이 셀렉터
  * (ChildSelector)와 달리, 이야기 시작이라는 이벤트 순간에만 뜨는 확인 스텝이라 큰 아바타
  * 그리드로 뚜렷하게 노출한다.
  *
@@ -25,7 +27,7 @@ type Props = {
  * 새 아이로 곧바로 onSelected가 호출된다(등록 시트 onCreated).
  */
 export function ChildPickerModal({ visible, subtitle, onClose, onSelected }: Props) {
-  const { children, selectChild } = useChildren();
+  const { children, selectedChild, selectChild } = useChildren();
   const [addOpen, setAddOpen] = useState(false);
   const hasChildren = children.length > 0;
 
@@ -51,7 +53,12 @@ export function ChildPickerModal({ visible, subtitle, onClose, onSelected }: Pro
           {hasChildren ? (
             <View style={styles.grid}>
               {children.map((child) => (
-                <ChildAvatarChoice key={child.id} child={child} onPress={() => handlePick(child)} />
+                <ChildAvatarChoice
+                  key={child.id}
+                  child={child}
+                  selected={child.id === selectedChild?.id}
+                  onPress={() => handlePick(child)}
+                />
               ))}
               <AddAvatarChoice onPress={() => setAddOpen(true)} />
             </View>
@@ -79,19 +86,17 @@ export function ChildPickerModal({ visible, subtitle, onClose, onSelected }: Pro
   );
 }
 
-function ChildAvatarChoice({ child, onPress }: { child: Child; onPress: () => void }) {
-  const preset = findChildAvatar(child.avatarKey);
+function ChildAvatarChoice({ child, selected, onPress }: { child: Child; selected: boolean; onPress: () => void }) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${child.name}으로 시작`}
+      aria-selected={selected}
       onPress={onPress}
       style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
     >
-      <View style={[styles.avatarFrame, { backgroundColor: `${preset.accent}33`, borderColor: preset.accent }]}>
-        <Text style={styles.avatarEmoji}>{preset.emoji}</Text>
-      </View>
-      <Text style={styles.tileName} numberOfLines={1}>{child.name}</Text>
+      <ChildAvatar avatarKey={child.avatarKey} size="lg" selected={selected} />
+      <Text style={[styles.tileName, selected && styles.tileNameSelected]} numberOfLines={1}>{child.name}</Text>
     </Pressable>
   );
 }
@@ -104,9 +109,7 @@ function AddAvatarChoice({ onPress }: { onPress: () => void }) {
       onPress={onPress}
       style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
     >
-      <View style={styles.addFrame}>
-        <Text style={styles.addPlus}>+</Text>
-      </View>
+      <AddChildAvatar size="lg" />
       <Text style={styles.tileName} numberOfLines={1}>아이 추가</Text>
     </Pressable>
   );
@@ -132,38 +135,13 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   pressed: { opacity: 0.8 },
-  avatarFrame: {
-    width: 84,
-    height: 84,
-    borderRadius: storybookTheme.radius.pill,
-    borderWidth: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarEmoji: { fontSize: 40 },
   tileName: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardTitle,
     textAlign: 'center',
   },
-  addFrame: {
-    width: 84,
-    height: 84,
-    borderRadius: storybookTheme.radius.pill,
-    borderWidth: 3,
-    borderStyle: 'dashed',
-    borderColor: storybookTheme.color.onCardMuted,
-    backgroundColor: storybookTheme.color.pillBorder,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addPlus: {
-    fontSize: 40,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardMuted,
-    lineHeight: 40,
-  },
+  tileNameSelected: { color: storybookTheme.color.goldText },
   emptyBox: {
     gap: 12,
     paddingVertical: 12,

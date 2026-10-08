@@ -9,7 +9,7 @@ import { useBackOr, withParticle } from '@/shared/lib';
 import { dashboardNavItems, libraryPathFor, useAuth } from '@/entities/auth';
 import { useBookmarks } from '@/entities/bookmark';
 import { useChildren } from '@/entities/child';
-import { ChildPickerModal } from '@/features/child-picker';
+import { ChildPickerModal } from '@/features/child-selector';
 import { primeResponseAudio } from '@/features/route-question';
 import { ClassLessonStartModal } from '@/features/class-lesson-start';
 import { storyPlayPath } from '@/features/story-library';
@@ -51,8 +51,10 @@ export function StoryDetailPage() {
   const tutorToken = isTutor ? state.token : null;
   const tutorId = isTutor ? state.user.id : null;
 
+  const authReady = state.status !== 'loading';
   useEffect(() => {
-    if (!storyId) return;
+    // 로그인 확인이 끝난 뒤에 불러온다 - 확인 중에 익명으로 먼저 불러 이용권 이야기가 막히지 않게(Q-33).
+    if (!storyId || !authReady) return;
     let cancelled = false;
     fetchStoryEntry(storyId)
       .then((story) => {
@@ -69,7 +71,7 @@ export function StoryDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [storyId, requestKey]);
+  }, [storyId, requestKey, authReady]);
 
   const retry = useCallback(() => setAttempt((value) => value + 1), []);
 

@@ -13,6 +13,7 @@ import { hanselGretelStoryPackage as storyPackage } from '@/entities/story/hanse
 
 import { LocalSafeSpeechPipeline } from './local-safe-pipeline';
 import { HttpSpeechPipeline } from './http-speech-pipeline';
+import { setRequestAuthToken } from '@/shared/api';
 
 const recording: LocalRecordingArtifact = {
   uri: 'file://local-question.m4a',
@@ -391,6 +392,8 @@ test('HTTP text question bypasses recording upload and keeps the transcript', as
       );
     }) as typeof fetch,
   );
+  // 로그인 상태면 질문 처리에도 토큰이 실린다(Q-33) - 서버가 이용권을 확인한다.
+  setRequestAuthToken('signed-in-token');
   const result = await pipeline.route(
     {
       transcript: '새는 어디로 가는 거야?',
@@ -401,6 +404,7 @@ test('HTTP text question bypasses recording upload and keeps the transcript', as
     },
     new AbortController().signal,
   );
+  setRequestAuthToken(null);
 
   assert.equal(result.ok, true);
   assert.equal(calls.length, 1);
@@ -412,6 +416,7 @@ test('HTTP text question bypasses recording upload and keeps the transcript', as
     JSON.parse(String(calls[0].init?.body)).transcript,
     '새는 어디로 가는 거야?',
   );
+  assert.equal(new Headers(calls[0].init?.headers).get('Authorization'), 'Bearer signed-in-token');
 });
 
 test('HTTP pipeline retries once when a hosting layer replaces JSON with HTML', async () => {

@@ -1,4 +1,5 @@
 import type { FallbackPlan } from '@/entities/story-runtime';
+import { authorizationHeader } from '@/shared/api';
 import type { StoryRuntimePackage } from '@/entities/story';
 
 import { defaultFallbackFamilyFor } from './default-fallback';
@@ -257,6 +258,7 @@ export class HttpSpeechPipeline implements SpeechPipeline {
     let uploadHeaders: Record<string, string> = {
       'content-type': input.recording.mimeType,
       ...questionHeaders,
+      ...authorizationHeader(),
     };
     let uploadBody: BodyInit = recording;
     if (useJsonAudioUpload) {
@@ -264,7 +266,7 @@ export class HttpSpeechPipeline implements SpeechPipeline {
         // JSON 업로드는 이미 body가 있으니, 리소스 컨텍스트도 헤더가 아니라 body에 함께 담는다 -
         // POST /v1/questions/route와 같은 방식.
         uploadUrl = `${this.baseUrl}/v1/transcriptions/base64`;
-        uploadHeaders = { 'content-type': 'application/json' };
+        uploadHeaders = { 'content-type': 'application/json', ...authorizationHeader() };
         uploadBody = JSON.stringify({
           audioBase64: await blobToBase64(recording),
           mimeType: input.recording.mimeType,
@@ -340,7 +342,7 @@ export class HttpSpeechPipeline implements SpeechPipeline {
             this.fetchImpl(`${this.baseUrl}/v1/questions/route`, {
               method: 'POST',
               signal,
-              headers: { 'content-type': 'application/json' },
+              headers: { 'content-type': 'application/json', ...authorizationHeader() },
               body: JSON.stringify(input),
             }),
           isServerOutput,

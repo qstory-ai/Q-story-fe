@@ -1,11 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { clearLocalStoryProgress, setBetaEventAuthToken, setLocalProgressOwner } from '@/entities/analytics';
 import { setRequestAuthToken } from '@/shared/api';
 
-import { fetchCurrentUser, type UserSummary } from '../api/auth-api';
-import { clearStoredToken, getStoredToken, storeToken } from './session';
+import { fetchCurrentUser, refreshToken, type AuthResponse, type UserSummary } from '../api/auth-api';
+import { clearStoredToken, getStoredToken, storeToken, tokenIsExpired, tokenNeedsRenewal } from './session';
 
 export type AuthState =
   | { status: 'loading' }
@@ -38,6 +38,27 @@ export function onBeforeLogout(hook: BeforeLogoutHook): () => void {
   };
 }
 
+function isUnauthorized(failure: unknown): boolean {
+  return (failure as { status?: unknown } | null)?.status === 401;
+}
+
+/**
+ * 만료가 가까우면(session.ts의 tokenNeedsRenewal) 같은 모드의 새 토큰을 받는다. 'none'은 연장할 필요가 없거나
+ * 네트워크 오류 등으로 이번엔 못 한 경우(지금 토큰을 계속 쓴다), 'unauthorized'는 서버가 401로 거절한 경우(로그아웃).
+ */
+async function renewIfNeeded(token: string): Promise<AuthResponse | 'none' | 'unauthorized'> {
+  if (!tokenNeedsRenewal(token)) return 'none';
+  try {
+    const renewed = await refreshToken(token);
+    // 응답을 기다리는 사이 로그아웃·다른 계정 로그인이 있었다면 그 상태를 덮어쓰지 않는다.
+    if (getStoredToken() !== token) return 'none';
+    storeToken(renewed.token);
+    return renewed;
+  } catch (failure) {
+    return isUnauthorized(failure) ? 'unauthorized' : 'none';
+  }
+}
+
 async function resolveInitialAuthState(): Promise<AuthState> {
   const token = getStoredToken();
   if (!token) {
@@ -46,10 +67,13 @@ async function resolveInitialAuthState(): Promise<AuthState> {
   }
   try {
     const user = await fetchCurrentUser(token);
-    setLocalProgressOwner(user.id);
-    return { status: 'authenticated', token, user };
+    const renewed = await renewIfNeeded(token);
+    if (renewed === 'unauthorized') throw new Error('refresh rejected');
+    const next = renewed === 'none' ? { token, user } : renewed;
+    setLocalProgressOwner(next.user.id);
+    return { status: 'authenticated', token: next.token, user: next.user };
   } catch {
-    // 토큰이 만료/무효화된 경우 - 재로그인하도록 익명 상태로 되돌린다 (이번 phase엔 리프레시 토큰 없음).
+    // 토큰이 만료/무효화된 경우 - 재로그인하도록 익명 상태로 되돌린다.
     clearStoredToken();
     setLocalProgressOwner(null);
     return { status: 'anonymous' };
@@ -100,6 +124,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateUser = useCallback((user: UserSummary) => {
     setState((prev) => (prev.status === 'authenticated' ? { ...prev, user } : prev));
   }, []);
+
+  // 앱이 다시 앞으로 올 때(탭 전환·앱 복귀) 만료가 가까우면 연장하고, 이미 만료됐으면 로그아웃한다 - 시작 시점
+  // 확인은 resolveInitialAuthState가 한다. 네이티브 앱은 WebView의 visibilitychange와 Capacitor가 document에
+  // 보내는 resume 이벤트를 함께 듣는다(@capacitor/app 플러그인 없이).
+  const currentToken = state.status === 'authenticated' ? state.token : null;
+  const renewingRef = useRef(false);
+  useEffect(() => {
+    if (!currentToken || typeof document === 'undefined') return;
+    const onForeground = () => {
+      if (document.visibilityState === 'hidden' || renewingRef.current) return;
+      if (tokenIsExpired(currentToken)) {
+        logout();
+        return;
+      }
+      renewingRef.current = true;
+      void renewIfNeeded(currentToken)
+        .then((renewed) => {
+          if (renewed === 'unauthorized') {
+            logout();
+          } else if (renewed !== 'none') {
+            setState((prev) =>
+              prev.status === 'authenticated' && prev.token === currentToken
+                ? { status: 'authenticated', token: renewed.token, user: renewed.user }
+                : prev,
+            );
+          }
+        })
+        .finally(() => {
+          renewingRef.current = false;
+        });
+    };
+    document.addEventListener('visibilitychange', onForeground);
+    document.addEventListener('resume', onForeground);
+    return () => {
+      document.removeEventListener('visibilitychange', onForeground);
+      document.removeEventListener('resume', onForeground);
+    };
+  }, [currentToken, logout]);
 
   // 로그인 상태면 통계 이벤트에 토큰을 실어 그 통계 세션을 계정에 연결하고(Q-40 UT),
   // 이야기 요청에도 실어 이용권이 필요한 이야기를 막지 않게 한다(Q-33).

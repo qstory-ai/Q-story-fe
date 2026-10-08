@@ -196,6 +196,7 @@ function StudentSection({
                 </Text>
                 <Text style={styles.sessionMeta}>
                   {formatCompletedAt(completion.completedAt)} · {formatReportDuration(completion.durationSeconds)}
+                  {completion.className ? ` · ${completion.className}` : ''}
                 </Text>
               </View>
               {isExitedSession(completion) ? <Pill label={EXITED_BADGE_LABEL} tone="onLight" /> : null}

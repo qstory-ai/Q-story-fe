@@ -14,6 +14,7 @@ import {
 import { listOrganizationTutors, type OrganizationTutorLink } from '@/entities/organization-tutor';
 import { createHomeroomInvite } from '@/entities/homeroom-invite';
 import { messageForError } from '@/shared/api';
+import { archivedOnLabel } from '@/entities/class-lifecycle';
 
 type LoadState =
   | { status: 'loading' }
@@ -35,6 +36,7 @@ export function OrganizationClassesPage() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [pastOpen, setPastOpen] = useState(false);
 
   const token = director?.token ?? null;
   const organizationId = director?.organizationId ?? null;
@@ -42,7 +44,8 @@ export function OrganizationClassesPage() {
   useEffect(() => {
     if (!token || !organizationId) return;
     let cancelled = false;
-    listClasses(token, organizationId)
+    // 지난 반도 함께 받아 아래 "지난 반" 접이식 칸에 따로 보여 준다.
+    listClasses(token, organizationId, { includeArchived: true })
       .then((classes) => {
         if (!cancelled) setLoad({ status: 'ready', classes });
       })
@@ -93,6 +96,13 @@ export function OrganizationClassesPage() {
   }, [token, organizationId, name, navigate]);
 
   const tutorNameById = new Map(tutors.map((link) => [link.tutorId, link.tutorDisplayName]));
+  const activeClasses = load.status === 'ready' ? load.classes.filter((classGroup) => !classGroup.archivedAt) : [];
+  const pastClasses =
+    load.status === 'ready'
+      ? load.classes
+          .filter((classGroup) => Boolean(classGroup.archivedAt))
+          .sort((a, b) => Date.parse(b.archivedAt ?? '') - Date.parse(a.archivedAt ?? ''))
+      : [];
 
   if (!director) return null;
 
@@ -122,10 +132,12 @@ export function OrganizationClassesPage() {
             <LoadingState compact label="반 목록을 불러오는 중이에요…" />
           ) : load.status === 'error' ? (
             <ErrorState message={load.message} onRetry={() => setReloadKey((n) => n + 1)} />
-          ) : load.classes.length === 0 ? (
-            <Text style={styles.body}>아직 등록된 반이 없어요. 위 폼으로 첫 반을 만들어 보세요.</Text>
+          ) : activeClasses.length === 0 ? (
+            <Text style={styles.body}>
+              {pastClasses.length > 0 ? '지금 쓰는 반이 없어요. 위 폼으로 새 반을 만들어 보세요.' : '아직 등록된 반이 없어요. 위 폼으로 첫 반을 만들어 보세요.'}
+            </Text>
           ) : (
-            load.classes.map((classGroup) => (
+            activeClasses.map((classGroup) => (
               <Pressable
                 key={classGroup.id}
                 accessibilityRole="link"
@@ -144,6 +156,46 @@ export function OrganizationClassesPage() {
             ))
           )}
         </View>
+
+        {pastClasses.length > 0 ? (
+          <View style={styles.card}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ expanded: pastOpen }}
+              accessibilityLabel={`지난 반 ${pastClasses.length}개 ${pastOpen ? '접기' : '펼치기'}`}
+              onPress={() => setPastOpen((open) => !open)}
+              style={({ pressed }) => [styles.pastToggle, pressed && styles.classRowPressed]}
+            >
+              <View style={styles.classBody}>
+                <Text style={styles.sectionTitle}>지난 반 {pastClasses.length}개</Text>
+                <Text style={styles.classMeta}>보관한 반이에요. 기록과 리포트는 그대로 볼 수 있어요.</Text>
+              </View>
+              <View style={pastOpen ? styles.flipped : undefined}>
+                <Icon name="chevronDown" size={16} color={storybookTheme.color.onCardMuted} />
+              </View>
+            </Pressable>
+            {pastOpen
+              ? pastClasses.map((classGroup) => (
+                  <Pressable
+                    key={classGroup.id}
+                    accessibilityRole="link"
+                    accessibilityLabel={`지난 반 ${classGroup.name} 상세 열기`}
+                    onPress={() => navigate(ORGANIZATION_PATHS.classDetail(classGroup.id))}
+                    style={({ pressed }) => [styles.classRow, pressed && styles.classRowPressed]}
+                  >
+                    <View style={styles.classBody}>
+                      <Text style={styles.className}>{classGroup.name}</Text>
+                      <Text style={styles.classMeta}>
+                        {archivedOnLabel(classGroup.archivedAt)}
+                        {classGroup.tutorId ? ` · 담임 ${tutorNameById.get(classGroup.tutorId) ?? '배정됨'}` : ''}
+                      </Text>
+                    </View>
+                    <Icon name="chevronRight" size={16} color={storybookTheme.color.onCardMuted} />
+                  </Pressable>
+                ))
+              : null}
+          </View>
+        ) : null}
       </View>
     </AppNavShell>
   );
@@ -192,6 +244,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   classRowPressed: { opacity: 0.85 },
+  pastToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, minHeight: 44 },
+  flipped: { transform: [{ rotate: '180deg' }] },
   classBody: { flex: 1, gap: 2 },
   className: {
     fontSize: storybookTheme.type.md,

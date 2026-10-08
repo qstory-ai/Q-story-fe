@@ -45,9 +45,15 @@ export type ClassResponse = {
   /** 담임 선생님 - 기관 반에서 아직 배정하지 않았으면 null. */
   tutorId: string | null;
   name: string;
-  joinCode: string;
+  /** 지난 담임(예전에 맡았던 선생님)에게는 null - 더 이상 보호자를 들일 수 없다. */
+  joinCode: string | null;
   createdAt: string;
+  /** 지난 반으로 보관한 시각. 지금 쓰는 반이면 null(옛 서버 응답에는 없을 수 있다). */
+  archivedAt?: string | null;
 };
+
+/** 반 소속 구간이 끝난 이유 - MOVED 다른 반으로 옮김, GRADUATED 수료, KEPT 같은 반에 그대로(학기 마무리). */
+export type ClassMembershipEndReason = 'MOVED' | 'GRADUATED' | 'KEPT';
 
 /** 반 상세의 학생 명단 한 줄. 학부모가 아직 연결되지 않은 학생은 parentDisplayName이 null. */
 export type ClassStudentResponse = {
@@ -58,6 +64,11 @@ export type ClassStudentResponse = {
   parentDisplayName: string | null;
   parentEmail: string | null;
   createdAt: string;
+  /** 수료한 학생이면 그 시각. */
+  graduatedAt?: string | null;
+  /** 지난 학생(includePast)만 - 이 반을 떠난 시각과 이유. 지금 학생은 null. */
+  endedAt?: string | null;
+  endReason?: ClassMembershipEndReason | null;
 };
 
 /** 학부모가 "내 아이가 들어가 있는 반" 목록에서 보는 한 줄. */
@@ -239,12 +250,15 @@ export function createClass(
   );
 }
 
+/** 기관의 반 목록. includeArchived면 지난 반(archivedAt이 채워진 반)도 함께 온다. */
 export function listClasses(
   token: string,
   organizationId: string,
+  filters?: { includeArchived?: boolean },
   options?: RequestOptions,
 ): Promise<ClassResponse[]> {
-  return request(`/v1/organizations/${organizationId}/classes`, { method: 'GET' }, { ...options, token });
+  const query = filters?.includeArchived ? '?includeArchived=true' : '';
+  return request(`/v1/organizations/${organizationId}/classes${query}`, { method: 'GET' }, { ...options, token });
 }
 
 /** 반을 볼 수 있는 사람은 그 기관의 원장과 담임 선생님뿐이다. */
@@ -256,12 +270,15 @@ export function fetchClass(
   return request(`/v1/classes/${classId}`, { method: 'GET' }, { ...options, token });
 }
 
+/** 반 학생 명단. includePast면 이 반을 떠난 학생(옮김·수료)도 뒤에 붙는다(endedAt·endReason이 채워진 줄). */
 export function listClassStudents(
   token: string,
   classId: string,
+  filters?: { includePast?: boolean },
   options?: RequestOptions,
 ): Promise<ClassStudentResponse[]> {
-  return request(`/v1/classes/${classId}/students`, { method: 'GET' }, { ...options, token });
+  const query = filters?.includePast ? '?includePast=true' : '';
+  return request(`/v1/classes/${classId}/students${query}`, { method: 'GET' }, { ...options, token });
 }
 
 /**
@@ -308,6 +325,9 @@ export type ClassStudentReport = {
   lessonId: string | null;
   tutorId: string;
   tutorDisplayName: string;
+  /** 수업한 반과 그때 반 이름 - 반을 옮긴 학생은 지난 반 기록도 함께 온다. 옛 서버 응답에는 없을 수 있다. */
+  classId?: string | null;
+  className?: string | null;
 };
 
 /** 반 학생 한 명의 수업 리포트. 관리자는 담임이 바뀌기 전 기록까지 전부, 담임은 자기가 진행한 것만 받는다. */

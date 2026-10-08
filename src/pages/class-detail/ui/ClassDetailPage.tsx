@@ -11,6 +11,7 @@ import {
   assignClassHomeroom,
   dashboardNavItems,
   fetchClass,
+  listClasses,
   listClassHomeroomHistory,
   listClassStudents,
   previewClassByCode,
@@ -33,6 +34,14 @@ import {
 } from '@/entities/story-completion';
 import { LessonFormModal } from '@/features/lesson-form';
 import { HomeroomInvitePanel, InviteCodeCard, classInviteLink, classInviteShareMessage } from '@/features/invite-issue';
+import {
+  ArchivedClassBanner,
+  ClassManageCard,
+  MoveOutcomeBanner,
+  MoveStudentsCard,
+  PastMembersCard,
+  type MoveOutcome,
+} from '@/features/class-lifecycle';
 
 type Viewer = 'TUTOR' | 'DIRECTOR';
 
@@ -43,9 +52,14 @@ type LoadState =
       status: 'ready';
       classGroup: ClassResponse;
       organizationName: string | null;
+      /** 지금 학생. */
       students: ClassStudentResponse[];
+      /** 이 반을 떠난 학생(옮김·수료) - includePast. */
+      pastStudents: ClassStudentResponse[];
       tutors: OrganizationTutorLink[];
       history: HomeroomHistoryEntry[];
+      /** 관리자: 학생을 옮길 수 있는 반(이 기관의 지금 쓰는 반, 이 반 제외). */
+      targetClasses: ClassResponse[];
     }
   | { requestKey: string; status: 'error'; message: string };
 
@@ -53,6 +67,9 @@ type LoadState =
  * 반 상세 - 선생님(/tutor/classes/:id)과 관리자(/organization/classes/:id)가 같은 화면을 본다(Q-35에서 통합).
  * 반 초대 링크, 학생 명단(누르면 학생 상세), 보호자 연결 현황은 공통이고, 관리자에게만 담임 배정·변경과 담임
  * 이력, 담임 초대(선생님이 링크로 가입·수락하면 이 반 담임이 된다)가 붙는다. 담임을 바꿔도 지난 수업·리포트는 그때 선생님 것으로 남고, 이후 수업만 새 담임에게 간다.
+ *
+ * <p>반 수명주기: 관리자에게 "반 관리"(이름 바꾸기·학생 옮기기·학기 마무리·지난 반으로 보관)가 붙는다. 지난 반(archivedAt)과
+ * 예전에 맡았던 반(지난 담임, joinCode 없음)은 읽기 전용 - 초대·수업 만들기를 숨기고 지난 학생과 리포트만 보여 준다.
  */
 export function ClassDetailPage() {
   const { classId } = useParams<{ classId: string }>();
@@ -73,6 +90,8 @@ export function ClassDetailPage() {
   const [inviteOtherOpen, setInviteOtherOpen] = useState(false);
   const [lessonFormOpen, setLessonFormOpen] = useState(false);
   const [lessonsReload, setLessonsReload] = useState(0);
+  const [moveMode, setMoveMode] = useState(false);
+  const [moveOutcome, setMoveOutcome] = useState<MoveOutcome | null>(null);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -85,21 +104,36 @@ export function ClassDetailPage() {
   useEffect(() => {
     if (!token || !classId || !viewer) return;
     let cancelled = false;
-    Promise.all([fetchClass(token, classId), listClassStudents(token, classId)])
-      .then(async ([classGroup, students]) => {
-        // 기관 이름: 반 응답에 없어 보호자가 보는 미리보기에서 가져온다(머리말용, 실패해도 무방).
-        // 관리자: 선생님 목록(담임 이름·배정 폼)과 담임 이력 - 부가 정보라 실패해도 반 화면은 보여 준다.
-        const [organizationName, tutors, history] = await Promise.all([
-          previewClassByCode(classGroup.joinCode).then((preview) => preview.organizationName).catch(() => null),
+    Promise.all([fetchClass(token, classId), listClassStudents(token, classId, { includePast: true })])
+      .then(async ([classGroup, roster]) => {
+        // 기관 이름: 반 응답에 없어 보호자가 보는 미리보기에서 가져온다(머리말용, 실패해도 무방). 지난 반 코드는 410,
+        // 지난 담임에게는 반 코드가 없다 - 그때는 머리말만 비운다.
+        // 관리자: 선생님 목록(담임 이름·배정 폼)과 담임 이력, 옮길 반 목록 - 부가 정보라 실패해도 반 화면은 보여 준다.
+        const joinCode = classGroup.archivedAt ? null : classGroup.joinCode;
+        const [organizationName, tutors, history, orgClasses] = await Promise.all([
+          joinCode ? previewClassByCode(joinCode).then((preview) => preview.organizationName).catch(() => null) : Promise.resolve(null),
           viewer === 'DIRECTOR' && organizationId
             ? listOrganizationTutors(token, organizationId).catch(() => [] as OrganizationTutorLink[])
             : Promise.resolve([] as OrganizationTutorLink[]),
           viewer === 'DIRECTOR'
             ? listClassHomeroomHistory(token, classId).catch(() => [] as HomeroomHistoryEntry[])
             : Promise.resolve([] as HomeroomHistoryEntry[]),
+          viewer === 'DIRECTOR' && organizationId
+            ? listClasses(token, organizationId).catch(() => [] as ClassResponse[])
+            : Promise.resolve([] as ClassResponse[]),
         ]);
         if (!cancelled) {
-          setLoad({ requestKey, status: 'ready', classGroup, organizationName, students, tutors, history });
+          setLoad({
+            requestKey,
+            status: 'ready',
+            classGroup,
+            organizationName,
+            students: roster.filter((student) => !student.endedAt),
+            pastStudents: roster.filter((student) => Boolean(student.endedAt)),
+            tutors,
+            history,
+            targetClasses: orgClasses.filter((entry) => entry.id !== classGroup.id && !entry.archivedAt),
+          });
         }
       })
       .catch((failure: unknown) => {
@@ -129,7 +163,9 @@ export function ClassDetailPage() {
   }, [token, classId, pickedTutorId]);
 
   if (state.status !== 'authenticated' || !viewer) return null;
-  const effective: LoadState = load.requestKey === requestKey ? load : { requestKey, status: 'loading' };
+  // 같은 반을 다시 불러오는 동안(이름 바꾸기·옮기기 뒤)에는 이전 화면을 그대로 둔다 - 전체가 로딩으로 깜빡이지 않게.
+  const sameClassReady = load.status === 'ready' && load.classGroup.id === classId;
+  const effective: LoadState = load.requestKey === requestKey || sameClassReady ? load : { requestKey, status: 'loading' };
 
   const openStudent = (studentId: string) => {
     if (!classId) return;
@@ -137,6 +173,11 @@ export function ClassDetailPage() {
   };
 
   const loadedClass = effective.status === 'ready' ? effective.classGroup : null;
+  const archived = Boolean(loadedClass?.archivedAt);
+  // 지난 담임: 이 반을 예전에 맡았던 선생님 - 반 코드 없이, 자기가 진행한 기록만 본다.
+  const formerHomeroom = viewer === 'TUTOR' && loadedClass !== null && loadedClass.tutorId !== state.user.id;
+  const readOnly = archived || formerHomeroom;
+  const reload = () => setAttempt((n) => n + 1);
 
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
@@ -156,14 +197,64 @@ export function ClassDetailPage() {
               </Text>
             </View>
 
-            <InviteCodeCard
-              reusable
-              shortCode={effective.classGroup.joinCode}
-              link={classInviteLink(effective.classGroup.joinCode)}
-              shareMessage={classInviteShareMessage(effective.classGroup.name, effective.organizationName)}
-            />
+            {archived ? (
+              <ArchivedClassBanner
+                archivedAt={effective.classGroup.archivedAt}
+                reopen={
+                  viewer === 'DIRECTOR'
+                    ? { token: state.token, classId: effective.classGroup.id, className: effective.classGroup.name, onReopened: reload }
+                    : undefined
+                }
+              />
+            ) : formerHomeroom ? (
+              <StatusBanner label="예전에 맡았던 반이에요. 내가 진행한 수업과 리포트만 볼 수 있어요." />
+            ) : null}
 
-            {viewer === 'DIRECTOR' && !effective.classGroup.tutorId ? (
+            {moveOutcome ? <MoveOutcomeBanner outcome={moveOutcome} /> : null}
+
+            {!readOnly && effective.classGroup.joinCode ? (
+              <InviteCodeCard
+                reusable
+                shortCode={effective.classGroup.joinCode}
+                link={classInviteLink(effective.classGroup.joinCode)}
+                shareMessage={classInviteShareMessage(effective.classGroup.name, effective.organizationName)}
+              />
+            ) : null}
+
+            {viewer === 'DIRECTOR' ? (
+              <ClassManageCard
+                key={`${effective.classGroup.id}:${effective.classGroup.name}:${effective.classGroup.archivedAt ?? ''}`}
+                token={state.token}
+                classGroup={effective.classGroup}
+                studentCount={effective.students.length}
+                onChanged={() => {
+                  setMoveOutcome(null);
+                  reload();
+                }}
+                onStartMove={() => {
+                  setMoveOutcome(null);
+                  setMoveMode(true);
+                }}
+                onStartTermTransition={() => navigate(ORGANIZATION_PATHS.termTransition(effective.classGroup.id))}
+              />
+            ) : null}
+
+            {viewer === 'DIRECTOR' && moveMode && !archived ? (
+              <MoveStudentsCard
+                token={state.token}
+                classId={effective.classGroup.id}
+                students={effective.students}
+                targetClasses={effective.targetClasses}
+                onCancel={() => setMoveMode(false)}
+                onDone={(outcome) => {
+                  setMoveOutcome(outcome);
+                  setMoveMode(false);
+                  reload();
+                }}
+              />
+            ) : null}
+
+            {viewer === 'DIRECTOR' && !archived && !effective.classGroup.tutorId ? (
               <HomeroomInvitePanel
                 token={state.token}
                 classId={effective.classGroup.id}
@@ -181,17 +272,19 @@ export function ClassDetailPage() {
                     <Text style={[styles.body, styles.flex]}>
                       {tutorName(effective.classGroup.tutorId, effective.tutors, effective.history)}
                     </Text>
-                    {!changing && effective.tutors.some((link) => link.tutorId !== effective.classGroup.tutorId) ? (
+                    {!archived && !changing && effective.tutors.some((link) => link.tutorId !== effective.classGroup.tutorId) ? (
                       <ActionButton variant="secondary" size="sm" label="담임 바꾸기" onPress={() => setChanging(true)} />
                     ) : null}
                   </View>
+                ) : archived ? (
+                  <Text style={styles.body}>담임 선생님이 없던 반이에요.</Text>
                 ) : (
                   <Text style={styles.body}>
                     아직 담임이 없어요. 위 담임 초대를 선생님께 보내거나, 이미 기관에 소속된 선생님을 바로 담임으로 정할 수 있어요. 담임이 정해지면 지금까지 명단에 올라온 학생이 그 선생님의 학생이 되고, 이후 수업과 리포트는 선생님 계정에서 이어져요.
                   </Text>
                 )}
 
-                {!effective.classGroup.tutorId || changing ? (
+                {!archived && (!effective.classGroup.tutorId || changing) ? (
                   effective.tutors.length === 0 ? (
                     effective.classGroup.tutorId ? (
                       <Text style={styles.body}>기관에 소속된 다른 선생님이 없어요. 아래 담임 초대로 새 선생님을 초대해 주세요.</Text>
@@ -234,7 +327,7 @@ export function ClassDetailPage() {
                   )
                 ) : null}
 
-                {effective.classGroup.tutorId ? (
+                {!archived && effective.classGroup.tutorId ? (
                   <View style={styles.inviteOther}>
                     <Pressable
                       accessibilityRole="button"
@@ -272,7 +365,7 @@ export function ClassDetailPage() {
               </View>
             ) : null}
 
-            {viewer === 'TUTOR' ? (
+            {viewer === 'TUTOR' && !readOnly ? (
               <ClassLessonsSection
                 token={state.token}
                 classId={effective.classGroup.id}
@@ -285,9 +378,11 @@ export function ClassDetailPage() {
             <ClassReportsSection
               token={state.token}
               classId={effective.classGroup.id}
+              className={effective.classGroup.name}
               onOpen={(completionId) => navigate(reportDetailPath(completionId))}
             />
 
+            {readOnly && effective.students.length === 0 ? null : (
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>학생 {effective.students.length}명</Text>
               {effective.students.length === 0 ? (
@@ -301,6 +396,7 @@ export function ClassDetailPage() {
                     accessibilityRole="link"
                     accessibilityLabel={`${student.name} 학생 상세 열기`}
                     onPress={() => openStudent(student.id)}
+                    disabled={formerHomeroom}
                     style={({ pressed }) => [styles.row, pressed && styles.pressed]}
                   >
                     <View style={styles.flex}>
@@ -322,6 +418,14 @@ export function ClassDetailPage() {
                 ))
               )}
             </View>
+            )}
+
+            <PastMembersCard
+              token={state.token}
+              classId={effective.classGroup.id}
+              students={effective.pastStudents}
+              onOpen={viewer === 'DIRECTOR' ? openStudent : undefined}
+            />
           </>
         )}
       </ScrollView>
@@ -413,10 +517,13 @@ type ReportsData = { items: ClassReportItem[]; titles: Record<string, string> };
 function ClassReportsSection({
   token,
   classId,
+  className,
   onOpen,
 }: {
   token: string;
   classId: string;
+  /** 지금 반 이름 - 리포트의 그때 반 이름이 다르면(이름을 바꾼 반) 줄에 그때 이름을 붙인다. */
+  className: string;
   onOpen: (completionId: string) => void;
 }) {
   const [retry, setRetry] = useState(0);
@@ -478,6 +585,7 @@ function ClassReportsSection({
                   <Text style={styles.rowTitle}>{title}</Text>
                   <Text style={styles.rowMeta}>
                     {formatDateTime(report.completedAt)}
+                    {report.className && report.className !== className ? ` · ${report.className}` : ''}
                     {report.tutorName ? ` · ${report.tutorName}` : ''}
                   </Text>
                   {students ? <Text style={styles.rowMeta}>{students}</Text> : null}

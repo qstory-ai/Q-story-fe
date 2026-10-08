@@ -29,3 +29,13 @@ export function teacherTitle(displayName: string): string {
   const name = displayName.trim();
   return /선생님$/.test(name) ? name : `${name} 선생님`;
 }
+
+/**
+ * 방향 조사 "으로/로" - 받침이 없거나 ㄹ 받침이면 "로"(햇님반으로, 하늘로, 교실로). 한글로 끝나지 않으면 "(으)로".
+ */
+export function withDirectionParticle(word: string): string {
+  const code = trailingHangulSyllableCode(word);
+  if (code === null) return `${word}(으)로`;
+  const jong = (code - 0xac00) % 28;
+  return `${word}${jong === 0 || jong === 8 ? '로' : '으로'}`;
+}

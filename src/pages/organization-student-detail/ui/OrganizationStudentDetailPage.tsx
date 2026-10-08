@@ -19,6 +19,8 @@ import {
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { formatReportDuration } from '@/pages/one-story';
 import { StudentReportList, sessionKindLabel } from '@/features/student-reports';
+import { ClassHistoryCard } from '@/features/class-lifecycle';
+import { pastMemberLabel } from '@/entities/class-lifecycle';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -35,6 +37,7 @@ type LoadState =
 /**
  * 관리자의 학생 상세(/organization/classes/:classId/students/:studentId) - 보호자 연결 상태와 이 학생이 참여한
  * 수업 리포트. 담임이 바뀐 반이면 지난 담임의 기록도 함께 보이고, 줄마다 진행한 선생님 이름이 붙는다.
+ * 반을 옮기거나 수료한 학생도 지난 반에서 열 수 있다(includePast) - 반 이력과 모든 반의 리포트(줄마다 그때 반 이름)를 보여 준다.
  */
 export function OrganizationStudentDetailPage() {
   const { classId, studentId } = useParams<{ classId: string; studentId: string }>();
@@ -52,7 +55,7 @@ export function OrganizationStudentDetailPage() {
     let cancelled = false;
     Promise.all([
       fetchClass(token, classId),
-      listClassStudents(token, classId),
+      listClassStudents(token, classId, { includePast: true }),
       listClassStudentReports(token, classId, studentId),
       listStories().catch(() => [] as StoryCatalogEntry[]),
     ])
@@ -101,10 +104,14 @@ export function OrganizationStudentDetailPage() {
                   <Text style={styles.title} accessibilityRole="header">{effective.student.name}</Text>
                   <Text style={styles.meta}>{effective.student.ageBand}</Text>
                 </View>
-                <Pill
-                  label={effective.student.status === 'CONFIRMED' ? '연결됨' : '보호자 연결 대기'}
-                  tone={effective.student.status === 'CONFIRMED' ? 'accent' : 'onCard'}
-                />
+                {effective.student.endedAt ? (
+                  <Pill label={pastMemberLabel(effective.student)} tone="onLight" />
+                ) : (
+                  <Pill
+                    label={effective.student.status === 'CONFIRMED' ? '연결됨' : '보호자 연결 대기'}
+                    tone={effective.student.status === 'CONFIRMED' ? 'accent' : 'onCard'}
+                  />
+                )}
               </View>
               <Text style={styles.body}>
                 {effective.student.parentDisplayName
@@ -112,6 +119,8 @@ export function OrganizationStudentDetailPage() {
                   : '아직 보호자가 반 초대 링크로 들어오지 않았어요.'}
               </Text>
             </View>
+
+            <ClassHistoryCard token={director.token} studentId={effective.student.id} />
 
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>리포트</Text>
@@ -121,6 +130,8 @@ export function OrganizationStudentDetailPage() {
                   title: effective.titleByStoryId[report.storyId] ?? report.storyId,
                   meta: [
                     formatCompletedAt(report.completedAt),
+                    // 그때 반 이름 - 반을 옮겼거나 이름을 바꿨어도 기록 당시 반.
+                    ...(report.className ? [report.className] : []),
                     formatReportDuration(report.durationSeconds),
                     sessionKindLabel(report.sessionKind),
                     `${report.tutorDisplayName} 선생님`,

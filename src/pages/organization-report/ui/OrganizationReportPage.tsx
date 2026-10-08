@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { AppNavShell, ErrorState, LoadingState, storybookTheme } from '@/shared/ui';
+import { AppNavShell, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { ORGANIZATION_PATHS, dashboardNavItems, reportDetailPath, useDirectorSession } from '@/entities/auth';
 import { getOrganizationReport, type OrganizationReport } from '@/entities/organization-report';
@@ -85,6 +85,7 @@ export function OrganizationReportPage() {
                     <Text style={styles.rowTitle}>{classGroup.className}</Text>
                     <Text style={styles.rowMeta}>학생 {classGroup.studentCount}명 · 최근 활동 {classGroup.lastActivityAt ? formatDate(classGroup.lastActivityAt) : '없음'}</Text>
                   </View>
+                  {classGroup.archived ? <Pill label="지난 반" tone="onLight" /> : null}
                   <Text style={styles.rowValue}>{classGroup.completionCount}회 · 질문 {classGroup.questionCount}</Text>
                   <Text style={styles.chevron}>›</Text>
                 </Pressable>

@@ -101,6 +101,9 @@ function messageForStatus(status: number | undefined): string {
 export function messageForError(error: unknown, fallback?: string): string {
   const apiError = normalizeApiError(error);
   if (apiError) {
+    // 410(만료·사용·지난 반 코드)은 서버가 이유를 safeDetail로 나눠 준다 - 예: 지난 반이 된 반 코드는
+    // "지난 반이라 더 이상 들어갈 수 없어요…". 공통 INVALID_INVITE 문구로 덮지 않는다.
+    if (apiError.status === 410 && apiError.message && apiError.message.trim().length > 0) return apiError.message.trim();
     if (apiError.code && CODE_MESSAGES[apiError.code]) return CODE_MESSAGES[apiError.code];
     if (apiError.message && apiError.message.trim().length > 0) return apiError.message;
     return messageForStatus(apiError.status);

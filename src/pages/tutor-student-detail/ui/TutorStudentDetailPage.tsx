@@ -17,6 +17,7 @@ import {
 } from '@/entities/tutor';
 import { formatReportDuration } from '@/pages/one-story';
 import { StudentReportList, sessionKindLabel } from '@/features/student-reports';
+import { ClassHistoryCard } from '@/features/class-lifecycle';
 import { useBackOr } from '@/shared/lib';
 
 type ReportsLoad =
@@ -209,6 +210,8 @@ export function TutorStudentDetailPage() {
               )}
             </View>
 
+            {effective.student.classGroupId ? <ClassHistoryCard token={state.token} studentId={effective.student.id} /> : null}
+
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>리포트</Text>
               {reports.requestKey !== requestKey || reports.status === 'loading' ? (
@@ -222,6 +225,8 @@ export function TutorStudentDetailPage() {
                     title: reports.titleByStoryId[report.storyId] ?? report.storyId,
                     meta: [
                       REPORT_DATE_FORMAT.format(new Date(report.completedAt)),
+                      // 그때 반 이름 - 반을 옮겼거나 이름을 바꿨어도 기록 당시 반.
+                      ...(report.className ? [report.className] : []),
                       formatReportDuration(report.durationSeconds),
                       sessionKindLabel(report.sessionKind),
                       ...(isExitedSession(report) ? [EXITED_BADGE_LABEL] : []),

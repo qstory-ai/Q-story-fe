@@ -17,6 +17,8 @@ export const ORGANIZATION_PATHS = {
   classes: '/organization/classes',
   classDetail: (classId: string) => `/organization/classes/${classId}`,
   student: (classId: string, studentId: string) => `/organization/classes/${classId}/students/${studentId}`,
+  /** 학기 마무리 - 반의 지금 학생마다 다음 반·그대로·수료를 정한다. */
+  termTransition: (classId: string) => `/organization/classes/${classId}/term`,
   /** 리포트 탭 - 이용 현황과 기관 리포트를 합친 화면. */
   reports: '/organization/reports',
 } as const;

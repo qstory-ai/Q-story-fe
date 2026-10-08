@@ -63,7 +63,7 @@ export function IdlePanel({ runtime }: { runtime: OneStoryRuntime }) {
       <Text style={styles.parentHint}>
         목소리는 문장으로 바뀐 뒤 한 번 확인하고 질문으로 전송돼요. 확인한
         질문 문장은 이름·연락처를 가리고 서비스 개선을 위해 1년 보관해요. 화면 사용 기록(누른
-        곳·스크롤·화면 녹화)은 90일 보관하고, 입력한 글자는 가려요.
+        곳·스크롤·화면 녹화)도 1년 보관하고, 입력한 글자는 가려요.
       </Text>
     </View>
   );

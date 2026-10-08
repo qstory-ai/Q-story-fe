@@ -1,6 +1,8 @@
 import { apiBaseUrl } from '@/shared/config';
 import { requestJson, type PublicRequestOptions } from '@/shared/api';
 
+import { currentStoryAuthToken } from '../model/story-auth';
+
 import type { StoryReportCopy } from '../model/story-package-types';
 
 export type StoryCatalogEntry = {
@@ -28,7 +30,8 @@ export class StoryApiError extends Error {
 }
 
 function request<T>(path: string, options: PublicRequestOptions = {}): Promise<T> {
-  return requestJson(StoryApiError, path, {}, { baseUrl: apiBaseUrl, ...options });
+  // 로그인 상태면 토큰을 실어 서버가 이용권이 필요한 이야기를 기관 이용권으로 확인하게 한다(Q-33).
+  return requestJson(StoryApiError, path, {}, { baseUrl: apiBaseUrl, token: currentStoryAuthToken(), ...options });
 }
 
 /** GET /v1/stories - 홈 라이브러리 그리드용으로, RETIRED가 아닌 모든 스토리의 카탈로그 메타데이터를 가져온다. */

@@ -131,7 +131,7 @@ export function OnboardingParentPage() {
             <Text style={styles.eyebrow}>아이 등록</Text>
             <Text style={styles.title} accessibilityRole="header">아이 프로필을 만들어 주세요</Text>
             <Text style={styles.body}>
-              이야기 속에서 부를 이름과 아이의 출생연도, 아바타를 골라 주세요. 나이는 자동으로 계산돼요. 언제든 마이페이지에서 바꿀 수 있어요.
+              아이 이름과 출생연도, 아바타를 골라 주세요. 나이는 자동으로 계산돼요. 언제든 마이페이지에서 바꿀 수 있어요.
             </Text>
 
             <TextField

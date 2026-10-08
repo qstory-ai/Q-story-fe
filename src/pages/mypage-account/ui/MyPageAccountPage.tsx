@@ -182,7 +182,7 @@ function AccountScreen({
               label="아이 이름"
               value={childName}
               onChangeText={setChildName}
-              placeholder="이야기 속에서 아이를 부를 이름이에요"
+              placeholder="아이 이름이나 별칭"
             />
           ) : null}
           {saved ? <StatusBanner label="저장했어요." /> : null}

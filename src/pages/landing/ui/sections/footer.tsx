@@ -43,6 +43,9 @@ export function FooterSection({ onNavigateToSection }: FooterSectionProps) {
       <View style={styles.footerBottom}>
         <Text style={styles.footerBottomText}>© 2026 Q-Story. All rights reserved.</Text>
         <Text style={styles.footerBottomText}>1차 공개 베타 · 보호자와 함께 이용해 주세요.</Text>
+        <Text style={styles.footerBottomText}>
+          서비스를 다듬기 위해 화면 사용 기록(누른 곳·스크롤·화면 녹화)을 90일 보관해요. 입력한 글자는 가려요.
+        </Text>
       </View>
     </View>
   );

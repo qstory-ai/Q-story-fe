@@ -28,6 +28,9 @@ import {
   storeVoiceResearchSample,
   reportClientError,
   trackBetaEvent,
+  getBetaSessionId,
+  setInteractionPlaySessionId,
+  setInteractionPlayerPhase,
   currentClientDiagnostics,
   viewportClassForWidth,
   type BetaEventName,
@@ -53,6 +56,7 @@ import { recordStoryCompletion } from '@/entities/story-completion';
 import {
   TurnRecorder,
   appendPlaySessionTurns,
+  createTurnSender,
   sessionShortCode,
   type PlayEntrySource,
   type PlaySetting,
@@ -195,8 +199,8 @@ export function useOneStoryRuntime(
     }),
     [sessionId, tutorStudentId, lessonId, authState, selectedChild?.id],
   );
-  // Q-39 대화 기록기 - 그레텔 대화·질문 초대의 줄을 모아 몇 초에 한 번 서버로 보낸다. 로그인하지 않았으면
-  // 보내지 않고 방금 끝난 회차 리포트용으로만 모은다. 토큰은 ref로 읽어 기록기를 다시 만들지 않는다.
+  // Q-39 대화 기록기 - 그레텔 대화·질문 초대의 줄을 모아 몇 초에 한 번 서버로 보낸다. 로그인하지 않았어도
+  // 통계 세션 id로 익명으로 보낸다(UT 기록). 토큰은 ref로 읽어 기록기를 다시 만들지 않는다.
   const turnTokenRef = useRef<string | null>(null);
   const sessionIdRef = useRef(sessionId);
   const turnRecorderRef = useRef<TurnRecorder | null>(null);
@@ -206,13 +210,12 @@ export function useOneStoryRuntime(
       sessionIdRef.current,
       { storyId: storyManifest.storyId, contentVersion: storyManifest.contentVersion },
       {
-        send: (id, batch) => {
-          const token = turnTokenRef.current;
-          if (!token) return Promise.reject(new Error('signed out'));
-          return appendPlaySessionTurns(token, id, batch).then(() => undefined);
-        },
+        send: createTurnSender({
+          getToken: () => turnTokenRef.current,
+          getBetaSessionId,
+          append: appendPlaySessionTurns,
+        }),
       },
-      false,
     );
     return turnRecorderRef.current;
   }, [storyManifest.contentVersion, storyManifest.storyId]);
@@ -220,6 +223,17 @@ export function useOneStoryRuntime(
     sessionIdRef.current = sessionId;
     getTurnRecorder().startSession(sessionId);
   }, [getTurnRecorder, sessionId]);
+  // 화면 사용 기록·화면 녹화가 이 회차에 이어지게 회차 id를 알려 준다(플레이어를 떠나면 지운다).
+  useEffect(() => {
+    setInteractionPlaySessionId(sessionId);
+  }, [sessionId]);
+  useEffect(
+    () => () => {
+      setInteractionPlaySessionId(null);
+      setInteractionPlayerPhase(null);
+    },
+    [],
+  );
   const [liveTurns, setLiveTurns] = useState<PlayTurn[]>([]);
   // 방금 저장한 완주 기록 id - 실시간 리포트가 서버 분석(관심·대화 카드)을 받아 오는 데 쓴다.
   const [completedRecordId, setCompletedRecordId] = useState<string | null>(null);
@@ -229,8 +243,7 @@ export function useOneStoryRuntime(
   const turnToken = authState.status === 'authenticated' ? authState.token : null;
   useEffect(() => {
     turnTokenRef.current = turnToken;
-    getTurnRecorder().enabled = Boolean(turnToken);
-  }, [getTurnRecorder, turnToken]);
+  }, [turnToken]);
   useEffect(() => {
     const diagnostics = currentClientDiagnostics();
     getTurnRecorder().setContext({
@@ -409,6 +422,10 @@ export function useOneStoryRuntime(
       readThroughSceneId: readThroughSceneRef.current,
     });
   }, [runtimeState, storyManifest.scenes, getTurnRecorder]);
+  // 머뭇거림 기록에 플레이어 상태를 붙인다 - 낭독을 듣는 중의 멈춤과 막혀서 멈춘 것을 나눠 본다.
+  useEffect(() => {
+    setInteractionPlayerPhase(runtimeState.status);
+  }, [runtimeState.status]);
 
   useEffect(() => {
     if (runtimeState.status !== 'idle') {
@@ -2511,8 +2528,8 @@ export function useOneStoryRuntime(
     getSceneIndex,
     // Q-39 회차·대화 기록
     sessionId,
-    // Q-40 UT 회차 코드 - 서버에 기록되는 회차(로그인)일 때만 보여 준다.
-    sessionCode: turnToken ? sessionShortCode(sessionId) : null,
+    // Q-40 UT 회차 코드 - 로그인하지 않은 회차도 서버에 기록되므로 늘 보여 준다(관찰자가 녹화를 찾는 코드).
+    sessionCode: sessionShortCode(sessionId),
     recordTurn,
     liveTurns,
     completedRecordId,

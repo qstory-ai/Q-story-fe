@@ -20,7 +20,7 @@ export type TurnRecorderOptions = {
  * 한 회차의 대화 줄에 순서(seq)를 붙여 모아 두었다가 몇 초에 한 번 묶어 보낸다(Q-39).
  * - 화면을 막지 않는다: 보내기 실패는 조용히 쌓아 두고 다음 flush에서 다시 보낸다.
  * - seq는 회차 안에서 계속 늘어난다. "이어서 읽기"는 저장해 둔 다음 seq부터 이어 간다(startSession).
- * - 보낼 곳이 없으면(로그인 안 한 데모) 줄은 화면용으로만 모은다(enabled=false).
+ * - enabled=false면 줄은 화면용으로만 모은다. 플레이어는 로그인하지 않아도 익명으로 보내므로 늘 켠다(createTurnSender).
  * - 모든 줄은 history에 남겨, 서버 응답을 기다리지 않고 방금 끝난 회차의 리포트를 그릴 수 있게 한다.
  */
 export class TurnRecorder {

@@ -97,7 +97,11 @@ export function sessionShortCode(sessionId: string | null | undefined): string |
   return /^[0-9a-fA-F]{6}/.test(hex) ? hex.slice(0, 6).toUpperCase() : null;
 }
 
-export type PlayTurnBatch = PlaySessionContext & { turns: PlayTurn[] };
+export type PlayTurnBatch = PlaySessionContext & {
+  turns: PlayTurn[];
+  /** 통계 세션 id - 로그인하지 않은 회차도 이 값으로 받고, 중간에 로그인하면 앞부분을 계정에 잇는다. */
+  betaSessionId?: string;
+};
 
 /** 회차를 시작한 곳(Q-40 UT) - 요청받은 첫 사용·다시 읽기·스스로 시작을 나눠 보는 데 쓴다. */
 export type PlayEntrySource = 'home_hero' | 'resume' | 'report_reread' | 'detail' | 'lesson' | 'demo' | 'library';

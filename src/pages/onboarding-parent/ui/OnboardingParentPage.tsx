@@ -185,7 +185,7 @@ export function OnboardingParentPage() {
             setConsentReport(next);
             setConsentAudio(next);
           }}
-          label="모두 동의"
+          label="전체 동의"
         />
         <ConsentBlock
           title="리포트 표시 범위 (필수)"

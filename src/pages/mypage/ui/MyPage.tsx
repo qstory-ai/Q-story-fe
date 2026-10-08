@@ -65,7 +65,7 @@ export function MyPage() {
         negativeAction={{ label: '취소', onPress: () => setConfirmingLogout(false) }}
         accessibilityLabel="로그아웃 확인"
       >
-        <ModalBody>다시 로그인하면 그대로 이어서 쓸 수 있어요.</ModalBody>
+        <ModalBody>다시 로그인하면 계정 정보와 리포트는 그대로예요. 이 기기에서 읽던 위치는 지워져요.</ModalBody>
       </Modal>
     </AppNavShell>
   );

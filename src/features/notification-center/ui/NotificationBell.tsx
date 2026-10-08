@@ -9,6 +9,7 @@ import {
   listNotifications,
   markAllNotificationsRead,
   markNotificationRead,
+  subscribeNotificationRefresh,
   type Notification,
 } from '@/entities/notification';
 
@@ -139,6 +140,9 @@ export function NotificationBell({ token }: Props) {
       cancelled = true;
     };
   }, [token]);
+
+  // 앱이 켜져 있을 때 푸시가 오면 목록·뱃지를 새로 고친다(시스템 알림은 따로 띄우지 않는다).
+  useEffect(() => subscribeNotificationRefresh(refresh), [refresh]);
 
   const openDrawer = useCallback(() => {
     setOpen(true);

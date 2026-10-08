@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 푸시 알림 아이콘 강조색(theme.ts의 primary 네이비). -->
+    <color name="qstory_notification_accent">#1E293B</color>
+</resources>

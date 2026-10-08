@@ -58,6 +58,9 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/parents/me/children', true],
   ['GET v1/me/notification-settings', true],
   ['PATCH v1/me/notification-settings', true],
+  // 안드로이드 앱의 FCM 토큰 등록·해제(features/push-notifications) - 본문은 토큰 한 줄.
+  ['POST v1/me/push-tokens', true],
+  ['POST v1/me/push-tokens/remove', true],
   ['GET v1/me/bookmarks', true],
   ['POST v1/me/bookmarks', true],
   ['GET v1/tutor-lessons', true],
@@ -198,6 +201,7 @@ function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath.startsWith('v1/me/voice-research-consent')) return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/recording-consents' || upstreamPath === 'v1/me/recording-consent') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/me/usage-tracking') return MAX_AUTH_BODY_BYTES;
+  if (upstreamPath.startsWith('v1/me/push-tokens')) return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/launch-notifications') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/completion-surveys') return MAX_COMPLETION_SURVEY_BODY_BYTES;
   if (upstreamPath === 'v1/auth/me/profile-image') return MAX_PROFILE_IMAGE_BODY_BYTES;

@@ -129,7 +129,7 @@ export function SessionReport({
             {skipped.length > 0
               ? `건너뛴 질문: ${skipped.join(', ')}. 다음 수업에서 이어 볼 수 있어요.`
               : '이번 수업의 질문 초대는 모두 진행했어요.'}
-            {' '}부모에게는 공유용 한마디와 집에서 나눌 대화 거리가 함께 가요.
+            {' '}보호자에게는 공유용 한마디와 집에서 나눌 대화 거리가 함께 가요.
           </Text>
         </Section>
       </View>
@@ -556,7 +556,7 @@ export function TeacherNoteView({ note, showInternal }: { note: TeacherNote | nu
       ) : null}
       {note.forParents ? (
         <View style={sr.tagRow}>
-          <Tag label="부모에게 공유" />
+          <Tag label="보호자에게 공유" />
           <Text style={sr.body}>{note.forParents}</Text>
         </View>
       ) : null}

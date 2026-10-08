@@ -7,7 +7,7 @@ import type { AuthState, UserSummary } from '@/entities/auth';
 import type { Child } from '@/entities/child';
 import type { StoryCatalogEntry } from '@/entities/story';
 
-import { resumeStart, startStoryFromHome, storyPlayPath } from './play-path';
+import { resumeStart, startFromLibraryCard, startStoryFromHome, storyPlayPath } from './play-path';
 
 const story = (storyId: string, requiresEntitlement = false) =>
   ({ storyId, requiresEntitlement } as StoryCatalogEntry);
@@ -81,5 +81,37 @@ test('아이가 한 명이면 그 아이로, 없으면 아이 없이 이어서',
   assert.deepEqual(
     resumeStart({ progress: progress(), children: [] }),
     { kind: 'navigate', path: '/stories/HG/play?resume=1' },
+  );
+});
+
+test('홈 히어로: 같은 이야기 진행이 있으면 처음부터가 아니라 바로 이어 읽는다', () => {
+  assert.deepEqual(
+    startStoryFromHome({ story: story('HG'), auth: parent, children: [A, B], selectedChildId: 'child-b', progress: progress({ childId: 'child-b' }) }),
+    { kind: 'navigate', path: '/stories/HG/play?childId=child-b&resume=1' },
+  );
+});
+
+test('홈 히어로: 다른 이야기의 진행은 영향이 없다', () => {
+  assert.deepEqual(
+    startStoryFromHome({ story: story('P2'), auth: parent, children: [A, B], selectedChildId: 'child-b', progress: progress({ childId: 'child-b' }) }),
+    { kind: 'navigate', path: '/stories/P2/play?childId=child-b&from=home' },
+  );
+});
+
+test('서재 읽는 중 카드는 상세 없이 바로 이어 읽는다', () => {
+  assert.deepEqual(
+    startFromLibraryCard({ story: story('HG'), auth: parent, children: [A, B], progress: progress({ childId: 'child-a' }) }),
+    { kind: 'navigate', path: '/stories/HG/play?childId=child-a&resume=1' },
+  );
+});
+
+test('서재: 진행이 없는 카드·잠긴 이야기는 평소 목적지로', () => {
+  assert.deepEqual(
+    startFromLibraryCard({ story: story('P2'), auth: parent, children: [A], progress: progress() }),
+    { kind: 'navigate', path: '/stories/P2' },
+  );
+  assert.deepEqual(
+    startFromLibraryCard({ story: story('P1', true), auth: parent, children: [A], progress: progress({ storyId: 'P1', childId: 'child-a' }) }),
+    { kind: 'navigate', path: '/mypage/subscription' },
   );
 });

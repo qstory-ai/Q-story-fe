@@ -19,7 +19,7 @@ import { messageForError } from '@/shared/api';
 
 /**
  * 내 정보·계정(UX 정리 4번) - 예전 "내 정보 관리"(/mypage/profile, 이제 여기로 넘어온다)와 "계정 관리"를
- * 한 화면에 둔다. 프로필(선생님 사진, 이름, 보호자의 아이 이름) → 로그인 정보(아이디·이메일·회원 구분) →
+ * 한 화면에 둔다. 프로필(선생님 사진, 이름) → 로그인 정보(아이디·이메일·회원 구분) →
  * 비밀번호 변경 순서. 각 카드는 따로 저장된다.
  */
 export function MyPageAccountPage() {
@@ -52,16 +52,14 @@ function AccountScreen({
 }) {
   const { pathname } = useLocation();
   const { updateUser } = useAuth();
-  // 프로필 - displayName은 모든 역할, 아이 이름은 PARENT만, 프로필 사진은 TUTOR만 편집한다.
+  // 프로필 - displayName은 모든 역할, 프로필 사진은 TUTOR만 편집한다.
   const [displayName, setDisplayName] = useState(user.displayName);
-  const [childName, setChildName] = useState(user.childName ?? '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const isParent = user.role === 'PARENT';
   const isTutor = user.role === 'TUTOR';
   // 비밀번호 변경
   const [currentPassword, setCurrentPassword] = useState('');
@@ -78,7 +76,6 @@ function AccountScreen({
     try {
       const updated = await updateProfile(token, {
         displayName,
-        childName: isParent ? childName : undefined,
       });
       updateUser(updated);
       setSaved(true);
@@ -177,14 +174,6 @@ function AccountScreen({
             </View>
           ) : null}
           <TextField label="이름" value={displayName} onChangeText={setDisplayName} />
-          {isParent ? (
-            <TextField
-              label="아이 이름"
-              value={childName}
-              onChangeText={setChildName}
-              placeholder="아이 이름이나 별칭"
-            />
-          ) : null}
           {saved ? <StatusBanner label="저장했어요." /> : null}
           {error ? <StatusBanner variant="warning" label={error} /> : null}
           <ActionButton label="프로필 저장" onPress={handleSave} loading={saving} />

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, Checkbox, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import {
   CONSENT_VERSION,
@@ -179,6 +179,14 @@ export function OnboardingParentPage() {
           아이의 음성과 리포트에 대한 처리 방식을 확인하고 동의해 주세요.
         </Text>
 
+        <Checkbox
+          checked={consentReport && consentAudio}
+          onChange={(next) => {
+            setConsentReport(next);
+            setConsentAudio(next);
+          }}
+          label="전체 동의"
+        />
         <ConsentBlock
           title="리포트 표시 범위 (필수)"
           body="완주 리포트는 보호자(그리고 아이가 속한 반의 담임 선생님과 관리자)에게만 노출돼요. 외부 공유는 별도 동의 없이는 하지 않아요."

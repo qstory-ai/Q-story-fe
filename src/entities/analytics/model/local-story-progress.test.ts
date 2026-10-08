@@ -4,6 +4,11 @@ import test from 'node:test';
 
 import {
   clearLocalStoryProgress,
+  decideLegacyProgressMigration,
+  migrateLegacyProgress,
+  progressForSelectedChild,
+  progressStorageKey,
+  setLocalProgressOwner,
   loadLocalStoryProgress,
   localStoryProgressStorageKey,
   resumableProgressFor,
@@ -152,4 +157,73 @@ test('회차 id가 없는 옛 진행 기록도 그대로 이어 읽을 수 있�
   const loaded = loadLocalStoryProgress(storage);
   assert.ok(loaded);
   assert.equal(loaded.sessionId, undefined);
+});
+
+const base = (over = {}) => ({
+  version: 1,
+  savedAt: new Date().toISOString(),
+  state: { status: 'playing-fixed', sceneId: 'S1', audioGroupId: 'A', clipIndex: 0 },
+  storyId: 'HG',
+  childName: '민준',
+  elapsedSeconds: 10,
+  questionOutcomes: [],
+  ...over,
+});
+const save = (storage, over = {}) =>
+  saveLocalStoryProgress({ ...base(over), state: base(over).state }, storage);
+
+test('storage key is per user, anonymous keeps the old key', () => {
+  assert.equal(progressStorageKey(null), localStoryProgressStorageKey);
+  assert.equal(progressStorageKey(undefined), localStoryProgressStorageKey);
+  assert.equal(progressStorageKey('u1'), `${localStoryProgressStorageKey}.u1`);
+});
+
+test('switching accounts never exposes the previous account progress', () => {
+  const storage = memoryStorage();
+  setLocalProgressOwner('u1');
+  save(storage, { childId: 'c1' });
+  assert.equal(loadLocalStoryProgress(storage)?.childId, 'c1');
+  setLocalProgressOwner(null);
+  assert.equal(loadLocalStoryProgress(storage), null);
+  setLocalProgressOwner('u2');
+  assert.equal(loadLocalStoryProgress(storage), null);
+  clearLocalStoryProgress(storage);
+  setLocalProgressOwner('u1');
+  assert.equal(loadLocalStoryProgress(storage)?.childId, 'c1');
+  clearLocalStoryProgress(storage);
+  assert.equal(loadLocalStoryProgress(storage), null);
+  setLocalProgressOwner(null);
+});
+
+test('progressForSelectedChild shows only the selected child own record', () => {
+  const p = base({ childId: 'c1' });
+  assert.equal(progressForSelectedChild(p, ['c1', 'c2'], 'c1'), p);
+  assert.equal(progressForSelectedChild(p, ['c1', 'c2'], 'c2'), null);
+  assert.equal(progressForSelectedChild(p, ['c2'], 'c2'), null);
+  assert.equal(progressForSelectedChild(base(), ['c1'], 'c1'), null);
+  assert.equal(progressForSelectedChild(p, ['c1'], null), null);
+  assert.equal(progressForSelectedChild(null, ['c1'], 'c1'), null);
+});
+
+test('legacy migration decision', () => {
+  assert.equal(decideLegacyProgressMigration(null, ['c1']), 'keep');
+  assert.equal(decideLegacyProgressMigration(base({ childId: 'c1' }), ['c1']), 'move');
+  assert.equal(decideLegacyProgressMigration(base({ childId: 'x' }), ['c1']), 'discard');
+  assert.equal(decideLegacyProgressMigration(base(), ['c1']), 'discard');
+  assert.equal(decideLegacyProgressMigration(base({ state: { status: 'complete' } }), ['c1']), 'keep');
+});
+
+test('migrateLegacyProgress moves, discards, and does not overwrite', () => {
+  const storage = memoryStorage();
+  save(storage, { childId: 'c1' }); // owner null => legacy key
+  assert.equal(migrateLegacyProgress('u1', ['c1'], storage), 'move');
+  assert.equal(loadLocalStoryProgress(storage, progressStorageKey(null)), null);
+  assert.equal(loadLocalStoryProgress(storage, progressStorageKey('u1'))?.childId, 'c1');
+  save(storage, { childId: 'c1', storyId: 'NEW' });
+  migrateLegacyProgress('u1', ['c1'], storage);
+  assert.equal(loadLocalStoryProgress(storage, progressStorageKey('u1'))?.storyId, 'HG');
+  save(storage, { childId: 'other' });
+  assert.equal(migrateLegacyProgress('u2', ['c9'], storage), 'discard');
+  assert.equal(loadLocalStoryProgress(storage, progressStorageKey(null)), null);
+  assert.equal(loadLocalStoryProgress(storage, progressStorageKey('u2')), null);
 });

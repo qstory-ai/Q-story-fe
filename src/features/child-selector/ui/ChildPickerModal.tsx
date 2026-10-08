@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ActionButton, Modal, storybookTheme } from '@/shared/ui';
 import { AddChildAvatar, ChildAvatar, useChildren, type Child } from '@/entities/child';
+import { primeResponseAudio } from '@/features/route-question';
 
 import { AddChildModal } from './AddChildModal';
 
@@ -23,7 +24,7 @@ type Props = {
  *
  * <p>ChildrenProvider의 selectedChild도 함께 갱신해서 이후 홈/서재/리포트도 그 아이 기준으로
  * 유지되도록 한다. 아이가 아직 없으면 "아이 등록" 카드가 대신 노출되고, 등록 완료 시
- * ChildrenProvider가 새 아이를 자동 선택해 곧바로 onSelected로 이어진다.
+ * 새 아이로 곧바로 onSelected가 호출된다(등록 시트 onCreated).
  */
 export function ChildPickerModal({ visible, subtitle, onClose, onSelected }: Props) {
   const { children, selectedChild, selectChild } = useChildren();
@@ -31,6 +32,8 @@ export function ChildPickerModal({ visible, subtitle, onClose, onSelected }: Pro
   const hasChildren = children.length > 0;
 
   function handlePick(child: Child) {
+    // 사용자 탭 안에서 동기 호출해야 iOS가 이후 낭독 재생을 허용한다.
+    primeResponseAudio();
     selectChild(child.id);
     onSelected(child);
   }
@@ -70,7 +73,15 @@ export function ChildPickerModal({ visible, subtitle, onClose, onSelected }: Pro
         </View>
       </Modal>
 
-      <AddChildModal visible={addOpen} onClose={() => setAddOpen(false)} />
+      <AddChildModal
+        visible={addOpen}
+        onClose={() => setAddOpen(false)}
+        onSubmitTap={primeResponseAudio}
+        onCreated={(child) => {
+          selectChild(child.id);
+          onSelected(child);
+        }}
+      />
     </>
   );
 }

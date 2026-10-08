@@ -13,7 +13,7 @@ import {
   startLesson,
   type Lesson,
 } from '@/entities/lesson';
-import type { StoryCompletionSummary } from '@/entities/story-completion';
+import { EXITED_BADGE_LABEL, isExitedSession, type StoryCompletionSummary } from '@/entities/story-completion';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { LessonPlaySettingPicker, type PlaySetting } from '@/entities/play-session';
 import { LessonFormModal } from '@/features/lesson-form';
@@ -218,7 +218,7 @@ export function TutorLessonDetailPage() {
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>리포트 {effective.completions.length}건</Text>
               {effective.completions.length === 0 ? (
-                <Text style={styles.helper}>아직 이 수업에서 끝까지 들은 이야기가 없어요. 위 "시작"으로 진행하면 기록이 남고, 연결된 부모님께 리포트가 전달돼요.</Text>
+                <Text style={styles.helper}>아직 이 수업에서 끝까지 들은 이야기가 없어요. 위 "시작"으로 진행하면 기록이 남고, 연결된 보호자께 리포트가 전달돼요.</Text>
               ) : (
                 effective.completions.map((completion) => {
                   const student = effective.lesson.students.find((candidate) => candidate.id === completion.tutorStudentId);
@@ -240,7 +240,7 @@ export function TutorLessonDetailPage() {
                           {story?.title ?? completion.storyId} · {formatDateTime(completion.completedAt)}
                         </Text>
                       </View>
-                      <Pill label="완주" tone="onCard" />
+                      <Pill label={isExitedSession(completion) ? EXITED_BADGE_LABEL : '완주'} tone={isExitedSession(completion) ? 'onLight' : 'onCard'} />
                     </Pressable>
                   );
                 })

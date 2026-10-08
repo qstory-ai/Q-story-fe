@@ -6,7 +6,6 @@ import { AppNavShell, Icon, storybookTheme, SUPPORT_EMAIL, openSupportMail } fro
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { FeedbackModal, type FeedbackKind } from '@/features/feedback-modal';
 
-
 /**
  * IA "[4] 마이페이지 > 고객지원" 화면. IA에 열거된 두 액션(기능제안 / 오류제보)은 백엔드의
  * feedback API 하나로 통합돼 있어 여기선 FeedbackModal을 kind prop으로 두 진입점으로 나눠

@@ -57,7 +57,7 @@ export function InviteCodeCard({ shortCode, link, expiresLabel, shareMessage, re
       <Text style={styles.cardTitle} accessibilityRole="header">{reusable ? '반 초대' : '발급된 초대'}</Text>
       <Text style={styles.description}>
         {reusable
-          ? '알림장이나 단체방에 이 링크 하나만 올리면 돼요. 부모님마다 자기 아이를 골라 반에 들어오고, 여러 번 쓸 수 있어요.'
+          ? '알림장이나 단체방에 이 링크 하나만 올리면 돼요. 보호자마다 자기 아이를 골라 반에 들어오고, 여러 번 쓸 수 있어요.'
           : '아래 코드 또는 링크를 상대방에게 전달해 주세요. 한 번만 사용할 수 있고, 사용된 뒤에는 다시 쓸 수 없어요.'}
       </Text>
 

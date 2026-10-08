@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { BrandLockup, AppNavShell, Card, EmptyState, Icon, LoadingState, StoryCard, storybookTheme } from '@/shared/ui';
+import { BrandLockup, AppNavShell, Card, EmptyState, Icon, LoadingState, Pill, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { relativeDayLabel, withParticle } from '@/shared/lib';
 import { NotificationBell } from '@/features/notification-center';
@@ -11,10 +11,11 @@ import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/
 import { resumeStart, startStoryFromHome, storyDestination, storyPlayPath, type StartDecision } from '@/features/story-library';
 import { HomeSection } from '@/features/home-section';
 import { ChildPickerModal, ChildSelector } from '@/features/child-selector';
+import { primeResponseAudio } from '@/features/route-question';
 import { AGE_BAND_CATEGORY_HINTS, AGE_BAND_LABELS, useChildren, type AgeBand } from '@/entities/child';
 import { hasKoreanBatchim } from '@/entities/narration';
-import { loadLocalStoryProgress, type LocalStoryProgress } from '@/entities/analytics';
-import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
+import { loadLocalStoryProgress, progressForSelectedChild, type LocalStoryProgress } from '@/entities/analytics';
+import { EXITED_BADGE_LABEL, isExitedSession, listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
 import { listParentTutorReports, tutorReportSource, type TutorReportSummary } from '@/entities/tutor';
 import { formatReportDuration } from '@/pages/one-story';
 
@@ -54,7 +55,10 @@ export function ParentHomePage() {
   const completionsRequestKey = selectedChild?.id ?? 'all';
   const [completionsResponseKey, setCompletionsResponseKey] = useState<string | null>(null);
   const [reportsDone, setReportsDone] = useState(false);
-  const [progress] = useState<LocalStoryProgress | null>(() => loadLocalStoryProgress());
+  const progress = useMemo(
+    () => progressForSelectedChild(loadLocalStoryProgress(), children.map((child) => child.id), selectedChild?.id),
+    [children, selectedChild?.id],
+  );
   const catalogLoading = stories === null;
   const completionsDone = completionsResponseKey === completionsRequestKey;
   const activityLoading = !completionsDone || !reportsDone;
@@ -141,6 +145,8 @@ export function ParentHomePage() {
 
   const displayName = selectedChild?.name ?? state.user.displayName;
   const follow = (decision: StartDecision, storyId: string, resume: boolean) => {
+    // 탭 핸들러 안에서 동기로 - iOS는 사용자 탭 뒤에 준비된 오디오만 이후 낭독 재생을 허용한다.
+    primeResponseAudio();
     if (decision.kind === 'navigate') navigate(decision.path);
     else setPicker({ storyId, resume });
   };
@@ -177,7 +183,7 @@ export function ParentHomePage() {
             ctaLabel={heroCtaLabel}
             onPress={() =>
               follow(
-                startStoryFromHome({ story: hero, auth: state, children, selectedChildId: selectedChild?.id ?? null }),
+                startStoryFromHome({ story: hero, auth: state, children, selectedChildId: selectedChild?.id ?? null, progress }),
                 hero.storyId,
                 false,
               )
@@ -194,7 +200,7 @@ export function ParentHomePage() {
           <View style={styles.section}>
             <HomeSection
               title="이어서 읽기"
-              subtitle={`${progress.childName || displayName}님이 ${relativeDayLabel(progress.savedAt)} 읽던 이야기예요.`}
+              subtitle={`${withParticle(selectedChild?.name || progress.childName || displayName, '이/가')} ${relativeDayLabel(progress.savedAt)} 읽던 이야기예요.`}
             >
               <ContinueReadingCard
                 progress={progress}
@@ -260,7 +266,9 @@ export function ParentHomePage() {
         onSelected={(child) => {
           if (!picker) return;
           setPicker(null);
-          navigate(storyPlayPath(picker.storyId, { childId: child.id, resume: picker.resume, from: picker.resume ? undefined : 'home' }));
+          // 고른 아이가 진행을 남긴 아이일 때만 이어 읽고, 아니면 처음부터 시작한다(이어 읽기 후보가 없으면 플레이어가 멈춘다).
+          const ownsProgress = picker.resume && progress?.storyId === picker.storyId && progress.childId === child.id;
+          navigate(storyPlayPath(picker.storyId, { childId: child.id, resume: ownsProgress, from: ownsProgress ? undefined : 'home' }));
         }}
       />
     </AppNavShell>
@@ -354,7 +362,7 @@ function ContinueReadingCard({
 }
 
 type RecentActivityEntry =
-  | { id: string; kind: 'completion'; label: string; meta: string; iso: string }
+  | { id: string; kind: 'completion'; label: string; meta: string; iso: string; exited?: boolean }
   | { id: string; kind: 'tutor-report'; label: string; meta: string; iso: string };
 
 function RecentActivityRow({
@@ -378,6 +386,7 @@ function RecentActivityRow({
         <Text style={styles.recentLabel} numberOfLines={1}>{entry.label}</Text>
         <Text style={styles.recentMeta} numberOfLines={1}>{entry.meta}</Text>
       </View>
+      {entry.kind === 'completion' && entry.exited ? <Pill label={EXITED_BADGE_LABEL} tone="onLight" /> : null}
       <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
     </Pressable>
   );
@@ -435,6 +444,7 @@ function mergeRecentActivity(
       label: story?.title ?? completion.storyId,
       meta: `${formatDate(completion.completedAt)} · ${formatReportDuration(completion.durationSeconds)}`,
       iso: completion.completedAt,
+      exited: isExitedSession(completion),
     };
   });
   const tutorEntries: RecentActivityEntry[] = tutorReports.map((report) => ({

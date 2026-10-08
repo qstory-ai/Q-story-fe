@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
+import { migrateLegacyProgress } from '@/entities/analytics';
 import { useAuth } from '@/entities/auth';
 import {
   listChildren,
@@ -87,6 +88,15 @@ export function ChildrenProvider({ children: node }: { children: ReactNode }) {
   const isParent = state.status === 'authenticated' && state.user.role === 'PARENT';
   const token = state.status === 'authenticated' ? state.token : null;
   const parentUserId = state.status === 'authenticated' ? state.user.id : null;
+  // 로그아웃(로그인 → 없음)하면 선택해 둔 아이를 지운다 - 같은 기기의 다음 사용자에게 이어지지 않게.
+  const [lastUserId, setLastUserId] = useState<string | null>(parentUserId);
+  if (lastUserId !== parentUserId) {
+    setLastUserId(parentUserId);
+    if (parentUserId === null && lastUserId !== null) {
+      setSelectedId(null);
+      writeStoredSelectedId(null);
+    }
+  }
   const legacyChildName = state.status === 'authenticated' ? state.user.childName : null;
 
   // 부모가 아니거나 로그인 전이면 이 컨텍스트는 아무 것도 로드하지 않는다 - 그 상태에서
@@ -131,6 +141,8 @@ export function ChildrenProvider({ children: node }: { children: ReactNode }) {
     performLoad(token, parentUserId, legacyChildName ?? null)
       .then((next) => {
         if (cancelled) return;
+        // 예전 공용 키의 이어 읽기 기록은 이 계정의 아이 것일 때만 계정 키로 옮기고, 아니면 버린다(children 갱신 전에 처리).
+        migrateLegacyProgress(parentUserId, next.map((child) => child.id));
         setChildren(next);
         setLoad({ status: 'ready' });
       })

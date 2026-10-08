@@ -19,13 +19,17 @@ type Props = {
   onClose: () => void;
   /** 지정하면 편집 모드(이 아이 값으로 초기화, 저장 시 editChild), 없으면 등록 모드. */
   editing?: Child | null;
+  /** 등록 모드에서 아이가 만들어진 직후 호출된다(편집에서는 호출되지 않음). */
+  onCreated?: (child: Child) => void;
+  /** 저장 버튼을 누른 순간(사용자 탭 안) 동기 호출 - iOS 오디오 프라이밍용. */
+  onSubmitTap?: () => void;
 };
 
 /**
  * 아이 프로필 등록/편집 시트 - 이름 · 출생연도(나이는 계산) · 아바타.
  * 부모 계정 소유임은 ChildrenProvider가 보장하므로 여기선 역할을 다시 확인하지 않는다.
  */
-export function AddChildModal({ visible, onClose, editing }: Props) {
+export function AddChildModal({ visible, onClose, editing, onCreated, onSubmitTap }: Props) {
   const isEdit = Boolean(editing);
   return (
     <Modal
@@ -35,13 +39,23 @@ export function AddChildModal({ visible, onClose, editing }: Props) {
       title={isEdit ? '아이 프로필' : '새 아이 프로필'}
     >
       {/* editing이 바뀔 때마다 폼을 remount해 상태(name/ageBand/avatarKey)와 저장 에러도 함께 초기화한다. */}
-      <ChildFormBody key={editing?.id ?? 'new'} editing={editing ?? null} onClose={onClose} />
+      <ChildFormBody key={editing?.id ?? 'new'} editing={editing ?? null} onClose={onClose} onCreated={onCreated} onSubmitTap={onSubmitTap} />
     </Modal>
   );
 }
 
 /** 폼 상태와 저장/취소 버튼을 함께 가져서, remount 시 저장 상태까지 같이 초기화된다. */
-function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: () => void }) {
+function ChildFormBody({
+  editing,
+  onClose,
+  onCreated,
+  onSubmitTap,
+}: {
+  editing: Child | null;
+  onClose: () => void;
+  onCreated?: (child: Child) => void;
+  onSubmitTap?: () => void;
+}) {
   const { addChild, editChild } = useChildren();
   const isEdit = editing !== null;
 
@@ -58,6 +72,7 @@ function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: (
 
   async function handleSubmit() {
     if (!canSubmit) return;
+    onSubmitTap?.();
     setSubmitting(true);
     setError(null);
     try {
@@ -65,8 +80,11 @@ function ChildFormBody({ editing, onClose }: { editing: Child | null; onClose: (
         await editChild(editing.id, { name: name.trim(), birthYear, ageBand: ageBandFromBirthYear(birthYear), avatarKey });
       } else {
         const ageBand = ageBandFromBirthYear(birthYear);
-        await addChild({ name: name.trim(), birthYear, ageBand, avatarKey });
+        const created = await addChild({ name: name.trim(), birthYear, ageBand, avatarKey });
         void trackBetaEvent('child_registered', { age_years: ageYearsFromBirthYear(birthYear), age_band: ageBand });
+        onClose();
+        onCreated?.(created);
+        return;
       }
       onClose();
     } catch (submitError: unknown) {

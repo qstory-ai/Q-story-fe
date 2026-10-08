@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { setBetaEventAuthToken } from '@/entities/analytics';
+import { clearLocalStoryProgress, setBetaEventAuthToken, setLocalProgressOwner } from '@/entities/analytics';
 import { setRequestAuthToken } from '@/shared/api';
 
 import { fetchCurrentUser, type UserSummary } from '../api/auth-api';
@@ -26,13 +26,18 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 async function resolveInitialAuthState(): Promise<AuthState> {
   const token = getStoredToken();
-  if (!token) return { status: 'anonymous' };
+  if (!token) {
+    setLocalProgressOwner(null);
+    return { status: 'anonymous' };
+  }
   try {
     const user = await fetchCurrentUser(token);
+    setLocalProgressOwner(user.id);
     return { status: 'authenticated', token, user };
   } catch {
     // 토큰이 만료/무효화된 경우 - 재로그인하도록 익명 상태로 되돌린다 (이번 phase엔 리프레시 토큰 없음).
     clearStoredToken();
+    setLocalProgressOwner(null);
     return { status: 'anonymous' };
   }
 }
@@ -52,10 +57,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const setSession = useCallback((token: string, user: UserSummary) => {
     storeToken(token);
+    setLocalProgressOwner(user.id);
     setState({ status: 'authenticated', token, user });
   }, []);
 
   const logout = useCallback(() => {
+    // 같은 기기의 다음 사용자에게 이어 읽기 기록이 보이지 않게 이 계정의 진행을 지운다(선택 아이는 ChildrenProvider가 지운다).
+    clearLocalStoryProgress();
+    setLocalProgressOwner(null);
     clearStoredToken();
     setState({ status: 'anonymous' });
   }, []);

@@ -8,7 +8,7 @@ import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
 import { storyDestination } from '@/features/story-library';
 import { useBookmarks } from '@/entities/bookmark';
-import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
+import { completedOnly, listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
 
 type Tab = 'all' | 'saved' | 'recent';
 type CatalogLoad = { status: 'loading' } | { status: 'ready'; stories: StoryCatalogEntry[] } | { status: 'error'; message: string };
@@ -98,7 +98,7 @@ export function TutorLibraryPage() {
     // 완료 기록을 최신순으로 정렬해 dedupe하되 첫 등장 순서를 유지 - "가장 최근에 본" 순서.
     const seen = new Set<string>();
     const ordered: string[] = [];
-    for (const completion of [...completions.completions].sort((a, b) => (b.completedAt > a.completedAt ? 1 : -1))) {
+    for (const completion of completedOnly(completions.completions).sort((a, b) => (b.completedAt > a.completedAt ? 1 : -1))) {
       if (seen.has(completion.storyId)) continue;
       seen.add(completion.storyId);
       ordered.push(completion.storyId);

@@ -1,7 +1,9 @@
 import { Linking } from 'react-native';
 
-/** 문의 메일 주소 - 소개 화면 문의 버튼과 마이페이지 고객지원·설정이 함께 쓴다. */
-export const SUPPORT_EMAIL = 'qstoryai@gmail.com';
+import { SUPPORT_EMAIL } from '@/shared/config';
+
+/** 문의 메일 주소는 shared/config의 SUPPORT_EMAIL 하나로 둔다 - 소개 화면·마이페이지 화면이 이 경로로도 쓴다. */
+export { SUPPORT_EMAIL };
 
 export function supportMailHref(subject: string): string {
   return `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}`;

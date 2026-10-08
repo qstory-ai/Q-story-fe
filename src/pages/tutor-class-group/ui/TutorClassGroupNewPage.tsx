@@ -12,7 +12,7 @@ import { listMyOrganizations, type TutorOrganizationLink } from '@/entities/orga
 const NO_ORGANIZATION = 'none';
 
 /**
- * 반 만들기 - 학생을 미리 등록하지 않아도 된다. 반을 만들면 반 초대 링크가 생기고, 부모님이 링크로 들어와
+ * 반 만들기 - 학생을 미리 등록하지 않아도 된다. 반을 만들면 반 초대 링크가 생기고, 보호자가 링크로 들어와
  * 아이 프로필을 고르면 명단에 자동으로 올라간다. 소속 기관이 있으면 그 기관의 반으로 만들 수 있다.
  */
 export function TutorClassGroupNewPage() {
@@ -74,7 +74,7 @@ export function TutorClassGroupNewPage() {
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.title} accessibilityRole="header">새 반 만들기</Text>
         <Text style={styles.body}>
-          학생을 미리 등록하지 않아도 돼요. 반을 만들면 초대 링크가 생기고, 부모님이 링크로 들어와 아이를 고르면 명단에 자동으로 올라가요.
+          학생을 미리 등록하지 않아도 돼요. 반을 만들면 초대 링크가 생기고, 보호자가 링크로 들어와 아이를 고르면 명단에 자동으로 올라가요.
         </Text>
         <View style={styles.card}>
           <TextField label="반 이름" value={name} onChangeText={setName} placeholder="예: 햇님반" maxLength={60} />

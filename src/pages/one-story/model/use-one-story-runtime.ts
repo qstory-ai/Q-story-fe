@@ -411,10 +411,14 @@ export function useOneStoryRuntime(
   }, [runtimeState, storyManifest.scenes, getTurnRecorder]);
 
   useEffect(() => {
-    if (runtimeState.status !== 'idle') {
+    if (runtimeState.status === 'complete' && authState.status === 'authenticated') {
+      // 로그인 사용자는 완주 기록이 서버에 저장되므로 끝까지 읽은 순간 이어 읽기 기록을 지운다(나가기 여부와 무관).
+      // 비로그인 데모는 가입 뒤 동기화에 쓰이도록 완료 상태로 남긴다.
+      clearLocalStoryProgress();
+    } else if (runtimeState.status !== 'idle') {
       persistCurrentProgress();
     }
-  }, [persistCurrentProgress, runtimeState]);
+  }, [authState.status, persistCurrentProgress, runtimeState]);
 
   const parentToken =
     authState.status === 'authenticated' && authState.user.role === 'PARENT'
@@ -2085,6 +2089,7 @@ export function useOneStoryRuntime(
   ]);
 
   const restartStory = useCallback(async () => {
+    primeResponseAudio();
     processingAbortRef.current?.abort();
     await stopNarration();
     recorder.resetRecording();
@@ -2216,7 +2221,9 @@ export function useOneStoryRuntime(
   const dismissResumeAndRestart = useCallback(() => {
     clearLocalStoryProgress();
     setResumeCandidate(null);
-  }, []);
+    // 시작 버튼으로 들어온 경우엔 "처음부터"를 누른 그 탭에서 바로 시작한다(오디오 프라이밍도 이 탭 안).
+    if (entry === 'start') startStory();
+  }, [entry, startStory]);
 
   const openHomeMenu = useCallback(async () => {
     trackPlaybackControl('home_menu');

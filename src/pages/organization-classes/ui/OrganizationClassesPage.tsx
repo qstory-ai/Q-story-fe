@@ -7,6 +7,7 @@ import {
   createClass,
   dashboardNavItems,
   listClasses,
+  ORGANIZATION_PATHS,
   useDirectorSession,
   type ClassResponse,
 } from '@/entities/auth';
@@ -78,19 +79,21 @@ export function OrganizationClassesPage() {
     setFormError(null);
     setSubmitting(true);
     try {
-      await createClass(token, organizationId, {
+      const created = await createClass(token, organizationId, {
         name: name.trim(),
         homeroomTutorId: homeroomTutorId || undefined,
       });
       setName('');
       setHomeroomTutorId(NO_HOMEROOM);
       setReloadKey((n) => n + 1);
+      // 만든 반의 초대 링크·담임 배정을 바로 볼 수 있게 반 상세로 보낸다.
+      navigate(ORGANIZATION_PATHS.classDetail(created.id));
     } catch (failure) {
       setFormError(messageForError(failure, '반을 만들지 못했어요. 반 이름을 확인해 주세요.'));
     } finally {
       setSubmitting(false);
     }
-  }, [token, organizationId, name, homeroomTutorId]);
+  }, [token, organizationId, name, homeroomTutorId, navigate]);
 
   const tutorNameById = new Map(tutors.map((link) => [link.tutorId, link.tutorDisplayName]));
 
@@ -140,7 +143,7 @@ export function OrganizationClassesPage() {
                 key={classGroup.id}
                 accessibilityRole="link"
                 accessibilityLabel={`${classGroup.name} 반 상세 열기`}
-                onPress={() => navigate(`/organization/classes/${classGroup.id}`)}
+                onPress={() => navigate(ORGANIZATION_PATHS.classDetail(classGroup.id))}
                 style={({ pressed }) => [styles.classRow, pressed && styles.classRowPressed]}
               >
                 <View style={styles.classBody}>

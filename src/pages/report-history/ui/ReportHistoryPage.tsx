@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { AppNavShell, EmptyState, ErrorState, HexagonStatChart, LoadingState, storybookTheme } from '@/shared/ui';
+import { AppNavShell, EmptyState, ErrorState, HexagonStatChart, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, libraryPathFor, listClassMemberships, useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { ChildSelector } from '@/features/child-selector';
@@ -18,6 +18,9 @@ import {
   type ReportCopyByStoryId,
 } from '@/entities/analytics';
 import {
+  completedOnly,
+  EXITED_BADGE_LABEL,
+  isExitedSession,
   listRecentStoryCompletions,
   listStoryCompletions,
   type StoryCompletionDetail,
@@ -122,7 +125,7 @@ export function ReportHistoryPage() {
       listStories(),
       // 종합/트렌드 카드는 부가 기능이므로, 이 두 호출이 실패해도(예: 구버전 백엔드) 목록 자체는
       // 계속 동작해야 한다 - 실패를 빈 배열로 흡수해 각각 조용히 null/empty가 되게 한다.
-      listRecentStoryCompletions(token, COMPREHENSIVE_LIMIT, filters).catch(
+      listRecentStoryCompletions(token, COMPREHENSIVE_LIMIT, filters).then(completedOnly).catch(
         () => [] as StoryCompletionDetail[],
       ),
       // 선생님 수업 리포트는 개별 연결의 부가 데이터다. 구버전 서버에 아직 없거나 일시적으로
@@ -288,6 +291,11 @@ function ByStoryView({
       <Text style={styles.reportCardMeta}>
         {formatCompletedAt(completion.completedAt)} · {formatReportDuration(completion.durationSeconds)}
       </Text>
+      {isExitedSession(completion) ? (
+        <View style={styles.exitedBadge}>
+          <Pill label={EXITED_BADGE_LABEL} tone="onLight" />
+        </View>
+      ) : null}
     </Pressable>
   );
   return (
@@ -295,6 +303,11 @@ function ByStoryView({
       <Text style={styles.groupHeading} accessibilityRole="header">
         가장 최근 리포트 · {formatCompletedAt(latest.completedAt)}
       </Text>
+      {isExitedSession(latest) ? (
+        <View style={styles.exitedBadge}>
+          <Pill label={EXITED_BADGE_LABEL} tone="onLight" />
+        </View>
+      ) : null}
       <CompletionReport key={latest.id} token={token} completionId={latest.id} isParent />
 
       {rest.length > 0 ? (
@@ -715,6 +728,10 @@ const styles = StyleSheet.create({
   },
   reportCardPressed: { opacity: 0.9 },
   hexRow: { alignItems: 'center', marginTop: 4 },
+  exitedBadge: {
+    alignSelf: 'flex-start',
+    marginTop: 6,
+  },
   reportCardTitle: {
     fontSize: storybookTheme.type.md,
     lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,

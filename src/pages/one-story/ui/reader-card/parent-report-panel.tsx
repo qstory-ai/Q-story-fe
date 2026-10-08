@@ -17,7 +17,7 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
     parentReport,
     openCompletionSurvey,
     finishExperience,
-    requestRestart,
+    restartStory,
     storyPackage,
     liveTurns,
     completedRecordId,
@@ -104,20 +104,18 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
           <Pressable
             accessibilityRole="button"
             style={styles.reportPrimaryAction}
-            onPress={openCompletionSurvey}
+            onPress={finishExperience}
           >
-            <Text style={styles.reportPrimaryActionText}>
-              1분 체험 후기 남기기 →
-            </Text>
+            <Text style={styles.reportPrimaryActionText}>홈으로</Text>
           </Pressable>
           <View style={styles.reportSecondaryActionRow}>
             <Pressable
               accessibilityRole="button"
               style={styles.reportSecondaryAction}
-              onPress={finishExperience}
+              onPress={openCompletionSurvey}
             >
               <Text style={styles.reportSecondaryActionText}>
-                홈으로 돌아가기
+                1분 후기 남기기
               </Text>
             </Pressable>
             <Pressable
@@ -125,7 +123,7 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
               style={styles.reportSecondaryAction}
               onPress={() => {
                 trackReportAction('reread_click');
-                requestRestart();
+                void restartStory();
               }}
             >
               <Text style={styles.reportSecondaryActionText}>

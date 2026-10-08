@@ -31,6 +31,8 @@ type Props = {
   onCreated?: (lesson: Lesson) => void;
   /** 편집 저장 성공 시 호출 - 상세 페이지가 로컬 상태를 갱신할 수 있게. */
   onSaved?: (lesson: Lesson) => void;
+  /** 새 수업을 특정 반에서 만들 때 그 반을 미리 고른다(반 상세). 편집 모드에서는 쓰지 않는다. */
+  initialClass?: { id: string; name: string } | null;
 };
 
 type RefsLoad =
@@ -45,14 +47,14 @@ type RefsLoad =
  * 된다. 수업 이름은 비워 두면 "{반 이름} 수업", 요일은 첫 수업의 요일, 참여 학생은 반 학생 전원이다. 여러 요일·
  * 종료일·수업 목표는 "자세히"를 펼쳐서 정한다(기능은 그대로).
  */
-export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved }: Props) {
+export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved, initialClass }: Props) {
   const navigate = useNavigate();
   const { state } = useAuth();
   const token = state.status === 'authenticated' ? state.token : null;
   const [refs, setRefs] = useState<RefsLoad>({ status: 'loading' });
   // 초기값은 editing에서 lazy-init - 편집 대상이 바뀌면 부모가 key로 remount시킨다.
   const [name, setName] = useState(() => editing?.name ?? '');
-  const [className, setClassName] = useState('');
+  const [className, setClassName] = useState(() => (editing ? '' : (initialClass?.name ?? '')));
   const [goal, setGoal] = useState(() => editing?.goal ?? '');
   // 편집: 그 회차의 일시(비우면 일정 미정). 새 수업: 첫 수업 일시(기본 오늘 15:00).
   const [dateTimeInput, setDateTimeInput] = useState(() =>
@@ -66,7 +68,7 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved 
   );
   // 반을 고르면 그 반의 학생이 참여 학생으로 자동 선택된다(BE도 studentIds가 비어 오면 반 학생으로
   // 채우지만 화면에서 바로 보이게). 결석한 아이는 참여 학생 칩에서 빼면 된다.
-  const [classGroupId, setClassGroupId] = useState<string | null>(() => editing?.classGroupId ?? null);
+  const [classGroupId, setClassGroupId] = useState<string | null>(() => editing?.classGroupId ?? initialClass?.id ?? null);
   // 학생 목록이 반보다 늦게 오면(반이 하나라 자동으로 골라진 경우) 도착했을 때 반 학생을 채운다.
   const [studentsSeededFor, setStudentsSeededFor] = useState<string | null>(() => editing?.classGroupId ?? null);
   const needsClass = !classGroupId;

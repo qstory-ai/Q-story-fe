@@ -147,6 +147,7 @@ export function OnboardingFlow({
           <SignUpStep
             role={role}
             initialClassCode={initialClassCode}
+            showStepCount={initialStep !== 'sign-up'}
             onAuthed={onSignedUp}
           />
         )}
@@ -192,10 +193,13 @@ function RoleStep({ onSelect, onGoSignIn }: { onSelect: (role: OnboardingRole) =
 function SignUpStep({
   role,
   initialClassCode,
+  showStepCount,
   onAuthed,
 }: {
   role: OnboardingRole;
   initialClassCode?: string;
+  /** 역할 선택 단계를 거쳐 왔을 때만 "2 / 2"를 보인다. */
+  showStepCount?: boolean;
   onAuthed: OnAuthed;
 }) {
   // 반 코드는 반 초대 링크로 들어왔을 때만 기본으로 켠다 - 대부분의 보호자는 반 없이 가입해, 기본으로 켜
@@ -206,7 +210,7 @@ function SignUpStep({
   const [loginId, setLoginId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -228,7 +232,6 @@ function SignUpStep({
   // 아이 이름·출생연도를 여기서 따로 적지 않는다.
   const useJoinFlow = role === 'PARENT' && hasClass;
   const showOrgNameField = role === 'DIRECTOR';
-  const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword;
   // 입력을 시작한 뒤에만 인라인으로 지적한다 - 빈 필드에 처음부터 빨간 글씨를 띄우진 않는다.
   const emailInvalid = email.trim().length > 0 && !EMAIL_PATTERN.test(email.trim());
   const passwordTooShort = password.length > 0 && !isPasswordLongEnough(password);
@@ -238,17 +241,12 @@ function SignUpStep({
     Boolean(email.trim()) &&
     !emailInvalid &&
     isPasswordLongEnough(password) &&
-    password === confirmPassword &&
     Boolean(displayName.trim()) &&
     termsConsentIsValid(terms) &&
     (useJoinFlow ? classCode.trim().length > 0 : true) &&
     (showOrgNameField ? orgName.trim().length > 0 : true);
 
   const onSubmit = useCallback(async () => {
-    if (password !== confirmPassword) {
-      setError('비밀번호가 서로 달라요.');
-      return;
-    }
     setError(null);
     setSubmitting(true);
     try {
@@ -312,7 +310,6 @@ function SignUpStep({
     loginId,
     email,
     password,
-    confirmPassword,
     displayName,
     terms,
     onAuthed,
@@ -320,7 +317,7 @@ function SignUpStep({
 
   return (
     <View style={styles.form}>
-      <Text style={styles.eyebrow}>회원가입 · 2 / 2</Text>
+      <Text style={styles.eyebrow}>{showStepCount ? '회원가입 · 2 / 2' : '회원가입'}</Text>
       <Text style={styles.carouselTitle}>계정을 만들어볼까요?</Text>
       <Text style={[styles.welcomeLead, styles.formLead]}>
         {role === 'PARENT' ? '보호자' : role === 'DIRECTOR' ? '기관' : '선생님'} 홈을 준비할게요.
@@ -377,19 +374,12 @@ function SignUpStep({
         label="비밀번호"
         value={password}
         onChangeText={setPassword}
-        secureTextEntry
+        secureTextEntry={!showPassword}
         autoComplete="new-password"
         description={PASSWORD_RULE_HINT}
         errorText={passwordTooShort ? PASSWORD_TOO_SHORT_MESSAGE : undefined}
       />
-      <TextField
-        label="비밀번호 확인"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-        autoComplete="new-password"
-        errorText={passwordMismatch ? '비밀번호가 서로 달라요.' : undefined}
-      />
+      <Checkbox checked={showPassword} onChange={setShowPassword} label="비밀번호 보기" />
       <TextField label="이름" value={displayName} onChangeText={setDisplayName} autoComplete="name" placeholder={DISPLAY_NAME_PLACEHOLDER[role]} />
       <TermsConsent
         value={terms}

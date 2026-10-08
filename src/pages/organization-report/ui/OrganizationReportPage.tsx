@@ -128,7 +128,7 @@ function RecentActivityRow({ activity, title, onOpen }: { activity: Organization
   const body = (
     <View style={styles.rowMain}>
       <Text style={styles.rowTitle}>{title}</Text>
-      <Text style={styles.rowMeta}>{activity.actorDisplayName} · {formatDateTime(activity.completedAt)}</Text>
+      <Text style={styles.rowMeta}>{activity.className ? `${activity.className} · ` : ''}{activity.actorDisplayName} · {formatDateTime(activity.completedAt)}</Text>
     </View>
   );
   if (!openable) return <View style={styles.row}>{body}</View>;

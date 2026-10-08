@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, useDirectorSession } from '@/entities/auth';
+import { ORGANIZATION_PATHS, dashboardNavItems, useDirectorSession } from '@/entities/auth';
 import {
   listOrganizationTutorLessons,
   listOrganizationTutorStudents,
@@ -84,6 +84,9 @@ export function OrganizationTutorDetailPage() {
 
   if (!director) return null;
 
+  // 관리자용 수업 상세 화면은 없다 - 반 수업이면 그 반 상세(이 반의 리포트)로 보낸다.
+  const openClass = (classId: string) => navigate(ORGANIZATION_PATHS.classDetail(classId));
+
   return (
     <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization/tutors')}>
       <View style={styles.content}>
@@ -105,8 +108,9 @@ export function OrganizationTutorDetailPage() {
               {load.students.length === 0 ? (
                 <Text style={styles.body}>아직 등록한 학생이 없어요.</Text>
               ) : (
-                load.students.map((student) => (
-                  <View key={student.id} style={styles.row}>
+                load.students.map((student) => {
+                  const rowContent = (
+                    <>
                     <View style={styles.rowBody}>
                       <Text style={styles.rowTitle}>
                         {student.name} · {student.ageBand}
@@ -119,8 +123,24 @@ export function OrganizationTutorDetailPage() {
                       </Text>
                     </View>
                     <Pill label={STUDENT_STATUS_LABEL[student.status]} tone="onCard" />
-                  </View>
-                ))
+                    </>
+                  );
+                  // 반에 속한 학생만 관리자 학생 상세(/organization/classes/:classId/students/:id)가 있다.
+                  const classId = student.classGroupId;
+                  if (!classId) return <View key={student.id} style={styles.row}>{rowContent}</View>;
+                  return (
+                    <Pressable
+                      key={student.id}
+                      accessibilityRole="link"
+                      accessibilityLabel={`${student.name} 학생 상세 열기`}
+                      onPress={() => navigate(ORGANIZATION_PATHS.student(classId, student.id))}
+                      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+                    >
+                      {rowContent}
+                      <Text style={styles.chevron}>›</Text>
+                    </Pressable>
+                  );
+                })
               )}
             </View>
 
@@ -129,14 +149,14 @@ export function OrganizationTutorDetailPage() {
               {upcomingLessons.length === 0 ? (
                 <Text style={styles.body}>예정된 수업이 없어요.</Text>
               ) : (
-                upcomingLessons.map((lesson) => <LessonRow key={lesson.id} lesson={lesson} />)
+                upcomingLessons.map((lesson) => <LessonRow key={lesson.id} lesson={lesson} onOpenClass={openClass} />)
               )}
             </View>
 
             {completedLessons.length > 0 ? (
               <View style={styles.card}>
                 <Text style={styles.sectionTitle}>완료한 수업</Text>
-                {completedLessons.map((lesson) => <LessonRow key={lesson.id} lesson={lesson} />)}
+                {completedLessons.map((lesson) => <LessonRow key={lesson.id} lesson={lesson} onOpenClass={openClass} />)}
               </View>
             ) : null}
           </>
@@ -146,9 +166,10 @@ export function OrganizationTutorDetailPage() {
   );
 }
 
-function LessonRow({ lesson }: { lesson: Lesson }) {
-  return (
-    <View style={styles.row}>
+function LessonRow({ lesson, onOpenClass }: { lesson: Lesson; onOpenClass: (classId: string) => void }) {
+  const classId = lesson.classGroupId;
+  const content = (
+    <>
       <View style={styles.rowBody}>
         <Text style={styles.rowTitle}>{lesson.name}</Text>
         <Text style={styles.rowMeta}>
@@ -159,7 +180,19 @@ function LessonRow({ lesson }: { lesson: Lesson }) {
         </Text>
       </View>
       <Pill label={LESSON_STATUS_LABEL[lesson.status]} tone="onCard" />
-    </View>
+    </>
+  );
+  if (!classId) return <View style={styles.row}>{content}</View>;
+  return (
+    <Pressable
+      accessibilityRole="link"
+      accessibilityLabel={`${lesson.name} 수업의 반 열기`}
+      onPress={() => onOpenClass(classId)}
+      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+    >
+      {content}
+      <Text style={styles.chevron}>›</Text>
+    </Pressable>
   );
 }
 
@@ -217,6 +250,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: storybookTheme.color.pillBorder,
   },
+  pressed: { opacity: 0.85 },
+  chevron: { fontSize: storybookTheme.type.lg, color: storybookTheme.color.onCardMuted, paddingHorizontal: 4 },
   rowBody: { flex: 1, gap: 2 },
   rowTitle: {
     fontSize: storybookTheme.type.sm,

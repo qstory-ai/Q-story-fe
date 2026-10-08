@@ -36,17 +36,21 @@ export function startStoryFromHome({
   auth,
   children,
   selectedChildId,
+  progress,
 }: {
   story: StoryCatalogEntry;
   auth: AuthState;
   children: readonly Child[];
   selectedChildId: string | null;
+  /** 선택된 아이의 이어 읽기 기록(progressForSelectedChild 결과). 같은 이야기면 처음부터가 아니라 이어서 연다. */
+  progress?: Pick<LocalStoryProgress, 'storyId' | 'childId' | 'childName'> | null;
 }): StartDecision {
   const isParent = auth.status === 'authenticated' && auth.user.role === 'PARENT';
   if (!isParent || unlockStateFor(story, auth) === 'locked') {
     return { kind: 'navigate', path: storyDestination(story, auth) };
   }
   if (children.length === 0) return { kind: 'pick-child' };
+  if (progress && progress.storyId === story.storyId) return resumeStart({ progress, children });
   const childId = children.some((child) => child.id === selectedChildId) ? selectedChildId : children[0].id;
   return { kind: 'navigate', path: storyPlayPath(story.storyId, { childId, from: 'home' }) };
 }
@@ -79,4 +83,26 @@ export function resumeStart({
   return childId
     ? { kind: 'navigate', path: storyPlayPath(progress.storyId, { childId, resume: true }) }
     : { kind: 'pick-child' };
+}
+
+/**
+ * 서재 "읽는 중" 카드 - 상세를 거치지 않고 바로 이어 읽는다. 잠긴 이야기·보호자가 아닌 경우나
+ * 이 카드가 진행 중인 이야기가 아니면 평소 목적지(상세)로 보낸다.
+ */
+export function startFromLibraryCard({
+  story,
+  auth,
+  children,
+  progress,
+}: {
+  story: StoryCatalogEntry;
+  auth: AuthState;
+  children: readonly Child[];
+  progress: Pick<LocalStoryProgress, 'storyId' | 'childId' | 'childName'> | null;
+}): StartDecision {
+  const isParent = auth.status === 'authenticated' && auth.user.role === 'PARENT';
+  if (!isParent || !progress || progress.storyId !== story.storyId || unlockStateFor(story, auth) === 'locked') {
+    return { kind: 'navigate', path: storyDestination(story, auth) };
+  }
+  return resumeStart({ progress, children });
 }

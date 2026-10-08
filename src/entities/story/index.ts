@@ -4,3 +4,4 @@ export * from './model/story-package-types';
 export * from './model/media-source';
 export * from './model/story-unlock';
 export * from './api/story-api';
+export { setStoryAuthToken } from './model/story-auth';

@@ -30,18 +30,16 @@ export function IdlePanel({ runtime }: { runtime: OneStoryRuntime }) {
           ? '선생님과 반 아이들이 한 화면에서 듣고, 말하고, 선택하며 끝까지 함께 읽는 이야기예요.'
           : '부모님과 아이가 한 화면에서 듣고, 말하고, 선택하며 끝까지 함께 읽는 이야기예요.'}
       </Text>
-      {isClassLesson ? (
-        <Text style={styles.nameHint}>반 수업에서는 질문 순간에 아이들을 ‘친구’라고 불러요.</Text>
-      ) : selectedChildName ? (
+      {isClassLesson ? null : selectedChildName ? (
         // 홈에서 이미 아이를 고르고 들어온 경로 - 방금 고른 이름을 여기서 또 타이핑하게 하지
         // 않는다. 이름 확인 문구만 보여주고 바로 시작하기로 넘어간다.
         <Text style={styles.nameKnownText}>
           {selectedChildName}{hasKoreanBatchim(selectedChildName) ? '이' : '가'} 이야기를
-          시작해요{'\n'}세 번의 질문 순간에 이 이름을 불러요.
+          시작해요
         </Text>
       ) : (
         <View style={styles.nameField}>
-          <Text style={styles.nameLabel}>이야기에서 부를 이름 (선택)</Text>
+          <Text style={styles.nameLabel}>아이 이름 (선택)</Text>
           <TextInput
             value={childNameInput}
             onChangeText={(value) =>
@@ -54,10 +52,10 @@ export function IdlePanel({ runtime }: { runtime: OneStoryRuntime }) {
             returnKeyType="done"
             style={styles.nameInput}
             onSubmitEditing={startStory}
-            accessibilityLabel="이야기에서 부를 이름 (선택)"
+            accessibilityLabel="아이 이름 (선택)"
           />
           <Text style={styles.nameHint}>
-            이름은 세 번의 질문 순간에만 불러요. 비워두면 ‘친구’라고 불러요.
+            이어서 읽기에 이 이름으로 표시돼요. 비워 둬도 괜찮아요.
           </Text>
         </View>
       )}

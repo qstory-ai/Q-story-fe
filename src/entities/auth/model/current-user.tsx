@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from 'react';
 
 import { setBetaEventAuthToken } from '@/entities/analytics';
+import { setStoryAuthToken } from '@/entities/story';
 
 import { fetchCurrentUser, type UserSummary } from '../api/auth-api';
 import { clearStoredToken, getStoredToken, storeToken } from './session';
@@ -67,10 +68,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState((prev) => (prev.status === 'authenticated' ? { ...prev, user } : prev));
   }, []);
 
-  // 로그인 상태면 통계 이벤트에 토큰을 실어 그 통계 세션을 계정에 연결한다(Q-40 UT).
+  // 로그인 상태면 통계 이벤트에 토큰을 실어 그 통계 세션을 계정에 연결하고(Q-40 UT),
+  // 이야기 요청에도 실어 이용권이 필요한 이야기를 막지 않게 한다(Q-33).
   const authToken = state.status === 'authenticated' ? state.token : null;
   useEffect(() => {
     setBetaEventAuthToken(authToken);
+    setStoryAuthToken(authToken);
   }, [authToken]);
 
   const value = useMemo(

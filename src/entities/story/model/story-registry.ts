@@ -1,5 +1,7 @@
 import { apiBaseUrl } from '@/shared/config';
 
+import { currentStoryAuthToken } from './story-auth';
+
 import type { AudioSource, ImageSource } from './media-source';
 import { buildStoryRuntimePackage, type StoryRuntimePackage } from './story-package';
 import type { GeneratedStoryContent, ServedStoryAsset, StoryPackageData } from './story-package-types';
@@ -49,6 +51,8 @@ export function describeStoryLoadFailure(error: unknown): StoryLoadFailure {
 type LoadStoryPackageOptions = {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
+  /** 기본값은 현재 로그인 토큰(story-auth). 테스트가 직접 넘긴다. */
+  token?: string | null;
 };
 
 const packageCache = new Map<string, Promise<StoryRuntimePackage>>();
@@ -94,7 +98,7 @@ export function refetchStoryPackage(
 
 async function fetchStoryPackage(
   storyId: string,
-  { baseUrl = apiBaseUrl, fetchImpl = fetch }: LoadStoryPackageOptions,
+  { baseUrl = apiBaseUrl, fetchImpl = fetch, token = currentStoryAuthToken() }: LoadStoryPackageOptions,
 ): Promise<StoryRuntimePackage> {
   if (!baseUrl) {
     throw new StoryLoadError(
@@ -102,7 +106,11 @@ async function fetchStoryPackage(
       'API_URL_NOT_CONFIGURED',
     );
   }
-  const response = await fetchImpl.call(globalThis, `${baseUrl}/v1/stories/${storyId}/content`);
+  const response = await fetchImpl.call(
+    globalThis,
+    `${baseUrl}/v1/stories/${storyId}/content`,
+    token ? { headers: { Authorization: `Bearer ${token}` } } : undefined,
+  );
   if (!response.ok) {
     throw await storyLoadErrorFrom(response);
   }

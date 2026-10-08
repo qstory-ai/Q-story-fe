@@ -12,6 +12,7 @@ import {
   DEFAULT_BETA_STORY_ID,
 } from './story-registry';
 import { buildStoryRuntimePackage } from './story-package';
+import { setStoryAuthToken } from './story-auth';
 import {
   fallbackFamilyId,
   rejoinAnchorId,
@@ -227,4 +228,28 @@ test('runtime repairs a stale server plan that offers a family without its prere
 
   const withPrior = storyPackage.repairRoutePlanForHistory('HG-Q-C', plan, ['A_SPEAK_TO_BIRD']);
   assert.equal(withPrior, plan);
+});
+
+test('loadStoryPackage sends the signed-in token so entitlement-gated stories are not refused (Q-33)', async () => {
+  const authHeaders: (string | null)[] = [];
+  const fetchImpl = (async (_input: RequestInfo | URL, init?: RequestInit) => {
+    authHeaders.push(new Headers(init?.headers).get('Authorization'));
+    return new Response(
+      JSON.stringify({ ok: false, failure: { code: 'STORY_ENTITLEMENT_REQUIRED', safeDetail: '이 이야기는 이용권이 있어야 열려요.', retryable: false } }),
+      { status: 402, headers: { 'content-type': 'application/json' } },
+    );
+  }) as typeof fetch;
+
+  setStoryAuthToken('signed-in-token');
+  try {
+    await assert.rejects(loadStoryPackage('HG-auth-test', { baseUrl: 'https://api.q-story.test', fetchImpl }), (error: unknown) => {
+      const failure = describeStoryLoadFailure(error);
+      assert.equal(failure.message, '이 이야기는 이용권이 있어야 열려요.');
+      assert.equal(failure.retryable, false);
+      return true;
+    });
+  } finally {
+    setStoryAuthToken(null);
+  }
+  assert.deepEqual(authHeaders, ['Bearer signed-in-token']);
 });

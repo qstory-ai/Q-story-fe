@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { OneStoryPage } from '@/pages/one-story';
-import { loadStoryPackage, type StoryRuntimePackage } from '@/entities/story';
+import { describeStoryLoadFailure, loadStoryPackage, type StoryLoadFailure, type StoryRuntimePackage } from '@/entities/story';
 import { homePathForAuth, useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { parsePlaySetting, playEntrySource } from '@/entities/play-session';
@@ -13,7 +13,7 @@ import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/share
 type LoadState =
   | { requestKey: string; status: 'loading' }
   | { requestKey: string; status: 'ready'; storyPackage: StoryRuntimePackage }
-  | { requestKey: string; status: 'error' };
+  | { requestKey: string; status: 'error'; failure: StoryLoadFailure };
 
 /**
  * 범용 story-id 플레이어 라우트("/stories/:storyId/play"). 보호자 홈 히어로·이어서 읽기, 이야기 상세,
@@ -67,8 +67,9 @@ export function StoryPlayerRoute() {
       .then((storyPackage) => {
         if (!cancelled) setState({ requestKey, status: 'ready', storyPackage });
       })
-      .catch(() => {
-        if (!cancelled) setState({ requestKey, status: 'error' });
+      .catch((error: unknown) => {
+        // 이용권 없음(402)·미등록 같은 서버 이유는 그대로 보여 준다 - 모두 "인터넷 연결"로 안내하면 원인이 가려진다.
+        if (!cancelled) setState({ requestKey, status: 'error', failure: describeStoryLoadFailure(error) });
       });
     return () => {
       cancelled = true;
@@ -95,9 +96,9 @@ export function StoryPlayerRoute() {
           {effectiveState.status === 'error' ? '이야기를 불러오지 못했어요' : '이야기를 준비하는 중이에요'}
         </Text>
         <Text style={styles.body}>
-          {effectiveState.status === 'error' ? '인터넷 연결을 확인한 뒤 다시 시도해 주세요.' : '잠시만 기다려 주세요…'}
+          {effectiveState.status === 'error' ? effectiveState.failure.message : '잠시만 기다려 주세요…'}
         </Text>
-        {effectiveState.status === 'error' && <ActionButton variant="primary" label="다시 시도" onPress={retry} />}
+        {effectiveState.status === 'error' && effectiveState.failure.retryable && <ActionButton variant="primary" label="다시 시도" onPress={retry} />}
         {/* 로딩 중에도 항상 접근 가능해야 한다 - 멈춰버린 fetch가 사용자를 이 화면에 가둬서는 안 된다. */}
         <ActionButton variant="secondary" label="처음으로 돌아가기" onPress={() => navigate(homePathForAuth(authState))} />
       </View>

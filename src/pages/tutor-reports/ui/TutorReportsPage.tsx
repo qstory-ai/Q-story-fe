@@ -119,7 +119,7 @@ export function TutorReportsPage() {
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">수업 리포트</Text>
         <Text style={styles.subtitle}>
-          학생 별로 완주한 세션을 확인할 수 있어요. 부모 연결이 완료된 학생은 부모 앱에 자동으로 전달돼요.
+          학생 별로 완주한 세션을 확인할 수 있어요. 보호자 연결이 완료된 학생은 보호자 앱에 자동으로 전달돼요.
         </Text>
 
         {studentsLoad.status === 'loading' && <LoadingState label="학생 목록을 불러오는 중이에요…" />}

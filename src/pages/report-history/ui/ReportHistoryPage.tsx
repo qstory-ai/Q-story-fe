@@ -303,6 +303,11 @@ function ByStoryView({
       <Text style={styles.groupHeading} accessibilityRole="header">
         가장 최근 리포트 · {formatCompletedAt(latest.completedAt)}
       </Text>
+      {isExitedSession(latest) ? (
+        <View style={styles.exitedBadge}>
+          <Pill label={EXITED_BADGE_LABEL} tone="onLight" />
+        </View>
+      ) : null}
       <CompletionReport key={latest.id} token={token} completionId={latest.id} isParent />
 
       {rest.length > 0 ? (

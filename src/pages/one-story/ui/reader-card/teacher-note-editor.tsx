@@ -47,23 +47,23 @@ export function TeacherNoteEditor({
           setInternal(value.slice(0, MAX_NOTE));
           setState('idle');
         }}
-        placeholder="다음 수업에 참고할 메모(부모에게 보이지 않아요)"
+        placeholder="다음 수업에 참고할 메모(보호자에게 보이지 않아요)"
         placeholderTextColor={storybookTheme.color.onCardMuted}
         accessibilityLabel="나만 보는 교사 메모"
         multiline
         maxLength={MAX_NOTE}
         style={note.input}
       />
-      <Text style={note.label}>부모에게 공유</Text>
+      <Text style={note.label}>보호자에게 공유</Text>
       <TextInput
         value={forParents}
         onChangeText={(value) => {
           setForParents(value.slice(0, MAX_NOTE));
           setState('idle');
         }}
-        placeholder="오늘 수업에 대해 부모님께 전할 한마디"
+        placeholder="오늘 수업에 대해 보호자께 전할 한마디"
         placeholderTextColor={storybookTheme.color.onCardMuted}
-        accessibilityLabel="부모에게 공유하는 교사 메모"
+        accessibilityLabel="보호자에게 공유하는 교사 메모"
         multiline
         maxLength={MAX_NOTE}
         style={note.input}

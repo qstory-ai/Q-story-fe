@@ -204,7 +204,7 @@ export function TutorStudentDetailPage() {
                 </Text>
               ) : (
                 <Text style={styles.body}>
-                  아직 보호자 연결이 되지 않았어요. 반 초대 링크로 부모님이 아이를 연결하면 자동으로 연결돼요.
+                  아직 보호자 연결이 되지 않았어요. 반 초대 링크로 보호자가 아이를 연결하면 자동으로 연결돼요.
                 </Text>
               )}
             </View>

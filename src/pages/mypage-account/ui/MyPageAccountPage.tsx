@@ -54,7 +54,6 @@ function AccountScreen({
   const { updateUser } = useAuth();
   // 프로필 - displayName은 모든 역할, 아이 이름은 PARENT만, 프로필 사진은 TUTOR만 편집한다.
   const [displayName, setDisplayName] = useState(user.displayName);
-  const [childName, setChildName] = useState(user.childName ?? '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -78,7 +77,6 @@ function AccountScreen({
     try {
       const updated = await updateProfile(token, {
         displayName,
-        childName: isParent ? childName : undefined,
       });
       updateUser(updated);
       setSaved(true);
@@ -177,14 +175,6 @@ function AccountScreen({
             </View>
           ) : null}
           <TextField label="이름" value={displayName} onChangeText={setDisplayName} />
-          {isParent ? (
-            <TextField
-              label="아이 이름"
-              value={childName}
-              onChangeText={setChildName}
-              placeholder="아이 이름이나 별칭"
-            />
-          ) : null}
           {saved ? <StatusBanner label="저장했어요." /> : null}
           {error ? <StatusBanner variant="warning" label={error} /> : null}
           <ActionButton label="프로필 저장" onPress={handleSave} loading={saving} />

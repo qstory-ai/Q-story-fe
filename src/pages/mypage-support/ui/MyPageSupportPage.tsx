@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+import { SUPPORT_EMAIL } from '@/shared/config';
 import { AppNavShell, Icon, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { FeedbackModal, type FeedbackKind } from '@/features/feedback-modal';
-
-const SUPPORT_EMAIL = 'support@qstory.co.kr';
 
 /**
  * IA "[4] 마이페이지 > 고객지원" 화면. IA에 열거된 두 액션(기능제안 / 오류제보)은 백엔드의

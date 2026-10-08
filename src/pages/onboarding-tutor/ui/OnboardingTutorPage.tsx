@@ -85,7 +85,7 @@ export function OnboardingTutorPage() {
           <ChoiceCard
             selected={choice === 'independent'}
             title="개인으로 활동해요"
-            body="어떤 기관에도 소속되지 않고, 직접 학생과 부모를 관리해요."
+            body="어떤 기관에도 소속되지 않고, 직접 학생과 보호자를 관리해요."
             onPress={() => setChoice('independent')}
           />
           <ChoiceCard

@@ -9,7 +9,7 @@ import { BETA_OPEN_ACCESS_NOTICE, subscriptionStatusLabel } from '@/shared/confi
 import { useChildren } from '@/entities/child';
 
 /**
- * IA [4] 마이페이지 허브. 부모는 4개 그룹 메뉴, 그 외 역할(원장/선생님/스태프)은 간단한 리스트를 본다.
+ * IA [4] 마이페이지 허브. 보호자는 그룹 메뉴, 그 외 역할(원장/선생님/스태프)은 간단한 리스트를 본다.
  * 하위 화면은 별도 라우트(pages/mypage-*)다.
  */
 export function MyPage() {
@@ -154,7 +154,7 @@ function GenericMenu({ user, navigate }: { user: UserSummary; navigate: (path: s
         <MenuRow label="내 정보·계정" hint="이름·아이디 확인·비밀번호 변경" onPress={() => navigate('/mypage/account')} />
         <MenuRow
           label="이용권"
-          hint={user.role === 'PARENT' ? undefined : user.grantsAccess ? BETA_OPEN_ACCESS_NOTICE : '이용권은 관리자에게 문의해 주세요.'}
+          hint={user.grantsAccess ? BETA_OPEN_ACCESS_NOTICE : '이용권은 관리자에게 문의해 주세요.'}
           onPress={() => navigate(subscriptionPathFor(user))}
         />
       </MenuGroup>

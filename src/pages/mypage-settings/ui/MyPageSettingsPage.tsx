@@ -3,6 +3,7 @@ import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, Icon, LoadingState, StatusBanner, SwitchField, storybookTheme } from '@/shared/ui';
+import { SUPPORT_EMAIL } from '@/shared/config';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type UserSummary } from '@/entities/auth';
 import {
@@ -160,7 +161,6 @@ type Section = {
 // docSection이 "곧 공개" pill 대신 클릭 가능한 링크를 붙여 준다.
 const TERMS_URL = '';
 const PRIVACY_URL = '';
-const SUPPORT_EMAIL = 'support@qstory.co.kr';
 
 async function openDoc(url: string) {
   try {

@@ -218,7 +218,7 @@ export function TutorLessonDetailPage() {
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>리포트 {effective.completions.length}건</Text>
               {effective.completions.length === 0 ? (
-                <Text style={styles.helper}>아직 이 수업에서 끝까지 들은 이야기가 없어요. 위 "시작"으로 진행하면 기록이 남고, 연결된 부모님께 리포트가 전달돼요.</Text>
+                <Text style={styles.helper}>아직 이 수업에서 끝까지 들은 이야기가 없어요. 위 "시작"으로 진행하면 기록이 남고, 연결된 보호자께 리포트가 전달돼요.</Text>
               ) : (
                 effective.completions.map((completion) => {
                   const student = effective.lesson.students.find((candidate) => candidate.id === completion.tutorStudentId);

@@ -7,7 +7,7 @@ import { messageForError } from '@/shared/api';
 import { formatStudentAge } from '@/entities/child';
 import { TUTOR_PATHS, dashboardNavItems, reportDetailPath, useAuth } from '@/entities/auth';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
-import type { StoryCompletionSummary } from '@/entities/story-completion';
+import { EXITED_BADGE_LABEL, isExitedSession, type StoryCompletionSummary } from '@/entities/story-completion';
 import {
   deleteTutorStudent,
   getTutorStudent,
@@ -224,6 +224,7 @@ export function TutorStudentDetailPage() {
                       REPORT_DATE_FORMAT.format(new Date(report.completedAt)),
                       formatReportDuration(report.durationSeconds),
                       sessionKindLabel(report.sessionKind),
+                      ...(isExitedSession(report) ? [EXITED_BADGE_LABEL] : []),
                     ].join(' · '),
                   }))}
                   emptyMessage="아직 이 학생과 진행한 수업 리포트가 없어요."

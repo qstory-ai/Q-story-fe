@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { BrandLockup, AppNavShell, Card, EmptyState, Icon, LoadingState, StoryCard, storybookTheme } from '@/shared/ui';
+import { BrandLockup, AppNavShell, Card, EmptyState, Icon, LoadingState, Pill, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { relativeDayLabel, withParticle } from '@/shared/lib';
 import { NotificationBell } from '@/features/notification-center';
@@ -15,7 +15,7 @@ import { ChildPickerModal } from '@/features/child-picker';
 import { AGE_BAND_CATEGORY_HINTS, AGE_BAND_LABELS, useChildren, type AgeBand } from '@/entities/child';
 import { hasKoreanBatchim } from '@/entities/narration';
 import { loadLocalStoryProgress, type LocalStoryProgress } from '@/entities/analytics';
-import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
+import { EXITED_BADGE_LABEL, isExitedSession, listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
 import { listParentTutorReports, tutorReportSource, type TutorReportSummary } from '@/entities/tutor';
 import { formatReportDuration } from '@/pages/one-story';
 
@@ -355,7 +355,7 @@ function ContinueReadingCard({
 }
 
 type RecentActivityEntry =
-  | { id: string; kind: 'completion'; label: string; meta: string; iso: string }
+  | { id: string; kind: 'completion'; label: string; meta: string; iso: string; exited?: boolean }
   | { id: string; kind: 'tutor-report'; label: string; meta: string; iso: string };
 
 function RecentActivityRow({
@@ -379,6 +379,7 @@ function RecentActivityRow({
         <Text style={styles.recentLabel} numberOfLines={1}>{entry.label}</Text>
         <Text style={styles.recentMeta} numberOfLines={1}>{entry.meta}</Text>
       </View>
+      {entry.kind === 'completion' && entry.exited ? <Pill label={EXITED_BADGE_LABEL} tone="onLight" /> : null}
       <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
     </Pressable>
   );
@@ -436,6 +437,7 @@ function mergeRecentActivity(
       label: story?.title ?? completion.storyId,
       meta: `${formatDate(completion.completedAt)} · ${formatReportDuration(completion.durationSeconds)}`,
       iso: completion.completedAt,
+      exited: isExitedSession(completion),
     };
   });
   const tutorEntries: RecentActivityEntry[] = tutorReports.map((report) => ({

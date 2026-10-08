@@ -13,7 +13,7 @@ import {
 import { storyDestination } from '@/features/story-library';
 import { useBookmarks } from '@/entities/bookmark';
 import { useChildren } from '@/entities/child';
-import { listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
+import { completedOnly, listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
 import { loadLocalStoryProgress, type LocalStoryProgress } from '@/entities/analytics';
 
 type Tab = 'all' | 'in-progress' | 'read' | 'saved';
@@ -111,7 +111,7 @@ export function LibraryPage() {
 
   const readStoryIds = useMemo(() => {
     if (completions.status !== 'ready') return new Set<string>();
-    return new Set(completions.completions.map((c) => c.storyId));
+    return new Set(completedOnly(completions.completions).map((c) => c.storyId));
   }, [completions]);
 
   const bookmarkedStoryIds = useMemo(

@@ -12,7 +12,7 @@ import {
   listTutorStudentCompletions,
   type TutorStudent,
 } from '@/entities/tutor';
-import type { StoryCompletionSummary } from '@/entities/story-completion';
+import { EXITED_BADGE_LABEL, isExitedSession, type StoryCompletionSummary } from '@/entities/story-completion';
 
 type StudentsLoad =
   | { status: 'loading' }
@@ -198,6 +198,7 @@ function StudentSection({
                   {formatCompletedAt(completion.completedAt)} · {formatReportDuration(completion.durationSeconds)}
                 </Text>
               </View>
+              {isExitedSession(completion) ? <Pill label={EXITED_BADGE_LABEL} tone="onLight" /> : null}
               <Text style={styles.chevron}>›</Text>
             </Pressable>
           ))}

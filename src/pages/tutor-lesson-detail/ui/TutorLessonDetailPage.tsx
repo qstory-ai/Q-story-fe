@@ -13,7 +13,7 @@ import {
   startLesson,
   type Lesson,
 } from '@/entities/lesson';
-import type { StoryCompletionSummary } from '@/entities/story-completion';
+import { EXITED_BADGE_LABEL, isExitedSession, type StoryCompletionSummary } from '@/entities/story-completion';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { LessonPlaySettingPicker, type PlaySetting } from '@/entities/play-session';
 import { LessonFormModal } from '@/features/lesson-form';
@@ -240,7 +240,7 @@ export function TutorLessonDetailPage() {
                           {story?.title ?? completion.storyId} · {formatDateTime(completion.completedAt)}
                         </Text>
                       </View>
-                      <Pill label="완주" tone="onCard" />
+                      <Pill label={isExitedSession(completion) ? EXITED_BADGE_LABEL : '완주'} tone={isExitedSession(completion) ? 'onLight' : 'onCard'} />
                     </Pressable>
                   );
                 })

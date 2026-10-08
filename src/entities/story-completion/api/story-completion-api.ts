@@ -22,6 +22,8 @@ export type StoryCompletionSummary = {
   sessionKind: StorySessionKind;
   /** 선생님 세션에 참여한 학생 수 - 반 수업이면 반 전체, 개별 수업이면 1, 가정 세션은 0. */
   participantCount: number;
+  /** COMPLETED | EXITED(멈춤). 옛 응답에는 없을 수 있다. */
+  endStatus?: StoryEndStatus | null;
 };
 
 /**

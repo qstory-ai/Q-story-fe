@@ -167,8 +167,9 @@ Capacitor가 생성한 기본 프로젝트에 아래만 추가했다. `npx cap s
 | `capacitor.config.ts` | appId/appName, `server.hostname`(WebView 출처), `androidScheme: https`, 스플래시 설정 (`allowNavigation`은 비워 둠 - 아래 "알려진 제약") |
 | `android/app/src/main/AndroidManifest.xml` | `RECORD_AUDIO`, `MODIFY_AUDIO_SETTINGS` 권한(아이 질문 녹음), 마이크 없는 기기 설치 허용 |
 | `android/app/build.gradle` | `keystore.properties`가 있을 때만 release 서명 |
-| `ios/App/App/Info.plist` | 마이크·카메라·사진 사용 설명(권한 창 문구). 아이패드 4방향 회전은 기본값 그대로 |
-| `ios/App/App/AppDelegate.swift` | 오디오 세션 `playAndRecord` + 스피커 출력 - 무음 스위치에서도 낭독이 들리게 |
+| `ios/App/App/Info.plist` | 마이크·카메라·사진 사용 설명(권한 창 문구), `UIBackgroundModes` `remote-notification`(푸시). 아이패드 4방향 회전은 기본값 그대로 |
+| `ios/App/App/AppDelegate.swift` | 오디오 세션 `playAndRecord` + 스피커 출력 - 무음 스위치에서도 낭독이 들리게. FCM 푸시: `GoogleService-Info.plist`가 있으면 `FirebaseApp.configure()`, APNs 토큰을 Firebase Messaging에 넘겨 받은 FCM 토큰을 JS `registration`으로 올린다 |
+| `ios/App/App.xcodeproj` | Firebase iOS SDK(FirebaseCore·FirebaseMessaging, SPM), `App.entitlements`(`aps-environment` production, Release) / `App-Debug.entitlements`(development), `GoogleService-Info.plist`가 있을 때만 번들에 복사하는 Run Script. plist는 커밋하지 않고 CI가 Firebase에서 받아 온다 |
 
 ## 알려진 제약
 

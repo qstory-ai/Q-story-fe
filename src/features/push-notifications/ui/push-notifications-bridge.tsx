@@ -7,7 +7,7 @@ import { onBeforeLogout, useAuth } from '@/entities/auth';
 import { beginPushSession, endPushSession, isPushSupported, startPush } from '../model/native-push';
 
 /**
- * 안드로이드 앱의 푸시 알림을 로그인 상태와 라우터에 잇는다(라우터 안에 한 번). 아무것도 그리지 않는다.
+ * 태블릿 앱(안드로이드·아이패드)의 푸시 알림을 로그인 상태와 라우터에 잇는다(라우터 안에 한 번). 아무것도 그리지 않는다.
  * 알림을 누르면 data.href(앱 안 경로)로 이동한다.
  */
 export function PushNotificationsBridge() {

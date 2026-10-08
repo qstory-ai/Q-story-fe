@@ -46,6 +46,11 @@ const config: CapacitorConfig = {
       backgroundColor: '#FFF7E8',
       showSpinner: false,
     },
+    PushNotifications: {
+      // iOS는 앱이 켜져 있을 때 온 푸시를 이 옵션대로만 시스템 배너로 띄운다. 비워 두면 안드로이드와 같게
+      // 배너 없이 pushNotificationReceived만 와서 알림 벨을 새로 고친다(native-push.ts). 안드로이드는 무시한다.
+      presentationOptions: [],
+    },
   },
 };
 

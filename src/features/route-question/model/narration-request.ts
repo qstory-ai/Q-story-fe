@@ -1,4 +1,5 @@
 import { sanitizeNarrationText } from '@/entities/narration';
+import { authorizationHeader } from '@/shared/api';
 
 import type { BufferedResponseAudio, PcmStreamResponseAudio } from './response-audio';
 import { isPrefetchDisabledBody, PrefetchDisabledError } from './choice-prefetch';
@@ -37,7 +38,7 @@ export async function fetchBufferedNarration(
     const response = await fetchImpl(`${baseUrl}/v1/narrations`, {
       method: 'POST',
       signal: controller.signal,
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...authorizationHeader() },
       body: requestBody(fields),
     });
     if (!response.ok) {
@@ -78,6 +79,7 @@ export async function fetchPcmNarrationStream(
       headers: {
         accept: 'audio/pcm',
         'content-type': 'application/json',
+        ...authorizationHeader(),
       },
       body: requestBody(fields),
     });

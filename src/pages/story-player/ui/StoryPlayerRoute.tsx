@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { OneStoryPage } from '@/pages/one-story';
 import { describeStoryLoadFailure, loadStoryPackage, type StoryLoadFailure, type StoryRuntimePackage } from '@/entities/story';
@@ -8,6 +8,7 @@ import { homePathForAuth, useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { parsePlaySetting, playEntrySource } from '@/entities/play-session';
 import { playerChildSync } from '../model/player-child-sync';
+import { entitlementNextStep } from '../model/entitlement-next-step';
 import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/shared/ui';
 
 type LoadState =
@@ -25,6 +26,7 @@ export function StoryPlayerRoute() {
   const { storyId } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
   const { state: authState } = useAuth();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   // 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 붙는다 - 완주 시 그대로 기록된다.
   const tutorStudentId = searchParams.get('tutorStudentId') ?? undefined;
@@ -60,8 +62,9 @@ export function StoryPlayerRoute() {
   const requestKey = `${storyId ?? ''}:${attempt}`;
   const [state, setState] = useState<LoadState>({ requestKey, status: 'loading' });
 
+  const authReady = authState.status !== 'loading';
   useEffect(() => {
-    if (!storyId) return;
+    if (!storyId || !authReady) return;
     let cancelled = false;
     loadStoryPackage(storyId)
       .then((storyPackage) => {
@@ -74,7 +77,7 @@ export function StoryPlayerRoute() {
     return () => {
       cancelled = true;
     };
-  }, [storyId, requestKey]);
+  }, [storyId, requestKey, authReady]);
 
   const retry = useCallback(() => setAttempt((value) => value + 1), []);
 
@@ -98,6 +101,10 @@ export function StoryPlayerRoute() {
         <Text style={styles.body}>
           {effectiveState.status === 'error' ? effectiveState.failure.message : '잠시만 기다려 주세요…'}
         </Text>
+        {effectiveState.status === 'error' && effectiveState.failure.code === 'ENTITLEMENT_REQUIRED' && (() => {
+          const next = entitlementNextStep(authState, location.pathname + location.search);
+          return next ? <ActionButton variant="primary" label={next.label} onPress={() => navigate(next.path)} /> : null;
+        })()}
         {effectiveState.status === 'error' && effectiveState.failure.retryable && <ActionButton variant="primary" label="다시 시도" onPress={retry} />}
         {/* 로딩 중에도 항상 접근 가능해야 한다 - 멈춰버린 fetch가 사용자를 이 화면에 가둬서는 안 된다. */}
         <ActionButton variant="secondary" label="처음으로 돌아가기" onPress={() => navigate(homePathForAuth(authState))} />

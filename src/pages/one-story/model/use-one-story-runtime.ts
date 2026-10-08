@@ -411,10 +411,14 @@ export function useOneStoryRuntime(
   }, [runtimeState, storyManifest.scenes, getTurnRecorder]);
 
   useEffect(() => {
-    if (runtimeState.status !== 'idle') {
+    if (runtimeState.status === 'complete' && authState.status === 'authenticated') {
+      // 로그인 사용자는 완주 기록이 서버에 저장되므로 끝까지 읽은 순간 이어 읽기 기록을 지운다(나가기 여부와 무관).
+      // 비로그인 데모는 가입 뒤 동기화에 쓰이도록 완료 상태로 남긴다.
+      clearLocalStoryProgress();
+    } else if (runtimeState.status !== 'idle') {
       persistCurrentProgress();
     }
-  }, [persistCurrentProgress, runtimeState]);
+  }, [authState.status, persistCurrentProgress, runtimeState]);
 
   const parentToken =
     authState.status === 'authenticated' && authState.user.role === 'PARENT'

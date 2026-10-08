@@ -4,6 +4,22 @@ import type { QuestionOutcome } from './parent-report';
 
 const STORAGE_KEY = 'qstory.hg.progress.v1';
 
+/** 계정별 저장 키. 비로그인(데모)은 예전 키를 그대로 쓴다 - 로그인 때 그 기록을 한 번 읽어 계정으로 옮기거나 동기화한다. */
+export function progressStorageKey(userId?: string | null): string {
+  return userId ? `${STORAGE_KEY}.${userId}` : STORAGE_KEY;
+}
+
+let progressOwnerId: string | null = null;
+
+/** 지금 로그인한 사용자 id(없으면 null). AuthProvider가 인증 상태가 바뀌기 직전에 갱신한다. */
+export function setLocalProgressOwner(userId: string | null) {
+  progressOwnerId = userId;
+}
+
+export function getLocalProgressOwner(): string | null {
+  return progressOwnerId;
+}
+
 type StorageLike = Pick<Storage, 'getItem' | 'removeItem' | 'setItem'>;
 
 export type LocalStoryProgress = {
@@ -93,6 +109,7 @@ export function saveLocalStoryProgress(
     state: StoryRuntimeState;
   },
   storage: StorageLike | null = browserStorage(),
+  key: string = progressStorageKey(progressOwnerId),
 ) {
   const state = resumableRuntimeState(input.state);
   if (!storage || !state) {
@@ -113,7 +130,7 @@ export function saveLocalStoryProgress(
     ...(input.readThroughSceneId ? { readThroughSceneId: input.readThroughSceneId } : {}),
   };
   try {
-    storage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    storage.setItem(key, JSON.stringify(payload));
     return true;
   } catch {
     return false;
@@ -122,12 +139,13 @@ export function saveLocalStoryProgress(
 
 export function loadLocalStoryProgress(
   storage: StorageLike | null = browserStorage(),
+  key: string = progressStorageKey(progressOwnerId),
 ): LocalStoryProgress | null {
   if (!storage) {
     return null;
   }
   try {
-    const raw = storage.getItem(STORAGE_KEY);
+    const raw = storage.getItem(key);
     if (!raw) {
       return null;
     }
@@ -144,27 +162,87 @@ export function loadLocalStoryProgress(
       (value.sessionId !== undefined && typeof value.sessionId !== 'string') ||
       (value.nextTurnSeq !== undefined && typeof value.nextTurnSeq !== 'number')
     ) {
-      storage.removeItem(STORAGE_KEY);
+      storage.removeItem(key);
       return null;
     }
     return value as LocalStoryProgress;
   } catch {
-    storage.removeItem(STORAGE_KEY);
+    storage.removeItem(key);
     return null;
   }
 }
 
 export function clearLocalStoryProgress(
   storage: StorageLike | null = browserStorage(),
+  key: string = progressStorageKey(progressOwnerId),
 ) {
   try {
-    storage?.removeItem(STORAGE_KEY);
+    storage?.removeItem(key);
   } catch {
     // 진행 상황 저장이 스토리 재생을 절대 막아서는 안 된다.
   }
 }
 
 export const localStoryProgressStorageKey = STORAGE_KEY;
+
+/** 비로그인(데모) 키의 기록 - 가입·로그인 직후 계정으로 동기화할 때만 읽는다. */
+export function loadAnonymousLocalStoryProgress(storage: StorageLike | null = browserStorage()) {
+  return loadLocalStoryProgress(storage, progressStorageKey(null));
+}
+
+export function clearAnonymousLocalStoryProgress(storage: StorageLike | null = browserStorage()) {
+  clearLocalStoryProgress(storage, progressStorageKey(null));
+}
+
+export type LegacyProgressDecision = 'move' | 'discard' | 'keep';
+
+/**
+ * 로그인 사용자의 예전(공용 키) 기록을 어떻게 할지. 완주 상태나 기록 없음은 건드리지 않는다(데모 동기화가 읽는다).
+ * 진행 중이면 그 childId가 이 계정의 아이일 때만 계정 키로 옮기고, 아니면(다른 계정의 기록·아이 없음) 버린다.
+ */
+export function decideLegacyProgressMigration(
+  legacy: LocalStoryProgress | null,
+  childIds: readonly string[],
+): LegacyProgressDecision {
+  if (!legacy || legacy.state.status === 'complete') return 'keep';
+  return legacy.childId && childIds.includes(legacy.childId) ? 'move' : 'discard';
+}
+
+/** 예전 키 기록을 판단대로 처리한다. 계정 키에 이미 기록이 있으면 덮어쓰지 않는다. */
+export function migrateLegacyProgress(
+  userId: string,
+  childIds: readonly string[],
+  storage: StorageLike | null = browserStorage(),
+): LegacyProgressDecision {
+  const legacyKey = progressStorageKey(null);
+  const decision = decideLegacyProgressMigration(loadLocalStoryProgress(storage, legacyKey), childIds);
+  if (!storage || decision === 'keep') return decision;
+  try {
+    if (decision === 'move') {
+      const raw = storage.getItem(legacyKey);
+      const userKey = progressStorageKey(userId);
+      if (raw && !storage.getItem(userKey)) storage.setItem(userKey, raw);
+    }
+    storage.removeItem(legacyKey);
+  } catch {
+    // 저장소 오류가 재생을 막아선 안 된다.
+  }
+  return decision;
+}
+
+/**
+ * 홈·서재에 보여 줄 진행: 선택된 아이의 기록만. 내 아이 목록에 없는 아이의 기록이거나, 아이 구분이 없는 기록이거나,
+ * 다른 아이의 기록이면 보이지 않는다.
+ */
+export function progressForSelectedChild(
+  progress: LocalStoryProgress | null,
+  childIds: readonly string[],
+  selectedChildId: string | null | undefined,
+): LocalStoryProgress | null {
+  if (!progress || !progress.childId || !selectedChildId) return null;
+  if (!childIds.includes(progress.childId)) return null;
+  return progress.childId === selectedChildId ? progress : null;
+}
 
 /**
  * 저장된 진행 기록이 지금 연 이야기의 것일 때만 이어듣기 후보로 쓴다 - 저장소에는 한 건만 남는다.

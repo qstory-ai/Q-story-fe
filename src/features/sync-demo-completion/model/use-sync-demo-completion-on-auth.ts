@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useAuth } from '@/entities/auth';
-import { clearLocalStoryProgress, loadLocalStoryProgress } from '@/entities/analytics';
+import { clearAnonymousLocalStoryProgress, loadAnonymousLocalStoryProgress } from '@/entities/analytics';
 import { recordStoryCompletion } from '@/entities/story-completion';
 
 /**
@@ -20,7 +20,7 @@ export function useSyncDemoCompletionOnAuth() {
     if (state.status !== 'authenticated' || syncingRef.current) {
       return;
     }
-    const progress = loadLocalStoryProgress();
+    const progress = loadAnonymousLocalStoryProgress();
     if (!progress || progress.state.status !== 'complete') {
       return;
     }
@@ -40,7 +40,7 @@ export function useSyncDemoCompletionOnAuth() {
       endStatus: 'COMPLETED',
     })
       .then(() => {
-        clearLocalStoryProgress();
+        clearAnonymousLocalStoryProgress();
       })
       .catch(() => {
         // 오늘 보여준 리포트 자체는 이미 완료된 화면이라 실패를 알릴 곳이 없다 -

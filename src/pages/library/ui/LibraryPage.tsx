@@ -14,7 +14,7 @@ import { storyDestination } from '@/features/story-library';
 import { useBookmarks } from '@/entities/bookmark';
 import { useChildren } from '@/entities/child';
 import { completedOnly, listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
-import { loadLocalStoryProgress, type LocalStoryProgress } from '@/entities/analytics';
+import { loadLocalStoryProgress, progressForSelectedChild, type LocalStoryProgress } from '@/entities/analytics';
 
 type Tab = 'all' | 'in-progress' | 'read' | 'saved';
 type CatalogLoad = { status: 'loading' } | { status: 'ready'; stories: StoryCatalogEntry[] } | { status: 'error'; message: string };
@@ -45,11 +45,14 @@ export function LibraryPage() {
   const { width } = useWindowDimensions();
   const columns = width >= 860 ? 3 : width >= 520 ? 2 : 1;
   const bookmarks = useBookmarks();
-  const { selectedChild } = useChildren();
+  const { selectedChild, children: myChildren } = useChildren();
 
   const [catalog, setCatalog] = useState<CatalogLoad>({ status: 'loading' });
   const [completions, setCompletions] = useState<CompletionsLoad>({ status: 'loading' });
-  const [progress] = useState<LocalStoryProgress | null>(() => loadLocalStoryProgress());
+  const progress = useMemo(
+    () => progressForSelectedChild(loadLocalStoryProgress(), myChildren.map((child) => child.id), selectedChild?.id),
+    [myChildren, selectedChild?.id],
+  );
   const [tab, setTab] = useState<Tab>('all');
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<string | null>(null);

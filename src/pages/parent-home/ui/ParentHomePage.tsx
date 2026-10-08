@@ -14,7 +14,7 @@ import { ChildSelector } from '@/features/child-selector';
 import { ChildPickerModal } from '@/features/child-picker';
 import { AGE_BAND_CATEGORY_HINTS, AGE_BAND_LABELS, useChildren, type AgeBand } from '@/entities/child';
 import { hasKoreanBatchim } from '@/entities/narration';
-import { loadLocalStoryProgress, type LocalStoryProgress } from '@/entities/analytics';
+import { loadLocalStoryProgress, progressForSelectedChild, type LocalStoryProgress } from '@/entities/analytics';
 import { EXITED_BADGE_LABEL, isExitedSession, listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
 import { listParentTutorReports, tutorReportSource, type TutorReportSummary } from '@/entities/tutor';
 import { formatReportDuration } from '@/pages/one-story';
@@ -55,7 +55,10 @@ export function ParentHomePage() {
   const completionsRequestKey = selectedChild?.id ?? 'all';
   const [completionsResponseKey, setCompletionsResponseKey] = useState<string | null>(null);
   const [reportsDone, setReportsDone] = useState(false);
-  const [progress] = useState<LocalStoryProgress | null>(() => loadLocalStoryProgress());
+  const progress = useMemo(
+    () => progressForSelectedChild(loadLocalStoryProgress(), children.map((child) => child.id), selectedChild?.id),
+    [children, selectedChild?.id],
+  );
   const catalogLoading = stories === null;
   const completionsDone = completionsResponseKey === completionsRequestKey;
   const activityLoading = !completionsDone || !reportsDone;
@@ -195,7 +198,7 @@ export function ParentHomePage() {
           <View style={styles.section}>
             <HomeSection
               title="이어서 읽기"
-              subtitle={`${progress.childName || displayName}님이 ${relativeDayLabel(progress.savedAt)} 읽던 이야기예요.`}
+              subtitle={`${withParticle(selectedChild?.name || progress.childName || displayName, '이/가')} ${relativeDayLabel(progress.savedAt)} 읽던 이야기예요.`}
             >
               <ContinueReadingCard
                 progress={progress}

@@ -70,6 +70,8 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/payments/orders', true],
   ['POST v1/payments/confirm', true],
   ['GET v1/payments/organization-quote', true],
+  // 마이페이지 결제 내역·영수증.
+  ['GET v1/payments/history', true],
 ]);
 
 // Routes with a path segment (story/org/class/scene/segment id) that can't be listed as a literal above.
@@ -103,6 +105,10 @@ const DYNAMIC_ROUTES = [
   { method: 'GET', pattern: new RegExp(`^v1/classes/by-code/${SHORT_CODE_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/by-code/${SHORT_CODE_SEGMENT}/roster$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/students$`) },
+  // 원장 반 상세의 최근 리포트·학생별 리포트·담임 변경 이력.
+  { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/reports$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/students/${UUID_SEGMENT}/reports$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/homeroom-history$`) },
   { method: 'PUT', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/homeroom$`) },
   { method: 'DELETE', pattern: new RegExp(`^v1/classes/memberships/${UUID_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}$`) },
@@ -150,7 +156,7 @@ const DYNAMIC_ROUTES = [
   },
 ];
 
-function isAllowedRoute(method, upstreamPath) {
+export function isAllowedRoute(method, upstreamPath) {
   if (ALLOWED_ROUTES.has(`${method} ${upstreamPath}`)) return true;
   return DYNAMIC_ROUTES.some((route) => route.method === method && route.pattern.test(upstreamPath));
 }

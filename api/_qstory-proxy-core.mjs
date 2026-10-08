@@ -32,6 +32,7 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/auth/signup/parent', true],
   ['POST v1/auth/signup/tutor', true],
   ['POST v1/auth/login', true],
+  ['POST v1/auth/refresh', true],
   ['POST v1/auth/oauth/google', true],
   ['POST v1/auth/oauth/kakao', true],
   ['GET v1/auth/me', true],

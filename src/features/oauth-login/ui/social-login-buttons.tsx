@@ -25,6 +25,8 @@ type SocialLoginButtonsProps = {
   disabled?: boolean;
   /** disabled일 때 버튼 아래에 보이는 안내 문구. */
   disabledHint?: string;
+  /** 로그인 화면의 "로그인 유지" 체크 값 - 이미 연결된 계정으로 로그인할 때만 서버가 쓴다. 생략하면 로그인 유지. */
+  rememberMe?: boolean;
 };
 
 /**
@@ -36,7 +38,14 @@ type SocialLoginButtonsProps = {
  * 두 provider 모두 아직 설정 안 됐으면(client-id/JS 키 미발급) 아무것도 렌더링하지 않는다 -
  * 눌러도 실패하는 버튼을 보여주는 것보다 조용히 숨기는 편이 낫다.
  */
-export function SocialLoginButtons({ role, onAuthed, consents, disabled, disabledHint }: SocialLoginButtonsProps) {
+export function SocialLoginButtons({
+  role,
+  onAuthed,
+  consents,
+  disabled,
+  disabledHint,
+  rememberMe,
+}: SocialLoginButtonsProps) {
   // react-native-web의 View ref 타입(ReactNativeElement)은 그대로 쓰기 번거롭고, 아래
   // effect에서 곧바로 HTMLElement로 캐스팅해 구글 SDK에 넘길 뿐이라 any로 충분하다.
   const googleContainerRef = useRef<any>(null);
@@ -45,10 +54,12 @@ export function SocialLoginButtons({ role, onAuthed, consents, disabled, disable
   // 구글 버튼은 SDK가 한 번 그려 두고 콜백만 호출하므로, 최신 동의/잠금 상태는 ref로 읽는다.
   const consentsRef = useRef(consents);
   const disabledRef = useRef(disabled);
+  const rememberMeRef = useRef(rememberMe);
   useEffect(() => {
     consentsRef.current = consents;
     disabledRef.current = disabled;
-  }, [consents, disabled]);
+    rememberMeRef.current = rememberMe;
+  }, [consents, disabled, rememberMe]);
 
   const handleFailure = useCallback((failure: unknown) => {
     // OAUTH_ROLE_REQUIRED는 사전 카피(회원가입 유도)로 덮어 쓰고, 나머지는 공통 유틸에 맡긴다.
@@ -74,7 +85,7 @@ export function SocialLoginButtons({ role, onAuthed, consents, disabled, disable
     void renderGoogleButton(node, (idToken) => {
       if (disabledRef.current) return;
       setError(null);
-      oauthLogin('GOOGLE', { token: idToken, role, consents: consentsRef.current })
+      oauthLogin('GOOGLE', { token: idToken, role, consents: consentsRef.current, rememberMe: rememberMeRef.current })
         .then((response) => onAuthed(response.token, response.user, 'google'))
         .catch(handleFailure);
     });
@@ -86,7 +97,12 @@ export function SocialLoginButtons({ role, onAuthed, consents, disabled, disable
     setKakaoSubmitting(true);
     try {
       const accessToken = await requestKakaoAccessToken();
-      const response = await oauthLogin('KAKAO', { token: accessToken, role, consents: consentsRef.current });
+      const response = await oauthLogin('KAKAO', {
+        token: accessToken,
+        role,
+        consents: consentsRef.current,
+        rememberMe: rememberMeRef.current,
+      });
       onAuthed(response.token, response.user, 'kakao');
     } catch (failure) {
       handleFailure(failure);

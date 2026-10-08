@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
   createClass,
   dashboardNavItems,
@@ -12,6 +12,7 @@ import {
   type ClassResponse,
 } from '@/entities/auth';
 import { listOrganizationTutors, type OrganizationTutorLink } from '@/entities/organization-tutor';
+import { createHomeroomInvite } from '@/entities/homeroom-invite';
 import { messageForError } from '@/shared/api';
 
 type LoadState =
@@ -19,11 +20,10 @@ type LoadState =
   | { status: 'ready'; classes: ClassResponse[] }
   | { status: 'error'; message: string };
 
-const NO_HOMEROOM = '';
-
 /**
- * 원장의 "반/학생 관리" 화면 - 반 생성(담임 선생님 선택) + 반 목록. 반 카드를 누르면 반 상세에서
- * 담임 배정과 학생 명단을 본다.
+ * 관리자의 "반/학생 관리" 화면 - 반 생성(반 이름만) + 반 목록. 반을 만들면 담임 초대를 바로 만들어 반 상세로
+ * 보낸다 - 거기서 보호자용 반 초대와 선생님용 담임 초대를 함께 보낸다. 이미 소속된 선생님을 담임으로 정하는 일도
+ * 반 상세에서 한다.
  */
 export function OrganizationClassesPage() {
   const navigate = useNavigate();
@@ -31,7 +31,6 @@ export function OrganizationClassesPage() {
   const director = useDirectorSession(navigate);
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [name, setName] = useState('');
-  const [homeroomTutorId, setHomeroomTutorId] = useState(NO_HOMEROOM);
   const [tutors, setTutors] = useState<OrganizationTutorLink[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -67,7 +66,7 @@ export function OrganizationClassesPage() {
         if (!cancelled) setTutors(links);
       })
       .catch(() => {
-        // 선생님 목록을 못 불러와도 담임 미정으로 반을 만들 수 있다.
+        // 선생님 목록은 반 목록의 담임 이름에만 쓴다 - 못 불러와도 반은 만들 수 있다.
       });
     return () => {
       cancelled = true;
@@ -79,21 +78,19 @@ export function OrganizationClassesPage() {
     setFormError(null);
     setSubmitting(true);
     try {
-      const created = await createClass(token, organizationId, {
-        name: name.trim(),
-        homeroomTutorId: homeroomTutorId || undefined,
-      });
+      const created = await createClass(token, organizationId, { name: name.trim() });
+      // 담임 초대를 바로 만들어 둔다 - 실패해도 반은 만들어졌으니 반 상세의 "담임 초대 만들기"로 다시 만들면 된다.
+      await createHomeroomInvite(token, created.id).catch(() => undefined);
       setName('');
-      setHomeroomTutorId(NO_HOMEROOM);
       setReloadKey((n) => n + 1);
-      // 만든 반의 초대 링크·담임 배정을 바로 볼 수 있게 반 상세로 보낸다.
+      // 만든 반의 반 초대·담임 초대를 바로 볼 수 있게 반 상세로 보낸다.
       navigate(ORGANIZATION_PATHS.classDetail(created.id));
     } catch (failure) {
       setFormError(messageForError(failure, '반을 만들지 못했어요. 반 이름을 확인해 주세요.'));
     } finally {
       setSubmitting(false);
     }
-  }, [token, organizationId, name, homeroomTutorId, navigate]);
+  }, [token, organizationId, name, navigate]);
 
   const tutorNameById = new Map(tutors.map((link) => [link.tutorId, link.tutorDisplayName]));
 
@@ -107,19 +104,9 @@ export function OrganizationClassesPage() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>새 반 만들기</Text>
           <TextField label="반 이름" value={name} onChangeText={setName} />
-          <Text style={styles.fieldLabel}>담임 선생님</Text>
-          <RadioGroup
-            accessibilityLabel="담임 선생님"
-            value={homeroomTutorId}
-            onChange={setHomeroomTutorId}
-            options={[
-              { value: NO_HOMEROOM, label: '담임 미정', description: '나중에 반 상세에서 배정해요. 그때까지 들어온 학생은 담임이 정해지면 그 선생님의 학생이 돼요.' },
-              ...tutors.map((link) => ({ value: link.tutorId, label: link.tutorDisplayName })),
-            ]}
-          />
-          {tutors.length === 0 ? (
-            <Text style={styles.body}>기관에 소속된 선생님이 아직 없어요. 선생님 메뉴에서 초대할 수 있어요.</Text>
-          ) : null}
+          <Text style={styles.body}>
+            반을 만들면 보호자용 반 초대와 선생님용 담임 초대가 함께 생겨요. 담임 선생님이 초대 링크로 가입하면 바로 이 반 담임으로 연결돼요.
+          </Text>
           {formError ? <StatusBanner variant="warning" label={formError} /> : null}
           <ActionButton
             label={submitting ? '만드는 중…' : '반 만들기'}
@@ -149,7 +136,7 @@ export function OrganizationClassesPage() {
                 <View style={styles.classBody}>
                   <Text style={styles.className}>{classGroup.name}</Text>
                   <Text style={styles.classMeta}>
-                    담임 {classGroup.tutorId ? (tutorNameById.get(classGroup.tutorId) ?? '배정됨') : '미정'} · 반 코드 {classGroup.joinCode}
+                    {classGroup.tutorId ? `담임 ${tutorNameById.get(classGroup.tutorId) ?? '배정됨'}` : '담임 초대 대기'} · 반 코드 {classGroup.joinCode}
                   </Text>
                 </View>
                 <Icon name="chevronRight" size={16} color={storybookTheme.color.onCardMuted} />
@@ -188,11 +175,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
-  },
-  fieldLabel: {
-    fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardTitle,
   },

@@ -438,6 +438,8 @@ function SignInStep({
 }) {
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
+  // 끄면 짧은 토큰을 sessionStorage에 둔다 - 탭(네이티브 앱은 앱 프로세스)이 닫히면 로그아웃된다(entities/auth session.ts).
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const canSubmit = !submitting && Boolean(loginId.trim()) && Boolean(password);
@@ -447,14 +449,14 @@ function SignInStep({
     setError(null);
     setSubmitting(true);
     try {
-      const response = await login({ loginId: loginId.trim(), password });
+      const response = await login({ loginId: loginId.trim(), password, rememberMe });
       onAuthed(response.token, response.user);
     } catch (failure) {
       setError(messageForError(failure, '로그인하지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }
-  }, [loginId, password, onAuthed]);
+  }, [loginId, password, rememberMe, onAuthed]);
 
   return (
     <View style={styles.form}>
@@ -483,6 +485,12 @@ function SignInStep({
         returnKeyType="go"
         onSubmitEditing={() => { if (canSubmit) void onSubmit(); }}
       />
+      <Checkbox
+        checked={rememberMe}
+        onChange={setRememberMe}
+        label="로그인 유지"
+        description="공용 기기에서는 체크를 해제해 주세요."
+      />
       <Pressable accessibilityRole="link" hitSlop={4} onPress={() => onGoResetPassword(loginId.trim())} style={styles.signInInlineLink}>
         <Text style={styles.signInInlineLinkText}>비밀번호를 잊으셨나요?</Text>
       </Pressable>
@@ -494,7 +502,7 @@ function SignInStep({
         onPress={onSubmit}
         disabled={!canSubmit}
       />
-      <SocialLoginButtons onAuthed={onAuthed} />
+      <SocialLoginButtons onAuthed={onAuthed} rememberMe={rememberMe} />
       <Pressable accessibilityRole="link" hitSlop={4} onPress={onGoSignUp} style={styles.signInSignUpRow}>
         <Text style={styles.formNote}>아직 계정이 없으신가요? </Text>
         <Text style={styles.signInInlineLinkText}>회원가입</Text>

@@ -119,8 +119,9 @@ export function signupTutor(
   return request('/v1/auth/signup/tutor', { method: 'POST', body: JSON.stringify(input) }, options);
 }
 
+/** rememberMe(기본 true) - false면 짧은 토큰(백엔드 qstory.auth.session-ttl-hours)을 받고 sessionStorage에 둔다(session.ts). */
 export function login(
-  input: { loginId: string; password: string },
+  input: { loginId: string; password: string; rememberMe?: boolean },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/auth/login', { method: 'POST', body: JSON.stringify(input) }, options);
@@ -130,11 +131,12 @@ export function login(
  * 구글/카카오 소셜 로그인·가입 - token은 provider마다 의미가 다르다(구글은 Google Identity
  * Services의 id_token, 카카오는 카카오 JS SDK의 access token - google-identity.ts/kakao-sdk.ts
  * 참고). role은 이 provider 계정으로 처음 가입하는 경우에만 필요하고, 이미 연결된 계정으로
- * 로그인할 때는 백엔드가 무시한다.
+ * 로그인할 때는 백엔드가 무시한다. rememberMe는 이미 연결된 계정으로 로그인할 때만 쓰이고, 처음 가입하면
+ * 다른 회원가입처럼 항상 로그인 유지 토큰이 온다.
  */
 export function oauthLogin(
   provider: 'GOOGLE' | 'KAKAO',
-  input: { token: string; role?: Role; consents?: ConsentPayload },
+  input: { token: string; role?: Role; consents?: ConsentPayload; rememberMe?: boolean },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   const path = provider === 'GOOGLE' ? '/v1/auth/oauth/google' : '/v1/auth/oauth/kakao';
@@ -154,6 +156,11 @@ export function confirmPasswordReset(
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/auth/password-reset/confirm', { method: 'POST', body: JSON.stringify(input) }, options);
+}
+
+/** 지금 토큰과 같은 모드(로그인 유지 여부)의 새 토큰을 받는다 - 만료가 가까울 때 current-user.tsx가 부른다. 만료·탈퇴면 401. */
+export function refreshToken(token: string, options?: RequestOptions): Promise<AuthResponse> {
+  return request('/v1/auth/refresh', { method: 'POST' }, { ...options, token });
 }
 
 export function fetchCurrentUser(token: string, options?: RequestOptions): Promise<UserSummary> {

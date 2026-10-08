@@ -1,6 +1,8 @@
 import UIKit
 import AVFoundation
 import Capacitor
+import FirebaseCore
+import FirebaseMessaging
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -14,7 +16,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothA2DP])
         try? session.setActive(true)
+
+        // FCM 푸시: BE는 FCM 등록 토큰으로만 보낸다. GoogleService-Info.plist는 비밀이라 커밋하지 않고 CI가
+        // 넣어 준다(.github/workflows/native-tablet-builds.yml) - 파일이 없는 빌드(로컬·시뮬레이터)에서는
+        // Firebase를 켜지 않고, 푸시 등록은 APNs 토큰 그대로 올라간다(BE가 쓰지 못할 뿐 앱은 정상 동작).
+        if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
+            FirebaseApp.configure()
+        }
         return true
+    }
+
+    // @capacitor/push-notifications는 iOS에서 APNs 토큰을 그대로 registration으로 올린다. Capacitor 공식 문서
+    // "Using Push Notifications with Firebase on iOS" 방식대로 APNs 토큰을 Firebase Messaging에 넘기고, 받은
+    // FCM 토큰(String)을 같은 알림으로 올려 JS의 registration 이벤트가 FCM 토큰을 받게 한다.
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        guard FirebaseApp.app() != nil else {
+            NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: deviceToken)
+            return
+        }
+        Messaging.messaging().apnsToken = deviceToken
+        Messaging.messaging().token { token, error in
+            if let token = token {
+                NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: token)
+            } else {
+                // FCM 토큰을 못 받으면 APNs 토큰을 올려 봐야 BE가 쓰지 못한다 - registrationError로 알린다.
+                NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications,
+                                                object: error ?? NSError(domain: "kr.ai.qstory.push", code: -1))
+            }
+        }
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

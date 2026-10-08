@@ -13,6 +13,8 @@ export type OrganizationUsageRecentActivity = {
   completedAt: string;
   /** CLASS·TUTOR는 수업 기록이라 관리자가 개별 리포트를 열 수 있다. HOME(가정 기록)은 열 수 없다. 이전 서버는 보내지 않는다. */
   sessionKind?: 'CLASS' | 'TUTOR' | 'HOME';
+  /** 반 수업이면 반 이름. 가정 기록이거나 이전 서버면 없다. */
+  className?: string | null;
 };
 
 export type OrganizationUsage = {

@@ -14,12 +14,24 @@ import {
   listClassHomeroomHistory,
   listClassStudents,
   previewClassByCode,
+  reportDetailPath,
   useAuth,
   type ClassResponse,
   type ClassStudentResponse,
   type HomeroomHistoryEntry,
 } from '@/entities/auth';
 import { listOrganizationTutors, type OrganizationTutorLink } from '@/entities/organization-tutor';
+import { listLessons, pickClassLessons, type Lesson } from '@/entities/lesson';
+import { listStories } from '@/entities/story';
+import {
+  EXITED_BADGE_LABEL,
+  isExitedSession,
+  latestClassReports,
+  listClassReports,
+  summarizeStudentNames,
+  type ClassReportItem,
+} from '@/entities/story-completion';
+import { LessonFormModal } from '@/features/lesson-form';
 import { InviteCodeCard, classInviteLink, classInviteShareMessage } from '@/features/invite-issue';
 
 type Viewer = 'TUTOR' | 'DIRECTOR';
@@ -58,6 +70,8 @@ export function ClassDetailPage() {
   const [pickedTutorId, setPickedTutorId] = useState<string | null>(null);
   const [assigning, setAssigning] = useState(false);
   const [assignError, setAssignError] = useState<string | null>(null);
+  const [lessonFormOpen, setLessonFormOpen] = useState(false);
+  const [lessonsReload, setLessonsReload] = useState(0);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -72,12 +86,10 @@ export function ClassDetailPage() {
     let cancelled = false;
     Promise.all([fetchClass(token, classId), listClassStudents(token, classId)])
       .then(async ([classGroup, students]) => {
-        // 선생님: 반 응답에 기관 이름이 없어 보호자가 보는 미리보기에서 가져온다.
+        // 기관 이름: 반 응답에 없어 보호자가 보는 미리보기에서 가져온다(머리말용, 실패해도 무방).
         // 관리자: 선생님 목록(담임 이름·배정 폼)과 담임 이력 - 부가 정보라 실패해도 반 화면은 보여 준다.
         const [organizationName, tutors, history] = await Promise.all([
-          viewer === 'TUTOR'
-            ? previewClassByCode(classGroup.joinCode).then((preview) => preview.organizationName).catch(() => null)
-            : Promise.resolve(null),
+          previewClassByCode(classGroup.joinCode).then((preview) => preview.organizationName).catch(() => null),
           viewer === 'DIRECTOR' && organizationId
             ? listOrganizationTutors(token, organizationId).catch(() => [] as OrganizationTutorLink[])
             : Promise.resolve([] as OrganizationTutorLink[]),
@@ -123,6 +135,8 @@ export function ClassDetailPage() {
     navigate(viewer === 'DIRECTOR' ? ORGANIZATION_PATHS.student(classId, studentId) : TUTOR_PATHS.student(studentId));
   };
 
+  const loadedClass = effective.status === 'ready' ? effective.classGroup : null;
+
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -133,7 +147,7 @@ export function ClassDetailPage() {
         {effective.status === 'ready' && (
           <>
             <View style={styles.header}>
-              <Text style={styles.eyebrow}>{effective.organizationName ?? '반'}</Text>
+              <Text style={styles.eyebrow}>{effective.organizationName ?? (viewer === 'DIRECTOR' ? '우리 기관' : '반')}</Text>
               <Text style={styles.title} accessibilityRole="header">{effective.classGroup.name}</Text>
               <Text style={styles.body}>
                 보호자 연결 {effective.students.filter((student) => student.status === 'CONFIRMED').length} /{' '}
@@ -220,6 +234,22 @@ export function ClassDetailPage() {
               </View>
             ) : null}
 
+            {viewer === 'TUTOR' ? (
+              <ClassLessonsSection
+                token={state.token}
+                classId={effective.classGroup.id}
+                reloadKey={lessonsReload}
+                onCreate={() => setLessonFormOpen(true)}
+                onOpen={(lessonId) => navigate(TUTOR_PATHS.lesson(lessonId))}
+              />
+            ) : null}
+
+            <ClassReportsSection
+              token={state.token}
+              classId={effective.classGroup.id}
+              onOpen={(completionId) => navigate(reportDetailPath(completionId))}
+            />
+
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>학생 {effective.students.length}명</Text>
               {effective.students.length === 0 ? (
@@ -257,8 +287,181 @@ export function ClassDetailPage() {
           </>
         )}
       </ScrollView>
+      {viewer === 'TUTOR' && loadedClass ? (
+        <LessonFormModal
+          key={lessonFormOpen ? 'open' : 'closed'}
+          visible={lessonFormOpen}
+          initialClass={{ id: loadedClass.id, name: loadedClass.name }}
+          onClose={() => setLessonFormOpen(false)}
+          onCreated={() => setLessonsReload((n) => n + 1)}
+        />
+      ) : null}
     </AppNavShell>
   );
+}
+
+type SectionLoad<T> = { status: 'loading' } | { status: 'ready'; data: T } | { status: 'error'; message: string };
+
+/** 이 반의 수업(선생님만) - 곧 할 수업과 최근 끝난 수업. 반 화면의 나머지와 따로 불러와 실패해도 화면은 남는다. */
+function ClassLessonsSection({
+  token,
+  classId,
+  reloadKey,
+  onCreate,
+  onOpen,
+}: {
+  token: string;
+  classId: string;
+  reloadKey: number;
+  onCreate: () => void;
+  onOpen: (lessonId: string) => void;
+}) {
+  const [retry, setRetry] = useState(0);
+  const [load, setLoad] = useState<{ key: string; value: SectionLoad<Lesson[]> }>({ key: '', value: { status: 'loading' } });
+  const key = `${classId}:${reloadKey}:${retry}`;
+
+  useEffect(() => {
+    let cancelled = false;
+    listLessons(token)
+      .then((lessons) => {
+        if (!cancelled) setLoad({ key, value: { status: 'ready', data: pickClassLessons(lessons, classId) } });
+      })
+      .catch((failure: unknown) => {
+        if (!cancelled) {
+          setLoad({ key, value: { status: 'error', message: messageForError(failure, '수업을 불러오지 못했어요.') } });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token, classId, key]);
+
+  const value: SectionLoad<Lesson[]> = load.key === key ? load.value : { status: 'loading' };
+
+  return (
+    <View style={styles.card}>
+      <Text style={styles.sectionTitle}>수업</Text>
+      {value.status === 'loading' ? <LoadingState compact label="수업을 불러오는 중이에요…" /> : null}
+      {value.status === 'error' ? <ErrorState message={value.message} onRetry={() => setRetry((n) => n + 1)} /> : null}
+      {value.status === 'ready' && value.data.length === 0 ? (
+        <Text style={styles.body}>아직 이 반의 수업이 없어요. 수업을 만들면 여기에 모여요.</Text>
+      ) : null}
+      {value.status === 'ready'
+        ? value.data.map((lesson) => (
+            <Pressable
+              key={lesson.id}
+              accessibilityRole="link"
+              accessibilityLabel={`${lesson.name} 수업 열기`}
+              onPress={() => onOpen(lesson.id)}
+              style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+            >
+              <View style={styles.flex}>
+                <Text style={styles.rowTitle}>{lesson.name}</Text>
+                <Text style={styles.rowMeta}>{lesson.scheduledAt ? formatDateTime(lesson.scheduledAt) : '일정 미정'}</Text>
+              </View>
+              <Pill label={LESSON_STATUS_LABEL[lesson.status]} tone="onCard" />
+              <Text style={styles.chevron}>›</Text>
+            </Pressable>
+          ))
+        : null}
+      <ActionButton variant="secondary" label="수업 만들기" onPress={onCreate} />
+    </View>
+  );
+}
+
+type ReportsData = { items: ClassReportItem[]; titles: Record<string, string> };
+
+/** 이 반의 최근 리포트(최신 10개) - 선생님은 자기가 진행한 회차, 관리자는 전부(서버가 걸러 준다). */
+function ClassReportsSection({
+  token,
+  classId,
+  onOpen,
+}: {
+  token: string;
+  classId: string;
+  onOpen: (completionId: string) => void;
+}) {
+  const [retry, setRetry] = useState(0);
+  const [load, setLoad] = useState<{ key: string; value: SectionLoad<ReportsData> }>({
+    key: '',
+    value: { status: 'loading' },
+  });
+  const key = `${classId}:${retry}`;
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([listClassReports(token, classId, 10), listStories().catch(() => [])])
+      .then(([items, stories]) => {
+        if (cancelled) return;
+        setLoad({
+          key,
+          value: {
+            status: 'ready',
+            data: {
+              items: latestClassReports(items, 10),
+              titles: Object.fromEntries(stories.map((story) => [story.storyId, story.title])),
+            },
+          },
+        });
+      })
+      .catch((failure: unknown) => {
+        if (!cancelled) {
+          setLoad({ key, value: { status: 'error', message: messageForError(failure, '리포트를 불러오지 못했어요.') } });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token, classId, key]);
+
+  const value: SectionLoad<ReportsData> = load.key === key ? load.value : { status: 'loading' };
+
+  return (
+    <View style={styles.card}>
+      <Text style={styles.sectionTitle}>최근 리포트</Text>
+      {value.status === 'loading' ? <LoadingState compact label="리포트를 불러오는 중이에요…" /> : null}
+      {value.status === 'error' ? <ErrorState message={value.message} onRetry={() => setRetry((n) => n + 1)} /> : null}
+      {value.status === 'ready' && value.data.items.length === 0 ? (
+        <Text style={styles.body}>아직 이 반의 리포트가 없어요. 수업에서 이야기를 읽으면 여기에 쌓여요.</Text>
+      ) : null}
+      {value.status === 'ready'
+        ? value.data.items.map((report) => {
+            const title = value.data.titles[report.storyId] ?? report.storyId;
+            const students = summarizeStudentNames(report.studentNames);
+            return (
+              <Pressable
+                key={report.id}
+                accessibilityRole="link"
+                accessibilityLabel={`${title} 리포트 열기`}
+                onPress={() => onOpen(report.id)}
+                style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+              >
+                <View style={styles.flex}>
+                  <Text style={styles.rowTitle}>{title}</Text>
+                  <Text style={styles.rowMeta}>
+                    {formatDateTime(report.completedAt)}
+                    {report.tutorName ? ` · ${report.tutorName}` : ''}
+                  </Text>
+                  {students ? <Text style={styles.rowMeta}>{students}</Text> : null}
+                </View>
+                {isExitedSession(report) ? <Pill label={EXITED_BADGE_LABEL} tone="onLight" /> : null}
+                <Text style={styles.chevron}>›</Text>
+              </Pressable>
+            );
+          })
+        : null}
+    </View>
+  );
+}
+
+const LESSON_STATUS_LABEL: Record<Lesson['status'], string> = {
+  SCHEDULED: '예정',
+  IN_PROGRESS: '진행 중',
+  COMPLETED: '완료',
+};
+
+function formatDateTime(iso: string) {
+  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
 }
 
 function tutorName(tutorId: string, tutors: OrganizationTutorLink[], history: HomeroomHistoryEntry[]) {

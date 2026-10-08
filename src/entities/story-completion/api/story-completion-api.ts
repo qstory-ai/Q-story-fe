@@ -161,6 +161,22 @@ export function listStoryCompletions(
   return request(`/v1/story-completions${query}`, { method: 'GET' }, token, options);
 }
 
+/** 반 리포트 목록 한 줄 - 요약 필드에 진행 선생님·참여 학생 이름이 붙는다. */
+export type ClassReportItem = StoryCompletionSummary & {
+  tutorName: string | null;
+  studentNames: string[];
+};
+
+/** 이 반의 최근 수업 리포트(최신순). 이 반 기관 관리자와 담임 선생님만 볼 수 있다(담임은 자기가 진행한 회차만). */
+export function listClassReports(
+  token: string,
+  classId: string,
+  limit = 10,
+  options?: RequestOptions,
+): Promise<ClassReportItem[]> {
+  return request(`/v1/classes/${classId}/reports?limit=${limit}`, { method: 'GET' }, token, options);
+}
+
 export function getStoryCompletion(
   token: string,
   id: string,

@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { teacherTitle, withParticle } from './korean-particle';
+import { teacherTitle, withDirectionParticle, withParticle } from './korean-particle';
 
 test('withParticle picks the particle by final consonant', () => {
   assert.equal(withParticle('헨젤과 그레텔', '을/를'), '헨젤과 그레텔을');
@@ -22,4 +22,12 @@ test('teacherTitle does not repeat 선생님', () => {
   assert.equal(teacherTitle('김하늘'), '김하늘 선생님');
   assert.equal(teacherTitle('QA선생님'), 'QA선생님');
   assert.equal(teacherTitle('하늘 선생님 '), '하늘 선생님');
+});
+
+test('방향 조사 으로/로 - ㄹ 받침은 로', () => {
+  assert.equal(withDirectionParticle('햇살반'), '햇살반으로');
+  assert.equal(withDirectionParticle('하늘'), '하늘로');
+  assert.equal(withDirectionParticle('꽃잎 새싹'), '꽃잎 새싹으로');
+  assert.equal(withDirectionParticle('나비'), '나비로');
+  assert.equal(withDirectionParticle('A'), 'A(으)로');
 });

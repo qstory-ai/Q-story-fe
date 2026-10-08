@@ -6,6 +6,7 @@ import { ActionButton, AppNavShell, EmptyState, ErrorState, LoadingState, Pill, 
 import { messageForError } from '@/shared/api';
 import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
 import { listTutorClasses, listTutorStudents, type TutorClass, type TutorStudent } from '@/entities/tutor';
+import { archivedOnLabel, formatLifecycleDate, listPastTutorClasses, type PastTutorClass } from '@/entities/class-lifecycle';
 
 type LoadState =
   | { status: 'loading' }
@@ -24,6 +25,9 @@ const STATUS_LABEL: Record<TutorStudent['status'], string> = {
  *
  * <p>"새 반 만들기"는 이 화면이 기본 진입점이다(Q-35). 반이 하나도 없을 때는 빈 화면의 버튼 하나만, 반이
  * 있으면 머리말의 버튼 하나만 보인다.
+ *
+ * <p>"지난 반"은 예전에 맡았던 반(담임이 바뀌었거나 보관된 반)이다 - 누르면 반 상세를 읽기 전용으로 열고, 내가 진행한 수업
+ * 기록만 보인다. 없으면 칸을 숨긴다.
  */
 export function TutorStudentsPage() {
   const navigate = useNavigate();
@@ -34,6 +38,8 @@ export function TutorStudentsPage() {
   // 담임인 반. 부가 정보라 실패해도 학생 목록은 보인다.
   // null = 아직 불러오는 중이거나 실패 - 그동안 "아직 만든 반이 없어요"를 보이지 않는다.
   const [homeroomClasses, setHomeroomClasses] = useState<TutorClass[] | null>(null);
+  // 예전에 맡았던 반 - 부가 정보라 실패하면 칸을 숨긴다.
+  const [pastClasses, setPastClasses] = useState<PastTutorClass[]>([]);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -51,6 +57,11 @@ export function TutorStudentsPage() {
     listTutorClasses(tutorToken)
       .then((classes) => {
         if (!cancelled) setHomeroomClasses(classes.filter((classGroup) => classGroup.tutorId === tutorId));
+      })
+      .catch(() => {});
+    listPastTutorClasses(tutorToken)
+      .then((classes) => {
+        if (!cancelled) setPastClasses(classes);
       })
       .catch(() => {});
     listTutorStudents(tutorToken)
@@ -111,6 +122,28 @@ export function TutorStudentsPage() {
           </View>
         )}
 
+        {pastClasses.length > 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>지난 반</Text>
+            <Text style={styles.rowMeta}>예전에 맡았던 반이에요. 내가 진행한 수업과 리포트를 그대로 볼 수 있어요.</Text>
+            {pastClasses.map((classGroup) => (
+              <Pressable
+                key={classGroup.id}
+                accessibilityRole="link"
+                accessibilityLabel={`지난 반 ${classGroup.name} 상세 열기`}
+                onPress={() => navigate(TUTOR_PATHS.classDetail(classGroup.id))}
+                style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+              >
+                <View style={styles.rowText}>
+                  <Text style={styles.rowTitle}>{classGroup.name}</Text>
+                  <Text style={styles.rowMeta}>{pastClassMeta(classGroup)}</Text>
+                </View>
+                <Text style={styles.chevron}>›</Text>
+              </Pressable>
+            ))}
+          </View>
+        ) : null}
+
         <Text style={styles.sectionTitle} accessibilityRole="header">반에 들어온 아이</Text>
 
         {load.status === 'loading' && <LoadingState label="학생 목록을 불러오는 중이에요…" />}
@@ -148,6 +181,17 @@ export function TutorStudentsPage() {
       </View>
     </AppNavShell>
   );
+}
+
+/** "큐스토리 유치원 · 2026년 3월 2일 ~ 2026년 10월 8일 담임" 또는 "… · 2026년 10월 8일 보관". */
+function pastClassMeta(classGroup: PastTutorClass): string {
+  const led =
+    classGroup.ledFrom && classGroup.ledUntil
+      ? `${formatLifecycleDate(classGroup.ledFrom)} ~ ${formatLifecycleDate(classGroup.ledUntil)} 담임`
+      : null;
+  return [classGroup.organizationName, led, classGroup.archivedAt ? archivedOnLabel(classGroup.archivedAt) : null]
+    .filter(Boolean)
+    .join(' · ');
 }
 
 const styles = StyleSheet.create({

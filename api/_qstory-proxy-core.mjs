@@ -52,6 +52,8 @@ const ALLOWED_ROUTES = new Map([
   ['GET v1/tutor-students', true],
   ['GET v1/tutor-classes', true],
   ['POST v1/tutor-classes', true],
+  // 선생님이 예전에 맡았던 반(지난 반).
+  ['GET v1/tutor-classes/past', true],
   ['GET v1/parents/me/tutor-reports', true],
   ['POST v1/feedback', true],
   ['GET v1/parents/me/children', true],
@@ -113,6 +115,13 @@ const DYNAMIC_ROUTES = [
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/students/${UUID_SEGMENT}/reports$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/homeroom-history$`) },
   { method: 'PUT', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/homeroom$`) },
+  // 반 수명주기(관리자) - 이름 바꾸기, 지난 반 보관·다시 열기, 학생 옮기기, 학기 마무리, 학생의 반 이력.
+  { method: 'PATCH', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/archive$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/unarchive$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/students/move$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/term-transition$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/class-history$`) },
   // 담임 초대 - 관리자가 만들기·지금 코드 보기, 선생님이 코드로 미리 보기(로그인 없이)·수락.
   { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/homeroom-invites$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/homeroom-invites/current$`) },

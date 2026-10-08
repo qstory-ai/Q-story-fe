@@ -24,6 +24,8 @@ export type StoryCompletionSummary = {
   participantCount: number;
   /** COMPLETED | EXITED(멈춤). 옛 응답에는 없을 수 있다. */
   endStatus?: StoryEndStatus | null;
+  /** 수업한 반의 그때 이름 - 반 이름을 바꾸거나 학생이 반을 옮겨도 기록 당시 이름. 가정 기록·옛 응답은 null/없음. */
+  className?: string | null;
 };
 
 /**

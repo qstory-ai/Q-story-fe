@@ -95,6 +95,9 @@ const OrganizationClassesPage = lazy(() =>
 const OrganizationStudentDetailPage = lazy(() =>
   import('@/pages/organization-student-detail').then((m) => ({ default: m.OrganizationStudentDetailPage })),
 );
+const ClassTermTransitionPage = lazy(() =>
+  import('@/pages/class-term-transition').then((m) => ({ default: m.ClassTermTransitionPage })),
+);
 const OrganizationReportPage = lazy(() =>
   import('@/pages/organization-report').then((m) => ({ default: m.OrganizationReportPage })),
 );
@@ -273,6 +276,7 @@ export function App() {
             <Route path="/organization/classes" element={<OrganizationClassesPage />} />
             <Route path="/organization/classes/:classId" element={<ClassDetailPage />} />
             <Route path="/organization/classes/:classId/students/:studentId" element={<OrganizationStudentDetailPage />} />
+            <Route path="/organization/classes/:classId/term" element={<ClassTermTransitionPage />} />
             <Route path="/organization/usage" element={<LegacyRedirect />} />
             <Route path="/organization/reports" element={<OrganizationReportPage />} />
             <Route path="/organization/subscription" element={<OrganizationSubscriptionPage />} />

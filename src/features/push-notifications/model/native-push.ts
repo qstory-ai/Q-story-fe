@@ -3,16 +3,19 @@ import type { PushNotificationsPlugin } from '@capacitor/push-notifications';
 
 import { requestNotificationRefresh } from '@/entities/notification';
 
-import { registerPushToken, removePushToken } from '../api/push-token-api';
+import { registerPushToken, removePushToken, type PushPlatform } from '../api/push-token-api';
 import { internalHrefOrNull, permissionStep, shouldSendToken, type SentToken } from './push-logic';
 
 /**
- * 안드로이드 태블릿 앱(Capacitor)의 FCM 푸시. 웹·iOS에서는 아무것도 하지 않는다(iOS는 APNs 설정 후 연다).
+ * 태블릿 앱(Capacitor, 안드로이드·아이패드)의 FCM 푸시. 웹에서는 아무것도 하지 않는다.
+ * iOS도 FCM 등록 토큰을 받는다 - AppDelegate.swift가 APNs 토큰을 Firebase Messaging에 넘기고 받은 FCM 토큰을
+ * 플러그인의 registration 이벤트로 올려 준다(BE는 플랫폼과 관계없이 FCM HTTP v1로 보낸다).
  *
  * 흐름: 앱 시작 → 알림 채널 생성 + 알림 탭 리스너 → 로그인되면 알림 권한을 한 번 묻고 FCM에 등록 →
  * 받은 토큰을 POST /v1/me/push-tokens로 계정에 묶는다(토큰이 갱신되거나 계정이 바뀌면 다시 보냄) →
  * 로그아웃 직전에 POST /v1/me/push-tokens/remove로 풀고 세션 리스너를 뗀다.
- * 앱이 켜져 있을 때 온 푸시는 시스템 알림을 띄우지 않고(플러그인 기본 동작) 알림 벨만 새로 고친다.
+ * 앱이 켜져 있을 때 온 푸시는 시스템 알림을 띄우지 않고(안드로이드는 플러그인 기본 동작, iOS는
+ * capacitor.config의 presentationOptions: []) 알림 벨만 새로 고친다.
  */
 
 /** BE가 푸시를 보내는 안드로이드 채널 id - AndroidManifest의 default_notification_channel_id와 같다. */
@@ -20,7 +23,14 @@ export const PUSH_CHANNEL_ID = 'qstory_default';
 const PERMISSION_ASKED_KEY = 'qstory.push.permission-asked';
 
 export function isPushSupported(): boolean {
-  return Capacitor.getPlatform() === 'android';
+  return pushPlatform() !== null;
+}
+
+function pushPlatform(): Extract<PushPlatform, 'ANDROID' | 'IOS'> | null {
+  const platform = Capacitor.getPlatform();
+  if (platform === 'android') return 'ANDROID';
+  if (platform === 'ios') return 'IOS';
+  return null;
 }
 
 // 플러그인 객체를 Promise 값으로 그대로 넘기면 안 된다 - Capacitor 플러그인은 프록시라 Promise가 then()이 있는지
@@ -28,7 +38,7 @@ export function isPushSupported(): boolean {
 // 그래서 객체에 감싸서 넘긴다.
 let pluginPromise: Promise<{ push: PushNotificationsPlugin }> | null = null;
 function plugin(): Promise<{ push: PushNotificationsPlugin }> {
-  // 웹 번들 첫 화면에 플러그인 코드를 싣지 않도록 안드로이드에서만 불러온다.
+  // 웹 번들 첫 화면에 플러그인 코드를 싣지 않도록 네이티브 앱에서만 불러온다.
   pluginPromise ??= import('@capacitor/push-notifications').then((m) => ({ push: m.PushNotifications }));
   return pluginPromise;
 }
@@ -57,9 +67,10 @@ function markAsked(): void {
 async function syncToken(): Promise<void> {
   const current = session;
   const token = fcmToken;
-  if (!current || !token || !shouldSendToken(token, current.userId, lastSent)) return;
+  const platform = pushPlatform();
+  if (!current || !token || !platform || !shouldSendToken(token, current.userId, lastSent)) return;
   try {
-    await registerPushToken(current.authToken, token, 'ANDROID');
+    await registerPushToken(current.authToken, token, platform);
     // 보내는 사이 로그아웃·계정 전환이 없었을 때만 기록 - 바뀌었으면 다음 sync가 새 계정으로 다시 보낸다.
     if (session === current) lastSent = { token, userId: current.userId };
   } catch (error) {
@@ -67,22 +78,26 @@ async function syncToken(): Promise<void> {
   }
 }
 
-/** 앱 시작 때 한 번 - 채널을 만들고 알림 탭을 받는다. 반환 함수로 리스너를 뗀다. */
+/** 앱 시작 때 한 번 - (안드로이드는) 채널을 만들고 알림 탭을 받는다. 반환 함수로 리스너를 뗀다. */
 export async function startPush(onOpenHref: (href: string) => void): Promise<() => void> {
   if (!isPushSupported()) return () => {};
   const { push } = await plugin();
-  try {
-    await push.createChannel({
-      id: PUSH_CHANNEL_ID,
-      name: 'Q-Story 알림',
-      description: '리포트 도착, 수업 알림 등',
-      importance: 4, // IMPORTANCE_HIGH - 헤드업으로 보인다.
-      visibility: 1, // VISIBILITY_PUBLIC
-    });
-  } catch (error) {
-    console.warn('[push] 알림 채널 생성 실패', error);
+  // 알림 채널은 안드로이드 개념이다 - iOS 플러그인은 createChannel을 구현하지 않는다.
+  if (pushPlatform() === 'ANDROID') {
+    try {
+      await push.createChannel({
+        id: PUSH_CHANNEL_ID,
+        name: 'Q-Story 알림',
+        description: '리포트 도착, 수업 알림 등',
+        importance: 4, // IMPORTANCE_HIGH - 헤드업으로 보인다.
+        visibility: 1, // VISIBILITY_PUBLIC
+      });
+    } catch (error) {
+      console.warn('[push] 알림 채널 생성 실패', error);
+    }
   }
   // 앱이 꺼져 있을 때 알림을 눌러 열어도 플러그인이 이벤트를 붙잡아 뒀다가 리스너가 붙으면 넘긴다.
+  // FCM data 키는 두 플랫폼 모두 notification.data로 온다(iOS는 APNs userInfo가 그대로 data가 된다).
   const tap = await push.addListener('pushNotificationActionPerformed', (action) => {
     const href = internalHrefOrNull(action.notification.data?.href);
     if (href) onOpenHref(href);

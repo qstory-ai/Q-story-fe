@@ -14,7 +14,8 @@ import {
 } from './interaction-shapes';
 
 /**
- * 화면 사용 기록(POST /v1/interactions) - 모든 방문자의 화면 이동·누른 곳·스크롤·머뭇거림을 모아 5초마다 보낸다.
+ * 화면 사용 기록(POST /v1/interactions) - 방문자의 화면 이동·누른 곳·스크롤·머뭇거림을 모아 5초마다 보낸다.
+ * 기본으로 켜고, 끄면(기록 설정·마이페이지) setInteractionTrackingEnabled(false)로 아무것도 모으거나 보내지 않는다.
  * UT에서 "어디서 막혔는지"를 화면 녹화 없이도 숫자로 보려고 남긴다. 입력칸의 글자는 읽지 않는다.
  * 보내기는 화면을 막지 않고, 실패가 이어지면 조용히 버린다.
  */
@@ -65,6 +66,10 @@ let playSessionId: string | null = null;
 let playerPhase: string | null = null;
 let consecutiveFailures = 0;
 let disabled = false;
+/** 사용자가 끄면 false - 실패로 멈춘 disabled와 따로 둔다(다시 켜면 이어서 모은다). */
+let trackingEnabled = true;
+/** 꺼 둔 동안에도 지금 경로는 기억한다 - 다시 켜면 그 화면부터 모은다. */
+let currentPath: string | null = null;
 let sending = false;
 let installed = false;
 
@@ -92,8 +97,23 @@ function viewport() {
   return { viewportW: window.innerWidth, viewportH: window.innerHeight };
 }
 
+/**
+ * 화면 이용 기록을 켜고 끈다(UsageTracking이 동의 상태로 넣는다). 끄면 모아 둔 것도 보내지 않고 버린다.
+ */
+export function setInteractionTrackingEnabled(enabled: boolean) {
+  if (enabled === trackingEnabled) return;
+  trackingEnabled = enabled;
+  if (!enabled) {
+    queue = [];
+    screen = null;
+    resumePath = null;
+    return;
+  }
+  if (currentPath && typeof window !== 'undefined' && !disabled) enterScreen(currentPath, 'resume');
+}
+
 function push(event: Omit<InteractionEvent, 'occurredAt' | 'screen'> & { screen?: string }) {
-  if (disabled || !screen) return;
+  if (disabled || !trackingEnabled || !screen) return;
   queue.push({ occurredAt: new Date().toISOString(), screen: screen.name, ...viewport(), ...event });
   if (queue.length > MAX_QUEUE) queue = queue.slice(-MAX_QUEUE);
   if (queue.length >= FLUSH_AT_EVENTS) void flushInteractions();
@@ -129,7 +149,8 @@ function enterScreen(path: string, reason: string) {
 
 /** 경로가 바뀔 때마다 부른다(App의 UsageTracking). 같은 경로면 아무것도 하지 않는다. */
 export function trackScreenChange(pathname: string) {
-  if (typeof window === 'undefined' || disabled) return;
+  currentPath = pathname;
+  if (typeof window === 'undefined' || disabled || !trackingEnabled) return;
   if (screen?.path === pathname) return;
   leaveScreen('navigate');
   enterScreen(pathname, 'navigate');
@@ -203,7 +224,7 @@ function onVisibilityChange() {
     leaveScreen('hidden');
     resumePath = path;
     void flushInteractions({ keepalive: true });
-  } else if (resumePath && !screen) {
+  } else if (resumePath && !screen && trackingEnabled) {
     enterScreen(resumePath, 'resume');
     resumePath = null;
   }
@@ -238,7 +259,7 @@ async function post(events: InteractionEvent[], keepalive: boolean): Promise<'ok
 
 /** 쌓인 기록을 보낸다. keepalive면 페이지가 닫혀도 가도록 작게 나눠 보낸다. 절대 throw하지 않는다. */
 export async function flushInteractions({ keepalive = false }: { keepalive?: boolean } = {}) {
-  if (disabled || queue.length === 0 || (sending && !keepalive)) return;
+  if (disabled || !trackingEnabled || queue.length === 0 || (sending && !keepalive)) return;
   const pending = queue;
   queue = [];
   const groups = keepalive
@@ -248,7 +269,10 @@ export async function flushInteractions({ keepalive = false }: { keepalive?: boo
   try {
     for (let index = 0; index < groups.length; index += 1) {
       // keepalive 한도는 동시에 보내는 요청 합계다 - 첫 묶음만 keepalive, 나머지는 보통 요청으로.
+      // 보내는 사이에 껐으면 남은 묶음은 보내지 않는다.
+      if (!trackingEnabled) return;
       const result = await post(groups[index], keepalive && index === 0);
+      if (!trackingEnabled) return;
       if (result === 'ok') {
         consecutiveFailures = 0;
         continue;
@@ -283,7 +307,7 @@ export function installInteractionTracking() {
   document.addEventListener('visibilitychange', onVisibilityChange);
   window.addEventListener('pagehide', onPageHide);
   window.addEventListener('pageshow', () => {
-    if (resumePath && !screen && document.visibilityState === 'visible') {
+    if (resumePath && !screen && trackingEnabled && document.visibilityState === 'visible') {
       enterScreen(resumePath, 'resume');
       resumePath = null;
     }

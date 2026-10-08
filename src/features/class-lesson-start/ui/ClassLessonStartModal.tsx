@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, Modal, storybookTheme } from '@/shared/ui';
+import { ActionButton, Modal, SwitchField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { withParticle } from '@/shared/lib';
 import { TUTOR_PATHS } from '@/entities/auth';
 import { createLesson, listLessons, updateLesson, type Lesson } from '@/entities/lesson';
 import { listTutorClasses, type TutorClass } from '@/entities/tutor';
 import { LessonPlaySettingPicker, type PlaySetting } from '@/entities/play-session';
+import { storyPlayPath } from '@/features/story-library';
 
 type Props = {
   visible: boolean;
@@ -39,6 +40,8 @@ export function ClassLessonStartModal({ visible, token, tutorId, storyId, storyT
   const [startError, setStartError] = useState<string | null>(null);
   // 수업 진행 형태 - 고르지 않으면 전체 반(가장 흔한 형태).
   const [playSetting, setPlaySetting] = useState<PlaySetting>('WHOLE_CLASS');
+  // 이 수업 화면 녹화 - 기관이 보호자 동의를 받은 경우에만 선생님이 켠다. 기본은 끔.
+  const [recordLesson, setRecordLesson] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
@@ -74,7 +77,7 @@ export function ClassLessonStartModal({ visible, token, tutorId, storyId, storyT
         studentIds: [],
         scheduledAt: new Date().toISOString(),
       });
-      navigate(`/stories/${storyId}/play?${new URLSearchParams({ lessonId: lesson.id, setting: playSetting }).toString()}`);
+      navigate(storyPlayPath(storyId, { lessonId: lesson.id, setting: playSetting, recordLesson }));
     } catch (failure: unknown) {
       setStartError(messageForError(failure, '수업을 시작하지 못했어요. 잠시 후 다시 시도해 주세요.'));
       setStartingClassId(null);
@@ -112,6 +115,12 @@ export function ClassLessonStartModal({ visible, token, tutorId, storyId, storyT
         ) : (
           <View style={styles.list}>
             <LessonPlaySettingPicker value={playSetting} onChange={setPlaySetting} />
+            <SwitchField
+              label="기관에서 보호자 동의를 받았어요 - 이 수업 화면 녹화"
+              description="켜면 이 수업 화면만 녹화해 서비스 개선에 써요(1년 보관, 입력한 글자는 가려요)."
+              checked={recordLesson}
+              onChange={setRecordLesson}
+            />
             {load.classes.map((classGroup) => (
               <Pressable
                 key={classGroup.id}

@@ -1,10 +1,12 @@
 import { Text, TextInput, View } from 'react-native';
 
+import { useRecordingConsent } from '@/entities/analytics';
 import { hasKoreanBatchim } from '@/entities/narration';
 import { ActionButton, storybookTheme } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../../model';
 import { styles } from '../styles';
+import { RecordingConsentCard } from './recording-consent-card';
 
 export function IdlePanel({ runtime }: { runtime: OneStoryRuntime }) {
   const {
@@ -15,6 +17,7 @@ export function IdlePanel({ runtime }: { runtime: OneStoryRuntime }) {
     startStory,
     isClassLesson,
   } = runtime;
+  const { needsPrompt } = useRecordingConsent();
 
   if (runtimeState.status !== 'idle') {
     return null;
@@ -59,11 +62,13 @@ export function IdlePanel({ runtime }: { runtime: OneStoryRuntime }) {
           </Text>
         </View>
       )}
+      {/* 반 수업은 선생님이 수업을 시작할 때 정한다 - 여기서 묻지 않는다. */}
+      {needsPrompt && !isClassLesson ? <RecordingConsentCard /> : null}
       <ActionButton variant="primary" label="이야기 시작하기" onPress={startStory} />
       <Text style={styles.parentHint}>
         목소리는 문장으로 바뀐 뒤 한 번 확인하고 질문으로 전송돼요. 확인한
-        질문 문장은 이름·연락처를 가리고 서비스 개선을 위해 1년 보관해요. 화면 사용 기록(누른
-        곳·스크롤·화면 녹화)도 1년 보관하고, 입력한 글자는 가려요.
+        질문 문장은 이름·연락처를 가리고 서비스 개선을 위해 1년 보관해요. 화면 이용 기록(누른
+        곳·스크롤)도 1년 보관하고 설정에서 끌 수 있어요. 화면 녹화는 허용한 경우에만 해요.
       </Text>
     </View>
   );

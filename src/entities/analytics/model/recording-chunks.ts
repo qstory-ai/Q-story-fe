@@ -174,3 +174,41 @@ export class RecordingStateStore {
     }
   }
 }
+
+/** 조각 올리기 응답을 어떻게 다룰지. */
+export type ChunkUploadOutcome = 'ok' | 'capped' | 'not-consented' | 'retry' | 'drop';
+
+export const RECORDING_NOT_CONSENTED = 'RECORDING_NOT_CONSENTED';
+
+export function chunkUploadOutcome(status: number, failureCode?: string | null): ChunkUploadOutcome {
+  if (status >= 200 && status < 300) return 'ok';
+  if (status === 413) return 'capped';
+  if (status === 403 && failureCode === RECORDING_NOT_CONSENTED) return 'not-consented';
+  if (status >= 500 || status === 429) return 'retry';
+  return 'drop';
+}
+
+/**
+ * 녹화를 해도 되는지 - 동의(허용)가 있고, 서버가 "동의 없음"(403 RECORDING_NOT_CONSENTED)으로 거절하지 않았을 때만.
+ * 서버가 거절하면 이 화면에서는 다시 시작하지 않는다. 허용을 새로 받으면(꺼짐→켜짐) 거절을 잊는다.
+ */
+export class RecordingGate {
+  private permitted = false;
+  private refused = false;
+
+  setPermitted(next: boolean) {
+    if (next && !this.permitted) this.refused = false;
+    this.permitted = next;
+  }
+
+  /** 응답을 보고 거절이면 막는다. 돌려준 값으로 올리기를 이어 갈지 정한다. */
+  observe(status: number, failureCode?: string | null): ChunkUploadOutcome {
+    const outcome = chunkUploadOutcome(status, failureCode);
+    if (outcome === 'not-consented') this.refused = true;
+    return outcome;
+  }
+
+  canRecord() {
+    return this.permitted && !this.refused;
+  }
+}

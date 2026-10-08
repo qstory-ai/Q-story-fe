@@ -15,3 +15,5 @@ export * from './model/interaction-tracker';
 export * from './model/recording-chunks';
 export * from './model/session-recorder';
 export * from './api/session-recording-admin-api';
+export * from './model/recording-consent';
+export * from './model/use-recording-consent';

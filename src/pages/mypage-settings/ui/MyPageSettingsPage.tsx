@@ -11,6 +11,7 @@ import {
   type NotificationSettings,
 } from '@/entities/notification-settings';
 
+import { RecordingConsentSection } from './RecordingConsentSection';
 import { VoiceResearchConsentSection } from './VoiceResearchConsentSection';
 
 /**
@@ -20,6 +21,7 @@ import { VoiceResearchConsentSection } from './VoiceResearchConsentSection';
  *    수업 시작/완료 알림은 보호자에게만 발송되므로 PARENT에게만 스위치를 보인다.
  *  - 약관·개인정보·데이터 요청·탈퇴: 모든 역할.
  *  - 음성 연구 저장 동의: 보호자 동의라 PARENT만(BE도 PARENT만 받는다).
+ *  - 화면 녹화·이용 기록: 계정 단위라 모든 역할.
  */
 export function MyPageSettingsPage() {
   const navigate = useNavigate();
@@ -44,6 +46,7 @@ export function MyPageSettingsPage() {
         <Text style={styles.groupTitle} accessibilityRole="header">개인정보와 데이터</Text>
         <PrivacySections onDeleteAccount={() => navigate('/mypage/delete-account')} />
         {state.user.role === 'PARENT' ? <VoiceResearchConsentSection token={state.token} userId={state.user.id} /> : null}
+        <RecordingConsentSection token={state.token} />
       </View>
     </AppNavShell>
   );

@@ -7,6 +7,7 @@ import { describeStoryLoadFailure, loadStoryPackage, type StoryLoadFailure, type
 import { homePathForAuth, useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { parsePlaySetting, playEntrySource } from '@/entities/play-session';
+import { recordingConsentStore } from '@/entities/analytics';
 import { playerChildSync } from '../model/player-child-sync';
 import { entitlementNextStep } from '../model/entitlement-next-step';
 import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/shared/ui';
@@ -32,6 +33,15 @@ export function StoryPlayerRoute() {
   const tutorStudentId = searchParams.get('tutorStudentId') ?? undefined;
   // 수업 상세의 "시작"에서 왔으면 수업 id도 함께 - 완주 시 참여 학생 전원의 기록이 이 수업에 연결된다.
   const lessonId = searchParams.get('lessonId') ?? undefined;
+  // 반 수업 화면 녹화는 선생님이 수업을 시작할 때 고른 값(rec=1)만 따른다 - 이 수업에만, 기기 결정으로 남기지 않는다.
+  // 고르지 않았으면 이 수업은 녹화하지 않는다(선생님 기기의 다른 결정과 상관없이).
+  const recordLesson = lessonId ? searchParams.get('rec') === '1' : null;
+  useEffect(() => {
+    if (recordLesson === null) return;
+    const consent = recordingConsentStore();
+    consent.setLessonOverride(recordLesson);
+    return () => consent.setLessonOverride(null);
+  }, [recordLesson]);
   // 홈 히어로·이어서 읽기·상세·리포트 "다시 읽기"가 이 재생을 기록할 아이를 싣는다. 플레이어는 전역 선택
   // 아이로 이름을 부르고 완주를 저장하므로, 띄우기 전에 전역 선택을 이 아이로 맞춘다.
   const requestedChildId = searchParams.get('childId');

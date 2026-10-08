@@ -9,12 +9,24 @@ import { storyDestination } from './story-destination';
  * 플레이어("/stories/:storyId/play") 경로. childId는 이 재생을 기록할 아이 프로필 - StoryPlayerRoute가
  * 플레이어를 띄우기 전에 전역 선택 아이를 이 아이로 맞춘다. resume=1은 "이어서 읽기"로 들어왔다는 표시다.
  * from=은 시작한 곳(Q-40 UT 통계) - 홈 히어로·리포트 "다시 읽기"·서재.
+ * 반 수업은 lessonId·setting(진행 형태)을 싣고, 선생님이 "기관에서 보호자 동의를 받았어요"를 켰으면 rec=1 -
+ * 플레이어가 그 수업 화면만 녹화한다.
  */
 export function storyPlayPath(
   storyId: string,
-  options: { childId?: string | null; resume?: boolean; from?: StoryPlayFrom } = {},
+  options: {
+    childId?: string | null;
+    resume?: boolean;
+    from?: StoryPlayFrom;
+    lessonId?: string;
+    setting?: string;
+    recordLesson?: boolean;
+  } = {},
 ): string {
   const params = new URLSearchParams();
+  if (options.lessonId) params.set('lessonId', options.lessonId);
+  if (options.setting) params.set('setting', options.setting);
+  if (options.lessonId && options.recordLesson) params.set('rec', '1');
   if (options.childId) params.set('childId', options.childId);
   if (options.resume) params.set('resume', '1');
   if (options.from) params.set('from', options.from);

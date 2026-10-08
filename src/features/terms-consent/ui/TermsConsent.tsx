@@ -7,6 +7,9 @@ import { Checkbox, storybookTheme } from '@/shared/ui';
  * (마케팅 정보 수신 동의). 전체 동의 상단 토글은 필수 두 개만 켜도 회원가입은 진행 가능하지만
  * "전체" 상태는 세 개가 모두 켜졌을 때만 반영된다.
  *
+ * 보호자 가입에는 선택 항목 "화면 녹화 허용"(recording)이 하나 더 붙는다 - 약관 동의 기록(consents)이 아니라
+ * 가입 뒤 계정의 화면 녹화 결정(POST /v1/me/recording-consent)으로 남긴다. 체크하지 않아도 결정으로 남는다.
+ *
  * 각 항목 옆의 "자세히" 링크는 정식 URL이 확정되면 붙일 자리 - 지금은 안내 콜백만 호출한다.
  */
 
@@ -27,13 +30,16 @@ type Props = {
   onChange: (next: TermsConsentState) => void;
   /** "자세히" 링크를 눌렀을 때 호출 - 정식 문서 URL이 아직 없어 상위에서 안내 처리한다. */
   onOpenDoc?: (kind: 'service' | 'privacy' | 'marketing') => void;
+  /** 보호자 가입의 선택 항목 "화면 녹화 허용". 없으면 보이지 않는다. */
+  recording?: { checked: boolean; onChange: (next: boolean) => void };
 };
 
-export function TermsConsent({ value, onChange, onOpenDoc }: Props) {
-  const allChecked = value.service && value.privacy && value.marketing;
+export function TermsConsent({ value, onChange, onOpenDoc, recording }: Props) {
+  const allChecked = value.service && value.privacy && value.marketing && (recording ? recording.checked : true);
 
   function toggleAll(next: boolean) {
     onChange({ service: next, privacy: next, marketing: next });
+    recording?.onChange(next);
   }
 
   return (
@@ -61,6 +67,18 @@ export function TermsConsent({ value, onChange, onOpenDoc }: Props) {
         onChange={(next) => onChange({ ...value, marketing: next })}
         onOpenDoc={() => onOpenDoc?.('marketing')}
       />
+      {recording ? (
+        <View style={styles.itemRow}>
+          <View style={styles.itemMain}>
+            <Checkbox
+              checked={recording.checked}
+              onChange={recording.onChange}
+              label="[선택] 화면 녹화 허용"
+              description="서비스 개선용, 1년 보관. 입력한 글자는 가려요. 허용하지 않아도 똑같이 이용할 수 있어요."
+            />
+          </View>
+        </View>
+      ) : null}
     </View>
   );
 }

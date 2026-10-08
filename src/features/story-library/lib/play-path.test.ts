@@ -24,6 +24,15 @@ test('플레이어 경로는 아이와 이어듣기 여부를 쿼리로 싣는�
   assert.equal(storyPlayPath('HG', { childId: 'child-a', resume: true }), '/stories/HG/play?childId=child-a&resume=1');
   assert.equal(storyPlayPath('a b'), '/stories/a%20b/play');
   assert.equal(storyPlayPath('HG', { childId: 'child-a', from: 'report' }), '/stories/HG/play?childId=child-a&from=report');
+  assert.equal(
+    storyPlayPath('HG', { lessonId: 'lesson-1', setting: 'WHOLE_CLASS' }),
+    '/stories/HG/play?lessonId=lesson-1&setting=WHOLE_CLASS',
+  );
+  assert.equal(
+    storyPlayPath('HG', { lessonId: 'lesson-1', setting: 'SMALL_GROUP', recordLesson: true }),
+    '/stories/HG/play?lessonId=lesson-1&setting=SMALL_GROUP&rec=1',
+  );
+  assert.equal(storyPlayPath('HG', { recordLesson: true }), '/stories/HG/play', '수업이 아니면 rec를 싣지 않는다');
 });
 
 test('홈 히어로는 상세를 거치지 않고 선택된 아이로 바로 재생한다', () => {

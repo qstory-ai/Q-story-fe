@@ -10,6 +10,12 @@ const ALLOWED_ROUTES = new Map([
   // 화면 사용 기록(누른 곳·스크롤·머뭇거림)과 화면 녹화 조각 - 로그인 없이도 betaSessionId로 받는다.
   ['POST v1/interactions', true],
   ['POST v1/session-recordings/chunks', true],
+  // 화면 녹화·사용 기록 동의 - 통계 세션 단위(로그인 없이도)와 계정 단위. 본문은 동의 여부 한 줄뿐이다.
+  ['POST v1/recording-consents', true],
+  ['GET v1/me/recording-consent', true],
+  ['POST v1/me/recording-consent', true],
+  ['GET v1/me/usage-tracking', true],
+  ['POST v1/me/usage-tracking', true],
   // 팀 내부 화면 녹화 다시 보기(STAFF) - 코드는 쿼리(?code=)로 넘어간다.
   ['GET v1/admin/session-recordings', true],
   ['POST v1/voice-research', true],
@@ -179,6 +185,8 @@ function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath === 'v1/interactions') return MAX_INTERACTIONS_BODY_BYTES;
   if (upstreamPath === 'v1/session-recordings/chunks') return MAX_RECORDING_CHUNK_BODY_BYTES;
   if (upstreamPath.startsWith('v1/me/voice-research-consent')) return MAX_AUTH_BODY_BYTES;
+  if (upstreamPath === 'v1/recording-consents' || upstreamPath === 'v1/me/recording-consent') return MAX_AUTH_BODY_BYTES;
+  if (upstreamPath === 'v1/me/usage-tracking') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/launch-notifications') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/completion-surveys') return MAX_COMPLETION_SURVEY_BODY_BYTES;
   if (upstreamPath === 'v1/auth/me/profile-image') return MAX_PROFILE_IMAGE_BODY_BYTES;

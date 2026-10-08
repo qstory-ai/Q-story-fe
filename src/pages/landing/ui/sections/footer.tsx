@@ -1,15 +1,18 @@
+import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { trackLandingCta } from '@/entities/analytics';
 import { BrandLockup, storybookTheme, SUPPORT_EMAIL, openSupportMail } from '@/shared/ui';
 
 import { NAV_SECTIONS, type SectionKey } from '../../model/content';
+import { RecordingSettingsModal } from './recording-settings-modal';
 
 type FooterSectionProps = {
   onNavigateToSection: (key: SectionKey) => void;
 };
 
 export function FooterSection({ onNavigateToSection }: FooterSectionProps) {
+  const [settingsOpen, setSettingsOpen] = useState(false);
   return (
     <View style={styles.footer}>
       <BrandLockup size="compact" />
@@ -44,9 +47,20 @@ export function FooterSection({ onNavigateToSection }: FooterSectionProps) {
         <Text style={styles.footerBottomText}>© 2026 Q-Story. All rights reserved.</Text>
         <Text style={styles.footerBottomText}>1차 공개 베타 · 보호자와 함께 이용해 주세요.</Text>
         <Text style={styles.footerBottomText}>
-          서비스를 다듬기 위해 화면 사용 기록(누른 곳·스크롤·화면 녹화)을 1년 보관해요. 입력한 글자는 가려요.
+          서비스를 다듬기 위해 화면 이용 기록(누른 곳·스크롤)을 1년 보관해요. 기록 설정에서 끌 수 있어요. 화면 녹화는
+          허용한 경우에만 해요.
         </Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="기록 설정 열기"
+          onPress={() => setSettingsOpen(true)}
+          hitSlop={8}
+          style={styles.settingsLink}
+        >
+          <Text style={styles.settingsLinkText}>기록 설정</Text>
+        </Pressable>
       </View>
+      <RecordingSettingsModal visible={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </View>
   );
 }
@@ -104,6 +118,13 @@ const styles = StyleSheet.create({
   },
   footerBottom: {
     gap: 4,
+  },
+  settingsLink: { alignSelf: 'flex-start' },
+  settingsLinkText: {
+    color: storybookTheme.color.onContent,
+    fontSize: storybookTheme.type.xxs,
+    fontWeight: storybookTheme.type.weight.medium,
+    textDecorationLine: 'underline',
   },
   footerBottomText: {
     color: storybookTheme.color.onContentMuted,

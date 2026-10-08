@@ -1,4 +1,5 @@
 import { speechApiUrl } from '@/entities/speech-pipeline';
+import { authorizationHeader } from '@/shared/api';
 import type { BufferedResponseAudio } from '@/features/route-question';
 
 export type CompanionChatSafetyMode = 'ANSWER' | 'GENTLE_REDIRECT';
@@ -115,7 +116,7 @@ export async function transcribeCompanionChatAudio(
   const response = await fetch(`${speechApiUrl}/v1/companion-chat/transcriptions/base64`, {
     method: 'POST',
     signal,
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...authorizationHeader() },
     body: JSON.stringify({
       audioBase64: await blobToBase64(input.audioBlob),
       mimeType: input.mimeType,
@@ -162,7 +163,7 @@ export async function sendCompanionChatMessage(
   const response = await fetch(`${speechApiUrl}/v1/companion-chat/messages`, {
     method: 'POST',
     signal,
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...authorizationHeader() },
     body: JSON.stringify(input),
   });
 

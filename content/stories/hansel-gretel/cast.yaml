@@ -40,7 +40,7 @@ speakers:
   OLD_WOMAN:
     speakerId: HG-SPK-OLD_WOMAN
     role: character
-    displayName: 노파
+    displayName: 할머니
     voice: Gacrux
     samePersonKey: OLD_WOMAN_WITCH
     profile: An elderly Korean woman with a mature, slightly breathy voice. She sounds grandmotherly, gentle, and faintly mysterious.

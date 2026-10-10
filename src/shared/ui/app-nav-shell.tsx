@@ -16,7 +16,10 @@ export type AppNavShellItem = {
 
 type AppNavShellProps = {
   items: readonly AppNavShellItem[];
-  /** 좁은 화면 상단바의 왼쪽 뒤로가기 버튼 - 생략하면 숨긴다(예: 대시보드 자체처럼 되돌아갈 곳이 없는 화면). */
+  /**
+   * 뒤로가기 - 좁은 화면은 상단바 왼쪽, 넓은 화면은 본문 왼쪽 위에 둔다. 생략하면 숨긴다(예: 대시보드 자체처럼
+   * 되돌아갈 곳이 없는 화면).
+   */
   onBack?: () => void;
   children: ReactNode;
 };
@@ -65,6 +68,21 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
             style={[styles.wideMain, !sidebarOpen && styles.wideMainCollapsed]}
             {...({ role: 'main' } as any)}
           >
+            {/* 넓은 화면엔 상단바가 없어 하위 화면(마이페이지 > 수업 연결 등)에서 돌아갈 길이 사이드바뿐이었다. */}
+            {onBack ? (
+              <View style={styles.wideBackRow}>
+                <Pressable
+                  accessibilityRole="link"
+                  accessibilityLabel="뒤로가기"
+                  hitSlop={8}
+                  onPress={onBack}
+                  style={({ pressed }) => [styles.wideBackButton, pressed && styles.sidebarItemPressed]}
+                >
+                  <Icon name="back" size={16} color={storybookTheme.color.onContent} />
+                  <Text style={styles.wideBackLabel}>뒤로</Text>
+                </Pressable>
+              </View>
+            ) : null}
             {children}
           </View>
           {/* 사이드바 폭만큼 항상 고정된 자리에서 열고 닫는다 - sidebar 자체가 옆으로
@@ -183,6 +201,25 @@ const styles = StyleSheet.create({
     ...transition('padding-right'),
   },
   wideMainCollapsed: { paddingRight: 0 },
+  wideBackRow: { paddingHorizontal: 24, paddingTop: 16 },
+  wideBackButton: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    minHeight: 36,
+    paddingLeft: 10,
+    paddingRight: 14,
+    borderRadius: 18,
+    backgroundColor: storybookTheme.color.contentSurface,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.contentSurfaceBorder,
+  },
+  wideBackLabel: {
+    color: storybookTheme.color.onContent,
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.semibold,
+  },
   sidebarToggle: {
     position: 'fixed' as 'absolute',
     top: 16,

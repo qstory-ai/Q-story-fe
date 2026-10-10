@@ -14,6 +14,7 @@ import { storybookTheme } from '@/shared/ui';
 
 import { countdownSeconds, createAutoConfirm } from '../lib/auto-confirm';
 import { AUTO_CONFIRM_MS } from '../lib/constants';
+import { punctuateChildQuestion } from '../lib/question-punctuation';
 import type { UseDialogue } from '../model/use-dialogue';
 
 /**
@@ -183,7 +184,7 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
   if (phase === 'offer-help') {
     return (
       <View style={panel.controls}>
-        <Chip primary label="응, 도와줘" onPress={() => void dialogue.askHelp()} />
+        <Chip primary label="응, 도와줘" onPress={() => void dialogue.askHelp('응, 도와줘')} />
         <Chip label="말하기" onPress={() => void dialogue.startTalking()} />
         <Chip label="이야기 계속 듣기" onPress={onContinue} />
       </View>
@@ -216,43 +217,86 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
 }
 
 /**
- * 받아 적은 말 확인(Q-34 결정 5) - 약 2.5초 카운트다운 뒤 저절로 보낸다. "다시 말하기"·"고쳐 쓰기"·닫기·단계 변경이면
- * 이 컴포넌트가 사라지며 카운트다운도 취소된다. 확인 버튼을 먼저 눌러도 한 번만 보낸다(confirmTranscript 가드).
+ * 받아 적은 말 확인(Q-34 결정 5) - 5초 카운트다운(남은 시간 막대) 뒤 저절로 보낸다. 아이가 확인 영역을 건드리면
+ * (문장을 누르기, "다시 말하기"·"고쳐 쓰기") 자동 전송을 멈춘다 - 멈춘 뒤엔 "응, 이렇게 말했어"로만 보낸다.
+ * 닫기·단계 변경이면 이 컴포넌트가 사라지며 카운트다운도 취소된다. 확인 버튼을 먼저 눌러도 한 번만 보낸다
+ * (confirmTranscript 가드).
  */
 function ConfirmControls({ dialogue }: { dialogue: UseDialogue }) {
   const confirmRef = useRef(dialogue.confirmTranscript);
   useEffect(() => {
     confirmRef.current = dialogue.confirmTranscript;
   }, [dialogue.confirmTranscript]);
-  const [secondsLeft, setSecondsLeft] = useState(countdownSeconds(AUTO_CONFIRM_MS));
   const { draft } = dialogue;
+  const [remainingMs, setRemainingMs] = useState(AUTO_CONFIRM_MS);
+  // 아이가 건드려 자동 전송을 멈춘 문장 - 다른 문장을 받아 적으면 다시 카운트다운한다.
+  const [heldDraft, setHeldDraft] = useState<string | null>(null);
+  const held = heldDraft === draft;
+  const controllerRef = useRef<ReturnType<typeof createAutoConfirm> | null>(null);
 
   useEffect(() => {
+    if (held) return undefined;
     const controller = createAutoConfirm(AUTO_CONFIRM_MS, () => {
       confirmRef.current();
     });
+    controllerRef.current = controller;
     controller.start();
     const ticker = setInterval(() => {
-      setSecondsLeft(countdownSeconds(controller.remainingMs()));
-    }, 250);
+      setRemainingMs(controller.remainingMs());
+    }, 100);
     return () => {
       clearInterval(ticker);
       controller.cancel();
+      setRemainingMs(AUTO_CONFIRM_MS);
+      if (controllerRef.current === controller) controllerRef.current = null;
     };
-  }, [draft]);
+  }, [draft, held]);
+
+  const hold = () => {
+    controllerRef.current?.cancel();
+    setHeldDraft(draft);
+  };
+  const secondsLeft = countdownSeconds(remainingMs);
+  const counting = !held && secondsLeft > 0;
 
   return (
     <View style={panel.column}>
-      <Text style={panel.confirmText}>“{draft}”</Text>
-      {secondsLeft > 0 && (
-        <Text style={panel.status} accessibilityLiveRegion="polite">
-          {secondsLeft}초 뒤에 {dialogue.characterName}에게 보낼게
-        </Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="보내지 말고 기다리기"
+        accessibilityHint="누르면 자동으로 보내지 않아요"
+        onPress={hold}
+      >
+        <Text style={panel.confirmText}>“{punctuateChildQuestion(draft)}”</Text>
+      </Pressable>
+      {counting ? (
+        <View style={panel.countdownRow}>
+          <Text style={panel.status} accessibilityLiveRegion="polite">
+            {secondsLeft}초 뒤에 {dialogue.characterName}에게 보낼게
+          </Text>
+          <View style={panel.countdownTrack}>
+            <View style={[panel.countdownFill, { width: `${(remainingMs / AUTO_CONFIRM_MS) * 100}%` }]} />
+          </View>
+        </View>
+      ) : (
+        <Text style={panel.status}>맞으면 "응, 이렇게 말했어"를 눌러 줘</Text>
       )}
       <View style={panel.controls}>
         <Chip primary label="응, 이렇게 말했어" onPress={dialogue.confirmTranscript} />
-        <Chip label="다시 말하기" onPress={() => void dialogue.startTalking()} />
-        <Chip label="고쳐 쓰기" onPress={dialogue.startTyping} />
+        <Chip
+          label="다시 말하기"
+          onPress={() => {
+            hold();
+            void dialogue.startTalking();
+          }}
+        />
+        <Chip
+          label="고쳐 쓰기"
+          onPress={() => {
+            hold();
+            dialogue.startTyping();
+          }}
+        />
       </View>
     </View>
   );
@@ -342,6 +386,14 @@ const panel = StyleSheet.create({
   status: { color: storybookTheme.color.onDarkMuted, fontSize: 14, flexGrow: 1 },
   listenPrompt: { color: storybookTheme.color.onDark, fontSize: 18, fontWeight: '700' },
   confirmText: { color: storybookTheme.color.onDark, fontSize: 16, lineHeight: 23 },
+  countdownRow: { gap: 6 },
+  countdownTrack: {
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    overflow: 'hidden',
+  },
+  countdownFill: { height: 4, backgroundColor: storybookTheme.color.gold },
   input: {
     minHeight: 44,
     paddingHorizontal: 12,

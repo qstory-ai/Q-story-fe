@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { withParticle } from '@/shared/lib';
 
 import type { OneStoryRuntime } from '../../model';
+import type { UseDialogue } from '../../model/use-dialogue';
 import { statusCopy } from '../../lib/runtime-view';
 import { styles } from '../styles';
 import { AwaitingChoicePanel } from './awaiting-choice-panel';
@@ -19,7 +20,7 @@ import { RecordingTextPanel } from './recording-text-panel';
 import { RecordingVoicePanel } from './recording-voice-panel';
 import { ResponsePanel } from './response-panel';
 
-export function ReaderCard({ runtime }: { runtime: OneStoryRuntime }) {
+export function ReaderCard({ runtime, dialogue }: { runtime: OneStoryRuntime; dialogue: UseDialogue }) {
   const {
     runtimeState,
     isWide,
@@ -51,15 +52,15 @@ export function ReaderCard({ runtime }: { runtime: OneStoryRuntime }) {
             <Text style={styles.statusText}>
               {isQuestionInvitePlayback
                 ? `${withParticle(speaker?.displayName ?? '이야기 친구', '이/가')} 묻고 있어요`
-                : statusCopy(runtimeState, runtime.isClassLesson)}
+                : statusCopy(runtimeState, runtime.readingContext)}
             </Text>
           </View>
         </View>
       )}
 
       <IdlePanel runtime={runtime} />
-      <PlaybackCaption runtime={runtime} />
-      <QuestionInvitePanel runtime={runtime} />
+      <PlaybackCaption runtime={runtime} dialogue={dialogue} />
+      <QuestionInvitePanel runtime={runtime} dialogue={dialogue} />
       <RecordingVoicePanel runtime={runtime} />
       <RecordingTextPanel runtime={runtime} />
       <ConfirmTranscriptPanel runtime={runtime} />

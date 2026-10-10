@@ -8,6 +8,8 @@ import { personalizeStoryText } from '@/entities/narration';
 import type { StoryRuntimePackage } from '@/entities/story';
 import type { QuestionOutcome } from '@/entities/analytics';
 
+import { idleStatusFor, type ReadingContext } from './reading-context';
+
 /**
  * 챕터 사이드바 되감기가 질문 기록(QuestionOutcome)에 미치는 영향을 나눈다 - 되감기 대상 장면
  * "이전" 장면의 앵커에서 나온 기록은 그대로 유지하고(kept), 대상 장면부터 그 이후 장면의 앵커에서
@@ -193,10 +195,10 @@ export function getVisualAssetId({
   );
 }
 
-export function statusCopy(state: StoryRuntimeState, isClassLesson = false) {
+export function statusCopy(state: StoryRuntimeState, context: ReadingContext = 'HOME') {
   switch (state.status) {
     case 'idle':
-      return isClassLesson ? '반 아이들과 함께 읽을 준비' : '부모님과 함께 읽을 준비';
+      return idleStatusFor(context);
     case 'playing-fixed':
       return '이야기 듣는 중';
     case 'awaiting-question':

@@ -132,7 +132,8 @@ export function TopBar({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`${dialogue.character.displayName}에게 말하기`}
-            style={styles.topControlButton}
+            // 장면 끝 쉼에는 "말해 봐" 안내와 함께 이 버튼을 강조한다.
+            style={[styles.topControlButton, runtime.sceneEndActive && styles.topControlButtonHighlight]}
             hitSlop={TOP_CONTROL_HIT_SLOP}
             // 대화를 열면 낭독을 멈추고(use-dialogue openChat), 닫으면 멈춘 문장부터 이어 간다.
             onPress={() => void dialogue.openChat()}

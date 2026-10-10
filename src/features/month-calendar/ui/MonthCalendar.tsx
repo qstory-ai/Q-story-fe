@@ -24,6 +24,8 @@ type MonthCalendarProps<T extends MonthCalendarItem> = {
   renderItem: (item: T) => ReactNode;
   /** 선택된 날에 항목이 없을 때 아래에 보여줄 문구. */
   emptyDayMessage?: string;
+  /** 처음 열 때 고를 날(기본 오늘) - 지난 기록 달력은 가장 최근 기록 날에서 시작한다. */
+  initialDate?: Date;
 };
 
 const WEEKDAY_HEADERS = ['일', '월', '화', '수', '목', '금', '토'] as const;
@@ -36,9 +38,10 @@ export function MonthCalendar<T extends MonthCalendarItem>({
   items,
   renderItem,
   emptyDayMessage = '이 날에는 예정된 항목이 없어요.',
+  initialDate,
 }: MonthCalendarProps<T>) {
-  const [selectedDate, setSelectedDate] = useState<Date>(() => startOfDay(new Date()));
-  const [viewMonth, setViewMonth] = useState<Date>(() => startOfMonth(new Date()));
+  const [selectedDate, setSelectedDate] = useState<Date>(() => startOfDay(initialDate ?? new Date()));
+  const [viewMonth, setViewMonth] = useState<Date>(() => startOfMonth(initialDate ?? new Date()));
 
   // 날짜별 그루핑 - dot 표시와 선택된 날의 목록에 둘 다 쓴다. key는 로컬 YYYY-MM-DD.
   const itemsByDay = useMemo(() => {

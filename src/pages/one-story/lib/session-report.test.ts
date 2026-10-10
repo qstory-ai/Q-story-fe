@@ -5,12 +5,14 @@ import test from 'node:test';
 import { hanselGretelStoryPackage as storyPackage } from '@/entities/story/hansel-gretel/manifest';
 
 import {
+  childReplyPairs,
   classSceneRows,
   evidenceTurns,
   groupExchanges,
   inputTags,
   readAgainChoice,
   readRangeLabel,
+  sceneDialogue,
   skippedInviteScenes,
   storyChanges,
 } from './session-report';
@@ -85,4 +87,24 @@ test('read again picks the only linked child or asks to choose', () => {
   assert.deepEqual(readAgainChoice([]), { kind: 'none' });
   assert.deepEqual(readAgainChoice([{ id: 'c1', name: '서아' }]), { kind: 'one', childId: 'c1' });
   assert.equal(readAgainChoice([{ id: 'c1', name: '서아' }, { id: 'c2', name: '도윤' }]).kind, 'pick');
+});
+
+test('scene dialogue puts every line back in order, and each child line gets the reply right after it', () => {
+  const [bird] = groupExchanges(storyPackage, turns);
+  assert.deepEqual(sceneDialogue(bird).map((turn) => turn.seq), [1, 2, 3, 4, 5]);
+  const pairs = childReplyPairs(bird);
+  assert.deepEqual(
+    pairs.map((pair) => [pair.child.seq, pair.reply?.seq ?? null]),
+    [[2, 3], [4, null]],
+    'the last child line has no reply yet - only the action follows',
+  );
+});
+
+test('a child line followed by another child line has no reply of its own', () => {
+  const [scene] = groupExchanges(storyPackage, [
+    { seq: 1, occurredAt: '', sceneId: 'HG-F04', role: 'CHILD', text: '새다' },
+    { seq: 2, occurredAt: '', sceneId: 'HG-F04', role: 'CHILD', text: '어디 가?' },
+    { seq: 3, occurredAt: '', sceneId: 'HG-F04', role: 'CHARACTER', text: '같이 보자.' },
+  ]);
+  assert.deepEqual(childReplyPairs(scene).map((pair) => pair.reply?.seq ?? null), [null, 3]);
 });

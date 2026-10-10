@@ -101,6 +101,8 @@ import {
   splitQuestionOutcomesAtScene,
 } from '../lib/runtime-view';
 import { resolveExit } from '../lib/exit-destination';
+import { readingContextFor } from '../lib/reading-context';
+import { SCENE_END_PAUSE_MS, dialogueResumePlan, isSceneEndClip } from '../lib/scene-end-pause';
 import {
   isAwaitingInviteFor,
   questionSkipMetadata,
@@ -311,6 +313,10 @@ export function useOneStoryRuntime(
   const firstResponseAudioMsRef = useRef<number | null>(null);
   const trackedPlaybackResultsRef = useRef(new Set<string>());
   const activeNarrationIdRef = useRef<string | null>(null);
+  // 그레텔 대화(아이가 연 대화)가 열려 있는 동안 - 낭독 effect가 새 대사를 시작하지 않는다.
+  const dialogueHoldRef = useRef(false);
+  // 지금 재생 중인 낭독 effect의 AbortController - 대화를 열 때 질문 초대 음성·분기 응답 음성까지 끊는다.
+  const playbackAbortRef = useRef<AbortController | null>(null);
   const processingAbortRef = useRef<AbortController | null>(null);
   const voiceResearchConsentRef = useRef<VoiceResearchConsent | null>(null);
   const pendingVoiceResearchSampleRef = useRef<{
@@ -352,6 +358,9 @@ export function useOneStoryRuntime(
   const [captionVisible, setCaptionVisible] = useState(true);
   const [questionInviteSpeaking, setQuestionInviteSpeaking] = useState(false);
   const [narrationAttempt, setNarrationAttempt] = useState(0);
+  // 장면 끝 쉼 - 장면의 마지막 대사가 끝난 뒤 다음 장면으로 넘어가기 전 잠깐 멈춘다(아이가 물어볼 틈).
+  // auto=false면 아이가 무언가를 눌러 자동 넘김을 멈춘 상태 - "이어 듣기"·"다음 장면"으로 넘어간다.
+  const [sceneEndPause, setSceneEndPause] = useState<{ clipId: string; auto: boolean } | null>(null);
   const [questionOutcomes, setQuestionOutcomes] = useState<QuestionOutcome[]>(
     [],
   );
@@ -614,13 +623,15 @@ export function useOneStoryRuntime(
     if (
       runtimeState.status !== 'playing-fixed' ||
       !currentClip ||
-      activeNarrationIdRef.current === currentClip.id
+      activeNarrationIdRef.current === currentClip.id ||
+      dialogueHoldRef.current
     ) {
       return;
     }
     activeNarrationIdRef.current = currentClip.id;
     setActiveBranchVisualId(null);
     const controller = new AbortController();
+    playbackAbortRef.current = controller;
     let cancelled = false;
     let recoveryTimer: ReturnType<typeof setTimeout> | null = null;
     const playCurrentClip = async () => {
@@ -658,8 +669,14 @@ export function useOneStoryRuntime(
     playCurrentClip()
       .then(() => {
         if (!cancelled && runtimeRef.current.status === 'playing-fixed') {
-          activeNarrationIdRef.current = null;
           setQuestionInviteSpeaking(false);
+          // 장면의 마지막 대사 - 바로 다음 장면으로 가지 않고 잠깐 쉰다(activeNarrationIdRef는 그대로 둬
+          // 같은 대사를 다시 틀지 않는다). 쉼이 끝나면 advanceFromSceneEnd가 AUDIO_ENDED를 보낸다.
+          if (isSceneEndClip(storyManifest, runtimeRef.current, currentClip.id)) {
+            setSceneEndPause({ clipId: currentClip.id, auto: true });
+            return;
+          }
+          activeNarrationIdRef.current = null;
           commitEvent({ type: 'AUDIO_ENDED', clipId: currentClip.id });
         }
       })
@@ -712,7 +729,7 @@ export function useOneStoryRuntime(
     runtimeState,
     speakNarration,
     spokenText,
-    storyManifest.storyId,
+    storyManifest,
     storyPackage,
     trackStoryEvent,
   ]);
@@ -1731,6 +1748,9 @@ export function useOneStoryRuntime(
     if (activeNarrationIdRef.current === responseId) {
       return;
     }
+    if (dialogueHoldRef.current) {
+      return;
+    }
     activeNarrationIdRef.current = responseId;
     const responseBranch = getBranchFamily(responseState, storyPackage);
     const branchVisualAssetId =
@@ -1738,6 +1758,7 @@ export function useOneStoryRuntime(
         ? storyPackage.branchIllustrationAssetId(responseState.plan.actionFamilyId)
         : null;
     const controller = new AbortController();
+    playbackAbortRef.current = controller;
     let cancelled = false;
     let recoveryTimer: ReturnType<typeof setTimeout> | null = null;
     const branchPlaybackStartedAt = Date.now();
@@ -1925,11 +1946,40 @@ export function useOneStoryRuntime(
     [getTurnRecorder, storyPackage, trackStoryEvent],
   );
 
+  // ── 장면 끝 쉼 ─────────────────────────────────────────────
+  // 쉼은 그 대사에 머무는 동안만 유효하다 - 건너뛰기·되감기·처음부터 등으로 다른 대사로 가면 버린다.
+  const sceneEndActive =
+    sceneEndPause !== null && runtimeState.status === 'playing-fixed' && currentClip?.id === sceneEndPause.clipId;
+  if (sceneEndPause && !sceneEndActive) {
+    setSceneEndPause(null);
+  }
+  /** 쉼을 끝내고 다음 장면으로 넘어간다(시간이 다 됐거나 "이어 듣기"·대화 닫기). */
+  const advanceFromSceneEnd = useCallback(() => {
+    setSceneEndPause(null);
+    const state = runtimeRef.current;
+    const clip = getRuntimeClip(state, storyPackage);
+    if (state.status !== 'playing-fixed' || !clip || activeNarrationIdRef.current !== clip.id) return;
+    activeNarrationIdRef.current = null;
+    commitEvent({ type: 'AUDIO_ENDED', clipId: clip.id });
+  }, [commitEvent, storyPackage]);
+  /** 아이가 쉼 화면을 건드렸다 - 자동으로 넘기지 않고 기다린다. */
+  const holdSceneEnd = useCallback(() => {
+    setSceneEndPause((current) => (current && current.auto ? { ...current, auto: false } : current));
+  }, []);
+  const sceneEndAutoAdvancing =
+    sceneEndActive && Boolean(sceneEndPause?.auto) && !homeMenuVisible && !chaptersOpen;
+  useEffect(() => {
+    if (!sceneEndAutoAdvancing) return;
+    const timer = setTimeout(advanceFromSceneEnd, SCENE_END_PAUSE_MS);
+    return () => clearTimeout(timer);
+  }, [advanceFromSceneEnd, sceneEndAutoAdvancing]);
+
   const replayCurrent = useCallback(async () => {
     if (!currentClip && !isBranchPlaybackState) {
       return;
     }
     trackPlaybackControl('replay');
+    setSceneEndPause(null);
     activeNarrationIdRef.current = null;
     await stopNarration();
     setNarrationAttempt((attempt) => attempt + 1);
@@ -2014,19 +2064,33 @@ export function useOneStoryRuntime(
     [storyManifest.questionAnchors],
   );
 
-  /** 그레텔 대화를 열면 낭독을 멈추고, 닫으면 멈춘 문장부터 이어 간다. 멈춘 게 없으면 아무것도 안 한다. */
-  const dialoguePausedNarrationRef = useRef(false);
+  /**
+   * 그레텔 대화를 열면 낭독을 멈추고(장면 끝 쉼이면 자동 넘김도 멈춘다), 닫으면 이야기를 저절로 이어 간다.
+   * 대화 중 그레텔 목소리가 같은 낭독 채널을 쓰므로 멈춘 자리를 이어 틀 수 없다 - 그래서 열 때 낭독을 끊어
+   * 두고(새 대사도 시작하지 않게 막고), 닫을 때 멈춘 문장을 처음부터 다시 들려준다. 장면 끝 쉼이었으면
+   * 다음 장면으로 넘어간다(lib/scene-end-pause dialogueResumePlan).
+   */
   const pauseForDialogue = useCallback(async () => {
-    if (narrationState.isSpeaking && !narrationState.isPaused) {
-      dialoguePausedNarrationRef.current = await pauseNarration();
-    }
-  }, [narrationState.isPaused, narrationState.isSpeaking, pauseNarration]);
+    dialogueHoldRef.current = true;
+    holdSceneEnd();
+    playbackAbortRef.current?.abort();
+    await stopNarration();
+  }, [holdSceneEnd, stopNarration]);
   const resumeAfterDialogue = useCallback(async () => {
-    if (dialoguePausedNarrationRef.current) {
-      dialoguePausedNarrationRef.current = false;
-      await resumeNarration();
+    dialogueHoldRef.current = false;
+    const plan = dialogueResumePlan({
+      sceneEndPending: sceneEndActive,
+      status: runtimeRef.current.status,
+    });
+    if (plan === 'advance') {
+      advanceFromSceneEnd();
+      return;
     }
-  }, [resumeNarration]);
+    if (plan === 'replay') {
+      activeNarrationIdRef.current = null;
+      setNarrationAttempt((attempt) => attempt + 1);
+    }
+  }, [advanceFromSceneEnd, sceneEndActive]);
 
   /** 그레텔의 고정 대사(도움 단계 등)를 그레텔 목소리로 말한다. */
   const speakDialogueLine = useCallback(
@@ -2038,6 +2102,13 @@ export function useOneStoryRuntime(
 
   const toggleNarration = useCallback(async () => {
     setParentMessage(null);
+    // 장면 끝 쉼: 자동으로 넘어가는 중이면 멈추고, 멈춰 있으면 다음 장면으로 넘어간다.
+    if (sceneEndActive) {
+      trackPlaybackControl(sceneEndPause?.auto ? 'pause' : 'resume');
+      if (sceneEndPause?.auto) holdSceneEnd();
+      else advanceFromSceneEnd();
+      return;
+    }
     trackPlaybackControl(narrationState.isPaused ? 'resume' : 'pause');
     const changed = narrationState.isPaused
       ? await resumeNarration()
@@ -2046,9 +2117,13 @@ export function useOneStoryRuntime(
       setParentMessage('현재 문장이 준비되면 다시 눌러 주세요.');
     }
   }, [
+    advanceFromSceneEnd,
+    holdSceneEnd,
     narrationState.isPaused,
     pauseNarration,
     resumeNarration,
+    sceneEndActive,
+    sceneEndPause?.auto,
     trackPlaybackControl,
   ]);
 
@@ -2420,9 +2495,22 @@ export function useOneStoryRuntime(
     isPlaybackDockState && !isParentReport && Boolean(currentClip || isBranchPlaybackState);
   const showPlaybackDock = isNarrow && showPlaybackControls;
 
+  const readingContext = readingContextFor({
+    lessonId,
+    tutorStudentId,
+    role: authState.status === 'authenticated' ? authState.user.role : null,
+  });
+
   return {
     // 반 수업(lessonId)으로 연 이야기 - 선생님이 반 아이들과 읽으니 "부모님과 함께" 문구를 바꾼다.
     isClassLesson: Boolean(lessonId),
+    // 누가 아이와 읽는지(가정·선생님 한 명·반 수업) - 시작 화면 문구가 "부모님/선생님"을 고른다.
+    readingContext,
+    // 장면 끝 쉼(lib/scene-end-pause) - 캡션 자리에 "그레텔에게 말해 봐" 안내, 상단 말하기 버튼 강조.
+    sceneEndActive,
+    sceneEndAutoAdvancing,
+    holdSceneEnd,
+    advanceFromSceneEnd,
     // 레이아웃
     isWide,
     isShort,
@@ -2474,7 +2562,8 @@ export function useOneStoryRuntime(
     childName,
     // 홈에서 이미 골라 놓은 아이 이름 - 있으면 IdlePanel이 이름 입력 대신 확인 문구만 보여준다
     // (null이면 데모 등 선택된 아이가 없는 경로).
-    selectedChildName: selectedChild?.name ?? null,
+    // 보호자 가정 세션에서만 - 선생님 세션에 이 기기에 남은 보호자 아이 이름이 뜨지 않게.
+    selectedChildName: readingContext === 'HOME' ? (selectedChild?.name ?? null) : null,
     questionMode,
     typedQuestion,
     conversationAttribution,

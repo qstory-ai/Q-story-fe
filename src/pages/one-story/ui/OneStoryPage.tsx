@@ -108,7 +108,7 @@ export function OneStoryPage({
               ]}
             />
           )}
-          {!dialogue.open && <ReaderCard runtime={runtime} />}
+          {!dialogue.open && <ReaderCard runtime={runtime} dialogue={dialogue} />}
         </ScrollView>
 
         {!dialogue.open && <PlaybackDock runtime={runtime} />}

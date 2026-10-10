@@ -26,6 +26,7 @@ import type { PlayTurnInput } from '@/entities/play-session';
 
 import { GRETEL_COMPANION } from '../lib/companion-character';
 import { buildDialogueScene, wrapUpFor, type WrapUpSignal } from '../lib/dialogue-context';
+import { punctuateChildQuestion } from '../lib/question-punctuation';
 import type { QuestionSkipReason } from '../lib/question-skip';
 import type { OneStoryRuntime } from './use-one-story-runtime';
 
@@ -270,31 +271,22 @@ export function useDialogue({
     logTurn({ role: 'CHARACTER', text: greeting, fixed: true, characterSpeakerId: character.speakerId, anchorId: null, entryMode: 'SPONTANEOUS' });
   }, [character.speakerId, logStep, logTurn, open, resetSessionRefs, runtime]);
 
-  // 질문 초대 대사가 끝나면(awaiting-question) 같은 패널을 질문 초대 모드로 연다.
-  // 초대 대사는 이미 낭독으로 들었으므로 다시 말하지 않고 첫 말풍선으로만 둔다.
-  // 상태는 렌더 중에 맞추고(React의 "prop이 바뀔 때 state 조정" 방식), ref·로그·소리 정리는 effect에서 한다.
+  // 질문 초대 대사가 끝나면(awaiting-question) 초대 카드(QuestionInvitePanel)가 [궁금한 거 물어보기]
+  // [이야기 계속 듣기]를 띄워 아이가 고를 때까지 기다린다 - 패널을 저절로 열지 않는다(PM: 너무 빨리 사라짐).
+  // 물어보기를 누르면 openInvite가 같은 패널을 질문 초대 모드로 연다(초대 대사가 그레텔의 첫 말풍선).
+  // 이야기가 질문 초대를 벗어나면(행동 확인, 처음부터 다시 등) 초대 패널은 렌더 중에 닫는다.
   const invitedAnchorId = runtimeState.status === 'awaiting-question' ? runtimeState.anchorId : null;
   const [seenInviteAnchorId, setSeenInviteAnchorId] = useState<string | null>(null);
   if (invitedAnchorId !== seenInviteAnchorId) {
     setSeenInviteAnchorId(invitedAnchorId);
-    if (invitedAnchorId) {
-      resetSessionState();
-      setMode('INVITE');
-      setAnchorId(invitedAnchorId);
-      setTurns([{ id: `invite-${invitedAnchorId}`, role: 'CHARACTER', text: activeQuestionPrompt, fixed: true }]);
-      setOpen(true);
-    } else if (mode === 'INVITE' && open) {
-      // 이야기가 질문 초대를 벗어나면(행동 확인, 처음부터 다시 등) 초대 패널은 닫는다.
+    if (!invitedAnchorId && mode === 'INVITE' && open) {
       setOpen(false);
     }
   }
   useEffect(() => {
     if (invitedAnchorId) {
-      resetSessionRefs('INVITE');
       inviteChildSpokeRef.current = false;
-      const payload: StepMetadata = { entry_mode: 'INVITE', turn_kind: 'OPEN', anchor_id: invitedAnchorId };
-      if (sceneId) payload.scene_id = sceneId;
-      void trackStoryEvent('dialogue_step', payload);
+      // 초대 대사는 낭독으로 이미 들었다 - 패널을 열지 않고 건너뛰어도 그레텔이 물은 줄은 기록에 남긴다.
       if (sceneId) {
         recordTurn({
           sceneId,
@@ -401,14 +393,16 @@ export function useDialogue({
       abortRef.current = controller;
 
       const history = turns.map(({ role, text: turnText }) => ({ role, text: turnText }));
+      // 받아 적은 말엔 물음표가 없다 - 묻는 말이면 "?"를 붙여 말풍선에 보이고 그대로 보낸다(글로 쓴 말은 손대지 않는다).
+      const childText = inputMode === 'VOICE' ? punctuateChildQuestion(text) : text;
       childTurnCountRef.current += 1;
       const turnNumber = childTurnCountRef.current;
       const wrapUp: WrapUpSignal = wrapUpFor(turnNumber, extended);
-      addTurn({ role: 'CHILD', text });
+      addTurn({ role: 'CHILD', text: childText });
       if (mode === 'INVITE') inviteChildSpokeRef.current = true;
       logTurn({
         role: 'CHILD',
-        text,
+        text: childText,
         inputMode,
         // 반 수업은 선생님이 반을 대신해 입력한다. 가정은 보호자가 대신 썼다고 고른 경우만 표시한다.
         speaker: lessonId ? 'TEACHER_RELAY' : guardianProxy ? 'GUARDIAN_PROXY' : 'UNVERIFIED',
@@ -430,7 +424,7 @@ export function useDialogue({
             storyId: storyPackage.storyId,
             sceneId,
             conversationId,
-            transcript: text,
+            transcript: childText,
             speakerId: character.speakerId,
             inputMode,
             childId: conversationAttribution.childId,
@@ -659,27 +653,42 @@ export function useDialogue({
     onGiveUp: () => void giveUpListening(),
   });
 
-  // Q-34: 가정 세션은 질문 초대 낭독이 끝나면(awaiting-question) 탭 없이 바로 듣기 시작한다.
-  // 이 화면에서 초대 낭독을 실제로 들었을 때만(이어 듣기로 곧장 초대 상태에 들어온 경우 제외),
-  // 마이크 권한을 이미 받았을 때만 - 거절·미지원·반 수업이면 기존처럼 "말하기" 버튼을 기다린다.
-  // 초대 낭독을 들은 앵커 - 낭독이 끊기고 다른 상태로 가면(건너뛰기·되감기 등) 지운다.
-  const inviteHeardAnchorRef = useRef<string | null>(null);
-  const { activeQuestionAnchorId } = runtime;
-  useEffect(() => {
-    if (isQuestionInvitePlayback) inviteHeardAnchorRef.current = activeQuestionAnchorId;
-    else if (!invitedAnchorId) inviteHeardAnchorRef.current = null;
-  }, [activeQuestionAnchorId, invitedAnchorId, isQuestionInvitePlayback]);
-  const autoListenPermitted = !lessonId && !paused && recorder.permissionState === 'granted';
-  useEffect(() => {
-    if (!invitedAnchorId || inviteHeardAnchorRef.current !== invitedAnchorId) return;
-    // 다음 틱에 시작한다 - effect 안에서 곧장 상태를 바꾸지 않고, 개발 모드의 effect 두 번 실행에도 한 번만 돈다.
-    const timer = setTimeout(() => {
-      inviteHeardAnchorRef.current = null;
-      if (autoListenPermitted) void startTalking();
-    }, 0);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invitedAnchorId]);
+  /**
+   * 초대 카드의 [궁금한 거 물어보기] - 그레텔 패널을 질문 초대 모드로 열고, 초대 대사를 그레텔의 첫 말풍선으로
+   * 둔다. 가정 세션은 누르자마자 듣기 시작한다(Q-34). 반 수업은 선생님이 "말하기"·"글로 쓰기"를 고른다.
+   */
+  const openInvite = useCallback(() => {
+    if (!invitedAnchorId || open) return;
+    primeResponseAudio();
+    resetSessionState();
+    resetSessionRefs('INVITE');
+    inviteChildSpokeRef.current = false;
+    setMode('INVITE');
+    setAnchorId(invitedAnchorId);
+    setTurns([{ id: `invite-${invitedAnchorId}`, role: 'CHARACTER', text: activeQuestionPrompt, fixed: true }]);
+    setOpen(true);
+    const payload: StepMetadata = { entry_mode: 'INVITE', turn_kind: 'OPEN', anchor_id: invitedAnchorId };
+    if (sceneId) payload.scene_id = sceneId;
+    void trackStoryEvent('dialogue_step', payload);
+    // 다음 틱에 시작한다 - 패널이 열린 뒤에 듣기 시작해야 "닫힌 패널은 듣지 않기" 가드에 걸리지 않는다.
+    if (!lessonId) setTimeout(() => void startTalking(), 0);
+  }, [activeQuestionPrompt, invitedAnchorId, lessonId, open, resetSessionRefs, sceneId, startTalking, trackStoryEvent]);
+
+  /** 초대 카드의 [이야기 계속 듣기] - 패널을 열지 않고 질문을 건너뛴다(대화 기록엔 INVITE_SKIPPED). */
+  const skipInvite = useCallback(async () => {
+    if (!invitedAnchorId) return;
+    if (sceneId) {
+      recordTurn({
+        sceneId,
+        visualId: visualAssetId,
+        anchorId: invitedAnchorId,
+        entryMode: 'INVITE',
+        role: 'SYSTEM',
+        event: 'INVITE_SKIPPED',
+      });
+    }
+    await runtime.continueFromInvite(invitedAnchorId);
+  }, [invitedAnchorId, recordTurn, runtime, sceneId, visualAssetId]);
 
   const confirmTranscript = useCallback(() => {
     if (confirmSentRef.current) return;
@@ -780,10 +789,12 @@ export function useDialogue({
   );
 
   /** 아이가 원할 때만 도움 대사를 한 단계씩 들려준다(시간이 지났다고 저절로 주지 않는다). */
-  const askHelp = useCallback(async () => {
+  const askHelp = useCallback(async (childLabel = '도와줘') => {
     if (!anchorId || helpStep >= helpSteps.length) return;
     cancelPending();
     stopSpeaking();
+    // 아이가 누른 말을 아이 말풍선으로 먼저 보여 준 뒤 그레텔이 돕는다(대화처럼 읽히게). 기록엔 HELP 단계로 남는다.
+    addTurn({ role: 'CHILD', text: childLabel });
     const step = helpStep + 1;
     setHelpStep(step);
     if (childTurnCountRef.current === 0) entryModeRef.current = 'HELP';
@@ -791,7 +802,7 @@ export function useDialogue({
     // 아이가 아직 아무 말도 안 했으면 이어 갈 맥락이 없다 - 미리 녹음한 도움 대사가 빠르고 정확하다.
     if (childTurnCountRef.current > 0 && (await sayContextualHelp(step))) return;
     await sayFixedLine(`dialogue-${anchorId}-help-${step}`, helpSteps[step - 1], step);
-  }, [anchorId, cancelPending, helpStep, helpSteps, logStep, sayContextualHelp, sayFixedLine, stopSpeaking]);
+  }, [addTurn, anchorId, cancelPending, helpStep, helpSteps, logStep, sayContextualHelp, sayFixedLine, stopSpeaking]);
 
   /** 마지막 도움 단계에서 보여 주는 예시(C) - 고르면 바로 그 행동으로 이어 간다("예시 후 선택"). */
   const suggestions = helpStep >= helpSteps.length && helpSteps.length > 0 ? (inviteHelp?.suggestions ?? []) : [];
@@ -873,6 +884,8 @@ export function useDialogue({
       ? (storyPackage.manifest.fallbackFamilies.find((family) => family.id === proposal.familyId)?.meaning ?? null)
       : null,
     openChat,
+    openInvite,
+    skipInvite,
     close,
     startTalking,
     stopTalking,

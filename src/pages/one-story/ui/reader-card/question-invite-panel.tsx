@@ -3,9 +3,10 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import { ActionButton, storybookTheme } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../../model';
+import type { UseDialogue } from '../../model/use-dialogue';
 import { styles } from '../styles';
 
-export function QuestionInvitePanel({ runtime }: { runtime: OneStoryRuntime }) {
+export function QuestionInvitePanel({ runtime, dialogue }: { runtime: OneStoryRuntime; dialogue: UseDialogue }) {
   const {
     isQuestionInvitePlayback,
     runtimeState,
@@ -18,10 +19,13 @@ export function QuestionInvitePanel({ runtime }: { runtime: OneStoryRuntime }) {
     continueStory,
   } = runtime;
 
-  // 초대 대사가 끝난 뒤(awaiting-question)는 그레텔 대화 패널(DialoguePanel)이 이어 받는다.
+  const awaitingInvite = runtimeState.status === 'awaiting-question';
+  // 초대 대사가 끝난 뒤(awaiting-question)에도 카드를 남겨 아이가 고를 때까지 기다린다 - [궁금한 거 물어보기]를
+  // 누르면 그레텔 대화 패널(DialoguePanel)이 이어 받고, [이야기 계속 듣기]는 질문을 건너뛴다.
   if (
     !(
       isQuestionInvitePlayback ||
+      awaitingInvite ||
       runtimeState.status === 'awaiting-clarification' ||
       runtimeState.status === 'awaiting-safety-retry'
     )
@@ -38,6 +42,8 @@ export function QuestionInvitePanel({ runtime }: { runtime: OneStoryRuntime }) {
       <Text style={styles.questionHelp}>
         {isQuestionInvitePlayback
           ? `${speaker?.displayName ?? '이야기 친구'}의 질문을 들어봐요.`
+          : awaitingInvite
+            ? '궁금한 게 있으면 물어봐요. 없으면 이야기를 계속 들어도 돼요.'
           : runtimeState.status === 'awaiting-clarification'
             ? '조금만 더 알려주면 그레텔이 뜻을 이해할 수 있어요.'
             : runtimeState.status === 'awaiting-safety-retry'
@@ -53,6 +59,11 @@ export function QuestionInvitePanel({ runtime }: { runtime: OneStoryRuntime }) {
               : '질문 음성을 준비하고 있어요'}
           </Text>
         </View>
+      ) : awaitingInvite ? (
+        <>
+          <ActionButton variant="primary" label="궁금한 거 물어보기" onPress={dialogue.openInvite} />
+          <ActionButton variant="secondaryFull" label="이야기 계속 듣기" onPress={() => void dialogue.skipInvite()} />
+        </>
       ) : (
         <>
           <ActionButton

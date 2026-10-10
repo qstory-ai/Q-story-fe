@@ -162,6 +162,11 @@ export const styles = StyleSheet.create({
     borderColor: 'rgba(246,198,77,0.7)',
     backgroundColor: 'rgba(45, 25, 53, 0.86)',
   },
+  topControlButtonHighlight: {
+    borderColor: storybookTheme.color.gold,
+    borderWidth: 2,
+    backgroundColor: 'rgba(246,198,77,0.28)',
+  },
   topControlText: {
     color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.xxs,
@@ -393,6 +398,13 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   nameHint: { color: storybookTheme.color.onLightMuted, fontSize: storybookTheme.type.xxs, lineHeight: 17 },
+  nameKnownRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap' },
+  nameChangeLink: {
+    color: '#6B4A8A',
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
+    textDecorationLine: 'underline',
+  },
   nameKnownText: {
     color: '#4E3267',
     fontSize: storybookTheme.type.sm,
@@ -424,7 +436,40 @@ export const styles = StyleSheet.create({
     lineHeight: 17,
     textAlign: 'center',
   },
+  parentHintList: { gap: 2, alignItems: 'center' },
+  parentHintLink: {
+    color: storybookTheme.color.onLightMuted,
+    fontSize: storybookTheme.type.xxs,
+    lineHeight: 17,
+    fontWeight: storybookTheme.type.weight.bold,
+    textDecorationLine: 'underline',
+    paddingTop: 2,
+  },
   playbackContent: { gap: 5 },
+  // 장면 끝 쉼 - 캡션 자리의 "그레텔에게 말해 봐" 안내와 두 버튼.
+  sceneEndPrompt: {
+    color: storybookTheme.color.gold,
+    fontSize: storybookTheme.type.md,
+    lineHeight: 25,
+    fontWeight: storybookTheme.type.weight.bold,
+    textAlign: 'center',
+  },
+  sceneEndActions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, paddingTop: 4 },
+  sceneEndButton: {
+    minHeight: 40,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255, 253, 246, 0.16)',
+  },
+  sceneEndButtonPrimary: { backgroundColor: storybookTheme.color.gold },
+  sceneEndButtonPressed: { opacity: 0.8 },
+  sceneEndButtonText: {
+    color: storybookTheme.color.surfaceWhite,
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
+  },
+  sceneEndButtonTextPrimary: { color: storybookTheme.color.onCardTitle },
   captionHeader: {
     minHeight: 20,
     flexDirection: 'row',

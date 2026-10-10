@@ -12,11 +12,13 @@ import {
   useAudioRecorderAdapter,
   useSpeechAutoStop,
 } from '@/features/record-question';
+import { fetchLineNarration } from '@/features/narrate-story';
 import { reportClientError } from '@/entities/analytics';
 import {
   CompanionChatError,
   sendCompanionChatMessage,
   transcribeCompanionChatAudio,
+  type CompanionChatReply,
   type CompanionReplyKind,
 } from '@/entities/companion-chat';
 import { STT_UNAVAILABLE_CHILD_COPY, isSttUnavailableCode } from '@/entities/speech-pipeline';
@@ -354,6 +356,40 @@ export function useDialogue({
 
   // ── 그레텔에게 보내기 ─────────────────────────────────────
 
+  /**
+   * 그레텔 답의 음성을 들려준다. 서버가 음성을 미뤘으면(audioDeferred) 같은 목소리 설정의 실시간 낭독으로 받는다 -
+   * 기기 음성으로 대신하지 않는다(목소리가 달라진다). 반환: 들려줬으면 true, 음성이 없거나 실패하면 false,
+   * 그 사이 아이가 끊었거나 새 요청이 시작됐으면 null(호출부는 바로 멈춘다).
+   */
+  const speakReply = useCallback(
+    async (reply: CompanionChatReply, seq: number): Promise<boolean | null> => {
+      const audioController = new AbortController();
+      audioAbortRef.current = audioController;
+      const cancelled = () => audioController.signal.aborted || seq !== requestSeqRef.current;
+      let audio: BufferedResponseAudio | null = reply.audio;
+      if (!audio && reply.audioDeferred) {
+        setPhase('speaking');
+        audio = await fetchLineNarration({
+          storyId: storyPackage.manifest.storyId,
+          speakerId: character.speakerId,
+          text: reply.responseText,
+        }).catch(() => null);
+        if (cancelled()) return null;
+      }
+      if (!audio) return false;
+      setPhase('speaking');
+      let played = false;
+      try {
+        played = await playResponseAudio(audio, audioController.signal);
+      } catch {
+        // 음성이 실패해도 글 답은 패널에 있다.
+      }
+      if (cancelled()) return null;
+      return played;
+    },
+    [character.speakerId, storyPackage.manifest.storyId],
+  );
+
   const send = useCallback(
     async (rawText: string, inputMode: 'VOICE' | 'TEXT') => {
       const text = rawText.trim().slice(0, MAX_TEXT);
@@ -405,6 +441,7 @@ export function useDialogue({
             executedActions,
             anchorId: mode === 'INVITE' ? anchorId : null,
             wrapUp,
+            deferAudio: true,
           },
           controller.signal,
         );
@@ -443,21 +480,10 @@ export function useDialogue({
           });
         }
 
-        if (reply.audio) {
-          setPhase('speaking');
-          const audioController = new AbortController();
-          audioAbortRef.current = audioController;
-          let played = false;
-          try {
-            played = await playResponseAudio(reply.audio as BufferedResponseAudio, audioController.signal);
-          } catch {
-            // 음성이 실패해도 글 답은 패널에 있다.
-          }
-          logTurn({ ...replyTurn, replyAudioPlayed: played && !audioController.signal.aborted });
-          if (audioController.signal.aborted || seq !== requestSeqRef.current) return;
-        } else {
-          logTurn({ ...replyTurn, replyAudioPlayed: false });
-        }
+        // 말풍선은 이미 떴다 - 음성은 그 뒤에 받는다(deferAudio, 음성 만들기가 기다림의 대부분).
+        const played = await speakReply(reply, seq);
+        logTurn({ ...replyTurn, replyAudioPlayed: played === true });
+        if (played === null) return;
         if (ending) {
           await close(signal.childWantsToEnd ? 'CHILD_ENDED' : 'CLOSED_BY_REPLY');
           return;
@@ -484,7 +510,7 @@ export function useDialogue({
     [
       addTurn, anchorId, cancelPending, character.speakerId, close, conversationAttribution.childId,
       conversationId, executedActions, extended, guardianProxy, heardClipId, helpStep, helpSteps.length, lessonId,
-      logStep, logTurn, mode, sceneId, stopSpeaking, storyPackage, turns, tutorStudentId,
+      logStep, logTurn, mode, sceneId, speakReply, stopSpeaking, storyPackage, turns, tutorStudentId,
     ],
   );
 
@@ -692,6 +718,67 @@ export function useDialogue({
 
   // ── 도움 ──────────────────────────────────────────────────
 
+  /**
+   * 대화를 나눈 뒤의 도움 - 미리 쓴 도움 대사를 방향(hint)으로 보내 그레텔이 앞 대화에 이어지게 새로 말한다
+   * (PM 피드백: 대화 중에 눌러도 처음 도움 멘트가 그대로 나왔다). 실패하면 false - 미리 쓴 대사로 돌아간다.
+   */
+  const sayContextualHelp = useCallback(
+    async (step: number) => {
+      if (!anchorId || !sceneId) return false;
+      const seq = requestSeqRef.current;
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setPhase('thinking');
+      const sentAt = Date.now();
+      try {
+        const reply = await sendCompanionChatMessage(
+          {
+            storyId: storyPackage.storyId,
+            sceneId,
+            conversationId,
+            transcript: '도와줘',
+            speakerId: character.speakerId,
+            inputMode: 'TEXT',
+            childId: conversationAttribution.childId,
+            tutorStudentId,
+            lessonId,
+            history: turns.map(({ role, text }) => ({ role, text })),
+            scene: buildDialogueScene(storyPackage, sceneId, heardClipId()),
+            executedActions,
+            anchorId,
+            wrapUp: 'NONE',
+            help: { step, total: helpSteps.length, hint: helpSteps[step - 1] },
+            deferAudio: true,
+          },
+          controller.signal,
+        );
+        if (seq !== requestSeqRef.current) return true;
+        lastReplyRef.current = reply.responseText;
+        addTurn({ role: 'CHARACTER', text: reply.responseText });
+        const played = await speakReply(reply, seq);
+        logTurn({
+          role: 'CHARACTER',
+          text: reply.responseText,
+          latencyMs: Date.now() - sentAt,
+          characterSpeakerId: character.speakerId,
+          replyKind: reply.dialogue.replyKind,
+          replyAudioPlayed: played === true,
+          helpStep: step,
+          entryMode: 'HELP',
+        });
+        if (played !== null) setPhase('ready');
+        return true;
+      } catch {
+        // 끊긴 요청이면 도움을 다시 말하지 않는다. 그 밖의 실패는 미리 쓴 대사로 돕는다.
+        return controller.signal.aborted || seq !== requestSeqRef.current;
+      }
+    },
+    [
+      addTurn, anchorId, character.speakerId, conversationAttribution.childId, conversationId, executedActions,
+      heardClipId, helpSteps, lessonId, logTurn, sceneId, speakReply, storyPackage, turns, tutorStudentId,
+    ],
+  );
+
   /** 아이가 원할 때만 도움 대사를 한 단계씩 들려준다(시간이 지났다고 저절로 주지 않는다). */
   const askHelp = useCallback(async () => {
     if (!anchorId || helpStep >= helpSteps.length) return;
@@ -701,8 +788,10 @@ export function useDialogue({
     setHelpStep(step);
     if (childTurnCountRef.current === 0) entryModeRef.current = 'HELP';
     logStep('HELP', { help_step: step });
+    // 아이가 아직 아무 말도 안 했으면 이어 갈 맥락이 없다 - 미리 녹음한 도움 대사가 빠르고 정확하다.
+    if (childTurnCountRef.current > 0 && (await sayContextualHelp(step))) return;
     await sayFixedLine(`dialogue-${anchorId}-help-${step}`, helpSteps[step - 1], step);
-  }, [anchorId, cancelPending, helpStep, helpSteps, logStep, sayFixedLine, stopSpeaking]);
+  }, [anchorId, cancelPending, helpStep, helpSteps, logStep, sayContextualHelp, sayFixedLine, stopSpeaking]);
 
   /** 마지막 도움 단계에서 보여 주는 예시(C) - 고르면 바로 그 행동으로 이어 간다("예시 후 선택"). */
   const suggestions = helpStep >= helpSteps.length && helpSteps.length > 0 ? (inviteHelp?.suggestions ?? []) : [];

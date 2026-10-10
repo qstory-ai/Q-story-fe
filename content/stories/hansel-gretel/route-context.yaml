@@ -1,6 +1,6 @@
 schemaVersion: 1
 storyId: HG
-routePromptVersion: QSTORY_ROUTE_PROMPT_V6_COVERAGE
+routePromptVersion: QSTORY_ROUTE_PROMPT_V7_COVERAGE
 routePolicyVersion: qstory-route-policy-v3-coverage
 responseTextNormalizationVersion: qstory-ko-response-normalizer-v2
 # Q-30 최종 원고: A·C는 미리 준비한 행동 대본 두 개씩만 실행하고, B는 대화만 한다.

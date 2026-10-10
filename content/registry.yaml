@@ -11,8 +11,8 @@ assetStorage:
 # Route policies live beside the stories rather than in backend code; a story names one of these
 # in its route-context.yaml routePromptVersion.
 prompts:
-  - version: QSTORY_ROUTE_PROMPT_V6_COVERAGE
-    file: qstory-route-prompt-v6-coverage.yaml
+  - version: QSTORY_ROUTE_PROMPT_V7_COVERAGE
+    file: qstory-route-prompt-v7-coverage.yaml
 stories:
   - storyId: HG
     slug: hansel-gretel

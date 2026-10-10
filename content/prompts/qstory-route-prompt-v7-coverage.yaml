@@ -1,5 +1,5 @@
 schemaVersion: 1
-version: QSTORY_ROUTE_PROMPT_V6_COVERAGE
+version: QSTORY_ROUTE_PROMPT_V7_COVERAGE
 
 # The route policy handed to the LLM. It used to be two String.joins inside
 # OpenRouterClient.java while the version label naming it travelled with the story into the
@@ -89,7 +89,7 @@ stages:
           responseText: "음, 그건 다른 이야기라 지금은 안 돼. 우리 이야기 속에서 다음에 뭘 할지 같이 정해보자."
       - input:
           childTranscript: "그레텔이 나중에 집에 무사히 돌아가?"
-          forbiddenKnowledge: ["과자집 노파의 정체", "마녀의 계획", "최종 탈출 방법과 결말"]
+          forbiddenKnowledge: ["과자집 할머니의 정체", "마녀의 계획", "최종 탈출 방법과 결말"]
         output:
           verdict: "REDIRECT"
           redirectReason: "아직 일어나지 않은 결말을 미리 알려달라는 요구"
@@ -170,10 +170,10 @@ stages:
             - id: "B_CHECK_HOUSE"
               summary: "창문·문틀 같은 집의 상태를 확인한다."
             - id: "B_CHECK_KEYS"
-              summary: "노파가 든 열쇠고리를 확인한다."
+              summary: "할머니가 든 열쇠고리를 확인한다."
           hasRejoinAnchor: true
-          sceneObservables: ["아이들이 과자집을 발견했고 노파가 문을 열었다."]
-          answerableFacts: ["아이들이 과자집을 발견했고 노파가 문을 열었다."]
+          sceneObservables: ["아이들이 과자집을 발견했고 할머니가 문을 열었다."]
+          answerableFacts: ["아이들이 과자집을 발견했고 할머니가 문을 열었다."]
           allowedSpeakerIds: ["HG-SPK-GRETEL"]
           fixedRejoinAnchorId: "HG-F05-ENTER-HOUSE"
           fallbackFamilyId: "B_CHECK_HOUSE"
@@ -214,14 +214,14 @@ stages:
           clarificationAlreadyUsed: false
           allowedFamilies:
             - id: "B_ASK_OLD_WOMAN"
-              summary: "노파에게 안전한지 말로 묻는다."
+              summary: "할머니에게 안전한지 말로 묻는다."
             - id: "B_CHECK_KEYS"
-              summary: "노파가 든 열쇠고리를 확인한다."
+              summary: "할머니가 든 열쇠고리를 확인한다."
             - id: "B_CHECK_HOUSE"
               summary: "창문·문틀 같은 집의 상태를 확인한다."
           hasRejoinAnchor: true
-          sceneObservables: ["아이들이 과자집 문 앞에서 노파를 만났다."]
-          answerableFacts: ["아이들이 과자집 문 앞에서 노파를 만났다."]
+          sceneObservables: ["아이들이 과자집 문 앞에서 할머니를 만났다."]
+          answerableFacts: ["아이들이 과자집 문 앞에서 할머니를 만났다."]
           allowedSpeakerIds: ["HG-SPK-GRETEL"]
           fixedRejoinAnchorId: "HG-F05-ENTER-HOUSE"
           fallbackFamilyId: "B_CHECK_HOUSE"
@@ -240,14 +240,14 @@ stages:
           clarificationAlreadyUsed: false
           allowedFamilies:
             - id: "B_ASK_OLD_WOMAN"
-              summary: "노파에게 안전한지 말로 묻는다."
+              summary: "할머니에게 안전한지 말로 묻는다."
             - id: "B_CHECK_KEYS"
-              summary: "노파가 든 열쇠고리를 확인한다."
+              summary: "할머니가 든 열쇠고리를 확인한다."
             - id: "B_CHECK_HOUSE"
               summary: "창문·문틀 같은 집의 상태를 확인한다."
           hasRejoinAnchor: true
-          sceneObservables: ["아이들이 과자집 문 앞에서 노파를 만났다."]
-          answerableFacts: ["아이들이 과자집 문 앞에서 노파를 만났다."]
+          sceneObservables: ["아이들이 과자집 문 앞에서 할머니를 만났다."]
+          answerableFacts: ["아이들이 과자집 문 앞에서 할머니를 만났다."]
           allowedSpeakerIds: ["HG-SPK-GRETEL"]
           fixedRejoinAnchorId: "HG-F05-ENTER-HOUSE"
           fallbackFamilyId: "B_CHECK_HOUSE"
@@ -326,7 +326,7 @@ stages:
           coverageStatus: "exact"
           speaker: "HG-SPK-GRETEL"
           sceneObservables: ["아이들이 과자집 앞에 서 있다."]
-          forbiddenKnowledge: ["과자집 노파의 정체", "마녀의 계획", "최종 탈출 방법과 결말"]
+          forbiddenKnowledge: ["과자집 할머니의 정체", "마녀의 계획", "최종 탈출 방법과 결말"]
           allowedFamilies:
             - id: "B_CHECK_HOUSE"
               summary: "창문·문틀 같은 집의 상태를 확인한다."
@@ -340,7 +340,7 @@ stages:
           coverageStatus: "exact"
           speaker: "HG-SPK-GRETEL"
           sceneObservables: ["과자집은 지붕과 벽이 빵과 사탕으로 덮여 있고 달콤한 냄새가 난다."]
-          forbiddenKnowledge: ["과자집 노파의 정체", "마녀의 계획", "최종 탈출 방법과 결말"]
+          forbiddenKnowledge: ["과자집 할머니의 정체", "마녀의 계획", "최종 탈출 방법과 결말"]
           allowedFamilies:
             - id: "B_CHECK_HOUSE"
               summary: "창문·문틀 같은 집의 상태를 확인한다."
@@ -354,7 +354,7 @@ stages:
           coverageStatus: "exact"
           speaker: "HG-SPK-GRETEL"
           sceneObservables: ["과자집은 지붕과 벽이 빵과 사탕으로 덮여 있고 달콤한 냄새가 난다."]
-          forbiddenKnowledge: ["과자집 노파의 정체", "마녀의 계획", "최종 탈출 방법과 결말"]
+          forbiddenKnowledge: ["과자집 할머니의 정체", "마녀의 계획", "최종 탈출 방법과 결말"]
           allowedFamilies:
             - id: "B_CHECK_HOUSE"
               summary: "창문·문틀 같은 집의 상태를 확인한다."
@@ -367,13 +367,13 @@ stages:
           childRelevantMeaning: "집에 들어가는 게 안전한지 무서워함"
           coverageStatus: "exact"
           speaker: "HG-SPK-GRETEL"
-          sceneObservables: ["아이들이 과자집 문 앞에서 노파를 만났다."]
-          forbiddenKnowledge: ["과자집 노파의 정체", "마녀의 계획", "최종 탈출 방법과 결말"]
+          sceneObservables: ["아이들이 과자집 문 앞에서 할머니를 만났다."]
+          forbiddenKnowledge: ["과자집 할머니의 정체", "마녀의 계획", "최종 탈출 방법과 결말"]
           allowedFamilies:
             - id: "B_ASK_OLD_WOMAN"
-              summary: "노파에게 안전한지 말로 묻는다."
+              summary: "할머니에게 안전한지 말로 묻는다."
             - id: "B_CHECK_KEYS"
-              summary: "노파가 든 열쇠고리를 확인한다."
+              summary: "할머니가 든 열쇠고리를 확인한다."
             - id: "B_CHECK_HOUSE"
               summary: "창문·문틀 같은 집의 상태를 확인한다."
           optionSlots: 3
@@ -381,13 +381,13 @@ stages:
           responseText: "좋아, 그럼 어떻게 확인해볼지 같이 골라보자."
           options:
             - id: "OPTION_1"
-              label: "노파에게 물어보기"
-              meaning: "노파에게 이 집에 들어가도 안전한지 다정하게 묻는다."
-              branchLine: "좋아, 노파에게 안전한지 먼저 물어볼게."
+              label: "할머니에게 물어보기"
+              meaning: "할머니에게 이 집에 들어가도 안전한지 다정하게 묻는다."
+              branchLine: "좋아, 할머니에게 안전한지 먼저 물어볼게."
               actionFamilyId: "B_ASK_OLD_WOMAN"
             - id: "OPTION_2"
               label: "열쇠고리 확인하기"
-              meaning: "노파가 들고 있는 열쇠고리를 조심히 살펴본다."
+              meaning: "할머니가 들고 있는 열쇠고리를 조심히 살펴본다."
               branchLine: "좋아, 저 열쇠고리부터 살펴보자."
               actionFamilyId: "B_CHECK_KEYS"
             - id: "OPTION_3"

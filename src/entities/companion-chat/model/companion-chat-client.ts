@@ -20,6 +20,8 @@ export type CompanionChatReply = {
   responseText: string;
   safetyMode: CompanionChatSafetyMode;
   audio: BufferedResponseAudio | null;
+  /** deferAudio로 보냈더니 서버가 음성 없이 글만 먼저 돌려줬다 - 음성은 따로 받는다(fetchLineNarration). */
+  audioDeferred: boolean;
   dialogue: CompanionDialogueSignal;
 };
 
@@ -31,6 +33,13 @@ export type CompanionDialogueContext = {
   /** 질문 초대 중이면 그 앵커 id. */
   anchorId?: string | null;
   wrapUp?: 'NONE' | 'SUGGEST_RETURN' | 'CLOSE';
+  /**
+   * 질문 초대에서 "도와줘"를 눌렀을 때만 - 이번 도움 단계와 그 단계의 미리 쓴 도움 대사. 그레텔은 이 대사를
+   * 방향으로 삼아 앞 대화에 이어지게 새로 말한다(BE DialogueInput.Help).
+   */
+  help?: { step: number; total: number; hint: string };
+  /** true면 서버가 음성을 만들지 않고 글 답만 바로 돌려준다 - 말풍선을 먼저 띄우려고(음성이 기다림의 대부분). */
+  deferAudio?: boolean;
 };
 
 /**
@@ -172,6 +181,7 @@ export async function sendCompanionChatMessage(
       responseText: string;
       safety: { mode: CompanionChatSafetyMode };
       audio?: { mimeType: string; dataBase64: string };
+      audioDeferred?: boolean;
       dialogue?: Partial<CompanionDialogueSignal>;
     }
   >(response, '지금은 대답을 준비하지 못했어요.');
@@ -179,6 +189,8 @@ export async function sendCompanionChatMessage(
     responseText: body.responseText,
     safetyMode: body.safety.mode,
     audio: body.audio ? { mimeType: body.audio.mimeType, dataBase64: body.audio.dataBase64 } : null,
+    // 예전 서버는 deferAudio를 모르고 음성을 같이 보낸다 - 그때는 false라 그 음성을 그대로 쓴다.
+    audioDeferred: body.audioDeferred === true && !body.audio,
     dialogue: {
       replyKind: body.dialogue?.replyKind ?? (body.safety.mode === 'GENTLE_REDIRECT' ? 'REDIRECT' : 'ANSWER'),
       childWantsToEnd: body.dialogue?.childWantsToEnd ?? false,

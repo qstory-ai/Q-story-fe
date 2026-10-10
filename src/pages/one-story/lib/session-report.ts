@@ -68,6 +68,35 @@ export function groupExchanges(storyPackage: StoryRuntimePackage, turns: readonl
   return exchanges;
 }
 
+/** 장면 대화 전부(seq 순) - 크게 보기 화면이 lead와 rest를 다시 합쳐 원래 순서대로 보여 준다. */
+export function sceneDialogue(exchange: SceneExchange): PlayTurn[] {
+  return [...exchange.lead, ...exchange.rest].sort((a, b) => a.seq - b.seq);
+}
+
+export type ChildReplyPair = { child: PlayTurn; reply: PlayTurn | null };
+
+/**
+ * 장면 카드에 보여 줄 아이 말과 그 말에 대한 그레텔의 바로 다음 답. 다음 아이 말이 오기 전의
+ * 첫 캐릭터 줄만 답으로 본다(아이가 연달아 말했으면 앞 말은 답 없이).
+ */
+export function childReplyPairs(exchange: SceneExchange): ChildReplyPair[] {
+  const ordered = sceneDialogue(exchange);
+  const pairs: ChildReplyPair[] = [];
+  ordered.forEach((turn, index) => {
+    if (!isChildLine(turn)) return;
+    let reply: PlayTurn | null = null;
+    for (const next of ordered.slice(index + 1)) {
+      if (isChildLine(next)) break;
+      if (next.role === 'CHARACTER' && next.text?.trim()) {
+        reply = next;
+        break;
+      }
+    }
+    pairs.push({ child: turn, reply });
+  });
+  return pairs;
+}
+
 /**
  * 실제로 실행된 행동. 대화 기록이 있으면 행동 확인 줄에서, 없으면(옛 기록) 저장된 질문 기록에서 찾는다.
  * 같은 행동이 두 번 나오면(되감기 등) 마지막 것만.

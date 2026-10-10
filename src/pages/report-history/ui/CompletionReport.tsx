@@ -29,7 +29,7 @@ type LoadState =
 
 /**
  * 리포트 하나의 본문 - 저장된 outcomes와 이야기의 현재 reportCopy로, 실시간 세션이었다면 보여줬을 것과 동일한
- * ParentReport를 재구성한다. 리포트 상세 화면(/reports/:id)과 리포트 탭의 "가장 최근 리포트"가 함께 쓴다.
+ * ParentReport를 재구성한다. 리포트 상세 화면(/reports/:id)이 쓴다.
  */
 export function CompletionReport({
   token,

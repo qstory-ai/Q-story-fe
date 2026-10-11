@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 백업 끄기 - WebView 저장소(localStorage의 로그인 토큰·아이 이름 등)가 adb backup·클라우드 백업·
+         기기 간 이전으로 앱 밖에 나가지 않게. allowBackup="false"는 Android 11 이하의 백업을, 12+(targetSdk 31+)는
+         allowBackup이 기기 간 이전을 막지 못하므로 dataExtractionRules로 전부 뺀다. -->
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"

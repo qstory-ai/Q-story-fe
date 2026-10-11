@@ -543,7 +543,10 @@ test('all versioned master illustrations and every fixed narration clip are pack
   const dialogueLines = Object.entries(packageData.story.inviteHelp ?? {}).flatMap(([anchorId, help]) => [
     ...help.steps.map((text, index) => ({ clipId: `dialogue-${anchorId}-help-${index + 1}`, text })),
     ...(help.continueLine ? [{ clipId: `dialogue-${anchorId}-continue`, text: help.continueLine }] : []),
-  ]);
+  ]).concat(
+    // 그레텔 "생각 중" 채움말도 미리 녹음한다 - use-dialogue가 dialogue-thinking-<번호>로 찾고, 없으면 소리 없이 넘어간다.
+    (packageData.story.thinkingFillers ?? []).map((text, index) => ({ clipId: `dialogue-thinking-${index + 1}`, text })),
+  );
   assert.equal(
     narrationMetadata.clips.length,
     expectedFixedClipCount + branchInteractionEntries.length + dialogueLines.length,

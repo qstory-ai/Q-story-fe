@@ -223,5 +223,9 @@ export const STORY_AUDIO_ASSETS_BY_ID: Readonly<Record<string, Readonly<Record<s
     "dialogue-HG-Q-C-help-2": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-438ceae5b2e1.mp3" },
     "dialogue-HG-Q-C-help-3": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-f4105894e6e6.mp3" },
     "dialogue-HG-Q-C-help-4": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-4766558f0d4b.mp3" },
+    "dialogue-thinking-1": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/gretel-thinking-fccd46f13592.mp3" },
+    "dialogue-thinking-2": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/gretel-thinking-f6bc76ed0345.mp3" },
+    "dialogue-thinking-3": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/gretel-thinking-91c910fe5c7e.mp3" },
+    "dialogue-thinking-4": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/gretel-thinking-ade5957cb3b2.mp3" },
   },
 };

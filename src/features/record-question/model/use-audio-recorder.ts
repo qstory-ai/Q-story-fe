@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type {
   AudioRecorderAdapter,
+  RecordingStartOptions,
   RecorderPermissionFailure,
   RecorderPermissionState,
   RecorderRuntimeInfo,
@@ -16,6 +17,7 @@ import {
   ensureMeteringRunning,
   getMeteringAudioContext,
 } from './metering-audio-context';
+import { startPcmCapture, type PcmCapture } from './pcm-capture';
 import type { LevelFrame } from './silence-detector';
 
 const MIME_CANDIDATES = [
@@ -213,6 +215,13 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
   const stopResolveRef = useRef<((result: RecordingResult | null) => void) | null>(
     null,
   );
+  const pcmCaptureRef = useRef<Promise<PcmCapture | null> | null>(null);
+
+  const finishPcmCapture = useCallback(async () => {
+    const capture = pcmCaptureRef.current;
+    pcmCaptureRef.current = null;
+    await (await capture)?.stop();
+  }, []);
 
   const releaseStableRecordingUri = useCallback(() => {
     if (stableRecordingUriRef.current) {
@@ -222,6 +231,7 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
   }, []);
 
   const stopMetering = useCallback(() => {
+    void finishPcmCapture();
     if (meteringIntervalRef.current) {
       clearInterval(meteringIntervalRef.current);
       meteringIntervalRef.current = null;
@@ -240,7 +250,7 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
     sourceNodeRef.current = null;
     analyserRef.current = null;
     meteringBufferRef.current = null;
-  }, []);
+  }, [finishPcmCapture]);
 
   const subscribeLevel = useCallback((listener: (frame: LevelFrame) => void) => {
     const listeners = levelListenersRef.current;
@@ -364,7 +374,7 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
     }
   }, [runtimeInfo.hasGetUserMedia, runtimeInfo.isSecureContext]);
 
-  const startRecording = useCallback(async () => {
+  const startRecording = useCallback(async (options?: RecordingStartOptions) => {
     setError(null);
     setRecordingResult(null);
     releaseStableRecordingUri();
@@ -426,6 +436,17 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
           const frame: LevelFrame = { atMs: Date.now() - meteringStartedAt, rms };
           levelListenersRef.current.forEach((listener) => listener(frame));
         }, METERING_INTERVAL_MS);
+        const onPcmFrame = options?.onPcmFrame;
+        if (onPcmFrame) {
+          // 실시간 받아 적기 - 같은 마이크 노드에서 PCM을 뽑는다. 기다리지 않는다(녹음 시작을 늦추지 않게).
+          const capture = startPcmCapture(audioContext, source, onPcmFrame).catch(() => null);
+          pcmCaptureRef.current = capture;
+          void capture.then((started) => {
+            if (!started) options?.onPcmUnavailable?.();
+          });
+        }
+      } else {
+        options?.onPcmUnavailable?.();
       }
 
       const recorder = new MediaRecorder(stream, { mimeType });
@@ -496,6 +517,7 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
 
   const stopRecording = useCallback(async () => {
     setError(null);
+    void finishPcmCapture();
     const recorder = recorderRef.current;
     if (!recorder || recorder.state === 'inactive') {
       return null;
@@ -505,7 +527,7 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
       stopResolveRef.current = resolve;
       recorder.stop();
     });
-  }, []);
+  }, [finishPcmCapture]);
 
   const resetRecording = useCallback(() => {
     releaseStableRecordingUri();
@@ -531,6 +553,7 @@ export function useAudioRecorderAdapter(): AudioRecorderAdapter {
     requestPermission,
     startRecording,
     stopRecording,
+    finishPcmCapture,
     resetRecording,
     subscribeLevel,
   };

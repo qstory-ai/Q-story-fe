@@ -28,6 +28,8 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/me/consents', true],
   ['POST v1/companion-chat/messages', true],
   ['POST v1/companion-chat/transcriptions/base64', true],
+  // 실시간 받아 적기 표(1회용) - 소켓(wss /v1/stt/stream)은 프록시가 들지 못해 브라우저가 백엔드에 직접 붙는다.
+  ['POST v1/stt/stream-tickets', true],
   ['POST v1/auth/signup/organization', true],
   ['POST v1/auth/signup/parent', true],
   ['POST v1/auth/signup/tutor', true],
@@ -213,6 +215,7 @@ function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath === 'v1/me/usage-tracking') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath.startsWith('v1/me/push-tokens')) return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/launch-notifications') return MAX_AUTH_BODY_BYTES;
+  if (upstreamPath === 'v1/stt/stream-tickets') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/completion-surveys') return MAX_COMPLETION_SURVEY_BODY_BYTES;
   if (upstreamPath === 'v1/auth/me/profile-image') return MAX_PROFILE_IMAGE_BODY_BYTES;
   if (AUTH_PATH_PREFIXES.some((prefix) => upstreamPath.startsWith(prefix))) return MAX_AUTH_BODY_BYTES;

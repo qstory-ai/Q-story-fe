@@ -95,6 +95,12 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
         <Text style={panel.listenPrompt} accessibilityLiveRegion="polite">
           {dialogue.listenPrompt}
         </Text>
+        {/* 실시간 받아 적기 - 말하는 동안 알아들은 말을 보여 준다(멈추면 이 문장이 확인 단계로 바로 넘어간다). */}
+        {dialogue.livePartial ? (
+          <Text style={panel.confirmText} numberOfLines={3}>
+            듣고 있어요: {dialogue.livePartial}
+          </Text>
+        ) : null}
         <View style={panel.controls}>
           <View style={panel.meterTrack}>
             <View style={[panel.meterFill, { width: `${dialogue.meterPercent}%` }]} />

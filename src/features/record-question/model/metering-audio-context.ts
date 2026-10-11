@@ -4,6 +4,8 @@
  * 탭 핸들러("이야기 시작하기", "말하기")에서 primeRecorderAudio()로 미리 만들고 resume해 둔다.
  * 그래야 초대 낭독이 끝난 뒤 탭 없이 자동으로 시작한 녹음에서도 소리 크기를 읽을 수 있다.
  */
+import { preloadPcmCapture } from './pcm-capture';
+
 let sharedContext: AudioContext | null = null;
 
 export function getMeteringAudioContext(): AudioContext | null {
@@ -29,6 +31,7 @@ export function primeRecorderAudio() {
   if (context && context.state === 'suspended') {
     void context.resume().catch(() => {});
   }
+  if (context) preloadPcmCapture(context);
 }
 
 /** 멈춰 있으면 깨워 본다 - 탭 밖이면 resume이 끝나지 않을 수 있어 짧게만 기다린다. */

@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, Pill, RadioGroup, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, Modal, Pill, RadioGroup, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { useBackOr } from '@/shared/lib';
+import { useBackOr, withParticle } from '@/shared/lib';
 import {
   ORGANIZATION_PATHS,
   TUTOR_PATHS,
@@ -16,6 +16,7 @@ import {
   listClassStudents,
   previewClassByCode,
   reportDetailPath,
+  unlinkClassStudentParent,
   useAuth,
   type ClassResponse,
   type ClassStudentResponse,
@@ -92,6 +93,9 @@ export function ClassDetailPage() {
   const [lessonsReload, setLessonsReload] = useState(0);
   const [moveMode, setMoveMode] = useState(false);
   const [moveOutcome, setMoveOutcome] = useState<MoveOutcome | null>(null);
+  const [unlinkTarget, setUnlinkTarget] = useState<ClassStudentResponse | null>(null);
+  const [unlinking, setUnlinking] = useState(false);
+  const [unlinkError, setUnlinkError] = useState<string | null>(null);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -161,6 +165,21 @@ export function ClassDetailPage() {
       setAssigning(false);
     }
   }, [token, classId, pickedTutorId]);
+
+  const onUnlink = useCallback(async () => {
+    if (!token || !classId || !unlinkTarget) return;
+    setUnlinking(true);
+    setUnlinkError(null);
+    try {
+      await unlinkClassStudentParent(token, classId, unlinkTarget.id);
+      setUnlinkTarget(null);
+      setAttempt((n) => n + 1);
+    } catch (failure: unknown) {
+      setUnlinkError(messageForError(failure, '보호자 연결을 해제하지 못했어요. 잠시 후 다시 시도해 주세요.'));
+    } finally {
+      setUnlinking(false);
+    }
+  }, [token, classId, unlinkTarget]);
 
   if (state.status !== 'authenticated' || !viewer) return null;
   // 같은 반을 다시 불러오는 동안(이름 바꾸기·옮기기 뒤)에는 이전 화면을 그대로 둔다 - 전체가 로딩으로 깜빡이지 않게.
@@ -391,30 +410,44 @@ export function ClassDetailPage() {
                 </Text>
               ) : (
                 effective.students.map((student) => (
-                  <Pressable
-                    key={student.id}
-                    accessibilityRole="link"
-                    accessibilityLabel={`${student.name} 학생 상세 열기`}
-                    onPress={() => openStudent(student.id)}
-                    disabled={formerHomeroom}
-                    style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-                  >
-                    <View style={styles.flex}>
-                      <Text style={styles.rowTitle}>
-                        {student.name} · {student.ageBand}
-                      </Text>
-                      <Text style={styles.rowMeta}>
-                        {student.parentDisplayName
-                          ? `보호자 ${student.parentDisplayName}${viewer === 'DIRECTOR' && student.parentEmail ? ` · ${student.parentEmail}` : ''}`
-                          : '아직 보호자가 들어오지 않았어요'}
-                      </Text>
-                    </View>
-                    <Pill
-                      label={student.status === 'CONFIRMED' ? '연결됨' : '보호자 연결 대기'}
-                      tone={student.status === 'CONFIRMED' ? 'accent' : 'onCard'}
-                    />
-                    <Text style={styles.chevron}>›</Text>
-                  </Pressable>
+                  <View key={student.id} style={styles.rowGroup}>
+                    <Pressable
+                      accessibilityRole="link"
+                      accessibilityLabel={`${student.name} 학생 상세 열기`}
+                      onPress={() => openStudent(student.id)}
+                      disabled={formerHomeroom}
+                      style={({ pressed }) => [styles.rowLink, pressed && styles.pressed]}
+                    >
+                      <View style={styles.flex}>
+                        <Text style={styles.rowTitle}>
+                          {student.name} · {student.ageBand}
+                        </Text>
+                        <Text style={styles.rowMeta}>
+                          {student.parentDisplayName
+                            ? `보호자 ${student.parentDisplayName}${viewer === 'DIRECTOR' && student.parentEmail ? ` · ${student.parentEmail}` : ''}`
+                            : '아직 보호자가 들어오지 않았어요'}
+                        </Text>
+                      </View>
+                      <Pill
+                        label={student.status === 'CONFIRMED' ? '연결됨' : '보호자 연결 대기'}
+                        tone={student.status === 'CONFIRMED' ? 'accent' : 'onCard'}
+                      />
+                      <Text style={styles.chevron}>›</Text>
+                    </Pressable>
+                    {/* 반 코드로 남의 아이를 골라 이을 수 있어 담임·원장이 잘못된 연결을 끊는다(be#43). 지난 반·지난 담임은 못 끊는다. */}
+                    {!readOnly && student.status === 'CONFIRMED' && student.parentDisplayName ? (
+                      <View style={styles.rowActions}>
+                        <ActionButton
+                          label="보호자 연결 해제"
+                          variant="secondary"
+                          onPress={() => {
+                            setUnlinkError(null);
+                            setUnlinkTarget(student);
+                          }}
+                        />
+                      </View>
+                    ) : null}
+                  </View>
                 ))
               )}
             </View>
@@ -429,6 +462,20 @@ export function ClassDetailPage() {
           </>
         )}
       </ScrollView>
+      <Modal
+        visible={unlinkTarget !== null}
+        accessibilityLabel="보호자 연결 해제 확인"
+        eyebrow="보호자 연결"
+        title={unlinkTarget ? `${withParticle(unlinkTarget.name, '과/와')} 보호자 연결을 해제할까요?` : ''}
+        positiveAction={{ label: '연결 해제', onPress: onUnlink, loading: unlinking }}
+        negativeAction={{ label: '취소', onPress: () => setUnlinkTarget(null), disabled: unlinking }}
+      >
+        <Text style={styles.modalBody}>
+          {unlinkTarget?.parentDisplayName ? `${unlinkTarget.parentDisplayName}님은` : '이 보호자는'} 이제 이 학생의 수업 기록과
+          리포트를 볼 수 없어요. 학생은 명단에 그대로 남고, 실제 보호자라면 반 코드로 다시 연결할 수 있어요.
+        </Text>
+        {unlinkError ? <StatusBanner variant="warning" label={unlinkError} /> : null}
+      </Modal>
       {viewer === 'TUTOR' && loadedClass ? (
         <LessonFormModal
           key={lessonFormOpen ? 'open' : 'closed'}
@@ -695,6 +742,23 @@ const styles = StyleSheet.create({
     paddingVertical: storybookTheme.spacing.sm,
     borderTopWidth: 1,
     borderTopColor: storybookTheme.color.pillBorder,
+  },
+  rowGroup: {
+    borderTopWidth: 1,
+    borderTopColor: storybookTheme.color.pillBorder,
+    paddingBottom: storybookTheme.spacing.xs,
+  },
+  rowLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: storybookTheme.spacing.sm,
+    paddingVertical: storybookTheme.spacing.sm,
+  },
+  rowActions: { flexDirection: 'row', justifyContent: 'flex-end' },
+  modalBody: {
+    fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onCardBody,
   },
   pressed: { opacity: 0.85 },
   rowTitle: {

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useAuth } from '@/entities/auth';
-import { clearAnonymousLocalStoryProgress, loadAnonymousLocalStoryProgress } from '@/entities/analytics';
+import { clearAnonymousLocalStoryProgress, getBetaSessionId, loadAnonymousLocalStoryProgress } from '@/entities/analytics';
 import { listChildren } from '@/entities/child';
 import { recordStoryCompletion } from '@/entities/story-completion';
 
@@ -41,7 +41,9 @@ export function useSyncDemoCompletionOnAuth() {
         storyId: progress.storyId,
         durationSeconds: progress.elapsedSeconds,
         outcomes: progress.questionOutcomes,
-        ...(progress.sessionId ? { companionConversationId: progress.sessionId } : {}),
+        // 로그인 전 데모 회차는 익명(베타 세션) 회차다 - 같은 베타 세션 id를 함께 보내야 서버가 그 회차를 이 계정으로
+        // 가져와 대화가 리포트에 붙는다(be#43 linkForCompletion). 없으면 기록은 남지만 대화는 보이지 않는다.
+        ...(progress.sessionId ? { companionConversationId: progress.sessionId, betaSessionId: getBetaSessionId() } : {}),
         ...(progress.childId ? { childId: progress.childId } : {}),
         ...(progress.readFromSceneId ? { readFromSceneId: progress.readFromSceneId } : {}),
         ...(progress.readThroughSceneId ? { readThroughSceneId: progress.readThroughSceneId } : {}),

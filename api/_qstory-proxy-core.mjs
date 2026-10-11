@@ -124,6 +124,8 @@ const DYNAMIC_ROUTES = [
   { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/unarchive$`) },
   { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/students/move$`) },
   { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/term-transition$`) },
+  // 담임·원장이 반 학생의 잘못된 보호자 연결을 끊는다(be#43).
+  { method: 'DELETE', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/students/${UUID_SEGMENT}/parent-link$`) },
   { method: 'GET', pattern: new RegExp(`^v1/tutor-students/${UUID_SEGMENT}/class-history$`) },
   // 담임 초대 - 관리자가 만들기·지금 코드 보기, 선생님이 코드로 미리 보기(로그인 없이)·수락.
   { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/homeroom-invites$`) },

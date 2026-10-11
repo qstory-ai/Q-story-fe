@@ -25,6 +25,20 @@ export type CompanionChatReply = {
   dialogue: CompanionDialogueSignal;
 };
 
+/**
+ * 스트리밍으로 답 문장은 이미 받아 보여 줬는데 마지막 줄(태그·replyKind)이 실패했을 때 쓰는 답 - 보인 문장은 지우지
+ * 않고, 대화 표시는 평범한 답(아이 차례로 돌아감)으로 둔다.
+ */
+export function textOnlyCompanionReply(responseText: string): CompanionChatReply {
+  return {
+    responseText,
+    safetyMode: 'ANSWER',
+    audio: null,
+    audioDeferred: true,
+    dialogue: { replyKind: 'ANSWER', childWantsToEnd: false, childMeaning: '', asksForHelp: false, proposedActionFamilyId: null },
+  };
+}
+
 /** 그레텔 대화가 한 턴마다 같이 보내는 맥락(BE DialogueInput). 모두 선택. */
 export type CompanionDialogueContext = {
   history?: { role: 'CHILD' | 'CHARACTER'; text: string }[];
@@ -40,6 +54,11 @@ export type CompanionDialogueContext = {
   help?: { step: number; total: number; hint: string };
   /** true면 서버가 음성을 만들지 않고 글 답만 바로 돌려준다 - 말풍선을 먼저 띄우려고(음성이 기다림의 대부분). */
   deferAudio?: boolean;
+  /**
+   * deferAudio와 함께 true면 서버가 답 문장을 먼저 한 줄로 보낸다(NDJSON) - 답의 나머지(태그·replyKind)를 기다리지
+   * 않고 말풍선과 음성 요청을 시작하려고. 서버가 스트리밍을 꺼 두었으면 평소처럼 JSON 하나가 온다.
+   */
+  stream?: boolean;
 };
 
 /**
@@ -148,6 +167,69 @@ export async function transcribeCompanionChatAudio(
   return body.transcript;
 }
 
+type CompanionChatBody = FailureEnvelope & {
+  responseText: string;
+  safety: { mode: CompanionChatSafetyMode };
+  audio?: { mimeType: string; dataBase64: string };
+  audioDeferred?: boolean;
+  dialogue?: Partial<CompanionDialogueSignal>;
+};
+
+const REPLY_FAILED_COPY = '지금은 대답을 준비하지 못했어요.';
+
+/**
+ * 스트리밍 응답(NDJSON)을 읽는다 - {type:'text'} 줄은 onText로 바로 넘기고, 마지막 줄({type:'result', ...})이
+ * 평소 응답 본문이다. 실패도 마지막 줄의 ok:false로 온다.
+ */
+async function readStreamedBody(
+  response: Response,
+  onText: ((responseText: string) => void) | undefined,
+): Promise<CompanionChatBody> {
+  if (!response.ok || !response.body) {
+    return readBody<CompanionChatBody>(response, REPLY_FAILED_COPY);
+  }
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffered = '';
+  let last: (CompanionChatBody & { type?: string }) | null = null;
+  const take = (line: string) => {
+    if (!line.trim()) return;
+    let parsed: (CompanionChatBody & { type?: string; responseText?: string }) | null = null;
+    try {
+      parsed = JSON.parse(line) as CompanionChatBody & { type?: string };
+    } catch {
+      return;
+    }
+    if (parsed.type === 'text') {
+      if (typeof parsed.responseText === 'string' && parsed.responseText) onText?.(parsed.responseText);
+      return;
+    }
+    last = parsed;
+  };
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffered += decoder.decode(value, { stream: true });
+    let newline = buffered.indexOf('\n');
+    while (newline >= 0) {
+      take(buffered.slice(0, newline));
+      buffered = buffered.slice(newline + 1);
+      newline = buffered.indexOf('\n');
+    }
+  }
+  take(buffered + decoder.decode());
+  const body = last as (CompanionChatBody & { type?: string }) | null;
+  if (!body || body.ok === false || typeof body.responseText !== 'string') {
+    const failure = body?.failure;
+    throw new CompanionChatError(failure?.safeDetail ?? REPLY_FAILED_COPY, failure?.code, failure?.retryable);
+  }
+  return body;
+}
+
+/**
+ * @param onText stream:true일 때 서버가 답 문장을 먼저 보내면 한 번 불린다(최종 답과 같은 문장). 스트리밍이 아니면
+ *               불리지 않는다 - 호출부는 반환된 responseText로 말풍선을 띄운다.
+ */
 export async function sendCompanionChatMessage(
   input: {
     storyId: string;
@@ -165,6 +247,7 @@ export async function sendCompanionChatMessage(
     inputMode?: 'VOICE' | 'TEXT';
   } & CompanionChatAttribution & CompanionDialogueContext,
   signal?: AbortSignal,
+  onText?: (responseText: string) => void,
 ): Promise<CompanionChatReply> {
   if (!speechApiUrl) {
     throw new CompanionChatError('VITE_QSTORY_API_URL is not configured.');
@@ -175,16 +258,18 @@ export async function sendCompanionChatMessage(
     headers: { 'content-type': 'application/json', ...authorizationHeader() },
     body: JSON.stringify(input),
   });
+  return readCompanionReply(response, onText);
+}
 
-  const body = await readBody<
-    FailureEnvelope & {
-      responseText: string;
-      safety: { mode: CompanionChatSafetyMode };
-      audio?: { mimeType: string; dataBase64: string };
-      audioDeferred?: boolean;
-      dialogue?: Partial<CompanionDialogueSignal>;
-    }
-  >(response, '지금은 대답을 준비하지 못했어요.');
+/** 답 응답 읽기 - 스트리밍(NDJSON)이면 답 문장 줄을 onText로 먼저 넘기고, 아니면 평소 JSON 하나. */
+export async function readCompanionReply(
+  response: Response,
+  onText?: (responseText: string) => void,
+): Promise<CompanionChatReply> {
+  const streamed = (response.headers.get('content-type') ?? '').includes('application/x-ndjson');
+  const body = streamed
+    ? await readStreamedBody(response, onText)
+    : await readBody<CompanionChatBody>(response, REPLY_FAILED_COPY);
   return {
     responseText: body.responseText,
     safetyMode: body.safety.mode,

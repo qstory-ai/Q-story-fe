@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { hanselGretelManifest } from '@/entities/story/hansel-gretel/manifest';
 
-import { fetchLineNarration, fetchLineNarrationStream, getLineNarration } from './line-narration';
+import { fetchLineNarration, fetchLineNarrationStream, fetchReplyNarration, getLineNarration } from './line-narration';
 
 test('line narration sends an empty anchorId so the backend falls back to cast-only validation', async () => {
   let requestBody: Record<string, unknown> | null = null;
@@ -136,4 +136,36 @@ test('getLineNarration dedupes an in-flight request but does not keep serving a 
     '첫 요청이 끝난 뒤 같은 대사를 다시 요청하면 캐시된 값을 재사용하지 않고 새로 가져와야 한다(pcm-stream은 재생 후 재사용 불가하기 때문)',
   );
   assert.notEqual(first, second);
+});
+
+test('reply narration streams once and never retries as a second (buffered) TTS call', async () => {
+  const previousWindow = globalThis.window;
+  globalThis.window = { AudioContext: function AudioContext() {} };
+  try {
+    const paths: string[] = [];
+    const failing = async (input) => {
+      paths.push(String(input));
+      return new Response(JSON.stringify({ ok: false }), { status: 502, headers: { 'content-type': 'application/json' } });
+    };
+    const input = { storyId: hanselGretelManifest.storyId, speakerId: 'HG-SPK-GRETEL', text: '응, 조금 무서웠어.' };
+    assert.equal(await fetchReplyNarration(input, new AbortController().signal, failing, 'https://api.example'), null);
+    assert.deepEqual(paths, ['https://api.example/v1/narrations/stream']);
+
+    const streaming = async () =>
+      new Response(new Uint8Array([1, 0, 2, 0]), {
+        status: 200,
+        headers: { 'content-type': 'audio/pcm', 'x-qstory-audio-sample-rate': '24000' },
+      });
+    const audio = await fetchReplyNarration(input, new AbortController().signal, streaming, 'https://api.example');
+    assert.equal(audio?.kind, 'pcm-stream');
+
+    const controller = new AbortController();
+    const hanging = (_input, init) =>
+      new Promise((_resolve, reject) => init.signal.addEventListener('abort', () => reject(init.signal.reason)));
+    const pending = fetchReplyNarration(input, controller.signal, hanging, 'https://api.example');
+    controller.abort(new DOMException('stopped', 'AbortError'));
+    await assert.rejects(pending);
+  } finally {
+    globalThis.window = previousWindow;
+  }
 });

@@ -792,6 +792,13 @@ function validateStoryPackage(source) {
   for (const sceneId of Object.keys(story.sceneSynopses ?? {})) {
     if (!sceneIds.has(sceneId)) fail(story.storyId, `sceneSynopses names unknown scene ${sceneId}`);
   }
+  // 그레텔 "생각 중" 채움말(선택) - 미리 녹음해 dialogue-thinking-<번호>로 재생하므로 짧은 문장만 받는다.
+  if (story.thinkingFillers !== undefined) {
+    const fillers = story.thinkingFillers;
+    if (!Array.isArray(fillers) || fillers.length === 0 || fillers.some((line) => typeof line !== 'string' || !line.trim() || line.length > 20)) {
+      fail(story.storyId, 'thinkingFillers must be a non-empty list of short lines (20 chars or fewer)');
+    }
+  }
   for (const [anchorId, help] of Object.entries(story.inviteHelp ?? {})) {
     const anchor = routeContext.anchors?.[anchorId];
     if (!anchor) fail(story.storyId, `inviteHelp names unknown anchor ${anchorId}`);

@@ -41,6 +41,12 @@
       "HG-F09": "오리를 타고 한 명씩 물길을 건넌다. 천이 묶인 나무 쪽에서 집을 발견한다.",
       "HG-F10": "아버지가 잘못을 인정한다. 남매는 겪은 일을 전하고, 가족은 어려움을 함께 이야기하며 살아간다."
     },
+    "thinkingFillers": [
+      "음, 잠깐만!",
+      "아하, 그렇구나.",
+      "어디 보자…",
+      "음, 생각해 볼게!"
+    ],
     "inviteHelp": {
       "HG-Q-A": {
         "steps": [
@@ -2939,6 +2945,34 @@
       "file": "audio/q32-gretel-4766558f0d4b.mp3",
       "integrity": "sha256-kP7HL5LznUIJ+Soc0Paj0XudAfmTQoeUQB1XeUUFo4k=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-4766558f0d4b.mp3"
+    },
+    {
+      "slug": "dialogue-thinking-1",
+      "category": "NARRATION",
+      "file": "audio/gretel-thinking-fccd46f13592.mp3",
+      "integrity": "sha256-ujd/VyxS1i8q8yV2eUylc0FRdQO7kTp+KRepVDZ6jBU=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/gretel-thinking-fccd46f13592.mp3"
+    },
+    {
+      "slug": "dialogue-thinking-2",
+      "category": "NARRATION",
+      "file": "audio/gretel-thinking-f6bc76ed0345.mp3",
+      "integrity": "sha256-l50uuoEAHJFI8uy4BN441KRIyvt1tbtSt1WQ4jscsiM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/gretel-thinking-f6bc76ed0345.mp3"
+    },
+    {
+      "slug": "dialogue-thinking-3",
+      "category": "NARRATION",
+      "file": "audio/gretel-thinking-91c910fe5c7e.mp3",
+      "integrity": "sha256-Dzc+YTsu4Fb0NFe5INkJl3LigC83JJSVP3CcB2dI4zo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/gretel-thinking-91c910fe5c7e.mp3"
+    },
+    {
+      "slug": "dialogue-thinking-4",
+      "category": "NARRATION",
+      "file": "audio/gretel-thinking-ade5957cb3b2.mp3",
+      "integrity": "sha256-zuBa43bYYJuq3RHfYsThNrLWUPlOvlbvhnIzo0ZhyB8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/gretel-thinking-ade5957cb3b2.mp3"
     }
   ],
   "prompt": {
@@ -3528,5 +3562,5 @@
       }
     }
   },
-  "sourceDigest": "27c217eda8eca9dc3648004acffc6daada4baaae774263d882fe1181e5917cd9"
+  "sourceDigest": "bdd90bfd416a826536b2d5f5a806ef07df1787c153caa2f3e16a19edac50b3d6"
 }

@@ -72,10 +72,12 @@ export type StoryRuntimePackage = {
   ) => RoutePlan;
   speakerIdForTag: (tag: string) => string;
   narratorSpeakerId: string;
-  /** Q-31 그레텔 대화용 콘텐츠 - story.yaml의 sceneSynopses·inviteHelp. 없으면 빈 값. */
+  /** Q-31 그레텔 대화용 콘텐츠 - story.yaml의 sceneSynopses·inviteHelp·thinkingFillers. 없으면 빈 값. */
   dialogue: {
     sceneSynopses: Readonly<Record<string, string>>;
     inviteHelp: Readonly<Record<string, InviteHelp>>;
+    /** "생각 중" 채움말 문장 - i번째(0부터)의 녹음 id는 dialogue-thinking-<i+1>. */
+    thinkingFillers: readonly string[];
   };
 };
 
@@ -544,6 +546,7 @@ export function buildStoryRuntimePackage({
     dialogue: {
       sceneSynopses: packageData.story.sceneSynopses ?? {},
       inviteHelp: packageData.story.inviteHelp ?? {},
+      thinkingFillers: packageData.story.thinkingFillers ?? [],
     },
   };
 }

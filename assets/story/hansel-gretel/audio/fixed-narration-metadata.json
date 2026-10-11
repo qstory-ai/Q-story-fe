@@ -2055,6 +2055,54 @@
       "castVersion": "hg-gemini-tts-cast-v3",
       "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
       "byteSize": 102528
+    },
+    {
+      "clipId": "dialogue-thinking-1",
+      "sceneId": "HG-DIALOGUE",
+      "speaker": "GRETEL",
+      "text": "음, 잠깐만!",
+      "fileName": "gretel-thinking-fccd46f13592.mp3",
+      "model": "google/gemini-3.1-flash-tts-preview",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v3",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 18764
+    },
+    {
+      "clipId": "dialogue-thinking-2",
+      "sceneId": "HG-DIALOGUE",
+      "speaker": "GRETEL",
+      "text": "아하, 그렇구나.",
+      "fileName": "gretel-thinking-f6bc76ed0345.mp3",
+      "model": "google/gemini-3.1-flash-tts-preview",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v3",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 31724
+    },
+    {
+      "clipId": "dialogue-thinking-3",
+      "sceneId": "HG-DIALOGUE",
+      "speaker": "GRETEL",
+      "text": "어디 보자…",
+      "fileName": "gretel-thinking-91c910fe5c7e.mp3",
+      "model": "google/gemini-3.1-flash-tts-preview",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v3",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 18188
+    },
+    {
+      "clipId": "dialogue-thinking-4",
+      "sceneId": "HG-DIALOGUE",
+      "speaker": "GRETEL",
+      "text": "음, 생각해 볼게!",
+      "fileName": "gretel-thinking-ade5957cb3b2.mp3",
+      "model": "google/gemini-3.1-flash-tts-preview",
+      "voice": "Leda",
+      "castVersion": "hg-gemini-tts-cast-v3",
+      "performanceProfile": "A perceptive young girl who speaks directly and kindly to the child listening. Sound youthful, curious, and warm in questions; calm and decisive during the escape.",
+      "byteSize": 26828
     }
   ]
 }

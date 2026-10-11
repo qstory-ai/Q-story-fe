@@ -88,6 +88,8 @@ export type StoryPackageData = {
     sceneSynopses?: Record<string, string>;
     /** Q-31: 질문 초대의 도움 단계(앵커 id별). */
     inviteHelp?: Record<string, InviteHelp>;
+    /** 그레텔 "생각 중" 채움말 - 미리 녹음한 dialogue-thinking-<번호>(1부터)로 재생한다. */
+    thinkingFillers?: string[];
   };
   routeContext: {
     routePromptVersion: string;

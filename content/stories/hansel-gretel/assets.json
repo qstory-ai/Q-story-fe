@@ -1304,6 +1304,30 @@
       "category": "NARRATION",
       "file": "audio/q32-gretel-4766558f0d4b.mp3",
       "integrity": "sha256-kP7HL5LznUIJ+Soc0Paj0XudAfmTQoeUQB1XeUUFo4k="
+    },
+    {
+      "slug": "dialogue-thinking-1",
+      "category": "NARRATION",
+      "file": "audio/gretel-thinking-fccd46f13592.mp3",
+      "integrity": "sha256-ujd/VyxS1i8q8yV2eUylc0FRdQO7kTp+KRepVDZ6jBU="
+    },
+    {
+      "slug": "dialogue-thinking-2",
+      "category": "NARRATION",
+      "file": "audio/gretel-thinking-f6bc76ed0345.mp3",
+      "integrity": "sha256-l50uuoEAHJFI8uy4BN441KRIyvt1tbtSt1WQ4jscsiM="
+    },
+    {
+      "slug": "dialogue-thinking-3",
+      "category": "NARRATION",
+      "file": "audio/gretel-thinking-91c910fe5c7e.mp3",
+      "integrity": "sha256-Dzc+YTsu4Fb0NFe5INkJl3LigC83JJSVP3CcB2dI4zo="
+    },
+    {
+      "slug": "dialogue-thinking-4",
+      "category": "NARRATION",
+      "file": "audio/gretel-thinking-ade5957cb3b2.mp3",
+      "integrity": "sha256-zuBa43bYYJuq3RHfYsThNrLWUPlOvlbvhnIzo0ZhyB8="
     }
   ]
 }

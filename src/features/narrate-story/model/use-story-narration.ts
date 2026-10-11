@@ -325,6 +325,7 @@ export function useStoryNarration(
       liveAbortRef.current = null;
       const fixedSource = fixedNarrationAssets[request.id];
       if (!fixedSource) {
+        if (request.fixedOnly) return;
         await speakFallback(request);
         return;
       }
@@ -334,6 +335,7 @@ export function useStoryNarration(
         if (error instanceof Error && error.name === 'AbortError') {
           throw error;
         }
+        if (request.fixedOnly) return;
         await speakFallback(request);
       }
     },

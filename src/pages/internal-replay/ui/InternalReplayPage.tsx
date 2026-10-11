@@ -2,8 +2,9 @@ import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import {
+  RecordingChunkTooLargeError,
   SessionRecordingApiError,
-  decodeEvents,
+  decodeEventsWithSize,
   findRecordedSessions,
   listRecordedChunks,
   type RecordedSession,
@@ -11,11 +12,14 @@ import {
 import { useAuth } from '@/entities/auth';
 import { ActionButton, LoadingState, TextField, storybookTheme } from '@/shared/ui';
 
+import { defaultReplayUrlPolicy, sanitizeReplayEvents } from '../model/replay-sanitize';
 import { splitReplaySegments, type ReplaySegment } from '../model/replay-segments';
 import { ReplayPlayer } from './replay-player';
 
 const FORBIDDEN_COPY = '팀 계정으로 로그인해 주세요';
 const CODE_PATTERN = /^[0-9A-F]{6}$/;
+/** 한 녹화에서 풀어 올리는 전체 크기 한도 - 넘으면 거기까지만 재생한다(조각 하나 한도는 recording-chunks). */
+const MAX_DECODED_TOTAL_BYTES = 200 * 1024 * 1024;
 
 type Status = { kind: 'idle' } | { kind: 'loading'; label: string } | { kind: 'error'; message: string };
 
@@ -49,6 +53,7 @@ export function InternalReplayPage() {
   const [segments, setSegments] = useState<ReplaySegment[]>([]);
   const [segmentIndex, setSegmentIndex] = useState(0);
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
+  const [notice, setNotice] = useState<string | null>(null);
 
   const normalizedCode = code.trim().toUpperCase();
   const codeValid = CODE_PATTERN.test(normalizedCode);
@@ -76,17 +81,37 @@ export function InternalReplayPage() {
       setSelected(betaSessionId);
       setSegments([]);
       setSegmentIndex(0);
+      setNotice(null);
       setStatus({ kind: 'loading', label: '녹화 조각을 받아 풀고 있어요.' });
       try {
         const { chunks } = await listRecordedChunks(token, betaSessionId);
         const decoded: unknown[] = [];
+        let totalBytes = 0;
+        let oversized = 0;
+        let truncated = false;
         for (const chunk of chunks) {
           try {
-            decoded.push(...(await decodeEvents(chunk.encoding, chunk.data)));
-          } catch {
-            // 풀지 못한 조각은 건너뛴다 - 나머지로 재생한다.
+            const { events, bytes } = await decodeEventsWithSize(chunk.encoding, chunk.data);
+            if (totalBytes + bytes > MAX_DECODED_TOTAL_BYTES) {
+              truncated = true;
+              break;
+            }
+            totalBytes += bytes;
+            decoded.push(...events);
+          } catch (failure) {
+            // 풀지 못한 조각·너무 큰 조각은 건너뛴다 - 나머지로 재생한다.
+            if (failure instanceof RecordingChunkTooLargeError) oversized += 1;
           }
         }
+        if (truncated || oversized > 0) {
+          setNotice(
+            truncated
+              ? '녹화가 너무 커서 앞부분만 재생해요.'
+              : `너무 큰 조각 ${oversized}개는 빼고 재생해요.`,
+          );
+        }
+        // 녹화 안의 바깥 주소(이미지·CSS 등)를 지운다 - 보는 사람 브라우저가 남의 서버로 요청을 보내지 않게.
+        sanitizeReplayEvents(decoded, defaultReplayUrlPolicy(typeof window === 'undefined' ? undefined : window.location.origin));
         const found = splitReplaySegments(decoded);
         setSegments(found);
         setStatus(found.length > 0 ? { kind: 'idle' } : { kind: 'error', message: '재생할 수 있는 화면 기록이 없어요.' });
@@ -122,6 +147,7 @@ export function InternalReplayPage() {
       {state.status !== 'loading' && !token && <Text style={styles.error}>{FORBIDDEN_COPY}</Text>}
       {status.kind === 'loading' && <LoadingState label={status.label} compact />}
       {status.kind === 'error' && <Text style={styles.error}>{status.message}</Text>}
+      {notice && <Text style={styles.body}>{notice}</Text>}
 
       {sessions && (
         <View style={styles.panel}>

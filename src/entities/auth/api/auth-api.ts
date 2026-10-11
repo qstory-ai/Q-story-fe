@@ -198,12 +198,16 @@ export function uploadProfileImage(
   return request('/v1/auth/me/profile-image', { method: 'POST', body: form }, { ...options, token });
 }
 
-/** "비밀번호를 잊어버렸을 때" 쓰는 confirmPasswordReset()과 달리, 로그인된 상태에서 현재 비밀번호로 바로 바꾼다. */
+/**
+ * "비밀번호를 잊어버렸을 때" 쓰는 confirmPasswordReset()과 달리, 로그인된 상태에서 현재 비밀번호로 바로 바꾼다.
+ * 바꾸면 이전에 발급된 토큰(다른 기기 포함)은 모두 무효가 되고, 응답의 새 토큰으로 이 기기를 이어 쓴다(be#43).
+ * 예전 서버는 204(본문 없음)를 돌려주므로 undefined일 수 있다 - 그때는 지금 토큰을 그대로 쓴다.
+ */
 export function changePassword(
   token: string,
   input: { currentPassword: string; newPassword: string },
   options?: RequestOptions,
-): Promise<void> {
+): Promise<AuthResponse | undefined> {
   return request('/v1/auth/me/password', { method: 'POST', body: JSON.stringify(input) }, { ...options, token });
 }
 
@@ -396,6 +400,23 @@ export function joinExistingClass(
     '/v1/classes/join-existing',
     { method: 'POST', body: JSON.stringify(input) },
     { ...options, token },
+  );
+}
+
+/**
+ * 담임·원장이 반 학생의 보호자 연결을 끊는다(be#43) - 반 코드로 남의 아이를 골라 이은 잘못된 연결을 되돌린다. 학생은
+ * 명단에 남고(보호자 연결 대기) 끊긴 보호자는 이 아이 기록을 더 보지 못한다. 실제 보호자는 반 코드로 다시 이으면 된다.
+ */
+export function unlinkClassStudentParent(
+  token: string,
+  classId: string,
+  studentId: string,
+  options?: RequestOptions,
+): Promise<void> {
+  return request(
+    `/v1/classes/${classId}/students/${studentId}/parent-link`,
+    { method: 'DELETE' },
+    { ...options, token, parseResponse: false },
   );
 }
 

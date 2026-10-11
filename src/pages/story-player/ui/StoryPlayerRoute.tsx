@@ -39,9 +39,9 @@ export function StoryPlayerRoute() {
   useEffect(() => {
     if (recordLesson === null) return;
     const consent = recordingConsentStore();
-    consent.setLessonOverride(recordLesson);
+    consent.setLessonOverride(recordLesson, lessonId);
     return () => consent.setLessonOverride(null);
-  }, [recordLesson]);
+  }, [lessonId, recordLesson]);
   // 홈 히어로·이어서 읽기·상세·리포트 "다시 읽기"가 이 재생을 기록할 아이를 싣는다. 플레이어는 전역 선택
   // 아이로 이름을 부르고 완주를 저장하므로, 띄우기 전에 전역 선택을 이 아이로 맞춘다.
   const requestedChildId = searchParams.get('childId');

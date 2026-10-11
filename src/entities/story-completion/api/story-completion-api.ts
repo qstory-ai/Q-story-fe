@@ -105,7 +105,7 @@ export type StoryCompletionDetail = StoryCompletionSummary & {
   analysis?: ReportAnalysis | null;
   /** 보는 사람이 부모일 때 이 기록과 이어진 자기 아이 - "아이랑 다시 읽기"가 이 중에서 고른다. */
   linkedChildren?: { id: string; name: string }[] | null;
-  /** 이 기록의 회차 id(play_session) - 서버가 내려 줄 때만 리포트 아래 UT 회차 코드를 보여 준다(Q-40). */
+  /** 이 기록의 회차 id(play_session) - 기록을 남긴 본인에게만 온다(be#43). 화면에는 sessionCode를 우선 쓴다(Q-40). */
   sessionId?: string | null;
   /**
    * UT 회차 코드(6자리, 대문자 hex) - 서버가 회차 id 전체 대신 내려 줄 수 있다(소유자가 아닌 보는 사람에게는
@@ -153,6 +153,11 @@ export function recordStoryCompletion(
     contentVersion?: string;
     readFromSceneId?: string;
     readThroughSceneId?: string;
+    /**
+     * 이 기기의 베타 세션 id - 로그인 전에 읽은 데모 회차(익명 회차)를 로그인한 뒤 저장할 때 보낸다. 같은 베타 세션의
+     * 익명 회차면 서버가 이 계정으로 가져온다(be#43).
+     */
+    betaSessionId?: string;
   },
   options?: RequestOptions,
 ): Promise<StoryCompletionSummary> {

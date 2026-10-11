@@ -170,7 +170,18 @@ export function TutorStudentDetailPage() {
               </View>
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>반</Text>
-                <Text style={styles.metaValue}>{effective.student.classGroupName ?? '반 없음'}</Text>
+                {effective.student.classGroupId ? (
+                  // 반 화면에서 보호자 연결을 확인·해제한다 - "보호자 연결을 확인해 주세요" 알림이 이 화면으로 온다(be#43).
+                  <Pressable
+                    accessibilityRole="link"
+                    accessibilityLabel={`${effective.student.classGroupName ?? '반'} 반 화면 열기`}
+                    onPress={() => navigate(TUTOR_PATHS.classDetail(effective.student.classGroupId!))}
+                  >
+                    <Text style={[styles.metaValue, styles.metaLink]}>{effective.student.classGroupName ?? '반'} ›</Text>
+                  </Pressable>
+                ) : (
+                  <Text style={styles.metaValue}>반 없음</Text>
+                )}
               </View>
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>등록일</Text>
@@ -346,6 +357,7 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
     fontWeight: storybookTheme.type.weight.semibold,
   },
+  metaLink: { color: storybookTheme.color.primary, textDecorationLine: 'underline' },
   sectionTitle: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,

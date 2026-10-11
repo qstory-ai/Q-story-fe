@@ -216,6 +216,17 @@ test('수업 녹화는 그 수업에만 적용되고 기기 결정으로 남지 
   assert.equal(store.getSnapshot().needsPrompt, false, '수업에서는 묻지 않는다');
 });
 
+test('수업 녹화 동의에는 수업 id를 싣고, 로그인 확인 전이면 토큰이 온 뒤 보낸다', async () => {
+  const { store, calls } = makeStore();
+  store.setLessonOverride(true, 'lesson-1');
+  assert.equal(sessionPosts(calls).length, 0, '토큰 없이 LESSON을 보내면 서버가 401로 거절한다');
+  await store.setAuthToken('teacher');
+  await flush();
+  assert.deepEqual(sessionPosts(calls).map((call) => [call.body, call.token]), [
+    [{ betaSessionId: 'beta-1', granted: true, source: 'LESSON', lessonId: 'lesson-1' }, 'teacher'],
+  ]);
+});
+
 test('익명 기록 설정에서 녹화를 끄면 이 통계 세션의 녹화를 지우라고 알린다', async () => {
   const { store, calls } = makeStore();
   await store.setAuthToken(null);

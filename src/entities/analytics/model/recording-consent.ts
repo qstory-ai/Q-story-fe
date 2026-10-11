@@ -157,6 +157,10 @@ export class RecordingConsentStore {
   private authResolved = false;
   private account: AccountView = { recording: undefined, tracking: undefined };
   private lessonOverride: boolean | null = null;
+  /** 지금 수업 id(수업 상세에서 시작했을 때) - LESSON 동의에 함께 보낸다(be#43). */
+  private lessonId: string | null = null;
+  /** 로그인 확인 전에 수업 녹화가 켜졌다 - LESSON은 선생님 토큰이 있어야 하므로(be#43 401) 토큰이 오면 보낸다. */
+  private lessonPostPending = false;
   private entryApplied: string | null = null;
   /** 로그인 직후 계정 설정을 불러오는 중 - 그동안은 녹화를 시작하지 않는다(계정이 "허용 안 함"일 수 있다). */
   private accountLoading = false;
@@ -216,14 +220,14 @@ export class RecordingConsentStore {
    * POST /v1/recording-consents - 이 통계 세션의 녹화를 서버가 받게(또는 지우게) 한다. 로그인했으면 토큰도 싣는다.
    * 실패해도 throw하지 않는다(녹화가 안 될 뿐 서비스는 그대로).
    */
-  private async postSession(granted: boolean, source: SessionConsentSource): Promise<boolean> {
+  private async postSession(granted: boolean, source: SessionConsentSource, lessonId?: string | null): Promise<boolean> {
     const betaSessionId = this.deps.betaSessionId();
     if (granted) writeJson(this.deps.storage, SESSION_GRANT_KEY, { betaSessionId });
     else writeJson(this.deps.storage, SESSION_GRANT_KEY, null);
     try {
       await this.deps.request('/v1/recording-consents', {
         method: 'POST',
-        body: { betaSessionId, granted, source },
+        body: { betaSessionId, granted, source, ...(lessonId ? { lessonId } : {}) },
         token: this.token,
       });
       return true;
@@ -265,6 +269,10 @@ export class RecordingConsentStore {
     this.account = { recording: undefined, tracking: undefined };
     this.accountLoading = token !== null;
     this.changed();
+    if (token && this.lessonPostPending) {
+      this.lessonPostPending = false;
+      void this.postSession(true, 'LESSON', this.lessonId);
+    }
     if (token) await this.loadAccount(token);
   }
 
@@ -326,12 +334,19 @@ export class RecordingConsentStore {
 
   /**
    * 반 수업 화면(선생님이 "기관에서 보호자 동의를 받았어요"를 켰는지). null이면 수업이 끝났다.
-   * 켰으면 이 통계 세션에 LESSON으로 알린다. 기기 결정으로는 남기지 않는다.
+   * 켰으면 이 통계 세션에 LESSON으로 알린다(로그인한 선생님 토큰과 수업 id를 함께 - be#43). 기기 결정으로는 남기지 않는다.
+   * 아직 로그인 상태를 모르면 토큰이 정해진 뒤(setAuthToken) 보낸다.
    */
-  setLessonOverride(granted: boolean | null) {
+  setLessonOverride(granted: boolean | null, lessonId?: string | null) {
     if (granted === this.lessonOverride) return;
     this.lessonOverride = granted;
-    if (granted === true) void this.postSession(true, 'LESSON');
+    this.lessonId = granted === null ? null : (lessonId ?? null);
+    this.lessonPostPending = false;
+    if (granted === true) {
+      if (this.token) void this.postSession(true, 'LESSON', this.lessonId);
+      // 로그인하지 않은 채로는 서버가 받지 않는다(401) - 로그인 확인 전이면 토큰이 오면 보낸다.
+      else if (!this.authResolved) this.lessonPostPending = true;
+    }
     this.changed();
   }
 

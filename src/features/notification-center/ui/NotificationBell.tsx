@@ -36,8 +36,13 @@ const KIND_PRESENTATION: Record<string, Presentation> = {
   'tutor-invite-accepted': { icon: 'users', tone: 'positive' },
   // 튜터가 기관 초대 수락 → 원장: 새 소속 선생님
   'org-tutor-invite-accepted': { icon: 'graduationCap', tone: 'positive' },
-  // 부모가 반 가입 → 원장: 새 반원
+  // 부모가 반 가입 → 원장: 새 반원. 명단 학생에 이어졌으면 같은 kind로 "보호자 연결을 확인해 주세요"가 온다(be#43,
+  // 아래 presentationFor가 warning 톤으로 바꾼다).
   'class-parent-joined': { icon: 'users', tone: 'brand' },
+  // 같은 일 → 담임 선생님(be#43 전에는 원장에게만 갔다)
+  'tutor-class-parent-joined': { icon: 'users', tone: 'brand' },
+  // 담임·원장이 잘못된 보호자 연결을 해제 → 부모: 그 아이 기록을 더 볼 수 없음
+  'class-parent-unlinked': { icon: 'users', tone: 'warning' },
   // 반 수업 기록 도착 → 원장: 반 리포트(반 상세로 이동)
   'class-report': { icon: 'report', tone: 'gold' },
   // 선생님이 담임 초대 수락 → 원장: 반에 담임이 생김
@@ -53,8 +58,16 @@ const KIND_PRESENTATION: Record<string, Presentation> = {
 
 const DEFAULT_PRESENTATION: Presentation = { icon: 'bell', tone: 'gold' };
 
-function presentationFor(kind: string): Presentation {
-  return KIND_PRESENTATION[kind] ?? DEFAULT_PRESENTATION;
+/**
+ * 명단 학생 보호자 연결 확인(be#43 notifyRosterLinkToVerify)은 새 반원 알림과 kind가 같다 - 서버는 제목을
+ * "… 보호자 연결을 확인해 주세요"로 보낸다. 손봐야 할 일일 수 있으니 warning 톤으로 띄운다.
+ */
+const PARENT_JOINED_KINDS = new Set(['class-parent-joined', 'tutor-class-parent-joined']);
+
+function presentationFor(kind: string, title = ''): Presentation {
+  const base = KIND_PRESENTATION[kind] ?? DEFAULT_PRESENTATION;
+  if (PARENT_JOINED_KINDS.has(kind) && title.includes('확인해 주세요')) return { ...base, tone: 'warning' };
+  return base;
 }
 
 function toneColors(tone: Presentation['tone']): { background: string; icon: string } {
@@ -220,7 +233,7 @@ export function NotificationBell({ token }: Props) {
         ) : (
           <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
             {notifications.map((n) => {
-              const { icon, tone } = presentationFor(n.kind);
+              const { icon, tone } = presentationFor(n.kind, n.title);
               const colors = toneColors(tone);
               return (
                 <View

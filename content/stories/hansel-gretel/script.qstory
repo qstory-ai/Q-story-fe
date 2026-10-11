@@ -20,10 +20,8 @@
 “아이들만 두고 올 수는 없어.”
 
 [NARRATOR | FIXED]
-하지만 새어머니는 꼭 그렇게 해야 한다며
-고집을 꺾지 않았어요.
-먹을 것을 구할 방법이 떠오르지 않던 아버지는
-한참을 망설이다가 끝내 고개를 끄덕였어요.
+하지만 새어머니는 꼭 그렇게 해야 한다며 고집을 꺾지 않았어요.
+먹을 것을 구할 방법이 떠오르지 않던 아버지는 한참을 망설이다가 끝내 고개를 끄덕였어요.
 남매는 벽 너머로 그 이야기를 들었어요.
 
 [GRETEL | DIALOGUE]
@@ -53,8 +51,7 @@
 [VISUAL | HG-VIS-F02-03 | asset=forest-waiting | mode=father-and-stepmother-walk-away-siblings-stay-by-fire | time=afternoon | location=forest-clearing | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=family-reaches-clearing | action=adults-tell-siblings-to-wait-and-leave | exit=siblings-alone-by-fire]
 
 [NARRATOR | FIXED]
-아버지와 새어머니는 남매에게
-기다리라고 하고 떠났어요.
+아버지와 새어머니는 남매에게 기다리라고 하고 떠났어요.
 
 [VISUAL | HG-VIS-F02-04 | asset=forest-night-waiting | mode=siblings-alone-by-small-fire-after-dark-no-adults | time=night | location=forest-clearing | characters=HANSEL,GRETEL | entry=siblings-alone-by-fire | action=siblings-wait-in-dark-path-unseen | exit=siblings-wait-for-moonlight]
 
@@ -77,8 +74,7 @@
 
 [NARRATOR | FIXED]
 집으로 돌아오자 아버지가 남매를 꼭 안았어요.
-아이들을 바라보던 아버지는
-한동안 아무 말도 하지 못했어요.
+아이들을 바라보던 아버지는 한동안 아무 말도 하지 못했어요.
 
 [VISUAL | HG-VIS-F02-07 | asset=second-night-plan | mode=second-night-plan-stepmother-insists-father-yields | time=later-night | location=home-table | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=food-empty-again | action=stepmother-demands-deeper-forest-father-yields-siblings-overhear | exit=second-abandonment-decided | exception=same-night-plan-dialogue]
 
@@ -92,9 +88,7 @@
 “또 아이들만 두고 오자고?”
 
 [NARRATOR | FIXED]
-아버지는 고개를 저었지만,
-새어머니가 거듭 재촉하자
-이번에도 그 말을 따르기로 했어요.
+아버지는 고개를 저었지만, 새어머니가 거듭 재촉하자 이번에도 그 말을 따르기로 했어요.
 잠들지 못한 남매는 방 안에서 이 대화를 들었어요.
 
 [SYSTEM | CHECKPOINT | HG-F02-END]
@@ -104,10 +98,8 @@
 [VISUAL | HG-VIS-F03-01 | asset=locked-door-night | mode=hansel-finds-locked-door-at-night | time=night | location=home-locked-door | characters=HANSEL,GRETEL | entry=second-abandonment-decided | action=hansel-tries-locked-door-and-cannot-collect-pebbles | exit=pebble-plan-blocked | exception=cause-then-locked-door]
 
 [NARRATOR | FIXED]
-다시 숲에 데려간다는 말을 들은 헨젤은
-지난번의 하얀 돌을 떠올렸어요.
-돌을 주우려고 집 밖으로 나가려 했지만,
-이번에는 문이 잠겨 있었어요.
+다시 숲에 데려간다는 말을 들은 헨젤은 지난번의 하얀 돌을 떠올렸어요.
+돌을 주우려고 집 밖으로 나가려 했지만, 이번에는 문이 잠겨 있었어요.
 
 [HANSEL | DIALOGUE]
 “문이 안 열려.”
@@ -116,8 +108,7 @@
 [VISUAL | HG-VIS-F03-02 | asset=morning-bread-plan | mode=hansel-breaks-morning-bread-into-pocket | time=next-morning | location=home-table | characters=HANSEL,GRETEL | entry=pebble-plan-blocked | action=hansel-tears-bread-into-pocket | exit=breadcrumb-plan-ready | exception=bread-plan-dialogue]
 
 [NARRATOR | FIXED]
-다음 날 아침, 헨젤은 받은 빵을
-조금씩 떼어 주머니에 넣었어요.
+다음 날 아침, 헨젤은 받은 빵을 조금씩 떼어 주머니에 넣었어요.
 
 [GRETEL | DIALOGUE]
 “이번에는 빵으로 길을 표시하려고?”
@@ -129,8 +120,7 @@
 [VISUAL | HG-VIS-F03-03 | asset=second-walk-breadcrumbs | mode=hansel-drops-breadcrumbs-behind-adults-in-deep-forest | time=day | location=deep-forest-path | characters=HANSEL,GRETEL,FATHER,STEPMOTHER | entry=breadcrumb-plan-ready | action=hansel-drops-bread-pieces-while-walking | exit=adults-tell-siblings-to-wait]
 
 [NARRATOR | FIXED]
-아버지와 새어머니는 남매를
-지난번보다 깊은 숲으로 데려갔어요.
+아버지와 새어머니는 남매를 지난번보다 깊은 숲으로 데려갔어요.
 헨젤은 걸으며 빵 조각을 하나씩 떨어뜨렸어요.
 
 [STEPMOTHER | DIALOGUE]
@@ -140,17 +130,14 @@
 
 [NARRATOR | FIXED]
 아버지와 새어머니는 숲길 너머로 사라졌어요.
-남매는 오래 기다렸지만,
-두 사람은 해가 질 때까지 돌아오지 않았어요.
+남매는 오래 기다렸지만, 두 사람은 해가 질 때까지 돌아오지 않았어요.
 
 [VISUAL | HG-VIS-F03-05 | asset=birds-eat-breadcrumbs | mode=moonlit-siblings-find-birds-eating-bread-pieces | time=night | location=deep-forest-trail | characters=HANSEL,GRETEL,BIRDS | entry=siblings-left-deep-in-forest | action=birds-eat-last-crumbs | exit=breadcrumb-trail-gone | exception=failure-then-new-plan]
 
 [NARRATOR | FIXED]
-밤이 되자 남매는 집으로 돌아가려고
-빵 조각을 찾았어요.
+밤이 되자 남매는 집으로 돌아가려고 빵 조각을 찾았어요.
 그런데 새들이 빵 조각을 쪼아 먹고 있었어요.
-길을 따라 떨어뜨려 둔 빵도
-거의 남아 있지 않았어요.
+길을 따라 떨어뜨려 둔 빵도 거의 남아 있지 않았어요.
 
 [HANSEL | DIALOGUE]
 “새들이 먹을 줄은 생각 못 했어.”
@@ -163,14 +150,12 @@
 
 [NARRATOR | FIXED]
 남매는 그 길로 걸어갔어요.
-하지만 밤을 보내고 아침이 되어도
-집으로 가는 길을 찾지 못했어요.
+하지만 밤을 보내고 아침이 되어도 집으로 가는 길을 찾지 못했어요.
 
 [VISUAL | HG-VIS-F03-07 | asset=morning-song | mode=exhausted-siblings-rest-under-tree-hearing-bird-song | time=following-dawn | location=under-large-forest-tree | characters=HANSEL,GRETEL | entry=siblings-exhausted | action=siblings-rest-and-hear-clear-bird-song | exit=song-source-nearby]
 
 [NARRATOR | FIXED]
-큰 나무 아래에 앉아 쉬는데
-맑은 새소리가 들렸어요.
+큰 나무 아래에 앉아 쉬는데 맑은 새소리가 들렸어요.
 
 [SYSTEM | CHECKPOINT | HG-F03-END]
 
@@ -180,8 +165,7 @@
 
 [NARRATOR | FIXED]
 낮은 가지에 하얀 새 한 마리가 앉아 있었어요.
-새는 남매를 보다가
-조금 앞의 가지로 날아갔어요.
+새는 남매를 보다가 조금 앞의 가지로 날아갔어요.
 
 [GRETEL | DIALOGUE]
 “저 새가 자꾸 우리를 돌아봐.”
@@ -209,8 +193,7 @@
 
 [NARRATOR | FIXED]
 나무 사이로 집이 나타났어요.
-지붕에는 빵과 과자가,
-창문에는 반짝이는 설탕이 붙어 있었어요.
+지붕에는 빵과 과자가, 창문에는 반짝이는 설탕이 붙어 있었어요.
 
 [GRETEL | DIALOGUE]
 “과자로 만든 집이야!”
@@ -263,11 +246,8 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 [VISUAL | HG-VIS-F05-03 | asset=candy-house-interior | mode=siblings-eat-bread-and-drink-water-beds-ready | time=evening | location=candy-house-dining-bedroom | characters=HANSEL,GRETEL,OLD_WOMAN | entry=siblings-ask-for-way-home | action=siblings-enter-eat-drink-and-sleep-side-by-side | exit=siblings-asleep-inside | exception=enter-eat-sleep-transition]
 
 [NARRATOR | FIXED]
-지치고 배고팠던 남매는 손을 잡고
-집 안으로 들어갔어요.
-식탁에서 빵을 먹고 물을 마신 뒤,
-할머니가 마련해 준 침대에
-나란히 누워 잠들었어요.
+지치고 배고팠던 남매는 손을 잡고 집 안으로 들어갔어요.
+식탁에서 빵을 먹고 물을 마신 뒤, 할머니가 마련해 준 침대에 나란히 누워 잠들었어요.
 
 [SYSTEM | CHECKPOINT | HG-F05-END]
 
@@ -276,11 +256,8 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 [VISUAL | HG-VIS-F06-01 | asset=kitchen-door-locked | mode=old-woman-locks-kitchen-hall-door-with-black-key | time=next-morning | location=candy-house-kitchen | characters=HANSEL,GRETEL,OLD_WOMAN | entry=siblings-asleep-inside | action=siblings-enter-kitchen-old-woman-locks-hall-door-with-black-key | exit=kitchen-door-locked-siblings-outside-cage | exception=same-kitchen-locking]
 
 [NARRATOR | FIXED]
-다음 날 아침, 할머니가 아침을 먹으라며
-남매를 부엌으로 불렀어요.
-두 아이가 들어오자 할머니는
-복도로 나가는 부엌 문을 닫고,
-큰 검은 열쇠로 잠갔어요.
+다음 날 아침, 할머니가 아침을 먹으라며 남매를 부엌으로 불렀어요.
+두 아이가 들어오자 할머니는 복도로 나가는 부엌 문을 닫고, 큰 검은 열쇠로 잠갔어요.
 
 [HANSEL | DIALOGUE]
 “왜 문을 잠그세요?”
@@ -289,8 +266,7 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 [VISUAL | HG-VIS-F06-02 | asset=witch-reveal | mode=hansel-inside-cage-locked-with-small-silver-key | time=next-morning | location=candy-house-kitchen | characters=HANSEL,GRETEL,WITCH | entry=kitchen-door-locked-siblings-outside-cage | action=witch-locks-hansel-in-cage-with-silver-key | exit=hansel-caged-gretel-forced-to-cook | exception=same-capture-moment]
 
 [NARRATOR | FIXED]
-헨젤이 문손잡이를 잡자, 할머니는 헨젤을 붙잡아
-부엌 한쪽의 쇠창살 안에 가뒀어요.
+헨젤이 문손잡이를 잡자, 할머니는 헨젤을 붙잡아 부엌 한쪽의 쇠창살 안에 가뒀어요.
 그리고 작은 은색 열쇠로 쇠창살 문을 잠갔어요.
 
 [WITCH | DIALOGUE]
@@ -298,22 +274,19 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 “그레텔, 넌 내가 먹을 음식을 만들어라.”
 
 [NARRATOR | FIXED]
-친절한 척하던 할머니는
-아이들을 붙잡아 일을 시키는 마녀였어요.
+친절한 척하던 할머니는 아이들을 붙잡아 일을 시키는 마녀였어요.
 
 [VISUAL | HG-VIS-F06-03 | asset=gretel-watches-keys | mode=gretel-watches-which-key-opens-which-door | time=day | location=candy-house-kitchen | characters=HANSEL,GRETEL,WITCH | entry=hansel-caged-gretel-forced-to-cook | action=gretel-observes-silver-cage-key-and-black-kitchen-door-key | exit=keyring-on-witch-waist]
 
 [NARRATOR | FIXED]
 그레텔은 마녀가 쓴 두 열쇠를 눈여겨봤어요.
-작은 은색 열쇠는 헨젤의 쇠창살 문에,
-큰 검은 열쇠는 복도로 나가는 부엌 문에 썼어요.
+작은 은색 열쇠는 헨젤의 쇠창살 문에, 큰 검은 열쇠는 복도로 나가는 부엌 문에 썼어요.
 마녀는 두 열쇠가 달린 고리를 허리춤에 걸었어요.
 
 [VISUAL | HG-VIS-F06-04 | asset=gretel-whispers-keys | mode=gretel-whispers-to-caged-hansel-while-witch-turns-away | time=day | location=candy-house-kitchen | characters=HANSEL,GRETEL,WITCH | entry=keyring-on-witch-waist | action=siblings-whisper-a-plan-keys-still-on-witch | exit=siblings-wait-for-keys-to-be-set-down]
 
 [NARRATOR | FIXED]
-마녀가 돌아선 사이,
-그레텔이 헨젤에게 작게 말했어요.
+마녀가 돌아선 사이, 그레텔이 헨젤에게 작게 말했어요.
 
 [GRETEL | DIALOGUE]
 “두 열쇠가 있어야 우리 둘 다 나갈 수 있어.”
@@ -328,10 +301,8 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 [VISUAL | HG-VIS-F07-01 | asset=witch-cooking-keys | mode=witch-cooks-at-big-pot-keyring-on-worktable-end-hansel-in-cage | time=next-day | location=candy-house-kitchen | characters=HANSEL,GRETEL,WITCH | entry=siblings-wait-for-keys-to-be-set-down | action=witch-sets-keyring-on-worktable-and-glances-back-while-cooking | exit=keys-on-worktable-witch-watching | exception=question-invite-same-moment]
 
 [NARRATOR | FIXED]
-그레텔이 재료를 꺼내 놓자
-마녀가 커다란 냄비 앞으로 갔어요.
-마녀는 냄비를 옮기려고 열쇠고리를 풀어
-작업대 끝에 놓았어요.
+그레텔이 재료를 꺼내 놓자 마녀가 커다란 냄비 앞으로 갔어요.
+마녀는 냄비를 옮기려고 열쇠고리를 풀어 작업대 끝에 놓았어요.
 요리를 하는 동안에도 가끔 남매 쪽을 돌아봤지요.
 
 [GRETEL | DIALOGUE]
@@ -349,10 +320,7 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 
 [NARRATOR | DEFAULT_RESUME:C0]
 그레텔은 마녀가 어디를 보는지 살피며 기다렸어요.
-마녀가 냄비 뚜껑을 찾으려고
-뒤쪽 선반으로 몸을 돌리자,
-그레텔은 조용히 작업대로 다가가
-열쇠고리를 집었어요.
+마녀가 냄비 뚜껑을 찾으려고 뒤쪽 선반으로 몸을 돌리자, 그레텔은 조용히 작업대로 다가가 열쇠고리를 집었어요.
 마녀는 남매를 등진 채 선반 안을 뒤적였어요.
 
 [SYSTEM | ANCHOR | id=HG-F07-KEYS-TAKEN]
@@ -370,8 +338,7 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 
 [NARRATOR | FIXED]
 그레텔은 큰 검은 열쇠로 부엌 문을 열었어요.
-남매가 복도로 빠져나오는 순간,
-마녀가 뒤돌아봤어요.
+남매가 복도로 빠져나오는 순간, 마녀가 뒤돌아봤어요.
 
 [WITCH | DIALOGUE]
 “거기 서!”
@@ -379,8 +346,7 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 [VISUAL | HG-VIS-F07-05 | asset=corridor-lock-door | mode=siblings-lock-kitchen-door-from-hallway-with-black-key | time=day | location=candy-house-corridor | characters=HANSEL,GRETEL | entry=siblings-in-hallway-witch-turns | action=gretel-locks-kitchen-door-from-hallway-hansel-holds-it-shut | exit=witch-locked-in-kitchen]
 
 [NARRATOR | FIXED]
-그레텔은 얼른 문을 닫고
-복도 쪽에서 같은 열쇠로 잠갔어요.
+그레텔은 얼른 문을 닫고 복도 쪽에서 같은 열쇠로 잠갔어요.
 마녀는 부엌 안에 남았어요.
 
 [VISUAL | HG-VIS-F07-06 | asset=escape-corridor | mode=siblings-run-down-hallway-toward-storeroom-and-outside-door | time=day | location=candy-house-corridor | characters=HANSEL,GRETEL | entry=witch-locked-in-kitchen | action=siblings-hold-hands-and-run-to-outside-door | exit=storeroom-and-exit-found]
@@ -424,8 +390,7 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 [NARRATOR | FIXED]
 한참을 걷자 넓은 물길이 나왔어요.
 다리도 배도 없었어요.
-그때 하얀 새가 노래했고,
-커다란 흰 오리가 다가왔어요.
+그때 하얀 새가 노래했고, 커다란 흰 오리가 다가왔어요.
 
 [VISUAL | HG-VIS-F09-02 | asset=water-return | mode=white-duck-carries-one-sibling-across-water | time=day | location=wide-waterway | characters=HANSEL,GRETEL,WHITE_DUCK | entry=duck-waits-at-bank | action=duck-carries-siblings-one-at-a-time | exit=siblings-across-water]
 
@@ -458,8 +423,7 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 
 [NARRATOR | FIXED]
 집 앞에 있던 아버지가 달려왔어요.
-하얀 천은 아버지가 남매를 찾으러 다니며
-묶은 것이었어요.
+하얀 천은 아버지가 남매를 찾으러 다니며 묶은 것이었어요.
 아버지는 아이들 앞에 무릎을 꿇었어요.
 
 [FATHER | DIALOGUE]
@@ -477,16 +441,13 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 [NARRATOR | FIXED]
 새어머니는 그동안 집을 떠났어요.
 남매는 과자집에서 겪은 일도 이야기했어요.
-마을 사람들은 다른 아이들이 그 집에 가지 않도록
-소식을 알렸어요.
+마을 사람들은 다른 아이들이 그 집에 가지 않도록 소식을 알렸어요.
 
 [VISUAL | HG-VIS-F10-02 | asset=window-epilogue | mode=family-talks-together-by-window-at-night | time=later-evening | location=home-window | characters=HANSEL,GRETEL,FATHER | entry=family-rebuilding-trust | action=family-shares-worries-and-asks-for-help | exit=story-complete | exception=epilogue-same-setting]
 
 [NARRATOR | FIXED]
-그 뒤 아버지는 어려운 일이 생기면
-이웃에게 도움을 구하며 남매를 돌봤어요.
-헨젤과 그레텔도 무섭거나 걱정되는 일이 있으면
-서로 이야기했어요.
+그 뒤 아버지는 어려운 일이 생기면 이웃에게 도움을 구하며 남매를 돌봤어요.
+헨젤과 그레텔도 무섭거나 걱정되는 일이 있으면 서로 이야기했어요.
 
 [NARRATOR | END]
 헨젤과 그레텔의 이야기는 여기에서 끝났어요.

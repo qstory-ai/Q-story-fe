@@ -430,14 +430,15 @@ test('all visual beats use registered assets and one-breath fixed captions', () 
           `${scene.id} question invite exceeds 120 characters`,
         );
       } else {
+        // Q-32: 문장 중간에서 끊긴 녹음을 한 문장 한 클립으로 합쳤다(PM 피드백 - 끊겨 들림).
+        // 긴 문장은 캡션이 두 큐로 나뉘어 차례로 보인다(caption-sync).
         assert.ok(
-          segment.text.length <= 36,
-          `${scene.id} fixed breath exceeds 36 characters: ${segment.text}`,
+          segment.text.length <= 64,
+          `${scene.id} fixed line exceeds 64 characters: ${segment.text}`,
         );
-        assert.equal(
-          buildCaptionTrack(segment.text).cues.length,
-          1,
-          `${scene.id} fixed breath produced more than one caption cue`,
+        assert.ok(
+          buildCaptionTrack(segment.text).cues.length <= 2,
+          `${scene.id} fixed line produced more than two caption cues: ${segment.text}`,
         );
       }
     }
@@ -601,10 +602,10 @@ test('all versioned master illustrations and every fixed narration clip are pack
       `${clip.clipId} (${clip.fileName}) is in fixed-narration-metadata.json but not in assets.json`,
     );
   }
-  assert.equal(narrationMetadata.castVersion, 'hg-gemini-tts-cast-v2');
+  assert.equal(narrationMetadata.castVersion, 'hg-gemini-tts-cast-v3');
   const expectedVoiceBySpeaker = {
     NARRATOR: 'Sulafat',
-    HANSEL: 'Puck',
+    HANSEL: 'Fenrir',
     GRETEL: 'Leda',
     FATHER: 'Charon',
     STEPMOTHER: 'Kore',

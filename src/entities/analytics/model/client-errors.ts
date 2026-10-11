@@ -1,4 +1,4 @@
-import { apiBaseUrl } from '@/shared/config';
+import { apiBaseUrl, readEnv } from '@/shared/config';
 
 import { currentClientDiagnostics } from './client-diagnostics';
 
@@ -26,7 +26,7 @@ export type ClientErrorReport = {
 export const MAX_REPORTS = 20;
 
 /** 빌드 때 넣는 배포 표시(vite.config.ts의 VITE_QSTORY_RELEASE). 없으면 dev. */
-const RELEASE = import.meta.env?.VITE_QSTORY_RELEASE?.trim() || 'dev';
+const RELEASE = readEnv('VITE_QSTORY_RELEASE') || 'dev';
 
 const sentKeys = new Set<string>();
 

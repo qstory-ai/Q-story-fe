@@ -1,4 +1,4 @@
-import { webOrigin } from '@/shared/config';
+import { readEnv, webOrigin } from '@/shared/config';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
@@ -14,7 +14,7 @@ type LoadState =
   | { status: 'ready'; order: PaymentOrder; widgets: TossPaymentsWidgets }
   | { status: 'error'; message: string };
 
-const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY as string | undefined;
+const clientKey = readEnv('VITE_TOSS_CLIENT_KEY') || undefined;
 
 export function PaymentCheckoutPage() {
   const navigate = useNavigate();

@@ -12,6 +12,8 @@ interface ImportMetaEnv {
   readonly VITE_GOOGLE_OAUTH_CLIENT_ID?: string;
   /** 카카오 JS 키 - 이것도 공개 식별자다(REST API 키와 달리 클라이언트에 노출되도록 만들어졌다). */
   readonly VITE_KAKAO_JS_KEY?: string;
+  /** 토스페이먼츠 위젯 클라이언트 키 - 공개값(비밀 키는 백엔드에만 있다). */
+  readonly VITE_TOSS_CLIENT_KEY?: string;
 }
 
 interface ImportMeta {

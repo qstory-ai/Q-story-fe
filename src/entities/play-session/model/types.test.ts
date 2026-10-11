@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { parsePlaySetting, playEntrySource, sessionShortCode } from './types';
+import { parsePlaySetting, playEntrySource, resolveSessionCode, sessionShortCode } from './types';
 
 test('UT 회차 코드는 회차 id 앞 6자를 대문자로', () => {
   assert.equal(sessionShortCode('95dcd3a1-0b2c-4d5e-8f90-123456789abc'), '95DCD3');
@@ -10,6 +10,15 @@ test('UT 회차 코드는 회차 id 앞 6자를 대문자로', () => {
   assert.equal(sessionShortCode(null), null);
   assert.equal(sessionShortCode(''), null);
   assert.equal(sessionShortCode('demo'), null);
+});
+
+test('회차 코드는 서버가 준 sessionCode를 먼저, 없으면 sessionId로 만든다', () => {
+  assert.equal(resolveSessionCode('3fa2c1', '95dcd3a1-0b2c-4d5e-8f90-123456789abc'), '3FA2C1');
+  assert.equal(resolveSessionCode(null, '95dcd3a1-0b2c-4d5e-8f90-123456789abc'), '95DCD3');
+  assert.equal(resolveSessionCode('3FA2C1', undefined), '3FA2C1');
+  assert.equal(resolveSessionCode('not-a-code', '95dcd3a1-0b2c'), '95DCD3');
+  assert.equal(resolveSessionCode(undefined, undefined), null);
+  assert.equal(resolveSessionCode('', null), null);
 });
 
 test('진행 형태는 아는 값만 받는다', () => {

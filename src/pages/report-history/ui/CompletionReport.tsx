@@ -150,7 +150,7 @@ export function CompletionReport({
           }
           readAgainSlot={readAgain}
         />
-        <SessionCodeNote sessionId={detail.sessionId} />
+        <SessionCodeNote code={detail.sessionCode} sessionId={detail.sessionId} />
       </View>
     );
   }
@@ -173,7 +173,7 @@ export function CompletionReport({
           onPress={() => readAgainLegacy(effectiveLoad.detail)}
         />
       )}
-      <SessionCodeNote sessionId={effectiveLoad.detail.sessionId} />
+      <SessionCodeNote code={effectiveLoad.detail.sessionCode} sessionId={effectiveLoad.detail.sessionId} />
     </View>
   );
 }

@@ -97,6 +97,19 @@ export function sessionShortCode(sessionId: string | null | undefined): string |
   return /^[0-9a-fA-F]{6}/.test(hex) ? hex.slice(0, 6).toUpperCase() : null;
 }
 
+/**
+ * 화면에 보여 줄 회차 코드 - 서버가 준 코드(sessionCode)가 6자리 hex면 그것을, 아니면 회차 id 앞 6자를.
+ * 둘 다 쓸 수 없으면 null.
+ */
+export function resolveSessionCode(
+  code: string | null | undefined,
+  sessionId: string | null | undefined,
+): string | null {
+  const given = code?.trim().toUpperCase();
+  if (given && /^[0-9A-F]{6}$/.test(given)) return given;
+  return sessionShortCode(sessionId);
+}
+
 export type PlayTurnBatch = PlaySessionContext & {
   turns: PlayTurn[];
   /** 통계 세션 id - 로그인하지 않은 회차도 이 값으로 받고, 중간에 로그인하면 앞부분을 계정에 잇는다. */

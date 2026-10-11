@@ -5,7 +5,7 @@
     "storyId": "HG",
     "slug": "hansel-gretel",
     "title": "헨젤과 그레텔",
-    "contentVersion": "q31-dialogue-v1",
+    "contentVersion": "q32-voice-art-v1",
     "availability": "BETA",
     "targetAge": {
       "min": 6,
@@ -240,7 +240,7 @@
   "cast": {
     "schemaVersion": 1,
     "storyId": "HG",
-    "castVersion": "hg-gemini-tts-cast-v2",
+    "castVersion": "hg-gemini-tts-cast-v3",
     "speakers": {
       "NARRATOR": {
         "speakerId": "HG-SPK-NARRATOR",
@@ -270,9 +270,9 @@
         "speakerId": "HG-SPK-HANSEL",
         "role": "character",
         "displayName": "헨젤",
-        "voice": "Puck",
-        "profile": "A thoughtful young boy who is clever but still vulnerable and imperfect.",
-        "direction": "Sound youthful and careful. Become slightly more confident only when explaining a plan."
+        "voice": "Fenrir",
+        "profile": "A brave, clever ten-year-old Korean boy who protects his younger sister.",
+        "direction": "He is still a child, but he speaks up clearly and steadily at a full, confident speaking volume - never whispering, mumbling, or sounding timid. Sound youthful and warm. Even when he is scared, keep the voice firm and steady; sound determined and reassuring when he explains a plan."
       },
       "GRETEL": {
         "speakerId": "HG-SPK-GRETEL",
@@ -1206,132 +1206,142 @@
       {
         "assetSlug": "forest-night-waiting",
         "status": "RECOVERED",
-        "prompt": "Edit the first reference image. Keep Hansel and Gretel exactly as they are (faces, hair, clothes, sitting pose by the small campfire) and keep the same forest composition. REMOVE the father and stepmother walking away on the path completely and restore the forest path behind where they were. Change the time to after sunset: a dark night forest, the small campfire lights the children's worried faces warmly, the path home is dark and hard to see. No moon visible yet, no shining white stones, no other people or new objects.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "prompt": "Repaint the scene of the FIRST reference image at night. Same forest clearing, same big tree trunks, same camera distance and framing as the first reference: Hansel and Gretel sit side by side on the ground at the lower left near a small campfire ring of stones, shown full-body at the same small size as in the first reference, with the long dark forest path stretching away into the distance on the right. The father and stepmother are GONE - nobody on the path. Time: after sunset, deep blue night; the small campfire glows warmly on the children's worried faces; the path beyond is dark and hard to see. No moon visible, no glowing stones, no other people or animals.\n\nSTYLE (very important): match the reference images' Q-Story Hansel and Gretel picture-book painting exactly as in the calm home and forest scenes: soft hand-painted storybook illustration, smooth gentle painterly brushwork with a subtle paper/canvas grain, warm golden lighting, natural muted earthy colors with moderate saturation. Do NOT use heavy stippling, embroidered, knitted, quilted, mosaic or needlework-like textures, no busy repeating dot patterns on walls, floors or clothes; keep surfaces softly painted and calm. Faces: soft round child faces with large gentle brown eyes, same character design as the references.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot like the references - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with plenty of the surrounding room or landscape visible around them; nothing important touches the frame edges; not a close-up, not cropped. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
         "model": "google/gemini-3.1-flash-image",
-        "inputHash": "sha256:9a320bd15e3d119807aa070adcfb5d2a5d32a072f6c1e292b2f82636e493e9c7",
-        "generatedAt": "2026-10-01T07:27:15.456Z",
-        "approvedBy": null,
-        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-20-forest-waiting.webp를 함께 넣은 OpenRouter /images 요청(시도 2). 출력은 1376x768을 1586x992로 맞춤."
+        "inputHash": "sha256:f6fc0cafcc6d481a661d0b64415a6a78c23a280033f9a5070bfc7f45c1de2911",
+        "generatedAt": "2026-10-10T11:06:53.656344+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 A). 참조 그림 hg-art-20-forest-waiting.webp, hg-art-04-moonlit-return.webp, hg-art-01-home-table.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
       },
       {
         "assetSlug": "deep-forest-waiting",
         "status": "RECOVERED",
-        "prompt": "Use the first reference image as the location: the same deep forest path and trees. The father and stepmother are gone (remove them, restore the path). Hansel and Gretel now sit close together on a mossy root at the side of the path, waiting for a long time, looking down the empty path. Time: dusk turning to evening, the light is fading and orange-blue. A few small bread crumbs lie on the path behind them. Use the second reference image only for how the waiting siblings look. No campfire, no adults, no animals.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "prompt": "Use the FIRST reference image as the location: the same deep forest path between big trees, same camera distance. The father and stepmother are gone; the path is empty. Hansel and Gretel sit close together on a mossy tree root at the side of the path in the left part of the picture, shown full-body and fairly small in the frame, waiting a long time and looking down the empty path. Time: dusk turning to evening, fading orange and blue light through the trees. A few tiny bread crumbs lie on the path. No campfire, no adults, no animals.\n\nSTYLE (very important): match the reference images' Q-Story Hansel and Gretel picture-book painting exactly as in the calm home and forest scenes: soft hand-painted storybook illustration, smooth gentle painterly brushwork with a subtle paper/canvas grain, warm golden lighting, natural muted earthy colors with moderate saturation. Do NOT use heavy stippling, embroidered, knitted, quilted, mosaic or needlework-like textures, no busy repeating dot patterns on walls, floors or clothes; keep surfaces softly painted and calm. Faces: soft round child faces with large gentle brown eyes, same character design as the references.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot like the references - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with plenty of the surrounding room or landscape visible around them; nothing important touches the frame edges; not a close-up, not cropped. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
         "model": "google/gemini-3.1-flash-image",
-        "inputHash": "sha256:2bf82c8d749ebfb52baf17b1c83c4f6da8c6c57b866be3925d7ce4695af3de7c",
-        "generatedAt": "2026-10-01T07:27:20.345Z",
-        "approvedBy": null,
-        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-22-second-walk-breadcrumbs.webp, hg-art-20-forest-waiting.webp를 함께 넣은 OpenRouter /images 요청(시도 2). 출력은 1376x768을 1586x992로 맞춤."
+        "inputHash": "sha256:80caf4630c0743cf81073e7cbdb7ab74308aa511220f7f5a616c3fce6a4dfc6a",
+        "generatedAt": "2026-10-10T11:06:44.630979+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 A). 참조 그림 hg-art-22-second-walk-breadcrumbs.webp, hg-art-20-forest-waiting.webp, hg-art-01-home-table.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
       },
       {
         "assetSlug": "candy-house-close",
         "status": "RECOVERED",
-        "prompt": "Edit the first reference image. Keep the candy house wall, the stained-glass window, the cookie roof and both children exactly. CLOSE the front door: replace the open dark doorway (and the purple candy swirls visible inside it) with a closed rounded wooden door decorated like the rest of the gingerbread house. Remove any scratch marks and any swirl patterns around the door and window. Hansel and Gretel stand together in front of the closed door, curious, sniffing the warm smell of fresh bread. Nobody else is visible.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "prompt": "Use the FIRST reference image for the candy house design (cookie-shingle roof, gingerbread walls with candy dots, colorful stained-glass windows, round wooden door) and the forest clearing around it. Now the children have walked right up to the house: a medium-wide view where the whole front of the little candy house is visible from roof to ground, with forest trees on both sides. Hansel and Gretel stand together on the path in front of the CLOSED rounded wooden front door, full-body, curious, sniffing the warm smell of fresh bread drifting from the house. A few lollipops and candies in the grass. Nobody else is visible. Sunny late afternoon light.\n\nSTYLE (very important): match the reference images' Q-Story Hansel and Gretel picture-book painting exactly as in the calm home and forest scenes: soft hand-painted storybook illustration, smooth gentle painterly brushwork with a subtle paper/canvas grain, warm golden lighting, natural muted earthy colors with moderate saturation. Do NOT use heavy stippling, embroidered, knitted, quilted, mosaic or needlework-like textures, no busy repeating dot patterns on walls, floors or clothes; keep surfaces softly painted and calm. Faces: soft round child faces with large gentle brown eyes, same character design as the references.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot like the references - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with plenty of the surrounding room or landscape visible around them; nothing important touches the frame edges; not a close-up, not cropped. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
         "model": "google/gemini-3.1-flash-image",
-        "inputHash": "sha256:b881b8a5e1238e7ca47c8909ce97d21a3008339a9dbb77a06a5d8463bd0b19ab",
-        "generatedAt": "2026-10-01T07:27:20.848Z",
-        "approvedBy": null,
-        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-09-candy-house-close.webp, hg-art-08-candy-house-reveal.webp를 함께 넣은 OpenRouter /images 요청(시도 2). 출력은 1376x768을 1586x992로 맞춤."
+        "inputHash": "sha256:49b9b8a6ef632ca90392d524a59322327403e28e03229730feafdd242cd1579c",
+        "generatedAt": "2026-10-10T11:06:51.622581+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 A). 참조 그림 hg-art-08-candy-house-reveal.webp, hg-art-35-candy-house-exit.webp, hg-art-03-first-walk-pebbles.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
       },
       {
         "assetSlug": "kitchen-door-locked",
         "status": "RECOVERED",
-        "prompt": "New scene in the same candy-house kitchen as the references. The kitchen layout must match the references: a tall round iron-bar cage on the left side, a wooden worktable on the right foreground, shelves with candy jars on the back wall, a brick stove/oven area at the back right (the oven door stays CLOSED and is only a background prop). Morning light from a small window. Hansel and Gretel have just walked into the kitchen for breakfast and stand in the middle of the room, BOTH outside the cage; the cage door stands open and the cage is empty. The old woman stands at the kitchen door on the far left wall (a solid wooden door that leads to a hallway), with her back half-turned, turning a LARGE BLACK iron key in that door's lock. A small silver key and the big black key hang together on one iron ring. The children look surprised and uneasy. No magic, no glowing effects.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "prompt": "Reference images: the FIRST image defines the painting style, texture and character faces; the SECOND image defines the candy-house room layout and its candy decorations; the THIRD image is extra character/costume reference. Setting: the witch's candy-house kitchen as in the SECOND reference: a tall round iron-bar cage on the left side, wooden shelves with candy jars on the back wall, a small arched window, a brick oven at the back right with its iron door CLOSED, a wooden worktable on the right. Walls are warm plaster studded with painted round candies and lollipop swirls in muted plum, rose and caramel tones, the floor has softly painted round candy tiles - it must clearly read as the inside of the candy house - but everything is painted with the softer brushwork of the FIRST reference, calm and not noisy. Morning light from the small window. Hansel and Gretel have just walked into the kitchen for breakfast and stand together in the middle of the room, both OUTSIDE the cage; the cage door stands open and the cage is empty. On the far left wall is a solid wooden kitchen door leading to the hallway; the old woman stands at that door, half turned away, turning a LARGE BLACK iron key in its lock; a small silver key hangs on the same iron ring. The children look surprised and uneasy. No magic, no glowing effects.\n\nPAINTING STYLE (most important): paint it exactly like the FIRST reference image (the family's home at the table): a warm hand-painted storybook illustration in oil/gouache with visible soft brush strokes and a gentle painted grain on walls, wood, cloth and skin, rich warm shadows, cozy golden lamp or window light, natural muted earthy colors. NOT flat, NOT clean digital cartoon or vector shading, and also NOT a heavy embroidered / knitted / mosaic stipple texture. Faces drawn exactly like the first reference: soft round child faces, large gentle brown eyes, small mouths.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress (mustard all the way to the hem) over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with the room visible around them; nothing important touches the frame edges; not a close-up. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
         "model": "google/gemini-3.1-flash-image",
-        "inputHash": "sha256:c56264fa293969a401b661e87ec9a2817fa7781602e362ad5648112af444c08a",
-        "generatedAt": "2026-10-01T07:27:21.735Z",
-        "approvedBy": null,
-        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-11-witch-reveal-v3.webp, hg-art-33-witch-sets-down-keys-v2.webp, hg-art-31-gretel-watches-keys.webp를 함께 넣은 OpenRouter /images 요청(시도 2). 출력은 1376x768을 1586x992로 맞춤."
+        "inputHash": "sha256:fc104e6eab324ff59e487fa043e741232df612c58d11d56150f0db9be1d0d051",
+        "generatedAt": "2026-10-10T11:11:59.079672+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 C). 참조 그림 hg-art-01-home-table.webp, hg-art-11-witch-reveal-v3.webp, hg-art-03-first-walk-pebbles.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
       },
       {
         "assetSlug": "gretel-whispers-keys",
         "status": "RECOVERED",
-        "prompt": "Same kitchen and cage as the references. Hansel is inside the locked iron cage holding the bars. Gretel stands right outside the cage and leans close to whisper to him through the bars. In the background on the right, the witch has turned her back to the children and is busy at the shelves; a key ring with one small silver key and one large black key hangs from her waist belt. Quiet, secretive mood, warm candle light. The children do not hold any keys.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "prompt": "Reference images: the FIRST image defines the painting style, texture and character faces; the SECOND image defines the candy-house room layout and its candy decorations; the THIRD image is extra character/costume reference. Setting: the witch's candy-house kitchen as in the SECOND reference: a tall round iron-bar cage on the left side, wooden shelves with candy jars on the back wall, a small arched window, a brick oven at the back right whose plain dark iron door is shut, with no fire visible, a wooden worktable on the right. Walls are warm plaster studded with painted round candies and lollipop swirls in muted plum, rose and caramel tones, the floor has softly painted round candy tiles - it must clearly read as the inside of the candy house - but everything is painted with the softer brushwork of the FIRST reference, calm and not noisy. Hansel is inside the locked iron cage, holding the bars. Gretel stands right outside the cage and leans close to whisper to him through the bars. In the background on the right, the witch has turned her back to the children and is busy at the shelves; an iron key ring with one small silver key and one large black key hangs from her belt. Quiet, secretive mood, warm candle light. The children do not hold any keys. Absolutely no words or letters anywhere in the picture (nothing written on the oven, jars or walls).\n\nPAINTING STYLE (most important): paint it exactly like the FIRST reference image (the family's home at the table): a warm hand-painted storybook illustration in oil/gouache with visible soft brush strokes and a gentle painted grain on walls, wood, cloth and skin, rich warm shadows, cozy golden lamp or window light, natural muted earthy colors. NOT flat, NOT clean digital cartoon or vector shading, and also NOT a heavy embroidered / knitted / mosaic stipple texture. Faces drawn exactly like the first reference: soft round child faces, large gentle brown eyes, small mouths.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress (mustard all the way to the hem) over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with the room visible around them; nothing important touches the frame edges; not a close-up. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
         "model": "google/gemini-3.1-flash-image",
-        "inputHash": "sha256:ef08d3ee4e06ac8f77e3ed2a94c1ead583f87874ee29dc86a23dc9e82788fe15",
-        "generatedAt": "2026-10-01T07:27:21.781Z",
-        "approvedBy": null,
-        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-31-gretel-watches-keys.webp, hg-art-11-witch-reveal-v3.webp를 함께 넣은 OpenRouter /images 요청(시도 2). 출력은 1376x768을 1586x992로 맞춤."
+        "inputHash": "sha256:91053d072e865a0f2a742b2f50925915430583d7fdc15301829cc4137de3fccc",
+        "generatedAt": "2026-10-10T11:13:50.045710+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 D). 참조 그림 hg-art-01-home-table.webp, hg-art-31-gretel-watches-keys.webp, hg-art-20-forest-waiting.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
       },
       {
         "assetSlug": "witch-cooking-keys",
         "status": "RECOVERED",
-        "prompt": "Edit the first reference image (same kitchen, same cage with Hansel locked inside on the left, same Gretel, same worktable). The kitchen layout must match the references: a tall round iron-bar cage on the left side, a wooden worktable on the right foreground, shelves with candy jars on the back wall, a brick stove/oven area at the back right (the oven door stays CLOSED and is only a background prop). Replace the open glowing oven with a CLOSED oven door; in front of it on the stove stands a big black cooking pot with gentle steam. The witch stands at the big pot stirring with a long wooden spoon and turns her head to glance back over her shoulder toward the children. IMPORTANT: a large iron key ring holding one small silver key and one big black key LIES on the near right END of the wooden worktable, drawn large and clearly visible, separated from other objects, with a soft highlight on the metal. Gretel stands by the worktable with vegetables and a bowl of flour she has set out, eyes on the keys. No one points at the oven.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "prompt": "Reference images: the FIRST image defines the painting style, texture and character faces; the SECOND image defines the candy-house room layout and its candy decorations; the THIRD image is extra character/costume reference. Setting: the witch's candy-house kitchen as in the SECOND reference: a tall round iron-bar cage on the left side, wooden shelves with candy jars on the back wall, a small arched window, a brick oven at the back right with its iron door CLOSED, a wooden worktable on the right. Walls are warm plaster studded with painted round candies and lollipop swirls in muted plum, rose and caramel tones, the floor has softly painted round candy tiles - it must clearly read as the inside of the candy house - but everything is painted with the softer brushwork of the FIRST reference, calm and not noisy. Hansel is locked inside the cage on the left. At the back right, in front of the CLOSED oven, the witch stands at a big black cooking pot with gentle steam, stirring with a long wooden spoon, and glances back over her shoulder toward the children. IMPORTANT: an iron key ring with one small silver key and one big black key LIES on the near right END of the wooden worktable, clearly visible and separate from other objects. Gretel stands at the worktable beside vegetables and a bowl of flour she has set out, eyes on the keys. Nobody points at the oven.\n\nPAINTING STYLE (most important): paint it exactly like the FIRST reference image (the family's home at the table): a warm hand-painted storybook illustration in oil/gouache with visible soft brush strokes and a gentle painted grain on walls, wood, cloth and skin, rich warm shadows, cozy golden lamp or window light, natural muted earthy colors. NOT flat, NOT clean digital cartoon or vector shading, and also NOT a heavy embroidered / knitted / mosaic stipple texture. Faces drawn exactly like the first reference: soft round child faces, large gentle brown eyes, small mouths.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress (mustard all the way to the hem) over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with the room visible around them; nothing important touches the frame edges; not a close-up. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
         "model": "google/gemini-3.1-flash-image",
-        "inputHash": "sha256:d915e8d510964a2647883e4c1745a63b4eb9b68d1771ddabbab268cc07089aff",
-        "generatedAt": "2026-10-01T07:28:24.565Z",
-        "approvedBy": null,
-        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-33-witch-sets-down-keys-v2.webp, fb-c-distract-and-take-keys-v1.webp를 함께 넣은 OpenRouter /images 요청(시도 3). 출력은 1376x768을 1586x992로 맞춤."
+        "inputHash": "sha256:526d910b34f8155ddd5d81496c96d9fc6ed138080d22a81ffd21d8423b588794",
+        "generatedAt": "2026-10-10T11:11:57.192261+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 C). 참조 그림 hg-art-01-home-table.webp, hg-art-45-cage-unlock-oven-secured-v2.webp, hg-art-03-first-walk-pebbles.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
       },
       {
         "assetSlug": "wait-and-take-keys",
         "status": "RECOVERED",
-        "prompt": "Edit the first reference image (same kitchen, same cage with Hansel on the left, same worktable). The kitchen layout must match the references: a tall round iron-bar cage on the left side, a wooden worktable on the right foreground, shelves with candy jars on the back wall, a brick stove/oven area at the back right (the oven door stays CLOSED and is only a background prop). The witch has turned fully AWAY from the children: she stands at the back wall shelves with her back to the viewer, rummaging inside a shelf cupboard looking for a pot lid. The oven door is closed. Gretel quietly steps to the worktable and picks up the iron key ring (small silver key and large black key) from the end of the table, glancing toward the witch. Hansel watches from inside the cage, hopeful.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "prompt": "Reference images: the FIRST image defines the painting style, texture and character faces; the SECOND image defines the candy-house room layout and its candy decorations; the THIRD image is extra character/costume reference. Setting: the witch's candy-house kitchen as in the SECOND reference: a tall round iron-bar cage on the left side, wooden shelves with candy jars on the back wall, a small arched window, a brick oven at the back right whose plain dark iron door is shut, with no fire visible, a wooden worktable on the right. Walls are warm plaster studded with painted round candies and lollipop swirls in muted plum, rose and caramel tones, the floor has softly painted round candy tiles - it must clearly read as the inside of the candy house - but everything is painted with the softer brushwork of the FIRST reference, calm and not noisy. Hansel watches hopefully from inside the cage on the left. The witch has turned fully AWAY from the children: she stands at the back wall shelves with her back to the viewer, rummaging inside an open shelf cupboard looking for a pot lid. A big pot stands on the stove. Gretel quietly steps to the worktable and picks up the iron key ring (one small silver key and one large black key) from the end of the table, glancing toward the witch. There is exactly ONE key ring in the whole picture: it is in Gretel's hand as she lifts it off the end of the table; no other keys anywhere. Absolutely no words or letters anywhere in the picture (nothing written on the oven, jars or walls).\n\nPAINTING STYLE (most important): paint it exactly like the FIRST reference image (the family's home at the table): a warm hand-painted storybook illustration in oil/gouache with visible soft brush strokes and a gentle painted grain on walls, wood, cloth and skin, rich warm shadows, cozy golden lamp or window light, natural muted earthy colors. NOT flat, NOT clean digital cartoon or vector shading, and also NOT a heavy embroidered / knitted / mosaic stipple texture. Faces drawn exactly like the first reference: soft round child faces, large gentle brown eyes, small mouths.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress (mustard all the way to the hem) over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with the room visible around them; nothing important touches the frame edges; not a close-up. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
         "model": "google/gemini-3.1-flash-image",
-        "inputHash": "sha256:40bd042ce6161330afa6443879aaaebad74cdb54fa15711d78c0776e64268489",
-        "generatedAt": "2026-10-01T07:28:24.179Z",
-        "approvedBy": null,
-        "note": "Q-30 최종 원고 적용. 참조 그림 fb-c-distract-and-take-keys-v1.webp, hg-art-33-witch-sets-down-keys-v2.webp를 함께 넣은 OpenRouter /images 요청(시도 3). 출력은 1376x768을 1586x992로 맞춤."
+        "inputHash": "sha256:78ad0dd4b5a3fc5020986d36796c9a99279e5f8b210aac300573dbaeea2d7821",
+        "generatedAt": "2026-10-10T11:14:44.308286+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 E). 참조 그림 hg-art-01-home-table.webp, hg-art-31-gretel-watches-keys.webp, hg-art-03-first-walk-pebbles.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
       },
       {
         "assetSlug": "c-wait-for-witch-turn-01",
         "status": "RECOVERED",
-        "prompt": "Edit the first reference image (same kitchen, same cage with Hansel on the left, same worktable). The kitchen layout must match the references: a tall round iron-bar cage on the left side, a wooden worktable on the right foreground, shelves with candy jars on the back wall, a brick stove/oven area at the back right (the oven door stays CLOSED and is only a background prop). The witch has turned fully AWAY from the children: she stands at the back wall shelves with her back to the viewer, rummaging inside a shelf cupboard looking for a pot lid. The oven door is closed. Gretel quietly steps to the worktable and picks up the iron key ring (small silver key and large black key) from the end of the table, glancing toward the witch. Hansel watches from inside the cage, hopeful.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "prompt": "Reference images: the FIRST image defines the painting style, texture and character faces; the SECOND image defines the candy-house room layout and its candy decorations; the THIRD image is extra character/costume reference. Setting: the witch's candy-house kitchen as in the SECOND reference: a tall round iron-bar cage on the left side, wooden shelves with candy jars on the back wall, a small arched window, a brick oven at the back right whose plain dark iron door is shut, with no fire visible, a wooden worktable on the right. Walls are warm plaster studded with painted round candies and lollipop swirls in muted plum, rose and caramel tones, the floor has softly painted round candy tiles - it must clearly read as the inside of the candy house - but everything is painted with the softer brushwork of the FIRST reference, calm and not noisy. Hansel watches hopefully from inside the cage on the left. The witch has turned fully AWAY from the children: she stands at the back wall shelves with her back to the viewer, rummaging inside an open shelf cupboard looking for a pot lid. A big pot stands on the stove. Gretel quietly steps to the worktable and picks up the iron key ring (one small silver key and one large black key) from the end of the table, glancing toward the witch. There is exactly ONE key ring in the whole picture: it is in Gretel's hand as she lifts it off the end of the table; no other keys anywhere. Absolutely no words or letters anywhere in the picture (nothing written on the oven, jars or walls).\n\nPAINTING STYLE (most important): paint it exactly like the FIRST reference image (the family's home at the table): a warm hand-painted storybook illustration in oil/gouache with visible soft brush strokes and a gentle painted grain on walls, wood, cloth and skin, rich warm shadows, cozy golden lamp or window light, natural muted earthy colors. NOT flat, NOT clean digital cartoon or vector shading, and also NOT a heavy embroidered / knitted / mosaic stipple texture. Faces drawn exactly like the first reference: soft round child faces, large gentle brown eyes, small mouths.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress (mustard all the way to the hem) over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with the room visible around them; nothing important touches the frame edges; not a close-up. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
         "model": "google/gemini-3.1-flash-image",
-        "inputHash": "sha256:40bd042ce6161330afa6443879aaaebad74cdb54fa15711d78c0776e64268489",
-        "generatedAt": "2026-10-01T07:28:24.179Z",
-        "approvedBy": null,
-        "note": "Q-30 최종 원고 적용. 참조 그림 fb-c-distract-and-take-keys-v1.webp, hg-art-33-witch-sets-down-keys-v2.webp를 함께 넣은 OpenRouter /images 요청(시도 3). 출력은 1376x768을 1586x992로 맞춤."
+        "inputHash": "sha256:78ad0dd4b5a3fc5020986d36796c9a99279e5f8b210aac300573dbaeea2d7821",
+        "generatedAt": "2026-10-10T11:14:44.308286+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 E, wait-and-take-keys와 같은 그림). 참조 그림 hg-art-01-home-table.webp, hg-art-31-gretel-watches-keys.webp, hg-art-03-first-walk-pebbles.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
       },
       {
         "assetSlug": "c-distract-and-take-keys-01",
         "status": "RECOVERED",
-        "prompt": "Edit the first reference image (same kitchen, same cage on the left, same worktable). The kitchen layout must match the references: a tall round iron-bar cage on the left side, a wooden worktable on the right foreground, shelves with candy jars on the back wall, a brick stove/oven area at the back right (the oven door stays CLOSED and is only a background prop). Hansel, inside the cage, calls out to the witch with one hand raised. The witch has turned toward the cage and looks at Hansel (her face and body face the cage, away from Gretel). The oven door is closed. At the same moment Gretel, at the worktable, quietly picks up the iron key ring (small silver key and large black key) from the end of the table.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "prompt": "Reference images: the FIRST image defines the painting style, texture and character faces; the SECOND image defines the candy-house room layout and its candy decorations; the THIRD image is extra character/costume reference. Setting: the witch's candy-house kitchen as in the SECOND reference: a tall round iron-bar cage on the left side, wooden shelves with candy jars on the back wall, a small arched window, a brick oven at the back right with its iron door CLOSED, a wooden worktable on the right. Walls are warm plaster studded with painted round candies and lollipop swirls in muted plum, rose and caramel tones, the floor has softly painted round candy tiles - it must clearly read as the inside of the candy house - but everything is painted with the softer brushwork of the FIRST reference, calm and not noisy. Hansel, inside the cage on the left, calls out to the witch with one hand raised. The witch stands in the middle of the room and has turned toward the cage, looking at Hansel (her face and body face the cage, away from Gretel). The oven door is closed. At the same moment Gretel, at the worktable on the right, quietly picks up the iron key ring (one small silver key and one large black key) from the end of the table.\n\nPAINTING STYLE (most important): paint it exactly like the FIRST reference image (the family's home at the table): a warm hand-painted storybook illustration in oil/gouache with visible soft brush strokes and a gentle painted grain on walls, wood, cloth and skin, rich warm shadows, cozy golden lamp or window light, natural muted earthy colors. NOT flat, NOT clean digital cartoon or vector shading, and also NOT a heavy embroidered / knitted / mosaic stipple texture. Faces drawn exactly like the first reference: soft round child faces, large gentle brown eyes, small mouths.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress (mustard all the way to the hem) over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with the room visible around them; nothing important touches the frame edges; not a close-up. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
         "model": "google/gemini-3.1-flash-image",
-        "inputHash": "sha256:40bd042ce6161330afa6443879aaaebad74cdb54fa15711d78c0776e64268489",
-        "generatedAt": "2026-10-01T07:28:24.704Z",
-        "approvedBy": null,
-        "note": "Q-30 최종 원고 적용. 참조 그림 fb-c-distract-and-take-keys-v1.webp, hg-art-33-witch-sets-down-keys-v2.webp를 함께 넣은 OpenRouter /images 요청(시도 3). 출력은 1376x768을 1586x992로 맞춤."
+        "inputHash": "sha256:99120a698b289507cec5bc71d723602d4f1ce129e80a1a6a68b706bf7d6d28de",
+        "generatedAt": "2026-10-10T11:11:55.921326+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 C). 참조 그림 hg-art-01-home-table.webp, hg-art-11-witch-reveal-v3.webp, hg-art-03-first-walk-pebbles.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
       },
       {
         "assetSlug": "corridor-lock-door",
         "status": "RECOVERED",
-        "prompt": "Same candy-house hallway as the references. Hansel and Gretel have just come out into the hallway. The heavy wooden kitchen door behind them is now CLOSED. Gretel turns the LARGE BLACK iron key in the door's lock from the hallway side while Hansel presses both hands against the closed door to keep it shut. Through a small gap nobody is visible; the witch stays inside the kitchen. Urgent but safe mood. The long hallway with a bright door at its far end stretches to the right.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "prompt": "Use the FIRST reference image for the candy-house hallway and the heavy wooden kitchen door. Paint the hallway walls softly and calmly (warm plaster and wood with gentle candy-colored accents), not as busy mosaic or embroidery. Hansel and Gretel have just come out into the hallway. The heavy wooden kitchen door on the left is now CLOSED. Gretel turns the LARGE BLACK iron key in the door's lock from the hallway side while Hansel presses both hands against the closed door to keep it shut; both full-body. The witch is not visible - she stays inside the kitchen. The long hallway stretches away to the right with a bright door at its far end. Urgent but safe mood.\n\nSTYLE (very important): match the reference images' Q-Story Hansel and Gretel picture-book painting exactly as in the calm home and forest scenes: soft hand-painted storybook illustration, smooth gentle painterly brushwork with a subtle paper/canvas grain, warm golden lighting, natural muted earthy colors with moderate saturation. Do NOT use heavy stippling, embroidered, knitted, quilted, mosaic or needlework-like textures, no busy repeating dot patterns on walls, floors or clothes; keep surfaces softly painted and calm. Faces: soft round child faces with large gentle brown eyes, same character design as the references.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot like the references - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with plenty of the surrounding room or landscape visible around them; nothing important touches the frame edges; not a close-up, not cropped. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
         "model": "google/gemini-3.1-flash-image",
-        "inputHash": "sha256:7b2d3210ad3a972a0b4b7a5d8c821022788860e18e8ab4f2230a285ce0f7cdfc",
-        "generatedAt": "2026-10-01T07:28:23.422Z",
-        "approvedBy": null,
-        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-46-black-key-side-door-v2.webp, hg-art-34-escape-corridor.webp를 함께 넣은 OpenRouter /images 요청(시도 3). 출력은 1376x768을 1586x992로 맞춤."
+        "inputHash": "sha256:91ddc66d2ca67e657cb5f42a286222a8236919936f862cca22a1819adac8f632",
+        "generatedAt": "2026-10-10T11:08:18.042101+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 B). 참조 그림 hg-art-34-escape-corridor.webp, hg-art-01-home-table.webp, hg-art-40-locked-door-night-v2.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
       },
       {
         "assetSlug": "storehouse",
         "status": "RECOVERED",
-        "prompt": "Edit the first reference image. Keep the storeroom, the shelves of bread loaves, the clay water jugs, both children and their poses. REMOVE from the table: the map, the open ledger book, the feather quill, the iron key, the strings of jewels and the bowl of colored candies. Remove paper name tags from the bundles. Instead the table holds a few round bread loaves, two corked water bottles and an empty small cloth shoulder bag. Hansel points at the bread; Gretel holds a loaf. Keep the left side of the image as in the reference (the dark arched storeroom doorway). Do not add any modern or white door; everything keeps the same old candy-house storybook look and warm palette.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "prompt": "Reference images: the FIRST image defines the painting style, texture and character faces; the SECOND image defines the candy-house room layout and its candy decorations; the THIRD image is extra character/costume reference. Setting: a small storeroom inside the candy house at the end of the hallway, in daytime (SECOND reference for the candy-house decorations, used sparingly on the door frame). Wooden shelves along the back wall hold round bread loaves and clay water jugs; a few plain cloth sacks. On the left a half-open arched storeroom door shows the empty hallway (nobody in it). In the middle a simple wooden table holds a few round bread loaves, two corked water bottles and an empty small cloth shoulder bag. Hansel points at the bread and Gretel holds a loaf, both standing by the table, hopeful. Soft daylight from a small window. Only the two children; no adults, no map, no book, no jewels, no labels, no moon.\n\nPAINTING STYLE (most important): paint it exactly like the FIRST reference image (the family's home at the table): a warm hand-painted storybook illustration in oil/gouache with visible soft brush strokes and a gentle painted grain on walls, wood, cloth and skin, rich warm shadows, cozy golden lamp or window light, natural muted earthy colors. NOT flat, NOT clean digital cartoon or vector shading, and also NOT a heavy embroidered / knitted / mosaic stipple texture. Faces drawn exactly like the first reference: soft round child faces, large gentle brown eyes, small mouths.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress (mustard all the way to the hem) over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with the room visible around them; nothing important touches the frame edges; not a close-up. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
         "model": "google/gemini-3.1-flash-image",
-        "inputHash": "sha256:a80d9a9b496ffb4e4f3102c25aaf851b49d994b32fdc6fd2ba6f6dd81d7154b8",
-        "generatedAt": "2026-10-01T07:29:15.124Z",
-        "approvedBy": null,
-        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-16-storehouse.webp, hg-art-37-packing-evidence.webp를 함께 넣은 OpenRouter /images 요청(시도 4). 출력은 1376x768을 1586x992로 맞춤."
+        "inputHash": "sha256:2d1e61492f5a4588426d47959efb7c0338c091be62560e77a28231a054c23119",
+        "generatedAt": "2026-10-10T11:12:42.097047+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 C). 참조 그림 hg-art-01-home-table.webp, hg-art-23-candy-house-interior.webp, hg-art-41-morning-bread-plan-v2.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
       },
       {
         "assetSlug": "packing-food",
         "status": "RECOVERED",
-        "prompt": "Edit the first reference image. Keep both children, their kneeling poses, the cloth bag and the storeroom shelves. Hansel puts a round bread loaf into the small cloth bag; Gretel puts a corked water bottle into the same bag. Replace the pile of tagged cloth bundles in the lower right corner with a few plain round bread loaves in a wicker basket. REMOVE the book/ledger that Gretel was holding and REMOVE the keys on the floor. IMPORTANT: remove EVERY paper name tag / label from ALL cloth bundles on the shelves and floor; the bundles are plain with no tags at all. No treasure, no documents, no labels.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide landscape composition. The painting fills the ENTIRE frame edge to edge with no borders, bands, margins or blank areas; the ground near the bottom edge is simply painted and uncluttered. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "prompt": "Reference images: the FIRST image defines the painting style, texture and character faces; the SECOND image defines the candy-house room layout and its candy decorations; the THIRD image is extra character/costume reference. Setting: the same small daytime storeroom inside the candy house (SECOND reference for the candy-house decorations, used sparingly), wooden shelves of round bread loaves and clay water jugs. Hansel and Gretel kneel on the floor by the shelf next to the door, packing a small cloth shoulder bag: Hansel puts a round bread loaf into the bag, Gretel puts a corked water bottle into the same bag. A wicker basket with a few plain bread loaves beside them. Calm, determined mood, soft daylight. Only the two children. No books, no keys, no treasure, no labels or tags.\n\nPAINTING STYLE (most important): paint it exactly like the FIRST reference image (the family's home at the table): a warm hand-painted storybook illustration in oil/gouache with visible soft brush strokes and a gentle painted grain on walls, wood, cloth and skin, rich warm shadows, cozy golden lamp or window light, natural muted earthy colors. NOT flat, NOT clean digital cartoon or vector shading, and also NOT a heavy embroidered / knitted / mosaic stipple texture. Faces drawn exactly like the first reference: soft round child faces, large gentle brown eyes, small mouths.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress (mustard all the way to the hem) over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with the room visible around them; nothing important touches the frame edges; not a close-up. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
         "model": "google/gemini-3.1-flash-image",
-        "inputHash": "sha256:43512cec9a4d9282c6293a71cc861434bbe9f0a3aabac0200d40b846218ce2d0",
-        "generatedAt": "2026-10-01T07:29:50.754Z",
-        "approvedBy": null,
-        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-37-packing-evidence.webp를 함께 넣은 OpenRouter /images 요청(시도 6). 출력은 1376x768을 1586x992로 맞춤."
+        "inputHash": "sha256:bfd92add9cd4e11b3a94dd6bf324916958e3a0fab5b32452fdf66225a41027d2",
+        "generatedAt": "2026-10-10T11:12:30.116143+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 C). 참조 그림 hg-art-01-home-table.webp, hg-art-23-candy-house-interior.webp, hg-art-41-morning-bread-plan-v2.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
       },
       {
         "assetSlug": "window-epilogue",
         "status": "RECOVERED",
-        "prompt": "Edit the reference image. Keep the father, Hansel, Gretel, the room, the lamp and the window exactly. REMOVE the white pebble and the white feather lying on the windowsill in the foreground; leave just the plain wooden sill. Nothing else changes.\n\nKeep the exact existing Q-Story Hansel and Gretel children's storybook style of the reference images: warm hand-painted picture-book texture, fine stippled brushwork, soft warm light, same color palette. Hansel: young boy, short brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown trousers. Gretel: young girl, brown hair in two braids with purple ribbons, mustard-yellow dress over cream blouse with lace hem. The old woman / witch is the same person throughout: grey hair in a bun, long dark purple hooded robe, wrinkled but not monstrous face. Wide 16:10 landscape composition with the lower fifth kept calm and uncluttered for subtitles. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, no violence, no fire harm, no scary close-ups.",
+        "prompt": "Use the FIRST reference image for the family's cottage room (wooden walls, small window, oil lamp, round table). Evening at home: the father sits by the window between Hansel and Gretel, all three on wooden chairs, talking together warmly and calmly; the father leans in and listens kindly. An oil lamp glows on the table, the night forest is visible through the small window. Shown medium-wide with the room around them, everyone full-body or at least down to the knees. Plain wooden windowsill, no pebbles, no feathers. No stepmother.\n\nSTYLE (very important): match the reference images' Q-Story Hansel and Gretel picture-book painting exactly as in the calm home and forest scenes: soft hand-painted storybook illustration, smooth gentle painterly brushwork with a subtle paper/canvas grain, warm golden lighting, natural muted earthy colors with moderate saturation. Do NOT use heavy stippling, embroidered, knitted, quilted, mosaic or needlework-like textures, no busy repeating dot patterns on walls, floors or clothes; keep surfaces softly painted and calm. Faces: soft round child faces with large gentle brown eyes, same character design as the references.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot like the references - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with plenty of the surrounding room or landscape visible around them; nothing important touches the frame edges; not a close-up, not cropped. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
         "model": "google/gemini-3.1-flash-image",
-        "inputHash": "sha256:62d29895f3d92daf7784522c05d48a3d6b88f0f88468a1429540d8c0a04b5fad",
-        "generatedAt": "2026-10-01T07:26:03.929Z",
-        "approvedBy": null,
-        "note": "Q-30 최종 원고 적용. 참조 그림 hg-art-26-window-epilogue.webp를 함께 넣은 OpenRouter /images 요청(시도 1). 출력은 1376x768을 1586x992로 맞춤."
+        "inputHash": "sha256:9db10a8d3411250332378ec86dfd25082aefa51b35295cad77b4abd27ebbd029",
+        "generatedAt": "2026-10-10T11:09:10.872290+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 B). 참조 그림 hg-art-02-night-plan.webp, hg-art-01-home-table.webp, hg-art-03-first-walk-pebbles.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
+      },
+      {
+        "assetSlug": "old-woman-door",
+        "status": "RECOVERED",
+        "prompt": "Use the FIRST reference image for the candy house design and the forest clearing. Medium-wide view of the front of the candy house: the rounded wooden front door has just swung open and a kindly old woman (grey hair in a bun, long dark purple dress with a shawl, a small iron key ring hanging at her waist) leans out of the doorway with a warm smile, one hand gently held out in welcome. Hansel and Gretel stand on the path a few steps in front of the door, full-body, looking up at her, a little surprised and hungry. Sunny afternoon light, lollipops in the grass. Gentle, friendly, not scary.\n\nSTYLE (very important): match the reference images' Q-Story Hansel and Gretel picture-book painting exactly as in the calm home and forest scenes: soft hand-painted storybook illustration, smooth gentle painterly brushwork with a subtle paper/canvas grain, warm golden lighting, natural muted earthy colors with moderate saturation. Do NOT use heavy stippling, embroidered, knitted, quilted, mosaic or needlework-like textures, no busy repeating dot patterns on walls, floors or clothes; keep surfaces softly painted and calm. Faces: soft round child faces with large gentle brown eyes, same character design as the references.\nCHARACTERS: Hansel: young boy, short tousled brown hair, cream long-sleeve shirt, green vest, red neckerchief, brown knee trousers, brown boots. Gretel: slightly smaller young girl, brown hair in two braids tied with purple ribbons, mustard-yellow pinafore dress over a cream blouse with a lace hem. The old woman / witch is always the same person: grey hair in a neat bun, long dark purple dress/robe, wrinkled but not monstrous face.\nFRAMING: medium-wide storybook shot like the references - the camera is set back, characters are shown full-body (head to feet) and take up roughly half of the image height, with plenty of the surrounding room or landscape visible around them; nothing important touches the frame edges; not a close-up, not cropped. Wide landscape 3:2 composition, the painting fills the entire frame edge to edge, no borders. No text, no letters, no speech bubbles, no UI, no watermark, no frames. Child-safe, gentle, no scary close-ups.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:b3f01282a3f9c3712bbc6c1836e5f99823d7369cefbf32d76e09ba88cb294e0b",
+        "generatedAt": "2026-10-10T11:06:56.595278+00:00",
+        "approvedBy": "PM/이윤지",
+        "note": "Q-32 그림 다시 그리기(후보 A). 참조 그림 hg-art-35-candy-house-exit.webp, hg-art-08-candy-house-reveal.webp, hg-art-01-home-table.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
       }
     ]
   },
@@ -1376,18 +1386,18 @@
       "category": "BRANCH_ART",
       "familyId": "C_WAIT_FOR_WITCH_TURN",
       "panel": 1,
-      "file": "illustrations/fb-c-wait-for-witch-turn-v1.webp",
-      "integrity": "sha256-g9JJVZhmyZ7p4t3QA8S/7Vl3dcQArITDDPZqCVVz/Bs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-c-wait-for-witch-turn-v1.webp"
+      "file": "illustrations/fb-c-wait-for-witch-turn-v2.webp",
+      "integrity": "sha256-g2F0YtWM3EhsqdKl8ZL2GUIAmrH+9Cox/xBZMUaQQuw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-c-wait-for-witch-turn-v2.webp"
     },
     {
       "slug": "c-distract-and-take-keys-01",
       "category": "BRANCH_ART",
       "familyId": "C_DISTRACT_AND_TAKE_KEYS",
       "panel": 1,
-      "file": "illustrations/fb-c-distract-and-take-keys-v2.webp",
-      "integrity": "sha256-3Xo0kTuq6CNe/Q1Zh/hQRwJFa0z4Z6wMMgseFqRppNg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-c-distract-and-take-keys-v2.webp"
+      "file": "illustrations/fb-c-distract-and-take-keys-v3.webp",
+      "integrity": "sha256-8PpyEEzQc3o8LuZTCBq5Kb05GwuFVVOuPILOlwI619s=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/fb-c-distract-and-take-keys-v3.webp"
     },
     {
       "slug": "home-table",
@@ -1427,9 +1437,9 @@
     {
       "slug": "forest-night-waiting",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-47-forest-night-waiting.webp",
-      "integrity": "sha256-+zmP5xTM+RbBDTJW4weZQCluDGmG4RQQmE77XGncZ3E=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-47-forest-night-waiting.webp"
+      "file": "illustrations/hg-art-47-forest-night-waiting-v2.webp",
+      "integrity": "sha256-QkzIY2km/gwq6sxiRXsCMU5NBQoyIyt2PFSINRkE4LU=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-47-forest-night-waiting-v2.webp"
     },
     {
       "slug": "moonlit-return",
@@ -1476,9 +1486,9 @@
     {
       "slug": "deep-forest-waiting",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-48-deep-forest-waiting.webp",
-      "integrity": "sha256-fZQxF+AHgax/rqgI/0sCE44vsDOmN/auS2QPw5iwjhQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-48-deep-forest-waiting.webp"
+      "file": "illustrations/hg-art-48-deep-forest-waiting-v2.webp",
+      "integrity": "sha256-RzQ8ZBFrur3sEaPFycInnj9fdWIyw6ByAsD9hPN6jnk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-48-deep-forest-waiting-v2.webp"
     },
     {
       "slug": "birds-eat-breadcrumbs",
@@ -1525,16 +1535,16 @@
     {
       "slug": "candy-house-close",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-09-candy-house-close-v2.webp",
-      "integrity": "sha256-3VuPdQjo+CRbnsyr36qcnEYkaADyggsBoDSZC9OQAv0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-09-candy-house-close-v2.webp"
+      "file": "illustrations/hg-art-09-candy-house-close-v3.webp",
+      "integrity": "sha256-ERJhr4R9MLbZ/JJvgkOC3USGHlZVmDbpiuq7zVpcQqU=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-09-candy-house-close-v3.webp"
     },
     {
       "slug": "old-woman-door",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-10-old-woman-door.webp",
-      "integrity": "sha256-yqmihlqI3SVuskbq383fBxPOdRlhZ4KWGz14/XZsgMc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-10-old-woman-door.webp"
+      "file": "illustrations/hg-art-10-old-woman-door-v2.webp",
+      "integrity": "sha256-+T9NeVbuaYpdiQlf/y7IDlLoP4tFd/8yhm+8sruiE+4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-10-old-woman-door-v2.webp"
     },
     {
       "slug": "candy-house-interior",
@@ -1546,9 +1556,9 @@
     {
       "slug": "kitchen-door-locked",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-49-kitchen-door-locked.webp",
-      "integrity": "sha256-I207q/dJIc36TuGgagAR39rBbGn6QBR93kQgs10af5Y=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-49-kitchen-door-locked.webp"
+      "file": "illustrations/hg-art-49-kitchen-door-locked-v2.webp",
+      "integrity": "sha256-WesVQLp2y9gyi8iC4/4ulfKz/MdRK8t/iEKLPs4Nlbs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-49-kitchen-door-locked-v2.webp"
     },
     {
       "slug": "witch-reveal",
@@ -1567,23 +1577,23 @@
     {
       "slug": "gretel-whispers-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-50-gretel-whispers-keys.webp",
-      "integrity": "sha256-4fCCE0yd6r9wpns5YmTPHenFKKywLxcfWPwXdpJsQB0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-50-gretel-whispers-keys.webp"
+      "file": "illustrations/hg-art-50-gretel-whispers-keys-v2.webp",
+      "integrity": "sha256-FnSo2uUFAbmypyYQRkk2VcZdcXF15ZRCzsbKEhsuWoE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-50-gretel-whispers-keys-v2.webp"
     },
     {
       "slug": "witch-cooking-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-51-witch-cooking-keys.webp",
-      "integrity": "sha256-rvH/Sfm4oE91HJWbbPh864kW/teEhzImrCCMtmvJ5MM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-51-witch-cooking-keys.webp"
+      "file": "illustrations/hg-art-51-witch-cooking-keys-v2.webp",
+      "integrity": "sha256-94ypZ75PLZIbnUwWxJ4oQ/OxIhl2zFfSnxiB+vFyY6M=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-51-witch-cooking-keys-v2.webp"
     },
     {
       "slug": "wait-and-take-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-52-wait-and-take-keys.webp",
-      "integrity": "sha256-g9JJVZhmyZ7p4t3QA8S/7Vl3dcQArITDDPZqCVVz/Bs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-52-wait-and-take-keys.webp"
+      "file": "illustrations/hg-art-52-wait-and-take-keys-v2.webp",
+      "integrity": "sha256-g2F0YtWM3EhsqdKl8ZL2GUIAmrH+9Cox/xBZMUaQQuw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-52-wait-and-take-keys-v2.webp"
     },
     {
       "slug": "cage-unlock-oven-secured",
@@ -1602,9 +1612,9 @@
     {
       "slug": "corridor-lock-door",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-53-corridor-lock-door.webp",
-      "integrity": "sha256-D6VINyIKsjS/6LJF0tr4IIGhlAQMDXPUx/gALXl2shU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-53-corridor-lock-door.webp"
+      "file": "illustrations/hg-art-53-corridor-lock-door-v2.webp",
+      "integrity": "sha256-IU3fKsFTfAtADjTbg+WCK1Ye+gFt4osjofAq+ZW4/vA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-53-corridor-lock-door-v2.webp"
     },
     {
       "slug": "escape-corridor",
@@ -1616,16 +1626,16 @@
     {
       "slug": "storehouse",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-16-storehouse-v2.webp",
-      "integrity": "sha256-bW3nmZ9ANLZHL9k8PSVNf8lbQph4z+O91U0W4bHqYFE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-16-storehouse-v2.webp"
+      "file": "illustrations/hg-art-16-storehouse-v3.webp",
+      "integrity": "sha256-XvP1Onv1jf8WLRcSz2ZuC9iuWsqJV9lBQXoyYjWWvEs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-16-storehouse-v3.webp"
     },
     {
       "slug": "packing-food",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-54-packing-food.webp",
-      "integrity": "sha256-JVN2UsjIKmsfuzRR0O5NWjjhv26o9D+G6S3M4pN5FRY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-54-packing-food.webp"
+      "file": "illustrations/hg-art-54-packing-food-v2.webp",
+      "integrity": "sha256-QkneCWiAo8BKSWVq/gFSD4C9AZHsZPxp/k3SMkQEht0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-54-packing-food-v2.webp"
     },
     {
       "slug": "candy-house-exit",
@@ -1665,9 +1675,9 @@
     {
       "slug": "window-epilogue",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-26-window-epilogue-v2.webp",
-      "integrity": "sha256-DuOEsi7qapwYlP/j5bZ7SN1SIKfH7ByaBRTVsNXE9d4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-26-window-epilogue-v2.webp"
+      "file": "illustrations/hg-art-26-window-epilogue-v3.webp",
+      "integrity": "sha256-bmP9fREWVQxHU6oAVBQyOhZrKH600xlQHfQMZsRtYrs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-26-window-epilogue-v3.webp"
     },
     {
       "slug": "f01-002",
@@ -1700,9 +1710,9 @@
     {
       "slug": "f01-006",
       "category": "NARRATION",
-      "file": "audio/q30-father-3463172ec626.mp3",
-      "integrity": "sha256-lL28f8wMY9LxmwZYX2gO59kqo2TWMA8VmRS+Tm8Myc8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-3463172ec626.mp3"
+      "file": "audio/q32-father-3463172ec626-lv.mp3",
+      "integrity": "sha256-Pd/RJYh05vyE76x14Q3wZhj0PUGJintfqzU4ucfb9eY=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-father-3463172ec626-lv.mp3"
     },
     {
       "slug": "f01-008",
@@ -1714,65 +1724,51 @@
     {
       "slug": "f01-009",
       "category": "NARRATION",
-      "file": "audio/q30-father-7a24670cf0e4.mp3",
-      "integrity": "sha256-fyOmVeyHZEP6BaYE8ftQq6JDX6Ia2cjX5aiEsFuvd74=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-7a24670cf0e4.mp3"
+      "file": "audio/q32-father-7a24670cf0e4-lv.mp3",
+      "integrity": "sha256-SpjAYp0DjL2tDmkc5SZddtOMz8fBHADhQcjgiQ8wHc0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-father-7a24670cf0e4-lv.mp3"
     },
     {
       "slug": "f01-010",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-85655dda5382.mp3",
-      "integrity": "sha256-x6LlcNMAtuOZOaXda5s4Es/EcEWIgrmVAO1mutoLSXU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-85655dda5382.mp3"
+      "file": "audio/q32-narrator-4a7573de7645.mp3",
+      "integrity": "sha256-Gm5b3uQ4vQi0cFq05lIIvz+qIlqtdSbsV6muA1IxzVM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-4a7573de7645.mp3"
     },
     {
       "slug": "f01-011",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-211662686722.mp3",
-      "integrity": "sha256-ocYqheFDd0Fuj6SIMqZx29lKFJG/O4pebqGcVGcjtIg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-211662686722.mp3"
+      "file": "audio/q32-narrator-61c6642639de.mp3",
+      "integrity": "sha256-/HpRek3QDopjADNCZeJ+6QADotHjyviAb6AJJg/LkwM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-61c6642639de.mp3"
     },
     {
       "slug": "f01-012",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-3da000bb88d3.mp3",
-      "integrity": "sha256-/gLSW0GqU4IOXkyC1iaG/67mpS4zEXhNQ5FKItH9HKo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-3da000bb88d3.mp3"
-    },
-    {
-      "slug": "f01-013",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-f90728e586fc.mp3",
-      "integrity": "sha256-L1aeyC17q6sRa15HLODrty8rzAwxB0mm+SdIokQH220=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-f90728e586fc.mp3"
-    },
-    {
-      "slug": "f01-014",
       "category": "NARRATION",
       "file": "audio/q30-narrator-68e14653fb9c.mp3",
       "integrity": "sha256-IHP/jOmpSFE9sOiqXZa3NDvgFH9lewJbzcksLagH/8Y=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-68e14653fb9c.mp3"
     },
     {
-      "slug": "f01-015",
+      "slug": "f01-013",
       "category": "NARRATION",
       "file": "audio/q30-gretel-70fdb9a6d7e3.mp3",
       "integrity": "sha256-7Yw4712G+hyyOTeaZvJogZI+PGIXHxl7TRIlCuwbAO4=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-70fdb9a6d7e3.mp3"
     },
     {
-      "slug": "f01-016",
+      "slug": "f01-014",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-f1d0a02bab71.mp3",
-      "integrity": "sha256-AcWbjknrjlgJj43qphRLJZVL0em38fWGJEtVodb0evw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-f1d0a02bab71.mp3"
+      "file": "audio/q32-hansel-f1d0a02bab71.mp3",
+      "integrity": "sha256-1RxTC8iZl758w9Cjx6HvP6bE3sI5c0qxiROduPktBk4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-f1d0a02bab71.mp3"
     },
     {
-      "slug": "f01-017",
+      "slug": "f01-015",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-4f2c76fb6a3f.mp3",
-      "integrity": "sha256-3dUxCEfIomE/atCY3Y500Kfpq6mSfgQqG0Y7lWtRqDM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-4f2c76fb6a3f.mp3"
+      "file": "audio/q32-hansel-4f2c76fb6a3f.mp3",
+      "integrity": "sha256-ZiGaNCAjNVDX7UnfSwOL77OGv3HvAddnvht/wErR5lo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-4f2c76fb6a3f.mp3"
     },
     {
       "slug": "f02-002",
@@ -1791,124 +1787,96 @@
     {
       "slug": "f02-005",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-a95fb0d79147.mp3",
-      "integrity": "sha256-I9wOv00mkwV0nwgWZoQWkVnjlA523A1MG1qbw6CAmlo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-a95fb0d79147.mp3"
+      "file": "audio/q32-hansel-a95fb0d79147.mp3",
+      "integrity": "sha256-dh2IaB/bVmDT/EsXIMkkoPy/b6uFaBBEfdGCSDul+nY=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-a95fb0d79147.mp3"
     },
     {
       "slug": "f02-007",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-bc5f68ca5fce.mp3",
-      "integrity": "sha256-WDx2FsEMddsc9yL4c5eL5g3/A8GvQ7JN+lkqsOX8nWg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-bc5f68ca5fce.mp3"
+      "file": "audio/q32-narrator-c4b9336d81af.mp3",
+      "integrity": "sha256-J19sHFzmmx93uq4iQh96cexweKbqHsyIMqTU1H7OQ4c=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-c4b9336d81af.mp3"
     },
     {
-      "slug": "f02-008",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-97de7e21d06e.mp3",
-      "integrity": "sha256-2OX8iZg1Cewgg8q3s3PrcewTqQixbBiJDee8imwmo3Q=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-97de7e21d06e.mp3"
-    },
-    {
-      "slug": "f02-010",
+      "slug": "f02-009",
       "category": "NARRATION",
       "file": "audio/q30-narrator-3b457e6bc4b2.mp3",
       "integrity": "sha256-imDWAU0AO7q+6Dmwmp52m1Epf7qdS4LjtqhEpHzuvTk=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-3b457e6bc4b2.mp3"
     },
     {
+      "slug": "f02-010",
+      "category": "NARRATION",
+      "file": "audio/q32-gretel-9ddabb92df00-lv.mp3",
+      "integrity": "sha256-s+FibF4g1CwXC2GlsKu0wYLBUU39ADBxmm1Et8x8Szw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-9ddabb92df00-lv.mp3"
+    },
+    {
       "slug": "f02-011",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-9ddabb92df00.mp3",
-      "integrity": "sha256-PK7+wG+JVQ6L3L8/9HXnELzylB3Ti5H7gtF0bPf0Y9Y=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-9ddabb92df00.mp3"
+      "file": "audio/q32-hansel-ba88a3efff5f.mp3",
+      "integrity": "sha256-ZYBvKCJZPSvZ03RhB0IMwM0mis4cBh52asH4h6qCT8w=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-ba88a3efff5f.mp3"
     },
     {
-      "slug": "f02-012",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-ba88a3efff5f.mp3",
-      "integrity": "sha256-AGeALqGiKG5DVoam/8HskPHPGcLEFZdWPlhm2+rnxS4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-ba88a3efff5f.mp3"
-    },
-    {
-      "slug": "f02-014",
+      "slug": "f02-013",
       "category": "NARRATION",
       "file": "audio/q30-narrator-747fbe36f9e1.mp3",
       "integrity": "sha256-HKxuf6lB2RTKkFMtKGjXTFeECqmtc4GzLKfldD7tAZg=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-747fbe36f9e1.mp3"
     },
     {
-      "slug": "f02-015",
+      "slug": "f02-014",
       "category": "NARRATION",
       "file": "audio/q30-narrator-9718440a6308.mp3",
       "integrity": "sha256-sBwdw/OvFKuWjxoaik3K0M2AbMFvb1mSvaX6ut4Pl9M=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-9718440a6308.mp3"
     },
     {
-      "slug": "f02-017",
+      "slug": "f02-016",
       "category": "NARRATION",
       "file": "audio/q30-narrator-8d26c1c2ef0f.mp3",
       "integrity": "sha256-Q1TFkSQcUPWjHUdXA6Gqft7oAwIgfSZNqRZc/sI1zIo=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8d26c1c2ef0f.mp3"
     },
     {
-      "slug": "f02-018",
+      "slug": "f02-017",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-90b530573e65.mp3",
-      "integrity": "sha256-GbDLFXO/4K6kDNbGV7MwiH0PcnEtYEsgDnMHCCFLKps=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-90b530573e65.mp3"
+      "file": "audio/q32-narrator-d3a3cf0f035b.mp3",
+      "integrity": "sha256-ddyX1HArMq6Zau7ZvVmZtqcJCY+e7CnvgA6MlwMIjdE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-d3a3cf0f035b.mp3"
     },
     {
       "slug": "f02-019",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-0c74b2349dc1.mp3",
-      "integrity": "sha256-cbMF0Trr0Y6Wozs1PHtKnxkmZMOPP9LsFrN83BUtLUQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-0c74b2349dc1.mp3"
-    },
-    {
-      "slug": "f02-021",
       "category": "NARRATION",
       "file": "audio/q30-narrator-8a7a61058958.mp3",
       "integrity": "sha256-FRJvDTQMZEu/Nly2OkwdvKWwXIhVOZIFb2ido0qo1lI=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8a7a61058958.mp3"
     },
     {
-      "slug": "f02-022",
+      "slug": "f02-020",
       "category": "NARRATION",
       "file": "audio/q30-stepmother-0cacd471fc9a.mp3",
       "integrity": "sha256-m1w2f56XvB2XV8T+mLlLnwDdK0ha1//rQw94AiIbnAE=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-stepmother-0cacd471fc9a.mp3"
     },
     {
+      "slug": "f02-021",
+      "category": "NARRATION",
+      "file": "audio/q32-father-ba8a2c4235a6-lv.mp3",
+      "integrity": "sha256-5RjwaG0uz0DGJvFrXUFb49agVN8oPyKyFFG4r2YFIek=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-father-ba8a2c4235a6-lv.mp3"
+    },
+    {
+      "slug": "f02-022",
+      "category": "NARRATION",
+      "file": "audio/q32-narrator-c77b609eee51.mp3",
+      "integrity": "sha256-z3bpTwG/fZQlPwZ+N6vn2X+rz6rY46XYRNj+gY0++Fc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-c77b609eee51.mp3"
+    },
+    {
       "slug": "f02-023",
-      "category": "NARRATION",
-      "file": "audio/q30-father-ba8a2c4235a6.mp3",
-      "integrity": "sha256-pno1rF9jF6yLkRADHgshxd54FQiWyvaLhf86ER71O4M=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-ba8a2c4235a6.mp3"
-    },
-    {
-      "slug": "f02-024",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-95799c2d3be3.mp3",
-      "integrity": "sha256-Q+bk5C7AvDUqcZMirWvlN9+84zncDlsadWs3sw4CvLc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-95799c2d3be3.mp3"
-    },
-    {
-      "slug": "f02-025",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-8440dff650c6.mp3",
-      "integrity": "sha256-3IHVTNzhRXI5kjn7CtVMlicJKm10xFWoKpgn3EB1ZSA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8440dff650c6.mp3"
-    },
-    {
-      "slug": "f02-026",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-ce3dc87adc4d.mp3",
-      "integrity": "sha256-THmH3wNtk8TReGFp8rmc3gEe0SbZ6kR03ry01DfhSTI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-ce3dc87adc4d.mp3"
-    },
-    {
-      "slug": "f02-027",
       "category": "NARRATION",
       "file": "audio/q30-narrator-b7b68eb88470.mp3",
       "integrity": "sha256-Ehl0STWHorw3nLfW1/+MRkqaFdFAgW75dwJcS6KDoA0=",
@@ -1917,219 +1885,156 @@
     {
       "slug": "f03-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-c45cc9650660.mp3",
-      "integrity": "sha256-HThGfiKl4rFNov1nXpjaBbzF6KCzVbBiId/qkTbqqxE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-c45cc9650660.mp3"
+      "file": "audio/q32-narrator-36b72039ed91.mp3",
+      "integrity": "sha256-ZuLi75xO5RiQRjXHn2WVppu751FsgsCIfJbJwRyiYb0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-36b72039ed91.mp3"
     },
     {
       "slug": "f03-003",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-2501e2005ca0.mp3",
-      "integrity": "sha256-QqD/ApcPJdFOEqhq7YmAsa29S3ifLYic46glBYBH+O8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-2501e2005ca0.mp3"
+      "file": "audio/q32-narrator-8bac392e00c5.mp3",
+      "integrity": "sha256-kqRAnTW7p4p9Ds8SHURwjD4zhbkTbZ2K/JQE+2Rh1gs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-8bac392e00c5.mp3"
     },
     {
       "slug": "f03-004",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-54375e70c0b9.mp3",
-      "integrity": "sha256-dVovqkpO8n8Kx4JRlx7q4JB3J4ULT0FUGa6H9qiXPb8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-54375e70c0b9.mp3"
+      "file": "audio/q32-hansel-a9861512a863.mp3",
+      "integrity": "sha256-yPmJePq23kY0NB9iMZd3G+42eW2OYEyrsLvq2sbYaVo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-a9861512a863.mp3"
     },
     {
       "slug": "f03-005",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-69410e5cd5b4.mp3",
-      "integrity": "sha256-c5vSd83TOp56ReY5lMH1l7QSqBDbYggcu0NEEjqi3a0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-69410e5cd5b4.mp3"
-    },
-    {
-      "slug": "f03-006",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-a9861512a863.mp3",
-      "integrity": "sha256-AubUHYEvM06EkJ/vyj74QHi0pvlry1fwXkzgF4ybRwA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-a9861512a863.mp3"
+      "file": "audio/q32-hansel-31c4e7aa2901.mp3",
+      "integrity": "sha256-bPaV5PvjBUZSI73mowYyTLC9E39ciEg/WGH343zWnjs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-31c4e7aa2901.mp3"
     },
     {
       "slug": "f03-007",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-31c4e7aa2901.mp3",
-      "integrity": "sha256-ejiKw76rJ1L4QxXKUIQSvuP26tB/Bfb7qtESHR4vIlI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-31c4e7aa2901.mp3"
+      "file": "audio/q32-narrator-69970f0f78a6.mp3",
+      "integrity": "sha256-Qx0fjYWZv+JoI/9G/eozco187U79FhdID2MiRtKBv4E=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-69970f0f78a6.mp3"
+    },
+    {
+      "slug": "f03-008",
+      "category": "NARRATION",
+      "file": "audio/q32-gretel-4384a96925df-lv.mp3",
+      "integrity": "sha256-FROX6d9RuONL2vMSv5m5kMV5SQDwgvfWZPZLruhrTN8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-4384a96925df-lv.mp3"
     },
     {
       "slug": "f03-009",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-eb276aff26b4.mp3",
-      "integrity": "sha256-iJn77ghQTvDvZrKYOI6oeo37a/7UVwZRrsxGwTt8PUM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-eb276aff26b4.mp3"
+      "file": "audio/q32-hansel-bc91f37d3ae8.mp3",
+      "integrity": "sha256-dMx2EHU3kNewZog5rR/JRPGuGpaN5ozgdBzemBHXLsY=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-bc91f37d3ae8.mp3"
     },
     {
       "slug": "f03-010",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-a26ecf0f1335.mp3",
-      "integrity": "sha256-TBBtLv5qWRSM7+Nk1RH2CIAymPjB/wKsrfRlM9dLU7k=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-a26ecf0f1335.mp3"
-    },
-    {
-      "slug": "f03-011",
-      "category": "NARRATION",
-      "file": "audio/q30-gretel-4384a96925df.mp3",
-      "integrity": "sha256-0+xymTTLqY4B37eexCZ+yaf5bCWCImRaaYZj6KOOVyM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-4384a96925df.mp3"
+      "file": "audio/q32-hansel-6f143a959acb.mp3",
+      "integrity": "sha256-VBeu5mlejggdmzEFLXZZbYIypQHtN1DgN3igDE9tXxQ=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-6f143a959acb.mp3"
     },
     {
       "slug": "f03-012",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-bc91f37d3ae8.mp3",
-      "integrity": "sha256-vRkDc2DmzQ+jZ1otq8yHHUj2+PqgQg54Nmws4hvv4zo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-bc91f37d3ae8.mp3"
+      "file": "audio/q32-narrator-40b9ae2a3909.mp3",
+      "integrity": "sha256-fu7g4JX5Q8gtrpHaWrj9vztOwFRuM7HxEU1lmre60/4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-40b9ae2a3909.mp3"
     },
     {
       "slug": "f03-013",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-6f143a959acb.mp3",
-      "integrity": "sha256-XqeE+Q67GkYZBOC6VRUAoZHZg6DVIdfEy/AjjzDy8RE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-6f143a959acb.mp3"
-    },
-    {
-      "slug": "f03-015",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-4a77cdff3892.mp3",
-      "integrity": "sha256-XGPi5+z0Bb3d9diTeDp298P1HLL/Tz2Z9VWntgJhDw4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-4a77cdff3892.mp3"
-    },
-    {
-      "slug": "f03-016",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-a2a979acafce.mp3",
-      "integrity": "sha256-qPhKL/1FaGg5ObJwn4EJYt50P7WJm4Sp1Ky0MQguTO4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-a2a979acafce.mp3"
-    },
-    {
-      "slug": "f03-017",
       "category": "NARRATION",
       "file": "audio/q30-narrator-067649f1926d.mp3",
       "integrity": "sha256-pn8nDsS54PBh5M65rmdFHnupBNuqpXYHh2kVlEkXHI8=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-067649f1926d.mp3"
     },
     {
-      "slug": "f03-018",
+      "slug": "f03-014",
       "category": "NARRATION",
       "file": "audio/q30-stepmother-9c1d023b6c9a.mp3",
       "integrity": "sha256-4fXP954K+F9jDUJTfTQ/gDTD/4IRmCKJXnLiiYwP5bE=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-stepmother-9c1d023b6c9a.mp3"
     },
     {
-      "slug": "f03-020",
+      "slug": "f03-016",
       "category": "NARRATION",
       "file": "audio/q30-narrator-45d03b4c4f7a.mp3",
       "integrity": "sha256-QHFs+DGjFtSeDQrb7Wj1UkAIkfKnVLUpUCjwsbBLwuQ=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-45d03b4c4f7a.mp3"
     },
     {
-      "slug": "f03-021",
+      "slug": "f03-017",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-0775184e8160.mp3",
-      "integrity": "sha256-tTc1uGC0iiN+Mp+CO9k9tVpahyl7sfgVox+0rCTumvc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-0775184e8160.mp3"
+      "file": "audio/q32-narrator-1a164f732d9a.mp3",
+      "integrity": "sha256-9lqqFmQ2v/VJ/g7KgK6Z9m06ulfIb3qJwqw/oDbTSzk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-1a164f732d9a.mp3"
     },
     {
-      "slug": "f03-022",
+      "slug": "f03-019",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-c5c7ea523aed.mp3",
-      "integrity": "sha256-6LyBF1aEm4TsWSU/yIeiTRrNAze7ySnJ/KfhNdoqI64=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-c5c7ea523aed.mp3"
+      "file": "audio/q32-narrator-7da257c0be15.mp3",
+      "integrity": "sha256-LNWHKQfH0TNPJXaFAdyp1QFTN1vRFfAvdZOH7PPjWNk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-7da257c0be15.mp3"
     },
     {
-      "slug": "f03-024",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-b2f889ba14e5.mp3",
-      "integrity": "sha256-JIduvvjB+8M4mAmpiP38vzJgGiMKFyRFygvTAy+fBNs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-b2f889ba14e5.mp3"
-    },
-    {
-      "slug": "f03-025",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-1a8a72690d94.mp3",
-      "integrity": "sha256-O6VusX33TEsRBhZrBH6gqqeLVv/qEH5AQMV1Fm3aXh4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-1a8a72690d94.mp3"
-    },
-    {
-      "slug": "f03-026",
+      "slug": "f03-020",
       "category": "NARRATION",
       "file": "audio/q30-narrator-0adde0f57aec.mp3",
       "integrity": "sha256-xLDthzEP6kcph+lWH9HSgOlicWAqngXVeEBiV2F7hGE=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-0adde0f57aec.mp3"
     },
     {
-      "slug": "f03-027",
+      "slug": "f03-021",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-134a848d90dc.mp3",
-      "integrity": "sha256-9gOq/7W/BsMN+2E8cUieXah9faRpTOCcPhF7Fq3ziR8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-134a848d90dc.mp3"
+      "file": "audio/q32-narrator-9ad34d07b2fe.mp3",
+      "integrity": "sha256-WKbHatPya6U0/t4W2hdeqP9OnRzde7wxALMpHItbMIE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-9ad34d07b2fe.mp3"
     },
     {
-      "slug": "f03-028",
+      "slug": "f03-022",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-5a6584a676dc.mp3",
-      "integrity": "sha256-LsJWziPscV2hu3/HeB/WuVgRhSjAppTyeo/J6v+5wwo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-5a6584a676dc.mp3"
+      "file": "audio/q32-hansel-81ff5773090e.mp3",
+      "integrity": "sha256-ucAHgvzgYS92AurBSCajUaXvuKMIYROdN46zQmntq1A=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-81ff5773090e.mp3"
     },
     {
-      "slug": "f03-029",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-81ff5773090e.mp3",
-      "integrity": "sha256-qWzP/TLt8bK9UGwEVEJyl922DeTG0ILrlV/TReAai/M=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-81ff5773090e.mp3"
-    },
-    {
-      "slug": "f03-030",
+      "slug": "f03-023",
       "category": "NARRATION",
       "file": "audio/q30-gretel-9bfcee88218f.mp3",
       "integrity": "sha256-HpTaPCuiT+qHh9H9enFVZBgQ/Wqlw5ZCd4TZWM+nl5E=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-9bfcee88218f.mp3"
     },
     {
-      "slug": "f03-031",
+      "slug": "f03-024",
       "category": "NARRATION",
       "file": "audio/q30-gretel-ecc5a289ffbf.mp3",
       "integrity": "sha256-u1qdGjuw4uMpLagU9hpxGIZn2c1h+JWRbdThnOFKZYc=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-ecc5a289ffbf.mp3"
     },
     {
-      "slug": "f03-033",
+      "slug": "f03-026",
       "category": "NARRATION",
       "file": "audio/q30-narrator-74053c3f4ebd.mp3",
       "integrity": "sha256-jtm2sA+AZAfvfUITTu+QN+vdc+2WH7No2z5u7Esc5yA=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-74053c3f4ebd.mp3"
     },
     {
-      "slug": "f03-034",
+      "slug": "f03-027",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-451855761ce6.mp3",
-      "integrity": "sha256-6mQsVcdHZIBiK9fuqk2959z8I5f70oCqjV+HKaKRULI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-451855761ce6.mp3"
+      "file": "audio/q32-narrator-9caf562b6fa4.mp3",
+      "integrity": "sha256-YYhWZ2uupLkujYBYiiaYT7gHg6LvpItNP+fNeC6ZSEA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-9caf562b6fa4.mp3"
     },
     {
-      "slug": "f03-035",
+      "slug": "f03-029",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-43074517e798.mp3",
-      "integrity": "sha256-70C0w4AU87NL+ml8XOBXJ7Gy2Sxrj7LrGmpuY536UvA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-43074517e798.mp3"
-    },
-    {
-      "slug": "f03-037",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-163c1ccc0419.mp3",
-      "integrity": "sha256-oY/m1mq7Nvv5xeQcb908SsJNcMYBd+Lt9Uq6t0rZ61U=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-163c1ccc0419.mp3"
-    },
-    {
-      "slug": "f03-038",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-e64225c2d29f.mp3",
-      "integrity": "sha256-gkrNtajxtebA60QXz0YH54Q4BhonsysQmpVeMgHIyTo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-e64225c2d29f.mp3"
+      "file": "audio/q32-narrator-261507546b35.mp3",
+      "integrity": "sha256-Y2yKd8phFg60VRcvWkUweDhCyIbwr4e2Nv1mi2VLeKE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-261507546b35.mp3"
     },
     {
       "slug": "f04-002",
@@ -2141,86 +2046,72 @@
     {
       "slug": "f04-003",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-fc16ed1557cf.mp3",
-      "integrity": "sha256-k8EB8eZh22MguItak8o6izAOGxxXjWbAqLB1EaWdqMI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-fc16ed1557cf.mp3"
+      "file": "audio/q32-narrator-9484497a474c.mp3",
+      "integrity": "sha256-dVRbZwcLMl3doe/SfWwGPuuh7kSPn2wOvLvqcKlDxHE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-9484497a474c.mp3"
     },
     {
       "slug": "f04-004",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-80a0c41a8a2c.mp3",
-      "integrity": "sha256-e6bcbI2J5FP11glDClfEshSPn4OOWMMztzXnwNcFFxU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-80a0c41a8a2c.mp3"
+      "file": "audio/q32-gretel-e234368f5533-lv.mp3",
+      "integrity": "sha256-G6M5A4IFwQqcDooTch8r6u8g77++kJ3InpxlYzF2v4w=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-e234368f5533-lv.mp3"
     },
     {
       "slug": "f04-005",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-e234368f5533.mp3",
-      "integrity": "sha256-Gd/F7dancnAH3ORewzPb2Q2bu3/nkrYiBENfn+u2TkU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-e234368f5533.mp3"
+      "file": "audio/q32-gretel-7c80b7bbd945-lv.mp3",
+      "integrity": "sha256-hanU7oqHE5WhyOXPN4P9DcYhpVTtkIAMRTwwUiHEOSA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-7c80b7bbd945-lv.mp3"
     },
     {
-      "slug": "f04-006",
-      "category": "NARRATION",
-      "file": "audio/q30-gretel-7c80b7bbd945.mp3",
-      "integrity": "sha256-BMi6LRG3Fa2otasi4QbXmoquUYRjlmj3g7/xZ4PKi28=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-7c80b7bbd945.mp3"
-    },
-    {
-      "slug": "f04-009",
+      "slug": "f04-008",
       "category": "NARRATION",
       "file": "audio/q30-narrator-a608edfe6160.mp3",
       "integrity": "sha256-PF80gWIQnKGKmqXIPtodamg9scr/26yxSBWHlOpKRrc=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-a608edfe6160.mp3"
     },
     {
-      "slug": "f04-010",
+      "slug": "f04-009",
       "category": "NARRATION",
       "file": "audio/q30-narrator-8512ebef02e8.mp3",
       "integrity": "sha256-nULExDw+HgkJHqmAV8R5f5NzShDUwOAMKHeRi8fehcA=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8512ebef02e8.mp3"
     },
     {
-      "slug": "f04-011",
+      "slug": "f04-010",
       "category": "NARRATION",
       "file": "audio/q30-narrator-6a7bdc7ee09a.mp3",
       "integrity": "sha256-NCD0smVZ13laIjnxwfKvgA3AQibhfnbbEGgGe0XQk7E=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-6a7bdc7ee09a.mp3"
     },
     {
-      "slug": "f04-012",
+      "slug": "f04-011",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-38ccff28094f.mp3",
-      "integrity": "sha256-AaTy2BBh/S/WdOWW6BPD9zxLbK9hkMLDtuD2a+EYkhI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-38ccff28094f.mp3"
+      "file": "audio/q32-hansel-38ccff28094f.mp3",
+      "integrity": "sha256-aZj3E3WSsiJCQcbKTTiaTcAUQmP7E1QFxo5qVvvwCng=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-38ccff28094f.mp3"
     },
     {
-      "slug": "f04-015",
+      "slug": "f04-014",
       "category": "NARRATION",
       "file": "audio/q30-narrator-3d4e6ba5cc7c.mp3",
       "integrity": "sha256-WSehEv/KTXg4gnYDvPULsBQo1CYocq4YqigSKB8wlb0=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-3d4e6ba5cc7c.mp3"
     },
     {
+      "slug": "f04-015",
+      "category": "NARRATION",
+      "file": "audio/q32-narrator-bee1acf0d416.mp3",
+      "integrity": "sha256-HL50ztMxEIdrVH04p33ESTYHYCXP0n5/LCL9lJajNfo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-bee1acf0d416.mp3"
+    },
+    {
       "slug": "f04-016",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-07fd6f56cf39.mp3",
-      "integrity": "sha256-Xm6Z0fkKYi7MukEHPyrTnBn7MfA6BKN9H4pdgEir1oI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-07fd6f56cf39.mp3"
-    },
-    {
-      "slug": "f04-017",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-312b43ec45e4.mp3",
-      "integrity": "sha256-HoHEk2/fz9kXjFLzU9NLqJw7qS7WgHVU+BcoAc4Wfow=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-312b43ec45e4.mp3"
-    },
-    {
-      "slug": "f04-018",
-      "category": "NARRATION",
-      "file": "audio/q30-gretel-f3cf95702461.mp3",
-      "integrity": "sha256-6HNYEbMIQLl8x5o5A2UA3ciO4CFn/xeme8OaGRY5Byc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-f3cf95702461.mp3"
+      "file": "audio/q32-gretel-f3cf95702461-lv.mp3",
+      "integrity": "sha256-BD/iPJFK7ke8IJ+8huO0Rx8WM9vZpWL+vU3e6p4BxZ8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-f3cf95702461-lv.mp3"
     },
     {
       "slug": "f05-002",
@@ -2246,23 +2137,23 @@
     {
       "slug": "f05-006",
       "category": "NARRATION",
-      "file": "audio/q30-old_woman-6263b2aff354.mp3",
-      "integrity": "sha256-OkMphTJ71wYrtshJ7sILIh3vl3MF0MZ+NB0fTlRwZdA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-old_woman-6263b2aff354.mp3"
+      "file": "audio/q32-old_woman-6263b2aff354-lv.mp3",
+      "integrity": "sha256-c5M3Cb2ndb8wG51D5LDVZx8DFl7iVD7ZOyOeiR9qWrs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-old_woman-6263b2aff354-lv.mp3"
     },
     {
       "slug": "f05-007",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-c5171eb4d0cf.mp3",
-      "integrity": "sha256-+zSv1JJiQSyBFilCwrh0CMzqiIRMQsKCJPFZtFiGD1g=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-c5171eb4d0cf.mp3"
+      "file": "audio/q32-hansel-c5171eb4d0cf.mp3",
+      "integrity": "sha256-ew+qJMomD1MQfuGydeYncZJrbYkS7MJfCWKXfkStBD0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-c5171eb4d0cf.mp3"
     },
     {
       "slug": "f05-008",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-8f65bda8f444.mp3",
-      "integrity": "sha256-hiIgCZNvR2VgxzFeAo7lGeQa0HdTZf9L+fXAm2XdpWI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-8f65bda8f444.mp3"
+      "file": "audio/q32-hansel-8f65bda8f444.mp3",
+      "integrity": "sha256-dou8SSv2AtYuE0TDs3sA5LMI/Xjf9PpICc9pZRAVVVE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-8f65bda8f444.mp3"
     },
     {
       "slug": "f05-009",
@@ -2274,16 +2165,16 @@
     {
       "slug": "f05-010",
       "category": "NARRATION",
-      "file": "audio/q30-old_woman-b0445202c4be.mp3",
-      "integrity": "sha256-wCOQEBF1eQYWg2JvzSQgtzOPtedaJLDDTiWkh0hfiKo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-old_woman-b0445202c4be.mp3"
+      "file": "audio/q32-old_woman-b0445202c4be-lv.mp3",
+      "integrity": "sha256-n60XiHVnTqX4Tzb14ea3jueJEOfn+c0pJUeRfoAtkRw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-old_woman-b0445202c4be-lv.mp3"
     },
     {
       "slug": "f05-011",
       "category": "NARRATION",
-      "file": "audio/q30-old_woman-4c92e6c72ffc.mp3",
-      "integrity": "sha256-qNqGpO85cslAW6ZnxMmZwNwnGLT6e4KGV8syWWlfkpg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-old_woman-4c92e6c72ffc.mp3"
+      "file": "audio/q32-old_woman-4c92e6c72ffc-lv.mp3",
+      "integrity": "sha256-OPZq36T20Zq6Vc18PCFvqgdnK5iklqPOIk9FuSM4L1w=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-old_woman-4c92e6c72ffc-lv.mp3"
     },
     {
       "slug": "f05-012",
@@ -2295,383 +2186,264 @@
     {
       "slug": "f05-014",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-9eef52b47189.mp3",
-      "integrity": "sha256-LAfT+5zEhu1DKzI1cV8v+Yz0G29yrQ6ngnZ4ZycvLUo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-9eef52b47189.mp3"
+      "file": "audio/q32-hansel-9eef52b47189.mp3",
+      "integrity": "sha256-mfk0Rb7tIswtRbqoOVXyzso1joYveINAMrHRl1SFiFw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-9eef52b47189.mp3"
     },
     {
       "slug": "f05-015",
       "category": "NARRATION",
-      "file": "audio/q30-old_woman-0936aac9257e.mp3",
-      "integrity": "sha256-ppKo3/t82igsbDavBunqxrX7WvC4pScbR4ymiibybHE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-old_woman-0936aac9257e.mp3"
+      "file": "audio/q32-old_woman-0936aac9257e-lv.mp3",
+      "integrity": "sha256-V2VHfO1GdWQbgGQ9gzN0Nw0yPMU8p2kVUGueg5rFmok=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-old_woman-0936aac9257e-lv.mp3"
     },
     {
       "slug": "f05-016",
       "category": "NARRATION",
-      "file": "audio/q30-old_woman-862084e36b10.mp3",
-      "integrity": "sha256-Rfy7teoecFI+SNM6V0MGdBz2I58TdAFr0pIsBmfLMqw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-old_woman-862084e36b10.mp3"
+      "file": "audio/q32-old_woman-862084e36b10-lv.mp3",
+      "integrity": "sha256-A+XTaZsV5aAO7OqP+vLWGNp5H0VzKWplSC1TfZlNDhw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-old_woman-862084e36b10-lv.mp3"
     },
     {
       "slug": "f05-019",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-5a41dc5e79c5.mp3",
-      "integrity": "sha256-X7AJcqwVd4lC0m+VdjIoM15AWW1k4AsuqWl2bYJ8Igc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-5a41dc5e79c5.mp3"
+      "file": "audio/q32-narrator-2442392cabfd.mp3",
+      "integrity": "sha256-H7V9y3ZlJh+7QYbeHOyemMusLZh3WzZ9RnJa7ORYZUw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-2442392cabfd.mp3"
     },
     {
       "slug": "f05-020",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-47c4e99eb5d8.mp3",
-      "integrity": "sha256-DuErcSrAFdDY+0uneuWDz2zu6uAGmGKZO85oRdkQfa4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-47c4e99eb5d8.mp3"
-    },
-    {
-      "slug": "f05-021",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-dfa96baad371.mp3",
-      "integrity": "sha256-a9JGI2ZwWv6fXNRP2lE5LtC14gCjDJwASJ+NbTWtI7M=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-dfa96baad371.mp3"
-    },
-    {
-      "slug": "f05-022",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-0465b4adc525.mp3",
-      "integrity": "sha256-y4Y8opYi1qNtY1mT1ZqhW0oZEAFLiwCsASAWWP5Zpsw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-0465b4adc525.mp3"
-    },
-    {
-      "slug": "f05-023",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-0bacbb0ea2e4.mp3",
-      "integrity": "sha256-wyhWv/LdDHuZuKZfSqtRYWPVJCIsZKr367WYUPQYa6I=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-0bacbb0ea2e4.mp3"
+      "file": "audio/q32-narrator-a3284023ed90.mp3",
+      "integrity": "sha256-zdmfcdJ5GRo2m+sVf5xvXA570MImr3Vy/J0EdKdqrd4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-a3284023ed90.mp3"
     },
     {
       "slug": "f06-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-73f73aeca47a.mp3",
-      "integrity": "sha256-B45u9LJ7SmvB4QxnnNO8FZzymAfzpymuPMvxLnfm8l8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-73f73aeca47a.mp3"
+      "file": "audio/q32-narrator-4b086b3f8a3c.mp3",
+      "integrity": "sha256-BFOamYHTx9Nn7M8XqYVcbdXD4T2yoS97eM+k5/wy6xY=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-4b086b3f8a3c.mp3"
     },
     {
       "slug": "f06-003",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-5dc26bd07614.mp3",
-      "integrity": "sha256-/yxDWMlyaRui+MTZulP4KgFcJD6TipTzNLRHZ+s6qIg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-5dc26bd07614.mp3"
+      "file": "audio/q32-narrator-b2f7d1115eb7.mp3",
+      "integrity": "sha256-7B1nZbbQNkq2BbL4Yw09y6blyRW8OVKeVErOCyimXys=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-b2f7d1115eb7.mp3"
     },
     {
       "slug": "f06-004",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-69e6c831c8a3.mp3",
-      "integrity": "sha256-qA/ByzC0t7fPCql7M3mjnAImeoeTh5B7az8j8drhKPY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-69e6c831c8a3.mp3"
+      "file": "audio/q32-hansel-067daa220ff3.mp3",
+      "integrity": "sha256-91BuF+fjHp1SkPRtPDh3ch8Rjz8zaJZihEsG3ULuDAc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-067daa220ff3.mp3"
     },
     {
       "slug": "f06-005",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-860097fbeeda.mp3",
-      "integrity": "sha256-Jw1ihIW46/weCE2qMG3D/d8h6ZrZwuKV68sHJsHZSkM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-860097fbeeda.mp3"
-    },
-    {
-      "slug": "f06-006",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-455186457aff.mp3",
-      "integrity": "sha256-kadU6DMNlteKSBj4scGmgcfyHK7M00eh+/q1hT9EHSk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-455186457aff.mp3"
+      "file": "audio/q32-hansel-7ff8bb57aa9f.mp3",
+      "integrity": "sha256-10wdpy7D4tsWxStUokVAax38vCMr3fp0qdbIeGm/FhA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-7ff8bb57aa9f.mp3"
     },
     {
       "slug": "f06-007",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-067daa220ff3.mp3",
-      "integrity": "sha256-3G59TvS6Dq2rJeHK1SRRCgOf+blwWXqG3e7KalByQHI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-067daa220ff3.mp3"
+      "file": "audio/q32-narrator-eda8e3f3a84d.mp3",
+      "integrity": "sha256-zyZX99dlk+unm2oJSTM8TGTvu4awIXcqKFsgmZErVkU=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-eda8e3f3a84d.mp3"
     },
     {
       "slug": "f06-008",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-7ff8bb57aa9f.mp3",
-      "integrity": "sha256-X+RNGu9Y1Yy+O6zIFBB6aU+CUg5fTDAwr7az9TOND1E=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-7ff8bb57aa9f.mp3"
-    },
-    {
-      "slug": "f06-010",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-a96aca9f5e53.mp3",
-      "integrity": "sha256-5ohLXZ/mtJnLZ/T+HHbbgoEyE84zzyeYmouXyyPQoLY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-a96aca9f5e53.mp3"
-    },
-    {
-      "slug": "f06-011",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-5ab2fd90e429.mp3",
-      "integrity": "sha256-r3Je3MpR3o9ySzHUntOTWiwb5A0umF7iyWQnDjtzScc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-5ab2fd90e429.mp3"
-    },
-    {
-      "slug": "f06-012",
       "category": "NARRATION",
       "file": "audio/q30-narrator-40a17278dba0.mp3",
       "integrity": "sha256-/t0SQRZTnndNlhZAvo1NYUDaqGMSbsPb7ga4QMgDEFk=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-40a17278dba0.mp3"
     },
     {
-      "slug": "f06-013",
+      "slug": "f06-009",
       "category": "NARRATION",
       "file": "audio/q30-witch-1a4c699cba66.mp3",
       "integrity": "sha256-IJMGD+Wjnw4Vvhjn6Y/YxsCYysoXUDRssj/W7Gm3RPM=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-witch-1a4c699cba66.mp3"
     },
     {
-      "slug": "f06-014",
+      "slug": "f06-010",
       "category": "NARRATION",
       "file": "audio/q30-witch-308847dd96e4.mp3",
       "integrity": "sha256-/T0V77BW/Ra5x+v+P5TLXq1tMH924LpPRi1wlLbxSsY=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-witch-308847dd96e4.mp3"
     },
     {
-      "slug": "f06-015",
+      "slug": "f06-011",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-df704c6be236.mp3",
-      "integrity": "sha256-Sk18tdhAXqaONaa4/pvhbFSVZ6eoXGtpoPFfVE3k5j4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-df704c6be236.mp3"
+      "file": "audio/q32-narrator-7d988bdeb63e.mp3",
+      "integrity": "sha256-RrqbUoRTPdrr259anbLZabX4OjzT0nU9dFpQA5gCu7A=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-7d988bdeb63e.mp3"
     },
     {
-      "slug": "f06-016",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-f836b8be5b02.mp3",
-      "integrity": "sha256-MI7W5QIXBFVDJb6DEYgQSz6QIRosx7/xeS95UqTVpx4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-f836b8be5b02.mp3"
-    },
-    {
-      "slug": "f06-018",
+      "slug": "f06-013",
       "category": "NARRATION",
       "file": "audio/q30-narrator-1543941947c9.mp3",
       "integrity": "sha256-Bg2oLlw4cZtRGgtnVLqohuRp9bIR3tGInH96mxHILkI=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-1543941947c9.mp3"
     },
     {
-      "slug": "f06-019",
+      "slug": "f06-014",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-cd5864ffe7d0.mp3",
-      "integrity": "sha256-um0yMg3W5AXZiK2xViAiTQRB4UtZt9g2p1ia7XtbxLQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-cd5864ffe7d0.mp3"
+      "file": "audio/q32-narrator-2398aac125cd.mp3",
+      "integrity": "sha256-AGNHEomgtDbc7UI65J6N7+c2gGaFQcxwKXdJJrleBd8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-2398aac125cd.mp3"
     },
     {
-      "slug": "f06-020",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-aa3074bb7cfd.mp3",
-      "integrity": "sha256-83HBgJBgJv+jaO8MSnOMVZdfuPqcG0kFPdfMS3rqJnA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-aa3074bb7cfd.mp3"
-    },
-    {
-      "slug": "f06-021",
+      "slug": "f06-015",
       "category": "NARRATION",
       "file": "audio/q30-narrator-972c69a17c97.mp3",
       "integrity": "sha256-YI+NBFSL+3P+78KfQ4D9gzShinwQ8+gaVj/MirExMtE=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-972c69a17c97.mp3"
     },
     {
-      "slug": "f06-023",
+      "slug": "f06-017",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-3812183f22d4.mp3",
-      "integrity": "sha256-hrPbKEr9nvJ0CAz7uTFhufpQovt1UafctNIQMhftd2w=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-3812183f22d4.mp3"
+      "file": "audio/q32-narrator-c210c4e9d706.mp3",
+      "integrity": "sha256-b9b+18Gnln2F8IwSv7PFsZ3hiCBaKYQoKEw+bIj0Ud0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-c210c4e9d706.mp3"
     },
     {
-      "slug": "f06-024",
+      "slug": "f06-018",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-f51ae91a3081.mp3",
-      "integrity": "sha256-XGUaS5FhgLSuLoLA8/4S8zuyrRo6DxPbpiZq9gQf0v8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-f51ae91a3081.mp3"
+      "file": "audio/q32-gretel-7cfc3711d97e-lv.mp3",
+      "integrity": "sha256-+R2/7otcKvjxciuRZZRLY9x40qI4MKjepwY8/8Ukbio=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-7cfc3711d97e-lv.mp3"
     },
     {
-      "slug": "f06-025",
+      "slug": "f06-019",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-7cfc3711d97e.mp3",
-      "integrity": "sha256-UslmF0ojrzqxx3raPN7BCUHsXod7bul3cEivpgQTNrc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-7cfc3711d97e.mp3"
-    },
-    {
-      "slug": "f06-026",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-868ba71df3bd.mp3",
-      "integrity": "sha256-yP2MfKg0Hq2EkjFw3F5Kgwj6DrmnPPNCo/4A6RUZiws=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-868ba71df3bd.mp3"
+      "file": "audio/q32-hansel-868ba71df3bd.mp3",
+      "integrity": "sha256-xO3qvG4dRgrzfy6rWv+oPx6AHAmqi5yo/MyZgp+45VI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-868ba71df3bd.mp3"
     },
     {
       "slug": "f07-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-aed8b3419e98.mp3",
-      "integrity": "sha256-iwTmGpjbNcMnASQC7SVkWBBTOzbQlIMrnvahk3s76jw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-aed8b3419e98.mp3"
+      "file": "audio/q32-narrator-abf83b9f9209.mp3",
+      "integrity": "sha256-+d7V8n3e6Yeguyq5MUg2ELucptLb47rlYA9M37Wb0Pw=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-abf83b9f9209.mp3"
     },
     {
       "slug": "f07-003",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-2bb33d8e5412.mp3",
-      "integrity": "sha256-qHJAOmNAwFJ7vz9Lu5dE1wkdGjtQrbzAThnzGNefVww=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-2bb33d8e5412.mp3"
+      "file": "audio/q32-narrator-07f3eb03ca54.mp3",
+      "integrity": "sha256-+Gsq5+2d3fyO0uuGBhaSko+AVoz6E9NGFJ5qVQkNcgg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-07f3eb03ca54.mp3"
     },
     {
       "slug": "f07-004",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-d0cade030fd5.mp3",
-      "integrity": "sha256-Useu8oXQ+nq9hPiV1EVgbZFTHKG6NBMhWDn7uCiJjEk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-d0cade030fd5.mp3"
-    },
-    {
-      "slug": "f07-005",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-a3b4181964d5.mp3",
-      "integrity": "sha256-keAS2qf2UQ2wG4o4JrEQJH78j7j28YAEJolSw0d8J5w=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-a3b4181964d5.mp3"
-    },
-    {
-      "slug": "f07-006",
       "category": "NARRATION",
       "file": "audio/q30-narrator-aaa55e11d58d.mp3",
       "integrity": "sha256-7R/sTD48QzPoD+/cE+ZTSGl5MUEKH0WpTPcRT1pCWhg=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-aaa55e11d58d.mp3"
     },
     {
-      "slug": "f07-007",
+      "slug": "f07-005",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-ea9cc721fb13.mp3",
-      "integrity": "sha256-05ulGl6DVF16O/H6yFPaJTpQrM78EuiZ4d/mCfM2//4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-ea9cc721fb13.mp3"
+      "file": "audio/q32-gretel-ea9cc721fb13-lv.mp3",
+      "integrity": "sha256-MhNvEg/MT3QZRAEGq+fXzqlML3RYlitezMb8sgJouhI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-ea9cc721fb13-lv.mp3"
     },
     {
-      "slug": "f07-008",
+      "slug": "f07-006",
       "category": "NARRATION",
       "file": "audio/q30-gretel-a903c8a9c248.mp3",
       "integrity": "sha256-Blkly+pSENJBxfhWoYxkyFN0fq81xgSz+TKaFGavCuc=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-a903c8a9c248.mp3"
     },
     {
-      "slug": "f07-009",
+      "slug": "f07-007",
       "category": "NARRATION",
       "file": "audio/q30-gretel-e62cd3ee6550.mp3",
       "integrity": "sha256-dI6kVfxenSFGMNgk0MB8hFyyV/c56P+nNo9qIE+ENDc=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-e62cd3ee6550.mp3"
     },
     {
-      "slug": "f07-012",
+      "slug": "f07-010",
       "category": "NARRATION",
       "file": "audio/q30-narrator-cb81b53d0c8f.mp3",
       "integrity": "sha256-bsQ0itWC8vjwpfL9lLkNQ+w9PgDksNkA9tAGOeYbVbo=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-cb81b53d0c8f.mp3"
     },
     {
-      "slug": "f07-013",
+      "slug": "f07-011",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-984202f2abfe.mp3",
-      "integrity": "sha256-lWLGpicxQ8x2n14GhV1tduOKmrz3R+LRI8J8C2Vv5ag=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-984202f2abfe.mp3"
+      "file": "audio/q32-narrator-42af70334c7c.mp3",
+      "integrity": "sha256-uCw04lm+X+jMbXJBhyjYfX9XyFX5UPx7L3NV0r+PkVc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-42af70334c7c.mp3"
     },
     {
-      "slug": "f07-014",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-bbedec50d6c9.mp3",
-      "integrity": "sha256-6n+bcb+kHqVQ+4hn4PYuERBaMSADqs3BCIxUkTJ12I4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-bbedec50d6c9.mp3"
-    },
-    {
-      "slug": "f07-015",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-e3efa1a5855e.mp3",
-      "integrity": "sha256-GkEv6ubvra2CSX5X5JqX2XTZz2DJhEdUFLeIKchUoTc=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-e3efa1a5855e.mp3"
-    },
-    {
-      "slug": "f07-016",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-f3fd43515c51.mp3",
-      "integrity": "sha256-eDV9TUpVL+KPhMf8R7Ev2C/bJfDWlhGUFBb9BbKjMZo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-f3fd43515c51.mp3"
-    },
-    {
-      "slug": "f07-017",
+      "slug": "f07-012",
       "category": "NARRATION",
       "file": "audio/q30-narrator-91b08f1ae42d.mp3",
       "integrity": "sha256-rNrJsHKl0OzTWwnoqgldptpEk6uhyLhYBaDvMDTRQJo=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-91b08f1ae42d.mp3"
     },
     {
-      "slug": "f07-020",
+      "slug": "f07-015",
       "category": "NARRATION",
       "file": "audio/q30-narrator-0e083d54a4e5.mp3",
       "integrity": "sha256-/mdm/45ueN3bI2viYuwAhSFI8IKo3bHkSnMLN83AO+4=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-0e083d54a4e5.mp3"
     },
     {
-      "slug": "f07-021",
+      "slug": "f07-016",
       "category": "NARRATION",
       "file": "audio/q30-narrator-5d9368aefb0e.mp3",
       "integrity": "sha256-/faVr9YQ0MYbU0avrH5lg5/Kn7ecv70LqAV/GpvMtaE=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-5d9368aefb0e.mp3"
     },
     {
-      "slug": "f07-022",
+      "slug": "f07-017",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-80ccdfe49a1d.mp3",
-      "integrity": "sha256-y+FBQ0lRtnvPkqebD2Cst4gp9+RQsRw0F8Woh2zOBwE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-80ccdfe49a1d.mp3"
+      "file": "audio/q32-gretel-80ccdfe49a1d-lv.mp3",
+      "integrity": "sha256-zGzV0hXfEA2YXiTx9KYI8ek7DXPYBKxNa9OBM2AV3og=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-80ccdfe49a1d-lv.mp3"
     },
     {
-      "slug": "f07-024",
+      "slug": "f07-019",
       "category": "NARRATION",
       "file": "audio/q30-narrator-1a049780bc92.mp3",
       "integrity": "sha256-9ZRsSvq+NrAPTn8nDyeDqcapCxMDCbwLnLPVyV3l7YE=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-1a049780bc92.mp3"
     },
     {
-      "slug": "f07-025",
+      "slug": "f07-020",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-f9f1237a4df6.mp3",
-      "integrity": "sha256-jH7AARCahcMvX04m4KPM+Qt5uBJ468UC9bFyxs206sI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-f9f1237a4df6.mp3"
+      "file": "audio/q32-narrator-94d87d9ac7fe.mp3",
+      "integrity": "sha256-wrnIImW1+RyhOoKZxdOGENwMILqrnDYurgBaRzsF1LE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-94d87d9ac7fe.mp3"
     },
     {
-      "slug": "f07-026",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-59fa7a88c6b5.mp3",
-      "integrity": "sha256-O6248+gwcxHgq98ZYbFTpA2XzBbBFy2Tud53n4TXSA4=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-59fa7a88c6b5.mp3"
-    },
-    {
-      "slug": "f07-027",
+      "slug": "f07-021",
       "category": "NARRATION",
       "file": "audio/q30-witch-090de03c62b1.mp3",
       "integrity": "sha256-GGPks/OtYuc17vtdoeLMYE1aR6MibcvMRNTktGlrcZ8=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-witch-090de03c62b1.mp3"
     },
     {
-      "slug": "f07-029",
+      "slug": "f07-023",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-6e9c5e03049c.mp3",
-      "integrity": "sha256-PyMV9gfHfpdY0ogoJDLBSAJWfpV5pSrtJXSicKV7Uk8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-6e9c5e03049c.mp3"
+      "file": "audio/q32-narrator-fb7450abfd28.mp3",
+      "integrity": "sha256-gjB4uMtpHTenEHfmYjwce2hktRJANldXYBQj7CWbUFo=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-fb7450abfd28.mp3"
     },
     {
-      "slug": "f07-030",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-c23796d6eee4.mp3",
-      "integrity": "sha256-9rmKMeSJJZwYiOyaEGb9nr5Mme+UphLn+OHUnhXnbyk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-c23796d6eee4.mp3"
-    },
-    {
-      "slug": "f07-031",
+      "slug": "f07-024",
       "category": "NARRATION",
       "file": "audio/q30-narrator-3fe512192cb2.mp3",
       "integrity": "sha256-J/F+a5ChulXJAFhm77BpqHU1EJETCOS1M2qQlZhvPSM=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-3fe512192cb2.mp3"
     },
     {
-      "slug": "f07-033",
+      "slug": "f07-026",
       "category": "NARRATION",
       "file": "audio/q30-narrator-f336aee58220.mp3",
       "integrity": "sha256-8zdYkl+3OpNBgh20Mpds9xD5b9BRXI5KHfnx7JWAOnw=",
@@ -2694,9 +2466,9 @@
     {
       "slug": "f08-004",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-faca29ec7987.mp3",
-      "integrity": "sha256-jeR4VeWMjA88nY3v9MV7Mdl9MrYQ0nRDhPAXyLTyDQ0=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-faca29ec7987.mp3"
+      "file": "audio/q32-hansel-faca29ec7987.mp3",
+      "integrity": "sha256-fh7sQIzfitLiMYMEC1ntD0QQ1p2+73HJQHzpUvgKiA4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-faca29ec7987.mp3"
     },
     {
       "slug": "f08-006",
@@ -2715,9 +2487,9 @@
     {
       "slug": "f08-008",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-ff6857539a0f.mp3",
-      "integrity": "sha256-SfpNLxIlWByhO+TXOLsBUo048fDUMkPvK2JdeuwsoUM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-ff6857539a0f.mp3"
+      "file": "audio/q32-gretel-ff6857539a0f-lv.mp3",
+      "integrity": "sha256-7CDf3m+UY8NRqDvZfKFGUM605ZAlk/kuIXMeI+3VN9s=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-ff6857539a0f-lv.mp3"
     },
     {
       "slug": "f08-010",
@@ -2736,68 +2508,61 @@
     {
       "slug": "f09-003",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-329a591b5b4a.mp3",
-      "integrity": "sha256-iMqMB9++pkpdqbA35ugxT+YYt/pFW6s/bez4RAqv4PY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-329a591b5b4a.mp3"
+      "file": "audio/q32-narrator-329a591b5b4a-lv.mp3",
+      "integrity": "sha256-uw/sur32i8Nn0Y0TQi5ZYeUBWvMK8VWpapj3okwJ/Ro=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-329a591b5b4a-lv.mp3"
     },
     {
       "slug": "f09-004",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-9866877852a5.mp3",
-      "integrity": "sha256-a2L0lcRW5rESfRuwh0EKvJhLP8alW75xgZTtSMZ+Pyk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-9866877852a5.mp3"
+      "file": "audio/q32-narrator-342a0f05b165.mp3",
+      "integrity": "sha256-//4CA4pg2EEVeADiVHMMA8V/FMg1SNaPAGuX3emWOz0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-342a0f05b165.mp3"
     },
     {
-      "slug": "f09-005",
+      "slug": "f09-006",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-aa5393f4b2a0.mp3",
-      "integrity": "sha256-f6XamuIjDNVCEGbJysW/GBdZ//mnZj5wx4ZGNB9pVrk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-aa5393f4b2a0.mp3"
+      "file": "audio/q32-gretel-bbb4d149e5dc.mp3",
+      "integrity": "sha256-AYiSOL/DtGVhS2ePBONjmfHGHEFk9TS0bm4d2epPCsk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-bbb4d149e5dc.mp3"
     },
     {
       "slug": "f09-007",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-bbb4d149e5dc.mp3",
-      "integrity": "sha256-TEZEoETnGTQRAUWBktbv+lQ8V5o2frAoqGAkLFVCPgE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-bbb4d149e5dc.mp3"
+      "file": "audio/q32-hansel-d7c4b005ea3b.mp3",
+      "integrity": "sha256-Rvu1Su5tKFYS/1NBgdNWkQZB0eFKVkg4zbA/8GZ3exE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-d7c4b005ea3b.mp3"
     },
     {
       "slug": "f09-008",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-d7c4b005ea3b.mp3",
-      "integrity": "sha256-E5agQps7mbZkIuR8mmbF6sRU6KTydW9ZX0W9H9m2LfA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-d7c4b005ea3b.mp3"
-    },
-    {
-      "slug": "f09-009",
       "category": "NARRATION",
       "file": "audio/q30-narrator-1653b34c8d05.mp3",
       "integrity": "sha256-Vuo4DErKw2SzvCXGLRK1EBrjlnUu87F7Hd4139LtlNk=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-1653b34c8d05.mp3"
     },
     {
-      "slug": "f09-011",
+      "slug": "f09-010",
       "category": "NARRATION",
       "file": "audio/q30-narrator-c3d7043ef946.mp3",
       "integrity": "sha256-3bLdeEQKOagta0RY8m1+jaO31DMwH6/Z12Q/pmP1TKw=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-c3d7043ef946.mp3"
     },
     {
-      "slug": "f09-012",
+      "slug": "f09-011",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-b7b8c26b5c38.mp3",
-      "integrity": "sha256-OAemhko1g8/WngecabCkob62Vbxulwz6omQzRa2XoxM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-b7b8c26b5c38.mp3"
+      "file": "audio/q32-hansel-b7b8c26b5c38.mp3",
+      "integrity": "sha256-6ct3Vs7WbCaoG96vgAtowzdnnuChV8aBS3ban/mTdt8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-b7b8c26b5c38.mp3"
     },
     {
-      "slug": "f09-013",
+      "slug": "f09-012",
       "category": "NARRATION",
       "file": "audio/q30-narrator-a85da155da38.mp3",
       "integrity": "sha256-ynYcNFxkcwQ1l1tUn0hxMKNgwJb/NQdpVS5THe0LQRw=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-a85da155da38.mp3"
     },
     {
-      "slug": "f09-014",
+      "slug": "f09-013",
       "category": "NARRATION",
       "file": "audio/q30-narrator-ad0181f3cff3.mp3",
       "integrity": "sha256-cal1pAFpsE7U/gOCQViyNZ+b7YkLybesvopqA2TRecM=",
@@ -2806,131 +2571,103 @@
     {
       "slug": "f10-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-8305bca1387b.mp3",
-      "integrity": "sha256-fkvWVz4kc1dHqwNC9Y1xH1sTOpXw8r4Z+wOl/EIUwRA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8305bca1387b.mp3"
+      "file": "audio/q32-narrator-8305bca1387b-lv.mp3",
+      "integrity": "sha256-96k+bCIL5SVk9kZi+c3k353xayKTU3pGC54Xb0KXBSU=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-8305bca1387b-lv.mp3"
     },
     {
       "slug": "f10-003",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-7598fd7169db.mp3",
-      "integrity": "sha256-YCMdOfWY9Ur8IKm4a4+0XZguhSRmUu/erBTFQOVe7T8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-7598fd7169db.mp3"
+      "file": "audio/q32-narrator-b3847f5287ee.mp3",
+      "integrity": "sha256-4JxJbwPHBn3ft3Hy2Od5F0/U+nOBqohZeac7czidx70=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-b3847f5287ee.mp3"
     },
     {
       "slug": "f10-004",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-e59facaecb66.mp3",
-      "integrity": "sha256-k+2txDOqHI8pkeRpX9H1rLi9tWaS6xdos0So558Jy2A=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-e59facaecb66.mp3"
-    },
-    {
-      "slug": "f10-005",
       "category": "NARRATION",
       "file": "audio/q30-narrator-afd7ed401048.mp3",
       "integrity": "sha256-/pOIhgZgQomTuYK2dopOGaBg/rbjYPl2QyeatIzJUIE=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-afd7ed401048.mp3"
     },
     {
+      "slug": "f10-005",
+      "category": "NARRATION",
+      "file": "audio/q32-father-dcff336c80ee-lv.mp3",
+      "integrity": "sha256-Hg/EmEgiavssXkhoFd9znkA3xEK3u2gJXBqTwrSb4aA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-father-dcff336c80ee-lv.mp3"
+    },
+    {
       "slug": "f10-006",
       "category": "NARRATION",
-      "file": "audio/q30-father-dcff336c80ee.mp3",
-      "integrity": "sha256-U8l8nK8GwnOaC3tvoqH4xoaRICB6nFLWufK0mMLFV8Y=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-dcff336c80ee.mp3"
+      "file": "audio/q32-father-d56d67f06bd9-lv.mp3",
+      "integrity": "sha256-WQsHpo12EptkQnFCZgoZmINWneKHwUwG0RBfS9xgefQ=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-father-d56d67f06bd9-lv.mp3"
     },
     {
       "slug": "f10-007",
       "category": "NARRATION",
-      "file": "audio/q30-father-d56d67f06bd9.mp3",
-      "integrity": "sha256-piH0dDeeRiqt7elkAadJXVTGwuWx4mfnibyRYjs+Lsg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-d56d67f06bd9.mp3"
+      "file": "audio/q32-gretel-5bf02fa84e2a.mp3",
+      "integrity": "sha256-8H69QSFG1b8+3zx81PJn/vt4wLprLwePMa0zD/ALsWg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-5bf02fa84e2a.mp3"
     },
     {
       "slug": "f10-008",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-5bf02fa84e2a.mp3",
-      "integrity": "sha256-zu4N2X387rG3g8QqK0D5D2XN+b/nlTZazj5i0YKLnpw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-5bf02fa84e2a.mp3"
+      "file": "audio/q32-father-02fa960ee1b7-lv.mp3",
+      "integrity": "sha256-+GrzGCIjiFacPUFEn16Xw3uOzWC3M/TZK2UhsBXpf+0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-father-02fa960ee1b7-lv.mp3"
     },
     {
       "slug": "f10-009",
       "category": "NARRATION",
-      "file": "audio/q30-father-02fa960ee1b7.mp3",
-      "integrity": "sha256-PX02wgHw9mmaKc3C9cRqZQdwTqJoZFnQ1rLmO35DnwI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-02fa960ee1b7.mp3"
+      "file": "audio/q32-father-93bb4544994a-lv.mp3",
+      "integrity": "sha256-wik6VoOhEFgb7ZY5hZq7r5oRpukT9BNTaWOqHYJjzxs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-father-93bb4544994a-lv.mp3"
     },
     {
       "slug": "f10-010",
       "category": "NARRATION",
-      "file": "audio/q30-father-93bb4544994a.mp3",
-      "integrity": "sha256-9+/NHgW1jyNWTxQQCsAVVPLhiu+vZ050OcT/On5++Js=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-93bb4544994a.mp3"
+      "file": "audio/q32-father-002d032f0e90-lv.mp3",
+      "integrity": "sha256-GYCaAX5nmTeozKL8iX9mj+Sw/z9yaKtghjp8ET/ZWVQ=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-father-002d032f0e90-lv.mp3"
     },
     {
       "slug": "f10-011",
-      "category": "NARRATION",
-      "file": "audio/q30-father-002d032f0e90.mp3",
-      "integrity": "sha256-eXx+WTQlIbG7hFOrYm+i+FarV+LVFXDWHI2r0eEojlA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-father-002d032f0e90.mp3"
-    },
-    {
-      "slug": "f10-012",
       "category": "NARRATION",
       "file": "audio/q30-narrator-8522df819638.mp3",
       "integrity": "sha256-31/ujDa+leMG/CJF/6tz8mqhHtC78mfA88V8GfbtPmU=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8522df819638.mp3"
     },
     {
-      "slug": "f10-013",
+      "slug": "f10-012",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-67b2d048e6ff.mp3",
-      "integrity": "sha256-DcTCVeohdSezGOhyrrTyzcEi1E8xCS8XlpB13E1qtKo=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-67b2d048e6ff.mp3"
+      "file": "audio/q32-narrator-67b2d048e6ff-lv.mp3",
+      "integrity": "sha256-f7FvQekQSM8onJWFhXrEE6XwZK+RgWiXC5Q+EdpRo+w=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-67b2d048e6ff-lv.mp3"
     },
     {
-      "slug": "f10-014",
+      "slug": "f10-013",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-bed42db5afc9.mp3",
-      "integrity": "sha256-+iM1SCxUdNgripsY/uu0/sI7WgOMnnIPxyDgm9QOi7c=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-bed42db5afc9.mp3"
+      "file": "audio/q32-narrator-6b53f7390f7c.mp3",
+      "integrity": "sha256-CKDlLkzYUdoE7PoCHhHJDp0A8SvF/cjUKiLflopOQI8=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-6b53f7390f7c.mp3"
     },
     {
       "slug": "f10-015",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-57da1733b16d.mp3",
-      "integrity": "sha256-Z32y0Fg7dXPQ3vhRY3uyeLt5qCOV3RJub9QRu3NkrxQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-57da1733b16d.mp3"
+      "file": "audio/q32-narrator-2cc316beeda9.mp3",
+      "integrity": "sha256-xlLGr1C03JUqmzlRcyDQoQLtiXzEgTIBoDC9+zOFRMg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-2cc316beeda9.mp3"
+    },
+    {
+      "slug": "f10-016",
+      "category": "NARRATION",
+      "file": "audio/q32-narrator-4aafca4ac76a.mp3",
+      "integrity": "sha256-l0GPQQgHq7WihgN3z9QjKkI6dVfQR1PAGsn7HueRMaE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-4aafca4ac76a.mp3"
     },
     {
       "slug": "f10-017",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-47a3cf5ae72f.mp3",
-      "integrity": "sha256-jpvBvYkTec8whERlFgIdhBLOVjA9Mbtq/qibCh5Y88Q=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-47a3cf5ae72f.mp3"
-    },
-    {
-      "slug": "f10-018",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-cb9a82dfa865.mp3",
-      "integrity": "sha256-c/+mJXFMAEXWr/Tp9Rn/MqQdgchtP5XimCM6cZtGGdg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-cb9a82dfa865.mp3"
-    },
-    {
-      "slug": "f10-019",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-8598c5827444.mp3",
-      "integrity": "sha256-RAjjDYea/bUguhan0QMH0I+DRAx6n03MI7jPPJ/Q4qg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-8598c5827444.mp3"
-    },
-    {
-      "slug": "f10-020",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-b5a3e1c02684.mp3",
-      "integrity": "sha256-OiRj3/eGO4p5bMQDWSMHtkKhVKNQF4zYRRk7K7AngmI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-b5a3e1c02684.mp3"
-    },
-    {
-      "slug": "f10-021",
       "category": "NARRATION",
       "file": "audio/hg-f10-clip-022.mp3",
       "integrity": "sha256-kUnu/K0XLbC1kXiibwcK1Ivg/wpE3cEO8pHj510fU/8=",
@@ -2939,16 +2676,16 @@
     {
       "slug": "a-observe-bird-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-38696d1a68d4.mp3",
-      "integrity": "sha256-EwPvfNWsILH626RnF7VfAHa971R9hACm+el0l6oP/mg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-38696d1a68d4.mp3"
+      "file": "audio/q32-narrator-38696d1a68d4-lv.mp3",
+      "integrity": "sha256-sC7oMLBI/TxQ5BO6Adq8TW2uQ2nzkP/xOr/C2xSvS6c=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-38696d1a68d4-lv.mp3"
     },
     {
       "slug": "a-observe-bird-003",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-c3c45cea09e6.mp3",
-      "integrity": "sha256-WDEmuSLJYMFjdJ1mt6qpm0mJQPm0fbNas8AoFQTMoDQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-c3c45cea09e6.mp3"
+      "file": "audio/q32-gretel-c3c45cea09e6.mp3",
+      "integrity": "sha256-GHvN3TXvCiqIXEGxa6QA2OMSJLceOnQoGZ3kFYRb61Q=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-c3c45cea09e6.mp3"
     },
     {
       "slug": "a-observe-bird-005",
@@ -2960,9 +2697,9 @@
     {
       "slug": "a-speak-to-bird-002",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-26948115b271.mp3",
-      "integrity": "sha256-Womaw6nbequfm41AzfVapu5LgQxZE9qKXqiwxk7YZ7I=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-26948115b271.mp3"
+      "file": "audio/q32-gretel-26948115b271.mp3",
+      "integrity": "sha256-5/gz89bOGzZjfLg11K4xCmhjmm7gn2MHtc/+PLs9fDI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-26948115b271.mp3"
     },
     {
       "slug": "a-speak-to-bird-003",
@@ -2974,9 +2711,9 @@
     {
       "slug": "a-speak-to-bird-004",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-aa3437d25f06.mp3",
-      "integrity": "sha256-oPFt+Qr21FLvGX4DCvrq1ZfVYQ2W4+VtKIcuuIbPPhs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-aa3437d25f06.mp3"
+      "file": "audio/q32-hansel-aa3437d25f06.mp3",
+      "integrity": "sha256-KDEEKah3LXcx+kfFAhi/yVaV7NOqv0A2Ks/UWafV4Ow=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-aa3437d25f06.mp3"
     },
     {
       "slug": "a-speak-to-bird-006",
@@ -2995,37 +2732,37 @@
     {
       "slug": "c-distract-and-take-keys-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-f51ae91a3081.mp3",
-      "integrity": "sha256-XGUaS5FhgLSuLoLA8/4S8zuyrRo6DxPbpiZq9gQf0v8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-f51ae91a3081.mp3"
+      "file": "audio/q32-narrator-f51ae91a3081-lv.mp3",
+      "integrity": "sha256-nfSIuF3Ic5wSfU6DH+okP/iWISTfaTA/3Ssx4yJwVpI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-f51ae91a3081-lv.mp3"
     },
     {
       "slug": "c-distract-and-take-keys-003",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-7c4e92990536.mp3",
-      "integrity": "sha256-skwBgExzXAeEhDwPEvhTNdqlEIGa/bOmMnZ6Y6kf/Gg=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-7c4e92990536.mp3"
+      "file": "audio/q32-gretel-7c4e92990536.mp3",
+      "integrity": "sha256-SkWRRJrlfoWW/9gGPREuLNexQRLnUsfPwv1KHyer9X4=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-7c4e92990536.mp3"
     },
     {
       "slug": "c-distract-and-take-keys-004",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-ceb36e99133b.mp3",
-      "integrity": "sha256-uRn4ctgXelwEV7nhxk7nSu6AoZnAp68w6/gqFuJnzEk=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-hansel-ceb36e99133b.mp3"
+      "file": "audio/q32-hansel-ceb36e99133b.mp3",
+      "integrity": "sha256-osZ8Y1NRdDozGQB1HjJTm3ymFIcnn8hS1J9PN0g6mek=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-hansel-ceb36e99133b.mp3"
     },
     {
       "slug": "c-distract-and-take-keys-005",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-262ff78fd128.mp3",
-      "integrity": "sha256-N0auTxqen9e/b8xqDCxAK6V0fydUKZzrvx56N5HCxck=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-narrator-262ff78fd128.mp3"
+      "file": "audio/q32-narrator-262ff78fd128-lv.mp3",
+      "integrity": "sha256-8IoNAJdonZsaUCUfl+kuJn+POnnlsZ6tZjeDWwHoLHQ=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-narrator-262ff78fd128-lv.mp3"
     },
     {
       "slug": "c-distract-and-take-keys-006",
       "category": "NARRATION",
-      "file": "audio/q30-witch-a69453fb9cb7.mp3",
-      "integrity": "sha256-aqxp50WJeXPfMvUvgb+eCyFSSLdtbYgBtVLoAIB+YKY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-witch-a69453fb9cb7.mp3"
+      "file": "audio/q32-witch-a69453fb9cb7-lv.mp3",
+      "integrity": "sha256-0ZzS2ky7ssFmHqyoN2MweapFMBZFHU2715DnbktPcOI=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-witch-a69453fb9cb7-lv.mp3"
     },
     {
       "slug": "c-distract-and-take-keys-007",
@@ -3038,110 +2775,110 @@
       "slug": "a-observe-bird-bridge",
       "category": "BRIDGE",
       "familyId": "A_OBSERVE_BIRD",
-      "file": "audio/q30-gretel-12a7bdb63140.mp3",
-      "integrity": "sha256-QD3MybeMTkeSqj6CkupXktzdg6rN7VqulEgtvIFRYFU=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-12a7bdb63140.mp3"
+      "file": "audio/q32-gretel-12a7bdb63140.mp3",
+      "integrity": "sha256-7RCFRsb9ceURHzOhakVJ8lIqLzhRV/qen/lhx222E6I=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-12a7bdb63140.mp3"
     },
     {
       "slug": "a-speak-to-bird-bridge",
       "category": "BRIDGE",
       "familyId": "A_SPEAK_TO_BIRD",
-      "file": "audio/q30-gretel-c15249fc7bd8.mp3",
-      "integrity": "sha256-Y+XTKuPVvTjTs2WBW3NnMrloKwwbV4wpKU6QiKvi4Xs=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-c15249fc7bd8.mp3"
+      "file": "audio/q32-gretel-c15249fc7bd8.mp3",
+      "integrity": "sha256-dgPCSVwD7a/w4fpAUjk+8NWGjhgTq34+6Ozeb3Gx/9E=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-c15249fc7bd8.mp3"
     },
     {
       "slug": "c-wait-for-witch-turn-bridge",
       "category": "BRIDGE",
       "familyId": "C_WAIT_FOR_WITCH_TURN",
-      "file": "audio/q30-gretel-0d6e88cbd140.mp3",
-      "integrity": "sha256-WRD1xYygZK2TDys+FEj8FuHr2SEOFlxFzptMtrH/8C8=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-0d6e88cbd140.mp3"
+      "file": "audio/q32-gretel-0d6e88cbd140.mp3",
+      "integrity": "sha256-AcA+d5lswm16wgx+FgOzD/dslGSjbFp7Uy/0wftb1Vg=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-0d6e88cbd140.mp3"
     },
     {
       "slug": "c-distract-and-take-keys-bridge",
       "category": "BRIDGE",
       "familyId": "C_DISTRACT_AND_TAKE_KEYS",
-      "file": "audio/q30-gretel-b4f9cbe771ad.mp3",
-      "integrity": "sha256-MOvBMSn2utgwF8eG4ehm35Fp3cJLvI7yC87VAyvMD1A=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q30-gretel-b4f9cbe771ad.mp3"
+      "file": "audio/q32-gretel-b4f9cbe771ad.mp3",
+      "integrity": "sha256-Gybc53eBUAp/xlkHhyfdIgOnncCPhnhxzbhHCHtyd4c=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-b4f9cbe771ad.mp3"
     },
     {
       "slug": "dialogue-HG-Q-A-help-1",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-6e12103e5ab9.mp3",
-      "integrity": "sha256-ZYOAtwXCvuiVl6ppNKTs7cjQxHbVUJYXc1phgIYsdgY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q31-gretel-6e12103e5ab9.mp3"
+      "file": "audio/q32-gretel-6e12103e5ab9.mp3",
+      "integrity": "sha256-RYbl0V10TQ20TErFIaok8FA9EPX8VCLSXTIi/BVcThs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-6e12103e5ab9.mp3"
     },
     {
       "slug": "dialogue-HG-Q-A-help-2",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-67ac1ceceaa7.mp3",
-      "integrity": "sha256-Xk+lZ6ViRVanC06uTxYOaGVxI1D4rJRBQc5ylttJiFw=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q31-gretel-67ac1ceceaa7.mp3"
+      "file": "audio/q32-gretel-67ac1ceceaa7.mp3",
+      "integrity": "sha256-Y8P7x5xyiKJwSntwbN+7NtzxA3kVVqB14VYJT65SowE=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-67ac1ceceaa7.mp3"
     },
     {
       "slug": "dialogue-HG-Q-A-help-3",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-61b8d37b0171.mp3",
-      "integrity": "sha256-6QFaOMiydgXU08iSOXCD8DGe9tja1wuQwpm+ABKf/NA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q31-gretel-61b8d37b0171.mp3"
+      "file": "audio/q32-gretel-61b8d37b0171.mp3",
+      "integrity": "sha256-4NACzJL8vhntiat4Ke0vPF+P11gu8Y2gr+yuEzz3ZyA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-61b8d37b0171.mp3"
     },
     {
       "slug": "dialogue-HG-Q-B-help-1",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-430e1eb1271e.mp3",
-      "integrity": "sha256-CSR4XsjJkoLJ0/m/KCnuC+GgGykUIywM0M2JuTGmfpY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q31-gretel-430e1eb1271e.mp3"
+      "file": "audio/q32-gretel-430e1eb1271e.mp3",
+      "integrity": "sha256-888PCOacNDYmrBQnYYs3ymq7w8lIo92Jur2Oa8hsIXc=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-430e1eb1271e.mp3"
     },
     {
       "slug": "dialogue-HG-Q-B-help-2",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-96b5959384f5.mp3",
-      "integrity": "sha256-3O47bkY4khs2W5JJ81/CXOVce7QzBM9XhlvtX61hmiA=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q31-gretel-96b5959384f5.mp3"
+      "file": "audio/q32-gretel-96b5959384f5.mp3",
+      "integrity": "sha256-2KojwMRf4UwN3Q65XmSy7wSRAQ7NE14crPIXNkPF3ZM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-96b5959384f5.mp3"
     },
     {
       "slug": "dialogue-HG-Q-B-help-3",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-9750295529cd.mp3",
-      "integrity": "sha256-R4Ku5LHM6L3X0rVGloRE7FEmigRL7OxoX40LysSTMso=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q31-gretel-9750295529cd.mp3"
+      "file": "audio/q32-gretel-9750295529cd.mp3",
+      "integrity": "sha256-P5sQeHIVbDwzG56cR9GLu0TR3Sp0Lar1TfEn4y/D9QM=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-9750295529cd.mp3"
     },
     {
       "slug": "dialogue-HG-Q-B-continue",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-19edd8cb5804.mp3",
-      "integrity": "sha256-7KISWVMZUVNvR37GYsjd3/EqmiX6d3dgiR5bePslzIE=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q31-gretel-19edd8cb5804.mp3"
+      "file": "audio/q32-gretel-19edd8cb5804.mp3",
+      "integrity": "sha256-X2NAA9wX7fttsM1YjwU9tWBvytHUOz/z4m4AA+hDkwA=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-19edd8cb5804.mp3"
     },
     {
       "slug": "dialogue-HG-Q-C-help-1",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-72cfd29f06f2.mp3",
-      "integrity": "sha256-Bx/Sho9ckYovIW3uwp9LC+1WfILvX6JjtGWMQje1KrM=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q31-gretel-72cfd29f06f2.mp3"
+      "file": "audio/q32-gretel-72cfd29f06f2.mp3",
+      "integrity": "sha256-tICo5uIkIDMsITw7amZ6Y8oPIkUChFnJKcL5kyBJzN0=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-72cfd29f06f2.mp3"
     },
     {
       "slug": "dialogue-HG-Q-C-help-2",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-438ceae5b2e1.mp3",
-      "integrity": "sha256-jCLX+VOxgHYTXCUSAEtVhu422R1BkPdNzqZEB7Y5TfQ=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q31-gretel-438ceae5b2e1.mp3"
+      "file": "audio/q32-gretel-438ceae5b2e1.mp3",
+      "integrity": "sha256-1G6Qv2zdDkpTKkB6qbij7Q2n4TGg0ZYSpz+DEplzQHs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-438ceae5b2e1.mp3"
     },
     {
       "slug": "dialogue-HG-Q-C-help-3",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-f4105894e6e6.mp3",
-      "integrity": "sha256-FYh+n49yDUoclgf92omUcxlXuJGe31nrcOZ08huDIdI=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q31-gretel-f4105894e6e6.mp3"
+      "file": "audio/q32-gretel-f4105894e6e6.mp3",
+      "integrity": "sha256-vH8aK6B/n4BGsq/KVONo7/qkn2QpTL4q8y3QhBrlOIk=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-f4105894e6e6.mp3"
     },
     {
       "slug": "dialogue-HG-Q-C-help-4",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-4766558f0d4b.mp3",
-      "integrity": "sha256-2bCRlXF5xFde1tzYUWG+vBxdzqok0xMKVoIyJSxgGMY=",
-      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q31-gretel-4766558f0d4b.mp3"
+      "file": "audio/q32-gretel-4766558f0d4b.mp3",
+      "integrity": "sha256-kP7HL5LznUIJ+Soc0Paj0XudAfmTQoeUQB1XeUUFo4k=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-audio/hansel-gretel/audio/q32-gretel-4766558f0d4b.mp3"
     }
   ],
   "prompt": {
@@ -3731,5 +3468,5 @@
       }
     }
   },
-  "sourceDigest": "9fd41c7ec0ab9a675b985752796092cb5501eb8b5e5f85d7a7c32df75351b6b1"
+  "sourceDigest": "04eee3baa7a808281d5e4e64d31922b3e4b31979125e17faa7fe22af65f2c0a0"
 }

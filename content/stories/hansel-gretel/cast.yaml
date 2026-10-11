@@ -1,6 +1,6 @@
 schemaVersion: 1
 storyId: HG
-castVersion: hg-gemini-tts-cast-v2
+castVersion: hg-gemini-tts-cast-v3
 speakers:
   NARRATOR:
     speakerId: HG-SPK-NARRATOR
@@ -27,9 +27,9 @@ speakers:
     speakerId: HG-SPK-HANSEL
     role: character
     displayName: 헨젤
-    voice: Puck
-    profile: A thoughtful young boy who is clever but still vulnerable and imperfect.
-    direction: Sound youthful and careful. Become slightly more confident only when explaining a plan.
+    voice: Fenrir
+    profile: A brave, clever ten-year-old Korean boy who protects his younger sister.
+    direction: He is still a child, but he speaks up clearly and steadily at a full, confident speaking volume - never whispering, mumbling, or sounding timid. Sound youthful and warm. Even when he is scared, keep the voice firm and steady; sound determined and reassuring when he explains a plan.
   GRETEL:
     speakerId: HG-SPK-GRETEL
     role: character

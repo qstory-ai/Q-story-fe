@@ -24,16 +24,16 @@
       "category": "BRANCH_ART",
       "familyId": "C_WAIT_FOR_WITCH_TURN",
       "panel": 1,
-      "file": "illustrations/fb-c-wait-for-witch-turn-v1.webp",
-      "integrity": "sha256-g9JJVZhmyZ7p4t3QA8S/7Vl3dcQArITDDPZqCVVz/Bs="
+      "file": "illustrations/fb-c-wait-for-witch-turn-v2.webp",
+      "integrity": "sha256-g2F0YtWM3EhsqdKl8ZL2GUIAmrH+9Cox/xBZMUaQQuw="
     },
     {
       "slug": "c-distract-and-take-keys-01",
       "category": "BRANCH_ART",
       "familyId": "C_DISTRACT_AND_TAKE_KEYS",
       "panel": 1,
-      "file": "illustrations/fb-c-distract-and-take-keys-v2.webp",
-      "integrity": "sha256-3Xo0kTuq6CNe/Q1Zh/hQRwJFa0z4Z6wMMgseFqRppNg="
+      "file": "illustrations/fb-c-distract-and-take-keys-v3.webp",
+      "integrity": "sha256-8PpyEEzQc3o8LuZTCBq5Kb05GwuFVVOuPILOlwI619s="
     },
     {
       "slug": "home-table",
@@ -68,8 +68,8 @@
     {
       "slug": "forest-night-waiting",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-47-forest-night-waiting.webp",
-      "integrity": "sha256-+zmP5xTM+RbBDTJW4weZQCluDGmG4RQQmE77XGncZ3E="
+      "file": "illustrations/hg-art-47-forest-night-waiting-v2.webp",
+      "integrity": "sha256-QkzIY2km/gwq6sxiRXsCMU5NBQoyIyt2PFSINRkE4LU="
     },
     {
       "slug": "moonlit-return",
@@ -110,8 +110,8 @@
     {
       "slug": "deep-forest-waiting",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-48-deep-forest-waiting.webp",
-      "integrity": "sha256-fZQxF+AHgax/rqgI/0sCE44vsDOmN/auS2QPw5iwjhQ="
+      "file": "illustrations/hg-art-48-deep-forest-waiting-v2.webp",
+      "integrity": "sha256-RzQ8ZBFrur3sEaPFycInnj9fdWIyw6ByAsD9hPN6jnk="
     },
     {
       "slug": "birds-eat-breadcrumbs",
@@ -152,14 +152,14 @@
     {
       "slug": "candy-house-close",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-09-candy-house-close-v2.webp",
-      "integrity": "sha256-3VuPdQjo+CRbnsyr36qcnEYkaADyggsBoDSZC9OQAv0="
+      "file": "illustrations/hg-art-09-candy-house-close-v3.webp",
+      "integrity": "sha256-ERJhr4R9MLbZ/JJvgkOC3USGHlZVmDbpiuq7zVpcQqU="
     },
     {
       "slug": "old-woman-door",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-10-old-woman-door.webp",
-      "integrity": "sha256-yqmihlqI3SVuskbq383fBxPOdRlhZ4KWGz14/XZsgMc="
+      "file": "illustrations/hg-art-10-old-woman-door-v2.webp",
+      "integrity": "sha256-+T9NeVbuaYpdiQlf/y7IDlLoP4tFd/8yhm+8sruiE+4="
     },
     {
       "slug": "candy-house-interior",
@@ -170,8 +170,8 @@
     {
       "slug": "kitchen-door-locked",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-49-kitchen-door-locked.webp",
-      "integrity": "sha256-I207q/dJIc36TuGgagAR39rBbGn6QBR93kQgs10af5Y="
+      "file": "illustrations/hg-art-49-kitchen-door-locked-v2.webp",
+      "integrity": "sha256-WesVQLp2y9gyi8iC4/4ulfKz/MdRK8t/iEKLPs4Nlbs="
     },
     {
       "slug": "witch-reveal",
@@ -188,20 +188,20 @@
     {
       "slug": "gretel-whispers-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-50-gretel-whispers-keys.webp",
-      "integrity": "sha256-4fCCE0yd6r9wpns5YmTPHenFKKywLxcfWPwXdpJsQB0="
+      "file": "illustrations/hg-art-50-gretel-whispers-keys-v2.webp",
+      "integrity": "sha256-FnSo2uUFAbmypyYQRkk2VcZdcXF15ZRCzsbKEhsuWoE="
     },
     {
       "slug": "witch-cooking-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-51-witch-cooking-keys.webp",
-      "integrity": "sha256-rvH/Sfm4oE91HJWbbPh864kW/teEhzImrCCMtmvJ5MM="
+      "file": "illustrations/hg-art-51-witch-cooking-keys-v2.webp",
+      "integrity": "sha256-94ypZ75PLZIbnUwWxJ4oQ/OxIhl2zFfSnxiB+vFyY6M="
     },
     {
       "slug": "wait-and-take-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-52-wait-and-take-keys.webp",
-      "integrity": "sha256-g9JJVZhmyZ7p4t3QA8S/7Vl3dcQArITDDPZqCVVz/Bs="
+      "file": "illustrations/hg-art-52-wait-and-take-keys-v2.webp",
+      "integrity": "sha256-g2F0YtWM3EhsqdKl8ZL2GUIAmrH+9Cox/xBZMUaQQuw="
     },
     {
       "slug": "cage-unlock-oven-secured",
@@ -218,8 +218,8 @@
     {
       "slug": "corridor-lock-door",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-53-corridor-lock-door.webp",
-      "integrity": "sha256-D6VINyIKsjS/6LJF0tr4IIGhlAQMDXPUx/gALXl2shU="
+      "file": "illustrations/hg-art-53-corridor-lock-door-v2.webp",
+      "integrity": "sha256-IU3fKsFTfAtADjTbg+WCK1Ye+gFt4osjofAq+ZW4/vA="
     },
     {
       "slug": "escape-corridor",
@@ -230,14 +230,14 @@
     {
       "slug": "storehouse",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-16-storehouse-v2.webp",
-      "integrity": "sha256-bW3nmZ9ANLZHL9k8PSVNf8lbQph4z+O91U0W4bHqYFE="
+      "file": "illustrations/hg-art-16-storehouse-v3.webp",
+      "integrity": "sha256-XvP1Onv1jf8WLRcSz2ZuC9iuWsqJV9lBQXoyYjWWvEs="
     },
     {
       "slug": "packing-food",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-54-packing-food.webp",
-      "integrity": "sha256-JVN2UsjIKmsfuzRR0O5NWjjhv26o9D+G6S3M4pN5FRY="
+      "file": "illustrations/hg-art-54-packing-food-v2.webp",
+      "integrity": "sha256-QkneCWiAo8BKSWVq/gFSD4C9AZHsZPxp/k3SMkQEht0="
     },
     {
       "slug": "candy-house-exit",
@@ -272,8 +272,8 @@
     {
       "slug": "window-epilogue",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-26-window-epilogue-v2.webp",
-      "integrity": "sha256-DuOEsi7qapwYlP/j5bZ7SN1SIKfH7ByaBRTVsNXE9d4="
+      "file": "illustrations/hg-art-26-window-epilogue-v3.webp",
+      "integrity": "sha256-bmP9fREWVQxHU6oAVBQyOhZrKH600xlQHfQMZsRtYrs="
     },
     {
       "slug": "f01-002",
@@ -302,8 +302,8 @@
     {
       "slug": "f01-006",
       "category": "NARRATION",
-      "file": "audio/q30-father-3463172ec626.mp3",
-      "integrity": "sha256-lL28f8wMY9LxmwZYX2gO59kqo2TWMA8VmRS+Tm8Myc8="
+      "file": "audio/q32-father-3463172ec626-lv.mp3",
+      "integrity": "sha256-Pd/RJYh05vyE76x14Q3wZhj0PUGJintfqzU4ucfb9eY="
     },
     {
       "slug": "f01-008",
@@ -314,56 +314,44 @@
     {
       "slug": "f01-009",
       "category": "NARRATION",
-      "file": "audio/q30-father-7a24670cf0e4.mp3",
-      "integrity": "sha256-fyOmVeyHZEP6BaYE8ftQq6JDX6Ia2cjX5aiEsFuvd74="
+      "file": "audio/q32-father-7a24670cf0e4-lv.mp3",
+      "integrity": "sha256-SpjAYp0DjL2tDmkc5SZddtOMz8fBHADhQcjgiQ8wHc0="
     },
     {
       "slug": "f01-010",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-85655dda5382.mp3",
-      "integrity": "sha256-x6LlcNMAtuOZOaXda5s4Es/EcEWIgrmVAO1mutoLSXU="
+      "file": "audio/q32-narrator-4a7573de7645.mp3",
+      "integrity": "sha256-Gm5b3uQ4vQi0cFq05lIIvz+qIlqtdSbsV6muA1IxzVM="
     },
     {
       "slug": "f01-011",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-211662686722.mp3",
-      "integrity": "sha256-ocYqheFDd0Fuj6SIMqZx29lKFJG/O4pebqGcVGcjtIg="
+      "file": "audio/q32-narrator-61c6642639de.mp3",
+      "integrity": "sha256-/HpRek3QDopjADNCZeJ+6QADotHjyviAb6AJJg/LkwM="
     },
     {
       "slug": "f01-012",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-3da000bb88d3.mp3",
-      "integrity": "sha256-/gLSW0GqU4IOXkyC1iaG/67mpS4zEXhNQ5FKItH9HKo="
-    },
-    {
-      "slug": "f01-013",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-f90728e586fc.mp3",
-      "integrity": "sha256-L1aeyC17q6sRa15HLODrty8rzAwxB0mm+SdIokQH220="
-    },
-    {
-      "slug": "f01-014",
       "category": "NARRATION",
       "file": "audio/q30-narrator-68e14653fb9c.mp3",
       "integrity": "sha256-IHP/jOmpSFE9sOiqXZa3NDvgFH9lewJbzcksLagH/8Y="
     },
     {
-      "slug": "f01-015",
+      "slug": "f01-013",
       "category": "NARRATION",
       "file": "audio/q30-gretel-70fdb9a6d7e3.mp3",
       "integrity": "sha256-7Yw4712G+hyyOTeaZvJogZI+PGIXHxl7TRIlCuwbAO4="
     },
     {
-      "slug": "f01-016",
+      "slug": "f01-014",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-f1d0a02bab71.mp3",
-      "integrity": "sha256-AcWbjknrjlgJj43qphRLJZVL0em38fWGJEtVodb0evw="
+      "file": "audio/q32-hansel-f1d0a02bab71.mp3",
+      "integrity": "sha256-1RxTC8iZl758w9Cjx6HvP6bE3sI5c0qxiROduPktBk4="
     },
     {
-      "slug": "f01-017",
+      "slug": "f01-015",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-4f2c76fb6a3f.mp3",
-      "integrity": "sha256-3dUxCEfIomE/atCY3Y500Kfpq6mSfgQqG0Y7lWtRqDM="
+      "file": "audio/q32-hansel-4f2c76fb6a3f.mp3",
+      "integrity": "sha256-ZiGaNCAjNVDX7UnfSwOL77OGv3HvAddnvht/wErR5lo="
     },
     {
       "slug": "f02-002",
@@ -380,107 +368,83 @@
     {
       "slug": "f02-005",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-a95fb0d79147.mp3",
-      "integrity": "sha256-I9wOv00mkwV0nwgWZoQWkVnjlA523A1MG1qbw6CAmlo="
+      "file": "audio/q32-hansel-a95fb0d79147.mp3",
+      "integrity": "sha256-dh2IaB/bVmDT/EsXIMkkoPy/b6uFaBBEfdGCSDul+nY="
     },
     {
       "slug": "f02-007",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-bc5f68ca5fce.mp3",
-      "integrity": "sha256-WDx2FsEMddsc9yL4c5eL5g3/A8GvQ7JN+lkqsOX8nWg="
+      "file": "audio/q32-narrator-c4b9336d81af.mp3",
+      "integrity": "sha256-J19sHFzmmx93uq4iQh96cexweKbqHsyIMqTU1H7OQ4c="
     },
     {
-      "slug": "f02-008",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-97de7e21d06e.mp3",
-      "integrity": "sha256-2OX8iZg1Cewgg8q3s3PrcewTqQixbBiJDee8imwmo3Q="
-    },
-    {
-      "slug": "f02-010",
+      "slug": "f02-009",
       "category": "NARRATION",
       "file": "audio/q30-narrator-3b457e6bc4b2.mp3",
       "integrity": "sha256-imDWAU0AO7q+6Dmwmp52m1Epf7qdS4LjtqhEpHzuvTk="
     },
     {
+      "slug": "f02-010",
+      "category": "NARRATION",
+      "file": "audio/q32-gretel-9ddabb92df00-lv.mp3",
+      "integrity": "sha256-s+FibF4g1CwXC2GlsKu0wYLBUU39ADBxmm1Et8x8Szw="
+    },
+    {
       "slug": "f02-011",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-9ddabb92df00.mp3",
-      "integrity": "sha256-PK7+wG+JVQ6L3L8/9HXnELzylB3Ti5H7gtF0bPf0Y9Y="
+      "file": "audio/q32-hansel-ba88a3efff5f.mp3",
+      "integrity": "sha256-ZYBvKCJZPSvZ03RhB0IMwM0mis4cBh52asH4h6qCT8w="
     },
     {
-      "slug": "f02-012",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-ba88a3efff5f.mp3",
-      "integrity": "sha256-AGeALqGiKG5DVoam/8HskPHPGcLEFZdWPlhm2+rnxS4="
-    },
-    {
-      "slug": "f02-014",
+      "slug": "f02-013",
       "category": "NARRATION",
       "file": "audio/q30-narrator-747fbe36f9e1.mp3",
       "integrity": "sha256-HKxuf6lB2RTKkFMtKGjXTFeECqmtc4GzLKfldD7tAZg="
     },
     {
-      "slug": "f02-015",
+      "slug": "f02-014",
       "category": "NARRATION",
       "file": "audio/q30-narrator-9718440a6308.mp3",
       "integrity": "sha256-sBwdw/OvFKuWjxoaik3K0M2AbMFvb1mSvaX6ut4Pl9M="
     },
     {
-      "slug": "f02-017",
+      "slug": "f02-016",
       "category": "NARRATION",
       "file": "audio/q30-narrator-8d26c1c2ef0f.mp3",
       "integrity": "sha256-Q1TFkSQcUPWjHUdXA6Gqft7oAwIgfSZNqRZc/sI1zIo="
     },
     {
-      "slug": "f02-018",
+      "slug": "f02-017",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-90b530573e65.mp3",
-      "integrity": "sha256-GbDLFXO/4K6kDNbGV7MwiH0PcnEtYEsgDnMHCCFLKps="
+      "file": "audio/q32-narrator-d3a3cf0f035b.mp3",
+      "integrity": "sha256-ddyX1HArMq6Zau7ZvVmZtqcJCY+e7CnvgA6MlwMIjdE="
     },
     {
       "slug": "f02-019",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-0c74b2349dc1.mp3",
-      "integrity": "sha256-cbMF0Trr0Y6Wozs1PHtKnxkmZMOPP9LsFrN83BUtLUQ="
-    },
-    {
-      "slug": "f02-021",
       "category": "NARRATION",
       "file": "audio/q30-narrator-8a7a61058958.mp3",
       "integrity": "sha256-FRJvDTQMZEu/Nly2OkwdvKWwXIhVOZIFb2ido0qo1lI="
     },
     {
-      "slug": "f02-022",
+      "slug": "f02-020",
       "category": "NARRATION",
       "file": "audio/q30-stepmother-0cacd471fc9a.mp3",
       "integrity": "sha256-m1w2f56XvB2XV8T+mLlLnwDdK0ha1//rQw94AiIbnAE="
     },
     {
+      "slug": "f02-021",
+      "category": "NARRATION",
+      "file": "audio/q32-father-ba8a2c4235a6-lv.mp3",
+      "integrity": "sha256-5RjwaG0uz0DGJvFrXUFb49agVN8oPyKyFFG4r2YFIek="
+    },
+    {
+      "slug": "f02-022",
+      "category": "NARRATION",
+      "file": "audio/q32-narrator-c77b609eee51.mp3",
+      "integrity": "sha256-z3bpTwG/fZQlPwZ+N6vn2X+rz6rY46XYRNj+gY0++Fc="
+    },
+    {
       "slug": "f02-023",
-      "category": "NARRATION",
-      "file": "audio/q30-father-ba8a2c4235a6.mp3",
-      "integrity": "sha256-pno1rF9jF6yLkRADHgshxd54FQiWyvaLhf86ER71O4M="
-    },
-    {
-      "slug": "f02-024",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-95799c2d3be3.mp3",
-      "integrity": "sha256-Q+bk5C7AvDUqcZMirWvlN9+84zncDlsadWs3sw4CvLc="
-    },
-    {
-      "slug": "f02-025",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-8440dff650c6.mp3",
-      "integrity": "sha256-3IHVTNzhRXI5kjn7CtVMlicJKm10xFWoKpgn3EB1ZSA="
-    },
-    {
-      "slug": "f02-026",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-ce3dc87adc4d.mp3",
-      "integrity": "sha256-THmH3wNtk8TReGFp8rmc3gEe0SbZ6kR03ry01DfhSTI="
-    },
-    {
-      "slug": "f02-027",
       "category": "NARRATION",
       "file": "audio/q30-narrator-b7b68eb88470.mp3",
       "integrity": "sha256-Ehl0STWHorw3nLfW1/+MRkqaFdFAgW75dwJcS6KDoA0="
@@ -488,188 +452,134 @@
     {
       "slug": "f03-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-c45cc9650660.mp3",
-      "integrity": "sha256-HThGfiKl4rFNov1nXpjaBbzF6KCzVbBiId/qkTbqqxE="
+      "file": "audio/q32-narrator-36b72039ed91.mp3",
+      "integrity": "sha256-ZuLi75xO5RiQRjXHn2WVppu751FsgsCIfJbJwRyiYb0="
     },
     {
       "slug": "f03-003",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-2501e2005ca0.mp3",
-      "integrity": "sha256-QqD/ApcPJdFOEqhq7YmAsa29S3ifLYic46glBYBH+O8="
+      "file": "audio/q32-narrator-8bac392e00c5.mp3",
+      "integrity": "sha256-kqRAnTW7p4p9Ds8SHURwjD4zhbkTbZ2K/JQE+2Rh1gs="
     },
     {
       "slug": "f03-004",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-54375e70c0b9.mp3",
-      "integrity": "sha256-dVovqkpO8n8Kx4JRlx7q4JB3J4ULT0FUGa6H9qiXPb8="
+      "file": "audio/q32-hansel-a9861512a863.mp3",
+      "integrity": "sha256-yPmJePq23kY0NB9iMZd3G+42eW2OYEyrsLvq2sbYaVo="
     },
     {
       "slug": "f03-005",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-69410e5cd5b4.mp3",
-      "integrity": "sha256-c5vSd83TOp56ReY5lMH1l7QSqBDbYggcu0NEEjqi3a0="
-    },
-    {
-      "slug": "f03-006",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-a9861512a863.mp3",
-      "integrity": "sha256-AubUHYEvM06EkJ/vyj74QHi0pvlry1fwXkzgF4ybRwA="
+      "file": "audio/q32-hansel-31c4e7aa2901.mp3",
+      "integrity": "sha256-bPaV5PvjBUZSI73mowYyTLC9E39ciEg/WGH343zWnjs="
     },
     {
       "slug": "f03-007",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-31c4e7aa2901.mp3",
-      "integrity": "sha256-ejiKw76rJ1L4QxXKUIQSvuP26tB/Bfb7qtESHR4vIlI="
+      "file": "audio/q32-narrator-69970f0f78a6.mp3",
+      "integrity": "sha256-Qx0fjYWZv+JoI/9G/eozco187U79FhdID2MiRtKBv4E="
+    },
+    {
+      "slug": "f03-008",
+      "category": "NARRATION",
+      "file": "audio/q32-gretel-4384a96925df-lv.mp3",
+      "integrity": "sha256-FROX6d9RuONL2vMSv5m5kMV5SQDwgvfWZPZLruhrTN8="
     },
     {
       "slug": "f03-009",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-eb276aff26b4.mp3",
-      "integrity": "sha256-iJn77ghQTvDvZrKYOI6oeo37a/7UVwZRrsxGwTt8PUM="
+      "file": "audio/q32-hansel-bc91f37d3ae8.mp3",
+      "integrity": "sha256-dMx2EHU3kNewZog5rR/JRPGuGpaN5ozgdBzemBHXLsY="
     },
     {
       "slug": "f03-010",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-a26ecf0f1335.mp3",
-      "integrity": "sha256-TBBtLv5qWRSM7+Nk1RH2CIAymPjB/wKsrfRlM9dLU7k="
-    },
-    {
-      "slug": "f03-011",
-      "category": "NARRATION",
-      "file": "audio/q30-gretel-4384a96925df.mp3",
-      "integrity": "sha256-0+xymTTLqY4B37eexCZ+yaf5bCWCImRaaYZj6KOOVyM="
+      "file": "audio/q32-hansel-6f143a959acb.mp3",
+      "integrity": "sha256-VBeu5mlejggdmzEFLXZZbYIypQHtN1DgN3igDE9tXxQ="
     },
     {
       "slug": "f03-012",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-bc91f37d3ae8.mp3",
-      "integrity": "sha256-vRkDc2DmzQ+jZ1otq8yHHUj2+PqgQg54Nmws4hvv4zo="
+      "file": "audio/q32-narrator-40b9ae2a3909.mp3",
+      "integrity": "sha256-fu7g4JX5Q8gtrpHaWrj9vztOwFRuM7HxEU1lmre60/4="
     },
     {
       "slug": "f03-013",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-6f143a959acb.mp3",
-      "integrity": "sha256-XqeE+Q67GkYZBOC6VRUAoZHZg6DVIdfEy/AjjzDy8RE="
-    },
-    {
-      "slug": "f03-015",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-4a77cdff3892.mp3",
-      "integrity": "sha256-XGPi5+z0Bb3d9diTeDp298P1HLL/Tz2Z9VWntgJhDw4="
-    },
-    {
-      "slug": "f03-016",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-a2a979acafce.mp3",
-      "integrity": "sha256-qPhKL/1FaGg5ObJwn4EJYt50P7WJm4Sp1Ky0MQguTO4="
-    },
-    {
-      "slug": "f03-017",
       "category": "NARRATION",
       "file": "audio/q30-narrator-067649f1926d.mp3",
       "integrity": "sha256-pn8nDsS54PBh5M65rmdFHnupBNuqpXYHh2kVlEkXHI8="
     },
     {
-      "slug": "f03-018",
+      "slug": "f03-014",
       "category": "NARRATION",
       "file": "audio/q30-stepmother-9c1d023b6c9a.mp3",
       "integrity": "sha256-4fXP954K+F9jDUJTfTQ/gDTD/4IRmCKJXnLiiYwP5bE="
     },
     {
-      "slug": "f03-020",
+      "slug": "f03-016",
       "category": "NARRATION",
       "file": "audio/q30-narrator-45d03b4c4f7a.mp3",
       "integrity": "sha256-QHFs+DGjFtSeDQrb7Wj1UkAIkfKnVLUpUCjwsbBLwuQ="
     },
     {
-      "slug": "f03-021",
+      "slug": "f03-017",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-0775184e8160.mp3",
-      "integrity": "sha256-tTc1uGC0iiN+Mp+CO9k9tVpahyl7sfgVox+0rCTumvc="
+      "file": "audio/q32-narrator-1a164f732d9a.mp3",
+      "integrity": "sha256-9lqqFmQ2v/VJ/g7KgK6Z9m06ulfIb3qJwqw/oDbTSzk="
     },
     {
-      "slug": "f03-022",
+      "slug": "f03-019",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-c5c7ea523aed.mp3",
-      "integrity": "sha256-6LyBF1aEm4TsWSU/yIeiTRrNAze7ySnJ/KfhNdoqI64="
+      "file": "audio/q32-narrator-7da257c0be15.mp3",
+      "integrity": "sha256-LNWHKQfH0TNPJXaFAdyp1QFTN1vRFfAvdZOH7PPjWNk="
     },
     {
-      "slug": "f03-024",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-b2f889ba14e5.mp3",
-      "integrity": "sha256-JIduvvjB+8M4mAmpiP38vzJgGiMKFyRFygvTAy+fBNs="
-    },
-    {
-      "slug": "f03-025",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-1a8a72690d94.mp3",
-      "integrity": "sha256-O6VusX33TEsRBhZrBH6gqqeLVv/qEH5AQMV1Fm3aXh4="
-    },
-    {
-      "slug": "f03-026",
+      "slug": "f03-020",
       "category": "NARRATION",
       "file": "audio/q30-narrator-0adde0f57aec.mp3",
       "integrity": "sha256-xLDthzEP6kcph+lWH9HSgOlicWAqngXVeEBiV2F7hGE="
     },
     {
-      "slug": "f03-027",
+      "slug": "f03-021",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-134a848d90dc.mp3",
-      "integrity": "sha256-9gOq/7W/BsMN+2E8cUieXah9faRpTOCcPhF7Fq3ziR8="
+      "file": "audio/q32-narrator-9ad34d07b2fe.mp3",
+      "integrity": "sha256-WKbHatPya6U0/t4W2hdeqP9OnRzde7wxALMpHItbMIE="
     },
     {
-      "slug": "f03-028",
+      "slug": "f03-022",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-5a6584a676dc.mp3",
-      "integrity": "sha256-LsJWziPscV2hu3/HeB/WuVgRhSjAppTyeo/J6v+5wwo="
+      "file": "audio/q32-hansel-81ff5773090e.mp3",
+      "integrity": "sha256-ucAHgvzgYS92AurBSCajUaXvuKMIYROdN46zQmntq1A="
     },
     {
-      "slug": "f03-029",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-81ff5773090e.mp3",
-      "integrity": "sha256-qWzP/TLt8bK9UGwEVEJyl922DeTG0ILrlV/TReAai/M="
-    },
-    {
-      "slug": "f03-030",
+      "slug": "f03-023",
       "category": "NARRATION",
       "file": "audio/q30-gretel-9bfcee88218f.mp3",
       "integrity": "sha256-HpTaPCuiT+qHh9H9enFVZBgQ/Wqlw5ZCd4TZWM+nl5E="
     },
     {
-      "slug": "f03-031",
+      "slug": "f03-024",
       "category": "NARRATION",
       "file": "audio/q30-gretel-ecc5a289ffbf.mp3",
       "integrity": "sha256-u1qdGjuw4uMpLagU9hpxGIZn2c1h+JWRbdThnOFKZYc="
     },
     {
-      "slug": "f03-033",
+      "slug": "f03-026",
       "category": "NARRATION",
       "file": "audio/q30-narrator-74053c3f4ebd.mp3",
       "integrity": "sha256-jtm2sA+AZAfvfUITTu+QN+vdc+2WH7No2z5u7Esc5yA="
     },
     {
-      "slug": "f03-034",
+      "slug": "f03-027",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-451855761ce6.mp3",
-      "integrity": "sha256-6mQsVcdHZIBiK9fuqk2959z8I5f70oCqjV+HKaKRULI="
+      "file": "audio/q32-narrator-9caf562b6fa4.mp3",
+      "integrity": "sha256-YYhWZ2uupLkujYBYiiaYT7gHg6LvpItNP+fNeC6ZSEA="
     },
     {
-      "slug": "f03-035",
+      "slug": "f03-029",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-43074517e798.mp3",
-      "integrity": "sha256-70C0w4AU87NL+ml8XOBXJ7Gy2Sxrj7LrGmpuY536UvA="
-    },
-    {
-      "slug": "f03-037",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-163c1ccc0419.mp3",
-      "integrity": "sha256-oY/m1mq7Nvv5xeQcb908SsJNcMYBd+Lt9Uq6t0rZ61U="
-    },
-    {
-      "slug": "f03-038",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-e64225c2d29f.mp3",
-      "integrity": "sha256-gkrNtajxtebA60QXz0YH54Q4BhonsysQmpVeMgHIyTo="
+      "file": "audio/q32-narrator-261507546b35.mp3",
+      "integrity": "sha256-Y2yKd8phFg60VRcvWkUweDhCyIbwr4e2Nv1mi2VLeKE="
     },
     {
       "slug": "f04-002",
@@ -680,74 +590,62 @@
     {
       "slug": "f04-003",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-fc16ed1557cf.mp3",
-      "integrity": "sha256-k8EB8eZh22MguItak8o6izAOGxxXjWbAqLB1EaWdqMI="
+      "file": "audio/q32-narrator-9484497a474c.mp3",
+      "integrity": "sha256-dVRbZwcLMl3doe/SfWwGPuuh7kSPn2wOvLvqcKlDxHE="
     },
     {
       "slug": "f04-004",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-80a0c41a8a2c.mp3",
-      "integrity": "sha256-e6bcbI2J5FP11glDClfEshSPn4OOWMMztzXnwNcFFxU="
+      "file": "audio/q32-gretel-e234368f5533-lv.mp3",
+      "integrity": "sha256-G6M5A4IFwQqcDooTch8r6u8g77++kJ3InpxlYzF2v4w="
     },
     {
       "slug": "f04-005",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-e234368f5533.mp3",
-      "integrity": "sha256-Gd/F7dancnAH3ORewzPb2Q2bu3/nkrYiBENfn+u2TkU="
+      "file": "audio/q32-gretel-7c80b7bbd945-lv.mp3",
+      "integrity": "sha256-hanU7oqHE5WhyOXPN4P9DcYhpVTtkIAMRTwwUiHEOSA="
     },
     {
-      "slug": "f04-006",
-      "category": "NARRATION",
-      "file": "audio/q30-gretel-7c80b7bbd945.mp3",
-      "integrity": "sha256-BMi6LRG3Fa2otasi4QbXmoquUYRjlmj3g7/xZ4PKi28="
-    },
-    {
-      "slug": "f04-009",
+      "slug": "f04-008",
       "category": "NARRATION",
       "file": "audio/q30-narrator-a608edfe6160.mp3",
       "integrity": "sha256-PF80gWIQnKGKmqXIPtodamg9scr/26yxSBWHlOpKRrc="
     },
     {
-      "slug": "f04-010",
+      "slug": "f04-009",
       "category": "NARRATION",
       "file": "audio/q30-narrator-8512ebef02e8.mp3",
       "integrity": "sha256-nULExDw+HgkJHqmAV8R5f5NzShDUwOAMKHeRi8fehcA="
     },
     {
-      "slug": "f04-011",
+      "slug": "f04-010",
       "category": "NARRATION",
       "file": "audio/q30-narrator-6a7bdc7ee09a.mp3",
       "integrity": "sha256-NCD0smVZ13laIjnxwfKvgA3AQibhfnbbEGgGe0XQk7E="
     },
     {
-      "slug": "f04-012",
+      "slug": "f04-011",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-38ccff28094f.mp3",
-      "integrity": "sha256-AaTy2BBh/S/WdOWW6BPD9zxLbK9hkMLDtuD2a+EYkhI="
+      "file": "audio/q32-hansel-38ccff28094f.mp3",
+      "integrity": "sha256-aZj3E3WSsiJCQcbKTTiaTcAUQmP7E1QFxo5qVvvwCng="
     },
     {
-      "slug": "f04-015",
+      "slug": "f04-014",
       "category": "NARRATION",
       "file": "audio/q30-narrator-3d4e6ba5cc7c.mp3",
       "integrity": "sha256-WSehEv/KTXg4gnYDvPULsBQo1CYocq4YqigSKB8wlb0="
     },
     {
+      "slug": "f04-015",
+      "category": "NARRATION",
+      "file": "audio/q32-narrator-bee1acf0d416.mp3",
+      "integrity": "sha256-HL50ztMxEIdrVH04p33ESTYHYCXP0n5/LCL9lJajNfo="
+    },
+    {
       "slug": "f04-016",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-07fd6f56cf39.mp3",
-      "integrity": "sha256-Xm6Z0fkKYi7MukEHPyrTnBn7MfA6BKN9H4pdgEir1oI="
-    },
-    {
-      "slug": "f04-017",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-312b43ec45e4.mp3",
-      "integrity": "sha256-HoHEk2/fz9kXjFLzU9NLqJw7qS7WgHVU+BcoAc4Wfow="
-    },
-    {
-      "slug": "f04-018",
-      "category": "NARRATION",
-      "file": "audio/q30-gretel-f3cf95702461.mp3",
-      "integrity": "sha256-6HNYEbMIQLl8x5o5A2UA3ciO4CFn/xeme8OaGRY5Byc="
+      "file": "audio/q32-gretel-f3cf95702461-lv.mp3",
+      "integrity": "sha256-BD/iPJFK7ke8IJ+8huO0Rx8WM9vZpWL+vU3e6p4BxZ8="
     },
     {
       "slug": "f05-002",
@@ -770,20 +668,20 @@
     {
       "slug": "f05-006",
       "category": "NARRATION",
-      "file": "audio/q30-old_woman-6263b2aff354.mp3",
-      "integrity": "sha256-OkMphTJ71wYrtshJ7sILIh3vl3MF0MZ+NB0fTlRwZdA="
+      "file": "audio/q32-old_woman-6263b2aff354-lv.mp3",
+      "integrity": "sha256-c5M3Cb2ndb8wG51D5LDVZx8DFl7iVD7ZOyOeiR9qWrs="
     },
     {
       "slug": "f05-007",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-c5171eb4d0cf.mp3",
-      "integrity": "sha256-+zSv1JJiQSyBFilCwrh0CMzqiIRMQsKCJPFZtFiGD1g="
+      "file": "audio/q32-hansel-c5171eb4d0cf.mp3",
+      "integrity": "sha256-ew+qJMomD1MQfuGydeYncZJrbYkS7MJfCWKXfkStBD0="
     },
     {
       "slug": "f05-008",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-8f65bda8f444.mp3",
-      "integrity": "sha256-hiIgCZNvR2VgxzFeAo7lGeQa0HdTZf9L+fXAm2XdpWI="
+      "file": "audio/q32-hansel-8f65bda8f444.mp3",
+      "integrity": "sha256-dou8SSv2AtYuE0TDs3sA5LMI/Xjf9PpICc9pZRAVVVE="
     },
     {
       "slug": "f05-009",
@@ -794,14 +692,14 @@
     {
       "slug": "f05-010",
       "category": "NARRATION",
-      "file": "audio/q30-old_woman-b0445202c4be.mp3",
-      "integrity": "sha256-wCOQEBF1eQYWg2JvzSQgtzOPtedaJLDDTiWkh0hfiKo="
+      "file": "audio/q32-old_woman-b0445202c4be-lv.mp3",
+      "integrity": "sha256-n60XiHVnTqX4Tzb14ea3jueJEOfn+c0pJUeRfoAtkRw="
     },
     {
       "slug": "f05-011",
       "category": "NARRATION",
-      "file": "audio/q30-old_woman-4c92e6c72ffc.mp3",
-      "integrity": "sha256-qNqGpO85cslAW6ZnxMmZwNwnGLT6e4KGV8syWWlfkpg="
+      "file": "audio/q32-old_woman-4c92e6c72ffc-lv.mp3",
+      "integrity": "sha256-OPZq36T20Zq6Vc18PCFvqgdnK5iklqPOIk9FuSM4L1w="
     },
     {
       "slug": "f05-012",
@@ -812,329 +710,227 @@
     {
       "slug": "f05-014",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-9eef52b47189.mp3",
-      "integrity": "sha256-LAfT+5zEhu1DKzI1cV8v+Yz0G29yrQ6ngnZ4ZycvLUo="
+      "file": "audio/q32-hansel-9eef52b47189.mp3",
+      "integrity": "sha256-mfk0Rb7tIswtRbqoOVXyzso1joYveINAMrHRl1SFiFw="
     },
     {
       "slug": "f05-015",
       "category": "NARRATION",
-      "file": "audio/q30-old_woman-0936aac9257e.mp3",
-      "integrity": "sha256-ppKo3/t82igsbDavBunqxrX7WvC4pScbR4ymiibybHE="
+      "file": "audio/q32-old_woman-0936aac9257e-lv.mp3",
+      "integrity": "sha256-V2VHfO1GdWQbgGQ9gzN0Nw0yPMU8p2kVUGueg5rFmok="
     },
     {
       "slug": "f05-016",
       "category": "NARRATION",
-      "file": "audio/q30-old_woman-862084e36b10.mp3",
-      "integrity": "sha256-Rfy7teoecFI+SNM6V0MGdBz2I58TdAFr0pIsBmfLMqw="
+      "file": "audio/q32-old_woman-862084e36b10-lv.mp3",
+      "integrity": "sha256-A+XTaZsV5aAO7OqP+vLWGNp5H0VzKWplSC1TfZlNDhw="
     },
     {
       "slug": "f05-019",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-5a41dc5e79c5.mp3",
-      "integrity": "sha256-X7AJcqwVd4lC0m+VdjIoM15AWW1k4AsuqWl2bYJ8Igc="
+      "file": "audio/q32-narrator-2442392cabfd.mp3",
+      "integrity": "sha256-H7V9y3ZlJh+7QYbeHOyemMusLZh3WzZ9RnJa7ORYZUw="
     },
     {
       "slug": "f05-020",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-47c4e99eb5d8.mp3",
-      "integrity": "sha256-DuErcSrAFdDY+0uneuWDz2zu6uAGmGKZO85oRdkQfa4="
-    },
-    {
-      "slug": "f05-021",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-dfa96baad371.mp3",
-      "integrity": "sha256-a9JGI2ZwWv6fXNRP2lE5LtC14gCjDJwASJ+NbTWtI7M="
-    },
-    {
-      "slug": "f05-022",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-0465b4adc525.mp3",
-      "integrity": "sha256-y4Y8opYi1qNtY1mT1ZqhW0oZEAFLiwCsASAWWP5Zpsw="
-    },
-    {
-      "slug": "f05-023",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-0bacbb0ea2e4.mp3",
-      "integrity": "sha256-wyhWv/LdDHuZuKZfSqtRYWPVJCIsZKr367WYUPQYa6I="
+      "file": "audio/q32-narrator-a3284023ed90.mp3",
+      "integrity": "sha256-zdmfcdJ5GRo2m+sVf5xvXA570MImr3Vy/J0EdKdqrd4="
     },
     {
       "slug": "f06-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-73f73aeca47a.mp3",
-      "integrity": "sha256-B45u9LJ7SmvB4QxnnNO8FZzymAfzpymuPMvxLnfm8l8="
+      "file": "audio/q32-narrator-4b086b3f8a3c.mp3",
+      "integrity": "sha256-BFOamYHTx9Nn7M8XqYVcbdXD4T2yoS97eM+k5/wy6xY="
     },
     {
       "slug": "f06-003",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-5dc26bd07614.mp3",
-      "integrity": "sha256-/yxDWMlyaRui+MTZulP4KgFcJD6TipTzNLRHZ+s6qIg="
+      "file": "audio/q32-narrator-b2f7d1115eb7.mp3",
+      "integrity": "sha256-7B1nZbbQNkq2BbL4Yw09y6blyRW8OVKeVErOCyimXys="
     },
     {
       "slug": "f06-004",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-69e6c831c8a3.mp3",
-      "integrity": "sha256-qA/ByzC0t7fPCql7M3mjnAImeoeTh5B7az8j8drhKPY="
+      "file": "audio/q32-hansel-067daa220ff3.mp3",
+      "integrity": "sha256-91BuF+fjHp1SkPRtPDh3ch8Rjz8zaJZihEsG3ULuDAc="
     },
     {
       "slug": "f06-005",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-860097fbeeda.mp3",
-      "integrity": "sha256-Jw1ihIW46/weCE2qMG3D/d8h6ZrZwuKV68sHJsHZSkM="
-    },
-    {
-      "slug": "f06-006",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-455186457aff.mp3",
-      "integrity": "sha256-kadU6DMNlteKSBj4scGmgcfyHK7M00eh+/q1hT9EHSk="
+      "file": "audio/q32-hansel-7ff8bb57aa9f.mp3",
+      "integrity": "sha256-10wdpy7D4tsWxStUokVAax38vCMr3fp0qdbIeGm/FhA="
     },
     {
       "slug": "f06-007",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-067daa220ff3.mp3",
-      "integrity": "sha256-3G59TvS6Dq2rJeHK1SRRCgOf+blwWXqG3e7KalByQHI="
+      "file": "audio/q32-narrator-eda8e3f3a84d.mp3",
+      "integrity": "sha256-zyZX99dlk+unm2oJSTM8TGTvu4awIXcqKFsgmZErVkU="
     },
     {
       "slug": "f06-008",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-7ff8bb57aa9f.mp3",
-      "integrity": "sha256-X+RNGu9Y1Yy+O6zIFBB6aU+CUg5fTDAwr7az9TOND1E="
-    },
-    {
-      "slug": "f06-010",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-a96aca9f5e53.mp3",
-      "integrity": "sha256-5ohLXZ/mtJnLZ/T+HHbbgoEyE84zzyeYmouXyyPQoLY="
-    },
-    {
-      "slug": "f06-011",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-5ab2fd90e429.mp3",
-      "integrity": "sha256-r3Je3MpR3o9ySzHUntOTWiwb5A0umF7iyWQnDjtzScc="
-    },
-    {
-      "slug": "f06-012",
       "category": "NARRATION",
       "file": "audio/q30-narrator-40a17278dba0.mp3",
       "integrity": "sha256-/t0SQRZTnndNlhZAvo1NYUDaqGMSbsPb7ga4QMgDEFk="
     },
     {
-      "slug": "f06-013",
+      "slug": "f06-009",
       "category": "NARRATION",
       "file": "audio/q30-witch-1a4c699cba66.mp3",
       "integrity": "sha256-IJMGD+Wjnw4Vvhjn6Y/YxsCYysoXUDRssj/W7Gm3RPM="
     },
     {
-      "slug": "f06-014",
+      "slug": "f06-010",
       "category": "NARRATION",
       "file": "audio/q30-witch-308847dd96e4.mp3",
       "integrity": "sha256-/T0V77BW/Ra5x+v+P5TLXq1tMH924LpPRi1wlLbxSsY="
     },
     {
-      "slug": "f06-015",
+      "slug": "f06-011",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-df704c6be236.mp3",
-      "integrity": "sha256-Sk18tdhAXqaONaa4/pvhbFSVZ6eoXGtpoPFfVE3k5j4="
+      "file": "audio/q32-narrator-7d988bdeb63e.mp3",
+      "integrity": "sha256-RrqbUoRTPdrr259anbLZabX4OjzT0nU9dFpQA5gCu7A="
     },
     {
-      "slug": "f06-016",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-f836b8be5b02.mp3",
-      "integrity": "sha256-MI7W5QIXBFVDJb6DEYgQSz6QIRosx7/xeS95UqTVpx4="
-    },
-    {
-      "slug": "f06-018",
+      "slug": "f06-013",
       "category": "NARRATION",
       "file": "audio/q30-narrator-1543941947c9.mp3",
       "integrity": "sha256-Bg2oLlw4cZtRGgtnVLqohuRp9bIR3tGInH96mxHILkI="
     },
     {
-      "slug": "f06-019",
+      "slug": "f06-014",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-cd5864ffe7d0.mp3",
-      "integrity": "sha256-um0yMg3W5AXZiK2xViAiTQRB4UtZt9g2p1ia7XtbxLQ="
+      "file": "audio/q32-narrator-2398aac125cd.mp3",
+      "integrity": "sha256-AGNHEomgtDbc7UI65J6N7+c2gGaFQcxwKXdJJrleBd8="
     },
     {
-      "slug": "f06-020",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-aa3074bb7cfd.mp3",
-      "integrity": "sha256-83HBgJBgJv+jaO8MSnOMVZdfuPqcG0kFPdfMS3rqJnA="
-    },
-    {
-      "slug": "f06-021",
+      "slug": "f06-015",
       "category": "NARRATION",
       "file": "audio/q30-narrator-972c69a17c97.mp3",
       "integrity": "sha256-YI+NBFSL+3P+78KfQ4D9gzShinwQ8+gaVj/MirExMtE="
     },
     {
-      "slug": "f06-023",
+      "slug": "f06-017",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-3812183f22d4.mp3",
-      "integrity": "sha256-hrPbKEr9nvJ0CAz7uTFhufpQovt1UafctNIQMhftd2w="
+      "file": "audio/q32-narrator-c210c4e9d706.mp3",
+      "integrity": "sha256-b9b+18Gnln2F8IwSv7PFsZ3hiCBaKYQoKEw+bIj0Ud0="
     },
     {
-      "slug": "f06-024",
+      "slug": "f06-018",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-f51ae91a3081.mp3",
-      "integrity": "sha256-XGUaS5FhgLSuLoLA8/4S8zuyrRo6DxPbpiZq9gQf0v8="
+      "file": "audio/q32-gretel-7cfc3711d97e-lv.mp3",
+      "integrity": "sha256-+R2/7otcKvjxciuRZZRLY9x40qI4MKjepwY8/8Ukbio="
     },
     {
-      "slug": "f06-025",
+      "slug": "f06-019",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-7cfc3711d97e.mp3",
-      "integrity": "sha256-UslmF0ojrzqxx3raPN7BCUHsXod7bul3cEivpgQTNrc="
-    },
-    {
-      "slug": "f06-026",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-868ba71df3bd.mp3",
-      "integrity": "sha256-yP2MfKg0Hq2EkjFw3F5Kgwj6DrmnPPNCo/4A6RUZiws="
+      "file": "audio/q32-hansel-868ba71df3bd.mp3",
+      "integrity": "sha256-xO3qvG4dRgrzfy6rWv+oPx6AHAmqi5yo/MyZgp+45VI="
     },
     {
       "slug": "f07-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-aed8b3419e98.mp3",
-      "integrity": "sha256-iwTmGpjbNcMnASQC7SVkWBBTOzbQlIMrnvahk3s76jw="
+      "file": "audio/q32-narrator-abf83b9f9209.mp3",
+      "integrity": "sha256-+d7V8n3e6Yeguyq5MUg2ELucptLb47rlYA9M37Wb0Pw="
     },
     {
       "slug": "f07-003",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-2bb33d8e5412.mp3",
-      "integrity": "sha256-qHJAOmNAwFJ7vz9Lu5dE1wkdGjtQrbzAThnzGNefVww="
+      "file": "audio/q32-narrator-07f3eb03ca54.mp3",
+      "integrity": "sha256-+Gsq5+2d3fyO0uuGBhaSko+AVoz6E9NGFJ5qVQkNcgg="
     },
     {
       "slug": "f07-004",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-d0cade030fd5.mp3",
-      "integrity": "sha256-Useu8oXQ+nq9hPiV1EVgbZFTHKG6NBMhWDn7uCiJjEk="
-    },
-    {
-      "slug": "f07-005",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-a3b4181964d5.mp3",
-      "integrity": "sha256-keAS2qf2UQ2wG4o4JrEQJH78j7j28YAEJolSw0d8J5w="
-    },
-    {
-      "slug": "f07-006",
       "category": "NARRATION",
       "file": "audio/q30-narrator-aaa55e11d58d.mp3",
       "integrity": "sha256-7R/sTD48QzPoD+/cE+ZTSGl5MUEKH0WpTPcRT1pCWhg="
     },
     {
-      "slug": "f07-007",
+      "slug": "f07-005",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-ea9cc721fb13.mp3",
-      "integrity": "sha256-05ulGl6DVF16O/H6yFPaJTpQrM78EuiZ4d/mCfM2//4="
+      "file": "audio/q32-gretel-ea9cc721fb13-lv.mp3",
+      "integrity": "sha256-MhNvEg/MT3QZRAEGq+fXzqlML3RYlitezMb8sgJouhI="
     },
     {
-      "slug": "f07-008",
+      "slug": "f07-006",
       "category": "NARRATION",
       "file": "audio/q30-gretel-a903c8a9c248.mp3",
       "integrity": "sha256-Blkly+pSENJBxfhWoYxkyFN0fq81xgSz+TKaFGavCuc="
     },
     {
-      "slug": "f07-009",
+      "slug": "f07-007",
       "category": "NARRATION",
       "file": "audio/q30-gretel-e62cd3ee6550.mp3",
       "integrity": "sha256-dI6kVfxenSFGMNgk0MB8hFyyV/c56P+nNo9qIE+ENDc="
     },
     {
-      "slug": "f07-012",
+      "slug": "f07-010",
       "category": "NARRATION",
       "file": "audio/q30-narrator-cb81b53d0c8f.mp3",
       "integrity": "sha256-bsQ0itWC8vjwpfL9lLkNQ+w9PgDksNkA9tAGOeYbVbo="
     },
     {
-      "slug": "f07-013",
+      "slug": "f07-011",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-984202f2abfe.mp3",
-      "integrity": "sha256-lWLGpicxQ8x2n14GhV1tduOKmrz3R+LRI8J8C2Vv5ag="
+      "file": "audio/q32-narrator-42af70334c7c.mp3",
+      "integrity": "sha256-uCw04lm+X+jMbXJBhyjYfX9XyFX5UPx7L3NV0r+PkVc="
     },
     {
-      "slug": "f07-014",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-bbedec50d6c9.mp3",
-      "integrity": "sha256-6n+bcb+kHqVQ+4hn4PYuERBaMSADqs3BCIxUkTJ12I4="
-    },
-    {
-      "slug": "f07-015",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-e3efa1a5855e.mp3",
-      "integrity": "sha256-GkEv6ubvra2CSX5X5JqX2XTZz2DJhEdUFLeIKchUoTc="
-    },
-    {
-      "slug": "f07-016",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-f3fd43515c51.mp3",
-      "integrity": "sha256-eDV9TUpVL+KPhMf8R7Ev2C/bJfDWlhGUFBb9BbKjMZo="
-    },
-    {
-      "slug": "f07-017",
+      "slug": "f07-012",
       "category": "NARRATION",
       "file": "audio/q30-narrator-91b08f1ae42d.mp3",
       "integrity": "sha256-rNrJsHKl0OzTWwnoqgldptpEk6uhyLhYBaDvMDTRQJo="
     },
     {
-      "slug": "f07-020",
+      "slug": "f07-015",
       "category": "NARRATION",
       "file": "audio/q30-narrator-0e083d54a4e5.mp3",
       "integrity": "sha256-/mdm/45ueN3bI2viYuwAhSFI8IKo3bHkSnMLN83AO+4="
     },
     {
-      "slug": "f07-021",
+      "slug": "f07-016",
       "category": "NARRATION",
       "file": "audio/q30-narrator-5d9368aefb0e.mp3",
       "integrity": "sha256-/faVr9YQ0MYbU0avrH5lg5/Kn7ecv70LqAV/GpvMtaE="
     },
     {
-      "slug": "f07-022",
+      "slug": "f07-017",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-80ccdfe49a1d.mp3",
-      "integrity": "sha256-y+FBQ0lRtnvPkqebD2Cst4gp9+RQsRw0F8Woh2zOBwE="
+      "file": "audio/q32-gretel-80ccdfe49a1d-lv.mp3",
+      "integrity": "sha256-zGzV0hXfEA2YXiTx9KYI8ek7DXPYBKxNa9OBM2AV3og="
     },
     {
-      "slug": "f07-024",
+      "slug": "f07-019",
       "category": "NARRATION",
       "file": "audio/q30-narrator-1a049780bc92.mp3",
       "integrity": "sha256-9ZRsSvq+NrAPTn8nDyeDqcapCxMDCbwLnLPVyV3l7YE="
     },
     {
-      "slug": "f07-025",
+      "slug": "f07-020",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-f9f1237a4df6.mp3",
-      "integrity": "sha256-jH7AARCahcMvX04m4KPM+Qt5uBJ468UC9bFyxs206sI="
+      "file": "audio/q32-narrator-94d87d9ac7fe.mp3",
+      "integrity": "sha256-wrnIImW1+RyhOoKZxdOGENwMILqrnDYurgBaRzsF1LE="
     },
     {
-      "slug": "f07-026",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-59fa7a88c6b5.mp3",
-      "integrity": "sha256-O6248+gwcxHgq98ZYbFTpA2XzBbBFy2Tud53n4TXSA4="
-    },
-    {
-      "slug": "f07-027",
+      "slug": "f07-021",
       "category": "NARRATION",
       "file": "audio/q30-witch-090de03c62b1.mp3",
       "integrity": "sha256-GGPks/OtYuc17vtdoeLMYE1aR6MibcvMRNTktGlrcZ8="
     },
     {
-      "slug": "f07-029",
+      "slug": "f07-023",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-6e9c5e03049c.mp3",
-      "integrity": "sha256-PyMV9gfHfpdY0ogoJDLBSAJWfpV5pSrtJXSicKV7Uk8="
+      "file": "audio/q32-narrator-fb7450abfd28.mp3",
+      "integrity": "sha256-gjB4uMtpHTenEHfmYjwce2hktRJANldXYBQj7CWbUFo="
     },
     {
-      "slug": "f07-030",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-c23796d6eee4.mp3",
-      "integrity": "sha256-9rmKMeSJJZwYiOyaEGb9nr5Mme+UphLn+OHUnhXnbyk="
-    },
-    {
-      "slug": "f07-031",
+      "slug": "f07-024",
       "category": "NARRATION",
       "file": "audio/q30-narrator-3fe512192cb2.mp3",
       "integrity": "sha256-J/F+a5ChulXJAFhm77BpqHU1EJETCOS1M2qQlZhvPSM="
     },
     {
-      "slug": "f07-033",
+      "slug": "f07-026",
       "category": "NARRATION",
       "file": "audio/q30-narrator-f336aee58220.mp3",
       "integrity": "sha256-8zdYkl+3OpNBgh20Mpds9xD5b9BRXI5KHfnx7JWAOnw="
@@ -1154,8 +950,8 @@
     {
       "slug": "f08-004",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-faca29ec7987.mp3",
-      "integrity": "sha256-jeR4VeWMjA88nY3v9MV7Mdl9MrYQ0nRDhPAXyLTyDQ0="
+      "file": "audio/q32-hansel-faca29ec7987.mp3",
+      "integrity": "sha256-fh7sQIzfitLiMYMEC1ntD0QQ1p2+73HJQHzpUvgKiA4="
     },
     {
       "slug": "f08-006",
@@ -1172,8 +968,8 @@
     {
       "slug": "f08-008",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-ff6857539a0f.mp3",
-      "integrity": "sha256-SfpNLxIlWByhO+TXOLsBUo048fDUMkPvK2JdeuwsoUM="
+      "file": "audio/q32-gretel-ff6857539a0f-lv.mp3",
+      "integrity": "sha256-7CDf3m+UY8NRqDvZfKFGUM605ZAlk/kuIXMeI+3VN9s="
     },
     {
       "slug": "f08-010",
@@ -1190,59 +986,53 @@
     {
       "slug": "f09-003",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-329a591b5b4a.mp3",
-      "integrity": "sha256-iMqMB9++pkpdqbA35ugxT+YYt/pFW6s/bez4RAqv4PY="
+      "file": "audio/q32-narrator-329a591b5b4a-lv.mp3",
+      "integrity": "sha256-uw/sur32i8Nn0Y0TQi5ZYeUBWvMK8VWpapj3okwJ/Ro="
     },
     {
       "slug": "f09-004",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-9866877852a5.mp3",
-      "integrity": "sha256-a2L0lcRW5rESfRuwh0EKvJhLP8alW75xgZTtSMZ+Pyk="
+      "file": "audio/q32-narrator-342a0f05b165.mp3",
+      "integrity": "sha256-//4CA4pg2EEVeADiVHMMA8V/FMg1SNaPAGuX3emWOz0="
     },
     {
-      "slug": "f09-005",
+      "slug": "f09-006",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-aa5393f4b2a0.mp3",
-      "integrity": "sha256-f6XamuIjDNVCEGbJysW/GBdZ//mnZj5wx4ZGNB9pVrk="
+      "file": "audio/q32-gretel-bbb4d149e5dc.mp3",
+      "integrity": "sha256-AYiSOL/DtGVhS2ePBONjmfHGHEFk9TS0bm4d2epPCsk="
     },
     {
       "slug": "f09-007",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-bbb4d149e5dc.mp3",
-      "integrity": "sha256-TEZEoETnGTQRAUWBktbv+lQ8V5o2frAoqGAkLFVCPgE="
+      "file": "audio/q32-hansel-d7c4b005ea3b.mp3",
+      "integrity": "sha256-Rvu1Su5tKFYS/1NBgdNWkQZB0eFKVkg4zbA/8GZ3exE="
     },
     {
       "slug": "f09-008",
-      "category": "NARRATION",
-      "file": "audio/q30-hansel-d7c4b005ea3b.mp3",
-      "integrity": "sha256-E5agQps7mbZkIuR8mmbF6sRU6KTydW9ZX0W9H9m2LfA="
-    },
-    {
-      "slug": "f09-009",
       "category": "NARRATION",
       "file": "audio/q30-narrator-1653b34c8d05.mp3",
       "integrity": "sha256-Vuo4DErKw2SzvCXGLRK1EBrjlnUu87F7Hd4139LtlNk="
     },
     {
-      "slug": "f09-011",
+      "slug": "f09-010",
       "category": "NARRATION",
       "file": "audio/q30-narrator-c3d7043ef946.mp3",
       "integrity": "sha256-3bLdeEQKOagta0RY8m1+jaO31DMwH6/Z12Q/pmP1TKw="
     },
     {
-      "slug": "f09-012",
+      "slug": "f09-011",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-b7b8c26b5c38.mp3",
-      "integrity": "sha256-OAemhko1g8/WngecabCkob62Vbxulwz6omQzRa2XoxM="
+      "file": "audio/q32-hansel-b7b8c26b5c38.mp3",
+      "integrity": "sha256-6ct3Vs7WbCaoG96vgAtowzdnnuChV8aBS3ban/mTdt8="
     },
     {
-      "slug": "f09-013",
+      "slug": "f09-012",
       "category": "NARRATION",
       "file": "audio/q30-narrator-a85da155da38.mp3",
       "integrity": "sha256-ynYcNFxkcwQ1l1tUn0hxMKNgwJb/NQdpVS5THe0LQRw="
     },
     {
-      "slug": "f09-014",
+      "slug": "f09-013",
       "category": "NARRATION",
       "file": "audio/q30-narrator-ad0181f3cff3.mp3",
       "integrity": "sha256-cal1pAFpsE7U/gOCQViyNZ+b7YkLybesvopqA2TRecM="
@@ -1250,113 +1040,89 @@
     {
       "slug": "f10-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-8305bca1387b.mp3",
-      "integrity": "sha256-fkvWVz4kc1dHqwNC9Y1xH1sTOpXw8r4Z+wOl/EIUwRA="
+      "file": "audio/q32-narrator-8305bca1387b-lv.mp3",
+      "integrity": "sha256-96k+bCIL5SVk9kZi+c3k353xayKTU3pGC54Xb0KXBSU="
     },
     {
       "slug": "f10-003",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-7598fd7169db.mp3",
-      "integrity": "sha256-YCMdOfWY9Ur8IKm4a4+0XZguhSRmUu/erBTFQOVe7T8="
+      "file": "audio/q32-narrator-b3847f5287ee.mp3",
+      "integrity": "sha256-4JxJbwPHBn3ft3Hy2Od5F0/U+nOBqohZeac7czidx70="
     },
     {
       "slug": "f10-004",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-e59facaecb66.mp3",
-      "integrity": "sha256-k+2txDOqHI8pkeRpX9H1rLi9tWaS6xdos0So558Jy2A="
-    },
-    {
-      "slug": "f10-005",
       "category": "NARRATION",
       "file": "audio/q30-narrator-afd7ed401048.mp3",
       "integrity": "sha256-/pOIhgZgQomTuYK2dopOGaBg/rbjYPl2QyeatIzJUIE="
     },
     {
+      "slug": "f10-005",
+      "category": "NARRATION",
+      "file": "audio/q32-father-dcff336c80ee-lv.mp3",
+      "integrity": "sha256-Hg/EmEgiavssXkhoFd9znkA3xEK3u2gJXBqTwrSb4aA="
+    },
+    {
       "slug": "f10-006",
       "category": "NARRATION",
-      "file": "audio/q30-father-dcff336c80ee.mp3",
-      "integrity": "sha256-U8l8nK8GwnOaC3tvoqH4xoaRICB6nFLWufK0mMLFV8Y="
+      "file": "audio/q32-father-d56d67f06bd9-lv.mp3",
+      "integrity": "sha256-WQsHpo12EptkQnFCZgoZmINWneKHwUwG0RBfS9xgefQ="
     },
     {
       "slug": "f10-007",
       "category": "NARRATION",
-      "file": "audio/q30-father-d56d67f06bd9.mp3",
-      "integrity": "sha256-piH0dDeeRiqt7elkAadJXVTGwuWx4mfnibyRYjs+Lsg="
+      "file": "audio/q32-gretel-5bf02fa84e2a.mp3",
+      "integrity": "sha256-8H69QSFG1b8+3zx81PJn/vt4wLprLwePMa0zD/ALsWg="
     },
     {
       "slug": "f10-008",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-5bf02fa84e2a.mp3",
-      "integrity": "sha256-zu4N2X387rG3g8QqK0D5D2XN+b/nlTZazj5i0YKLnpw="
+      "file": "audio/q32-father-02fa960ee1b7-lv.mp3",
+      "integrity": "sha256-+GrzGCIjiFacPUFEn16Xw3uOzWC3M/TZK2UhsBXpf+0="
     },
     {
       "slug": "f10-009",
       "category": "NARRATION",
-      "file": "audio/q30-father-02fa960ee1b7.mp3",
-      "integrity": "sha256-PX02wgHw9mmaKc3C9cRqZQdwTqJoZFnQ1rLmO35DnwI="
+      "file": "audio/q32-father-93bb4544994a-lv.mp3",
+      "integrity": "sha256-wik6VoOhEFgb7ZY5hZq7r5oRpukT9BNTaWOqHYJjzxs="
     },
     {
       "slug": "f10-010",
       "category": "NARRATION",
-      "file": "audio/q30-father-93bb4544994a.mp3",
-      "integrity": "sha256-9+/NHgW1jyNWTxQQCsAVVPLhiu+vZ050OcT/On5++Js="
+      "file": "audio/q32-father-002d032f0e90-lv.mp3",
+      "integrity": "sha256-GYCaAX5nmTeozKL8iX9mj+Sw/z9yaKtghjp8ET/ZWVQ="
     },
     {
       "slug": "f10-011",
-      "category": "NARRATION",
-      "file": "audio/q30-father-002d032f0e90.mp3",
-      "integrity": "sha256-eXx+WTQlIbG7hFOrYm+i+FarV+LVFXDWHI2r0eEojlA="
-    },
-    {
-      "slug": "f10-012",
       "category": "NARRATION",
       "file": "audio/q30-narrator-8522df819638.mp3",
       "integrity": "sha256-31/ujDa+leMG/CJF/6tz8mqhHtC78mfA88V8GfbtPmU="
     },
     {
-      "slug": "f10-013",
+      "slug": "f10-012",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-67b2d048e6ff.mp3",
-      "integrity": "sha256-DcTCVeohdSezGOhyrrTyzcEi1E8xCS8XlpB13E1qtKo="
+      "file": "audio/q32-narrator-67b2d048e6ff-lv.mp3",
+      "integrity": "sha256-f7FvQekQSM8onJWFhXrEE6XwZK+RgWiXC5Q+EdpRo+w="
     },
     {
-      "slug": "f10-014",
+      "slug": "f10-013",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-bed42db5afc9.mp3",
-      "integrity": "sha256-+iM1SCxUdNgripsY/uu0/sI7WgOMnnIPxyDgm9QOi7c="
+      "file": "audio/q32-narrator-6b53f7390f7c.mp3",
+      "integrity": "sha256-CKDlLkzYUdoE7PoCHhHJDp0A8SvF/cjUKiLflopOQI8="
     },
     {
       "slug": "f10-015",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-57da1733b16d.mp3",
-      "integrity": "sha256-Z32y0Fg7dXPQ3vhRY3uyeLt5qCOV3RJub9QRu3NkrxQ="
+      "file": "audio/q32-narrator-2cc316beeda9.mp3",
+      "integrity": "sha256-xlLGr1C03JUqmzlRcyDQoQLtiXzEgTIBoDC9+zOFRMg="
+    },
+    {
+      "slug": "f10-016",
+      "category": "NARRATION",
+      "file": "audio/q32-narrator-4aafca4ac76a.mp3",
+      "integrity": "sha256-l0GPQQgHq7WihgN3z9QjKkI6dVfQR1PAGsn7HueRMaE="
     },
     {
       "slug": "f10-017",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-47a3cf5ae72f.mp3",
-      "integrity": "sha256-jpvBvYkTec8whERlFgIdhBLOVjA9Mbtq/qibCh5Y88Q="
-    },
-    {
-      "slug": "f10-018",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-cb9a82dfa865.mp3",
-      "integrity": "sha256-c/+mJXFMAEXWr/Tp9Rn/MqQdgchtP5XimCM6cZtGGdg="
-    },
-    {
-      "slug": "f10-019",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-8598c5827444.mp3",
-      "integrity": "sha256-RAjjDYea/bUguhan0QMH0I+DRAx6n03MI7jPPJ/Q4qg="
-    },
-    {
-      "slug": "f10-020",
-      "category": "NARRATION",
-      "file": "audio/q30-narrator-b5a3e1c02684.mp3",
-      "integrity": "sha256-OiRj3/eGO4p5bMQDWSMHtkKhVKNQF4zYRRk7K7AngmI="
-    },
-    {
-      "slug": "f10-021",
       "category": "NARRATION",
       "file": "audio/hg-f10-clip-022.mp3",
       "integrity": "sha256-kUnu/K0XLbC1kXiibwcK1Ivg/wpE3cEO8pHj510fU/8="
@@ -1364,14 +1130,14 @@
     {
       "slug": "a-observe-bird-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-38696d1a68d4.mp3",
-      "integrity": "sha256-EwPvfNWsILH626RnF7VfAHa971R9hACm+el0l6oP/mg="
+      "file": "audio/q32-narrator-38696d1a68d4-lv.mp3",
+      "integrity": "sha256-sC7oMLBI/TxQ5BO6Adq8TW2uQ2nzkP/xOr/C2xSvS6c="
     },
     {
       "slug": "a-observe-bird-003",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-c3c45cea09e6.mp3",
-      "integrity": "sha256-WDEmuSLJYMFjdJ1mt6qpm0mJQPm0fbNas8AoFQTMoDQ="
+      "file": "audio/q32-gretel-c3c45cea09e6.mp3",
+      "integrity": "sha256-GHvN3TXvCiqIXEGxa6QA2OMSJLceOnQoGZ3kFYRb61Q="
     },
     {
       "slug": "a-observe-bird-005",
@@ -1382,8 +1148,8 @@
     {
       "slug": "a-speak-to-bird-002",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-26948115b271.mp3",
-      "integrity": "sha256-Womaw6nbequfm41AzfVapu5LgQxZE9qKXqiwxk7YZ7I="
+      "file": "audio/q32-gretel-26948115b271.mp3",
+      "integrity": "sha256-5/gz89bOGzZjfLg11K4xCmhjmm7gn2MHtc/+PLs9fDI="
     },
     {
       "slug": "a-speak-to-bird-003",
@@ -1394,8 +1160,8 @@
     {
       "slug": "a-speak-to-bird-004",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-aa3437d25f06.mp3",
-      "integrity": "sha256-oPFt+Qr21FLvGX4DCvrq1ZfVYQ2W4+VtKIcuuIbPPhs="
+      "file": "audio/q32-hansel-aa3437d25f06.mp3",
+      "integrity": "sha256-KDEEKah3LXcx+kfFAhi/yVaV7NOqv0A2Ks/UWafV4Ow="
     },
     {
       "slug": "a-speak-to-bird-006",
@@ -1412,32 +1178,32 @@
     {
       "slug": "c-distract-and-take-keys-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-f51ae91a3081.mp3",
-      "integrity": "sha256-XGUaS5FhgLSuLoLA8/4S8zuyrRo6DxPbpiZq9gQf0v8="
+      "file": "audio/q32-narrator-f51ae91a3081-lv.mp3",
+      "integrity": "sha256-nfSIuF3Ic5wSfU6DH+okP/iWISTfaTA/3Ssx4yJwVpI="
     },
     {
       "slug": "c-distract-and-take-keys-003",
       "category": "NARRATION",
-      "file": "audio/q30-gretel-7c4e92990536.mp3",
-      "integrity": "sha256-skwBgExzXAeEhDwPEvhTNdqlEIGa/bOmMnZ6Y6kf/Gg="
+      "file": "audio/q32-gretel-7c4e92990536.mp3",
+      "integrity": "sha256-SkWRRJrlfoWW/9gGPREuLNexQRLnUsfPwv1KHyer9X4="
     },
     {
       "slug": "c-distract-and-take-keys-004",
       "category": "NARRATION",
-      "file": "audio/q30-hansel-ceb36e99133b.mp3",
-      "integrity": "sha256-uRn4ctgXelwEV7nhxk7nSu6AoZnAp68w6/gqFuJnzEk="
+      "file": "audio/q32-hansel-ceb36e99133b.mp3",
+      "integrity": "sha256-osZ8Y1NRdDozGQB1HjJTm3ymFIcnn8hS1J9PN0g6mek="
     },
     {
       "slug": "c-distract-and-take-keys-005",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-262ff78fd128.mp3",
-      "integrity": "sha256-N0auTxqen9e/b8xqDCxAK6V0fydUKZzrvx56N5HCxck="
+      "file": "audio/q32-narrator-262ff78fd128-lv.mp3",
+      "integrity": "sha256-8IoNAJdonZsaUCUfl+kuJn+POnnlsZ6tZjeDWwHoLHQ="
     },
     {
       "slug": "c-distract-and-take-keys-006",
       "category": "NARRATION",
-      "file": "audio/q30-witch-a69453fb9cb7.mp3",
-      "integrity": "sha256-aqxp50WJeXPfMvUvgb+eCyFSSLdtbYgBtVLoAIB+YKY="
+      "file": "audio/q32-witch-a69453fb9cb7-lv.mp3",
+      "integrity": "sha256-0ZzS2ky7ssFmHqyoN2MweapFMBZFHU2715DnbktPcOI="
     },
     {
       "slug": "c-distract-and-take-keys-007",
@@ -1449,95 +1215,95 @@
       "slug": "a-observe-bird-bridge",
       "category": "BRIDGE",
       "familyId": "A_OBSERVE_BIRD",
-      "file": "audio/q30-gretel-12a7bdb63140.mp3",
-      "integrity": "sha256-QD3MybeMTkeSqj6CkupXktzdg6rN7VqulEgtvIFRYFU="
+      "file": "audio/q32-gretel-12a7bdb63140.mp3",
+      "integrity": "sha256-7RCFRsb9ceURHzOhakVJ8lIqLzhRV/qen/lhx222E6I="
     },
     {
       "slug": "a-speak-to-bird-bridge",
       "category": "BRIDGE",
       "familyId": "A_SPEAK_TO_BIRD",
-      "file": "audio/q30-gretel-c15249fc7bd8.mp3",
-      "integrity": "sha256-Y+XTKuPVvTjTs2WBW3NnMrloKwwbV4wpKU6QiKvi4Xs="
+      "file": "audio/q32-gretel-c15249fc7bd8.mp3",
+      "integrity": "sha256-dgPCSVwD7a/w4fpAUjk+8NWGjhgTq34+6Ozeb3Gx/9E="
     },
     {
       "slug": "c-wait-for-witch-turn-bridge",
       "category": "BRIDGE",
       "familyId": "C_WAIT_FOR_WITCH_TURN",
-      "file": "audio/q30-gretel-0d6e88cbd140.mp3",
-      "integrity": "sha256-WRD1xYygZK2TDys+FEj8FuHr2SEOFlxFzptMtrH/8C8="
+      "file": "audio/q32-gretel-0d6e88cbd140.mp3",
+      "integrity": "sha256-AcA+d5lswm16wgx+FgOzD/dslGSjbFp7Uy/0wftb1Vg="
     },
     {
       "slug": "c-distract-and-take-keys-bridge",
       "category": "BRIDGE",
       "familyId": "C_DISTRACT_AND_TAKE_KEYS",
-      "file": "audio/q30-gretel-b4f9cbe771ad.mp3",
-      "integrity": "sha256-MOvBMSn2utgwF8eG4ehm35Fp3cJLvI7yC87VAyvMD1A="
+      "file": "audio/q32-gretel-b4f9cbe771ad.mp3",
+      "integrity": "sha256-Gybc53eBUAp/xlkHhyfdIgOnncCPhnhxzbhHCHtyd4c="
     },
     {
       "slug": "dialogue-HG-Q-A-help-1",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-6e12103e5ab9.mp3",
-      "integrity": "sha256-ZYOAtwXCvuiVl6ppNKTs7cjQxHbVUJYXc1phgIYsdgY="
+      "file": "audio/q32-gretel-6e12103e5ab9.mp3",
+      "integrity": "sha256-RYbl0V10TQ20TErFIaok8FA9EPX8VCLSXTIi/BVcThs="
     },
     {
       "slug": "dialogue-HG-Q-A-help-2",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-67ac1ceceaa7.mp3",
-      "integrity": "sha256-Xk+lZ6ViRVanC06uTxYOaGVxI1D4rJRBQc5ylttJiFw="
+      "file": "audio/q32-gretel-67ac1ceceaa7.mp3",
+      "integrity": "sha256-Y8P7x5xyiKJwSntwbN+7NtzxA3kVVqB14VYJT65SowE="
     },
     {
       "slug": "dialogue-HG-Q-A-help-3",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-61b8d37b0171.mp3",
-      "integrity": "sha256-6QFaOMiydgXU08iSOXCD8DGe9tja1wuQwpm+ABKf/NA="
+      "file": "audio/q32-gretel-61b8d37b0171.mp3",
+      "integrity": "sha256-4NACzJL8vhntiat4Ke0vPF+P11gu8Y2gr+yuEzz3ZyA="
     },
     {
       "slug": "dialogue-HG-Q-B-help-1",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-430e1eb1271e.mp3",
-      "integrity": "sha256-CSR4XsjJkoLJ0/m/KCnuC+GgGykUIywM0M2JuTGmfpY="
+      "file": "audio/q32-gretel-430e1eb1271e.mp3",
+      "integrity": "sha256-888PCOacNDYmrBQnYYs3ymq7w8lIo92Jur2Oa8hsIXc="
     },
     {
       "slug": "dialogue-HG-Q-B-help-2",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-96b5959384f5.mp3",
-      "integrity": "sha256-3O47bkY4khs2W5JJ81/CXOVce7QzBM9XhlvtX61hmiA="
+      "file": "audio/q32-gretel-96b5959384f5.mp3",
+      "integrity": "sha256-2KojwMRf4UwN3Q65XmSy7wSRAQ7NE14crPIXNkPF3ZM="
     },
     {
       "slug": "dialogue-HG-Q-B-help-3",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-9750295529cd.mp3",
-      "integrity": "sha256-R4Ku5LHM6L3X0rVGloRE7FEmigRL7OxoX40LysSTMso="
+      "file": "audio/q32-gretel-9750295529cd.mp3",
+      "integrity": "sha256-P5sQeHIVbDwzG56cR9GLu0TR3Sp0Lar1TfEn4y/D9QM="
     },
     {
       "slug": "dialogue-HG-Q-B-continue",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-19edd8cb5804.mp3",
-      "integrity": "sha256-7KISWVMZUVNvR37GYsjd3/EqmiX6d3dgiR5bePslzIE="
+      "file": "audio/q32-gretel-19edd8cb5804.mp3",
+      "integrity": "sha256-X2NAA9wX7fttsM1YjwU9tWBvytHUOz/z4m4AA+hDkwA="
     },
     {
       "slug": "dialogue-HG-Q-C-help-1",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-72cfd29f06f2.mp3",
-      "integrity": "sha256-Bx/Sho9ckYovIW3uwp9LC+1WfILvX6JjtGWMQje1KrM="
+      "file": "audio/q32-gretel-72cfd29f06f2.mp3",
+      "integrity": "sha256-tICo5uIkIDMsITw7amZ6Y8oPIkUChFnJKcL5kyBJzN0="
     },
     {
       "slug": "dialogue-HG-Q-C-help-2",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-438ceae5b2e1.mp3",
-      "integrity": "sha256-jCLX+VOxgHYTXCUSAEtVhu422R1BkPdNzqZEB7Y5TfQ="
+      "file": "audio/q32-gretel-438ceae5b2e1.mp3",
+      "integrity": "sha256-1G6Qv2zdDkpTKkB6qbij7Q2n4TGg0ZYSpz+DEplzQHs="
     },
     {
       "slug": "dialogue-HG-Q-C-help-3",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-f4105894e6e6.mp3",
-      "integrity": "sha256-FYh+n49yDUoclgf92omUcxlXuJGe31nrcOZ08huDIdI="
+      "file": "audio/q32-gretel-f4105894e6e6.mp3",
+      "integrity": "sha256-vH8aK6B/n4BGsq/KVONo7/qkn2QpTL4q8y3QhBrlOIk="
     },
     {
       "slug": "dialogue-HG-Q-C-help-4",
       "category": "NARRATION",
-      "file": "audio/q31-gretel-4766558f0d4b.mp3",
-      "integrity": "sha256-2bCRlXF5xFde1tzYUWG+vBxdzqok0xMKVoIyJSxgGMY="
+      "file": "audio/q32-gretel-4766558f0d4b.mp3",
+      "integrity": "sha256-kP7HL5LznUIJ+Soc0Paj0XudAfmTQoeUQB1XeUUFo4k="
     }
   ]
 }

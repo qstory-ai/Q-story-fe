@@ -5,6 +5,11 @@ export type NarrationRequest = {
   text: string;
   speakerId: string;
   language: 'ko-KR';
+  /**
+   * 미리 녹음한 고정 음성만 쓴다 - 없거나 재생하지 못하면 실시간 TTS·기기 음성으로 대신하지 않고 조용히 끝낸다
+   * (그레텔 "생각 중" 채움말처럼 없어도 되는 소리에 한도·다른 목소리를 쓰지 않으려고).
+   */
+  fixedOnly?: boolean;
 };
 
 export type NarrationState = {

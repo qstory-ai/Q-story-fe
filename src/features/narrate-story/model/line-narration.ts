@@ -92,6 +92,38 @@ export async function fetchLineNarrationStream(
   }
 }
 
+/**
+ * 그레텔 답 음성 - PCM 스트리밍을 한 번만 시도한다. fetchLineNarrationStream()과 달리 실패해도 버퍼링으로 다시
+ * 요청하지 않는다(같은 문장에 TTS를 두 번 부르지 않게 - Gemini TTS 하루 요청 수 한도). 스트리밍 재생을 못 하는
+ * 브라우저면 버퍼링으로 한 번. 실패·타임아웃은 null(호출부는 글 말풍선만 남긴다), 호출자 abort는 throw.
+ */
+export async function fetchReplyNarration(
+  input: LineNarrationInput,
+  signal: AbortSignal,
+  fetchImpl: typeof fetch = fetch,
+  baseUrl = speechApiUrl,
+): Promise<ResponseAudio | null> {
+  if (!baseUrl) {
+    return null;
+  }
+  if (!supportsStreamingPcm()) {
+    return fetchLineNarration(input, fetchImpl, baseUrl);
+  }
+  try {
+    return await fetchPcmNarrationStream(
+      lineNarrationFields(input),
+      fetchImpl,
+      baseUrl,
+      STREAM_LINE_NARRATION_TIMEOUT_MS,
+      'reply-narration-stream-timeout',
+      signal,
+    );
+  } catch (error) {
+    if (signal.aborted) throw error;
+    return null;
+  }
+}
+
 export function getLineNarration(
   input: LineNarrationInput,
   fetchImpl: typeof fetch = fetch,

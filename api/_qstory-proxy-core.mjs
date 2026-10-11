@@ -346,13 +346,18 @@ export function createQStoryProxy({
           signal: request.signal,
         },
       );
+      const contentType =
+        response.headers.get('content-type') ??
+        'application/json; charset=utf-8';
+      // 그레텔 답 스트리밍(companion-chat/messages, stream:true)은 답 문장을 먼저 한 줄로 보낸다(NDJSON) -
+      // 아래 clone().json()처럼 본문을 다 받을 때까지 기다리면 그 이점이 사라지므로 오디오 스트림처럼 그대로 흘려보낸다.
+      const isStreamingBody =
+        isStreamingAudio || contentType.includes('application/x-ndjson');
       const responseHeaders = new Headers({
-        'cache-control': isStreamingAudio
+        'cache-control': isStreamingBody
           ? 'no-store, no-transform'
           : 'no-store',
-        'content-type':
-          response.headers.get('content-type') ??
-          'application/json; charset=utf-8',
+        'content-type': contentType,
         'x-qstory-proxy': 'vercel',
       });
       const requestId = response.headers.get('x-qstory-request-id');
@@ -372,7 +377,7 @@ export function createQStoryProxy({
       }
       let resultOk = null;
       let failureCode = null;
-      if (!isStreamingAudio) {
+      if (!isStreamingBody) {
         try {
           const result = await response.clone().json();
           resultOk = typeof result?.ok === 'boolean' ? result.ok : null;

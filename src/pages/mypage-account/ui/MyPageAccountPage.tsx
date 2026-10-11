@@ -51,7 +51,7 @@ function AccountScreen({
   navigate: (path: string) => void;
 }) {
   const { pathname } = useLocation();
-  const { updateUser } = useAuth();
+  const { updateUser, setSession } = useAuth();
   // 프로필 - displayName은 모든 역할, 프로필 사진은 TUTOR만 편집한다.
   const [displayName, setDisplayName] = useState(user.displayName);
   const [saving, setSaving] = useState(false);
@@ -123,7 +123,9 @@ function AccountScreen({
     setPasswordSaved(false);
     setPasswordSaving(true);
     try {
-      await changePassword(token, { currentPassword, newPassword });
+      const renewed = await changePassword(token, { currentPassword, newPassword });
+      // 옛 토큰은 이제 401이다 - 새 토큰을 저장해야 다음 요청에서 로그아웃되지 않는다(로그인 유지 모드는 토큰의 rm claim으로 정해진다).
+      if (renewed?.token) setSession(renewed.token, renewed.user);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');

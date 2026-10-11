@@ -36,6 +36,9 @@ export function ReplayPlayer({ events }: { events: ReplayEvent[] }) {
             skipInactive: true,
             showController: true,
             speedOption: [1, 2, 4, 8],
+            // 재생 iframe을 sandbox="allow-same-origin"(스크립트 없음)으로 둔다 - true면 allow-scripts가 붙는다.
+            // 녹화 내용은 브라우저가 올린 것이라 믿지 않는다(바깥 주소는 InternalReplayPage가 미리 지운다).
+            UNSAFE_replayCanvas: false,
           },
         }) as unknown as PlayerInstance;
       })

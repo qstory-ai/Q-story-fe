@@ -107,6 +107,11 @@ export type StoryCompletionDetail = StoryCompletionSummary & {
   linkedChildren?: { id: string; name: string }[] | null;
   /** 이 기록의 회차 id(play_session) - 서버가 내려 줄 때만 리포트 아래 UT 회차 코드를 보여 준다(Q-40). */
   sessionId?: string | null;
+  /**
+   * UT 회차 코드(6자리, 대문자 hex) - 서버가 회차 id 전체 대신 내려 줄 수 있다(소유자가 아닌 보는 사람에게는
+   * sessionId를 빼고 이 값만 준다). 있으면 이것을 쓰고, 없으면 sessionId 앞 6자로 만든다.
+   */
+  sessionCode?: string | null;
 };
 
 export class StoryCompletionApiError extends Error {

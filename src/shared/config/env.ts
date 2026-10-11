@@ -1,8 +1,43 @@
-// `import.meta.env`는 빌드/개발 시점에 Vite가 주입한다. 순수 Node 실행 환경
-// (예: `tsx --test`)에서는 `undefined`이므로, Vite 번들 밖에서도 이 모듈들을
-// import할 수 있도록 여기서의 모든 접근은 optional chaining을 사용한다.
-export function readEnv(key: keyof ImportMetaEnv): string {
-  return import.meta.env?.[key]?.trim() ?? '';
+// Vite는 `import.meta.env.VITE_X`처럼 정적으로 적힌 키만 그 값으로 바꾼다. `import.meta.env[key]`·
+// `import.meta.env?.X`처럼 객체 자체를 건드리면 env 객체 전체(VITE_VERCEL_GIT_COMMIT_AUTHOR_LOGIN 같은
+// Vercel 시스템 변수까지)가 번들에 통째로 들어간다 - 그래서 키마다 정적 접근을 따로 적는다.
+// 순수 Node 실행 환경(예: `tsx --test`)에서는 `import.meta.env`가 `undefined`라 접근이 던지므로 try로 감싼다.
+type EnvKey =
+  | 'VITE_QSTORY_API_URL'
+  | 'VITE_QSTORY_ANALYTICS_URL'
+  | 'VITE_QSTORY_VOICE_RESEARCH_URL'
+  | 'VITE_QSTORY_WEB_ORIGIN'
+  | 'VITE_QSTORY_RELEASE'
+  | 'VITE_GOOGLE_OAUTH_CLIENT_ID'
+  | 'VITE_KAKAO_JS_KEY'
+  | 'VITE_TOSS_CLIENT_KEY';
+
+const readers: Record<EnvKey, () => string | undefined> = {
+  VITE_QSTORY_API_URL: () => import.meta.env.VITE_QSTORY_API_URL,
+  VITE_QSTORY_ANALYTICS_URL: () => import.meta.env.VITE_QSTORY_ANALYTICS_URL,
+  VITE_QSTORY_VOICE_RESEARCH_URL: () => import.meta.env.VITE_QSTORY_VOICE_RESEARCH_URL,
+  VITE_QSTORY_WEB_ORIGIN: () => import.meta.env.VITE_QSTORY_WEB_ORIGIN,
+  VITE_QSTORY_RELEASE: () => import.meta.env.VITE_QSTORY_RELEASE,
+  VITE_GOOGLE_OAUTH_CLIENT_ID: () => import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID,
+  VITE_KAKAO_JS_KEY: () => import.meta.env.VITE_KAKAO_JS_KEY,
+  VITE_TOSS_CLIENT_KEY: () => import.meta.env.VITE_TOSS_CLIENT_KEY,
+};
+
+export function readEnv(key: EnvKey): string {
+  try {
+    return readers[key]()?.trim() ?? '';
+  } catch {
+    return '';
+  }
+}
+
+/** 개발 서버(vite dev)인지 - 빌드·Node 테스트에서는 false. */
+export function isDevBuild(): boolean {
+  try {
+    return import.meta.env.DEV === true;
+  } catch {
+    return false;
+  }
 }
 
 /** 백엔드 API 기본 주소 - entities의 api 모듈이 공유한다. */

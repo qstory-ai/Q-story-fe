@@ -79,12 +79,70 @@ export async function encodeEvents(json: string): Promise<{ encoding: RecordingE
   }
 }
 
-/** 내부 다시 보기 화면에서 조각을 풀어 이벤트 배열로. */
-export async function decodeEvents(encoding: string, data: string): Promise<unknown[]> {
-  if (encoding === 'json') return JSON.parse(data) as unknown[];
-  if (encoding !== 'gzip-base64') throw new Error(`unknown encoding ${encoding}`);
-  const bytes = await pipeThrough(base64ToBytes(data), new DecompressionStream('gzip'));
-  return JSON.parse(new TextDecoder().decode(bytes)) as unknown[];
+/** 다시 보기에서 조각 하나를 풀었을 때 허용하는 최대 크기 - 넘으면 풀기를 멈춘다(압축 폭탄 방지). */
+export const MAX_DECODED_CHUNK_BYTES = 20 * 1024 * 1024;
+
+/** 풀린 크기가 한도를 넘은 조각. */
+export class RecordingChunkTooLargeError extends Error {
+  constructor(public readonly limit: number) {
+    super(`decoded recording chunk exceeds ${limit} bytes`);
+  }
+}
+
+/** gzip을 풀되 limit 바이트를 넘는 순간 스트림을 끊는다 - 끝까지 풀어 메모리에 올리지 않는다. */
+async function gunzipWithLimit(bytes: Uint8Array, limit: number): Promise<Uint8Array> {
+  const reader = new Blob([bytes as BlobPart]).stream().pipeThrough(new DecompressionStream('gzip')).getReader();
+  const parts: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > limit) {
+      await reader.cancel().catch(() => undefined);
+      throw new RecordingChunkTooLargeError(limit);
+    }
+    parts.push(value);
+  }
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const part of parts) {
+    out.set(part, offset);
+    offset += part.byteLength;
+  }
+  return out;
+}
+
+/**
+ * 내부 다시 보기 화면에서 조각을 풀어 이벤트 배열로. 풀린 크기가 maxBytes를 넘으면
+ * RecordingChunkTooLargeError를 던진다. 돌려준 bytes는 풀린 JSON 크기(전체 한도 계산용).
+ */
+export async function decodeEventsWithSize(
+  encoding: string,
+  data: string,
+  maxBytes = MAX_DECODED_CHUNK_BYTES,
+): Promise<{ events: unknown[]; bytes: number }> {
+  let json: string;
+  let size: number;
+  if (encoding === 'json') {
+    // UTF-16 글자 수 - 바이트 수의 근사치로 충분하다.
+    if (data.length > maxBytes) throw new RecordingChunkTooLargeError(maxBytes);
+    json = data;
+    size = data.length;
+  } else if (encoding === 'gzip-base64') {
+    const bytes = await gunzipWithLimit(base64ToBytes(data), maxBytes);
+    json = new TextDecoder().decode(bytes);
+    size = bytes.byteLength;
+  } else {
+    throw new Error(`unknown encoding ${encoding}`);
+  }
+  const parsed: unknown = JSON.parse(json);
+  if (!Array.isArray(parsed)) throw new Error('recording chunk is not an event array');
+  return { events: parsed, bytes: size };
+}
+
+export async function decodeEvents(encoding: string, data: string, maxBytes = MAX_DECODED_CHUNK_BYTES): Promise<unknown[]> {
+  return (await decodeEventsWithSize(encoding, data, maxBytes)).events;
 }
 
 /**

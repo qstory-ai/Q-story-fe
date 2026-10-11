@@ -2,7 +2,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { RecordingStateStore, decodeEvents, encodeEvents, encodeGroup, eventsJson, groupEventStrings } from './recording-chunks';
+import {
+  RecordingChunkTooLargeError,
+  RecordingStateStore,
+  decodeEvents,
+  decodeEventsWithSize,
+  encodeEvents,
+  encodeGroup,
+  eventsJson,
+  groupEventStrings,
+} from './recording-chunks';
 
 function memoryStorage() {
   const values = new Map();
@@ -26,6 +35,18 @@ test('gzip-base64 round trips through decodeEvents', async () => {
   assert.ok(encoded.data.length < json.length);
   assert.deepEqual(await decodeEvents(encoded.encoding, encoded.data), events);
   assert.deepEqual(await decodeEvents('json', '[1,2]'), [1, 2]);
+});
+
+test('decoding stops once the inflated size passes the limit (gzip bomb guard)', async () => {
+  // 0만 가득한 1MB JSON 문자열은 몇 KB로 압축된다 - 풀린 크기 한도를 64KB로 두면 중간에 끊어야 한다.
+  const json = JSON.stringify(['0'.repeat(1024 * 1024)]);
+  const encoded = await encodeEvents(json);
+  assert.ok(encoded.data.length < 64 * 1024);
+  await assert.rejects(decodeEvents(encoded.encoding, encoded.data, 64 * 1024), RecordingChunkTooLargeError);
+  await assert.rejects(decodeEvents('json', json, 64 * 1024), RecordingChunkTooLargeError);
+  const ok = await decodeEventsWithSize(encoded.encoding, encoded.data, 2 * 1024 * 1024);
+  assert.equal(ok.bytes, json.length);
+  await assert.rejects(decodeEvents('json', '{"not":"array"}'));
 });
 
 test('a group whose encoded data is too long is split in halves; a single oversized event is dropped', async () => {

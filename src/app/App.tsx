@@ -15,6 +15,7 @@ import { BookmarksProvider } from '@/entities/bookmark';
 import { ChildrenProvider } from '@/entities/child';
 import { PushNotificationsBridge } from '@/features/push-notifications';
 import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
+import { isDevBuild } from '@/shared/config';
 import { ActionButton, LoadingState, SafeAreaView, storybookTheme } from '@/shared/ui';
 
 import { LEGACY_REDIRECTS } from './legacy-redirects';
@@ -217,7 +218,7 @@ function DemoStoryRoute() {
           {state.status === 'error' ? state.failure.message : '잠시만 기다려 주세요…'}
         </Text>
         {/* The failure code is for whoever is debugging, not for a child - dev builds only. */}
-        {state.status === 'error' && state.failure.code && import.meta.env?.DEV && (
+        {state.status === 'error' && state.failure.code && isDevBuild() && (
           <Text style={styles.debugCode}>{state.failure.code}</Text>
         )}
         {/* Shown even when the failure is not retryable: this screen has no other way out, so

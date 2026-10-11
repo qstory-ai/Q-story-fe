@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
+import { isDevBuild } from '@/shared/config';
 import { SectionHeader, StoryCard, storybookTheme } from '@/shared/ui';
 import { useAuth, type AuthState } from '@/entities/auth';
 import {
@@ -121,7 +122,7 @@ export function StoryLibraryGrid() {
         if (cancelled) return;
         // 카탈로그 실패는 서재 전체를 막을 이유가 아니다 - 조용히 빈 상태로 접는다.
         setLoad({ status: 'error' });
-        if (import.meta.env?.DEV) {
+        if (isDevBuild()) {
           const message = error instanceof StoryApiError ? error.message : String(error);
           console.warn('[StoryLibraryGrid] listStories failed:', message);
         }

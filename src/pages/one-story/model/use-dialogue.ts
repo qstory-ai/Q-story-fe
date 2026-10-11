@@ -18,13 +18,16 @@ import { reportClientError } from '@/entities/analytics';
 import {
   CompanionChatError,
   sendCompanionChatMessage,
+  startLiveTranscription,
   textOnlyCompanionReply,
   transcribeCompanionChatAudio,
   type CompanionChatReply,
   type CompanionReplyKind,
+  type LiveTranscription,
 } from '@/entities/companion-chat';
 import { STT_UNAVAILABLE_CHILD_COPY, isSttUnavailableCode } from '@/entities/speech-pipeline';
 import type { PlayTurnInput } from '@/entities/play-session';
+import { STT_STREAMING_ENABLED } from '@/shared/config';
 
 import { GRETEL_COMPANION } from '../lib/companion-character';
 import { buildDialogueScene, wrapUpFor, type WrapUpSignal } from '../lib/dialogue-context';
@@ -150,6 +153,10 @@ export function useDialogue({
   const [extended, setExtended] = useState(false);
   // 보호자가 아이 대신 글을 썼다고 표시했는지(Q-39 입력 주체) - 앱은 누가 말했는지 스스로 판별하지 않는다.
   const [guardianProxy, setGuardianProxy] = useState(false);
+  // 실시간 받아 적기 중간 문장("듣고 있어요: …") - 말하는 동안만 보인다.
+  const [livePartial, setLivePartial] = useState('');
+  // 이번 말하기의 실시간 받아 적기. 실패하면 같이 녹음한 blob으로 배치 받아 적기를 한다.
+  const liveRef = useRef<LiveTranscription | null>(null);
 
   const childTurnCountRef = useRef(0);
   const openedAtRef = useRef(0);
@@ -238,11 +245,19 @@ export function useDialogue({
     void runtime.stopDialogueSpeech();
   }, [runtime]);
 
+  /** 진행 중인 실시간 받아 적기를 버린다(닫기·다시 말하기·글로 쓰기·포기). 받아 적기를 시작한 transcribe()는 먼저 꺼내 간다. */
+  const dropLive = useCallback(() => {
+    liveRef.current?.abort();
+    liveRef.current = null;
+    setLivePartial('');
+  }, []);
+
   const cancelPending = useCallback(() => {
     requestSeqRef.current += 1;
     abortRef.current?.abort();
     abortRef.current = null;
-  }, []);
+    dropLive();
+  }, [dropLive]);
 
   const addTurn = useCallback((turn: Omit<DialogueTurn, 'id'>) => {
     setTurns((previous) => [
@@ -680,11 +695,20 @@ export function useDialogue({
     stoppingRef.current = true;
     const seqAtStop = requestSeqRef.current;
     const listenSeqAtStop = listenSeqRef.current;
+    const stoppedAt = Date.now();
+    // 실시간 받아 적기: 남은 PCM을 먼저 보내고 끝을 알린다 - MediaRecorder가 녹음 파일을 마무리하는 사이에 확정 문장이 온다.
+    const live = liveRef.current;
+    liveRef.current = null;
+    const liveFinal = live ? recorder.finishPcmCapture().then(() => live.finish()) : Promise.resolve(null);
     const recording = await recorder.stopRecording().finally(() => {
       stoppingRef.current = false;
     });
-    if (seqAtStop !== requestSeqRef.current || listenSeqAtStop !== listenSeqRef.current) return;
-    if (!recording?.uploadBlob || !sceneId) {
+    if (seqAtStop !== requestSeqRef.current || listenSeqAtStop !== listenSeqRef.current) {
+      live?.abort();
+      return;
+    }
+    if (!sceneId || (!recording?.uploadBlob && (!live || live.failed))) {
+      live?.abort();
       setErrorMessage('잘 안 들렸어. 다시 말해 줄래?');
       setPhase('error');
       logTurn({ role: 'SYSTEM', event: 'STT_FAILED', errorCode: 'NO_RECORDING' });
@@ -696,20 +720,30 @@ export function useDialogue({
     abortRef.current = controller;
     setPhase('transcribing');
     try {
-      const transcript = await transcribeCompanionChatAudio(
-        {
-          storyId: storyPackage.storyId,
-          sceneId,
-          audioBlob: recording.uploadBlob,
-          mimeType: recording.mimeType,
-          sessionId: conversationId,
-          childId: conversationAttribution.childId,
-          tutorStudentId,
-          lessonId,
-        },
-        controller.signal,
-      );
+      const streamed = await liveFinal;
       if (seq !== requestSeqRef.current) return;
+      setLivePartial('');
+      let transcript = streamed;
+      if (!transcript) {
+        // 실시간 받아 적기가 없거나 실패했다 - 같이 녹음해 둔 파일로 받아 적는다(배치).
+        if (!recording?.uploadBlob) throw new CompanionChatError('이번에는 말소리를 알아듣지 못했어.');
+        transcript = await transcribeCompanionChatAudio(
+          {
+            storyId: storyPackage.storyId,
+            sceneId,
+            audioBlob: recording.uploadBlob,
+            mimeType: recording.mimeType,
+            sessionId: conversationId,
+            childId: conversationAttribution.childId,
+            tutorStudentId,
+            lessonId,
+          },
+          controller.signal,
+        );
+      }
+      if (seq !== requestSeqRef.current) return;
+      // 말이 끝난 뒤 받아 적은 문장이 나오기까지 - 실시간(STREAM)과 배치(BATCH)를 운영에서 비교한다.
+      logStep('TRANSCRIBED', { stt_mode: streamed ? 'STREAM' : 'BATCH', stt_ms: Date.now() - stoppedAt, stream_tried: Boolean(live) });
       inputModeRef.current = 'VOICE';
       confirmSentRef.current = false;
       sttDraftRef.current = transcript.slice(0, MAX_TEXT);
@@ -735,7 +769,7 @@ export function useDialogue({
       );
       setPhase('error');
     }
-  }, [cancelPending, conversationAttribution.childId, conversationId, lessonId, logTurn, recorder, sceneId, storyPackage.storyId, tutorStudentId]);
+  }, [cancelPending, conversationAttribution.childId, conversationId, lessonId, logStep, logTurn, recorder, sceneId, storyPackage.storyId, tutorStudentId]);
 
   /** 말하기 - 그레텔이 말하는 중이면 끊고 바로 듣는다. 말이 끝나면(조용해지면) 저절로 멈춘다. */
   const startTalking = useCallback(async () => {
@@ -758,20 +792,47 @@ export function useDialogue({
         return;
       }
     }
+    // 실시간 받아 적기 - 표 받기·연결은 마이크가 켜지는 동안 함께 한다(그 사이 소리는 모아 뒀다가 보낸다).
+    const live =
+      STT_STREAMING_ENABLED && sceneId
+        ? startLiveTranscription({
+            storyId: storyPackage.storyId,
+            sceneId,
+            sessionId: conversationId,
+            childId: conversationAttribution.childId,
+            tutorStudentId,
+            lessonId,
+            onPartial: (text) => {
+              if (liveRef.current === live) setLivePartial(text);
+            },
+          })
+        : null;
+    liveRef.current = live;
+    const discardLive = () => {
+      if (liveRef.current === live) dropLive();
+      else live?.abort();
+    };
     try {
-      await recorder.startRecording();
+      await recorder.startRecording(
+        live ? { onPcmFrame: live.push, onPcmUnavailable: () => live.abort() } : undefined,
+      );
       // 마이크가 켜지는 사이 패널이 닫혔거나 가려졌거나 다른 입력이 시작됐으면 바로 끈다.
       if (!stillWanted()) {
+        discardLive();
         void recorder.stopRecording();
         return;
       }
       setPhase('recording');
     } catch {
+      discardLive();
       if (!stillWanted()) return;
       setErrorMessage(recorder.error ?? '녹음을 시작하지 못했어. 글로 써 줄래?');
       setPhase('error');
     }
-  }, [cancelPending, recorder, stopSpeaking]);
+  }, [
+    cancelPending, conversationAttribution.childId, conversationId, dropLive, lessonId, recorder, sceneId, stopSpeaking,
+    storyPackage.storyId, tutorStudentId,
+  ]);
 
   const stopTalking = useCallback(() => {
     if (recorder.isRecording) void transcribe();
@@ -802,6 +863,9 @@ export function useDialogue({
   useEffect(() => {
     if (!listeningBlocked) return;
     listenSeqRef.current += 1;
+    // 중간 문장은 듣는 단계에서만 보이므로 지우지 않아도 된다(다음 말하기가 cancelPending으로 지운다).
+    liveRef.current?.abort();
+    liveRef.current = null;
     void recorder.stopRecording();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listeningBlocked]);
@@ -1016,6 +1080,7 @@ export function useDialogue({
     () => () => {
       abortRef.current?.abort();
       audioAbortRef.current?.abort();
+      liveRef.current?.abort();
     },
     [],
   );
@@ -1035,6 +1100,7 @@ export function useDialogue({
     errorMessage,
     meterPercent,
     listenPrompt,
+    livePartial,
     characterName,
     canAskHelp: mode === 'INVITE' && helpStep < helpSteps.length,
     helpStep,

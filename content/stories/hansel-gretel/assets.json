@@ -164,8 +164,8 @@
     {
       "slug": "candy-house-interior",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-23-candy-house-interior.webp",
-      "integrity": "sha256-xcIdiP5kaTQlGjR9JWizYAT646xfOFGDLHZxHZ1h/pk="
+      "file": "illustrations/hg-art-23-candy-house-interior-v2.webp",
+      "integrity": "sha256-2N1ecuYg/cKZW527CAhPTE68S/Y/mowxQqoqb3xD1Pk="
     },
     {
       "slug": "kitchen-door-locked",
@@ -176,14 +176,14 @@
     {
       "slug": "witch-reveal",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-11-witch-reveal-v3.webp",
-      "integrity": "sha256-I/OeshZwSQ4uTwcQxMe0472tdL6EVKwM+vHZSPrkcoY="
+      "file": "illustrations/hg-art-11-witch-reveal-v4.webp",
+      "integrity": "sha256-pMlmDntVNYkSFtZUB4Jybkav9cDcPNPv5MHho3w5p7s="
     },
     {
       "slug": "gretel-watches-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-31-gretel-watches-keys.webp",
-      "integrity": "sha256-q/Edt+w8eXF6p8h/QUTaySG63TbDTFGXkU+7mzvDJr0="
+      "file": "illustrations/hg-art-31-gretel-watches-keys-v2.webp",
+      "integrity": "sha256-KxzLZ7Rcz56UPBicuKDNaQHYIna6dcdz2kFU2H0w5g4="
     },
     {
       "slug": "gretel-whispers-keys",
@@ -206,14 +206,14 @@
     {
       "slug": "cage-unlock-oven-secured",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-45-cage-unlock-oven-secured-v2.webp",
-      "integrity": "sha256-lYmLWCWJuNWC7z4umbi4jEOY4R/+RoXs2RPKOoGTqCs="
+      "file": "illustrations/hg-art-45-cage-unlock-oven-secured-v3.webp",
+      "integrity": "sha256-wBNnfLDcR33E5vsT3wAPMk7XaOVdhNUL4aepLZFiQV4="
     },
     {
       "slug": "black-key-side-door",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-46-black-key-side-door-v2.webp",
-      "integrity": "sha256-o8CuUmXMa/pGDv4ebjmmSJElPmL+3k47pxLKmAmobOU="
+      "file": "illustrations/hg-art-46-black-key-side-door-v3.webp",
+      "integrity": "sha256-++m3frm2vzwt5HyLoD39rH6VmF1bEaCEwquj/1fLUZw="
     },
     {
       "slug": "corridor-lock-door",
@@ -224,8 +224,8 @@
     {
       "slug": "escape-corridor",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-34-escape-corridor.webp",
-      "integrity": "sha256-D+lz2cj20oZbmt9TiXvvfntDnDs6uRfxXH7zC7xFlPQ="
+      "file": "illustrations/hg-art-34-escape-corridor-v2.webp",
+      "integrity": "sha256-Gsz2jp7SQVrLSs4Xm/LBl3NeSRZnJ356P2vswyEZu9U="
     },
     {
       "slug": "storehouse",

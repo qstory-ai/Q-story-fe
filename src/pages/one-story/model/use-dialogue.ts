@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   audioClockNow,
+  estimateReplySpeechSeconds,
   playDecodedClip,
   playResponseAudio,
   preloadDecodedClip,
@@ -100,6 +101,8 @@ type ThinkingFiller = {
   skip: () => void;
   /** 답 첫 소리가 replyStartAt(audioClockNow 시계, 초)에 난다. */
   yieldTo: (replyStartAt: number) => void;
+  /** 지금 소리를 내는 중인지 - 그동안 답 음성은 조각을 더 모은다(채움말이 기다림을 가린다). */
+  isPlaying: () => boolean;
 };
 
 /** 답 요청을 마친 상태 - 말풍선은 이미 떴고, 음성은 받는 중이거나 이미 들려주는 중이다. */
@@ -454,7 +457,7 @@ export function useDialogue({
       };
       if (!DIALOGUE_THINKING_FILLER || thinkingFillers.length === 0 || signal.aborted) {
         state = 'done';
-        return { skip: () => {}, yieldTo: () => {} };
+        return { skip: () => {}, yieldTo: () => {}, isPlaying: () => false };
       }
       signal.addEventListener('abort', onAbort, { once: true });
       const scheduledAt = Date.now() + FILLER_DELAY_MS;
@@ -505,6 +508,7 @@ export function useDialogue({
             playback?.fadeOut(cut.from, cut.to);
           }
         },
+        isPlaying: () => state === 'playing' && playback !== null && audioClockNow() < playback.endAt,
       };
     },
     [fillerUri, logStep, thinkingFillers],
@@ -538,7 +542,7 @@ export function useDialogue({
       audioAbortRef.current = audioController;
       const filler = startThinkingFiller(seq, audioController.signal);
       const cancelled = () => audioController.signal.aborted || seq !== requestSeqRef.current;
-      const playVoice = async (voice: Promise<ResponseAudio | null>): Promise<boolean | null> => {
+      const playVoice = async (text: string, voice: Promise<ResponseAudio | null>): Promise<boolean | null> => {
         const audio = await voice;
         if (cancelled()) {
           discardVoice(voice);
@@ -561,6 +565,18 @@ export function useDialogue({
             undefined,
             undefined,
             filler.yieldTo,
+            {
+              // 조각이 실시간보다 느리게 와도 끊기지 않을 만큼 모은 뒤 시작한다 - 채움말이 나오는 동안은 더 모은다.
+              estimatedTotalSeconds: estimateReplySpeechSeconds(text),
+              isCovered: filler.isPlaying,
+              onStats: (stats) =>
+                logStep('VOICE_DONE', {
+                  buffer_wait_ms: stats.bufferWaitMs,
+                  stall_count: stats.stallCount,
+                  stall_ms: stats.stallMs,
+                  audio_ms: Math.round(stats.audioSeconds * 1_000),
+                }),
+            },
           );
         } catch {
           // 음성이 실패해도 글 답은 패널에 있다.
@@ -574,7 +590,7 @@ export function useDialogue({
       const show = (text: string, voice: Promise<ResponseAudio | null>): Shown => {
         filler.skip();
         addTurn({ role: 'CHARACTER', text });
-        shown.current = { text, at: Date.now(), voicePlayed: playVoice(voice) };
+        shown.current = { text, at: Date.now(), voicePlayed: playVoice(text, voice) };
         return shown.current;
       };
       // 말풍선·음성을 버린다 - 아이가 끊었거나 새 요청이 시작됐다.
@@ -618,7 +634,7 @@ export function useDialogue({
         );
       return { reply, shownAt: current.at, voicePlayed: current.voicePlayed };
     },
-    [addTurn, fetchReplyVoice, startThinkingFiller],
+    [addTurn, fetchReplyVoice, logStep, startThinkingFiller],
   );
 
   /**

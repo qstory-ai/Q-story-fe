@@ -36,3 +36,29 @@ export function pickThinkingFiller(
   const candidates = Array.from({ length: count }, (_, index) => index).filter((index) => index !== previousIndex);
   return candidates[Math.min(candidates.length - 1, Math.floor(random() * candidates.length))];
 }
+
+/** 답 첫 소리와 겹칠 때 채움말을 줄여 끄는 시간(초) - 툭 끊기지 않을 만큼만. */
+export const FILLER_FADE_SECONDS = 0.12;
+
+/** 채움말 재생 시각(오디오 시계, 초). startAt이 null이면 아직 소리를 내지 않았다(기다리는 중·준비 중). */
+export type FillerTiming = { startAt: number | null; endAt: number | null };
+
+/**
+ * 답 음성의 첫 소리 시각이 정해졌을 때 채움말을 어떻게 할지 - 답은 절대 기다리게 하지 않는다.
+ * - skip: 채움말이 아직 소리를 내기 전이다 - 시작하지 않는다(예약만 됐으면 멈춘다).
+ * - keep: 채움말이 답 첫 소리 전에(또는 줄여 끄는 사이에) 저절로 끝난다 - 그대로 둔다.
+ * - fade: from부터 to까지 줄여 끈다. 가능하면 답 첫 소리 전에 다 줄이고, 시간이 모자라면 지금부터 줄인다(짧게 겹친다).
+ */
+export type FillerCut = { kind: 'skip' } | { kind: 'keep' } | { kind: 'fade'; from: number; to: number };
+
+export function planFillerCut(
+  filler: FillerTiming,
+  replyStartAt: number,
+  now: number,
+  fadeSeconds: number = FILLER_FADE_SECONDS,
+): FillerCut {
+  if (filler.startAt === null || filler.startAt >= replyStartAt) return { kind: 'skip' };
+  const from = Math.max(now, replyStartAt - fadeSeconds);
+  if (filler.endAt !== null && filler.endAt <= from + fadeSeconds) return { kind: 'keep' };
+  return { kind: 'fade', from, to: from + fadeSeconds };
+}

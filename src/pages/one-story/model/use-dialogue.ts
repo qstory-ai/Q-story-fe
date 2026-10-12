@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
+  audioClockNow,
+  playDecodedClip,
   playResponseAudio,
+  preloadDecodedClip,
   primeResponseAudio,
+  type DecodedClipPlayback,
   type BufferedResponseAudio,
   type ResponseAudio,
 } from '@/features/route-question';
@@ -36,6 +40,7 @@ import {
   DIALOGUE_VOICE_STREAMING,
   FILLER_DELAY_MS,
   pickThinkingFiller,
+  planFillerCut,
   thinkingFillerClipId,
 } from '../lib/dialogue-voice';
 import { punctuateChildQuestion } from '../lib/question-punctuation';
@@ -84,17 +89,24 @@ type Proposal = { familyId: string; childMeaning: string };
 
 type StepMetadata = Record<string, string | number | boolean>;
 
-/** "생각 중" 채움말 한 번. done은 채움말이 끝났거나 건너뛰었거나 멈춘 뒤 풀린다. */
-type ThinkingFiller = { done: Promise<void>; skip: () => void };
+/**
+ * "생각 중" 채움말 한 번. 답 음성을 기다리게 하지 않는다 - 답 첫 소리 시각이 정해지면 yieldTo로 건너뛰거나 줄여 끈다.
+ * 멈춤은 요청의 음성 AbortSignal(stopSpeaking)로 한다.
+ */
+type ThinkingFiller = {
+  /** 답 문장이 왔다 - 아직 소리를 내기 전이면 건너뛴다(이미 말하는 중이면 답 음성이 올 때까지 둔다). */
+  skip: () => void;
+  /** 답 첫 소리가 replyStartAt(audioClockNow 시계, 초)에 난다. */
+  yieldTo: (replyStartAt: number) => void;
+};
 
-/** 답 요청을 마친 상태 - 말풍선은 이미 떴고, 음성은 받는 중이거나 받았다. */
+/** 답 요청을 마친 상태 - 말풍선은 이미 떴고, 음성은 받는 중이거나 이미 들려주는 중이다. */
 type PreparedReply = {
   reply: CompanionChatReply;
   /** 말풍선을 띄운 시각(Date.now()). */
   shownAt: number;
-  voice: Promise<ResponseAudio | null>;
-  audioController: AbortController;
-  filler: ThinkingFiller;
+  /** 답 음성 재생 - 들려줬으면 true, 음성이 없거나 실패하면 false, 끊겼으면 null. */
+  voicePlayed: Promise<boolean | null>;
 };
 
 type ReplyRequest = Omit<Parameters<typeof sendCompanionChatMessage>[0], 'deferAudio' | 'stream'>;
@@ -175,6 +187,22 @@ export function useDialogue({
   // 바로 앞에 들려준 채움말 - 같은 말이 연달아 나오지 않게.
   const fillerIndexRef = useRef<number | null>(null);
   const thinkingFillers = storyPackage.dialogue.thinkingFillers;
+  /** 채움말 녹음 주소 - i번째(0부터). 녹음이 없으면 undefined(소리 없이 넘어간다). */
+  const fillerUri = useCallback(
+    (index: number) => storyPackage.audioAssets[thinkingFillerClipId(index)]?.uri,
+    [storyPackage.audioAssets],
+  );
+  // 채움말을 미리 받아 풀어 둔다 - 들려줄 때 다시 받거나 버퍼링하지 않게(1초 시점에 바로 소리가 나야 한다).
+  const preloadFillers = useCallback(() => {
+    if (!DIALOGUE_THINKING_FILLER) return;
+    thinkingFillers.forEach((_, index) => {
+      const uri = fillerUri(index);
+      if (uri) void preloadDecodedClip(uri);
+    });
+  }, [fillerUri, thinkingFillers]);
+  useEffect(() => {
+    preloadFillers();
+  }, [preloadFillers]);
 
   // 질문 초대 상태에서는 currentClip이 비어 있으므로, 마지막으로 들은 대사 id를 따로 기억한다.
   const lastClipIdRef = useRef<string | null>(null);
@@ -311,6 +339,7 @@ export function useDialogue({
   const openChat = useCallback(async () => {
     if (open) return;
     primeResponseAudio();
+    preloadFillers();
     resetSessionState();
     resetSessionRefs('SPONTANEOUS');
     setMode('CHAT');
@@ -321,7 +350,7 @@ export function useDialogue({
     await runtime.pauseForDialogue();
     logStep('OPEN');
     logTurn({ role: 'CHARACTER', text: greeting, fixed: true, characterSpeakerId: character.speakerId, anchorId: null, entryMode: 'SPONTANEOUS' });
-  }, [character.speakerId, logStep, logTurn, open, resetSessionRefs, runtime]);
+  }, [character.speakerId, logStep, logTurn, open, preloadFillers, resetSessionRefs, runtime]);
 
   // 질문 초대 대사가 끝나면(awaiting-question) 초대 카드(QuestionInvitePanel)가 [궁금한 거 물어보기]
   // [이야기 계속 듣기]를 띄워 아이가 고를 때까지 기다린다 - 패널을 저절로 열지 않는다(PM: 너무 빨리 사라짐).
@@ -401,51 +430,82 @@ export function useDialogue({
   // ── 그레텔에게 보내기 ─────────────────────────────────────
 
   /**
-   * "생각 중" 채움말 - FILLER_DELAY_MS 안에 답 문장이 안 오면 미리 녹음한 채움말 하나를 들려준다(녹음이 없으면
-   * 소리 없이 넘어간다). 답 음성은 done을 기다렸다가 시작한다 - 두 소리가 겹치거나 채움말이 중간에 끊기지 않게.
+   * "생각 중" 채움말 - FILLER_DELAY_MS 안에 답 문장이 안 오면 미리 받아 풀어 둔 채움말 하나를 답 음성과 같은
+   * AudioContext로 들려준다(녹음이 없거나 풀지 못했으면 소리 없이 넘어간다). 답 음성은 채움말을 기다리지 않는다 -
+   * 답 첫 소리가 정해지면 아직 시작 전인 채움말은 건너뛰고, 말하는 중이면 그 직전에 줄여 끈다(planFillerCut).
    */
   const startThinkingFiller = useCallback(
-    (seq: number): ThinkingFiller => {
-      let finished = false;
-      let started = false;
-      let resolveDone: () => void = () => {};
-      const done = new Promise<void>((resolve) => {
-        resolveDone = resolve;
-      });
+    (seq: number, signal: AbortSignal): ThinkingFiller => {
+      // waiting: 1초 기다리는 중, loading: 녹음을 아직 푸는 중, playing: 소리를 내는 중, done: 끝·건너뜀·멈춤.
+      let state: 'waiting' | 'loading' | 'playing' | 'done' = 'waiting';
+      let playback: DecodedClipPlayback | null = null;
+      let timer: ReturnType<typeof setTimeout> | null = null;
+      const stillWanted = () => !signal.aborted && seq === requestSeqRef.current;
       const finish = () => {
-        if (finished) return;
-        finished = true;
-        resolveDone();
+        state = 'done';
+        if (timer) clearTimeout(timer);
+        signal.removeEventListener('abort', onAbort);
       };
-      if (!DIALOGUE_THINKING_FILLER || thinkingFillers.length === 0) {
+      const onAbort = () => {
+        playback?.stop();
         finish();
-        return { done, skip: finish };
+      };
+      if (!DIALOGUE_THINKING_FILLER || thinkingFillers.length === 0 || signal.aborted) {
+        state = 'done';
+        return { skip: () => {}, yieldTo: () => {} };
       }
-      const timer = setTimeout(() => {
+      signal.addEventListener('abort', onAbort, { once: true });
+      const scheduledAt = Date.now() + FILLER_DELAY_MS;
+      timer = setTimeout(() => {
+        timer = null;
         const index = pickThinkingFiller(thinkingFillers.length, fillerIndexRef.current);
-        if (finished || index === null || seq !== requestSeqRef.current) {
+        const uri = index === null ? undefined : fillerUri(index);
+        if (state !== 'waiting' || index === null || !uri || !stillWanted()) {
           finish();
           return;
         }
-        started = true;
-        fillerIndexRef.current = index;
-        logStep('FILLER');
-        void runtime
-          .speakDialogueFiller(thinkingFillerClipId(index), thinkingFillers[index], character.speakerId)
-          .catch(() => {})
-          .finally(finish);
+        state = 'loading';
+        // 고른 번호의 녹음을 그대로 튼다(번호·주소·기록이 같은 채움말을 가리킨다).
+        void preloadDecodedClip(uri).then((buffer) => {
+          if (state !== 'loading' || !buffer || !stillWanted()) {
+            finish();
+            return;
+          }
+          const started = playDecodedClip(buffer);
+          if (!started) {
+            finish();
+            return;
+          }
+          state = 'playing';
+          playback = started;
+          fillerIndexRef.current = index;
+          logStep('FILLER', { filler_clip: thinkingFillerClipId(index), filler_late_ms: Math.max(0, Date.now() - scheduledAt) });
+          void started.ended.then(() => {
+            if (playback === started) finish();
+          });
+        });
       }, FILLER_DELAY_MS);
       return {
-        done,
-        // 답 문장이 왔다 - 아직 시작 전이면 건너뛴다. 이미 말하는 중이면 끝까지 듣는다.
         skip: () => {
-          if (started) return;
-          clearTimeout(timer);
-          finish();
+          if (state === 'waiting' || state === 'loading') finish();
+        },
+        yieldTo: (replyStartAt) => {
+          if (state === 'done') return;
+          const cut = planFillerCut(
+            { startAt: playback?.startAt ?? null, endAt: playback?.endAt ?? null },
+            replyStartAt,
+            audioClockNow(),
+          );
+          if (cut.kind === 'skip') {
+            playback?.stop();
+            finish();
+          } else if (cut.kind === 'fade') {
+            playback?.fadeOut(cut.from, cut.to);
+          }
         },
       };
     },
-    [character.speakerId, logStep, runtime, thinkingFillers],
+    [fillerUri, logStep, thinkingFillers],
   );
 
   /** 답 문장의 음성 - 스트리밍이면 첫 조각부터 재생할 수 있는 PCM, 아니면 전체 음성. 실패는 null(글만 남는다). */
@@ -460,22 +520,65 @@ export function useDialogue({
   );
 
   /**
-   * 그레텔에게 답을 받는다. 스트리밍이면 답 문장이 오는 즉시 말풍선을 띄우고 같은 문장의 음성을 바로 요청한다 -
-   * 답의 나머지(태그·replyKind)를 기다리는 동안 음성이 만들어진다. 그 사이 FILLER_DELAY_MS가 지나면 채움말을 들려준다.
-   * 이미 말풍선을 띄운 뒤 마지막 줄만 실패하면 보인 문장으로 마무리한다. 그 사이 끊겼으면 null.
+   * 그레텔에게 답을 받는다. 스트리밍이면 답 문장이 오는 즉시 말풍선을 띄우고 같은 문장의 음성을 바로 요청해, 첫 조각이
+   * 오는 대로 들려준다 - 답의 나머지(태그·replyKind)를 기다리지 않는다. 그 전에 FILLER_DELAY_MS가 지나면 채움말을
+   * 들려주고, 답 첫 소리가 정해지면 채움말을 건너뛰거나 줄여 끈다(채움말이 답을 늦추지 않는다). 기기 음성으로 대신하지
+   * 않는다(목소리가 달라진다). 이미 말풍선을 띄운 뒤 마지막 줄만 실패하면 보인 문장으로 마무리한다. 그 사이 끊겼으면 null.
    */
   const requestReply = useCallback(
-    async (input: ReplyRequest, seq: number, controller: AbortController): Promise<PreparedReply | null> => {
+    async (
+      input: ReplyRequest,
+      seq: number,
+      controller: AbortController,
+      onVoiceStarted?: () => void,
+    ): Promise<PreparedReply | null> => {
       const audioController = new AbortController();
       audioAbortRef.current = audioController;
-      const filler = startThinkingFiller(seq);
-      type Shown = { text: string; at: number; voice: Promise<ResponseAudio | null> };
+      const filler = startThinkingFiller(seq, audioController.signal);
+      const cancelled = () => audioController.signal.aborted || seq !== requestSeqRef.current;
+      const playVoice = async (voice: Promise<ResponseAudio | null>): Promise<boolean | null> => {
+        const audio = await voice;
+        if (cancelled()) {
+          discardVoice(voice);
+          return null;
+        }
+        if (!audio) {
+          // 음성이 없으면 채움말은 끝까지 두되 아직 시작 전이면 건너뛴다.
+          filler.skip();
+          return false;
+        }
+        let played = false;
+        try {
+          played = await playResponseAudio(
+            audio,
+            audioController.signal,
+            () => {
+              if (!cancelled()) setPhase('speaking');
+              onVoiceStarted?.();
+            },
+            undefined,
+            undefined,
+            filler.yieldTo,
+          );
+        } catch {
+          // 음성이 실패해도 글 답은 패널에 있다.
+        }
+        filler.skip();
+        if (cancelled()) return null;
+        return played;
+      };
+      type Shown = { text: string; at: number; voicePlayed: Promise<boolean | null> };
       const shown: { current: Shown | null } = { current: null };
       const show = (text: string, voice: Promise<ResponseAudio | null>): Shown => {
         filler.skip();
         addTurn({ role: 'CHARACTER', text });
-        shown.current = { text, at: Date.now(), voice };
+        shown.current = { text, at: Date.now(), voicePlayed: playVoice(voice) };
         return shown.current;
+      };
+      // 말풍선·음성을 버린다 - 아이가 끊었거나 새 요청이 시작됐다.
+      const drop = () => {
+        filler.skip();
+        if (shown.current) audioController.abort();
       };
       let reply: CompanionChatReply;
       try {
@@ -490,14 +593,13 @@ export function useDialogue({
       } catch (error) {
         const early = shown.current;
         if (!early || controller.signal.aborted || seq !== requestSeqRef.current) {
-          filler.skip();
-          if (early) discardVoice(early.voice);
+          drop();
           throw error;
         }
         reply = textOnlyCompanionReply(early.text);
       }
       if (seq !== requestSeqRef.current) {
-        if (shown.current) discardVoice(shown.current.voice);
+        drop();
         return null;
       }
       // 스트리밍이 아니었으면(서버 스위치가 꺼짐 등) 예전처럼 답 전체를 받은 뒤 말풍선을 띄우고 음성을 받는다.
@@ -512,43 +614,21 @@ export function useDialogue({
               ? fetchReplyVoice(reply.responseText, audioController.signal)
               : Promise.resolve(null),
         );
-      return { reply, shownAt: current.at, voice: current.voice, audioController, filler };
+      return { reply, shownAt: current.at, voicePlayed: current.voicePlayed };
     },
     [addTurn, fetchReplyVoice, startThinkingFiller],
   );
 
   /**
-   * 그레텔 답의 음성을 들려준다 - 채움말이 끝나기를 기다렸다가 받은 음성을 재생한다. 기기 음성으로 대신하지 않는다
-   * (목소리가 달라진다). 반환: 들려줬으면 true, 음성이 없거나 실패하면 false, 그 사이 아이가 끊었거나 새 요청이
-   * 시작됐으면 null(호출부는 바로 멈춘다).
+   * 그레텔 답의 음성이 끝나기를 기다린다(재생은 requestReply가 첫 조각부터 이미 시작했다). 반환: 들려줬으면 true,
+   * 음성이 없거나 실패하면 false, 그 사이 아이가 끊었거나 새 요청이 시작됐으면 null(호출부는 바로 멈춘다).
    */
-  const speakReply = useCallback(
-    async (prepared: PreparedReply, seq: number, onStarted?: () => void): Promise<boolean | null> => {
-      const { audioController, filler, voice } = prepared;
-      const cancelled = () => audioController.signal.aborted || seq !== requestSeqRef.current;
-      setPhase('speaking');
-      await filler.done;
-      if (cancelled()) {
-        discardVoice(voice);
-        return null;
-      }
-      const audio = await voice;
-      if (cancelled()) {
-        discardVoice(voice);
-        return null;
-      }
-      if (!audio) return false;
-      let played = false;
-      try {
-        played = await playResponseAudio(audio, audioController.signal, onStarted);
-      } catch {
-        // 음성이 실패해도 글 답은 패널에 있다.
-      }
-      if (cancelled()) return null;
-      return played;
-    },
-    [],
-  );
+  const speakReply = useCallback(async (prepared: PreparedReply, seq: number): Promise<boolean | null> => {
+    setPhase('speaking');
+    const played = await prepared.voicePlayed;
+    if (seq !== requestSeqRef.current) return null;
+    return played;
+  }, []);
 
   const send = useCallback(
     async (rawText: string, inputMode: 'VOICE' | 'TEXT') => {
@@ -606,6 +686,8 @@ export function useDialogue({
           },
           seq,
           controller,
+          // 첫 소리가 난 순간도 남긴다(보낸 뒤 그레텔 목소리가 들리기까지).
+          () => logStep('VOICE_START', { turn_number: turnNumber, latency_ms: Date.now() - sentAt }),
         );
         if (!prepared || seq !== requestSeqRef.current) return;
 
@@ -643,11 +725,8 @@ export function useDialogue({
           });
         }
 
-        // 말풍선은 이미 떴다 - 음성은 그 뒤에 받는다(deferAudio, 음성 만들기가 기다림의 대부분).
-        // 첫 소리가 난 순간도 남긴다(보낸 뒤 그레텔 목소리가 들리기까지).
-        const played = await speakReply(prepared, seq, () =>
-          logStep('VOICE_START', { turn_number: turnNumber, latency_ms: Date.now() - sentAt }),
-        );
+        // 말풍선은 이미 떴다 - 음성은 그 뒤에 받아 첫 조각부터 들려준다(deferAudio, 음성 만들기가 기다림의 대부분).
+        const played = await speakReply(prepared, seq);
         logTurn({ ...replyTurn, replyAudioPlayed: played === true });
         if (played === null) return;
         if (ending) {
@@ -883,6 +962,7 @@ export function useDialogue({
   const openInvite = useCallback(() => {
     if (!invitedAnchorId || open) return;
     primeResponseAudio();
+    preloadFillers();
     resetSessionState();
     resetSessionRefs('INVITE');
     inviteChildSpokeRef.current = false;
@@ -895,7 +975,7 @@ export function useDialogue({
     void trackStoryEvent('dialogue_step', payload);
     // 다음 틱에 시작한다 - 패널이 열린 뒤에 듣기 시작해야 "닫힌 패널은 듣지 않기" 가드에 걸리지 않는다.
     if (!lessonId) setTimeout(() => void startTalking(), 0);
-  }, [activeQuestionPrompt, invitedAnchorId, lessonId, open, resetSessionRefs, sceneId, startTalking, trackStoryEvent]);
+  }, [activeQuestionPrompt, invitedAnchorId, lessonId, open, preloadFillers, resetSessionRefs, sceneId, startTalking, trackStoryEvent]);
 
   /** 초대 카드의 [이야기 계속 듣기] - 패널을 열지 않고 질문을 건너뛴다(대화 기록엔 INVITE_SKIPPED). */
   const skipInvite = useCallback(async () => {

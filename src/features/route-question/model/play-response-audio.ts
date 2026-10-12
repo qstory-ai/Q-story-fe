@@ -85,6 +85,106 @@ export function primeResponseAudio() {
   }
 }
 
+/** 미리 받아 풀어 둔 짧은 소리(그레텔 채움말 등) - 주소마다 한 번만 받는다. 실패하면 다음에 다시 시도한다. */
+const decodedClipCache = new Map<string, Promise<AudioBuffer | null>>();
+
+/**
+ * 짧은 녹음을 받아 AudioBuffer로 풀어 둔다 - 재생할 때 오디오 요소처럼 다시 받거나 버퍼링하지 않고,
+ * 답 음성(PCM 스트림)과 같은 AudioContext 시계로 바로 소리를 낸다.
+ */
+export function preloadDecodedClip(uri: string): Promise<AudioBuffer | null> {
+  const cached = decodedClipCache.get(uri);
+  if (cached) return cached;
+  const context = getSharedAudioContext();
+  if (!context) return Promise.resolve(null);
+  const pending = fetch(uri, { cache: 'force-cache' })
+    .then((response) => {
+      if (!response.ok) throw new Error(`clip ${response.status}`);
+      return response.arrayBuffer();
+    })
+    .then((bytes) => context.decodeAudioData(bytes))
+    .catch(() => {
+      decodedClipCache.delete(uri);
+      return null;
+    });
+  decodedClipCache.set(uri, pending);
+  return pending;
+}
+
+/** 공유 AudioContext의 지금 시각(초) - 채움말과 답 음성이 같은 시계를 쓴다. */
+export function audioClockNow(): number {
+  return getSharedAudioContext()?.currentTime ?? 0;
+}
+
+/** 풀어 둔 짧은 소리 한 번. 시각은 audioClockNow()와 같은 시계(초). */
+export type DecodedClipPlayback = {
+  startAt: number;
+  endAt: number;
+  /** 끝났거나(끝까지·줄여 끔·멈춤) 시작하지 못하면 풀린다. */
+  ended: Promise<void>;
+  /** from부터 to까지 소리를 줄이고 to에 멈춘다. */
+  fadeOut: (from: number, to: number) => void;
+  stop: () => void;
+};
+
+/**
+ * 풀어 둔 소리를 바로 재생한다(살짝의 여유 lead 뒤). 답 음성의 cancelActivePlayback 슬롯은 쓰지 않는다 -
+ * 답이 시작할 때 툭 끊지 않고 호출부가 줄여 끈다.
+ */
+export function playDecodedClip(buffer: AudioBuffer, lead = 0.02): DecodedClipPlayback | null {
+  const context = getSharedAudioContext();
+  if (!context) return null;
+  if (context.state !== 'running') void context.resume().catch(() => {});
+  const source = context.createBufferSource();
+  const gain = context.createGain();
+  source.buffer = buffer;
+  source.connect(gain);
+  gain.connect(context.destination);
+  const startAt = context.currentTime + lead;
+  let endAt = startAt + buffer.duration;
+  let stopped = false;
+  const ended = new Promise<void>((resolve) => {
+    source.onended = () => {
+      stopped = true;
+      source.disconnect();
+      gain.disconnect();
+      resolve();
+    };
+  });
+  source.start(startAt);
+  const playback: DecodedClipPlayback = {
+    startAt,
+    get endAt() {
+      return endAt;
+    },
+    ended,
+    fadeOut: (from, to) => {
+      if (stopped) return;
+      const begin = Math.max(context.currentTime, from);
+      const end = Math.max(begin + 0.005, to);
+      gain.gain.cancelScheduledValues(begin);
+      gain.gain.setValueAtTime(gain.gain.value, begin);
+      gain.gain.linearRampToValueAtTime(0, end);
+      endAt = Math.min(endAt, end);
+      try {
+        source.stop(end);
+      } catch {
+        // 이미 멈춘 source.
+      }
+    },
+    stop: () => {
+      if (stopped) return;
+      endAt = Math.min(endAt, context.currentTime);
+      try {
+        source.stop();
+      } catch {
+        // 이미 멈춘 source.
+      }
+    },
+  };
+  return playback;
+}
+
 function concatQueuedBytes(queue: Uint8Array[], length: number) {
   const result = new Uint8Array(length);
   let offset = 0;
@@ -109,6 +209,7 @@ async function playPcmStream(
   onStarted?: () => void,
   onProgress?: (progress: number) => void,
   expectedDurationSeconds?: number,
+  onScheduled?: (startAt: number) => void,
 ): Promise<boolean> {
   const context = getSharedAudioContext();
   if (!context || signal.aborted) return false;
@@ -202,6 +303,7 @@ async function playPcmStream(
     if (!scheduledAudio) {
       scheduledAudio = true;
       firstStartTime = startAt;
+      onScheduled?.(startAt);
       clearTimeout(startTimeoutId);
       startCallbackId = setTimeout(
         () => {
@@ -279,12 +381,17 @@ async function playPcmStream(
   }
 }
 
+/**
+ * onScheduled: 첫 소리가 날 시각이 정해진 순간(audioClockNow() 시계, 초) - PCM이면 첫 조각을 예약할 때,
+ * 전체 음성이면 재생을 시작하기 직전(지금). 앞서 나오던 소리(채움말)를 그에 맞춰 줄여 끈다.
+ */
 export function playResponseAudio(
   audioData: ResponseAudio,
   signal: AbortSignal,
   onStarted?: () => void,
   onProgress?: (progress: number) => void,
   expectedDurationSeconds?: number,
+  onScheduled?: (startAt: number) => void,
 ): Promise<boolean> {
   if (audioData.kind === 'pcm-stream') {
     return playPcmStream(
@@ -293,6 +400,7 @@ export function playResponseAudio(
       onStarted,
       onProgress,
       expectedDurationSeconds,
+      onScheduled,
     );
   }
   let objectUrl: string;
@@ -419,6 +527,7 @@ export function playResponseAudio(
     signal.addEventListener('abort', abort, { once: true });
     player.src = objectUrl;
     player.load();
+    onScheduled?.(audioClockNow());
     player.play().catch(() => {
       finish(false);
     });

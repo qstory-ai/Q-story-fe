@@ -2099,17 +2099,6 @@ export function useOneStoryRuntime(
     },
     [speakNarration],
   );
-  /**
-   * 그레텔 "생각 중" 채움말 - 미리 녹음한 소리만 쓴다. 녹음이 아직 없거나(올리기·임포트 전) 재생하지 못하면 소리 없이
-   * 끝난다(실시간 TTS·기기 음성으로 대신하지 않는다). 멈추면(stopDialogueSpeech) AbortError로 끝난다.
-   */
-  const speakDialogueFiller = useCallback(
-    async (id: string, text: string, speakerId: string) => {
-      await speakNarration({ id, text, speakerId, language: 'ko-KR', fixedOnly: true });
-    },
-    [speakNarration],
-  );
-
   const toggleNarration = useCallback(async () => {
     setParentMessage(null);
     // 장면 끝 쉼: 자동으로 넘어가는 중이면 멈추고, 멈춰 있으면 다음 장면으로 넘어간다.
@@ -2616,7 +2605,6 @@ export function useOneStoryRuntime(
     pauseForDialogue,
     resumeAfterDialogue,
     speakDialogueLine,
-    speakDialogueFiller,
     stopDialogueSpeech: stopNarration,
     skipCurrentScene,
     restartStory,

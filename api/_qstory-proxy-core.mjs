@@ -269,12 +269,48 @@ function normalizedUpstreamUrl(value) {
   }
 }
 
+// ---- 클라이언트 주소 전달(보안 점검 M1/M2) --------------------------------------------------------------
+// 백엔드가 보는 연결 주소는 Vercel 쪽 주소 몇 개뿐이라 주소별 요청 상한이 모든 웹 이용자를 한 묶음으로 센다. 그래서 원래
+// 주소를 x-qstory-client-ip로 넘기고, 백엔드와 나눠 가진 비밀(QSTORY_PROXY_SHARED_SECRET)로 서명한다 - 백엔드는 서명이
+// 맞고 시각이 ±60초 안일 때만 그 주소를 믿는다(be ratelimit/ClientIpResolver.java). 비밀이 없으면 헤더를 붙이지 않는다.
+//   x-qstory-proxy-ts:  유닉스 초
+//   x-qstory-proxy-sig: hex(HMAC-SHA256(secret, ip + "\n" + ts))
+const IP_LIKE = /^[0-9A-Fa-f:.]{2,45}$/;
+
+/**
+ * Vercel이 매 요청마다 덮어쓰는 x-real-ip / x-forwarded-for(첫 값)에서 클라이언트 주소를 읽는다. 브라우저가 보낸 같은 이름의
+ * 헤더는 Vercel이 지운다. (Docker 진입점 container-server.mjs는 앞단 프록시가 이 헤더를 덮어쓴다고 가정한다.)
+ */
+export function clientIpOf(request) {
+  const realIp = request.headers.get('x-real-ip')?.trim();
+  if (realIp && IP_LIKE.test(realIp)) return realIp;
+  const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+  if (forwarded && IP_LIKE.test(forwarded)) return forwarded;
+  return null;
+}
+
+export async function signClientIp(secret, ip, timestampSeconds) {
+  const encoder = new TextEncoder();
+  const key = await globalThis.crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  const signature = await globalThis.crypto.subtle.sign('HMAC', key, encoder.encode(`${ip}\n${timestampSeconds}`));
+  return Array.from(new Uint8Array(signature), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
 export function createQStoryProxy({
   upstreamUrl = process.env.QSTORY_API_UPSTREAM_URL,
+  proxySecret = process.env.QSTORY_PROXY_SHARED_SECRET,
   fetchImpl = fetch,
   logger = console,
+  now = () => Date.now(),
 } = {}) {
   const upstream = normalizedUpstreamUrl(upstreamUrl);
+  const secret = proxySecret?.trim() || null;
 
   return async function proxyQStoryRequest(request) {
     if (!upstream) {
@@ -306,6 +342,15 @@ export function createQStoryProxy({
       const value = request.headers.get(name);
       if (value) {
         headers.set(name, value);
+      }
+    }
+    if (secret) {
+      const clientIp = clientIpOf(request);
+      if (clientIp) {
+        const timestamp = Math.floor(now() / 1000);
+        headers.set('x-qstory-client-ip', clientIp);
+        headers.set('x-qstory-proxy-ts', String(timestamp));
+        headers.set('x-qstory-proxy-sig', await signClientIp(secret, clientIp, timestamp));
       }
     }
     const isStreamingAudio = upstreamPath === 'v1/narrations/stream';
@@ -368,6 +413,11 @@ export function createQStoryProxy({
       const requestId = response.headers.get('x-qstory-request-id');
       if (requestId) {
         responseHeaders.set('x-qstory-request-id', requestId);
+      }
+      // 요청 상한(429)에 걸렸을 때 언제 다시 해 볼지.
+      const retryAfter = response.headers.get('retry-after');
+      if (retryAfter) {
+        responseHeaders.set('retry-after', retryAfter);
       }
       if (isStreamingAudio) {
         for (const name of [

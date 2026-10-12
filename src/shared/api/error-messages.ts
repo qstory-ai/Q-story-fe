@@ -104,6 +104,9 @@ export function messageForError(error: unknown, fallback?: string): string {
     // 410(만료·사용·지난 반 코드)은 서버가 이유를 safeDetail로 나눠 준다 - 예: 지난 반이 된 반 코드는
     // "지난 반이라 더 이상 들어갈 수 없어요…". 공통 INVALID_INVITE 문구로 덮지 않는다.
     if (apiError.status === 410 && apiError.message && apiError.message.trim().length > 0) return apiError.message.trim();
+    // 429(요청 상한)도 서버 문구가 무엇이 막혔고 얼마나 기다릴지 말해 준다 - 예: "로그인 시도가 너무 많아요. 15분 뒤에 다시
+    // 시도해 주세요." 공통 RATE_LIMITED 문구로 덮지 않는다.
+    if (apiError.status === 429 && apiError.message && apiError.message.trim().length > 0) return apiError.message.trim();
     if (apiError.code && CODE_MESSAGES[apiError.code]) return CODE_MESSAGES[apiError.code];
     if (apiError.message && apiError.message.trim().length > 0) return apiError.message;
     return messageForStatus(apiError.status);

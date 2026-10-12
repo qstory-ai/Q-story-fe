@@ -2,6 +2,7 @@ import type {
   PcmStreamResponseAudio,
   ResponseAudio,
 } from './response-audio';
+import { shouldStartPlayback } from './jitter-buffer';
 
 const SILENT_WAV_DATA_URI =
   'data:audio/wav;base64,UklGRsQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
@@ -185,24 +186,51 @@ export function playDecodedClip(buffer: AudioBuffer, lead = 0.02): DecodedClipPl
   return playback;
 }
 
-function concatQueuedBytes(queue: Uint8Array[], length: number) {
-  const result = new Uint8Array(length);
-  let offset = 0;
-  while (offset < length) {
-    const head = queue[0];
-    const needed = length - offset;
-    const copied = Math.min(needed, head.byteLength);
-    result.set(head.subarray(0, copied), offset);
-    offset += copied;
-    if (copied === head.byteLength) {
-      queue.shift();
-    } else {
-      queue[0] = head.subarray(copied);
-    }
+/** 지터 버퍼 재생 결과 - 답 음성 기록(dialogue_step)에 남긴다. */
+export type PcmPlaybackStats = {
+  /** 첫 조각이 온 뒤 첫 소리까지(ms). */
+  bufferWaitMs: number;
+  /** 재생 중 소리가 떨어져 멈춘 횟수와 멈춘 시간 합(ms). */
+  stallCount: number;
+  stallMs: number;
+  /** 받은 소리 길이(초). */
+  audioSeconds: number;
+};
+
+/** PCM 스트림 재생의 지터 버퍼 설정(jitter-buffer.ts). */
+export type PcmStreamBuffering = {
+  /** 문장 전체 소리 길이 어림(초) - estimateReplySpeechSeconds(). 없으면 expectedDurationSeconds를 쓴다. */
+  estimatedTotalSeconds?: number;
+  /** 다른 소리(채움말)가 지금 기다림을 가려 주는지 - 그동안은 기다림 상한을 미룬다. */
+  isCovered?: () => boolean;
+  /** 끝까지 들려줬으면 한 번. */
+  onStats?: (stats: PcmPlaybackStats) => void;
+};
+
+/** 멈추고 다시 틀 때 소리를 줄이고 키우는 시간(초) - 툭 하는 소리가 나지 않을 만큼만. */
+const PCM_EDGE_FADE_SECONDS = 0.015;
+/** 예약해 둔 소리가 이만큼(초)도 안 남았는데 새 조각이 없으면 멈춘다(끝을 줄여 끈다). */
+const PCM_UNDERRUN_GUARD_SECONDS = 0.06;
+/** 버퍼 상태를 다시 보는 간격(ms) - 채움말이 끝났거나 소리가 떨어지려는 것을 알아챈다. */
+const PCM_TICK_MS = 25;
+
+/** 16비트 little-endian PCM을 Float32로 - 앞 조각에서 남은 홀수 바이트(carry)를 이어 붙인다. */
+function decodePcm16(bytes: Uint8Array, carry: number | null): { samples: Float32Array; carry: number | null } {
+  const length = bytes.byteLength + (carry === null ? 0 : 1);
+  const byteAt = (index: number) => (carry === null ? bytes[index] : index === 0 ? carry : bytes[index - 1]);
+  const sampleCount = Math.floor(length / 2);
+  const samples = new Float32Array(sampleCount);
+  for (let index = 0; index < sampleCount; index += 1) {
+    const value = byteAt(index * 2) | (byteAt(index * 2 + 1) << 8);
+    samples[index] = (value >= 0x8000 ? value - 0x10000 : value) / 32_768;
   }
-  return result;
+  return { samples, carry: length % 2 === 1 ? byteAt(length - 1) : null };
 }
 
+/**
+ * PCM 스트림을 지터 버퍼(jitter-buffer.ts)를 두고 재생한다 - 조각이 실시간보다 느리게 와도 문장 중간에 끊기지 않을 만큼
+ * 모은 뒤 시작하고, 그래도 소리가 떨어지면 끝을 줄여 멈췄다가 충분히(0.8초 이상) 다시 모이면 키우며 잇는다.
+ */
 async function playPcmStream(
   audioData: PcmStreamResponseAudio,
   signal: AbortSignal,
@@ -210,6 +238,7 @@ async function playPcmStream(
   onProgress?: (progress: number) => void,
   expectedDurationSeconds?: number,
   onScheduled?: (startAt: number) => void,
+  buffering?: PcmStreamBuffering,
 ): Promise<boolean> {
   const context = getSharedAudioContext();
   if (!context || signal.aborted) return false;
@@ -217,23 +246,36 @@ async function playPcmStream(
 
   cancelActivePlayback?.();
   const reader = audioData.stream.getReader();
+  const sampleRate = audioData.sampleRate;
+  const estimatedTotalSeconds = buffering?.estimatedTotalSeconds ?? expectedDurationSeconds ?? null;
   const sources = new Set<AudioBufferSourceNode>();
   const completions: Promise<void>[] = [];
-  const queuedBytes: Uint8Array[] = [];
-  const targetBytes = Math.max(
-    2,
-    Math.round(audioData.sampleRate * 0.24) * 2,
-  );
-  let queuedLength = 0;
+  // 받았지만 아직 예약하지 않은 소리.
+  const pending: Float32Array[] = [];
+  let pendingSamples = 0;
+  let carryByte: number | null = null;
+  let receivedSamples = 0;
+  let scheduledSamples = 0;
+  let firstChunkAt: number | null = null;
+  let waitStartedAt = 0;
+  let mode: 'buffering' | 'playing' = 'buffering';
+  let phase: 'start' | 'resume' = 'start';
+  let streamEnded = false;
   let nextStartTime = 0;
+  let lastGain: GainNode | null = null;
   let scheduledAudio = false;
   let aborted = false;
   let replaced = false;
   let timedOut = false;
   let startCallbackId: ReturnType<typeof setTimeout> | null = null;
   let progressIntervalId: ReturnType<typeof setInterval> | null = null;
+  let tickId: ReturnType<typeof setInterval> | null = null;
   let firstStartTime: number | null = null;
   let finalDuration: number | null = null;
+  let bufferWaitMs = 0;
+  let stallCount = 0;
+  let stallStartedAt: number | null = null;
+  let stallSeconds = 0;
 
   const stopSources = () => {
     for (const source of sources) {
@@ -268,96 +310,169 @@ async function playPcmStream(
   };
   activePauseControls = pauseControls;
   signal.addEventListener('abort', abort, { once: true });
+  // 첫 조각이 이 안에 오지 않으면 포기한다(첫 소리는 지터 버퍼가 그 뒤로 조금 더 늦출 수 있다).
   const startTimeoutId = setTimeout(() => {
-    if (!scheduledAudio) {
+    if (firstChunkAt === null) {
       timedOut = true;
       void reader.cancel('pcm-start-timeout');
     }
   }, 4_000);
 
-  const schedule = (bytes: Uint8Array) => {
-    const evenLength = bytes.byteLength - (bytes.byteLength % 2);
-    if (evenLength < 2) return;
-    const sampleCount = evenLength / 2;
-    const buffer = context.createBuffer(1, sampleCount, audioData.sampleRate);
-    const samples = buffer.getChannelData(0);
-    const view = new DataView(bytes.buffer, bytes.byteOffset, evenLength);
-    for (let index = 0; index < sampleCount; index += 1) {
-      samples[index] = view.getInt16(index * 2, true) / 32_768;
+  const takePending = () => {
+    const merged = new Float32Array(pendingSamples);
+    let offset = 0;
+    for (const piece of pending) {
+      merged.set(piece, offset);
+      offset += piece.length;
     }
+    pending.length = 0;
+    pendingSamples = 0;
+    return merged;
+  };
+
+  const schedule = (samples: Float32Array, fadeIn: boolean) => {
+    const buffer = context.createBuffer(1, samples.length, sampleRate);
+    buffer.getChannelData(0).set(samples);
     const source = context.createBufferSource();
+    const gain = context.createGain();
     source.buffer = buffer;
-    source.connect(context.destination);
+    source.connect(gain);
+    gain.connect(context.destination);
     const minimumLead = scheduledAudio ? 0.03 : 0.06;
     const startAt = Math.max(nextStartTime, context.currentTime + minimumLead);
+    if (fadeIn) {
+      gain.gain.setValueAtTime(0, startAt);
+      gain.gain.linearRampToValueAtTime(1, startAt + Math.min(PCM_EDGE_FADE_SECONDS, buffer.duration));
+    }
     nextStartTime = startAt + buffer.duration;
+    scheduledSamples += samples.length;
+    lastGain = gain;
     sources.add(source);
     completions.push(
       new Promise<void>((resolve) => {
         source.onended = () => {
           sources.delete(source);
+          source.disconnect();
+          gain.disconnect();
           resolve();
         };
       }),
     );
-    if (!scheduledAudio) {
-      scheduledAudio = true;
-      firstStartTime = startAt;
-      onScheduled?.(startAt);
-      clearTimeout(startTimeoutId);
-      startCallbackId = setTimeout(
-        () => {
-          onStarted?.();
-          onProgress?.(0);
-        },
-        Math.max(0, (startAt - context.currentTime) * 1_000),
-      );
-      progressIntervalId = setInterval(() => {
-        if (firstStartTime === null) return;
-        const elapsed = Math.max(0, context.currentTime - firstStartTime);
-        const scheduledDuration = Math.max(
-          0.1,
-          nextStartTime - firstStartTime,
-        );
-        const duration =
-          finalDuration ??
-          Math.max(scheduledDuration, expectedDurationSeconds ?? 0);
-        onProgress?.(
-          Math.max(
-            0,
-            Math.min(finalDuration === null ? 0.98 : 1, elapsed / duration),
-          ),
-        );
-      }, 100);
-    }
     source.start(startAt);
+    return startAt;
+  };
+
+  const startFirstSound = (startAt: number) => {
+    scheduledAudio = true;
+    firstStartTime = startAt;
+    bufferWaitMs = firstChunkAt === null ? 0 : Math.max(0, performance.now() - firstChunkAt);
+    onScheduled?.(startAt);
+    startCallbackId = setTimeout(
+      () => {
+        onStarted?.();
+        onProgress?.(0);
+      },
+      Math.max(0, (startAt - context.currentTime) * 1_000),
+    );
+    progressIntervalId = setInterval(() => {
+      if (firstStartTime === null) return;
+      // 멈췄던 동안은 빼고 실제로 들려준 만큼만 센다.
+      const ahead = mode === 'playing' ? Math.max(0, nextStartTime - context.currentTime) : 0;
+      const played = Math.max(0, scheduledSamples / sampleRate - ahead);
+      const duration = finalDuration ?? Math.max(0.1, receivedSamples / sampleRate, estimatedTotalSeconds ?? 0);
+      onProgress?.(Math.max(0, Math.min(finalDuration === null ? 0.98 : 1, played / duration)));
+    }, 100);
+  };
+
+  /** 지터 버퍼 상태를 보고 시작·재시작하거나, 소리가 떨어지려 하면 끝을 줄여 멈춘다. */
+  const evaluate = () => {
+    if (aborted || replaced || timedOut || firstChunkAt === null) return;
+    const now = performance.now();
+    if (mode === 'playing') {
+      if (pendingSamples > 0) {
+        schedule(takePending(), false);
+        return;
+      }
+      const ahead = nextStartTime - context.currentTime;
+      if (streamEnded || context.state !== 'running' || ahead >= PCM_UNDERRUN_GUARD_SECONDS) return;
+      // 소리가 떨어진다 - 짧은 토막을 틀었다 끊었다 하지 않게 끝을 줄여 멈추고 다시 모은다.
+      if (lastGain) {
+        const end = nextStartTime;
+        const from = Math.max(context.currentTime, end - PCM_EDGE_FADE_SECONDS);
+        lastGain.gain.setValueAtTime(1, from);
+        lastGain.gain.linearRampToValueAtTime(0, Math.max(from + 0.005, end));
+      }
+      mode = 'buffering';
+      phase = 'resume';
+      stallCount += 1;
+      stallStartedAt = now + Math.max(0, ahead) * 1_000;
+      waitStartedAt = stallStartedAt;
+      return;
+    }
+    const start = shouldStartPlayback({
+      phase,
+      bufferedSeconds: pendingSamples / sampleRate,
+      receivedSeconds: receivedSamples / sampleRate,
+      sinceFirstChunkSeconds: (now - firstChunkAt) / 1_000,
+      waitingSeconds: Math.max(0, now - waitStartedAt) / 1_000,
+      estimatedTotalSeconds,
+      streamEnded,
+      coveredByFiller: buffering?.isCovered?.() ?? false,
+    });
+    if (!start) return;
+    const resuming = phase === 'resume';
+    mode = 'playing';
+    const startAt = schedule(takePending(), resuming);
+    if (!resuming) {
+      startFirstSound(startAt);
+    } else if (stallStartedAt !== null) {
+      stallSeconds += Math.max(0, startAt - context.currentTime + (now - stallStartedAt) / 1_000);
+      stallStartedAt = null;
+    }
   };
 
   try {
+    tickId = setInterval(evaluate, PCM_TICK_MS);
     while (!aborted && !replaced && !timedOut) {
       const { done, value } = await reader.read();
       if (done) break;
       if (!value?.byteLength) continue;
-      queuedBytes.push(value);
-      queuedLength += value.byteLength;
-      while (queuedLength >= targetBytes) {
-        schedule(concatQueuedBytes(queuedBytes, targetBytes));
-        queuedLength -= targetBytes;
+      if (firstChunkAt === null) {
+        firstChunkAt = performance.now();
+        waitStartedAt = firstChunkAt;
+        clearTimeout(startTimeoutId);
       }
-    }
-    if (!aborted && !replaced && queuedLength > 1) {
-      const finalLength = queuedLength - (queuedLength % 2);
-      schedule(concatQueuedBytes(queuedBytes, finalLength));
+      const decoded = decodePcm16(value, carryByte);
+      carryByte = decoded.carry;
+      if (decoded.samples.length > 0) {
+        pending.push(decoded.samples);
+        pendingSamples += decoded.samples.length;
+        receivedSamples += decoded.samples.length;
+      }
+      evaluate();
     }
     if (aborted) {
       throw signal.reason ?? new DOMException('Aborted', 'AbortError');
     }
-    if (replaced || timedOut || !scheduledAudio) return false;
-    if (firstStartTime !== null) {
-      finalDuration = Math.max(0.1, nextStartTime - firstStartTime);
-    }
+    if (replaced || timedOut) return false;
+    streamEnded = true;
+    evaluate();
+    clearInterval(tickId);
+    tickId = null;
+    if (!scheduledAudio) return false;
+    finalDuration = Math.max(0.1, scheduledSamples / sampleRate);
     await Promise.all(completions);
+    if (aborted) {
+      throw signal.reason ?? new DOMException('Aborted', 'AbortError');
+    }
+    if (replaced) return true;
     onProgress?.(1);
+    buffering?.onStats?.({
+      bufferWaitMs: Math.round(bufferWaitMs),
+      stallCount,
+      stallMs: Math.round(stallSeconds * 1_000),
+      audioSeconds: Math.round((receivedSamples / sampleRate) * 100) / 100,
+    });
     return true;
   } catch {
     if (aborted) {
@@ -367,6 +482,7 @@ async function playPcmStream(
     return scheduledAudio;
   } finally {
     clearTimeout(startTimeoutId);
+    if (tickId) clearInterval(tickId);
     if (startCallbackId) clearTimeout(startCallbackId);
     if (progressIntervalId) clearInterval(progressIntervalId);
     signal.removeEventListener('abort', abort);
@@ -382,8 +498,9 @@ async function playPcmStream(
 }
 
 /**
- * onScheduled: 첫 소리가 날 시각이 정해진 순간(audioClockNow() 시계, 초) - PCM이면 첫 조각을 예약할 때,
- * 전체 음성이면 재생을 시작하기 직전(지금). 앞서 나오던 소리(채움말)를 그에 맞춰 줄여 끈다.
+ * onScheduled: 첫 소리가 날 시각이 정해진 순간(audioClockNow() 시계, 초) - PCM이면 지터 버퍼가 충분히 모여 첫 조각을
+ * 예약할 때, 전체 음성이면 재생을 시작하기 직전(지금). 앞서 나오던 소리(채움말)를 그에 맞춰 줄여 끈다.
+ * buffering: PCM 스트림의 지터 버퍼 설정(문장 길이 어림·채움말이 가리는 중인지·재생 기록) - 전체 음성에는 쓰지 않는다.
  */
 export function playResponseAudio(
   audioData: ResponseAudio,
@@ -392,6 +509,7 @@ export function playResponseAudio(
   onProgress?: (progress: number) => void,
   expectedDurationSeconds?: number,
   onScheduled?: (startAt: number) => void,
+  buffering?: PcmStreamBuffering,
 ): Promise<boolean> {
   if (audioData.kind === 'pcm-stream') {
     return playPcmStream(
@@ -401,6 +519,7 @@ export function playResponseAudio(
       onProgress,
       expectedDurationSeconds,
       onScheduled,
+      buffering,
     );
   }
   let objectUrl: string;

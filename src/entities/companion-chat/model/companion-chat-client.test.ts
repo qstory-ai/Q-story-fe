@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { CompanionChatError, readCompanionReply } from './companion-chat-client';
+import { CompanionChatError, isRateLimitedError, readCompanionReply } from './companion-chat-client';
 
 function ndjson(lines: string[], chunkSize = 9) {
   const bytes = new TextEncoder().encode(lines.map((line) => `${line}\n`).join(''));
@@ -60,4 +60,16 @@ test('서버가 스트리밍을 꺼 두었으면 평소 JSON 하나를 읽는다
   );
   assert.deepEqual(texts, []);
   assert.equal(reply.responseText, result.responseText);
+});
+
+test('요청 상한(429)은 상한 오류로 알아본다 - 그레텔이 잠시 쉬자는 말로 바꿔 보여 준다', async () => {
+  const response = new Response(
+    JSON.stringify({ ok: false, failure: { code: 'RATE_LIMITED', retryable: false, safeDetail: '그레텔이 잠깐 쉬고 있어.' } }),
+    { status: 429, headers: { 'content-type': 'application/json', 'retry-after': '60' } },
+  );
+  const error = await readCompanionReply(response).catch((failure: unknown) => failure);
+  assert.ok(error instanceof CompanionChatError);
+  assert.equal(isRateLimitedError(error), true);
+  assert.equal(isRateLimitedError(new CompanionChatError('x', 'COMPANION_CHAT_RATE_LIMITED')), true);
+  assert.equal(isRateLimitedError(new CompanionChatError('x', 'LLM_FAILED')), false);
 });

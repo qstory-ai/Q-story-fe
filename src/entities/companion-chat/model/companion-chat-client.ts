@@ -75,6 +75,19 @@ export class CompanionChatError extends Error {
   }
 }
 
+/**
+ * 요청 상한(서버 429 - 보안 점검 M1)에 걸렸을 때 그레텔이 하는 짧은 말. 글로만 보여 주고 기기 음성으로 읽지 않는다
+ * (목소리가 달라지고, 음성을 또 만들면 같은 상한에 걸린다).
+ */
+export const RATE_LIMITED_CHILD_COPY = '그레텔이 잠깐 쉬고 있어. 잠시 후에 다시 말해 줘.';
+
+export function isRateLimitedError(error: unknown): boolean {
+  return (
+    error instanceof CompanionChatError &&
+    (error.code === 'RATE_LIMITED' || error.code === 'COMPANION_CHAT_RATE_LIMITED')
+  );
+}
+
 type FailureEnvelope = {
   ok?: boolean;
   failure?: { code?: string; retryable?: boolean; safeDetail?: string };

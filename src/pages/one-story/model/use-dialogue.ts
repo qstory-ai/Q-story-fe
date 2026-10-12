@@ -17,6 +17,8 @@ import { fetchLineNarration, fetchReplyNarration } from '@/features/narrate-stor
 import { reportClientError } from '@/entities/analytics';
 import {
   CompanionChatError,
+  RATE_LIMITED_CHILD_COPY,
+  isRateLimitedError,
   sendCompanionChatMessage,
   startLiveTranscription,
   textOnlyCompanionReply,
@@ -661,7 +663,11 @@ export function useDialogue({
         stopSpeaking();
         childTurnCountRef.current -= 1;
         setErrorMessage(
-          error instanceof CompanionChatError ? error.message : '지금은 그레텔이 대답을 준비하지 못했어.',
+          isRateLimitedError(error)
+            ? RATE_LIMITED_CHILD_COPY
+            : error instanceof CompanionChatError
+              ? error.message
+              : '지금은 그레텔이 대답을 준비하지 못했어.',
         );
         setPhase('error');
         const errorCode = error instanceof CompanionChatError ? (error.code ?? 'FAILED') : 'FAILED';
@@ -765,7 +771,11 @@ export function useDialogue({
         return;
       }
       setErrorMessage(
-        error instanceof CompanionChatError ? error.message : '이번에는 말소리를 알아듣지 못했어.',
+        isRateLimitedError(error)
+          ? RATE_LIMITED_CHILD_COPY
+          : error instanceof CompanionChatError
+            ? error.message
+            : '이번에는 말소리를 알아듣지 못했어.',
       );
       setPhase('error');
     }

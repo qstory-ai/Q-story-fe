@@ -64,7 +64,7 @@ const CODE_MESSAGES: Record<string, string> = {
   INVALID_JSON: '요청 형식이 잘못됐어요.',
 
   // ---- consent
-  CONSENT_REQUIRED: '이용약관과 개인정보 수집·이용에 동의해 주세요.',
+  CONSENT_REQUIRED: '필수 동의 항목을 모두 확인해 주세요. 계속 안 되면 앱을 업데이트하거나 화면을 새로 고쳐 주세요.',
   CONSENT_INVALID: '동의 정보를 다시 확인해 주세요.',
   INVALID_CONSENT_TIME: '동의 시각이 유효하지 않아요.',
 

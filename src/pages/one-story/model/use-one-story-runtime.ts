@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
+
+import { openExternalUrl } from '@/shared/lib';
 
 import {
   createInitialRuntimeState,
@@ -103,9 +106,10 @@ import {
   runtimeTransitionFailureCopy,
   splitQuestionOutcomesAtScene,
 } from '../lib/runtime-view';
-import { resolveExit } from '../lib/exit-destination';
+import { resolveExit, type ExitOptions } from '../lib/exit-destination';
 import { readingContextFor } from '../lib/reading-context';
 import { SCENE_END_PAUSE_MS, dialogueResumePlan, isSceneEndClip } from '../lib/scene-end-pause';
+import { inviteNeedsLiveNarration } from '../lib/question-invite-audio';
 import {
   isAwaitingInviteFor,
   questionSkipMetadata,
@@ -638,6 +642,9 @@ export function useOneStoryRuntime(
     const playCurrentClip = async () => {
       if (questionInviteAnchor) {
         setQuestionInviteSpeaking(true);
+      }
+      // 질문 초대는 미리 녹음한 음성이 있으면 그걸 튼다(question-invite-audio.ts) - 없을 때만 실시간으로 만든다.
+      if (questionInviteAnchor && inviteNeedsLiveNarration(storyPackage, questionInviteAnchor)) {
         const remoteAudio = await audioReadyWithin(
           getQuestionNarration({
             storyId: storyManifest.storyId,
@@ -916,6 +923,7 @@ export function useOneStoryRuntime(
     recorder.resetRecording();
     activeNarrationIdRef.current = null;
     storyManifest.questionAnchors.forEach((anchor) => {
+      if (!inviteNeedsLiveNarration(storyPackage, anchor)) return;
       void preloadQuestionNarration({
         storyId: storyManifest.storyId,
         anchor,
@@ -943,6 +951,7 @@ export function useOneStoryRuntime(
     recorder,
     storyManifest.questionAnchors,
     storyManifest.storyId,
+    storyPackage,
     trackStoryEvent,
     getTurnRecorder,
   ]);
@@ -2407,10 +2416,11 @@ export function useOneStoryRuntime(
   ]);
 
   // Q-34: 나가기는 한 길 - 도중이면 진행을 저장하고(돌아오면 이어 듣기), 완주 후 로그인 상태면
-  // 기록을 정리한 뒤 홈(homePathForAuth)으로 간다. 외부 사이트로는 가지 않는다.
-  const leaveStory = useCallback(async () => {
+  // 기록을 정리한 뒤 홈(homePathForAuth)으로 간다. 외부 사이트로는 가지 않는다 - 단 리포트 끝 보라 상자의
+  // "홈으로"(leaveFromReport)만 비로그인이면 메인 홈페이지(qstory.ai.kr)로 보낸다.
+  const leaveStory = useCallback(async (options?: ExitOptions) => {
     trackPlaybackControl('exit');
-    const plan = resolveExit(authState, runtimeRef.current.status);
+    const plan = resolveExit(authState, runtimeRef.current.status, options);
     if (plan.saveProgress) persistCurrentProgress();
     // Q-39: 도중에 나가면 "멈춘 회차"(EXITED)로 저장해 리포트에 남긴다(로그인·도중일 때만, 안에서 거른다).
     saveExitedSession();
@@ -2434,6 +2444,10 @@ export function useOneStoryRuntime(
     await stopNarration();
     if (plan.clearProgress) clearLocalStoryProgress();
     setHomeMenuVisible(false);
+    if (plan.externalUrl) {
+      const { appStays } = openExternalUrl(plan.externalUrl, Capacitor.isNativePlatform());
+      if (!appStays) return;
+    }
     navigate(plan.path);
   }, [
     authState,
@@ -2636,8 +2650,11 @@ export function useOneStoryRuntime(
     dismissResumeAndRestart,
     openHomeMenu,
     continueFromHomeMenu,
-    leaveStory,
-    finishExperience: leaveStory,
+    // onPress가 넘기는 이벤트 객체가 옵션으로 들어가지 않게 감싼다.
+    leaveStory: () => leaveStory(),
+    finishExperience: () => leaveStory(),
+    /** 리포트 끝 보라색 안내 상자의 "홈으로" - 비로그인이면 메인 홈페이지로. */
+    finishFromReport: () => leaveStory({ anonymousToMainSite: true }),
     openParentReport,
     closeParentReport,
     openCompletionSurvey,

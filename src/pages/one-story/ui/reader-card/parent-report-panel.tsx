@@ -16,7 +16,7 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
     isWide,
     parentReport,
     openCompletionSurvey,
-    finishExperience,
+    finishFromReport,
     restartStory,
     storyPackage,
     liveTurns,
@@ -104,8 +104,9 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
           <Pressable
             accessibilityRole="button"
             style={styles.reportPrimaryAction}
-            onPress={finishExperience}
+            onPress={finishFromReport}
           >
+            {/* 로그인 안 한 데모는 데모 첫 화면이 아니라 메인 홈페이지(qstory.ai.kr)로 간다. */}
             <Text style={styles.reportPrimaryActionText}>홈으로</Text>
           </Pressable>
           <View style={styles.reportSecondaryActionRow}>

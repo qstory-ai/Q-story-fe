@@ -26,6 +26,11 @@ export type UserSummary = {
   profileImageUrl: string | null;
   /** Server-issued expiry for a paid personal subscription; null for non-paid/organization access. */
   subscriptionExpiresAt: string | null;
+  /**
+   * 아직 받지 않은 필수 동의(GUARDIAN·OVERSEAS_TRANSFER·ORG_GUARDIAN_ACK) - 비어 있지 않으면 다시 동의 화면을 먼저
+   * 띄운다(features/reconsent). 예전 서버는 이 값을 보내지 않는다.
+   */
+  pendingConsents?: string[];
 };
 
 export type AuthResponse = {
@@ -167,8 +172,15 @@ export function fetchCurrentUser(token: string, options?: RequestOptions): Promi
   return request('/v1/auth/me', { method: 'GET' }, { ...options, token });
 }
 
-export type ConsentRecordType = 'TERMS' | 'PRIVACY' | 'MARKETING' | 'CHILD_REPORT_SCOPE' | 'VOICE_RAW';
-export type ConsentRecordSource = 'SIGNUP' | 'OAUTH_SIGNUP' | 'CLASS_JOIN_SIGNUP' | 'ONBOARDING' | 'MYPAGE';
+export type ConsentRecordType =
+  | 'TERMS'
+  | 'PRIVACY'
+  | 'MARKETING'
+  | 'CHILD_REPORT_SCOPE'
+  | 'VOICE_RAW'
+  | 'GUARDIAN'
+  | 'OVERSEAS_TRANSFER';
+export type ConsentRecordSource = 'SIGNUP' | 'OAUTH_SIGNUP' | 'CLASS_JOIN_SIGNUP' | 'ONBOARDING' | 'MYPAGE' | 'RECONSENT';
 
 /** 로그인한 계정의 동의 이력을 남긴다(204). 온보딩 동의 단계와 마이페이지가 쓴다. */
 export function recordConsents(
@@ -227,10 +239,25 @@ export function deleteAccount(
  */
 export function createOrganization(
   token: string,
-  input: { name: string },
+  /** guardianConsentAck - "원아의 보호자 동의를 받아 이용해요" 확인(필수). 없으면 서버가 400 CONSENT_REQUIRED. */
+  input: { name: string; guardianConsentAck: boolean; consentVersion: string },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/organizations', { method: 'POST', body: JSON.stringify(input) }, { ...options, token });
+}
+
+/** 이미 있는 기관의 보호자 동의 확인(204) - 약관 2026-10-v2 이전에 만든 기관의 다시 동의 화면이 쓴다. */
+export function acknowledgeOrganizationGuardianConsent(
+  token: string,
+  organizationId: string,
+  input: { consentVersion: string },
+  options?: RequestOptions,
+): Promise<void> {
+  return request(
+    `/v1/organizations/${organizationId}/guardian-consent-ack`,
+    { method: 'POST', body: JSON.stringify(input) },
+    { ...options, token },
+  );
 }
 
 export function fetchEntitlement(

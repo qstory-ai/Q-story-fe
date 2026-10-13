@@ -109,6 +109,7 @@ const DYNAMIC_ROUTES = [
   { method: 'POST', pattern: new RegExp(`^v1/story-completions/${UUID_SEGMENT}/analysis/retry$`) },
   { method: 'POST', pattern: new RegExp(`^v1/play-sessions/${UUID_SEGMENT}/turns$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/entitlement$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/guardian-consent-ack$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/usage$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/reports$`) },
   { method: 'POST', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/classes$`) },

@@ -14,6 +14,7 @@ import { AuthProvider, legacyRedirectPath } from '@/entities/auth';
 import { BookmarksProvider } from '@/entities/bookmark';
 import { ChildrenProvider } from '@/entities/child';
 import { PushNotificationsBridge } from '@/features/push-notifications';
+import { ReconsentGate } from '@/features/reconsent';
 import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
 import { isDevBuild } from '@/shared/config';
 import { ActionButton, LoadingState, SafeAreaView, storybookTheme } from '@/shared/ui';
@@ -247,6 +248,8 @@ export function App() {
           <UsageTracking />
           <PushNotificationsBridge />
         <Suspense fallback={<RouteLoadingFallback />}>
+          {/* 새 필수 동의(약관 2026-10-v2)를 받지 않은 계정은 화면 대신 다시 동의 화면을 먼저 본다. */}
+          <ReconsentGate>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/tutorial" element={<TutorialPage />} />
@@ -311,6 +314,7 @@ export function App() {
             <Route path="/internal/replay" element={<InternalReplayPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
+          </ReconsentGate>
           </Suspense>
           </BrowserRouter>
         </BookmarksProvider>

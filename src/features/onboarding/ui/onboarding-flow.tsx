@@ -6,6 +6,7 @@ import { afterSignUpPath } from '../model/after-sign-up';
 
 import { ActionButton, BrandLockup, Checkbox, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
+  CONSENT_VERSION,
   createOrganization,
   homePathFor,
   isPasswordLongEnough,
@@ -24,6 +25,7 @@ import { messageForError } from '@/shared/api';
 import { betaErrorCode, recordingConsentStore, trackBetaEvent } from '@/entities/analytics';
 import {
   EMPTY_TERMS_CONSENT,
+  OrgGuardianAck,
   TermsConsent,
   termsConsentIsValid,
   type TermsConsentState,
@@ -222,6 +224,9 @@ function SignUpStep({
   const [terms, setTerms] = useState<TermsConsentState>(EMPTY_TERMS_CONSENT);
   // 보호자 가입의 선택 항목 - 가입 뒤 계정의 화면 녹화 결정으로 남긴다(체크 안 함도 결정).
   const [allowRecording, setAllowRecording] = useState(false);
+  // 기관 가입의 필수 확인 - 기관을 만들 때 기관 단위로 남긴다(A5).
+  const [orgGuardianAck, setOrgGuardianAck] = useState(false);
+  const termsValid = termsConsentIsValid(terms, role);
 
   // 가입 폼을 연 것과 끝낸 것(Q-40 UT) - 가입·연결에서 막히는 지점을 본다.
   const signupEntry = initialClassCode ? 'class_link' : 'direct';
@@ -249,9 +254,9 @@ function SignUpStep({
     !emailInvalid &&
     isPasswordLongEnough(password) &&
     Boolean(displayName.trim()) &&
-    termsConsentIsValid(terms) &&
+    termsValid &&
     (useJoinFlow ? classCode.trim().length > 0 : true) &&
-    (showOrgNameField ? orgName.trim().length > 0 : true);
+    (showOrgNameField ? orgName.trim().length > 0 && orgGuardianAck : true);
 
   const onSubmit = useCallback(async () => {
     setError(null);
@@ -271,6 +276,8 @@ function SignUpStep({
         try {
           const orgResponse = await createOrganization(signupResponse.token, {
             name: orgName.trim(),
+            guardianConsentAck: orgGuardianAck,
+            consentVersion: CONSENT_VERSION,
             publicInstitutionId: orgInstitution?.id ?? null,
           });
           onAuthed(orgResponse.token, orgResponse.user);
@@ -325,6 +332,7 @@ function SignUpStep({
     trackSignupCompleted,
     orgName,
     orgInstitution,
+    orgGuardianAck,
     loginId,
     email,
     password,
@@ -373,6 +381,7 @@ function SignUpStep({
             }}
             placeholder="예: 무지개 유치원"
           />
+          <OrgGuardianAck checked={orgGuardianAck} onChange={setOrgGuardianAck} />
           {orgInstitution ? (
             <Text style={styles.formNote}>
               유치원·어린이집 목록에서 고른 기관이에요{orgInstitution.address ? ` (${orgInstitution.address})` : ''}.
@@ -428,6 +437,7 @@ function SignUpStep({
       <TermsConsent
         value={terms}
         onChange={setTerms}
+        role={role}
         recording={role === 'PARENT' ? { checked: allowRecording, onChange: setAllowRecording } : undefined}
         onOpenDoc={(kind) => {
           if (typeof window !== 'undefined') {
@@ -455,8 +465,8 @@ function SignUpStep({
             if (provider) trackSignupCompleted(provider, false);
             onAuthed(token, user);
           }}
-          consents={termsConsentIsValid(terms) ? toConsentPayload(terms) : undefined}
-          disabled={!termsConsentIsValid(terms)}
+          consents={termsValid ? toConsentPayload(terms) : undefined}
+          disabled={!termsValid}
           disabledHint="약관에 동의하면 소셜 계정으로 가입할 수 있어요."
         />
       )}

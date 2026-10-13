@@ -4,7 +4,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, Icon, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { NotificationBell } from '@/features/notification-center';
+import { OrgGuardianAck } from '@/features/terms-consent';
 import {
+  CONSENT_VERSION,
   createOrganization,
   dashboardNavItems,
   fetchEntitlement,
@@ -65,6 +67,8 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
   const [mode, setMode] = useState<'search' | 'manual'>('search');
   const [picked, setPicked] = useState<PublicInstitution | null>(null);
   const [name, setName] = useState('');
+  // 원아 보호자 동의 확인(필수, A5) - 기관 단위로 남는다.
+  const [guardianAck, setGuardianAck] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -74,16 +78,19 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
     setError(null);
     setSubmitting(true);
     try {
-      const response = mode === 'search' && picked
-        ? await createOrganization(token, { name: picked.name, publicInstitutionId: picked.id })
-        : await createOrganization(token, { name: name.trim() });
+      const response = await createOrganization(token, {
+        name: mode === 'search' && picked ? picked.name : name.trim(),
+        guardianConsentAck: guardianAck,
+        consentVersion: CONSENT_VERSION,
+        publicInstitutionId: mode === 'search' && picked ? picked.id : null,
+      });
       setSession(response.token, response.user);
     } catch (failure) {
       setError(messageForError(failure, '기관을 등록하지 못했어요. 잠시 후 다시 시도해 주세요.'));
     } finally {
       setSubmitting(false);
     }
-  }, [token, mode, picked, name, setSession]);
+  }, [token, mode, picked, name, guardianAck, setSession]);
 
   return (
     <AppNavShell items={dashboardNavItems(user, navigate, pathname)}>
@@ -119,12 +126,13 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
                   />
                 )
               ) : null}
+              <OrgGuardianAck checked={guardianAck} onChange={setGuardianAck} />
               {error ? <StatusBanner variant="warning" label={error} /> : null}
               <ActionButton
                 label="이 기관으로 등록하기"
                 loading={submitting}
                 onPress={onSubmit}
-                disabled={!picked || pickedTaken || submitting}
+                disabled={!picked || pickedTaken || !guardianAck || submitting}
               />
               <Pressable
                 accessibilityRole="button"
@@ -141,11 +149,12 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
             <>
               <Text style={styles.body}>기관 이름을 알려주세요. 나중에 목록과 연결할 수도 있어요.</Text>
               <TextField label="기관 이름" value={name} onChangeText={setName} errorText={error ?? undefined} />
+              <OrgGuardianAck checked={guardianAck} onChange={setGuardianAck} />
               <ActionButton
                 label="등록하기"
                 loading={submitting}
                 onPress={onSubmit}
-                disabled={!name.trim() || submitting}
+                disabled={!name.trim() || !guardianAck || submitting}
               />
               <Pressable
                 accessibilityRole="button"

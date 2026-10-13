@@ -31,6 +31,9 @@ import {
   storeVoiceResearchSample,
   reportClientError,
   trackBetaEvent,
+  addQuestionAttempt,
+  endQuestionAttempt,
+  upsertQuestionOutcome,
   getBetaSessionId,
   setInteractionPlaySessionId,
   setInteractionPlayerPhase,
@@ -546,10 +549,8 @@ export function useOneStoryRuntime(
         selectedOption,
         ...extras,
       };
-      setQuestionOutcomes((current) => [
-        ...current.filter((item) => item.anchorId !== anchorId),
-        outcome,
-      ]);
+      // 같은 질문 지점에서 앞서 "실패해 본" 시도는 이어 받는다.
+      setQuestionOutcomes((current) => upsertQuestionOutcome(current, outcome));
     },
     [],
   );
@@ -2059,16 +2060,36 @@ export function useOneStoryRuntime(
     (anchorId: string, childMeaning: string, lastReply: string) => {
       const anchor = storyManifest.questionAnchors.find((candidate) => candidate.id === anchorId);
       if (!anchor || !childMeaning) return;
-      setQuestionOutcomes((current) => [
-        ...current.filter((item) => item.anchorId !== anchor.id),
-        {
+      setQuestionOutcomes((current) =>
+        upsertQuestionOutcome(current, {
           anchorId: anchor.id,
           childRelevantMeaning: childMeaning,
           route: 'ANSWER_RESUME',
           responseText: lastReply,
           actionFamilyId: null,
-        },
-      ]);
+        }),
+      );
+    },
+    [storyManifest.questionAnchors],
+  );
+
+  /**
+   * 그레텔 대화 시도 장면: 질문 초대에서 아이가 낸 준비되지 않은 행동을 해 보다가 막히는 장면을 시작했다/마쳤다. 이야기
+   * 진행(runtime 상태)은 그대로 이 질문 지점(awaiting-question)에 두고, 리포트에만 무엇을 해 봤고 몇 번 이어졌는지 남긴다.
+   */
+  const recordAttemptStarted = useCallback(
+    (anchorId: string | null, tried: string) => {
+      const anchor = storyManifest.questionAnchors.find((candidate) => candidate.id === anchorId);
+      if (!anchor || !tried.trim()) return;
+      setQuestionOutcomes((current) => addQuestionAttempt(current, anchor.id, tried));
+    },
+    [storyManifest.questionAnchors],
+  );
+  const recordAttemptEnded = useCallback(
+    (anchorId: string | null, turns: number, endedBy: 'RETURN' | 'LIMIT' | 'ACTION' | 'CLOSED') => {
+      const anchor = storyManifest.questionAnchors.find((candidate) => candidate.id === anchorId);
+      if (!anchor) return;
+      setQuestionOutcomes((current) => endQuestionAttempt(current, anchor.id, turns, endedBy));
     },
     [storyManifest.questionAnchors],
   );
@@ -2616,6 +2637,8 @@ export function useOneStoryRuntime(
     confirmDialogueAction,
     trackStoryEvent,
     recordDialogueOutcome,
+    recordAttemptStarted,
+    recordAttemptEnded,
     pauseForDialogue,
     resumeAfterDialogue,
     speakDialogueLine,

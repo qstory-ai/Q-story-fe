@@ -512,8 +512,8 @@
     {
       "slug": "f03-014",
       "category": "NARRATION",
-      "file": "audio/q30-stepmother-9c1d023b6c9a.mp3",
-      "integrity": "sha256-4fXP954K+F9jDUJTfTQ/gDTD/4IRmCKJXnLiiYwP5bE="
+      "file": "audio/q33-stepmother-c37ca48a2c91.mp3",
+      "integrity": "sha256-7j2p925p13Z3bQs3kOF/b7u/sF2cR9lJPbTqULsTbvY="
     },
     {
       "slug": "f03-016",
@@ -614,8 +614,8 @@
     {
       "slug": "f04-009",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-8512ebef02e8.mp3",
-      "integrity": "sha256-nULExDw+HgkJHqmAV8R5f5NzShDUwOAMKHeRi8fehcA="
+      "file": "audio/q33-narrator-e1e6185ec6ca.mp3",
+      "integrity": "sha256-Jbu1X/snNnbilQRY2/4GG5s/jCCS1TJ6MdBka2JXNNE="
     },
     {
       "slug": "f04-010",
@@ -980,20 +980,20 @@
     {
       "slug": "f09-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-e56f72e7bc53.mp3",
-      "integrity": "sha256-5c7ZJLE+FUCLtqGYQFJ7CgmSVoBT0R1Qjf0vsGFg3hE="
+      "file": "audio/q33-narrator-4e23097200e0.mp3",
+      "integrity": "sha256-MopgOL9wCKEIM2MAgv09s3C2Uq1KpvNmd6FK7Kw8erw="
     },
     {
       "slug": "f09-003",
       "category": "NARRATION",
-      "file": "audio/q32-narrator-329a591b5b4a-lv.mp3",
-      "integrity": "sha256-uw/sur32i8Nn0Y0TQi5ZYeUBWvMK8VWpapj3okwJ/Ro="
+      "file": "audio/q33-narrator-6688f4ddf490.mp3",
+      "integrity": "sha256-9L0XZKmytVxHbllCXhBSGmiNvR+Z9mB2eQ8nStWAZn4="
     },
     {
       "slug": "f09-004",
       "category": "NARRATION",
-      "file": "audio/q32-narrator-342a0f05b165.mp3",
-      "integrity": "sha256-//4CA4pg2EEVeADiVHMMA8V/FMg1SNaPAGuX3emWOz0="
+      "file": "audio/q33-narrator-f71d03367353.mp3",
+      "integrity": "sha256-eteQTAWWfphRuie1uZlav+ycugfWOvL/+rKDCWZZxa4="
     },
     {
       "slug": "f09-006",
@@ -1010,14 +1010,14 @@
     {
       "slug": "f09-008",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-1653b34c8d05.mp3",
-      "integrity": "sha256-Vuo4DErKw2SzvCXGLRK1EBrjlnUu87F7Hd4139LtlNk="
+      "file": "audio/q33-narrator-d53dceeb4080.mp3",
+      "integrity": "sha256-s3gMOVfukLpxIovrtYd8PVUkVb02kMxnsyTlNrTQlY8="
     },
     {
       "slug": "f09-010",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-c3d7043ef946.mp3",
-      "integrity": "sha256-3bLdeEQKOagta0RY8m1+jaO31DMwH6/Z12Q/pmP1TKw="
+      "file": "audio/q33-narrator-fb84dbcaeedb.mp3",
+      "integrity": "sha256-gNFxl+OrIZ32Zs8BUyG99oESjwrh0ETAaNt75r/MKf4="
     },
     {
       "slug": "f09-011",
@@ -1028,44 +1028,44 @@
     {
       "slug": "f09-012",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-a85da155da38.mp3",
-      "integrity": "sha256-ynYcNFxkcwQ1l1tUn0hxMKNgwJb/NQdpVS5THe0LQRw="
+      "file": "audio/q33-narrator-113013d07e00.mp3",
+      "integrity": "sha256-0+Taa40OM3mswXFV52k/i4ttepLizxbDxg8MCcfFb+c="
     },
     {
       "slug": "f09-013",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-ad0181f3cff3.mp3",
-      "integrity": "sha256-cal1pAFpsE7U/gOCQViyNZ+b7YkLybesvopqA2TRecM="
+      "file": "audio/q33-narrator-56e4ed97afb1.mp3",
+      "integrity": "sha256-SsKYHO4GZc587iUUjRi2yxkJJ4V351l6ffI3isyPDT4="
     },
     {
       "slug": "f10-002",
       "category": "NARRATION",
-      "file": "audio/q32-narrator-8305bca1387b-lv.mp3",
-      "integrity": "sha256-96k+bCIL5SVk9kZi+c3k353xayKTU3pGC54Xb0KXBSU="
+      "file": "audio/q33-narrator-3189a409b117.mp3",
+      "integrity": "sha256-C1RkahYfMwiqWEJtcxOQGDoYErVCauL4nRK5CKXT4CA="
     },
     {
       "slug": "f10-003",
       "category": "NARRATION",
-      "file": "audio/q32-narrator-b3847f5287ee.mp3",
-      "integrity": "sha256-4JxJbwPHBn3ft3Hy2Od5F0/U+nOBqohZeac7czidx70="
+      "file": "audio/q33-narrator-e6e45a9ff5c4.mp3",
+      "integrity": "sha256-MqaiyeqhS5H8k/wH2hs0E7LuIc+rVtN69lsZsDtM/Fs="
     },
     {
       "slug": "f10-004",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-afd7ed401048.mp3",
-      "integrity": "sha256-/pOIhgZgQomTuYK2dopOGaBg/rbjYPl2QyeatIzJUIE="
+      "file": "audio/q33-narrator-3b7c53aa9057.mp3",
+      "integrity": "sha256-M+ZNoimcBuaGDKJw7McTOcui/6huUMjwOIBhcHb2XIc="
     },
     {
       "slug": "f10-005",
       "category": "NARRATION",
-      "file": "audio/q32-father-dcff336c80ee-lv.mp3",
-      "integrity": "sha256-Hg/EmEgiavssXkhoFd9znkA3xEK3u2gJXBqTwrSb4aA="
+      "file": "audio/q33-father-cba442cbd5ba.mp3",
+      "integrity": "sha256-Djng7t82Bk24UsXJeuKDluW/1H8gpzW2g3kta9QdFMo="
     },
     {
       "slug": "f10-006",
       "category": "NARRATION",
-      "file": "audio/q32-father-d56d67f06bd9-lv.mp3",
-      "integrity": "sha256-WQsHpo12EptkQnFCZgoZmINWneKHwUwG0RBfS9xgefQ="
+      "file": "audio/q33-father-9b9153d1abc0.mp3",
+      "integrity": "sha256-AzNGYDj1xcMIO+FBzcsw3BKuKWpI0ZSI4wqGbkvkbws="
     },
     {
       "slug": "f10-007",
@@ -1076,50 +1076,50 @@
     {
       "slug": "f10-008",
       "category": "NARRATION",
-      "file": "audio/q32-father-02fa960ee1b7-lv.mp3",
-      "integrity": "sha256-+GrzGCIjiFacPUFEn16Xw3uOzWC3M/TZK2UhsBXpf+0="
+      "file": "audio/q33-father-388686157993.mp3",
+      "integrity": "sha256-VRedxPrhBCpN9UV/1UAx1rx4qcGd8/Ew2uvyXML3bsM="
     },
     {
       "slug": "f10-009",
       "category": "NARRATION",
-      "file": "audio/q32-father-93bb4544994a-lv.mp3",
-      "integrity": "sha256-wik6VoOhEFgb7ZY5hZq7r5oRpukT9BNTaWOqHYJjzxs="
+      "file": "audio/q33-father-978b4f20f946.mp3",
+      "integrity": "sha256-EmgdpbnPg6Q0nG896ILELYdeiE2F+k4bNBfIUQOUv7A="
     },
     {
       "slug": "f10-010",
       "category": "NARRATION",
-      "file": "audio/q32-father-002d032f0e90-lv.mp3",
-      "integrity": "sha256-GYCaAX5nmTeozKL8iX9mj+Sw/z9yaKtghjp8ET/ZWVQ="
+      "file": "audio/q33-father-ed7339681550.mp3",
+      "integrity": "sha256-hFitK6V9vAp9UzmjZbzdEtkS3KHEAqA2blQvrkLAnek="
     },
     {
       "slug": "f10-011",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-8522df819638.mp3",
-      "integrity": "sha256-31/ujDa+leMG/CJF/6tz8mqhHtC78mfA88V8GfbtPmU="
+      "file": "audio/q33-narrator-1a5f7dbc489d.mp3",
+      "integrity": "sha256-3qaOautGOTH2awuNYe9UkEu5/OrUgwI6zPAbh6UIbBc="
     },
     {
       "slug": "f10-012",
       "category": "NARRATION",
-      "file": "audio/q32-narrator-67b2d048e6ff-lv.mp3",
-      "integrity": "sha256-f7FvQekQSM8onJWFhXrEE6XwZK+RgWiXC5Q+EdpRo+w="
+      "file": "audio/q33-narrator-3753f8e2c7b9.mp3",
+      "integrity": "sha256-VZx/IW8qsvnUuLDaMhP6giM7ciPlKbJD/0lXDiwfB1o="
     },
     {
       "slug": "f10-013",
       "category": "NARRATION",
-      "file": "audio/q32-narrator-6b53f7390f7c.mp3",
-      "integrity": "sha256-CKDlLkzYUdoE7PoCHhHJDp0A8SvF/cjUKiLflopOQI8="
+      "file": "audio/q33-narrator-c30e17663d57.mp3",
+      "integrity": "sha256-8DGCFmZhX/XD7q4dBxSck1lYXOinUa8awaGoBxWYHFQ="
     },
     {
       "slug": "f10-015",
       "category": "NARRATION",
-      "file": "audio/q32-narrator-2cc316beeda9.mp3",
-      "integrity": "sha256-xlLGr1C03JUqmzlRcyDQoQLtiXzEgTIBoDC9+zOFRMg="
+      "file": "audio/q33-narrator-091776d4a071.mp3",
+      "integrity": "sha256-YYOL3rASGF1ejev5oPMVRUhEtiJu8HtoFXOW6f/EicI="
     },
     {
       "slug": "f10-016",
       "category": "NARRATION",
-      "file": "audio/q32-narrator-4aafca4ac76a.mp3",
-      "integrity": "sha256-l0GPQQgHq7WihgN3z9QjKkI6dVfQR1PAGsn7HueRMaE="
+      "file": "audio/q33-narrator-c5ebe952d553.mp3",
+      "integrity": "sha256-2VLlXJhzZyBikPKM79O6DP+ECnS7fB4aqAe3DAOfdZw="
     },
     {
       "slug": "f10-017",
@@ -1130,8 +1130,8 @@
     {
       "slug": "a-observe-bird-002",
       "category": "NARRATION",
-      "file": "audio/q32-narrator-38696d1a68d4-lv.mp3",
-      "integrity": "sha256-sC7oMLBI/TxQ5BO6Adq8TW2uQ2nzkP/xOr/C2xSvS6c="
+      "file": "audio/q33-narrator-65771352e1b4.mp3",
+      "integrity": "sha256-890S/O3mlXr165NtH0Jif1wHtbbO3XZcJjN/1//a5kU="
     },
     {
       "slug": "a-observe-bird-003",
@@ -1142,8 +1142,8 @@
     {
       "slug": "a-observe-bird-005",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-90746e8ede24.mp3",
-      "integrity": "sha256-mCh2fPAgScvRP0/mbLmkjzYc+Vz6yYUmBWrv7qGjzlk="
+      "file": "audio/q33-narrator-7a17903340b5.mp3",
+      "integrity": "sha256-gciixrfgX58Ete1EJLzNtqqFviLU+4bQVlrBv/tz8l8="
     },
     {
       "slug": "a-speak-to-bird-002",
@@ -1154,8 +1154,8 @@
     {
       "slug": "a-speak-to-bird-003",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-194688a9834f.mp3",
-      "integrity": "sha256-Az/XPQEYwP30WStK8K2GbOOGq/Vv3d8BUn1mWvKxP74="
+      "file": "audio/q33-narrator-9fcb6e55c778.mp3",
+      "integrity": "sha256-UB22xpa55sHEANnIQi0P9WEpSni9fzC4GDgIOrbZSI8="
     },
     {
       "slug": "a-speak-to-bird-004",
@@ -1166,20 +1166,20 @@
     {
       "slug": "a-speak-to-bird-006",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-8512ebef02e8.mp3",
-      "integrity": "sha256-nULExDw+HgkJHqmAV8R5f5NzShDUwOAMKHeRi8fehcA="
+      "file": "audio/q33-narrator-e1e6185ec6ca.mp3",
+      "integrity": "sha256-Jbu1X/snNnbilQRY2/4GG5s/jCCS1TJ6MdBka2JXNNE="
     },
     {
       "slug": "c-wait-for-witch-turn-002",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-51d5c6ec4c99.mp3",
-      "integrity": "sha256-Wuy3WsdHfOxrZ05+sBiH310/ZJ3YqBVq5z8E+dkThoo="
+      "file": "audio/q33-narrator-b39b2ee57e15.mp3",
+      "integrity": "sha256-DHUeoq+jI//GZM4FM5xruP4YSEB6Vs/UbZd5B1KsaHI="
     },
     {
       "slug": "c-distract-and-take-keys-002",
       "category": "NARRATION",
-      "file": "audio/q32-narrator-f51ae91a3081-lv.mp3",
-      "integrity": "sha256-nfSIuF3Ic5wSfU6DH+okP/iWISTfaTA/3Ssx4yJwVpI="
+      "file": "audio/q33-narrator-00bd9397f708.mp3",
+      "integrity": "sha256-JUUUej+78F6BoIB31/nXCAlu8TZ1Caao4l30+MZ50jQ="
     },
     {
       "slug": "c-distract-and-take-keys-003",
@@ -1196,20 +1196,20 @@
     {
       "slug": "c-distract-and-take-keys-005",
       "category": "NARRATION",
-      "file": "audio/q32-narrator-262ff78fd128-lv.mp3",
-      "integrity": "sha256-8IoNAJdonZsaUCUfl+kuJn+POnnlsZ6tZjeDWwHoLHQ="
+      "file": "audio/q33-narrator-1b5c920e2df2.mp3",
+      "integrity": "sha256-NO2nR+mztCEUdog//RBNa534jXYVL99jpDtPO48+rNU="
     },
     {
       "slug": "c-distract-and-take-keys-006",
       "category": "NARRATION",
-      "file": "audio/q32-witch-a69453fb9cb7-lv.mp3",
-      "integrity": "sha256-0ZzS2ky7ssFmHqyoN2MweapFMBZFHU2715DnbktPcOI="
+      "file": "audio/q33-witch-fcb8c7d493de.mp3",
+      "integrity": "sha256-8Do8xQpO0xoQbY8QiFN2n0jUEcw+v2ZmOl6mEdD037M="
     },
     {
       "slug": "c-distract-and-take-keys-007",
       "category": "NARRATION",
-      "file": "audio/q30-narrator-e3ea24c61dc6.mp3",
-      "integrity": "sha256-mtNvApDkuvVxy1EVoX6EnVsXnLgDzEJ6VTnFXyIv84E="
+      "file": "audio/q33-narrator-470cb2cbca4f.mp3",
+      "integrity": "sha256-Lw6ZukNvnsMeghtFYk2Tasg+3a0sNXIRkQLMUjdAdRo="
     },
     {
       "slug": "a-observe-bird-bridge",

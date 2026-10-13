@@ -28,49 +28,80 @@ export type QuestionOutcome = {
   /** 예시 버튼에 적혀 있던 글자. */
   suggestionLabel?: string;
   /**
-   * 이 질문 지점에서 아이가 낸 행동을 "실패해 보기" 장면으로 해 봤다가 잘 안 된 시도들(아이 말의 뜻, 순서대로).
-   * 이야기 진행은 바꾸지 않았고, 아이는 같은 질문 지점에서 다른 방법을 다시 찾았다.
+   * 이 질문 지점에서 만든 시도 장면들(순서대로) - 아이가 낸 준비되지 않은 행동을 이야기 속에서 해 보다가 막힌 장면과, 그
+   * 장면 안에서 그레텔과 이어 간 아이 말 수. 이야기 진행은 바꾸지 않았다.
    */
-  triedAndFailed?: string[];
+  attempts?: QuestionAttempt[];
 };
 
-/** 질문 지점 하나의 기록을 새 기록으로 바꾸되, 그 지점에서 앞서 실패해 본 시도는 이어 붙인다. */
+export type QuestionAttempt = {
+  /** 아이가 해 보자고 한 것(뜻). */
+  tried: string;
+  /** 장면 안에서 아이가 말한 횟수(장면을 연 말은 빼고). */
+  turns: number;
+  /** 어떻게 끝났는지 - 아직 진행 중이면 없다. RETURN·LIMIT·CLOSED는 원래 질문으로, ACTION은 준비된 행동 제안으로 이어짐. */
+  endedBy?: 'RETURN' | 'LIMIT' | 'ACTION' | 'CLOSED';
+};
+
+/** 질문 지점 하나의 기록을 새 기록으로 바꾸되, 그 지점에서 앞서 만든 시도 장면 기록은 이어 받는다. */
 export function upsertQuestionOutcome(
   current: readonly QuestionOutcome[],
   outcome: QuestionOutcome,
 ): QuestionOutcome[] {
   const previous = current.find((item) => item.anchorId === outcome.anchorId);
-  const tried = [...(previous?.triedAndFailed ?? []), ...(outcome.triedAndFailed ?? [])];
+  const attempts = [...(previous?.attempts ?? []), ...(outcome.attempts ?? [])];
   return [
     ...current.filter((item) => item.anchorId !== outcome.anchorId),
-    tried.length > 0 ? { ...outcome, triedAndFailed: tried } : outcome,
+    attempts.length > 0 ? { ...outcome, attempts } : outcome,
   ];
 }
 
 /**
- * 실패해 본 시도를 그 질문 지점 기록에 더한다. 아직 기록이 없으면(대화 중 첫 시도) 대화만 한 기록(ANSWER_RESUME)으로
- * 만든다 - 뒤에 행동을 실행하거나 대화를 닫으면 upsertQuestionOutcome이 시도를 그대로 이어 받는다.
+ * 시도 장면 시작을 그 질문 지점 기록에 더한다. 아직 기록이 없으면(대화 중 첫 시도) 대화만 한 기록(ANSWER_RESUME)으로
+ * 만든다 - 뒤에 행동을 실행하거나 대화를 닫으면 upsertQuestionOutcome이 시도 기록을 그대로 이어 받는다.
  */
-export function addTriedAndFailed(
+export function addQuestionAttempt(
   current: readonly QuestionOutcome[],
   anchorId: QuestionAnchorId,
-  attempt: string,
-  responseText: string,
+  tried: string,
 ): QuestionOutcome[] {
-  const meaning = attempt.trim();
+  const meaning = tried.trim();
   if (!meaning) return [...current];
   const previous = current.find((item) => item.anchorId === anchorId);
+  const attempt: QuestionAttempt = { tried: meaning, turns: 0 };
   const outcome: QuestionOutcome = previous
-    ? { ...previous, triedAndFailed: [...(previous.triedAndFailed ?? []), meaning] }
+    ? { ...previous, attempts: [...(previous.attempts ?? []), attempt] }
     : {
         anchorId,
         childRelevantMeaning: meaning,
         route: 'ANSWER_RESUME',
-        responseText,
+        responseText: '',
         actionFamilyId: null,
-        triedAndFailed: [meaning],
+        attempts: [attempt],
       };
   return [...current.filter((item) => item.anchorId !== anchorId), outcome];
+}
+
+/** 그 질문 지점의 마지막 시도 장면을 마친다(장면 안 아이 말 수와 끝난 방식). */
+export function endQuestionAttempt(
+  current: readonly QuestionOutcome[],
+  anchorId: QuestionAnchorId,
+  turns: number,
+  endedBy: NonNullable<QuestionAttempt['endedBy']>,
+): QuestionOutcome[] {
+  return current.map((item) => {
+    if (item.anchorId !== anchorId || !item.attempts?.length) return item;
+    const attempts = [...item.attempts];
+    attempts[attempts.length - 1] = { ...attempts[attempts.length - 1], turns, endedBy };
+    return { ...item, attempts };
+  });
+}
+
+/** 리포트 근거 문장 - 실패를 잘못으로 쓰지 않고 "해 봤고, 다른 방법을 다시 찾았다"까지만. */
+export function attemptEvidence(sceneTitle: string, attempt: QuestionAttempt): string {
+  const talk = attempt.turns > 0 ? `그레텔과 ${attempt.turns}번 더 이야기한 뒤 ` : '';
+  const after = attempt.endedBy === 'ACTION' ? '다른 방법을 골랐어요.' : '다른 방법을 다시 찾았어요.';
+  return `${sceneTitle}: 아이 생각(‘${attempt.tried}’)을 이야기 속에서 해 봤고, ${talk}${after}`;
 }
 
 export type ParentReportQuestionRecord = {
@@ -205,7 +236,7 @@ function pathTitle(outcome: QuestionOutcome) {
   }
   switch (outcome.route) {
     case 'ANSWER_RESUME':
-      return outcome.triedAndFailed?.length ? '해 보고 다른 방법 찾아보기' : '이야기 속 답을 더 들어보기';
+      return outcome.attempts?.length ? '해 보고 다른 방법 찾아보기' : '이야기 속 답을 더 들어보기';
     case 'DIRECT_ACTION':
       return '아이의 생각을 바로 해보기';
     case 'SCENE_REPLACE':
@@ -325,11 +356,10 @@ export function buildParentReport(
       (record) =>
         `${record.sceneTitle}: ‘${record.questionMeaning}’ → ‘${record.selectedPathTitle}’`,
     ),
-    // 실패해 보기 - 아이가 낸 행동을 이야기 속에서 해 봤다가 잘 안 되자 다른 방법을 다시 찾은 일. 잘못으로 쓰지 않는다.
+    // 시도 장면 - 아이가 낸 행동을 이야기 속에서 해 보다가 막힌 뒤 다른 방법을 다시 찾은 일. 잘못으로 쓰지 않는다.
     ...meaningful.flatMap((outcome) =>
-      (outcome.triedAndFailed ?? []).map(
-        (attempt) =>
-          `${reportCopy.anchors[outcome.anchorId]?.sceneTitle ?? '이야기 속 한 장면'}: 아이 생각(‘${attempt}’)을 이야기 속에서 해 봤고, 잘 안 되자 다른 방법을 다시 찾았어요.`,
+      (outcome.attempts ?? []).map((attempt) =>
+        attemptEvidence(reportCopy.anchors[outcome.anchorId]?.sceneTitle ?? '이야기 속 한 장면', attempt),
       ),
     ),
   ];

@@ -197,7 +197,7 @@ export function classSceneRows(storyPackage: StoryRuntimePackage, turns: readonl
     } else if (turn.event === 'INVITE_SKIPPED' && !row.result) {
       row.result = '건너뜀 - 원래 이야기대로';
     } else if (turn.event === 'TRY_FAILED' && !row.result) {
-      row.result = '해 봤다가 잘 안 됨 - 다른 방법 찾기';
+      row.result = `해 봤다가 막힘(${turn.text ?? '시도 장면'}) - 다른 방법 찾기`;
     } else if (turn.event === 'INVITE_CLOSED' && !row.result) {
       row.result = '대화만 - 원래 이야기대로';
     }

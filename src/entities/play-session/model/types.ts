@@ -20,8 +20,9 @@ export type PlayTurnEvent =
   // Q-40 UT: 대화가 끊긴 순간 - 그레텔 답 실패, 받아쓰기 실패(errorCode 포함).
   | 'REPLY_FAILED'
   | 'STT_FAILED'
-  // 질문 초대에서 아이가 낸 행동을 "실패해 보기" 장면으로 보여 줬다 - 이야기 진행은 그대로, 같은 질문 지점으로 돌아온다.
-  | 'TRY_FAILED';
+  // 질문 초대 시도 장면 - 시작(text = 해 본 것)과 마침(attemptTurns = 장면 안 아이 말 수). 이야기 진행은 그대로다.
+  | 'TRY_FAILED'
+  | 'TRY_ENDED';
 
 export type PlayTurn = {
   seq: number;
@@ -50,6 +51,8 @@ export type PlayTurn = {
   latencyMs?: number | null;
   /** REPLY_FAILED·STT_FAILED의 실패 코드. */
   errorCode?: string | null;
+  /** TRY_ENDED - 시도 장면 안에서 아이가 말한 횟수. */
+  attemptTurns?: number | null;
 };
 
 /** 기록할 한 줄 - seq·시각은 기록기가 붙인다. */

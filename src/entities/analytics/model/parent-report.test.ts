@@ -8,9 +8,11 @@ import {
 } from '@/entities/story-runtime';
 
 import {
-  addTriedAndFailed,
+  addQuestionAttempt,
+  attemptEvidence,
   buildParentReport,
   buildRecentApproachTrend,
+  endQuestionAttempt,
   hasExperiencedStoryAgency,
   upsertQuestionOutcome,
 } from './parent-report';
@@ -269,13 +271,14 @@ test('a record saved under a retired branch still builds a report from the story
   assert.equal(report.questionRecords[0].imageRef.assetId, 'old-woman-door');
 });
 
-test('a tried-and-failed attempt stays on the question even after an action is taken there', () => {
+test('attempt scenes stay on the question with what was tried and how many turns', () => {
   const qc = questionAnchorId('HG-Q-C');
-  let outcomes = addTriedAndFailed([], qc, '마녀가 잘 때 열쇠를 몰래 가져가고 싶음', '');
+  let outcomes = addQuestionAttempt([], qc, '창문으로 나가기');
   assert.equal(outcomes.length, 1);
   assert.equal(outcomes[0].route, 'ANSWER_RESUME');
-  assert.deepEqual(outcomes[0].triedAndFailed, ['마녀가 잘 때 열쇠를 몰래 가져가고 싶음']);
-  outcomes = addTriedAndFailed(outcomes, qc, '헨젤을 두고 혼자 도망가고 싶음', '');
+  outcomes = endQuestionAttempt(outcomes, qc, 3, 'RETURN');
+  outcomes = addQuestionAttempt(outcomes, qc, '마녀가 잘 때 열쇠 가져가기');
+  outcomes = endQuestionAttempt(outcomes, qc, 1, 'ACTION');
   outcomes = upsertQuestionOutcome(outcomes, {
     anchorId: qc,
     childRelevantMeaning: '마녀가 등을 돌릴 때 가져오기',
@@ -285,20 +288,26 @@ test('a tried-and-failed attempt stays on the question even after an action is t
   });
   assert.equal(outcomes.length, 1);
   assert.equal(outcomes[0].actionFamilyId, 'C_WAIT_FOR_WITCH_TURN');
-  assert.deepEqual(outcomes[0].triedAndFailed, ['마녀가 잘 때 열쇠를 몰래 가져가고 싶음', '헨젤을 두고 혼자 도망가고 싶음']);
-  // 빈 시도는 남기지 않는다.
-  assert.deepEqual(addTriedAndFailed(outcomes, qc, '  ', ''), outcomes);
+  assert.deepEqual(outcomes[0].attempts, [
+    { tried: '창문으로 나가기', turns: 3, endedBy: 'RETURN' },
+    { tried: '마녀가 잘 때 열쇠 가져가기', turns: 1, endedBy: 'ACTION' },
+  ]);
+  assert.deepEqual(addQuestionAttempt(outcomes, qc, '  '), outcomes);
 
   const report = buildParentReport(reportCopy, outcomes);
-  const tried = report.coachEvidence.filter((line) => line.includes('다른 방법을 다시 찾았어요'));
+  const tried = report.coachEvidence.filter((line) => line.includes('이야기 속에서 해 봤고'));
   assert.equal(tried.length, 2);
-  assert.ok(tried[0].includes('마녀가 잘 때 열쇠를 몰래 가져가고 싶음'));
-  // 실패를 잘못·처벌로 쓰지 않는다.
+  assert.match(tried[0], /‘창문으로 나가기’.*그레텔과 3번 더 이야기한 뒤 다른 방법을 다시 찾았어요/);
+  assert.match(tried[1], /다른 방법을 골랐어요/);
   assert.ok(report.coachEvidence.every((line) => !/잘못|나쁜|혼났|벌/.test(line)));
 });
 
-test('a question where the child only tried and failed reads as finding another way', () => {
-  const outcomes = addTriedAndFailed([], questionAnchorId('HG-Q-C'), '마녀에게 거짓말하고 싶음', '');
+test('a question where the child only tried reads as finding another way', () => {
+  const outcomes = addQuestionAttempt([], questionAnchorId('HG-Q-C'), '마녀에게 부탁하기');
   const [record] = buildParentReport(reportCopy, outcomes).questionRecords;
   assert.equal(record.selectedPathTitle, '해 보고 다른 방법 찾아보기');
+  assert.equal(
+    attemptEvidence('부엌', { tried: '마녀에게 부탁하기', turns: 0 }),
+    '부엌: 아이 생각(‘마녀에게 부탁하기’)을 이야기 속에서 해 봤고, 다른 방법을 다시 찾았어요.',
+  );
 });

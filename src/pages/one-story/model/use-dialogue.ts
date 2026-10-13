@@ -38,6 +38,15 @@ import { STT_STREAMING_ENABLED } from '@/shared/config';
 
 import { GRETEL_COMPANION } from '../lib/companion-character';
 import { buildDialogueScene, wrapUpFor, type WrapUpSignal } from '../lib/dialogue-context';
+import {
+  NO_ATTEMPTS,
+  attemptAfterReply,
+  attemptOnClose,
+  attemptRequest,
+  inAttempt,
+  type AttemptEvent,
+  type AttemptState,
+} from '../lib/dialogue-attempt';
 import { nextDialogueStep } from '../lib/dialogue-next-phase';
 import {
   DIALOGUE_THINKING_FILLER,
@@ -60,8 +69,11 @@ export type DialogueTurn = {
   text: string;
   /** 그레텔 말 중에서 도움 대사·초대 대사처럼 미리 정해 둔 말인지(대화 기록에서 구분해 보여 준다). */
   fixed?: boolean;
-  /** 아이가 낸 행동을 해 봤다가 잘 안 된 "실패해 보기" 장면인지 - 패널이 장면처럼 구분해 보여 준다. */
-  triedAndFailed?: boolean;
+  /**
+   * 시도 장면 줄이면 그 줄을 읽은 화자(내레이터·그레텔) - 패널이 말풍선 대신 그림책 장면처럼 보여 준다. 그레텔 대화 기록
+   * (history)에는 넣지 않는다(장면은 attempt.active.scene으로 따로 보낸다).
+   */
+  sceneSpeakerId?: string;
 };
 
 /**
@@ -302,15 +314,24 @@ export function useDialogue({
     ]);
   }, []);
 
-  /** 방금 띄운 그레텔 말풍선(같은 글)을 실패해 보기 장면으로 표시한다. */
-  const markTriedAndFailed = useCallback((text: string) => {
-    setTurns((previous) => {
-      let index = previous.length - 1;
-      while (index >= 0 && !(previous[index].role === 'CHARACTER' && previous[index].text === text)) index -= 1;
-      if (index < 0) return previous;
-      return previous.map((turn, i) => (i === index ? { ...turn, triedAndFailed: true } : turn));
-    });
-  }, []);
+  // 질문 초대 시도 장면 상태 - 질문 지점마다 만든 장면 수(서버 상한과 같은 수)와 지금 장면. 서버는 들고 있지 않는다.
+  const attemptRef = useRef<AttemptState>(NO_ATTEMPTS);
+
+  /** 시도 장면 시작·마침을 회차 기록·통계·리포트에 남긴다(무엇을 해 봤고, 장면 안에서 몇 번 이어졌는지). */
+  const reportAttempt = useCallback(
+    (event: AttemptEvent) => {
+      if (event.kind === 'START') {
+        logTurn({ role: 'SYSTEM', event: 'TRY_FAILED', text: event.tried });
+        logStep('TRY_FAIL', { scene_lines: event.sceneLineCount });
+        runtime.recordAttemptStarted(event.anchorId, event.tried);
+        return;
+      }
+      logTurn({ role: 'SYSTEM', event: 'TRY_ENDED', text: event.tried, attemptTurns: event.turns });
+      logStep('TRY_END', { attempt_turns: event.turns, attempt_end: event.reason });
+      runtime.recordAttemptEnded(event.anchorId, event.turns, event.reason);
+    },
+    [logStep, logTurn, runtime],
+  );
 
   /** 그레텔의 고정 대사를 기록에 남기고 그레텔 목소리로 말한다(미리 녹음한 음성이 있으면 그것). */
   const sayFixedLine = useCallback(
@@ -424,6 +445,10 @@ export function useDialogue({
       stopSpeaking();
       if (recorder.isRecording) await recorder.stopRecording();
       logStep('CLOSE', { reply_kind: reason, turn_number: childTurnCountRef.current });
+      // 진행 중인 시도 장면도 함께 끝난다 - 원래 질문 지점(이야기 진행)은 그대로다.
+      const closedAttempt = attemptOnClose(attemptRef.current);
+      attemptRef.current = closedAttempt.state;
+      if (closedAttempt.event) reportAttempt(closedAttempt.event);
       if (mode === 'INVITE' && anchorId) {
         logTurn({ role: 'SYSTEM', event: inviteChildSpokeRef.current ? 'INVITE_CLOSED' : 'INVITE_SKIPPED' });
         if (childTurnCountRef.current > 0) {
@@ -442,7 +467,10 @@ export function useDialogue({
       setOpen(false);
       await runtime.resumeAfterDialogue();
     },
-    [anchorId, cancelPending, inviteHelp?.continueLine, logStep, logTurn, mode, recorder, runtime, sayFixedLine, stopSpeaking],
+    [
+      anchorId, cancelPending, inviteHelp?.continueLine, logStep, logTurn, mode, recorder, reportAttempt, runtime,
+      sayFixedLine, stopSpeaking,
+    ],
   );
 
   // ── 그레텔에게 보내기 ─────────────────────────────────────
@@ -536,6 +564,17 @@ export function useDialogue({
       );
     },
     [character.speakerId, storyPackage.manifest.storyId],
+  );
+
+  /** 시도 장면 한 줄의 음성 - 그 줄 화자(내레이터·그레텔)의 목소리로 실시간 TTS 한 번. 실패하면 null(글만 남는다). */
+  const fetchSceneLineVoice = useCallback(
+    (speakerId: string, text: string, signal: AbortSignal): Promise<ResponseAudio | null> => {
+      const input = { storyId: storyPackage.manifest.storyId, speakerId, text };
+      return (DIALOGUE_VOICE_STREAMING ? fetchReplyNarration(input, signal) : fetchLineNarration(input)).catch(
+        () => null,
+      );
+    },
+    [storyPackage.manifest.storyId],
   );
 
   /**
@@ -633,6 +672,46 @@ export function useDialogue({
         drop();
         return null;
       }
+      // 시도 장면이 있으면(서버는 이때 답 문장을 먼저 보내지 않는다) 장면 줄을 내레이터·인물 목소리로 먼저 들려준 뒤 그레텔이
+      // 장면 상황에서 묻는다 - 라이브 분기 대사처럼 줄마다 그 화자 목소리(실시간 TTS)다. 음성은 모두 한꺼번에 미리 받는다.
+      const sceneLines = reply.dialogue.attempt?.scene ?? [];
+      if (!shown.current && sceneLines.length > 0) {
+        const replyVoice = reply.audioDeferred ? fetchReplyVoice(reply.responseText, audioController.signal) : null;
+        const lineVoices = sceneLines.map((line) =>
+          fetchSceneLineVoice(line.speakerId, line.text, audioController.signal),
+        );
+        filler.skip();
+        // 채움말이 이미 나오는 중이면 끝날 때까지만 기다린다(장면 내레이션과 겹치지 않게).
+        for (let waited = 0; filler.isPlaying() && waited < 3_000; waited += 100) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+        for (const [index, line] of sceneLines.entries()) {
+          if (cancelled()) {
+            lineVoices.forEach(discardVoice);
+            if (replyVoice) discardVoice(replyVoice);
+            return null;
+          }
+          addTurn({ role: 'CHARACTER', text: line.text, sceneSpeakerId: line.speakerId });
+          setPhase('speaking');
+          const audio = await lineVoices[index];
+          if (audio && !cancelled()) {
+            try {
+              await playResponseAudio(audio, audioController.signal);
+            } catch {
+              // 줄 음성이 실패해도 글은 패널에 있다.
+            }
+          }
+        }
+        if (cancelled()) {
+          if (replyVoice) discardVoice(replyVoice);
+          return null;
+        }
+        const current = show(
+          reply.responseText,
+          reply.audio ? Promise.resolve(reply.audio) : (replyVoice ?? Promise.resolve(null)),
+        );
+        return { reply, shownAt: current.at, voicePlayed: current.voicePlayed };
+      }
       // 스트리밍이 아니었으면(서버 스위치가 꺼짐 등) 예전처럼 답 전체를 받은 뒤 말풍선을 띄우고 음성을 받는다.
       const ready: BufferedResponseAudio | null = reply.audio;
       const current =
@@ -647,7 +726,7 @@ export function useDialogue({
         );
       return { reply, shownAt: current.at, voicePlayed: current.voicePlayed };
     },
-    [addTurn, fetchReplyVoice, logStep, startThinkingFiller],
+    [addTurn, fetchReplyVoice, fetchSceneLineVoice, logStep, startThinkingFiller],
   );
 
   /**
@@ -671,12 +750,17 @@ export function useDialogue({
       const controller = new AbortController();
       abortRef.current = controller;
 
-      const history = turns.map(({ role, text: turnText }) => ({ role, text: turnText }));
+      // 시도 장면 줄은 대화 기록에 넣지 않는다 - 장면은 attempt.active.scene으로 따로 간다.
+      const history = turns
+        .filter((turn) => !turn.sceneSpeakerId)
+        .map(({ role, text: turnText }) => ({ role, text: turnText }));
       // 받아 적은 말엔 물음표가 없다 - 묻는 말이면 "?"를 붙여 말풍선에 보이고 그대로 보낸다(글로 쓴 말은 손대지 않는다).
       const childText = inputMode === 'VOICE' ? punctuateChildQuestion(text) : text;
-      childTurnCountRef.current += 1;
+      // 시도 장면 안의 말은 대화 정리(3왕복 뒤 복귀 제안) 횟수에 세지 않는다 - 장면은 따로 최대 maxTurns번이다.
+      const attemptActiveNow = mode === 'INVITE' && inAttempt(attemptRef.current, anchorId);
+      if (!attemptActiveNow) childTurnCountRef.current += 1;
       const turnNumber = childTurnCountRef.current;
-      const wrapUp: WrapUpSignal = wrapUpFor(turnNumber, extended);
+      const wrapUp: WrapUpSignal = attemptActiveNow ? 'NONE' : wrapUpFor(turnNumber, extended);
       addTurn({ role: 'CHILD', text: childText });
       if (mode === 'INVITE') inviteChildSpokeRef.current = true;
       logTurn({
@@ -714,6 +798,7 @@ export function useDialogue({
             executedActions,
             anchorId: mode === 'INVITE' ? anchorId : null,
             wrapUp,
+            ...(mode === 'INVITE' && anchorId ? { attempt: attemptRequest(attemptRef.current, anchorId) } : {}),
           },
           seq,
           controller,
@@ -749,12 +834,24 @@ export function useDialogue({
         });
         const { ending } = step;
         const nextPhase: DialoguePhase = step.phase;
-        if (step.triedAndFailed) {
-          // 실패해 보기: 그레텔 말풍선을 장면처럼 표시하고, 같은 질문 지점으로 돌아온다(이야기 진행은 그대로).
-          markTriedAndFailed(reply.responseText);
-          const attempt = signal.childMeaning || text;
-          runtime.recordTriedAndFailed(anchorId, attempt);
-          logStep('TRY_FAIL', { turn_number: turnNumber, reply_kind: signal.replyKind });
+        // 시도 장면: 시작(TRY_FAIL)·장면 안 대화·마침(ATTEMPT_END·상한·장면 안 행동 제안)을 넘긴다. 이야기 진행은 그대로다.
+        const attemptStep = attemptAfterReply(attemptRef.current, {
+          anchorId,
+          mode,
+          replyKind: signal.replyKind,
+          proposedActionFamilyId: signal.proposedActionFamilyId,
+          childWantsToEnd: signal.childWantsToEnd,
+          attempt: signal.attempt,
+          tried: signal.childMeaning || text,
+          responseText: reply.responseText,
+        });
+        attemptRef.current = attemptStep.state;
+        if (attemptStep.event) reportAttempt(attemptStep.event);
+        // 시도 장면 줄도 회차 기록에 아이가 들은 그대로 남긴다(그레텔 답보다 앞).
+        if (attemptStep.event?.kind === 'START') {
+          for (const line of signal.attempt?.scene ?? []) {
+            logTurn({ role: 'CHARACTER', text: line.text, characterSpeakerId: line.speakerId, replyKind: 'ATTEMPT_SCENE' });
+          }
         }
         if (nextPhase === 'proposal' && signal.proposedActionFamilyId) {
           setProposal({
@@ -766,8 +863,6 @@ export function useDialogue({
         // 말풍선은 이미 떴다 - 음성은 그 뒤에 받아 첫 조각부터 들려준다(deferAudio, 음성 만들기가 기다림의 대부분).
         const played = await speakReply(prepared, seq);
         logTurn({ ...replyTurn, replyAudioPlayed: played === true });
-        // 회차 기록(Q-39)에 "해 봤다가 잘 안 됨"을 시스템 줄로 남긴다 - 부모 리포트·수업 기록이 실행한 행동과 구분해 보여 준다.
-        if (step.triedAndFailed) logTurn({ role: 'SYSTEM', event: 'TRY_FAILED', text: signal.childMeaning || text });
         if (played === null) return;
         if (ending) {
           await close(signal.childWantsToEnd ? 'CHILD_ENDED' : 'CLOSED_BY_REPLY');
@@ -778,7 +873,7 @@ export function useDialogue({
         if (controller.signal.aborted || seq !== requestSeqRef.current) return;
         // 채움말이 나오는 중이면 멈춘다 - 오류 안내와 겹치지 않게.
         stopSpeaking();
-        childTurnCountRef.current -= 1;
+        if (!attemptActiveNow) childTurnCountRef.current -= 1;
         setErrorMessage(
           isRateLimitedError(error)
             ? RATE_LIMITED_CHILD_COPY
@@ -801,7 +896,7 @@ export function useDialogue({
     [
       addTurn, anchorId, cancelPending, character.speakerId, close, conversationAttribution.childId,
       conversationId, executedActions, extended, guardianProxy, heardClipId, helpStep, helpSteps.length, lessonId,
-      logStep, logTurn, markTriedAndFailed, mode, requestReply, runtime, sceneId, speakReply, stopSpeaking, storyPackage,
+      logStep, logTurn, mode, reportAttempt, requestReply, sceneId, speakReply, stopSpeaking, storyPackage,
       turns, tutorStudentId,
     ],
   );

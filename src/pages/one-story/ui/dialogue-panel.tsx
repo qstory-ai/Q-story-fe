@@ -62,18 +62,24 @@ export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialo
 
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} style={panel.history} contentContainerStyle={panel.historyContent}>
         {turns.map((turn) => (
-          <View
-            key={turn.id}
-            style={[
-              panel.bubble,
-              turn.role === 'CHILD' ? panel.childBubble : panel.characterBubble,
-              turn.triedAndFailed && panel.triedBubble,
-            ]}
-          >
-            {/* 실패해 보기 - 아이 생각대로 해 본 짧은 장면. 이야기는 같은 질문 지점에 그대로 있다. */}
-            {turn.triedAndFailed && <Text style={panel.triedLabel}>해 봤더니…</Text>}
-            <Text style={panel.bubbleText}>{turn.text}</Text>
-          </View>
+          // 시도 장면 줄 - 아이 생각대로 이야기 속에서 해 보는 장면. 내레이터 줄은 그림책 문장처럼, 그레텔 줄은 장면 표시를 단
+          // 말풍선으로 보인다. 이야기는 같은 질문 지점에 그대로 있다.
+          turn.sceneSpeakerId && turn.sceneSpeakerId !== character.speakerId ? (
+            <View key={turn.id} style={panel.sceneNarration}>
+              <Text style={panel.sceneNarrationText}>{turn.text}</Text>
+            </View>
+          ) : (
+            <View
+              key={turn.id}
+              style={[
+                panel.bubble,
+                turn.role === 'CHILD' ? panel.childBubble : panel.characterBubble,
+                turn.sceneSpeakerId && panel.sceneBubble,
+              ]}
+            >
+              <Text style={panel.bubbleText}>{turn.text}</Text>
+            </View>
+          )
         ))}
         {(phase === 'thinking' || phase === 'transcribing') && (
           <View style={[panel.bubble, phase === 'thinking' ? panel.characterBubble : panel.childBubble]}>
@@ -391,8 +397,15 @@ const panel = StyleSheet.create({
     borderBottomLeftRadius: 4,
   },
   childBubble: { alignSelf: 'flex-end', backgroundColor: CHILD_BUBBLE, borderBottomRightRadius: 4 },
-  triedBubble: { borderLeftWidth: 3, borderLeftColor: storybookTheme.color.gold },
-  triedLabel: { color: storybookTheme.color.onCardMuted, fontSize: 13, fontWeight: '700', marginBottom: 2 },
+  sceneBubble: { borderLeftWidth: 3, borderLeftColor: storybookTheme.color.gold },
+  sceneNarration: {
+    alignSelf: 'stretch',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderLeftWidth: 3,
+    borderLeftColor: storybookTheme.color.gold,
+  },
+  sceneNarrationText: { color: storybookTheme.color.onDark, fontSize: 15, lineHeight: 22, fontStyle: 'italic' },
   bubbleText: { color: storybookTheme.color.onCardTitle, fontSize: 16, lineHeight: 23 },
   error: { color: storybookTheme.color.gold, fontSize: 14 },
   column: { gap: 8 },

@@ -28,7 +28,8 @@ import {
   storeVoiceResearchSample,
   reportClientError,
   trackBetaEvent,
-  addTriedAndFailed,
+  addQuestionAttempt,
+  endQuestionAttempt,
   upsertQuestionOutcome,
   getBetaSessionId,
   setInteractionPlaySessionId,
@@ -2064,14 +2065,22 @@ export function useOneStoryRuntime(
   );
 
   /**
-   * 그레텔 대화 "실패해 보기": 질문 초대에서 아이가 낸 행동을 그레텔이 해 봤다가 잘 안 된 짧은 장면으로 들려줬다. 이야기
-   * 진행(runtime 상태)은 그대로 이 질문 지점(awaiting-question)에 두고, 리포트에만 "해 봤다가 다른 방법을 찾았다"를 남긴다.
+   * 그레텔 대화 시도 장면: 질문 초대에서 아이가 낸 준비되지 않은 행동을 해 보다가 막히는 장면을 시작했다/마쳤다. 이야기
+   * 진행(runtime 상태)은 그대로 이 질문 지점(awaiting-question)에 두고, 리포트에만 무엇을 해 봤고 몇 번 이어졌는지 남긴다.
    */
-  const recordTriedAndFailed = useCallback(
-    (anchorId: string | null, attempt: string) => {
+  const recordAttemptStarted = useCallback(
+    (anchorId: string | null, tried: string) => {
       const anchor = storyManifest.questionAnchors.find((candidate) => candidate.id === anchorId);
-      if (!anchor || !attempt.trim()) return;
-      setQuestionOutcomes((current) => addTriedAndFailed(current, anchor.id, attempt, ''));
+      if (!anchor || !tried.trim()) return;
+      setQuestionOutcomes((current) => addQuestionAttempt(current, anchor.id, tried));
+    },
+    [storyManifest.questionAnchors],
+  );
+  const recordAttemptEnded = useCallback(
+    (anchorId: string | null, turns: number, endedBy: 'RETURN' | 'LIMIT' | 'ACTION' | 'CLOSED') => {
+      const anchor = storyManifest.questionAnchors.find((candidate) => candidate.id === anchorId);
+      if (!anchor) return;
+      setQuestionOutcomes((current) => endQuestionAttempt(current, anchor.id, turns, endedBy));
     },
     [storyManifest.questionAnchors],
   );
@@ -2614,7 +2623,8 @@ export function useOneStoryRuntime(
     confirmDialogueAction,
     trackStoryEvent,
     recordDialogueOutcome,
-    recordTriedAndFailed,
+    recordAttemptStarted,
+    recordAttemptEnded,
     pauseForDialogue,
     resumeAfterDialogue,
     speakDialogueLine,

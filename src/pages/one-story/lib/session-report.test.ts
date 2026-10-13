@@ -116,7 +116,7 @@ test('a tried-and-failed scene shows as its own result until an action is taken'
     { seq: 3, occurredAt: '', sceneId: 'HG-F07', role: 'SYSTEM', event: 'TRY_FAILED', text: '마녀가 잘 때 열쇠를 가져가고 싶음' },
     { seq: 4, occurredAt: '', sceneId: 'HG-F07', role: 'SYSTEM', event: 'INVITE_CLOSED' },
   ];
-  assert.equal(classSceneRows(storyPackage, tried)[0].result, '해 봤다가 잘 안 됨 - 다른 방법 찾기');
+  assert.equal(classSceneRows(storyPackage, tried)[0].result, '해 봤다가 막힘(마녀가 잘 때 열쇠를 가져가고 싶음) - 다른 방법 찾기');
   const thenActed = [
     ...tried.slice(0, 3),
     { seq: 4, occurredAt: '', sceneId: 'HG-F07', role: 'SYSTEM', event: 'ACTION_CONFIRMED', familyId: 'C_WAIT_FOR_WITCH_TURN' },

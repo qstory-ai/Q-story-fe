@@ -23,7 +23,15 @@ test('a failure scene goes back to the same question point - no action, no help 
     asksForHelp: true,
     wrapUp: 'SUGGEST_RETURN',
   });
-  assert.deepEqual(step, { ending: false, phase: 'ready', triedAndFailed: true });
+  assert.deepEqual(step, { ending: false, phase: 'ready', attemptTurn: true });
+});
+
+test('ending an attempt scene also goes back to the question point', () => {
+  assert.deepEqual(nextDialogueStep({ ...base, replyKind: 'ATTEMPT_END', wrapUp: 'SUGGEST_RETURN' }), {
+    ending: false,
+    phase: 'ready',
+    attemptTurn: true,
+  });
 });
 
 test('a failure scene still respects the hard dialogue limit', () => {
@@ -32,7 +40,7 @@ test('a failure scene still respects the hard dialogue limit', () => {
 
 test('outside a question invite a failure kind is just an answer', () => {
   const step = nextDialogueStep({ ...base, replyKind: 'TRY_FAIL', mode: 'CHAT' });
-  assert.equal(step.triedAndFailed, false);
+  assert.equal(step.attemptTurn, false);
   assert.equal(step.phase, 'ready');
 });
 
@@ -43,7 +51,7 @@ test('ordinary replies keep their old next steps', () => {
   assert.equal(nextDialogueStep({ ...base, asksForHelp: true, helpAvailable: false }).phase, 'ready');
   assert.equal(nextDialogueStep({ ...base, wrapUp: 'SUGGEST_RETURN' }).phase, 'suggest-return');
   // 안전 리다이렉트는 지금처럼 아이 차례로 돌아온다.
-  assert.deepEqual(nextDialogueStep({ ...base, replyKind: 'REDIRECT' }), { ending: false, phase: 'ready', triedAndFailed: false });
+  assert.deepEqual(nextDialogueStep({ ...base, replyKind: 'REDIRECT' }), { ending: false, phase: 'ready', attemptTurn: false });
   assert.equal(nextDialogueStep({ ...base, replyKind: 'CLOSE' }).ending, true);
   assert.equal(nextDialogueStep({ ...base, childWantsToEnd: true }).ending, true);
 });

@@ -5,10 +5,19 @@ import type { BufferedResponseAudio } from '@/features/route-question';
 export type CompanionChatSafetyMode = 'ANSWER' | 'GENTLE_REDIRECT';
 
 /**
- * TRY_FAIL - 질문 초대에서 아이가 낸 행동(몰래 가져가기·거짓말·혼자 도망치기 등)을 그레텔이 해 봤다가 잘 안 된 짧은 장면.
- * 이야기 진행은 그대로이고 같은 질문 지점에서 다른 방법을 찾는다(서버 스위치 QSTORY_TRY_AND_FAIL_ENABLED).
+ * 질문 초대 시도 장면(서버 스위치 QSTORY_TRY_AND_FAIL_ENABLED):
+ * - TRY_FAIL: 아이가 낸 준비되지 않은 행동(창문으로 나가자, 몰래 가져가자 등)을 해 보다가 막히는 장면을 시작했다 -
+ *   dialogue.attempt.scene(내레이터·인물 줄)을 먼저 들려준 뒤 그레텔이 그 상황에서 묻는다(responseText).
+ * - ATTEMPT_END: 시도 장면을 마치고 "다른 방법을 찾아보자"며 원래 질문 지점으로 돌아왔다.
+ * 이야기 진행은 어느 쪽도 바꾸지 않는다.
  */
-export type CompanionReplyKind = 'ANSWER' | 'EMPATHY' | 'WAIT' | 'CLOSE' | 'REDIRECT' | 'TRY_FAIL';
+export type CompanionReplyKind = 'ANSWER' | 'EMPATHY' | 'WAIT' | 'CLOSE' | 'REDIRECT' | 'TRY_FAIL' | 'ATTEMPT_END';
+
+/** 시도 장면 한 줄 - 내레이터 줄은 내레이터 목소리, 인물 줄은 그 인물 목소리로 읽는다. */
+export type AttemptSceneLine = { speakerId: string; text: string };
+
+/** TRY_FAIL 답에만 - 장면 줄과 장면 안에서 아이가 말할 수 있는 횟수(서버 설정). */
+export type CompanionAttemptStart = { scene: AttemptSceneLine[]; maxTurns: number };
 
 /** Q-31 대화 표시 - 종료·도움·행동 확인 단계를 정하는 데 쓴다. 예전 서버면 기본값으로 채운다. */
 export type CompanionDialogueSignal = {
@@ -18,6 +27,8 @@ export type CompanionDialogueSignal = {
   asksForHelp: boolean;
   /** 질문 초대에서 아이가 제안한 준비된 행동(뜻 확인 전). */
   proposedActionFamilyId: string | null;
+  /** TRY_FAIL일 때만. */
+  attempt?: CompanionAttemptStart;
 };
 
 export type CompanionChatReply = {
@@ -56,6 +67,11 @@ export type CompanionDialogueContext = {
    * 방향으로 삼아 앞 대화에 이어지게 새로 말한다(BE DialogueInput.Help).
    */
   help?: { step: number; total: number; hint: string };
+  /**
+   * 질문 초대 시도 장면 상태(BE DialogueInput.Attempt) - 이 질문 지점에서 이미 만든 시도 장면 수와, 지금 장면 안이면
+   * 그 장면(해 본 것, 장면 글, 이번 말이 장면 안 몇 번째인지).
+   */
+  attempt?: { tried: number; active: { tried: string; scene: string; turn: number } | null };
   /** true면 서버가 음성을 만들지 않고 글 답만 바로 돌려준다 - 말풍선을 먼저 띄우려고(음성이 기다림의 대부분). */
   deferAudio?: boolean;
   /**
@@ -299,6 +315,24 @@ export async function readCompanionReply(
       childMeaning: body.dialogue?.childMeaning ?? '',
       asksForHelp: body.dialogue?.asksForHelp ?? false,
       proposedActionFamilyId: body.dialogue?.proposedActionFamilyId ?? null,
+      ...attemptOf(body.dialogue?.attempt),
     },
   };
+}
+
+/** 시도 장면 시작 정보 - 형식이 어긋난 줄은 버린다. 장면 줄이 없어도 시작은 한다(그레텔 말로 이어 간다). */
+function attemptOf(value: unknown): { attempt?: CompanionAttemptStart } {
+  if (!value || typeof value !== 'object') return {};
+  const raw = value as { scene?: unknown; maxTurns?: unknown };
+  const scene = Array.isArray(raw.scene)
+    ? raw.scene.filter(
+        (line): line is AttemptSceneLine =>
+          Boolean(line) &&
+          typeof (line as AttemptSceneLine).speakerId === 'string' &&
+          typeof (line as AttemptSceneLine).text === 'string' &&
+          (line as AttemptSceneLine).text.trim().length > 0,
+      )
+    : [];
+  const maxTurns = typeof raw.maxTurns === 'number' && raw.maxTurns >= 1 ? Math.floor(raw.maxTurns) : 4;
+  return { attempt: { scene, maxTurns } };
 }

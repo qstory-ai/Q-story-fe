@@ -11,6 +11,7 @@ import {
   type TutorOrganizationLink,
 } from '@/entities/organization-tutor';
 import { messageForError } from '@/shared/api';
+import { JoinBySearchSection } from './JoinBySearchSection';
 
 type OrgsLoad = { status: 'loading' } | { status: 'ready'; organizations: TutorOrganizationLink[] } | { status: 'error'; message: string };
 
@@ -88,8 +89,13 @@ export function TutorJoinOrganizationPage() {
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">기관 소속 참여</Text>
         <Text style={styles.subtitle}>
-          관리자에게 받은 초대 코드나 링크로 소속을 완성해요. 담임 초대 코드도 여기에 넣으면 돼요.
+          유치원·어린이집을 찾아 소속을 신청하거나, 관리자에게 받은 초대 코드·링크로 참여해요. 담임 초대 코드도 여기에 넣으면 돼요.
         </Text>
+
+        <JoinBySearchSection
+          token={state.token}
+          memberOrganizationIds={orgs.status === 'ready' ? orgs.organizations.map((o) => o.organizationId) : []}
+        />
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>초대 코드로 참여</Text>
@@ -139,7 +145,7 @@ export function TutorJoinOrganizationPage() {
           ) : orgs.status === 'error' ? (
             <Text style={[styles.body, styles.errorText]}>{orgs.message}</Text>
           ) : orgs.organizations.length === 0 ? (
-            <Text style={styles.body}>아직 소속된 기관이 없어요. 위의 코드/링크로 참여해 보세요.</Text>
+            <Text style={styles.body}>아직 소속된 기관이 없어요. 위에서 기관을 찾아 신청하거나 코드·링크로 참여해 보세요.</Text>
           ) : (
             <View style={styles.list}>
               {orgs.organizations.map((organization) => (

@@ -145,7 +145,7 @@ function GenericMenu({ user, navigate }: { user: UserSummary; navigate: (path: s
         <MenuGroup title="소속">
           <MenuRow
             label="기관 참여"
-            hint="초대 코드나 링크로 기관 소속을 완성해요"
+            hint="유치원·어린이집 소속 신청 또는 초대 코드로 참여해요"
             onPress={() => navigate('/tutor/join-organization')}
           />
         </MenuGroup>

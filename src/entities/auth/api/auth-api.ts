@@ -227,7 +227,7 @@ export function deleteAccount(
  */
 export function createOrganization(
   token: string,
-  input: { name: string },
+  input: { name: string; publicInstitutionId?: string | null },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/organizations', { method: 'POST', body: JSON.stringify(input) }, { ...options, token });

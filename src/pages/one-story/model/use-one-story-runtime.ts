@@ -103,6 +103,7 @@ import {
 import { resolveExit } from '../lib/exit-destination';
 import { readingContextFor } from '../lib/reading-context';
 import { SCENE_END_PAUSE_MS, dialogueResumePlan, isSceneEndClip } from '../lib/scene-end-pause';
+import { inviteNeedsLiveNarration } from '../lib/question-invite-audio';
 import {
   isAwaitingInviteFor,
   questionSkipMetadata,
@@ -637,6 +638,9 @@ export function useOneStoryRuntime(
     const playCurrentClip = async () => {
       if (questionInviteAnchor) {
         setQuestionInviteSpeaking(true);
+      }
+      // 질문 초대는 미리 녹음한 음성이 있으면 그걸 튼다(question-invite-audio.ts) - 없을 때만 실시간으로 만든다.
+      if (questionInviteAnchor && inviteNeedsLiveNarration(storyPackage, questionInviteAnchor)) {
         const remoteAudio = await audioReadyWithin(
           getQuestionNarration({
             storyId: storyManifest.storyId,
@@ -915,6 +919,7 @@ export function useOneStoryRuntime(
     recorder.resetRecording();
     activeNarrationIdRef.current = null;
     storyManifest.questionAnchors.forEach((anchor) => {
+      if (!inviteNeedsLiveNarration(storyPackage, anchor)) return;
       void preloadQuestionNarration({
         storyId: storyManifest.storyId,
         anchor,
@@ -942,6 +947,7 @@ export function useOneStoryRuntime(
     recorder,
     storyManifest.questionAnchors,
     storyManifest.storyId,
+    storyPackage,
     trackStoryEvent,
     getTurnRecorder,
   ]);

@@ -27,7 +27,51 @@ export type QuestionOutcome = {
   viaSuggestion?: boolean;
   /** 예시 버튼에 적혀 있던 글자. */
   suggestionLabel?: string;
+  /**
+   * 이 질문 지점에서 아이가 낸 행동을 "실패해 보기" 장면으로 해 봤다가 잘 안 된 시도들(아이 말의 뜻, 순서대로).
+   * 이야기 진행은 바꾸지 않았고, 아이는 같은 질문 지점에서 다른 방법을 다시 찾았다.
+   */
+  triedAndFailed?: string[];
 };
+
+/** 질문 지점 하나의 기록을 새 기록으로 바꾸되, 그 지점에서 앞서 실패해 본 시도는 이어 붙인다. */
+export function upsertQuestionOutcome(
+  current: readonly QuestionOutcome[],
+  outcome: QuestionOutcome,
+): QuestionOutcome[] {
+  const previous = current.find((item) => item.anchorId === outcome.anchorId);
+  const tried = [...(previous?.triedAndFailed ?? []), ...(outcome.triedAndFailed ?? [])];
+  return [
+    ...current.filter((item) => item.anchorId !== outcome.anchorId),
+    tried.length > 0 ? { ...outcome, triedAndFailed: tried } : outcome,
+  ];
+}
+
+/**
+ * 실패해 본 시도를 그 질문 지점 기록에 더한다. 아직 기록이 없으면(대화 중 첫 시도) 대화만 한 기록(ANSWER_RESUME)으로
+ * 만든다 - 뒤에 행동을 실행하거나 대화를 닫으면 upsertQuestionOutcome이 시도를 그대로 이어 받는다.
+ */
+export function addTriedAndFailed(
+  current: readonly QuestionOutcome[],
+  anchorId: QuestionAnchorId,
+  attempt: string,
+  responseText: string,
+): QuestionOutcome[] {
+  const meaning = attempt.trim();
+  if (!meaning) return [...current];
+  const previous = current.find((item) => item.anchorId === anchorId);
+  const outcome: QuestionOutcome = previous
+    ? { ...previous, triedAndFailed: [...(previous.triedAndFailed ?? []), meaning] }
+    : {
+        anchorId,
+        childRelevantMeaning: meaning,
+        route: 'ANSWER_RESUME',
+        responseText,
+        actionFamilyId: null,
+        triedAndFailed: [meaning],
+      };
+  return [...current.filter((item) => item.anchorId !== anchorId), outcome];
+}
 
 export type ParentReportQuestionRecord = {
   anchorId: QuestionAnchorId;
@@ -161,7 +205,7 @@ function pathTitle(outcome: QuestionOutcome) {
   }
   switch (outcome.route) {
     case 'ANSWER_RESUME':
-      return '이야기 속 답을 더 들어보기';
+      return outcome.triedAndFailed?.length ? '해 보고 다른 방법 찾아보기' : '이야기 속 답을 더 들어보기';
     case 'DIRECT_ACTION':
       return '아이의 생각을 바로 해보기';
     case 'SCENE_REPLACE':
@@ -276,10 +320,19 @@ export function buildParentReport(
     (outcome) =>
       CHANGE_ROUTES.has(outcome.route) || Boolean(outcome.selectedOption),
   ).length;
-  const coachEvidence = questionRecords.map(
-    (record) =>
-      `${record.sceneTitle}: ‘${record.questionMeaning}’ → ‘${record.selectedPathTitle}’`,
-  );
+  const coachEvidence = [
+    ...questionRecords.map(
+      (record) =>
+        `${record.sceneTitle}: ‘${record.questionMeaning}’ → ‘${record.selectedPathTitle}’`,
+    ),
+    // 실패해 보기 - 아이가 낸 행동을 이야기 속에서 해 봤다가 잘 안 되자 다른 방법을 다시 찾은 일. 잘못으로 쓰지 않는다.
+    ...meaningful.flatMap((outcome) =>
+      (outcome.triedAndFailed ?? []).map(
+        (attempt) =>
+          `${reportCopy.anchors[outcome.anchorId]?.sceneTitle ?? '이야기 속 한 장면'}: 아이 생각(‘${attempt}’)을 이야기 속에서 해 봤고, 잘 안 되자 다른 방법을 다시 찾았어요.`,
+      ),
+    ),
+  ];
   const strategies = strategyLabelsOf(meaningful, reportCopy);
   const repeatedStrategy = tallyByLabel(strategies)[0];
   const strategyObservation =

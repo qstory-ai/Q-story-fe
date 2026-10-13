@@ -28,6 +28,8 @@ import {
   storeVoiceResearchSample,
   reportClientError,
   trackBetaEvent,
+  addTriedAndFailed,
+  upsertQuestionOutcome,
   getBetaSessionId,
   setInteractionPlaySessionId,
   setInteractionPlayerPhase,
@@ -542,10 +544,8 @@ export function useOneStoryRuntime(
         selectedOption,
         ...extras,
       };
-      setQuestionOutcomes((current) => [
-        ...current.filter((item) => item.anchorId !== anchorId),
-        outcome,
-      ]);
+      // 같은 질문 지점에서 앞서 "실패해 본" 시도는 이어 받는다.
+      setQuestionOutcomes((current) => upsertQuestionOutcome(current, outcome));
     },
     [],
   );
@@ -2050,16 +2050,28 @@ export function useOneStoryRuntime(
     (anchorId: string, childMeaning: string, lastReply: string) => {
       const anchor = storyManifest.questionAnchors.find((candidate) => candidate.id === anchorId);
       if (!anchor || !childMeaning) return;
-      setQuestionOutcomes((current) => [
-        ...current.filter((item) => item.anchorId !== anchor.id),
-        {
+      setQuestionOutcomes((current) =>
+        upsertQuestionOutcome(current, {
           anchorId: anchor.id,
           childRelevantMeaning: childMeaning,
           route: 'ANSWER_RESUME',
           responseText: lastReply,
           actionFamilyId: null,
-        },
-      ]);
+        }),
+      );
+    },
+    [storyManifest.questionAnchors],
+  );
+
+  /**
+   * 그레텔 대화 "실패해 보기": 질문 초대에서 아이가 낸 행동을 그레텔이 해 봤다가 잘 안 된 짧은 장면으로 들려줬다. 이야기
+   * 진행(runtime 상태)은 그대로 이 질문 지점(awaiting-question)에 두고, 리포트에만 "해 봤다가 다른 방법을 찾았다"를 남긴다.
+   */
+  const recordTriedAndFailed = useCallback(
+    (anchorId: string | null, attempt: string) => {
+      const anchor = storyManifest.questionAnchors.find((candidate) => candidate.id === anchorId);
+      if (!anchor || !attempt.trim()) return;
+      setQuestionOutcomes((current) => addTriedAndFailed(current, anchor.id, attempt, ''));
     },
     [storyManifest.questionAnchors],
   );
@@ -2602,6 +2614,7 @@ export function useOneStoryRuntime(
     confirmDialogueAction,
     trackStoryEvent,
     recordDialogueOutcome,
+    recordTriedAndFailed,
     pauseForDialogue,
     resumeAfterDialogue,
     speakDialogueLine,

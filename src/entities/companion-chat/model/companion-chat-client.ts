@@ -4,7 +4,11 @@ import type { BufferedResponseAudio } from '@/features/route-question';
 
 export type CompanionChatSafetyMode = 'ANSWER' | 'GENTLE_REDIRECT';
 
-export type CompanionReplyKind = 'ANSWER' | 'EMPATHY' | 'WAIT' | 'CLOSE' | 'REDIRECT';
+/**
+ * TRY_FAIL - 질문 초대에서 아이가 낸 행동(몰래 가져가기·거짓말·혼자 도망치기 등)을 그레텔이 해 봤다가 잘 안 된 짧은 장면.
+ * 이야기 진행은 그대로이고 같은 질문 지점에서 다른 방법을 찾는다(서버 스위치 QSTORY_TRY_AND_FAIL_ENABLED).
+ */
+export type CompanionReplyKind = 'ANSWER' | 'EMPATHY' | 'WAIT' | 'CLOSE' | 'REDIRECT' | 'TRY_FAIL';
 
 /** Q-31 대화 표시 - 종료·도움·행동 확인 단계를 정하는 데 쓴다. 예전 서버면 기본값으로 채운다. */
 export type CompanionDialogueSignal = {

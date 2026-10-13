@@ -19,7 +19,9 @@ export type PlayTurnEvent =
   | 'INVITE_CLOSED'
   // Q-40 UT: 대화가 끊긴 순간 - 그레텔 답 실패, 받아쓰기 실패(errorCode 포함).
   | 'REPLY_FAILED'
-  | 'STT_FAILED';
+  | 'STT_FAILED'
+  // 질문 초대에서 아이가 낸 행동을 "실패해 보기" 장면으로 보여 줬다 - 이야기 진행은 그대로, 같은 질문 지점으로 돌아온다.
+  | 'TRY_FAILED';
 
 export type PlayTurn = {
   seq: number;

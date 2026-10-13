@@ -38,6 +38,7 @@ import { STT_STREAMING_ENABLED } from '@/shared/config';
 
 import { GRETEL_COMPANION } from '../lib/companion-character';
 import { buildDialogueScene, wrapUpFor, type WrapUpSignal } from '../lib/dialogue-context';
+import { nextDialogueStep } from '../lib/dialogue-next-phase';
 import {
   DIALOGUE_THINKING_FILLER,
   DIALOGUE_VOICE_STREAMING,
@@ -59,6 +60,8 @@ export type DialogueTurn = {
   text: string;
   /** 그레텔 말 중에서 도움 대사·초대 대사처럼 미리 정해 둔 말인지(대화 기록에서 구분해 보여 준다). */
   fixed?: boolean;
+  /** 아이가 낸 행동을 해 봤다가 잘 안 된 "실패해 보기" 장면인지 - 패널이 장면처럼 구분해 보여 준다. */
+  triedAndFailed?: boolean;
 };
 
 /**
@@ -297,6 +300,16 @@ export function useDialogue({
       ...previous,
       { ...turn, id: `${Date.now()}-${previous.length}` },
     ]);
+  }, []);
+
+  /** 방금 띄운 그레텔 말풍선(같은 글)을 실패해 보기 장면으로 표시한다. */
+  const markTriedAndFailed = useCallback((text: string) => {
+    setTurns((previous) => {
+      let index = previous.length - 1;
+      while (index >= 0 && !(previous[index].role === 'CHARACTER' && previous[index].text === text)) index -= 1;
+      if (index < 0) return previous;
+      return previous.map((turn, i) => (i === index ? { ...turn, triedAndFailed: true } : turn));
+    });
   }, []);
 
   /** 그레텔의 고정 대사를 기록에 남기고 그레텔 목소리로 말한다(미리 녹음한 음성이 있으면 그것). */
@@ -725,17 +738,24 @@ export function useDialogue({
           proposedFamilyId: mode === 'INVITE' ? signal.proposedActionFamilyId : null,
         };
 
-        const ending =
-          signal.replyKind === 'CLOSE' || signal.childWantsToEnd || wrapUp === 'CLOSE';
-        const nextPhase: DialoguePhase = ending
-          ? 'ready'
-          : signal.proposedActionFamilyId && mode === 'INVITE'
-            ? 'proposal'
-            : signal.asksForHelp && helpStep < helpSteps.length
-              ? 'offer-help'
-              : wrapUp === 'SUGGEST_RETURN'
-                ? 'suggest-return'
-                : 'ready';
+        const step = nextDialogueStep({
+          replyKind: signal.replyKind,
+          childWantsToEnd: signal.childWantsToEnd,
+          asksForHelp: signal.asksForHelp,
+          proposedActionFamilyId: signal.proposedActionFamilyId,
+          mode,
+          wrapUp,
+          helpAvailable: helpStep < helpSteps.length,
+        });
+        const { ending } = step;
+        const nextPhase: DialoguePhase = step.phase;
+        if (step.triedAndFailed) {
+          // 실패해 보기: 그레텔 말풍선을 장면처럼 표시하고, 같은 질문 지점으로 돌아온다(이야기 진행은 그대로).
+          markTriedAndFailed(reply.responseText);
+          const attempt = signal.childMeaning || text;
+          runtime.recordTriedAndFailed(anchorId, attempt);
+          logStep('TRY_FAIL', { turn_number: turnNumber, reply_kind: signal.replyKind });
+        }
         if (nextPhase === 'proposal' && signal.proposedActionFamilyId) {
           setProposal({
             familyId: signal.proposedActionFamilyId,
@@ -746,6 +766,8 @@ export function useDialogue({
         // 말풍선은 이미 떴다 - 음성은 그 뒤에 받아 첫 조각부터 들려준다(deferAudio, 음성 만들기가 기다림의 대부분).
         const played = await speakReply(prepared, seq);
         logTurn({ ...replyTurn, replyAudioPlayed: played === true });
+        // 회차 기록(Q-39)에 "해 봤다가 잘 안 됨"을 시스템 줄로 남긴다 - 부모 리포트·수업 기록이 실행한 행동과 구분해 보여 준다.
+        if (step.triedAndFailed) logTurn({ role: 'SYSTEM', event: 'TRY_FAILED', text: signal.childMeaning || text });
         if (played === null) return;
         if (ending) {
           await close(signal.childWantsToEnd ? 'CHILD_ENDED' : 'CLOSED_BY_REPLY');
@@ -779,7 +801,8 @@ export function useDialogue({
     [
       addTurn, anchorId, cancelPending, character.speakerId, close, conversationAttribution.childId,
       conversationId, executedActions, extended, guardianProxy, heardClipId, helpStep, helpSteps.length, lessonId,
-      logStep, logTurn, mode, requestReply, sceneId, speakReply, stopSpeaking, storyPackage, turns, tutorStudentId,
+      logStep, logTurn, markTriedAndFailed, mode, requestReply, runtime, sceneId, speakReply, stopSpeaking, storyPackage,
+      turns, tutorStudentId,
     ],
   );
 

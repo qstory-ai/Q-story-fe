@@ -64,8 +64,14 @@ export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialo
         {turns.map((turn) => (
           <View
             key={turn.id}
-            style={[panel.bubble, turn.role === 'CHILD' ? panel.childBubble : panel.characterBubble]}
+            style={[
+              panel.bubble,
+              turn.role === 'CHILD' ? panel.childBubble : panel.characterBubble,
+              turn.triedAndFailed && panel.triedBubble,
+            ]}
           >
+            {/* 실패해 보기 - 아이 생각대로 해 본 짧은 장면. 이야기는 같은 질문 지점에 그대로 있다. */}
+            {turn.triedAndFailed && <Text style={panel.triedLabel}>해 봤더니…</Text>}
             <Text style={panel.bubbleText}>{turn.text}</Text>
           </View>
         ))}
@@ -385,6 +391,8 @@ const panel = StyleSheet.create({
     borderBottomLeftRadius: 4,
   },
   childBubble: { alignSelf: 'flex-end', backgroundColor: CHILD_BUBBLE, borderBottomRightRadius: 4 },
+  triedBubble: { borderLeftWidth: 3, borderLeftColor: storybookTheme.color.gold },
+  triedLabel: { color: storybookTheme.color.onCardMuted, fontSize: 13, fontWeight: '700', marginBottom: 2 },
   bubbleText: { color: storybookTheme.color.onCardTitle, fontSize: 16, lineHeight: 23 },
   error: { color: storybookTheme.color.gold, fontSize: 14 },
   column: { gap: 8 },

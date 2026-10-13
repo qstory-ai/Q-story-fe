@@ -8,9 +8,11 @@ import {
 } from '@/entities/story-runtime';
 
 import {
+  addTriedAndFailed,
   buildParentReport,
   buildRecentApproachTrend,
   hasExperiencedStoryAgency,
+  upsertQuestionOutcome,
 } from './parent-report';
 import { hanselGretelStoryPackage } from '@/entities/story/hansel-gretel/manifest';
 
@@ -265,4 +267,38 @@ test('a record saved under a retired branch still builds a report from the story
   assert.equal(report.questionRecords.length, 1);
   assert.equal(report.questionRecords[0].imageRef.kind, 'FIXED_STORY_ASSET');
   assert.equal(report.questionRecords[0].imageRef.assetId, 'old-woman-door');
+});
+
+test('a tried-and-failed attempt stays on the question even after an action is taken there', () => {
+  const qc = questionAnchorId('HG-Q-C');
+  let outcomes = addTriedAndFailed([], qc, '마녀가 잘 때 열쇠를 몰래 가져가고 싶음', '');
+  assert.equal(outcomes.length, 1);
+  assert.equal(outcomes[0].route, 'ANSWER_RESUME');
+  assert.deepEqual(outcomes[0].triedAndFailed, ['마녀가 잘 때 열쇠를 몰래 가져가고 싶음']);
+  outcomes = addTriedAndFailed(outcomes, qc, '헨젤을 두고 혼자 도망가고 싶음', '');
+  outcomes = upsertQuestionOutcome(outcomes, {
+    anchorId: qc,
+    childRelevantMeaning: '마녀가 등을 돌릴 때 가져오기',
+    route: 'DIRECT_ACTION',
+    responseText: '좋아',
+    actionFamilyId: 'C_WAIT_FOR_WITCH_TURN',
+  });
+  assert.equal(outcomes.length, 1);
+  assert.equal(outcomes[0].actionFamilyId, 'C_WAIT_FOR_WITCH_TURN');
+  assert.deepEqual(outcomes[0].triedAndFailed, ['마녀가 잘 때 열쇠를 몰래 가져가고 싶음', '헨젤을 두고 혼자 도망가고 싶음']);
+  // 빈 시도는 남기지 않는다.
+  assert.deepEqual(addTriedAndFailed(outcomes, qc, '  ', ''), outcomes);
+
+  const report = buildParentReport(reportCopy, outcomes);
+  const tried = report.coachEvidence.filter((line) => line.includes('다른 방법을 다시 찾았어요'));
+  assert.equal(tried.length, 2);
+  assert.ok(tried[0].includes('마녀가 잘 때 열쇠를 몰래 가져가고 싶음'));
+  // 실패를 잘못·처벌로 쓰지 않는다.
+  assert.ok(report.coachEvidence.every((line) => !/잘못|나쁜|혼났|벌/.test(line)));
+});
+
+test('a question where the child only tried and failed reads as finding another way', () => {
+  const outcomes = addTriedAndFailed([], questionAnchorId('HG-Q-C'), '마녀에게 거짓말하고 싶음', '');
+  const [record] = buildParentReport(reportCopy, outcomes).questionRecords;
+  assert.equal(record.selectedPathTitle, '해 보고 다른 방법 찾아보기');
 });

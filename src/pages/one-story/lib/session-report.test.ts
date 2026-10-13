@@ -108,3 +108,18 @@ test('a child line followed by another child line has no reply of its own', () =
   ]);
   assert.deepEqual(childReplyPairs(scene).map((pair) => pair.reply?.seq ?? null), [null, 3]);
 });
+
+test('a tried-and-failed scene shows as its own result until an action is taken', () => {
+  const tried = [
+    { seq: 1, occurredAt: '', sceneId: 'HG-F07', role: 'CHILD', text: '마녀가 잘 때 열쇠 몰래 가져가자' },
+    { seq: 2, occurredAt: '', sceneId: 'HG-F07', role: 'CHARACTER', text: '살금살금 가 봤는데 마녀가 뒤척여서 얼른 숨었어.', replyKind: 'TRY_FAIL' },
+    { seq: 3, occurredAt: '', sceneId: 'HG-F07', role: 'SYSTEM', event: 'TRY_FAILED', text: '마녀가 잘 때 열쇠를 가져가고 싶음' },
+    { seq: 4, occurredAt: '', sceneId: 'HG-F07', role: 'SYSTEM', event: 'INVITE_CLOSED' },
+  ];
+  assert.equal(classSceneRows(storyPackage, tried)[0].result, '해 봤다가 잘 안 됨 - 다른 방법 찾기');
+  const thenActed = [
+    ...tried.slice(0, 3),
+    { seq: 4, occurredAt: '', sceneId: 'HG-F07', role: 'SYSTEM', event: 'ACTION_CONFIRMED', familyId: 'C_WAIT_FOR_WITCH_TURN' },
+  ];
+  assert.match(classSceneRows(storyPackage, thenActed)[0].result, /기다렸다가/);
+});

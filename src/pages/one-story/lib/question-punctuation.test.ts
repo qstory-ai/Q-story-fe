@@ -40,3 +40,26 @@ test('이미 물음표·느낌표가 있거나 빈 글이면 건드리지 않는
   assert.equal(punctuateChildQuestion('  '), '');
   assert.equal(looksLikeKoreanQuestion('hello why'), false);
 });
+
+test('구어 질문 보강: 같애·같에·같아·돼·어때·뭐야·할까 + 의문사', () => {
+  assert.equal(punctuateChildQuestion('내가 근데 새를 좀 어떻게 살펴보면 좋을 것 같애'), '내가 근데 새를 좀 어떻게 살펴보면 좋을 것 같애?');
+  assert.equal(punctuateChildQuestion('새를 어떻게 살펴보면 좋을 것 같에.'), '새를 어떻게 살펴보면 좋을 것 같에?');
+  assert.equal(punctuateChildQuestion('어떻게 하면 좋을 것 같아'), '어떻게 하면 좋을 것 같아?');
+  assert.equal(punctuateChildQuestion('그럼 어떻게 하면 돼'), '그럼 어떻게 하면 돼?');
+  assert.equal(punctuateChildQuestion('이 과자집 어때'), '이 과자집 어때?');
+  assert.equal(punctuateChildQuestion('그때 기분이 어땠어'), '그때 기분이 어땠어?');
+  assert.equal(punctuateChildQuestion('저 새는 대체 뭐야'), '저 새는 대체 뭐야?');
+  assert.equal(punctuateChildQuestion('왜 헨젤만 돌을 주웠어'), '왜 헨젤만 돌을 주웠어?');
+  assert.equal(punctuateChildQuestion('우리 이제 뭐 할까'), '우리 이제 뭐 할까?');
+});
+
+test('근거 없는 평서문 반례: 의문사가 없거나, …지 마디에 묻혔거나, 말버릇 "뭐"', () => {
+  assert.equal(punctuateChildQuestion('새를 좀 살펴보면 좋을 것 같애'), '새를 좀 살펴보면 좋을 것 같애');
+  assert.equal(punctuateChildQuestion('이렇게 하면 돼'), '이렇게 하면 돼');
+  assert.equal(punctuateChildQuestion('나는 과자집이 맛있을 것 같아'), '나는 과자집이 맛있을 것 같아');
+  assert.equal(punctuateChildQuestion('나는 왜 그런지 알아'), '나는 왜 그런지 알아');
+  assert.equal(punctuateChildQuestion('어떻게 해야 할지 모르겠어'), '어떻게 해야 할지 모르겠어');
+  assert.equal(punctuateChildQuestion('뭐가 있는지 봤어'), '뭐가 있는지 봤어');
+  assert.equal(punctuateChildQuestion('뭐 그냥 재밌었어'), '뭐 그냥 재밌었어');
+  assert.equal(punctuateChildQuestion('그래서 집에 갔어'), '그래서 집에 갔어');
+});

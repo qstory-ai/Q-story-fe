@@ -303,6 +303,11 @@ function systemLineText(turn: PlayTurn) {
   if (turn.event === 'ACTION_DECLINED') return '제안한 행동은 하지 않고 이야기를 이어 감';
   if (turn.event === 'INVITE_SKIPPED') return '질문 초대를 건너뜀';
   if (turn.event === 'INVITE_CLOSED') return '대화를 마치고 이야기로 돌아감';
+  if (turn.event === 'TRY_FAILED') return `시도 장면 - ‘${turn.text ?? ''}’ 해 보기`;
+  if (turn.event === 'TRY_ENDED') {
+    const talk = turn.attemptTurns ? ` (장면 안 대화 ${turn.attemptTurns}번)` : '';
+    return `시도 장면을 마치고 다른 방법 찾기${talk}`;
+  }
   return '';
 }
 
@@ -310,6 +315,8 @@ function speakerLabel(turn: PlayTurn) {
   if (turn.role === 'CHILD') return '아이';
   if (turn.helpStep && turn.fixed) return `그레텔 · 도움 ${turn.helpStep}단계`;
   if (turn.fixed) return '그레텔 · 준비된 말';
+  if (turn.replyKind === 'ATTEMPT_SCENE') return turn.characterSpeakerId?.endsWith('NARRATOR') ? '이야기 장면' : '그레텔 · 장면';
+  if (turn.replyKind === 'TRY_FAIL' || turn.replyKind === 'ATTEMPT_END') return '그레텔 · 시도 장면';
   return '그레텔';
 }
 

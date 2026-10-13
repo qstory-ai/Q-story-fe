@@ -5,8 +5,8 @@ import {
   type StoryRuntimeState,
 } from '@/entities/story-runtime';
 
-/** 장면 끝에서 다음 장면으로 넘어가기 전에 쉬는 시간 - 아이가 그레텔에게 물어볼 틈. */
-export const SCENE_END_PAUSE_MS = 4_000;
+/** 장면 끝에서 다음 장면으로 넘어가기 전에 쉬는 시간(3초, PM 요청 "3초 뒤 다음 챕터") - 아이가 그레텔에게 물어볼 틈. */
+export const SCENE_END_PAUSE_MS = 3_000;
 
 /**
  * 이 대사가 끝나면 다음 장면의 고정 낭독으로 바로 넘어가는지(= 장면 끝 쉼을 둘 자리인지).

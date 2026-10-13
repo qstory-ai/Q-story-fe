@@ -31,6 +31,8 @@ import {
   type TermsConsentState,
 } from '@/features/terms-consent';
 import { SocialLoginButtons } from '@/features/oauth-login';
+import { InstitutionSearch } from '@/features/institution-search';
+import type { PublicInstitution } from '@/entities/public-institution';
 
 /** next: 가입 직후 온보딩을 마친 뒤 이어서 갈 앱 내부 경로(반 코드로 가입하면 그 반의 연결 화면). */
 type OnAuthed = (token: string, user: UserSummary, next?: string) => void;
@@ -209,6 +211,9 @@ function SignUpStep({
   const [hasClass, setHasClass] = useState(Boolean(initialClassCode));
   const [classCode, setClassCode] = useState(initialClassCode ?? '');
   const [orgName, setOrgName] = useState('');
+  // 원장 가입: 공공데이터 유치원·어린이집 목록에서 고른 기관(고르면 기관 이름을 채운다, 이름을 고치면 고른 것을 푼다).
+  const [orgInstitution, setOrgInstitution] = useState<PublicInstitution | null>(null);
+  const [orgSearchOpen, setOrgSearchOpen] = useState(false);
   const [loginId, setLoginId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -267,13 +272,20 @@ function SignUpStep({
       if (role === 'DIRECTOR') {
         // 계정 생성 직후 같은 화면에서 받은 기관명으로 바로 기관을 만든다.
         const signupResponse = await signupOrganizationOwner(input);
-        const orgResponse = await createOrganization(signupResponse.token, {
-          name: orgName.trim(),
-          guardianConsentAck: orgGuardianAck,
-          consentVersion: CONSENT_VERSION,
-        });
         trackSignupCompleted('password', false);
-        onAuthed(orgResponse.token, orgResponse.user);
+        try {
+          const orgResponse = await createOrganization(signupResponse.token, {
+            name: orgName.trim(),
+            guardianConsentAck: orgGuardianAck,
+            consentVersion: CONSENT_VERSION,
+            publicInstitutionId: orgInstitution?.id ?? null,
+          });
+          onAuthed(orgResponse.token, orgResponse.user);
+        } catch {
+          // 계정은 이미 만들어졌다 - 기관 등록만 실패(예: 그사이 다른 원장님이 같은 기관을 등록)했으면
+          // 로그인된 채로 기관 등록 화면(/organization)에서 다시 고르게 한다.
+          onAuthed(signupResponse.token, signupResponse.user);
+        }
         return;
       }
       // 반 코드가 틀렸으면 계정을 만들기 전에 알린다.
@@ -319,6 +331,7 @@ function SignUpStep({
     initialClassCode,
     trackSignupCompleted,
     orgName,
+    orgInstitution,
     orgGuardianAck,
     loginId,
     email,
@@ -362,10 +375,33 @@ function SignUpStep({
           <TextField
             label="기관 이름"
             value={orgName}
-            onChangeText={setOrgName}
+            onChangeText={(value) => {
+              setOrgName(value);
+              if (orgInstitution && value.trim() !== orgInstitution.name) setOrgInstitution(null);
+            }}
             placeholder="예: 무지개 유치원"
           />
           <OrgGuardianAck checked={orgGuardianAck} onChange={setOrgGuardianAck} />
+          {orgInstitution ? (
+            <Text style={styles.formNote}>
+              유치원·어린이집 목록에서 고른 기관이에요{orgInstitution.address ? ` (${orgInstitution.address})` : ''}.
+            </Text>
+          ) : null}
+          {orgSearchOpen ? (
+            <InstitutionSearch
+              token={null}
+              selectedId={orgInstitution?.id ?? null}
+              onSelect={(institution) => {
+                setOrgInstitution(institution);
+                setOrgName(institution.name);
+                setOrgSearchOpen(false);
+              }}
+            />
+          ) : (
+            <Pressable accessibilityRole="button" hitSlop={4} onPress={() => setOrgSearchOpen(true)} style={styles.signInInlineLink}>
+              <Text style={styles.signInInlineLinkText}>유치원·어린이집 목록에서 찾기</Text>
+            </Pressable>
+          )}
         </>
       )}
 

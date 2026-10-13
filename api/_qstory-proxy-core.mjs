@@ -71,6 +71,10 @@ const ALLOWED_ROUTES = new Map([
   ['GET v1/tutor-lessons', true],
   ['POST v1/tutor-lessons', true],
   ['GET v1/tutors/me/organizations', true],
+  // 공공데이터 유치원·어린이집 검색(원장 가입 화면은 로그인 전에도 부른다)과 선생님 소속 신청(be 083).
+  ['GET v1/public-institutions', true],
+  ['POST v1/organization-join-requests', true],
+  ['GET v1/tutors/me/organization-join-requests', true],
   ['GET v1/notifications', true],
   ['POST v1/notifications/read-all', true],
   ['POST v1/auth/me/profile-image', true],
@@ -146,6 +150,12 @@ const DYNAMIC_ROUTES = [
   { method: 'POST', pattern: new RegExp(`^v1/tutor-lessons/${UUID_SEGMENT}/complete$`) },
   { method: 'GET', pattern: new RegExp(`^v1/tutor-lessons/${UUID_SEGMENT}/completions$`) },
   // ---- organization ↔ tutor 소속 관리
+  // 원장: 우리 기관과 공공 기관 목록 연결, 선생님 소속 신청 수락·거절(be 083).
+  { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/profile$`) },
+  { method: 'PUT', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/public-institution$`) },
+  { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/join-requests$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/join-requests/${UUID_SEGMENT}/(accept|reject)$`) },
+  { method: 'POST', pattern: new RegExp(`^v1/organization-join-requests/${UUID_SEGMENT}/cancel$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/tutors$`) },
   { method: 'GET', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/tutor-invites$`) },
   { method: 'POST', pattern: new RegExp(`^v1/organizations/${UUID_SEGMENT}/tutor-invites$`) },
@@ -206,7 +216,7 @@ const MAX_COMPLETION_SURVEY_BODY_BYTES = 16_384;
 // Matches application.yml's spring.servlet.multipart.max-file-size/max-request-size (4MB); the
 // generic AUTH_PATH_PREFIXES cap below (8KB) would 413 every real photo.
 const MAX_PROFILE_IMAGE_BODY_BYTES = 4 * 1024 * 1024;
-const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/classes', 'v1/tutor-students', 'v1/tutor-classes', 'v1/parents/', 'v1/payments/'];
+const AUTH_PATH_PREFIXES = ['v1/auth/', 'v1/organizations', 'v1/organization-join-requests', 'v1/classes', 'v1/tutor-students', 'v1/tutor-classes', 'v1/parents/', 'v1/payments/'];
 
 function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath === 'v1/voice-research') return MAX_VOICE_RESEARCH_BODY_BYTES;

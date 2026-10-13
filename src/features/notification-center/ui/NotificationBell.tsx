@@ -54,6 +54,11 @@ const KIND_PRESENTATION: Record<string, Presentation> = {
   // 담임·기관 초대가 만료됐거나 곧 만료 → 원장: 새 코드가 필요할 수 있음
   'invite-expired': { icon: 'clock', tone: 'warning' },
   'invite-expiring': { icon: 'clock', tone: 'warning' },
+  // 선생님이 검색으로 기관에 소속 신청 → 원장: 선생님 관리에서 수락·거절(be 083)
+  'org-join-requested': { icon: 'graduationCap', tone: 'brand' },
+  // 원장이 소속 신청을 수락/거절 → 선생님
+  'org-join-accepted': { icon: 'graduationCap', tone: 'positive' },
+  'org-join-rejected': { icon: 'graduationCap', tone: 'warning' },
 };
 
 const DEFAULT_PRESENTATION: Presentation = { icon: 'bell', tone: 'gold' };

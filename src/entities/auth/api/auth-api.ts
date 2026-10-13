@@ -239,8 +239,11 @@ export function deleteAccount(
  */
 export function createOrganization(
   token: string,
-  /** guardianConsentAck - "원아의 보호자 동의를 받아 이용해요" 확인(필수). 없으면 서버가 400 CONSENT_REQUIRED. */
-  input: { name: string; guardianConsentAck: boolean; consentVersion: string },
+  /**
+   * guardianConsentAck - "원아의 보호자 동의를 받아 이용해요" 확인(필수). 없으면 서버가 400 CONSENT_REQUIRED.
+   * publicInstitutionId - 공공 기관 목록에서 고른 유치원·어린이집(있으면 서버가 그 이름으로 등록). 이때도 확인은 필수.
+   */
+  input: { name: string; guardianConsentAck: boolean; consentVersion: string; publicInstitutionId?: string | null },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
   return request('/v1/organizations', { method: 'POST', body: JSON.stringify(input) }, { ...options, token });

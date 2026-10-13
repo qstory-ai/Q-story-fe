@@ -16,6 +16,8 @@ import {
 } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
 import { BETA_OPEN_ACCESS_NOTICE, subscriptionStatusLabel } from '@/shared/config';
+import { InstitutionSearch } from '@/features/institution-search';
+import { INSTITUTION_KIND_LABEL, type PublicInstitution } from '@/entities/public-institution';
 
 /**
  * DIRECTOR 홈("/organization"). 기관이 없으면 기관 등록, 있으면 대시보드를 보여 준다 - 한 방향으로만
@@ -54,24 +56,33 @@ function Redirect({ to }: { to: string }) {
   return null;
 }
 
+/**
+ * 기관 등록 - 공공데이터 유치원·어린이집 목록에서 고르거나(기본), 목록에 없으면 이름을 직접 입력한다.
+ * 목록에서 고른 기관은 서버가 그 이름으로 등록하고, 이미 다른 원장님이 등록한 곳이면 고를 수 없게 막는다.
+ */
 function CreateOrganizationStep({ token, user }: { token: string; user: UserSummary }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { setSession } = useAuth();
+  const [mode, setMode] = useState<'search' | 'manual'>('search');
+  const [picked, setPicked] = useState<PublicInstitution | null>(null);
   const [name, setName] = useState('');
   // 원아 보호자 동의 확인(필수, A5) - 기관 단위로 남는다.
   const [guardianAck, setGuardianAck] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const pickedTaken = picked?.registered === true;
+
   const onSubmit = useCallback(async () => {
     setError(null);
     setSubmitting(true);
     try {
       const response = await createOrganization(token, {
-        name: name.trim(),
+        name: mode === 'search' && picked ? picked.name : name.trim(),
         guardianConsentAck: guardianAck,
         consentVersion: CONSENT_VERSION,
+        publicInstitutionId: mode === 'search' && picked ? picked.id : null,
       });
       setSession(response.token, response.user);
     } catch (failure) {
@@ -79,29 +90,91 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
     } finally {
       setSubmitting(false);
     }
-  }, [token, name, guardianAck, setSession]);
+  }, [token, mode, picked, name, guardianAck, setSession]);
 
   return (
     <AppNavShell items={dashboardNavItems(user, navigate, pathname)}>
       <View style={styles.scroll}>
         <Card variant="surface" padding="lg" style={styles.greetingCard}>
           <Text style={styles.title} accessibilityRole="header">기관 등록</Text>
-          <Text style={styles.body}>거의 다 됐어요. 기관 이름을 알려주세요.</Text>
-          <TextField label="기관 이름" value={name} onChangeText={setName} errorText={error ?? undefined} />
-          <OrgGuardianAck checked={guardianAck} onChange={setGuardianAck} />
-          <ActionButton
-            label="등록하기"
-            loading={submitting}
-            onPress={onSubmit}
-            disabled={!name.trim() || !guardianAck}
-          />
+          {mode === 'search' ? (
+            <>
+              <Text style={styles.body}>
+                거의 다 됐어요. 우리 유치원·어린이집을 찾아 골라 주세요. 목록에서 고르면 선생님들이 검색해 소속을 신청할 수 있어요.
+              </Text>
+              <InstitutionSearch
+                token={token}
+                selectedId={picked?.id ?? null}
+                onSelect={(institution) => {
+                  setPicked(institution);
+                  setError(null);
+                }}
+                badgeFor={(institution) => (institution.registered ? '이미 등록됨' : null)}
+              />
+              {picked ? (
+                pickedTaken ? (
+                  <StatusBanner
+                    variant="warning"
+                    label="이미 다른 관리자가 등록한 기관이에요."
+                    body="그 기관의 관리자에게 선생님 초대를 받거나, 잘못 등록됐다면 고객센터로 알려 주세요."
+                  />
+                ) : (
+                  <StatusBanner
+                    variant="info"
+                    label={`${picked.name}(${INSTITUTION_KIND_LABEL[picked.kind]})으로 등록해요`}
+                    body={picked.address ?? undefined}
+                  />
+                )
+              ) : null}
+              <OrgGuardianAck checked={guardianAck} onChange={setGuardianAck} />
+              {error ? <StatusBanner variant="warning" label={error} /> : null}
+              <ActionButton
+                label="이 기관으로 등록하기"
+                loading={submitting}
+                onPress={onSubmit}
+                disabled={!picked || pickedTaken || !guardianAck || submitting}
+              />
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => {
+                  setMode('manual');
+                  setError(null);
+                }}
+                style={styles.modeLink}
+              >
+                <Text style={styles.modeLinkText}>목록에 없어요 · 이름 직접 입력하기</Text>
+              </Pressable>
+            </>
+          ) : (
+            <>
+              <Text style={styles.body}>기관 이름을 알려주세요. 나중에 목록과 연결할 수도 있어요.</Text>
+              <TextField label="기관 이름" value={name} onChangeText={setName} errorText={error ?? undefined} />
+              <OrgGuardianAck checked={guardianAck} onChange={setGuardianAck} />
+              <ActionButton
+                label="등록하기"
+                loading={submitting}
+                onPress={onSubmit}
+                disabled={!name.trim() || !guardianAck || submitting}
+              />
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => {
+                  setMode('search');
+                  setError(null);
+                }}
+                style={styles.modeLink}
+              >
+                <Text style={styles.modeLinkText}>유치원·어린이집 목록에서 찾기</Text>
+              </Pressable>
+            </>
+          )}
         </Card>
       </View>
     </AppNavShell>
   );
 }
 
-/** 기관 등록 이후의 대시보드 - IA "기관 관리자"의 각 화면으로 가는 진입점 카드만 모은다. */
+/** 기관 등록 이후의 대시보드 - IA "관리자"의 각 화면으로 가는 진입점 카드만 모은다. */
 function ClassManagementStep({
   token,
   organizationId,
@@ -180,7 +253,7 @@ function ClassManagementStep({
           />
           <DashboardCard
             title="선생님 관리"
-            body="소속 선생님을 초대하고 관리해요."
+            body="소속 선생님을 초대하고, 선생님이 보낸 소속 신청을 수락해요."
             onPress={() => navigate('/organization/tutors')}
           />
           <DashboardCard
@@ -266,6 +339,12 @@ const styles = StyleSheet.create({
   entitlementLoaderText: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onCardMuted,
+  },
+  modeLink: { alignSelf: 'center', paddingVertical: storybookTheme.spacing.xs },
+  modeLinkText: {
+    fontSize: storybookTheme.type.sm,
+    color: storybookTheme.color.linkOnLight,
+    textDecorationLine: 'underline',
   },
   dashboardGrid: {
     gap: storybookTheme.spacing.sm,

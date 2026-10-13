@@ -16,6 +16,7 @@ import {
 } from '@/entities/organization-tutor';
 import { InviteCodeCard, formatInviteExpiry, organizationTutorInviteLink } from '@/features/invite-issue';
 import { teacherTitle } from '@/shared/lib';
+import { JoinRequestsSection } from './JoinRequestsSection';
 
 type TutorsLoad = { status: 'loading' } | { status: 'ready'; tutors: OrganizationTutorLink[] } | { status: 'error'; message: string };
 type InvitesLoad = { status: 'loading' } | { status: 'ready'; invites: OrganizationTutorInviteSummary[] } | { status: 'error' };
@@ -111,8 +112,16 @@ export function OrganizationTutorsPage() {
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">선생님 관리</Text>
         <Text style={styles.subtitle}>
-          기관에 소속된 선생님을 초대하고 관리해요. 초대 코드나 링크를 선생님에게 전달하면 소속 신청이 완성돼요.
+          기관에 소속된 선생님을 초대하고 관리해요. 초대 코드·링크를 전달하거나, 선생님이 기관을 검색해 보낸 소속 신청을 수락하면 돼요.
         </Text>
+
+        {token && organizationId ? (
+          <JoinRequestsSection
+            token={token}
+            organizationId={organizationId}
+            onAccepted={() => setReloadKey((n) => n + 1)}
+          />
+        ) : null}
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>새 선생님 초대</Text>

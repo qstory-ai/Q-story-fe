@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-/** 랜딩(qstory.ai.kr)의 자체 통계가 이 프록시의 beta-events로 들어올 수 있게 그 경로에만 CORS를 연다. */
+/** 랜딩(qstory.ai.kr)의 자체 통계(beta-events)와 협업 문의(partnership-inquiries)가 들어올 수 있게 그 두 경로에만 CORS를 연다. */
 const corePath = join(fileURLToPath(new URL('.', import.meta.url)), '..', '..', '..', 'api', '_qstory-proxy-core.mjs');
 
 type Proxy = (request: Request) => Promise<Response>;
@@ -60,4 +60,35 @@ test('다른 출처·다른 경로에는 CORS를 열지 않는다', async () => 
   assert.equal(otherPath.status, 404);
   const otherPost = await proxy(request('POST', 'v1/companion-chat/messages', 'https://qstory.ai.kr'));
   assert.equal(otherPost.headers.get('access-control-allow-origin'), null);
+});
+
+test('랜딩 출처의 협업 문의(partnership-inquiries)도 사전 요청과 POST에 CORS가 붙고, 검증 실패(400)도 읽을 수 있다', async () => {
+  let forwardedPath = '';
+  const proxy = await loadProxy(async (url) => {
+    forwardedPath = new URL(url).pathname;
+    return new Response('{"error":"VALIDATION_FAILED"}', { status: 400, headers: { 'content-type': 'application/json' } });
+  });
+  const preflight = await proxy(request('OPTIONS', 'v1/partnership-inquiries', 'https://www.qstory.ai.kr'));
+  assert.equal(preflight.status, 204);
+  assert.equal(preflight.headers.get('access-control-allow-origin'), 'https://www.qstory.ai.kr');
+  const response = await proxy(request('POST', 'v1/partnership-inquiries', 'https://qstory.ai.kr'));
+  assert.equal(response.status, 400);
+  assert.equal(response.headers.get('access-control-allow-origin'), 'https://qstory.ai.kr');
+  assert.equal(forwardedPath, '/v1/partnership-inquiries');
+});
+
+test('협업 문의 본문은 작은 JSON 상한(8KB)을 넘으면 백엔드로 보내지 않는다', async () => {
+  let called = false;
+  const proxy = await loadProxy(async () => {
+    called = true;
+    return ok();
+  });
+  const big = new Request('https://demo.example/api/qstory-proxy?path=v1/partnership-inquiries', {
+    method: 'POST',
+    headers: { origin: 'https://qstory.ai.kr', 'content-type': 'application/json' },
+    body: JSON.stringify({ message: 'x'.repeat(9_000) }),
+  });
+  const response = await proxy(big);
+  assert.equal(response.status, 413);
+  assert.equal(called, false);
 });

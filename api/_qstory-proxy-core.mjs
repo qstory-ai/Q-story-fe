@@ -47,6 +47,8 @@ const ALLOWED_ROUTES = new Map([
   ['POST v1/classes/join', true],
   ['POST v1/classes/join-existing', true],
   ['POST v1/launch-notifications', true],
+  // 랜딩(qstory.ai.kr) "협업하기" 문의 - 인증 없음, 아래 LANDING_CORS_PATHS로 랜딩 출처만 CORS를 연다.
+  ['POST v1/partnership-inquiries', true],
   ['POST v1/completion-surveys', true],
   ['GET v1/stories', true],
   ['POST v1/story-completions', true],
@@ -228,6 +230,7 @@ function maxBodyBytesFor(upstreamPath) {
   if (upstreamPath === 'v1/me/usage-tracking') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath.startsWith('v1/me/push-tokens')) return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/launch-notifications') return MAX_AUTH_BODY_BYTES;
+  if (upstreamPath === 'v1/partnership-inquiries') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/stt/stream-tickets') return MAX_AUTH_BODY_BYTES;
   if (upstreamPath === 'v1/completion-surveys') return MAX_COMPLETION_SURVEY_BODY_BYTES;
   if (upstreamPath === 'v1/auth/me/profile-image') return MAX_PROFILE_IMAGE_BODY_BYTES;
@@ -315,10 +318,11 @@ export async function signClientIp(secret, ip, timestampSeconds) {
 
 // ---- 랜딩(qstory.ai.kr) 통계 CORS -----------------------------------------------------------------------
 // 랜딩은 다른 출처라 자체 통계(landing_view·landing_cta_click)를 이 프록시로 보내려면 CORS가 필요하다. 백엔드의 운영
-// 허용 출처에는 랜딩이 없으므로(직접 부르면 403) 이 프록시가 beta-events 한 경로에만 랜딩 출처를 허용한다.
+// 허용 출처에는 랜딩이 없으므로(직접 부르면 403) 이 프록시가 beta-events와 협업 문의(partnership-inquiries) 두 경로에만
+// 랜딩 출처를 허용한다.
 // 프록시는 Origin을 백엔드로 넘기지 않으니(FORWARDED_HEADERS) 백엔드 CORS와 부딪히지 않는다.
 export const LANDING_CORS_ORIGINS = new Set(['https://qstory.ai.kr', 'https://www.qstory.ai.kr']);
-const LANDING_CORS_PATHS = new Set(['v1/beta-events']);
+const LANDING_CORS_PATHS = new Set(['v1/beta-events', 'v1/partnership-inquiries']);
 
 export function landingCorsHeaders(request, upstreamPath) {
   const origin = request.headers.get('origin');

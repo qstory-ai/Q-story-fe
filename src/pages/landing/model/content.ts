@@ -1,4 +1,4 @@
-import { STORY_IMAGE_ASSETS_BY_ID } from '@/entities/story/model/story-assets.generated';
+import { STORY_IMAGE_ASSETS_BY_ID } from '@/entities/story';
 import type { IconName } from '@/shared/ui';
 
 /**

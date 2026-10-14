@@ -16,10 +16,9 @@ import { ChildrenProvider } from '@/entities/child';
 import { PushNotificationsBridge } from '@/features/push-notifications';
 import { ReconsentGate } from '@/features/reconsent';
 import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
-import { isDevBuild } from '@/shared/config';
+import { LEGACY_REDIRECTS, isDevBuild } from '@/shared/config';
 import { ActionButton, LoadingState, SafeAreaView, storybookTheme } from '@/shared/ui';
 
-import { LEGACY_REDIRECTS } from './legacy-redirects';
 import { PrefetchPlayScreen } from './prefetch-play-screen';
 import { UsageTracking } from './usage-tracking';
 
@@ -123,7 +122,7 @@ const TutorStudentDetailPage = lazy(() =>
   import('@/pages/tutor-student-detail').then((m) => ({ default: m.TutorStudentDetailPage })),
 );
 const StoryPlayerRoute = lazy(() =>
-  import('@/pages/story-player').then((m) => ({ default: m.StoryPlayerRoute })),
+  import('@/pages/one-story').then((m) => ({ default: m.StoryPlayerRoute })),
 );
 const PaymentCheckoutPage = lazy(() =>
   import('@/pages/payment-checkout').then((m) => ({ default: m.PaymentCheckoutPage })),

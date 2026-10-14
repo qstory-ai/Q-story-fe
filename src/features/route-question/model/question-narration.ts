@@ -2,7 +2,7 @@ import type { QuestionAnchor, StoryId } from '@/entities/story-runtime';
 import { speechApiUrl } from '@/entities/speech-pipeline';
 
 import { fetchBufferedNarration } from './narration-request';
-import type { BufferedResponseAudio } from './response-audio';
+import type { BufferedResponseAudio } from '@/shared/lib';
 
 export type GeneratedNarrationAudio = BufferedResponseAudio;
 

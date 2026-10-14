@@ -3,9 +3,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { trackLandingCta, trackLandingView } from '@/entities/analytics';
+import { markTutorialSeen } from '@/shared/lib';
 import { ActionButton, SafeAreaView, storybookTheme } from '@/shared/ui';
 
-const TUTORIAL_SEEN_KEY = 'qstory.tutorial.seen.v1';
 
 const BULLETS = [
   '등장인물과 질문·대화하기',
@@ -28,11 +28,7 @@ export function TutorialPage() {
   }, []);
 
   function completeTo(path: string) {
-    try {
-      if (typeof window !== 'undefined') window.localStorage.setItem(TUTORIAL_SEEN_KEY, '1');
-    } catch {
-      // 프라이빗 모드 등에서 실패해도 튜토리얼은 이미 본 상태로 앱을 계속 쓸 수 있어야 한다.
-    }
+    markTutorialSeen();
     navigate(path);
   }
 
@@ -95,16 +91,6 @@ export function TutorialPage() {
       </View>
     </SafeAreaView>
   );
-}
-
-/** 튜토리얼을 이미 봤는지(재진입 시 자동 스킵할지) 판단. 서버 저장 없이 브라우저 로컬 마크만. */
-export function hasSeenTutorial(): boolean {
-  if (typeof window === 'undefined') return true;
-  try {
-    return window.localStorage.getItem(TUTORIAL_SEEN_KEY) === '1';
-  } catch {
-    return true;
-  }
 }
 
 const styles = StyleSheet.create({

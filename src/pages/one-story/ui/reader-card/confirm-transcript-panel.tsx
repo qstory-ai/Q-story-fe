@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 
-import { withParticle } from '@/shared/lib/korean-particle';
+import { withParticle } from '@/shared/lib';
 import { ActionButton } from '@/shared/ui';
 
 import { countdownSeconds, createAutoConfirm } from '../../lib/auto-confirm';

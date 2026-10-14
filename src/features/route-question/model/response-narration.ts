@@ -4,8 +4,8 @@ import { PrefetchDisabledError } from './choice-prefetch';
 import { fetchPcmNarrationStream } from './narration-request';
 import type { QuestionNarrationInput } from './question-narration';
 import { getQuestionNarration, questionNarrationFields } from './question-narration';
-import type { ResponseAudio } from './response-audio';
-import { supportsStreamingPcm } from './response-audio';
+import type { ResponseAudio } from '@/shared/lib';
+import { supportsStreamingPcm } from '@/shared/lib';
 
 const STREAM_RESPONSE_TIMEOUT_MS = 14_000;
 

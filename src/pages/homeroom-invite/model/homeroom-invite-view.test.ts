@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { safeNextPath } from '@/pages/home/model/onboarding-params';
+import { safeNextPath } from '@/shared/lib';
 
 import {
   selectHomeroomInviteView,

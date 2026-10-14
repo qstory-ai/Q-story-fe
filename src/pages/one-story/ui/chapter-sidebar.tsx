@@ -8,8 +8,7 @@ import {
 } from 'react-native';
 
 import { sceneId } from '@/entities/story-runtime';
-import { Icon, Modal, ModalBody, storybookTheme } from '@/shared/ui';
-import { usePresenceAnimation } from '@/shared/ui/motion';
+import { Icon, Modal, ModalBody, storybookTheme, usePresenceAnimation } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../model';
 import { splitQuestionOutcomesAtScene } from '../lib/runtime-view';

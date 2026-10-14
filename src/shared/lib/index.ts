@@ -4,3 +4,6 @@ export * from './back-target';
 export * from './relative-day';
 export * from './open-external-url';
 export * from './promise-cache';
+export * from './response-audio';
+export * from './safe-next-path';
+export * from './tutorial-seen';

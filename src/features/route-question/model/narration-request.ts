@@ -1,9 +1,9 @@
 import { sanitizeNarrationText } from '@/entities/narration';
 import { authorizationHeader } from '@/shared/api';
 
-import type { BufferedResponseAudio, PcmStreamResponseAudio } from './response-audio';
+import type { BufferedResponseAudio, PcmStreamResponseAudio } from '@/shared/lib';
 import { isPrefetchDisabledBody, PrefetchDisabledError } from './choice-prefetch';
-import { positiveHeader } from './response-audio';
+import { positiveHeader } from '@/shared/lib';
 
 /** /v1/narrations(·/stream) 요청 본문. anchorId가 비어 있으면 백엔드는 스토리 캐스트인지만 확인한다. */
 export type NarrationRequestFields = {

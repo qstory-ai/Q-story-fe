@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
-import { OneStoryPage } from '@/pages/one-story';
+import { OneStoryPage } from './OneStoryPage';
 import { describeStoryLoadFailure, loadStoryPackage, type StoryLoadFailure, type StoryRuntimePackage } from '@/entities/story';
 import { homePathForAuth, useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';

@@ -1,7 +1,7 @@
 import type {
   PcmStreamResponseAudio,
   ResponseAudio,
-} from './response-audio';
+} from '@/shared/lib';
 import { shouldStartPlayback } from './jitter-buffer';
 
 const SILENT_WAV_DATA_URI =

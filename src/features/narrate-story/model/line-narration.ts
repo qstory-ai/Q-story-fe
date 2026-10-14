@@ -1,14 +1,11 @@
 import type { StoryId } from '@/entities/story-runtime';
 import { speechApiUrl } from '@/entities/speech-pipeline';
-import {
-  fetchBufferedNarration,
-  fetchPcmNarrationStream,
-} from '../../route-question/model/narration-request';
+import { fetchBufferedNarration, fetchPcmNarrationStream } from '@/features/route-question';
 import type {
   BufferedResponseAudio,
   ResponseAudio,
-} from '../../route-question/model/response-audio';
-import { supportsStreamingPcm } from '../../route-question/model/response-audio';
+} from '@/shared/lib';
+import { supportsStreamingPcm } from '@/shared/lib';
 
 /**
  * 질문 낭독(route-question/model/question-narration.ts)과 같지만 anchor가 없다 - 질문 지점에

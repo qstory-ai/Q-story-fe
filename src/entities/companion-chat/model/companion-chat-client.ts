@@ -1,6 +1,6 @@
 import { speechApiUrl } from '@/entities/speech-pipeline';
 import { authorizationHeader } from '@/shared/api';
-import type { BufferedResponseAudio } from '@/features/route-question';
+import type { BufferedResponseAudio } from '@/shared/lib';
 
 export type CompanionChatSafetyMode = 'ANSWER' | 'GENTLE_REDIRECT';
 

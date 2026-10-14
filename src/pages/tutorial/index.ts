@@ -1,1 +1,1 @@
-export { TutorialPage, hasSeenTutorial } from './ui/TutorialPage';
+export { TutorialPage } from './ui/TutorialPage';

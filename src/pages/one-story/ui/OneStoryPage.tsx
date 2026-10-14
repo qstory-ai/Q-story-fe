@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
-import { SafeAreaView } from '@/shared/ui';
+import { SafeAreaView, ThemeModeProvider } from '@/shared/ui';
 import type { StoryRuntimePackage } from '@/entities/story';
 import type { PlayEntrySource, PlaySetting } from '@/entities/play-session';
 import { CompletionSurveyModal } from '@/features/completion-survey-modal';
@@ -59,75 +59,78 @@ export function OneStoryPage({
   });
   const closeChapters = useCallback(() => setChaptersOpen(false), [setChaptersOpen]);
 
+  // 리더는 어두운 화면 - Semantic Dark 모드(웹은 <html data-theme="dark">).
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
-      <View style={styles.app}>
-        <Image
-          source={illustration}
-          resizeMode="cover"
-          style={[
-            StyleSheet.absoluteFill,
-            isParentReport && styles.reportHiddenIllustration,
-          ]}
-          accessibilityLabel={`${scene?.title ?? runtime.storyPackage.manifest.title} 삽화`}
-        />
-        <View
-          style={[
-            styles.imageShade,
-            isParentReport && styles.reportPageBackground,
-          ]}
-        />
+    <ThemeModeProvider mode="dark">
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
+        <View style={styles.app}>
+          <Image
+            source={illustration}
+            resizeMode="cover"
+            style={[
+              StyleSheet.absoluteFill,
+              isParentReport && styles.reportHiddenIllustration,
+            ]}
+            accessibilityLabel={`${scene?.title ?? runtime.storyPackage.manifest.title} 삽화`}
+          />
+          <View
+            style={[
+              styles.imageShade,
+              isParentReport && styles.reportPageBackground,
+            ]}
+          />
 
-        {/* onOpenChapters를 항상 넘겨도 된다 - TopBar 자신이 이미 같은 조건(idle 아님 && 리포트
-            아님)으로 다른 버튼들과 함께 보임/숨김을 판단한다. */}
-        <TopBar runtime={runtime} dialogue={dialogue} onOpenChapters={() => setChaptersOpen(true)} />
-        <SceneProgressBar runtime={runtime} />
+          {/* onOpenChapters를 항상 넘겨도 된다 - TopBar 자신이 이미 같은 조건(idle 아님 && 리포트
+              아님)으로 다른 버튼들과 함께 보임/숨김을 판단한다. */}
+          <TopBar runtime={runtime} dialogue={dialogue} onOpenChapters={() => setChaptersOpen(true)} />
+          <SceneProgressBar runtime={runtime} />
 
-        <ScrollView
-          contentContainerStyle={[
-            styles.scrollContent,
-            isWide && styles.scrollContentWide,
-            isShort && styles.scrollContentShort,
-            isPlaybackDockState && styles.scrollContentPlayback,
-            isNarrow && !isParentReport && styles.scrollContentNarrow,
-            showPlaybackDock && styles.scrollContentNarrowPlayback,
-            !isPlaybackDockState && styles.scrollContentCentered,
-            isShort && !isPlaybackDockState && styles.scrollContentShortCentered,
-            isParentReport && styles.reportScrollContent,
-            isParentReport && isWide && styles.reportScrollContentWide,
-          ]}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {isPlaybackDockState && (
-            <View
-              style={[
-                styles.spacer,
-                styles.playbackSpacer,
-                isNarrow && styles.playbackSpacerCompact,
-              ]}
-            />
-          )}
-          {!dialogue.open && <ReaderCard runtime={runtime} dialogue={dialogue} />}
-        </ScrollView>
+          <ScrollView
+            contentContainerStyle={[
+              styles.scrollContent,
+              isWide && styles.scrollContentWide,
+              isShort && styles.scrollContentShort,
+              isPlaybackDockState && styles.scrollContentPlayback,
+              isNarrow && !isParentReport && styles.scrollContentNarrow,
+              showPlaybackDock && styles.scrollContentNarrowPlayback,
+              !isPlaybackDockState && styles.scrollContentCentered,
+              isShort && !isPlaybackDockState && styles.scrollContentShortCentered,
+              isParentReport && styles.reportScrollContent,
+              isParentReport && isWide && styles.reportScrollContentWide,
+            ]}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {isPlaybackDockState && (
+              <View
+                style={[
+                  styles.spacer,
+                  styles.playbackSpacer,
+                  isNarrow && styles.playbackSpacerCompact,
+                ]}
+              />
+            )}
+            {!dialogue.open && <ReaderCard runtime={runtime} dialogue={dialogue} />}
+          </ScrollView>
 
-        {!dialogue.open && <PlaybackDock runtime={runtime} />}
-        <DialoguePanel dialogue={dialogue} hidden={runtime.homeMenuVisible || chaptersOpen} />
+          {!dialogue.open && <PlaybackDock runtime={runtime} />}
+          <DialoguePanel dialogue={dialogue} hidden={runtime.homeMenuVisible || chaptersOpen} />
 
-        <ChapterSidebar
-          runtime={runtime}
-          open={chaptersOpen}
-          onClose={closeChapters}
-        />
+          <ChapterSidebar
+            runtime={runtime}
+            open={chaptersOpen}
+            onClose={closeChapters}
+          />
 
-        <ResumeModal runtime={runtime} />
-        <HomeMenuModal runtime={runtime} />
-        <CompletionSurveyModal
-          visible={runtime.completionSurveyVisible}
-          storyId={storyPackage.storyId}
-          onClose={runtime.closeCompletionSurvey}
-        />
-      </View>
-    </SafeAreaView>
+          <ResumeModal runtime={runtime} />
+          <HomeMenuModal runtime={runtime} />
+          <CompletionSurveyModal
+            visible={runtime.completionSurveyVisible}
+            storyId={storyPackage.storyId}
+            onClose={runtime.closeCompletionSurvey}
+          />
+        </View>
+      </SafeAreaView>
+    </ThemeModeProvider>
   );
 }

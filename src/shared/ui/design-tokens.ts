@@ -149,6 +149,9 @@ export function figmaVariableEntries(): Array<[string, string]> {
   return entries;
 }
 
+/** 본문 행간(px) - Figma 값(100% = 16px) 대신 쓰는 가정값. */
+export const BODY_LINE_HEIGHT = 24;
+
 const kebab = (s: string) => s.replace(/([a-z])([A-Z0-9])/g, '$1-$2').toLowerCase();
 
 /** CSS 변수 이름 규칙 - 랜딩(q-story-landing src/styles.css)과 같게: --purple-500, --sky-500, --ivory. */
@@ -169,9 +172,11 @@ export function cssVariableEntries(): Array<[string, string]> {
   }
   for (const [key, s] of Object.entries(typography)) {
     const name = `--text-${kebab(key)}`;
+    // Body 행간은 Figma 100(=16px)이 한글 본문에 빽빽해 24px로 쓴다(tokens.ts textStyles와 같음 - 디자이너 확인 요청 중).
+    const lineHeight = key === 'body' ? BODY_LINE_HEIGHT : s.lineHeight;
     entries.push([`${name}-size`, `${s.fontSize}px`]);
     entries.push([`${name}-weight`, s.fontWeight]);
-    entries.push([`${name}-line-height`, `${s.lineHeight}px`]);
+    entries.push([`${name}-line-height`, `${lineHeight}px`]);
     entries.push([`${name}-letter-spacing`, s.letterSpacing === 0 ? '0' : `${s.letterSpacing}px`]);
   }
   entries.push(['--stroke-weight-1-8', `${strokeWeight['1_8']}px`]);

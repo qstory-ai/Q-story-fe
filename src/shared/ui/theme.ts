@@ -1,8 +1,10 @@
 import { primitives as p } from './design-tokens';
-import { alpha, radius as r, semanticColors, space } from './tokens';
+import { alpha, radius as r, rawExtensions, semanticColors, space } from './tokens';
 
 const L = semanticColors.light;
 const D = semanticColors.dark;
+/** 리더 어두운 바탕·전역 그림자 색(Figma 변수 아님 - rawExtensions). */
+const INK = rawExtensions.ink;
 
 /**
  * Q-Story 앱 전역 의미(semantic) 토큰. 값은 디자인 시스템 primitive(design-tokens.ts, Figma 변수)를 참조한다 -
@@ -30,8 +32,8 @@ export const storybookTheme = {
     /** 컨텐츠 위 텍스트. onCard*와 별개로 페이지 배경 직접 위의 텍스트에 씀. */
     onContent: L.text.primary,
     onContentMuted: L.text.tertiary,
-    /** 비활성·보조 표시용 - Neutral 50 위 3.17:1이라 본문 글자에는 쓰지 않는다. */
-    onContentSubtle: L.icon.disabled,
+    /** 보조 흐린 글자 - text.tertiary와 같다(예전 Neutral 500 3.17:1을 4.75:1로 올림). */
+    onContentSubtle: L.text.tertiary,
     // ── 사이드바 전용(다크 유지) ────────────────────────────────────────────
     /** AppNavShell wide 사이드바. */
     sidebarBackground: D.bg.secondary,
@@ -47,7 +49,7 @@ export const storybookTheme = {
      * 강조 채움·마커(캘린더 오늘, 사이드바 활성 아이콘, 진행 막대 등). 이름은 예전 골드에서 왔고 값은 Purple 400 -
      * 흰 바탕 3.4:1이라 글자색으로는 goldText를 쓴다.
      */
-    gold: D.bg.interactive.primary.default,
+    gold: L.bg.indicator,
     /**
      * 강조 "채움 위 글자" 짝 - 예전 골드 채움 버튼·탭·번호 원 자리. 채움 Purple 500 + 흰 글자 5.46:1.
      * 글자·아이콘이 없는 채움(진행 막대·점·라디오 점)은 gold(Purple 400)를 쓴다.
@@ -84,21 +86,21 @@ export const storybookTheme = {
     pillBackground: L.bg.tertiary,
     pillBorder: L.border.secondary,
     /** 스토리북 테마 페이지(landing/detail/story-card)의 모든 카드가 공유하는 shadowColor. */
-    shadow: '#12091F',
+    shadow: INK,
     /** 삽화 위 글자·배지를 받치는 어두운 막(그림자 색 기반). */
-    imageScrim: alpha('#12091F', 0.6),
-    imageScrimStrong: alpha('#12091F', 0.72),
+    imageScrim: alpha(INK, 0.6),
+    imageScrimStrong: alpha(INK, 0.72),
     /** 어두운 바탕 위 반투명 흰 막(배지 바탕·hairline). */
     onDarkOverlay: 'rgba(255, 255, 255, 0.16)',
     onDarkHairline: 'rgba(255, 255, 255, 0.1)',
     /** 리더 대화 패널 바탕(삽화 위 90%). */
-    readerPanelBackground: alpha('#12091F', 0.9),
+    readerPanelBackground: alpha(INK, 0.9),
     /** 삽화 위에 아주 옅게 까는 막. */
-    imageShade: alpha('#12091F', 0.12),
+    imageShade: alpha(INK, 0.12),
     /** 삽화 위 글자 그림자. */
-    textShadow: alpha('#12091F', 0.6),
+    textShadow: alpha(INK, 0.6),
     /** 녹음·재생 중 점·음량 막대 채움 - Pink 500. */
-    recording: D.icon.error,
+    recording: D.bg.recording,
     /** 삽화가 오기 전 자리 - Neutral 100. */
     imagePlaceholder: L.bg.tertiary,
     /** 이야기에 아직 커버 아트가 없을 때의 커버 이미지 자리표시자 배경. */
@@ -275,20 +277,20 @@ export const storybookTheme = {
    */
   elevation: {
     low: {
-      shadowColor: '#12091F',
+      shadowColor: INK,
       shadowOpacity: 0.06,
       shadowRadius: 18,
       shadowOffset: { width: 0, height: 6 },
     },
     high: {
-      shadowColor: '#12091F',
+      shadowColor: INK,
       shadowOpacity: 0.1,
       shadowRadius: 30,
       shadowOffset: { width: 0, height: 14 },
     },
     /** 모달 카드 - low/high보다 진하다. */
     modal: {
-      shadowColor: '#12091F',
+      shadowColor: INK,
       shadowOpacity: 0.22,
       shadowRadius: 40,
       shadowOffset: { width: 0, height: 18 },

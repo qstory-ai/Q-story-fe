@@ -24,4 +24,21 @@ export * from './field-primitives';
 export * from './state-views';
 export * from './support-mail';
 export * from './motion';
-export * from './tokens';
+export * from './theme-mode';
+// 디자인 토큰은 Semantic만 내보낸다 - Raw(design-tokens.ts)·Primitive(palette)·CSS 생성 함수는 화면에서 쓰지 않는다.
+export {
+  borderWidth,
+  elevation,
+  focusRing,
+  iconSize,
+  minTouchTarget,
+  radius,
+  responsive,
+  responsiveMode,
+  semanticColors,
+  shadow,
+  space,
+  textStyles,
+  textStylesFor,
+} from './tokens';
+export type { ColorMode, ResponsiveMode, SemanticColors, TextStyleName, TextStyleToken } from './tokens';

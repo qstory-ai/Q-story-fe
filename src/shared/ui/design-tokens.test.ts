@@ -6,7 +6,7 @@ import { test } from 'node:test';
 
 import { figmaVariableEntries, primitives, renderDesignTokensCss } from './design-tokens';
 import { storybookTheme } from './theme';
-import { renderTokensCss, semanticColors } from './tokens';
+import { renderTokensCss } from './tokens';
 
 const figma = JSON.parse(
   readFileSync(new URL('../../../design/figma-variables.json', import.meta.url), 'utf8'),
@@ -64,31 +64,34 @@ test('앱 의미 토큰은 CTO 대응표대로 primitive를 가리킨다(docs/pl
 test('Semantic CSS 변수가 hanbit 이름 규칙(--color-bg-interactive-primary)과 다크 모드 블록을 갖는다', () => {
   const css = renderTokensCss();
   for (const line of [
-    '--color-bg-interactive-primary: #7550d3;',
-    '--color-bg-interactive-primary-hover: #6340c0;',
-    '--color-text-interactive-inverse: #ffffff;',
+    '--color-bg-interactive-primary: var(--purple-500);',
+    '--color-bg-interactive-primary-hover: var(--purple-800);',
+    '--color-text-interactive-inverse: var(--white);',
+    '--color-bg-primary: var(--ink-reader);',
+    '--text-body-line-height: 24px;',
+    '--font-heading-1-size: 30px;',
+    '--radius-md: 20px;',
     '--space-16: 16px;',
     '--radius-rounded: 9999px;',
   ]) {
     assert.ok(css.includes(line), line);
   }
   assert.ok(css.includes('[data-theme="dark"] {'));
+  // Semantic 블록에는 hex 리터럴을 다시 적지 않는다 - 모두 Raw 변수 참조.
+  const semantic = css.slice(css.indexOf('/* Semantic'), css.indexOf('/* 랜딩 호환'));
+  assert.deepEqual(semantic.match(/#[0-9a-f]{6}/gi) ?? [], []);
 });
 
-test('theme.ts 별칭은 tokens.ts Semantic과 같은 값을 가리킨다(점진 이전 중 호환)', () => {
-  const { color, semantic, status } = storybookTheme;
-  const L = semanticColors.light;
-  const D = semanticColors.dark;
-  assert.equal(color.background, L.bg.secondary);
-  assert.equal(color.surfaceCard, L.bg.primary);
-  assert.equal(color.onCardTitle, L.text.primary);
-  assert.equal(color.onCardBody, L.text.secondary);
-  assert.equal(color.onCardMuted, L.text.tertiary);
-  assert.equal(color.primary, L.bg.interactive.primary.default);
-  assert.equal(semantic.brand.hover, L.bg.interactive.primary.hover);
-  assert.equal(color.disabledText, L.text.disabled);
-  assert.equal(semantic.danger.background, L.bg.errorSubtle);
-  assert.equal(status.info.background, L.bg.infoSubtle);
-  assert.equal(color.accentOnDark, D.text.interactive.primary.default);
-  assert.equal(color.sidebarBackground, D.bg.secondary);
+test('theme.ts 값이 스냅샷과 같다 - 토큰 재구성은 화면을 바꾸지 않는다(의도한 변경 때만 theme.snapshot.json 갱신)', () => {
+  const snapshot = JSON.parse(readFileSync(new URL('./theme.snapshot.json', import.meta.url), 'utf8'));
+  const current: Record<string, string | number> = {};
+  const walk = (node: unknown, path: string) => {
+    if (typeof node === 'string' || typeof node === 'number') {
+      current[path] = typeof node === 'string' ? node.toLowerCase() : node;
+      return;
+    }
+    if (node && typeof node === 'object') for (const [k, v] of Object.entries(node)) walk(v, path ? `${path}.${k}` : k);
+  };
+  walk(storybookTheme, '');
+  assert.deepEqual(current, snapshot);
 });

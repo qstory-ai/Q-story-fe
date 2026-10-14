@@ -131,7 +131,10 @@ function semanticPairs(mode: 'light' | 'dark'): Array<[string, string, string, n
   add('text.link', t.link, surfaces, 4.5);
   add('text.info', t.info, mode === 'light' ? { 'bg.primary': bg.primary } : surfaces, 4.5);
   add('text.success', t.success, { ...surfaces, 'bg.successSubtle': bg.successSubtle }, 4.5);
-  add('text.error', t.error, { ...surfaces, 'bg.errorSubtle': bg.errorSubtle }, 4.5);
+  // 다크 오류 배너 안 글자는 text.primary(흰) - Pink 500 글자는 옅은 분홍 막 위에서 4.5에 못 미친다.
+  add('text.error', t.error, mode === 'light' ? { ...surfaces, 'bg.errorSubtle': bg.errorSubtle } : surfaces, 4.5);
+  add('text.primary', t.primary, { 'bg.errorSubtle': bg.errorSubtle, 'bg.infoSubtle': bg.infoSubtle, 'bg.successSubtle': bg.successSubtle }, 4.5);
+  add('icon.error(배너 안)', i.error, { 'bg.errorSubtle': bg.errorSubtle }, 3);
   for (const state of ['default', 'hover', 'pressed'] as const) {
     add(`text.interactive.primary.${state}`, t.interactive.primary[state], surfaces, 4.5);
     add(`text.interactive.secondary.${state}`, t.interactive.secondary[state], surfaces, 4.5);
@@ -155,6 +158,9 @@ function semanticPairs(mode: 'light' | 'dark'): Array<[string, string, string, n
   }, 4.5);
   add('icon.interactive.inverse(채움 위 아이콘)', i.interactive.inverse, { 'bg.success': bg.success }, 3);
   add('text.inverse', t.inverse, { 'bg.inverse': bg.inverse }, 4.5);
+  add('text.onWarm', t.onWarm, { 'bg.warm': bg.warm }, 4.5);
+  add('bg.indicator(글자 없는 채움 3.0)', bg.indicator, surfaces, 3);
+  add('bg.recording(글자 없는 채움 3.0)', bg.recording, surfaces, 3);
   add('border.primary(입력 경계)', b.primary, surfaces, 3);
   add('border.focus', b.focus, surfaces, 3);
   add('border.error', b.error, surfaces, 3);
@@ -164,19 +170,28 @@ function semanticPairs(mode: 'light' | 'dark'): Array<[string, string, string, n
   return pairs;
 }
 
+/** 모드별 불투명 표면 - 반투명 바탕은 이 표면 모두 위에 얹어 각각 검사한다(가장 나쁜 경우가 기준). */
+function opaqueSurfaces(mode: 'light' | 'dark'): Record<string, string> {
+  const { bg } = semanticColors[mode];
+  return mode === 'light'
+    ? { 'bg.primary': bg.primary, 'bg.secondary': bg.secondary, 'bg.tertiary': bg.tertiary, 'bg.warm': bg.warm }
+    : { 'bg.primary': bg.primary, 'bg.secondary': bg.secondary, 'bg.tertiary': bg.tertiary };
+}
+
 for (const mode of ['light', 'dark'] as const) {
-  test(`Semantic ${mode} 짝은 글자 4.5:1 · 아이콘/경계 3:1을 넘는다`, () => {
-    const base = resolve(semanticColors[mode].bg.primary);
+  test(`Semantic ${mode} 짝은 글자 4.5:1 · 아이콘/경계 3:1을 넘는다(반투명 바탕은 모든 불투명 표면 위에서)`, () => {
     const failures = [];
     for (const [name, fg, bg, min] of semanticPairs(mode)) {
-      const bgRgb = resolve(bg, base);
-      const ratio = contrast(resolve(fg, bgRgb), bgRgb);
-      if (ratio < min) failures.push(`${name}: ${ratio.toFixed(2)} < ${min} (${fg} on ${bg})`);
+      const unders = bg.startsWith('rgba') ? Object.entries(opaqueSurfaces(mode)) : [['', bg] as [string, string]];
+      for (const [underName, underValue] of unders) {
+        const bgRgb = resolve(bg, resolve(underValue));
+        const ratio = contrast(resolve(fg, bgRgb), bgRgb);
+        if (ratio < min) failures.push(`${name}${underName ? ` (over ${underName})` : ''}: ${ratio.toFixed(2)} < ${min} (${fg} on ${bg})`);
+      }
     }
     assert.deepEqual(failures, []);
   });
 }
-
 
 // ── 소스 스캔: 한 스타일 객체 안에 글자색과 바탕색이 함께 있으면 그 짝을 계산한다 ─────────────────
 function tokenValue(expr: string): string | undefined {

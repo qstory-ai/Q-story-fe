@@ -1,0 +1,50 @@
+# PR·main 푸시마다 도는 기본 검사: 타입 → 린트 → 단위 테스트 → 콘텐츠 생성물 → 디자인 토큰 → 웹 빌드.
+#
+# 배포는 Vercel이 따로 하고(이 워크플로는 배포하지 않는다), 네이티브 빌드는 native-tablet-builds.yml,
+# 배포 알림은 discord-deploy-notify.yml이 맡는다. 여기서는 시크릿을 쓰지 않는다 - 빌드 env는
+# .env.example과 같은 공개 기본값(같은 출처 프록시 경로)만 넣는다.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      # package.json에 engines·.nvmrc가 없어 native-tablet-builds.yml과 같은 Node 24에 맞춘다.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install deps
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm test
+      - name: Content check (생성물 최신 여부)
+        run: npm run content:check
+      - name: Tokens check (design-tokens.css 최신 여부)
+        run: npm run tokens:check
+      - name: Build (web)
+        run: npx vite build
+        env:
+          VITE_QSTORY_API_URL: /api/qstory
+          VITE_QSTORY_ANALYTICS_URL: /api/qstory/v1/beta-events
+          VITE_QSTORY_VOICE_RESEARCH_URL: /api/qstory/v1/voice-research
+          VITE_QSTORY_RELEASE: ci

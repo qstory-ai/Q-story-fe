@@ -34,6 +34,11 @@ export default tseslint.config(
     },
   },
   {
+    // AudioWorklet 스코프 파일 - AudioWorkletProcessor·sampleRate·registerProcessor가 전역이다.
+    files: ['public/audio/*-worklet.js'],
+    languageOptions: { globals: globals.audioWorklet },
+  },
+  {
     // Node-test-runner files use `@ts-nocheck` deliberately (Node test-runner types are kept out
     // of the browser type-check), plus one legitimate `this`-binding test.
     files: ['**/*.test.ts'],

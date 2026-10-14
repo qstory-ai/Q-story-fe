@@ -1,6 +1,6 @@
 import type { StoryId } from '@/entities/story-runtime';
 import { speechApiUrl } from '@/entities/speech-pipeline';
-import { fetchBufferedNarration, fetchPcmNarrationStream } from '@/features/route-question';
+import { fetchBufferedNarration, fetchPcmNarrationStream } from '@/entities/narration';
 import type {
   BufferedResponseAudio,
   ResponseAudio,

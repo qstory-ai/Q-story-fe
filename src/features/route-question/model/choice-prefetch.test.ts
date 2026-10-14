@@ -2,11 +2,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {
-  createChoicePrefetcher,
-  isPrefetchDisabledBody,
-  PrefetchDisabledError,
-} from './choice-prefetch';
+import { isPrefetchDisabledBody, PrefetchDisabledError } from '@/entities/narration';
+
+import { createChoicePrefetcher } from './choice-prefetch';
 
 const items = [
   { id: 'OPTION_1', text: 'a' },

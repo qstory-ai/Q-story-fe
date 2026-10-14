@@ -89,8 +89,8 @@ import {
   getResponseNarration,
   prefetchResponseNarration,
   createChoicePrefetcher,
-  type ResponseAudio,
 } from '@/features/route-question';
+import type { ResponseAudio } from '@/shared/lib';
 
 import {
   FIXED_AUDIO_FAILURE_RECOVERY_MS,

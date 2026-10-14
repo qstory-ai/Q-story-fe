@@ -1,5 +1,6 @@
 import type { NarrationRequest } from '@/features/narrate-story';
-import { playResponseAudio, type ResponseAudio } from '@/features/route-question';
+import { playResponseAudio } from '@/features/route-question';
+import type { ResponseAudio } from '@/shared/lib';
 import { estimateNarrationDurationSeconds } from '@/entities/narration';
 
 interface PlayResponseWithFallbackOptions {

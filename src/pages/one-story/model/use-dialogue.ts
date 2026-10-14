@@ -8,9 +8,8 @@ import {
   preloadDecodedClip,
   primeResponseAudio,
   type DecodedClipPlayback,
-  type BufferedResponseAudio,
-  type ResponseAudio,
 } from '@/features/route-question';
+import type { BufferedResponseAudio, ResponseAudio } from '@/shared/lib';
 import {
   LISTEN_NOW_COPY,
   NO_SPEECH_REPROMPT_COPY,

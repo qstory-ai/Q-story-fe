@@ -7,7 +7,7 @@ import { apiBaseUrl, readEnv } from './env';
 export const STT_STREAMING_ENABLED = true;
 
 /** 웹 배포의 백엔드 직접 주소 - Vercel 프록시(/api/qstory)는 WebSocket을 들고 있지 못해 소켓만 백엔드에 직접 붙는다. */
-const DEFAULT_WEB_STREAM_URL = 'wss://demo.api.qstory.ai.kr/v1/stt/stream';
+const DEFAULT_WEB_STREAM_URL = 'wss://api.qstory.ai.kr/v1/stt/stream';
 // 앞 슬래시 없이 둔다 - proxy-allowlist 테스트는 따옴표로 시작하는 v1 경로를 프록시 경로로 읽는데, 이 소켓은 프록시를 거치지 않는다.
 const STREAM_PATH = 'v1/stt/stream';
 

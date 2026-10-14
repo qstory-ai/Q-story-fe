@@ -1,5 +1,6 @@
 import { apiBaseUrl } from '@/shared/config';
 import { currentRequestAuthToken, requestJson, type PublicRequestOptions } from '@/shared/api';
+import { createPromiseCache } from '@/shared/lib';
 
 import type { StoryReportCopy } from '../model/story-package-types';
 
@@ -34,8 +35,15 @@ function request<T>(path: string, options: PublicRequestOptions = {}): Promise<T
 
 /** GET /v1/stories - 홈 라이브러리 그리드용으로, RETIRED가 아닌 모든 스토리의 카탈로그 메타데이터를 가져온다. */
 export function listStories(options?: PublicRequestOptions): Promise<StoryCatalogEntry[]> {
-  return request('/v1/stories', options);
+  // 옵션(취소 신호 등)을 넘긴 호출은 캐시를 거치지 않는다.
+  if (options) return request('/v1/stories', options);
+  // 부모 홈·서재·리포트·반 화면이 각자 부르는 카탈로그라 잠깐 함께 쓴다. 응답이 로그인한 계정(이용권)에 따라
+  // 달라질 수 있어 토큰별로 나눈다 - 로그아웃·다른 계정 로그인은 키가 달라 이전 목록을 보지 않는다.
+  return storyCatalogCache.get(currentRequestAuthToken() ?? 'anonymous', () => request('/v1/stories'));
 }
+
+const STORY_CATALOG_TTL_MS = 5 * 60 * 1000;
+const storyCatalogCache = createPromiseCache<StoryCatalogEntry[]>(STORY_CATALOG_TTL_MS);
 
 /**
  * GET /v1/stories/{storyId}/report-copy - 이야기의 리포트 문구 팩(report-copy.yaml)만 가져온다.

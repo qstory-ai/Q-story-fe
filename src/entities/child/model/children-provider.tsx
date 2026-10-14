@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { migrateLegacyProgress } from '@/entities/analytics';
@@ -80,7 +80,7 @@ function markBackfilled(userId: string) {
  * 되살아나지 않는다. 새로 가입한 부모는 childName이 없어서 아무 일도 일어나지 않는다.
  */
 export function ChildrenProvider({ children: node }: { children: ReactNode }) {
-  const { state, updateUser } = useAuth();
+  const { state, verified, updateUser } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [children, setChildren] = useState<Child[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(() => readStoredSelectedId());
@@ -99,38 +99,6 @@ export function ChildrenProvider({ children: node }: { children: ReactNode }) {
   }
   const legacyChildName = state.status === 'authenticated' ? state.user.childName : null;
 
-  // 부모가 아니거나 로그인 전이면 이 컨텍스트는 아무 것도 로드하지 않는다 - 그 상태에서
-  // "load.status는 무엇이어야 하는가"는 내부 상태가 아니라 순수 파생값이므로 여기서 계산한다.
-  // (useMemo로 안정 참조를 유지해 아래 컨텍스트 value가 매 렌더마다 새로 만들어지지 않게.)
-  const effectiveLoad = useMemo<LoadState>(
-    () => (isParent ? load : state.status === 'loading' ? { status: 'loading' } : { status: 'ready' }),
-    [isParent, load, state.status],
-  );
-
-  const performLoad = useCallback(
-    async (authToken: string, userId: string, legacyName: string | null): Promise<Child[]> => {
-      const initial = await listChildren(authToken);
-      if (initial.length > 0 || !legacyName || alreadyBackfilled(userId)) {
-        return initial;
-      }
-      // 처음 온 기존 부모: user.childName 하나를 첫 아이로 승격. 아바타는 프리셋 첫 번째로,
-      // 연령대는 유일하게 안전한 기본값('6-7')으로 채우고 사용자가 프로필에서 바꿀 수 있게 한다.
-      try {
-        await apiCreateChild(authToken, {
-          name: legacyName.trim().slice(0, 40),
-          ageBand: '6-7',
-          avatarKey: CHILD_AVATARS[0].key,
-        });
-        markBackfilled(userId);
-        return await listChildren(authToken);
-      } catch {
-        // 백필 실패는 치명적이지 않다 - 사용자가 직접 "아이 추가"할 수 있게 두고, 다음 방문에 재시도.
-        return initial;
-      }
-    },
-    [],
-  );
-
   useEffect(() => {
     if (!isParent || !token || !parentUserId) {
       // 부모가 아니면 여기서 반환 - 관련 상태 정리는 effectiveLoad/effectiveChildren이
@@ -138,7 +106,7 @@ export function ChildrenProvider({ children: node }: { children: ReactNode }) {
       return;
     }
     let cancelled = false;
-    performLoad(token, parentUserId, legacyChildName ?? null)
+    listChildren(token)
       .then((next) => {
         if (cancelled) return;
         // 예전 공용 키의 이어 읽기 기록은 이 계정의 아이 것일 때만 계정 키로 옮기고, 아니면 버린다(children 갱신 전에 처리).
@@ -154,7 +122,63 @@ export function ChildrenProvider({ children: node }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [isParent, token, parentUserId, legacyChildName, performLoad]);
+  }, [isParent, token, parentUserId]);
+
+  // 처음 온 기존 부모: user.childName 하나를 첫 아이로 승격한다. 아이 목록은 `/v1/auth/me` 확인과 동시에 받으므로
+  // (저장된 사용자 요약에는 childName이 없다) 승격 여부는 확인이 끝난 뒤 정한다. 그 사이 빈 목록을 "아이 없음"으로
+  // 보여 주지 않게 load를 loading으로 둔다.
+  const [backfillFailedFor, setBackfillFailedFor] = useState<string | null>(null);
+  const backfillCandidate =
+    isParent &&
+    !!parentUserId &&
+    load.status === 'ready' &&
+    children.length === 0 &&
+    backfillFailedFor !== parentUserId &&
+    !alreadyBackfilled(parentUserId);
+  const backfillPending = backfillCandidate && (!verified || !!legacyChildName);
+
+  // 부모가 아니거나 로그인 전이면 이 컨텍스트는 아무 것도 로드하지 않는다 - 그 상태에서
+  // "load.status는 무엇이어야 하는가"는 내부 상태가 아니라 순수 파생값이므로 여기서 계산한다.
+  // (useMemo로 안정 참조를 유지해 아래 컨텍스트 value가 매 렌더마다 새로 만들어지지 않게.)
+  const effectiveLoad = useMemo<LoadState>(
+    () => (isParent ? (backfillPending ? { status: 'loading' } : load) : state.status === 'loading' ? { status: 'loading' } : { status: 'ready' }),
+    [isParent, backfillPending, load, state.status],
+  );
+
+  // 한 계정에 한 번만 보낸다(개발 모드 StrictMode의 effect 재실행·토큰 연장으로 deps가 바뀌어도 아이가 둘 생기지 않게).
+  const backfillStartedForRef = useRef<string | null>(null);
+  const currentUserIdRef = useRef(parentUserId);
+  useEffect(() => {
+    currentUserIdRef.current = parentUserId;
+  }, [parentUserId]);
+  useEffect(() => {
+    if (!backfillCandidate || !verified || !legacyChildName || !token || !parentUserId) return;
+    if (backfillStartedForRef.current === parentUserId) return;
+    backfillStartedForRef.current = parentUserId;
+    // 아바타는 프리셋 첫 번째로, 연령대는 유일하게 안전한 기본값('6-7')으로 채우고 사용자가 프로필에서 바꿀 수 있게 한다.
+    apiCreateChild(token, {
+      name: legacyChildName.trim().slice(0, 40),
+      ageBand: '6-7',
+      avatarKey: CHILD_AVATARS[0].key,
+    })
+      .then(() => {
+        markBackfilled(parentUserId);
+        return listChildren(token);
+      })
+      .then((next) => {
+        // 그 사이 로그아웃·다른 계정 로그인이 있었으면 버린다.
+        if (currentUserIdRef.current !== parentUserId) return;
+        migrateLegacyProgress(parentUserId, next.map((child) => child.id));
+        setChildren(next);
+      })
+      .catch(() => {
+        // 백필 실패는 치명적이지 않다 - 사용자가 직접 "아이 추가"할 수 있게 두고, 다음 방문에 재시도.
+        if (currentUserIdRef.current === parentUserId) setBackfillFailedFor(parentUserId);
+      })
+      .finally(() => {
+        backfillStartedForRef.current = null;
+      });
+  }, [backfillCandidate, verified, legacyChildName, token, parentUserId]);
 
   const selectChild = useCallback((childId: string) => {
     setSelectedId(childId);
@@ -165,14 +189,14 @@ export function ChildrenProvider({ children: node }: { children: ReactNode }) {
     if (!token || !parentUserId) return;
     setLoad({ status: 'loading' });
     try {
-      const next = await performLoad(token, parentUserId, legacyChildName ?? null);
+      const next = await listChildren(token);
       setChildren(next);
       setLoad({ status: 'ready' });
     } catch (error) {
       const message = error instanceof Error ? error.message : '아이 목록을 불러오지 못했어요.';
       setLoad({ status: 'error', message });
     }
-  }, [token, parentUserId, legacyChildName, performLoad]);
+  }, [token, parentUserId]);
 
   const addChild = useCallback(
     async (input: CreateChildInput): Promise<Child> => {

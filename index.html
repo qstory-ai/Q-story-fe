@@ -10,10 +10,97 @@
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
     <meta name="description" content="아이와 함께 듣고 답하며 이야기를 만들어가는 인터랙티브 동화 - 큐스토리." />
     <link rel="icon" href="/brand/q-story-logo-app-icon-1024.png" />
-    <title>헨젤과 그레텔</title>
+    <title>큐스토리</title>
+    <!-- 초대·반 링크를 카카오톡 등에 붙였을 때의 미리보기. 경로와 상관없이 한 벌이다 - 리포트 링크도 이 공통 카드만
+         보이게 해 아이 정보가 미리보기에 실리지 않게 한다. og:image는 절대 주소여야 스크래퍼가 읽는다. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="큐스토리" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="큐스토리" />
+    <meta property="og:description" content="아이와 함께 듣고 답하며 이야기를 만들어 가는 인터랙티브 동화" />
+    <meta property="og:image" content="https://demo.qstory.ai.kr/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="큐스토리 로고와 숲속 과자집 앞의 헨젤과 그레텔 삽화" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="큐스토리" />
+    <meta name="twitter:description" content="아이와 함께 듣고 답하며 이야기를 만들어 가는 인터랙티브 동화" />
+    <meta name="twitter:image" content="https://demo.qstory.ai.kr/og-image.png" />
+    <!-- JS가 오기 전 흰 화면 대신 보이는 정적 로딩 화면. #root 안에 두어 React가 처음 그릴 때 저절로 사라진다.
+         position: fixed라 레이아웃 자리를 차지하지 않아 사라질 때 밀림(CLS)이 없다. 배경은 첫 화면(라이트 셸)과 같다. -->
+    <style>
+      #boot-splash {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        background: #F7F8FA;
+        color: #1E293B;
+        font-family: 'Pretendard Variable', Pretendard, ui-sans-serif, system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      }
+      #boot-splash .boot-mark {
+        position: relative;
+        width: 72px;
+        height: 72px;
+        border-radius: 20px;
+        background: #FFF7E8;
+        box-shadow: 0 6px 18px rgba(18, 9, 31, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 44px;
+        font-weight: 900;
+        line-height: 1;
+        color: #3B2266;
+      }
+      #boot-splash .boot-mark::after {
+        content: '';
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #F6C64D;
+      }
+      #boot-splash .boot-name {
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+      }
+      #boot-splash .boot-dots {
+        display: flex;
+        gap: 6px;
+      }
+      #boot-splash .boot-dots span {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #F6C64D;
+        animation: boot-pulse 1.2s ease-in-out infinite;
+      }
+      #boot-splash .boot-dots span:nth-child(2) { animation-delay: 0.15s; }
+      #boot-splash .boot-dots span:nth-child(3) { animation-delay: 0.3s; }
+      @keyframes boot-pulse {
+        0%, 80%, 100% { opacity: 0.25; transform: scale(0.85); }
+        40% { opacity: 1; transform: scale(1); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot-splash .boot-dots span { animation: none; opacity: 0.6; }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="boot-splash" role="status" aria-live="polite" aria-label="큐스토리를 여는 중이에요">
+        <div class="boot-mark" aria-hidden="true">?</div>
+        <div class="boot-name" aria-hidden="true">큐스토리</div>
+        <div class="boot-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+      </div>
+    </div>
     <script type="module" src="/src/app/main.tsx"></script>
   </body>
 </html>

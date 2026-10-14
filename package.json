@@ -9,7 +9,7 @@
     "build:docker": "npm run content:generate && vite build",
     "build:native": "npm run content:check && vite build --mode native",
     "cap:sync": "npm run build:native && cap sync",
-    "cap:assets": "capacitor-assets generate --ios --android --iconBackgroundColor \"#FFF7E8\" --iconBackgroundColorDark \"#FFF7E8\" --splashBackgroundColor \"#FFF7E8\" --splashBackgroundColorDark \"#FFF7E8\"",
+    "cap:assets": "capacitor-assets generate --ios --android --iconBackgroundColor \"#FFFDF8\" --iconBackgroundColorDark \"#FFFDF8\" --splashBackgroundColor \"#FFFDF8\" --splashBackgroundColorDark \"#FFFDF8\"",
     "cap:sync:android": "npm run build:native && cap sync android",
     "android:apk": "npm run cap:sync:android && node scripts/build-android.mjs debug",
     "android:apk:release": "npm run cap:sync:android && node scripts/build-android.mjs release",

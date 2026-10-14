@@ -25,6 +25,8 @@
     "content:fix": "tsx scripts/generate-story-package.mjs --all --fix",
     "content:check": "tsx scripts/generate-story-package.mjs --all --check",
     "content:import": "node scripts/import-story-to-backend.mjs --all",
+    "tokens:generate": "tsx scripts/gen-design-tokens.mjs",
+    "tokens:check": "tsx scripts/gen-design-tokens.mjs --check",
     "assets:upload": "node scripts/upload-story-assets-to-supabase.mjs --all"
   },
   "dependencies": {

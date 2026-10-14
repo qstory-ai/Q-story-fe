@@ -4,7 +4,7 @@ const SESSION_STORAGE_KEY = 'qstory.auth.session.v1';
 export const REMEMBER_ME_RENEW_WITHIN_MS = 7 * 24 * 60 * 60 * 1000;
 export const SESSION_RENEW_WITHIN_MS = 2 * 60 * 60 * 1000;
 
-type TokenClaims = { exp?: unknown; rm?: unknown };
+type TokenClaims = { exp?: unknown; rm?: unknown; sub?: unknown; role?: unknown };
 
 /** JWT payload를 서명 검증 없이 읽는다 - 저장 위치·연장 시점을 고르는 데만 쓰고, 신뢰 판단은 서버가 한다. */
 function readClaims(token: string): TokenClaims | null {
@@ -26,6 +26,14 @@ function readClaims(token: string): TokenClaims | null {
 /** "로그인 유지"로 발급된 토큰인지 - rm claim이 없는 토큰(이 기능 이전 발급, 회원가입)은 유지로 본다. */
 export function tokenRemembersLogin(token: string): boolean {
   return readClaims(token)?.rm !== false;
+}
+
+/** 토큰의 주인(sub = 사용자 id)과 역할 - 저장해 둔 사용자 요약이 이 토큰의 것인지 맞춰 볼 때만 쓴다. */
+export function tokenOwner(token: string): { userId: string; role: string } | null {
+  const claims = readClaims(token);
+  return typeof claims?.sub === 'string' && typeof claims.role === 'string'
+    ? { userId: claims.sub, role: claims.role }
+    : null;
 }
 
 /** 만료 시각(ms). exp를 읽을 수 없으면 null. */
@@ -51,8 +59,8 @@ export function tokenIsExpired(token: string, nowMs: number = Date.now()): boole
   return expiresAt !== null && expiresAt <= nowMs;
 }
 
-type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
-type Storages = { local: () => StorageLike | undefined; session: () => StorageLike | undefined };
+export type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+export type Storages = { local: () => StorageLike | undefined; session: () => StorageLike | undefined };
 
 function safely<T>(run: () => T, fallback: T): T {
   try {

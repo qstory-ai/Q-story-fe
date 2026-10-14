@@ -41,7 +41,7 @@ export function ParentHomePage() {
   const { state } = useAuth();
   const { width } = useWindowDimensions();
   const isWide = width >= 640;
-  const { children, selectedChild } = useChildren();
+  const { children, selectedChild, load: childrenLoad } = useChildren();
   // 아이가 없거나(등록) 누구의 진행인지 모를 때(이어서 읽기) 띄우는 아이 선택 - 고르면 그 아이로 재생한다.
   const [picker, setPicker] = useState<{ storyId: string; resume: boolean } | null>(null);
 
@@ -91,8 +91,10 @@ export function ParentHomePage() {
   const selectedChildId = selectedChild?.id ?? null;
   const selectedAgeBand = selectedChild?.ageBand ?? null;
 
+  // 아이 목록이 오기 전에는 보내지 않는다 - 'all'로 한 번 받고 아이가 정해지면 또 받는 중복을 없앤다.
+  const childrenLoading = childrenLoad.status === 'loading';
   useEffect(() => {
-    if (!token) return;
+    if (!token || childrenLoading) return;
     let cancelled = false;
     // 선택된 아이가 있으면 그 아이 완주만, 없으면(=아이 미등록) 전체 완주.
     const filters = selectedChildId ? { childId: selectedChildId } : undefined;
@@ -111,7 +113,7 @@ export function ParentHomePage() {
     return () => {
       cancelled = true;
     };
-  }, [token, selectedChildId]);
+  }, [token, childrenLoading, selectedChildId]);
 
   useEffect(() => {
     if (!token) return;

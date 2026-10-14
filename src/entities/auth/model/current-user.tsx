@@ -4,8 +4,10 @@ import type { ReactNode } from 'react';
 import { clearLocalStoryProgress, setBetaEventAuthToken, setLocalProgressOwner } from '@/entities/analytics';
 import { setRequestAuthToken } from '@/shared/api';
 
-import { fetchCurrentUser, refreshToken, type AuthResponse, type UserSummary } from '../api/auth-api';
-import { clearStoredToken, getStoredToken, storeToken, tokenIsExpired, tokenNeedsRenewal } from './session';
+import { fetchCurrentUser, refreshToken, type UserSummary } from '../api/auth-api';
+import { clearCachedUser, readCachedUser, storeCachedUser } from './cached-user';
+import { clearStoredToken, getStoredToken, storeToken, tokenIsExpired } from './session';
+import { renewIfNeeded, verifySession, type SessionDeps } from './verify-session';
 
 export type AuthState =
   | { status: 'loading' }
@@ -14,6 +16,11 @@ export type AuthState =
 
 type AuthContextValue = {
   state: AuthState;
+  /**
+   * 지금 로그인 상태가 서버에서 확인된 것인지. false면 저장해 둔 사용자 요약(cached-user.ts)으로 먼저 그린 상태라
+   * 이름·역할 같은 화면 분기 값만 있고 email·loginId·childName 등은 아직 비어 있다. 확인이 끝나면 true.
+   */
+  verified: boolean;
   /** 로그인/회원가입/가입(join) 응답이 성공한 뒤 호출한다 - 토큰을 저장하고 `user`를 새로고침한다. */
   setSession: (token: string, user: UserSummary) => void;
   logout: () => void;
@@ -38,55 +45,58 @@ export function onBeforeLogout(hook: BeforeLogoutHook): () => void {
   };
 }
 
-function isUnauthorized(failure: unknown): boolean {
-  return (failure as { status?: unknown } | null)?.status === 401;
+const sessionDeps: SessionDeps = { fetchCurrentUser, refreshToken, getStoredToken, storeToken };
+
+function forgetSession() {
+  clearStoredToken();
+  clearCachedUser();
+  setLocalProgressOwner(null);
 }
 
 /**
- * 만료가 가까우면(session.ts의 tokenNeedsRenewal) 같은 모드의 새 토큰을 받는다. 'none'은 연장할 필요가 없거나
- * 네트워크 오류 등으로 이번엔 못 한 경우(지금 토큰을 계속 쓴다), 'unauthorized'는 서버가 401로 거절한 경우(로그아웃).
+ * 첫 화면 상태. 토큰과 그 토큰 주인의 사용자 요약(cached-user.ts)이 저장돼 있으면 서버 확인을 기다리지 않고 바로
+ * 로그인 상태로 그린다 - 아이 목록·저장한 작품·페이지 요청이 `/v1/auth/me`와 동시에 나간다. 확인은 뒤에서 하고,
+ * 거절되면 로그아웃 처리한다. 저장된 요약이 없으면(첫 실행·예전 버전에서 올라온 경우) 예전처럼 확인을 기다린다.
  */
-async function renewIfNeeded(token: string): Promise<AuthResponse | 'none' | 'unauthorized'> {
-  if (!tokenNeedsRenewal(token)) return 'none';
-  try {
-    const renewed = await refreshToken(token);
-    // 응답을 기다리는 사이 로그아웃·다른 계정 로그인이 있었다면 그 상태를 덮어쓰지 않는다.
-    if (getStoredToken() !== token) return 'none';
-    storeToken(renewed.token);
-    return renewed;
-  } catch (failure) {
-    return isUnauthorized(failure) ? 'unauthorized' : 'none';
-  }
+function initialAuthState(): AuthState {
+  const token = getStoredToken();
+  if (!token) return { status: 'loading' };
+  if (tokenIsExpired(token)) return { status: 'loading' };
+  const user = readCachedUser(token);
+  if (!user) return { status: 'loading' };
+  setLocalProgressOwner(user.id);
+  return { status: 'authenticated', token, user };
 }
 
-async function resolveInitialAuthState(): Promise<AuthState> {
+/** 저장된 토큰을 확인해 다음 상태를 정한다. null - 기다리는 사이 로그아웃·다른 계정 로그인이 있어 덮어쓰지 않는다. */
+async function resolveAuthState(): Promise<AuthState | null> {
   const token = getStoredToken();
   if (!token) {
     setLocalProgressOwner(null);
     return { status: 'anonymous' };
   }
-  try {
-    const user = await fetchCurrentUser(token);
-    const renewed = await renewIfNeeded(token);
-    if (renewed === 'unauthorized') throw new Error('refresh rejected');
-    const next = renewed === 'none' ? { token, user } : renewed;
-    setLocalProgressOwner(next.user.id);
-    return { status: 'authenticated', token: next.token, user: next.user };
-  } catch {
+  const check = await verifySession(token, sessionDeps);
+  if (check.status === 'stale') return null;
+  if (check.status === 'invalid') {
     // 토큰이 만료/무효화된 경우 - 재로그인하도록 익명 상태로 되돌린다.
-    clearStoredToken();
-    setLocalProgressOwner(null);
+    forgetSession();
     return { status: 'anonymous' };
   }
+  storeCachedUser(check.token, check.user);
+  setLocalProgressOwner(check.user.id);
+  return { status: 'authenticated', token: check.token, user: check.user };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>({ status: 'loading' });
+  const [state, setState] = useState<AuthState>(initialAuthState);
+  const [verified, setVerified] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    resolveInitialAuthState().then((next) => {
-      if (!cancelled) setState(next);
+    void resolveAuthState().then((next) => {
+      if (cancelled || !next) return;
+      setState(next);
+      setVerified(true);
     });
     return () => {
       cancelled = true;
@@ -95,8 +105,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const setSession = useCallback((token: string, user: UserSummary) => {
     storeToken(token);
+    storeCachedUser(token, user);
     setLocalProgressOwner(user.id);
     setState({ status: 'authenticated', token, user });
+    setVerified(true);
   }, []);
 
   const logout = useCallback(() => {
@@ -112,21 +124,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     // 같은 기기의 다음 사용자에게 이어 읽기 기록이 보이지 않게 이 계정의 진행을 지운다(선택 아이는 ChildrenProvider가 지운다).
     clearLocalStoryProgress();
-    setLocalProgressOwner(null);
-    clearStoredToken();
+    forgetSession();
     setState({ status: 'anonymous' });
   }, []);
 
   const refresh = useCallback(async () => {
-    setState(await resolveInitialAuthState());
+    const next = await resolveAuthState();
+    if (!next) return;
+    setState(next);
+    setVerified(true);
   }, []);
 
   const updateUser = useCallback((user: UserSummary) => {
+    const token = getStoredToken();
+    if (token) storeCachedUser(token, user);
     setState((prev) => (prev.status === 'authenticated' ? { ...prev, user } : prev));
   }, []);
 
   // 앱이 다시 앞으로 올 때(탭 전환·앱 복귀) 만료가 가까우면 연장하고, 이미 만료됐으면 로그아웃한다 - 시작 시점
-  // 확인은 resolveInitialAuthState가 한다. 네이티브 앱은 WebView의 visibilitychange와 Capacitor가 document에
+  // 확인은 resolveAuthState가 한다. 네이티브 앱은 WebView의 visibilitychange와 Capacitor가 document에
   // 보내는 resume 이벤트를 함께 듣는다(@capacitor/app 플러그인 없이).
   const currentToken = state.status === 'authenticated' ? state.token : null;
   const renewingRef = useRef(false);
@@ -139,11 +155,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       renewingRef.current = true;
-      void renewIfNeeded(currentToken)
+      void renewIfNeeded(currentToken, sessionDeps)
         .then((renewed) => {
           if (renewed === 'unauthorized') {
             logout();
           } else if (renewed !== 'none') {
+            storeCachedUser(renewed.token, renewed.user);
             setState((prev) =>
               prev.status === 'authenticated' && prev.token === currentToken
                 ? { status: 'authenticated', token: renewed.token, user: renewed.user }
@@ -173,8 +190,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [authToken]);
 
   const value = useMemo(
-    () => ({ state, setSession, logout, refresh, updateUser }),
-    [state, setSession, logout, refresh, updateUser],
+    () => ({ state, verified, setSession, logout, refresh, updateUser }),
+    [state, verified, setSession, logout, refresh, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

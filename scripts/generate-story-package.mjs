@@ -13,7 +13,7 @@ import {
 // Only Hansel & Gretel has a visual-generation-contract.ts today (see references/packs.yaml's
 // sourceModule) - this import must stay story-scoped (see visualReferencePacksFor below) so
 // other stories in the registry don't fail trying to load a module that doesn't exist for them.
-import { hanselGretelVisualReferencePacks } from '../src/test-fixtures/hansel-gretel/visual-generation-contract.ts';
+import { hanselGretelVisualReferencePacks } from '../content/stories/hansel-gretel/visual-generation-contract.ts';
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const appDirectory = dirname(scriptDirectory);

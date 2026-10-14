@@ -19,7 +19,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "tsx --test \"src/**/*.test.ts\"",
+    "test": "tsx --test \"src/**/*.test.ts\" \"content/**/*.test.ts\"",
     "content:generate": "tsx scripts/generate-story-package.mjs --all",
     "content:validate": "tsx scripts/generate-story-package.mjs --all --validate",
     "content:fix": "tsx scripts/generate-story-package.mjs --all --fix",

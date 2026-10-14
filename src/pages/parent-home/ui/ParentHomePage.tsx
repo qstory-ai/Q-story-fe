@@ -285,7 +285,7 @@ const RECENT_REPORT_LIMIT = 3;
 function TopBar({ token }: { token: string }) {
   return (
     <View style={styles.topBar}>
-      <BrandLockup size="compact" tone="onLight" />
+      <BrandLockup size="compact" />
       <NotificationBell token={token} />
     </View>
   );
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(18, 10, 30, 0.6)',
+    backgroundColor: storybookTheme.color.imageScrim,
   },
   heroBody: { padding: 22, gap: 6 },
   heroTitle: {
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 204, 102, 0.12)',
+    backgroundColor: storybookTheme.color.accentSoft,
   },
   recentText: { flex: 1, gap: 2 },
   recentLabel: {

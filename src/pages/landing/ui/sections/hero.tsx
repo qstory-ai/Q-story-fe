@@ -63,7 +63,7 @@ export function HeroSection({ isWide, onGoToDemo, onExploreExperience }: HeroSec
           <Text style={styles.questionBubbleText}>“창문부터 살펴보자!”</Text>
         </View>
         <View style={styles.changeNote}>
-          <Icon name="sparkles" size={14} color={storybookTheme.color.primary} />
+          <Icon name="sparkles" size={14} color={storybookTheme.color.onAccentFill} />
           <Text style={styles.changeNoteText}>질문과 선택으로 중간 장면이 달라져요</Text>
         </View>
       </View>
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.onCardTitle,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
-    borderColor: 'rgba(246, 198, 77, 0.4)',
+    borderColor: storybookTheme.color.accentSoftBorder,
     paddingHorizontal: 14,
     paddingVertical: 8,
     ...storybookTheme.elevation.low,
@@ -182,14 +182,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: storybookTheme.color.gold,
+    backgroundColor: storybookTheme.color.accentFill,
     borderRadius: storybookTheme.radius.pill,
     paddingHorizontal: 14,
     paddingVertical: 8,
     ...storybookTheme.elevation.low,
   },
   changeNoteText: {
-    color: storybookTheme.color.primary,
+    color: storybookTheme.color.onAccentFill,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.semibold,
   },

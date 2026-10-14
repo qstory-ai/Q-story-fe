@@ -4,8 +4,8 @@
  * 어긋나면 `design-tokens.test.ts`가 실패한다. 웹 CSS 변수(`design-tokens.css`)는
  * `npm run tokens:generate`로 이 파일에서 만든다.
  *
- * 아직 앱 화면은 이 값을 쓰지 않는다 - 화면이 쓰는 의미 토큰은 `theme.ts`(navy·gold)이고,
- * 의미 토큰을 이 primitive로 갈아끼우는 일은 다음 단계다(docs/planning/디자인-시스템.md 대응표).
+ * 화면은 이 값을 직접 쓰지 않고 `theme.ts`의 의미 토큰을 쓴다 - 의미 토큰이 이 primitive를 참조한다
+ * (docs/planning/디자인-시스템.md 대응표).
  *
  * 이름 규칙: Figma `Purple/500` → `primitives.purple[500]` → CSS `--purple-500`.
  * Figma에 없는 단계(Purple 600·700, Neutral 200·400)는 만들어 채우지 않는다.
@@ -183,7 +183,7 @@ export function renderDesignTokensCss(): string {
   const lines = cssVariableEntries().map(([name, value]) => `  ${name}: ${value};`);
   return (
     '/* 자동 생성 파일 - 직접 고치지 말 것. design/figma-variables.json → src/shared/ui/design-tokens.ts →\n' +
-    '   npm run tokens:generate. 아직 어떤 화면도 이 파일을 import하지 않는다(다음 단계에서 연결). */\n' +
+    '   npm run tokens:generate. src/app/global.css가 불러온다. */\n' +
     ':root {\n' +
     lines.join('\n') +
     '\n}\n'

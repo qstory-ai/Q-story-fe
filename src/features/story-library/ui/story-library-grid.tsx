@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   pageNumberActive: {
-    backgroundColor: storybookTheme.color.gold,
+    backgroundColor: storybookTheme.color.accentFill,
   },
   pageNumberText: {
     color: storybookTheme.color.onContentMuted,
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
   },
   pageNumberTextActive: {
-    color: storybookTheme.color.primary,
+    color: storybookTheme.color.onAccentFill,
   },
   pageEllipsis: {
     color: storybookTheme.color.onContentMuted,

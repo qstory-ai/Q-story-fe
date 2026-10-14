@@ -53,13 +53,13 @@ export function RecordingConsentCard() {
 const styles = StyleSheet.create({
   card: {
     gap: 10,
-    backgroundColor: '#F7F1FA',
+    backgroundColor: storybookTheme.semantic.brand.secondary,
     borderRadius: 18,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
   body: {
-    color: '#4E3267',
+    color: storybookTheme.color.goldText,
     fontSize: storybookTheme.type.xs,
     lineHeight: 19,
   },
@@ -73,9 +73,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   allow: { backgroundColor: storybookTheme.color.primary },
-  decline: { backgroundColor: storybookTheme.color.surfaceWhite, borderWidth: 1, borderColor: '#D8C8E2' },
+  decline: { backgroundColor: storybookTheme.color.surfaceWhite, borderWidth: 1, borderColor: storybookTheme.color.accentBorderLight },
   pressed: { opacity: 0.8 },
   label: { fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.bold },
   allowLabel: { color: storybookTheme.color.surfaceWhite },
-  declineLabel: { color: '#4E3267' },
+  declineLabel: { color: storybookTheme.color.goldText },
 });

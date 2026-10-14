@@ -124,7 +124,7 @@ export function TutorHomePage() {
 
         {isFirstVisit ? firstVisitCta : null}
 
-        <Card variant="panel" padding="md" title="수업 캘린더" style={styles.panel}>
+        <Card variant="surface" padding="md" title="수업 캘린더" style={styles.panel}>
           {load.status === 'loading' ? (
             <LoadingState compact label="수업 일정을 불러오는 중이에요…" />
           ) : (
@@ -195,7 +195,7 @@ export function TutorHomePage() {
 function TopBar({ token }: { token: string }) {
   return (
     <View style={styles.topBar}>
-      <BrandLockup size="compact" tone="onLight" />
+      <BrandLockup size="compact" />
       <NotificationBell token={token} />
     </View>
   );

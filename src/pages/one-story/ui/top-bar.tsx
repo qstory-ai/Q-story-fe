@@ -1,13 +1,14 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
-import { Icon, storybookTheme } from '@/shared/ui';
+import { BrandLockup, Icon, storybookTheme } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../model';
 import type { UseDialogue } from '../model/use-dialogue';
 import { playbackControls } from '../lib/playback-controls';
 import { styles } from './styles';
 
-const TOP_ICON_COLOR = storybookTheme.color.gold;
+// 반투명 버튼이 밝은 장면 위에 놓여도 읽히게 - readerControlBackground 위 Purple 200.
+const TOP_ICON_COLOR = storybookTheme.color.accentOnDark;
 // topControlButton은 시각적으로 38px로 촘촘하게 배치돼 있어(기존 gap 6~9px 유지),
 // 터치 영역만 WCAG 44px 권장치에 가깝게 넓힌다 - 인접 버튼과는 겹치지 않는 선에서.
 const TOP_CONTROL_HIT_SLOP = { top: 4, bottom: 4, left: 3, right: 3 };
@@ -59,31 +60,29 @@ export function TopBar({
         <View
           style={[
             styles.brandLogoFrame,
-            compactLockup && styles.brandLogoFrameNarrow,
+            compactLockup ? styles.brandLogoFrameNarrow : styles.brandWordmarkFrame,
             isParentReport && styles.reportBrandLogoFrame,
           ]}
         >
-          <Image
-            source={{ uri: '/brand/q-story-question-book-logo.svg' }}
-            resizeMode="contain"
-            style={[styles.brandLogo, compactLockup && styles.brandLogoNarrow]}
-            accessibilityLabel="Q-Story 로고"
-          />
+          {compactLockup ? (
+            <Image
+              source={{ uri: '/brand/qstory-mark.svg' }}
+              resizeMode="contain"
+              style={styles.brandLogoNarrow}
+              accessibilityLabel="Q-Story 로고"
+            />
+          ) : (
+            <BrandLockup size="mini" />
+          )}
         </View>
         {compactLockup ? (
-          // 폰에선 "Q-STORY" 워드마크를 빼고 회차 캡션 한 줄만 - 이 자리에서 실제로 필요한
+          // 폰에선 워드마크 대신 Q 마크만 두고 회차 캡션 한 줄만 - 이 자리에서 실제로 필요한
           // 정보는 "지금 몇 화, 무슨 장면인지"뿐이고 브랜드는 로고로 충분하다.
           <Text style={styles.storyTitleNarrow} numberOfLines={1}>
             {chapterCaption ?? parentReport.storyTitle}
           </Text>
         ) : (
           <View style={styles.brandTextLockup}>
-            <Text style={styles.brand}>
-              <Text style={styles.brandQ}>Q</Text>
-              <Text style={isParentReport && styles.reportTopText}>
-                -STORY
-              </Text>
-            </Text>
             <Text
               style={[
                 styles.storyTitle,

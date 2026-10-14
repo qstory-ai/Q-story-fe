@@ -1,88 +1,30 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
-
-import { storybookTheme } from './theme';
+import { Image, StyleSheet } from 'react-native';
 
 type BrandLockupProps = {
-  size?: 'default' | 'compact';
-  /**
-   * 어떤 배경 위에 놓이는지. 'onDark'(기본)는 리더·랜딩의 다크 배경용(골드 Q + 흰 워드마크).
-   * 'onLight'는 콘솔·인증 화면의 라이트 배경용 - 흰 워드마크가 배경에 묻혀 "Q-STORY"가 보이지
-   * 않던 문제를 여기서 막는다(네이비 워드마크 + 앰버 Q + hairline 프레임).
-   */
-  tone?: 'onDark' | 'onLight';
+  /** default 높이 40, compact 32(대시보드 머리), mini 22(리더 상단 바). */
+  size?: 'default' | 'compact' | 'mini';
 };
 
+/** 워드마크 원본(public/brand/qstory-wordmark.png = 랜딩 qstory-logo.png) 비율. */
+const WORDMARK_ASPECT = 899 / 301;
+
 /**
- * Q-Story 로고 마크 + 워드마크. 홈/랜딩/플레이어/온보딩 등 여러 화면이 공유한다.
+ * Q-Story 워드마크(Q 캐릭터 + "story"). 홈/플레이어/리더/온보딩/대시보드 머리 등 여러 화면이 공유한다.
+ * 밝은 바탕·어두운 바탕 모두 같은 그림이다(리더처럼 삽화 위에 얹을 때는 부르는 쪽이 ivory 틀을 깐다).
  */
-export function BrandLockup({ size = 'default', tone = 'onDark' }: BrandLockupProps) {
-  const compact = size === 'compact';
-  const onLight = tone === 'onLight';
+export function BrandLockup({ size = 'default' }: BrandLockupProps) {
   return (
-    <View style={styles.lockup}>
-      <View style={[styles.frame, compact && styles.frameCompact, onLight && styles.frameOnLight]}>
-        <Image
-          source={{ uri: '/brand/q-story-question-book-logo.svg' }}
-          resizeMode="contain"
-          style={[styles.logo, compact && styles.logoCompact]}
-          accessibilityLabel="Q-Story 로고"
-        />
-      </View>
-      <Text style={[styles.brand, compact && styles.brandCompact]}>
-        <Text style={[styles.brandQ, onLight && styles.brandQOnLight]}>Q</Text>
-        <Text style={[styles.brandRest, onLight && styles.brandRestOnLight]}>-STORY</Text>
-      </Text>
-    </View>
+    <Image
+      source={{ uri: '/brand/qstory-wordmark.png' }}
+      resizeMode="contain"
+      style={styles[size]}
+      accessibilityLabel="Q-Story"
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  lockup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  frame: {
-    width: 50,
-    height: 54,
-    borderRadius: storybookTheme.radius.logoFrame,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: storybookTheme.color.brandFrameBackground,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-  },
-  frameCompact: {
-    width: 40,
-    height: 43,
-  },
-  frameOnLight: {
-    backgroundColor: storybookTheme.color.contentSurface,
-    borderColor: storybookTheme.color.contentSurfaceBorder,
-  },
-  logo: {
-    width: 42,
-    height: 46,
-  },
-  logoCompact: {
-    width: 33,
-    height: 36,
-  },
-  brand: {
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    letterSpacing: 1.8,
-  },
-  brandCompact: {
-    fontSize: storybookTheme.type.xs,
-    letterSpacing: 1.6,
-  },
-  brandQ: {
-    color: storybookTheme.color.gold,
-  },
-  brandRest: {
-    color: storybookTheme.color.onDark,
-  },
-  brandQOnLight: { color: storybookTheme.color.goldText },
-  brandRestOnLight: { color: storybookTheme.color.onContent },
+  default: { height: 40, width: 40 * WORDMARK_ASPECT },
+  compact: { height: 32, width: 32 * WORDMARK_ASPECT },
+  mini: { height: 22, width: 22 * WORDMARK_ASPECT },
 });

@@ -31,11 +31,11 @@ const config: CapacitorConfig = {
     // 마이크 녹음(getUserMedia)은 Capacitor가 RECORD_AUDIO 권한을 확인한 뒤 WebView에 허용한다.
     // AndroidManifest.xml에 RECORD_AUDIO/MODIFY_AUDIO_SETTINGS를 선언해 두었다.
     allowMixedContent: false,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: '#FAF8FC',
   },
   ios: {
     contentInset: 'automatic',
-    backgroundColor: '#F7F8FA',
+    backgroundColor: '#FAF8FC',
     // 무음 스위치 상태에서도 낭독이 들리게 하는 오디오 세션(playAndRecord)은 AppDelegate.swift에서 잡는다.
     allowsLinkPreview: false,
   },
@@ -43,7 +43,7 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchAutoHide: true,
       launchShowDuration: 800,
-      backgroundColor: '#FFF7E8',
+      backgroundColor: '#FFFDF8',
       showSpinner: false,
     },
     PushNotifications: {

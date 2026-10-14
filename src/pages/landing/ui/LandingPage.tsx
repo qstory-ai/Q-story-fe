@@ -203,14 +203,14 @@ const styles = StyleSheet.create({
   },
   headerCta: {
     borderRadius: storybookTheme.radius.pill,
-    backgroundColor: storybookTheme.color.gold,
+    backgroundColor: storybookTheme.color.accentFill,
     paddingHorizontal: 16,
     paddingVertical: 10,
     minHeight: 44,
     justifyContent: 'center',
   },
   headerCtaText: {
-    color: storybookTheme.color.primary,
+    color: storybookTheme.color.onAccentFill,
     fontSize: storybookTheme.type.xs,
     fontWeight: '700',
   },

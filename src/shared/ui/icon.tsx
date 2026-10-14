@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Check,
   CheckCheck,
+  CircleAlert,
   ChevronDown,
   ChevronRight,
   ClipboardList,
@@ -71,6 +72,7 @@ export const ICONS = {
   search: Search,
   close: X,
   menu: Menu,
+  alert: CircleAlert,
 } as const;
 
 export type IconName = keyof typeof ICONS;

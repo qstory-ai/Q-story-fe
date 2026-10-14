@@ -8,7 +8,7 @@ import { storybookTheme } from './theme';
  * 두 tone:
  *  - `outline`: 배경 없이 테두리만. 선택 시 옅은 pill 배경 + primary 테두리. 여러 개를 나열해도
  *    시각적 무게가 가벼워 카테고리 필터처럼 다수 선택지에 적합.
- *  - `filled`: 선택 시 primary(네이비) 채움 + 흰 텍스트. 탭처럼 활성 상태를 뚜렷이 보여줘야
+ *  - `filled`: 선택 시 primary(Purple 500) 채움 + 흰 텍스트. 탭처럼 활성 상태를 뚜렷이 보여줘야
  *    하는 곳에 적합.
  */
 export type FilterChipTone = 'outline' | 'filled';
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   badgeFgOutlineActive: { color: storybookTheme.color.primary },
   badgeBgFilledIdle: { backgroundColor: storybookTheme.color.pillBackground },
   badgeFgFilledIdle: { color: storybookTheme.color.onContentMuted },
-  // primary(네이비) 채움 chip 위 → 배지는 밝은 카드 톤으로 대비.
-  badgeBgFilledActive: { backgroundColor: 'rgba(255, 255, 255, 0.18)' },
+  // primary 채움 chip 위 → 배지는 밝은 카드 톤으로 대비.
+  badgeBgFilledActive: { backgroundColor: storybookTheme.color.onDarkOverlay },
   badgeFgFilledActive: { color: storybookTheme.color.onDark },
 });

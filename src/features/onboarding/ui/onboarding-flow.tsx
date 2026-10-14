@@ -510,7 +510,7 @@ function SignInStep({
   return (
     <View style={styles.form}>
       <View style={styles.formBrand}>
-        <BrandLockup tone="onLight" size="compact" />
+        <BrandLockup size="compact" />
       </View>
       <Text style={styles.carouselTitle}>로그인</Text>
       <Text style={[styles.welcomeLead, styles.formLead]}>

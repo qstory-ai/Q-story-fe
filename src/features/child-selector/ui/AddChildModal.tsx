@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   },
   submitButtonDisabled: { backgroundColor: storybookTheme.color.disabledBackground },
   submitLabelDisabled: { color: storybookTheme.color.disabledText },
-  // 버튼 배경이 primary(#1E293B)라 흰 글자 - onContent도 #1E293B여서 활성화되면 글자가 사라졌다.
+  // 버튼 배경이 primary라 흰 글자 - onContent(진한 글자)여서 활성화되면 글자가 사라졌다.
   submitLabel: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.black,

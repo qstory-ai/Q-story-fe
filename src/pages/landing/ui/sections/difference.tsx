@@ -57,7 +57,7 @@ export function DifferenceSection({ isWide, sectionRef }: DifferenceSectionProps
         </View>
         <View style={[styles.sceneCard, styles.sceneCardResult]}>
           <View style={styles.sceneLabelRow}>
-            <Icon name="sparkles" size={15} color={storybookTheme.color.gold} />
+            <Icon name="sparkles" size={15} color={storybookTheme.color.onAccentFill} />
             <Text style={[styles.sceneLabel, styles.sceneLabelOnResult]}>달라진 장면</Text>
           </View>
           <Text style={styles.sceneBodyOnResult}>
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   proofIndex: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.goldText,
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
     width: 28,
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     ...storybookTheme.elevation.low,
   },
   sceneCardResult: {
-    backgroundColor: storybookTheme.color.primary,
+    backgroundColor: storybookTheme.color.accentFill,
   },
   sceneLabelRow: {
     flexDirection: 'row',
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.semibold,
   },
   sceneLabelOnResult: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.onAccentFill,
   },
   sceneQuote: {
     color: storybookTheme.color.onCardTitle,
@@ -168,14 +168,14 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginTop: 4,
     borderRadius: storybookTheme.radius.pill,
-    backgroundColor: 'rgba(246, 198, 77, 0.16)',
+    backgroundColor: storybookTheme.color.accentSoft,
     borderWidth: 1,
-    borderColor: 'rgba(246, 198, 77, 0.4)',
+    borderColor: storybookTheme.color.accentSoftBorder,
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
   resultTagText: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.onAccentFill,
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.semibold,
   },

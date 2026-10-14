@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
   },
   finalCtaScrim: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(18, 10, 30, 0.72)',
+    backgroundColor: storybookTheme.color.imageScrimStrong,
   },
   finalCtaInner: {
     width: '100%',
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   finalCtaEyebrow: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.accentOnDark,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.semibold,
     letterSpacing: 0.4,

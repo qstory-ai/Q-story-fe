@@ -22,16 +22,16 @@ import {
  * '이 알림이 어떤 성격인지'를 코드에 남긴다 - gold=콘텐츠 도착, positive=관계 성사, brand=신규 참여,
  * warning=손봐야 할 일(초대 만료).
  */
-type Presentation = { icon: IconName; tone: 'gold' | 'positive' | 'brand' | 'warning' };
+type Presentation = { icon: IconName; tone: 'info' | 'positive' | 'brand' | 'warning' };
 
 const KIND_PRESENTATION: Record<string, Presentation> = {
   // 튜터 세션 완주 → 부모: 리포트 도착
-  'tutor-report': { icon: 'report', tone: 'gold' },
+  'tutor-report': { icon: 'report', tone: 'info' },
   // 선생님이 수업(Lesson)을 완료 처리 → 부모: 리포트 도착 (tutor-report와 발신 경로만 다르고
   // 의미는 같아서 같은 아이콘/톤을 쓴다)
-  'lesson-report': { icon: 'report', tone: 'gold' },
+  'lesson-report': { icon: 'report', tone: 'info' },
   // 수업 시작 30분 전 → 부모: 곧 시작 알림
-  'lesson-reminder': { icon: 'clock', tone: 'gold' },
+  'lesson-reminder': { icon: 'clock', tone: 'info' },
   // 부모가 튜터 초대 수락 → 튜터: 새 연결 성사
   'tutor-invite-accepted': { icon: 'users', tone: 'positive' },
   // 튜터가 기관 초대 수락 → 원장: 새 소속 선생님
@@ -44,7 +44,7 @@ const KIND_PRESENTATION: Record<string, Presentation> = {
   // 담임·원장이 잘못된 보호자 연결을 해제 → 부모: 그 아이 기록을 더 볼 수 없음
   'class-parent-unlinked': { icon: 'users', tone: 'warning' },
   // 반 수업 기록 도착 → 원장: 반 리포트(반 상세로 이동)
-  'class-report': { icon: 'report', tone: 'gold' },
+  'class-report': { icon: 'report', tone: 'info' },
   // 선생님이 담임 초대 수락 → 원장: 반에 담임이 생김
   'homeroom-invite-accepted': { icon: 'users', tone: 'positive' },
   // 원장이 담임으로 정함 → 선생님: 새로 맡은 반
@@ -61,7 +61,7 @@ const KIND_PRESENTATION: Record<string, Presentation> = {
   'org-join-rejected': { icon: 'graduationCap', tone: 'warning' },
 };
 
-const DEFAULT_PRESENTATION: Presentation = { icon: 'bell', tone: 'gold' };
+const DEFAULT_PRESENTATION: Presentation = { icon: 'bell', tone: 'info' };
 
 /**
  * 명단 학생 보호자 연결 확인(be#43 notifyRosterLinkToVerify)은 새 반원 알림과 kind가 같다 - 서버는 제목을
@@ -92,12 +92,12 @@ function toneColors(tone: Presentation['tone']): { background: string; icon: str
         background: storybookTheme.semantic.brand.secondary,
         icon: storybookTheme.color.primary,
       };
-    case 'gold':
+    case 'info':
     default:
-      // gold-알파 배경 - accent 계열은 아직 tinted 배경 토큰이 따로 없어 계산값을 그대로 유지.
+      // 'brand'(보라)와 구분되는 하늘색(info).
       return {
-        background: 'rgba(246, 198, 77, 0.16)',
-        icon: storybookTheme.color.gold,
+        background: storybookTheme.status.info.background,
+        icon: storybookTheme.status.info.text,
       };
   }
 }

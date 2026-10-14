@@ -716,16 +716,18 @@ export function TeacherNoteView({ note, showInternal }: { note: TeacherNote | nu
   );
 }
 
-const CHILD_TINT = '#FBF1DE';
-const CHILD_RULE = '#D9A441';
-const CHILD_LABEL = '#8A5A00';
-const CHARACTER_TINT = '#EEF3F8';
-const CHARACTER_RULE = '#7C9AB8';
-const TAG_BACKGROUND = '#E6EDF5';
-const TAG_TEXT = '#3F5F7A';
-const ACCENT = TAG_TEXT;
-const LEAD_BACKGROUND = '#FFF4D6';
-const LEAD_BORDER = '#EBCB7A';
+// 아이 줄은 보라(키 컬러), 등장인물 줄은 하늘색(info) - 하늘색 바탕 위 글자는 Skyblue 700이 4.5:1에 못 미쳐 Neutral 700.
+const CHILD_TINT = storybookTheme.semantic.brand.secondary;
+const CHILD_RULE = storybookTheme.color.gold;
+const CHILD_LABEL = storybookTheme.color.goldText;
+const CHARACTER_TINT = storybookTheme.status.info.background;
+const CHARACTER_RULE = storybookTheme.status.info.rule;
+const TAG_BACKGROUND = storybookTheme.status.info.background;
+const TAG_TEXT = storybookTheme.color.onCardBody;
+// '열기'·'이유 보기' 같은 눌리는 글자 - 본문 회색과 구분되는 보라(흰 바탕 6.94:1).
+const ACCENT = storybookTheme.color.goldText;
+const LEAD_BACKGROUND = storybookTheme.color.accentSoft;
+const LEAD_BORDER = storybookTheme.color.accentSoftBorder;
 
 // 보호자가 태블릿으로 읽는 화면 - 본문 16px·줄간격 26px을 기준으로 두고, 보조 글도 14px 밑으로 내리지 않는다.
 const sr = StyleSheet.create({
@@ -756,7 +758,7 @@ const sr = StyleSheet.create({
   },
   sceneCardWide: { flexDirection: 'row', alignItems: 'flex-start', padding: 18, gap: 20 },
   sceneCardHover: { borderColor: CHARACTER_RULE },
-  sceneImage: { width: '100%', aspectRatio: 16 / 10, borderRadius: 12, backgroundColor: '#E8E4DA' },
+  sceneImage: { width: '100%', aspectRatio: 16 / 10, borderRadius: 12, backgroundColor: storybookTheme.color.imagePlaceholder },
   sceneImageWide: { width: 220 },
   sceneBody: { flex: 1, minWidth: 0, gap: 12 },
   sceneTitle: { color: storybookTheme.color.onCardTitle, fontSize: 17, lineHeight: 24, fontWeight: storybookTheme.type.weight.bold },
@@ -819,7 +821,7 @@ const sr = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: storybookTheme.color.surfaceCardBorder,
   },
-  sheetThumb: { width: 88, aspectRatio: 16 / 10, borderRadius: 10, backgroundColor: '#E8E4DA' },
+  sheetThumb: { width: 88, aspectRatio: 16 / 10, borderRadius: 10, backgroundColor: storybookTheme.color.imagePlaceholder },
   sheetHeading: { flex: 1, minWidth: 0, gap: 2 },
   sheetEyebrow: { color: storybookTheme.color.onCardMuted, fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.semibold },
   sheetTitle: { color: storybookTheme.color.onCardTitle, fontSize: 20, lineHeight: 27, fontWeight: storybookTheme.type.weight.bold },
@@ -828,7 +830,7 @@ const sr = StyleSheet.create({
   sheetLines: { padding: 20, gap: 12 },
 
   // ③ 바뀐 이야기·반 수업 진행
-  thumb: { width: '100%', aspectRatio: 16 / 10, borderRadius: 12, backgroundColor: '#E8E4DA' },
+  thumb: { width: '100%', aspectRatio: 16 / 10, borderRadius: 12, backgroundColor: storybookTheme.color.imagePlaceholder },
   thumbWide: { width: 200 },
   change: { gap: 12 },
   changeWide: { flexDirection: 'row', alignItems: 'flex-start', gap: 20 },

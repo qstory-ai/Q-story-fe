@@ -239,21 +239,21 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingTop: 4,
     borderTopWidth: 1,
-    borderTopColor: '#EEE3F5',
+    borderTopColor: storybookTheme.color.accentBorderLight,
   },
   sectionTitle: {
     fontSize: storybookTheme.type.md,
     fontWeight: '700',
-    color: '#28153F',
+    color: storybookTheme.color.readerHeading,
   },
   sectionBody: {
     fontSize: storybookTheme.type.xs,
     lineHeight: 18,
-    color: '#706476',
+    color: storybookTheme.color.readerBodyMuted,
   },
   submitError: {
     fontSize: storybookTheme.type.xs,
-    color: '#E46647',
+    color: storybookTheme.color.error,
     textAlign: 'center',
   },
 });

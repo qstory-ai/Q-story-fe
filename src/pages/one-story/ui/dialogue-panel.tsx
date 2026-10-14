@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 
-import { storybookTheme } from '@/shared/ui';
+import { Icon, storybookTheme } from '@/shared/ui';
 
 import { countdownSeconds, createAutoConfirm } from '../lib/auto-confirm';
 import { AUTO_CONFIRM_MS } from '../lib/constants';
@@ -89,7 +89,10 @@ export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialo
       </ScrollView>
 
       {dialogue.errorMessage && (phase === 'error' || phase === 'typing') && (
-        <Text style={panel.error}>{dialogue.errorMessage}</Text>
+        <View style={panel.errorRow} accessibilityRole="alert">
+          <Icon name="alert" size={16} color={storybookTheme.color.errorOnDark} />
+          <Text style={panel.error}>{dialogue.errorMessage}</Text>
+        </View>
       )}
 
       <PhaseControls dialogue={dialogue} onContinue={continueStory} />
@@ -359,8 +362,8 @@ const PHASES_WITHOUT_CONTINUE_CHIP = new Set<UseDialogue['phase']>([
 ]);
 
 /** 숲 그림 위에 얹는 어두운 패널 - 말풍선만 밝게 둬서 글이 그림과 섞이지 않게 한다. */
-const PANEL_BACKGROUND = 'rgba(18, 20, 12, 0.9)';
-const CHILD_BUBBLE = '#E7EAD8';
+const PANEL_BACKGROUND = storybookTheme.color.readerPanelBackground;
+const CHILD_BUBBLE = storybookTheme.semantic.brand.secondary;
 
 const panel = StyleSheet.create({
   root: {
@@ -407,7 +410,8 @@ const panel = StyleSheet.create({
   },
   sceneNarrationText: { color: storybookTheme.color.onDark, fontSize: 15, lineHeight: 22, fontStyle: 'italic' },
   bubbleText: { color: storybookTheme.color.onCardTitle, fontSize: 16, lineHeight: 23 },
-  error: { color: storybookTheme.color.gold, fontSize: 14 },
+  errorRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  error: { flexShrink: 1, color: storybookTheme.color.errorOnDark, fontSize: 14 },
   column: { gap: 8 },
   controls: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 },
   status: { color: storybookTheme.color.onDarkMuted, fontSize: 14, flexGrow: 1 },
@@ -417,7 +421,7 @@ const panel = StyleSheet.create({
   countdownTrack: {
     height: 4,
     borderRadius: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    backgroundColor: storybookTheme.color.onDarkOverlay,
     overflow: 'hidden',
   },
   countdownFill: { height: 4, backgroundColor: storybookTheme.color.gold },
@@ -435,7 +439,7 @@ const panel = StyleSheet.create({
     minWidth: 80,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    backgroundColor: storybookTheme.color.onDarkOverlay,
     overflow: 'hidden',
   },
   meterFill: { height: 8, backgroundColor: storybookTheme.color.gold },
@@ -444,13 +448,13 @@ const panel = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 14,
     borderRadius: 999,
-    backgroundColor: 'rgba(255, 253, 246, 0.16)',
+    backgroundColor: storybookTheme.color.onDarkOverlay,
   },
-  chipPrimary: { backgroundColor: storybookTheme.color.gold },
+  chipPrimary: { backgroundColor: storybookTheme.color.accentFill },
   chipDisabled: { opacity: 0.5 },
   chipPressed: { opacity: 0.8 },
   chipText: { color: storybookTheme.color.onDark, fontSize: 15, fontWeight: '600' },
-  chipTextPrimary: { color: storybookTheme.color.onCardTitle },
+  chipTextPrimary: { color: storybookTheme.color.onAccentFill },
   proxyRow: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   proxyBox: {
     width: 18,
@@ -461,7 +465,7 @@ const panel = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  proxyBoxChecked: { backgroundColor: storybookTheme.color.gold, borderColor: storybookTheme.color.gold },
-  proxyCheck: { color: storybookTheme.color.onCardTitle, fontSize: 12, fontWeight: '700' },
+  proxyBoxChecked: { backgroundColor: storybookTheme.color.accentFill, borderColor: storybookTheme.color.accentFill },
+  proxyCheck: { color: storybookTheme.color.onAccentFill, fontSize: 12, fontWeight: '700' },
   proxyLabel: { color: storybookTheme.color.onDarkMuted, fontSize: 13 },
 });

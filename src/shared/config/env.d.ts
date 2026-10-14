@@ -16,6 +16,7 @@ interface ImportMetaEnv {
   readonly VITE_KAKAO_JS_KEY?: string;
   /** 토스페이먼츠 위젯 클라이언트 키 - 공개값(비밀 키는 백엔드에만 있다). */
   readonly VITE_TOSS_CLIENT_KEY?: string;
+  readonly VITE_GA_MEASUREMENT_ID?: string;
 }
 
 interface ImportMeta {

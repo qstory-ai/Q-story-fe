@@ -4,6 +4,11 @@
  *
  * 리전 근거(2026-10-12 확인): Supabase DB는 ap-northeast-2(서울), 서버(Railway)는 유럽 서부(암스테르담) 복제본,
  * 서버 기록(Grafana Cloud Loki)은 AWS 도쿄(ap-northeast-1), 웹 프록시(Vercel)는 icn1(서울).
+ *
+ * 2026-10-14 Google Analytics 행 추가 - 약관 버전은 올리지 않았다. 이 행은 필수 동의의 범위를 넓히지 않는 알림이다:
+ * "화면 이용 기록 수집"을 끄면 GA를 불러오지 않고(entities/analytics google-analytics.ts), 이름·계정·아이 id·발화 같은
+ * 식별 정보는 보내지 않는다. `optional`이 있는 행은 필수 동의와 무관하게 끌 수 있는 항목이라 화면에 그 문구를 함께 보여 준다.
+ * 법률 검토에서 별도 동의가 필요하다고 보면 재동의 대신 GA 기본값을 "꺼짐"(옵트인)으로 바꾼다.
  */
 export type OverseasTransferRecipient = {
   recipient: string;
@@ -11,6 +16,8 @@ export type OverseasTransferRecipient = {
   items: string;
   purpose: string;
   retention: string;
+  /** 필수 동의와 별개로 끌 수 있는 이전 - 끄는 방법을 함께 보여 준다. */
+  optional?: string;
 };
 
 export const OVERSEAS_TRANSFER_LABEL = '[필수] 개인정보 국외 이전 동의';
@@ -53,6 +60,14 @@ export const OVERSEAS_TRANSFER_RECIPIENTS: readonly OverseasTransferRecipient[] 
     items: '서버 기록(요청·오류 기록)',
     purpose: '서버 기록 보관·분석',
     retention: '서버 기록은 보관 설정 기간 동안',
+  },
+  {
+    recipient: 'Google LLC (Google Analytics)',
+    country: '미국',
+    items: '방문 통계(기기·브라우저 종류, 본 화면 종류, 유입 경로, 이야기 시작·완주 같은 이용 횟수, 임의의 방문 식별값). 이름·연락처·아이 정보·대화 내용은 보내지 않아요',
+    purpose: '방문·이용 통계로 서비스 개선',
+    retention: '업체 보관 설정 기간(최대 14개월) 동안',
+    optional: '기록 설정·마이페이지에서 "화면 이용 기록 수집"을 끄면 보내지 않아요',
   },
 ];
 

@@ -4,10 +4,13 @@ import { useLocation } from 'react-router-dom';
 import {
   installInteractionTracking,
   recordingConsentStore,
+  setGaEntryHref,
+  setGoogleAnalyticsEnabled,
   setInteractionTrackingEnabled,
   setSessionRecordingPermitted,
   startSessionRecording,
   stopSessionRecording,
+  trackGaPageView,
   trackScreenChange,
   useRecordingConsent,
 } from '@/entities/analytics';
@@ -31,9 +34,10 @@ export function UsageTracking() {
   const { state: authState } = useAuth();
   const token = authState.status === 'authenticated' ? authState.token : null;
   const authLoading = authState.status === 'loading';
-  const { recordingPermitted, trackingEnabled } = useRecordingConsent();
+  const { recordingPermitted, trackingEnabled, trackingResolved } = useRecordingConsent();
 
   useEffect(() => {
+    setGaEntryHref(ENTRY_HREF);
     recordingConsentStore().applyEntryUrl(ENTRY_HREF);
     installInteractionTracking();
   }, []);
@@ -46,12 +50,18 @@ export function UsageTracking() {
     setInteractionTrackingEnabled(trackingEnabled);
   }, [trackingEnabled]);
 
+  // Google Analytics도 같은 "화면 이용 기록 수집" 설정을 따른다 - 설정이 정해지기 전에는 gtag.js를 불러오지 않는다.
+  useEffect(() => {
+    if (trackingResolved) setGoogleAnalyticsEnabled(trackingEnabled);
+  }, [trackingEnabled, trackingResolved]);
+
   useEffect(() => {
     if (isInternalPath(pathname)) {
       stopSessionRecording();
       return;
     }
     trackScreenChange(pathname);
+    trackGaPageView(pathname);
   }, [pathname]);
 
   useEffect(() => {

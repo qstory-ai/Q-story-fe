@@ -30,7 +30,7 @@ export function RecordingSettingsModal({ visible, onClose }: { visible: boolean;
         />
         <SwitchField
           label="화면 이용 기록 수집"
-          description="누른 곳·스크롤 같은 화면 이용 기록이에요. 끄면 모으지 않아요."
+          description="누른 곳·스크롤 같은 화면 이용 기록과 방문 통계(Google Analytics)예요. 끄면 둘 다 모으지 않아요."
           checked={consent.localTracking}
           onChange={(next) => {
             recordingConsentStore().setLocalTracking(next);

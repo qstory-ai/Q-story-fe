@@ -109,6 +109,8 @@ export type RecordingConsentSnapshot = {
   loggedIn: boolean;
   recordingPermitted: boolean;
   trackingEnabled: boolean;
+  /** 이용 기록 설정이 정해졌는지 - 로그인 상태를 알고, 로그인했으면 계정 설정을 불러온 뒤(실패해도). GA는 이때부터 켠다. */
+  trackingResolved: boolean;
   needsPrompt: boolean;
   lessonOverride: boolean | null;
   local: RecordingDecision | null;
@@ -195,6 +197,7 @@ export class RecordingConsentStore {
       recordingPermitted:
         this.authResolved && (!this.accountLoading || this.lessonOverride !== null) && resolveRecordingPermission(input),
       trackingEnabled: resolveTrackingEnabled({ loggedIn, account: this.account, localTracking: this.localTracking }),
+      trackingResolved: this.authResolved && !this.accountLoading,
       needsPrompt: this.authResolved && needsRecordingPrompt(input),
       lessonOverride: this.lessonOverride,
       local: this.local,

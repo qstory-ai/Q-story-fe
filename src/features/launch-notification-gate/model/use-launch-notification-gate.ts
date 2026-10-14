@@ -4,6 +4,7 @@ import {
   submitLaunchNotification,
   type ChildGender,
 } from '@/entities/launch-notification';
+import { trackGaEvent } from '@/entities/analytics';
 import { messageForError } from '@/shared/api';
 
 import {
@@ -72,6 +73,8 @@ export function useLaunchNotificationGate() {
         });
         writePassed();
         setPassed(true);
+        // 신청했다는 사실과 연락 희망 여부만 - 입력한 이름·연락처는 GA에 보내지 않는다.
+        trackGaEvent('launch_notify_submit', { wants_contact: wantsContact });
       } catch (failure) {
         setError(messageForError(failure, '신청 정보를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.'));
       } finally {

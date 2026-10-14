@@ -11,7 +11,8 @@ type EnvKey =
   | 'VITE_QSTORY_RELEASE'
   | 'VITE_GOOGLE_OAUTH_CLIENT_ID'
   | 'VITE_KAKAO_JS_KEY'
-  | 'VITE_TOSS_CLIENT_KEY';
+  | 'VITE_TOSS_CLIENT_KEY'
+  | 'VITE_GA_MEASUREMENT_ID';
 
 const readers: Record<EnvKey, () => string | undefined> = {
   VITE_QSTORY_API_URL: () => import.meta.env.VITE_QSTORY_API_URL,
@@ -23,6 +24,7 @@ const readers: Record<EnvKey, () => string | undefined> = {
   VITE_GOOGLE_OAUTH_CLIENT_ID: () => import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID,
   VITE_KAKAO_JS_KEY: () => import.meta.env.VITE_KAKAO_JS_KEY,
   VITE_TOSS_CLIENT_KEY: () => import.meta.env.VITE_TOSS_CLIENT_KEY,
+  VITE_GA_MEASUREMENT_ID: () => import.meta.env.VITE_GA_MEASUREMENT_ID,
 };
 
 export function readEnv(key: EnvKey): string {

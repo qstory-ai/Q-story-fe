@@ -1,4 +1,5 @@
 export * from './model/beta-events';
+export * from './model/google-analytics';
 export * from './model/client-diagnostics';
 export * from './model/client-errors';
 export * from './model/exit-diagnostics';

@@ -313,6 +313,25 @@ export async function signClientIp(secret, ip, timestampSeconds) {
   return Array.from(new Uint8Array(signature), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
+// ---- 랜딩(qstory.ai.kr) 통계 CORS -----------------------------------------------------------------------
+// 랜딩은 다른 출처라 자체 통계(landing_view·landing_cta_click)를 이 프록시로 보내려면 CORS가 필요하다. 백엔드의 운영
+// 허용 출처에는 랜딩이 없으므로(직접 부르면 403) 이 프록시가 beta-events 한 경로에만 랜딩 출처를 허용한다.
+// 프록시는 Origin을 백엔드로 넘기지 않으니(FORWARDED_HEADERS) 백엔드 CORS와 부딪히지 않는다.
+export const LANDING_CORS_ORIGINS = new Set(['https://qstory.ai.kr', 'https://www.qstory.ai.kr']);
+const LANDING_CORS_PATHS = new Set(['v1/beta-events']);
+
+export function landingCorsHeaders(request, upstreamPath) {
+  const origin = request.headers.get('origin');
+  if (!origin || !LANDING_CORS_ORIGINS.has(origin) || !LANDING_CORS_PATHS.has(upstreamPath)) return null;
+  return {
+    'access-control-allow-origin': origin,
+    'access-control-allow-methods': 'POST, OPTIONS',
+    'access-control-allow-headers': 'content-type',
+    'access-control-max-age': '86400',
+    vary: 'Origin',
+  };
+}
+
 export function createQStoryProxy({
   upstreamUrl = process.env.QSTORY_API_UPSTREAM_URL,
   proxySecret = process.env.QSTORY_PROXY_SHARED_SECRET,
@@ -337,6 +356,13 @@ export function createQStoryProxy({
     const upstreamPath = (requestUrl.searchParams.get('path') ?? '')
       .replace(/^\/+/, '')
       .replace(/\/+$/, '');
+    const corsHeaders = landingCorsHeaders(request, upstreamPath);
+    if (request.method.toUpperCase() === 'OPTIONS') {
+      return new Response(null, {
+        status: corsHeaders ? 204 : 404,
+        headers: { 'cache-control': 'no-store', 'x-qstory-proxy': 'vercel', ...(corsHeaders ?? {}) },
+      });
+    }
     if (
       upstreamPath.includes('..') ||
       !isAllowedRoute(request.method.toUpperCase(), upstreamPath)
@@ -429,6 +455,9 @@ export function createQStoryProxy({
       const retryAfter = response.headers.get('retry-after');
       if (retryAfter) {
         responseHeaders.set('retry-after', retryAfter);
+      }
+      for (const [name, value] of Object.entries(corsHeaders ?? {})) {
+        responseHeaders.set(name, value);
       }
       if (isStreamingAudio) {
         for (const name of [

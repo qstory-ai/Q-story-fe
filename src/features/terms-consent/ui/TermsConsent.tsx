@@ -192,6 +192,7 @@ export function OverseasTransferConsent({
               <Text style={styles.transferText}>보내는 정보: {row.items}</Text>
               <Text style={styles.transferText}>목적: {row.purpose}</Text>
               <Text style={styles.transferText}>보관: {row.retention}</Text>
+              {row.optional ? <Text style={styles.transferText}>끄는 방법: {row.optional}</Text> : null}
             </View>
           ))}
           <Text style={styles.transferText}>시기·방법: {OVERSEAS_TRANSFER_TIMING}</Text>

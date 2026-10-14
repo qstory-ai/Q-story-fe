@@ -1,6 +1,7 @@
 import { readEnv } from '@/shared/config';
 
 import { currentClientDiagnostics } from './client-diagnostics';
+import { forwardBetaEventToGa } from './google-analytics';
 import { UUID_PATTERN, createUuid, isHttpUrl } from './endpoint-utils';
 
 const BETA_SESSION_STORAGE_KEY = 'qstory.beta.session.v1';
@@ -185,6 +186,8 @@ export function getBetaSessionId() {
 }
 
 export async function trackBetaEvent(eventName: BetaEventName, metadata: BetaMetadataInput = {}) {
+  // 핵심 행동 몇 가지는 GA에도 센다(허용 키의 분류값·숫자만, 기록 수집을 끈 사용자는 보내지 않음 - google-analytics.ts).
+  forwardBetaEventToGa(eventName, metadata);
   if (!isHttpUrl(ANALYTICS_URL)) return Promise.resolve(false);
 
   const body = JSON.stringify({

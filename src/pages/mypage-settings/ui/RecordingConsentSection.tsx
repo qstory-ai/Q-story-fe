@@ -110,7 +110,7 @@ export function RecordingConsentSection({ token }: { token: string }) {
           />
           <SwitchField
             label="화면 이용 기록 수집"
-            description="누른 곳·스크롤 같은 화면 이용 기록을 모아요. 끄면 이 계정의 기록을 모으지 않아요."
+            description="누른 곳·스크롤 같은 화면 이용 기록과 방문 통계(Google Analytics)를 모아요. 끄면 이 계정에서 둘 다 모으지 않아요."
             checked={tracking !== false}
             onChange={(next) => void saveTracking(next)}
             disabled={saving !== null}

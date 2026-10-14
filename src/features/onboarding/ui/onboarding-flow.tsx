@@ -22,7 +22,7 @@ import {
   type UserSummary,
 } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
-import { betaErrorCode, recordingConsentStore, trackBetaEvent } from '@/entities/analytics';
+import { betaErrorCode, recordingConsentStore, trackBetaEvent, trackGaEvent } from '@/entities/analytics';
 import {
   EMPTY_TERMS_CONSENT,
   OrgGuardianAck,
@@ -101,6 +101,7 @@ export function OnboardingFlow({
   const onSignedIn: OnAuthed = useCallback(
     (token, user) => {
       setSession(token, user);
+      trackGaEvent('login', { role: user.role });
       goHome(signInNext ?? homePathFor(user));
     },
     [setSession, goHome, signInNext],

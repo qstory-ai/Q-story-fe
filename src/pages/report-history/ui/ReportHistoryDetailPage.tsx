@@ -5,7 +5,7 @@ import { useNavigate, useParams, useLocation, useSearchParams } from 'react-rout
 import { AppNavShell, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, reportsPathFor, useAuth } from '@/entities/auth';
 import { useBackOr } from '@/shared/lib';
-import { reportViewSourceFrom } from '@/pages/one-story';
+import { reportViewSourceFrom } from '@/widgets/session-report';
 import { CompletionReport } from './CompletionReport';
 
 /** 지난 "오늘의 질문 기록" 하나를 읽기 전용으로 보여주는 화면. 본문은 CompletionReport가 그린다. */

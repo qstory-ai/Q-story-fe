@@ -48,14 +48,6 @@ export function formatDuration(durationMillis: number) {
   return `${Math.max(0, Math.ceil(durationMillis / 1000))}초`;
 }
 
-export function formatReportDuration(durationSeconds: number | null) {
-  if (durationSeconds === null) {
-    return '기록 중';
-  }
-  const minutes = Math.max(1, Math.round(durationSeconds / 60));
-  return `${minutes}분`;
-}
-
 /**
  * commitEvent()의 이야기 상태 전이 실패 카피 - `INVALID_TRANSITION_...` 같은 기술 코드는 화면에
  * 노출하지 않는다. 사용자에게 갈라 안내할 만한 code 종류가 아직 없어 한 문장으로 통일한다.

@@ -9,7 +9,7 @@ import { ChildSelector } from '@/features/child-selector';
 import { MonthCalendar } from '@/features/month-calendar';
 import { fetchStoryReportCopy, listStories, type StoryReportCopy } from '@/entities/story';
 import { messageForError } from '@/shared/api';
-import { formatReportDuration } from '@/pages/one-story';
+import { formatReportDuration } from '@/widgets/session-report';
 import {
   buildComprehensiveReport,
   buildRecentApproachTrend,

@@ -6,7 +6,7 @@ import { AppNavShell, EmptyState, ErrorState, LoadingState, Pill, storybookTheme
 import { messageForError } from '@/shared/api';
 import { TUTOR_PATHS, dashboardNavItems, reportDetailPath, useAuth } from '@/entities/auth';
 import { listStories } from '@/entities/story';
-import { formatReportDuration } from '@/pages/one-story';
+import { formatReportDuration } from '@/widgets/session-report';
 import {
   listTutorStudents,
   listTutorStudentCompletions,

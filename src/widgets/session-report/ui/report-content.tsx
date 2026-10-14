@@ -3,8 +3,8 @@ import { Image, Text, View } from 'react-native';
 import type { ParentReport } from '@/entities/analytics';
 import type { ImageSource } from '@/entities/story';
 
-import { formatReportDuration } from '../../lib/runtime-view';
-import { styles } from '../styles';
+import { formatReportDuration } from '../lib/format-report-duration';
+import { styles } from './styles';
 
 type ReportContentProps = {
   parentReport: ParentReport;

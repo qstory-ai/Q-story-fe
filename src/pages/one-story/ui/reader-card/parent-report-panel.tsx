@@ -2,14 +2,10 @@ import { Pressable, Text, View } from 'react-native';
 
 import { useAuth } from '@/entities/auth';
 import { SessionCodeNote } from '@/entities/play-session';
+import { ReportContent, SessionReport, TeacherNoteEditor, useCompletionDetail, useReportTracking } from '@/widgets/session-report';
 
 import type { OneStoryRuntime } from '../../model';
-import { useCompletionDetail } from '../../model/use-completion-detail';
-import { useReportTracking } from '../../model/use-report-tracking';
 import { styles } from '../styles';
-import { ReportContent } from './report-content';
-import { SessionReport } from './session-report';
-import { TeacherNoteEditor } from './teacher-note-editor';
 
 export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
   const {

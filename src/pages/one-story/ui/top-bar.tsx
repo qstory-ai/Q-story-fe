@@ -7,7 +7,8 @@ import type { UseDialogue } from '../model/use-dialogue';
 import { playbackControls } from '../lib/playback-controls';
 import { styles } from './styles';
 
-const TOP_ICON_COLOR = storybookTheme.color.gold;
+// 반투명 버튼이 밝은 장면 위에 놓여도 읽히게 - readerControlBackground 위 Purple 200.
+const TOP_ICON_COLOR = storybookTheme.color.accentOnDark;
 // topControlButton은 시각적으로 38px로 촘촘하게 배치돼 있어(기존 gap 6~9px 유지),
 // 터치 영역만 WCAG 44px 권장치에 가깝게 넓힌다 - 인접 버튼과는 겹치지 않는 선에서.
 const TOP_CONTROL_HIT_SLOP = { top: 4, bottom: 4, left: 3, right: 3 };

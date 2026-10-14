@@ -4,8 +4,8 @@ import { storybookTheme } from './theme';
 
 /**
  * 버튼 variant 카탈로그:
- *  - `primary`: 브랜드 네이비 채움. 로그인/회원가입 등 인증 흐름의 주된 CTA.
- *  - `gold`: 골드 채움. 이야기 시작·구독 등 앱 안에서 가장 강조하고 싶은 액션.
+ *  - `primary`: 브랜드 Purple 500 채움. 로그인/회원가입 등 인증 흐름의 주된 CTA.
+ *  - `gold`: 강조 채움(color.accentFill, 이름은 예전 골드 버튼에서 왔다). 이야기 시작·구독 등 가장 강조하고 싶은 액션.
  *  - `secondary` / `secondaryFull`: 낮은 채도의 배경만. secondary는 자연 폭, secondaryFull은 full width.
  *  - `outline`: 다크 배경 위에서 취소·해제 같은 낮은 위계 액션에 쓴다.
  *  - `record`/`stop`: 이야기 녹음/중지 전용 - 색과 크기가 특수해 별도 유지.
@@ -69,7 +69,7 @@ export function ActionButton({
       : isOutline
         ? storybookTheme.color.onDark
         : storybookTheme.color.primary;
-  // 비활성은 반투명(opacity 0.5)이 아니라 disabled 토큰으로 - 골드 버튼을 반투명으로 흐리면 라벨이
+  // 비활성은 반투명(opacity 0.5)이 아니라 disabled 토큰으로 - 채움 버튼을 반투명으로 흐리면 라벨이
   // 2:1 아래로 떨어진다. 회색 채움 + 회색 라벨(4.5:1)로 상태를 말한다.
   const isInactive = disabled && !loading;
   const effectiveLabelColor = isInactive && isSizedVariant ? storybookTheme.color.disabledText : labelColor;
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.error,
     borderRadius: 17,
   },
-  /** landing의 button--gold를 참고한 골드 채움 - 서재의 "구독하고 전체 보기" 같은 CTA용. */
+  /** 강조 채움(accentFill) - 서재의 "구독하고 전체 보기" 같은 CTA용. */
   gold: {
     backgroundColor: storybookTheme.color.accentFill,
   },

@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.input,
     alignItems: 'center',
     justifyContent: 'center',
-    // 골드 강조 배경 - CTA/highlight 전용이라 아직 토큰화하지 않고 유지.
+    // 강조 배경(accentSoft) - CTA/highlight 전용.
     backgroundColor: storybookTheme.color.accentSoft,
   },
   pillarTextGroup: {

@@ -724,7 +724,8 @@ const CHARACTER_TINT = storybookTheme.status.info.background;
 const CHARACTER_RULE = storybookTheme.status.info.rule;
 const TAG_BACKGROUND = storybookTheme.status.info.background;
 const TAG_TEXT = storybookTheme.color.onCardBody;
-const ACCENT = TAG_TEXT;
+// '열기'·'이유 보기' 같은 눌리는 글자 - 본문 회색과 구분되는 보라(흰 바탕 6.94:1).
+const ACCENT = storybookTheme.color.goldText;
 const LEAD_BACKGROUND = storybookTheme.color.accentSoft;
 const LEAD_BORDER = storybookTheme.color.accentSoftBorder;
 

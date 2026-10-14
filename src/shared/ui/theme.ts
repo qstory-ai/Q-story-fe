@@ -90,14 +90,21 @@ export const storybookTheme = {
     /** 어두운 바탕 위 반투명 흰 막(배지 바탕·hairline). */
     onDarkOverlay: 'rgba(255, 255, 255, 0.16)',
     onDarkHairline: 'rgba(255, 255, 255, 0.1)',
+    /** 리더 대화 패널 바탕(삽화 위 90%). */
+    readerPanelBackground: alpha('#12091F', 0.9),
+    /** 삽화 위에 아주 옅게 까는 막. */
+    imageShade: alpha('#12091F', 0.12),
+    /** 삽화 위 글자 그림자. */
+    textShadow: alpha('#12091F', 0.6),
+    /** 녹음·재생 중 점·음량 막대 채움 - Pink 500. */
+    recording: p.pink[500],
     /** 삽화가 오기 전 자리 - Neutral 100. */
     imagePlaceholder: p.neutral[100],
     /** 이야기에 아직 커버 아트가 없을 때의 커버 이미지 자리표시자 배경. */
     coverFallback: p.purple[900],
     /**
-     * 라이트 배경 위에 "글자"로 놓는 골드. 브랜드 골드(#F6C64D)는 흰 배경에서 1.6:1이라 글자로 못
-     * 쓴다 - 선택된 아이 이름, 워드마크의 Q, 강조 라벨처럼 골드 hue를 유지해야 하는 텍스트는 이
-     * 앰버(흰 배경 5.9:1)를 쓴다. 채움·마커(캘린더 오늘, 사이드바 활성 아이콘)는 계속 gold.
+     * 밝은 바탕 위 강조 글자(선택된 아이 이름, 강조 라벨, 눌리는 글자) - Purple 800, 흰 바탕 6.94:1. 이름은 예전 골드
+     * 글자 토큰에서 왔다. 채움·마커는 gold, 어두운 바탕 위 강조 글자는 accentOnDark.
      */
     goldText: p.purple[800],
     /** 모달 뒤 배경 딤 처리. */
@@ -107,8 +114,7 @@ export const storybookTheme = {
     /** 입력창/체크박스 박스처럼 항상 순수한 흰색이어야 하는 서피스. */
     surfaceWhite: p.base.white,
     /**
-     * 인증·온보딩·대시보드의 "라이트 셸" 계열. onLightHeading은 값이 primary와 같지만
-     * ("브랜드 버튼 채우기"가 아니라 "밝은 카드 위 제목") 의미가 달라 별도 토큰으로 둔다.
+     * 인증·온보딩·대시보드의 "라이트 셸" 계열 - Neutral 50 바탕, 제목 900 / 본문 700 / 흐린 글자 600 / 테두리 300.
      */
     shellBackground: p.neutral[50],
     onLightHeading: p.neutral[900],
@@ -116,15 +122,16 @@ export const storybookTheme = {
     onLightMuted: p.neutral[600],
     lightCardBorder: p.neutral[300],
     linkOnDark: p.purple[200],
-    /** 라이트 배경 위 링크 - 본문 네이비와 구분되는 한 단계 밝은 블루(흰 배경 7:1). 밑줄과 함께 쓴다. */
+    /** 라이트 배경 위 링크 - Purple 800(흰 바탕 6.94:1). 본문과 구분되게 밑줄과 함께 쓴다. */
     linkOnLight: p.purple[800],
-    /** 에러/위험 상태 - 흰 배경 기준 WCAG AA 4.5:1. */
+    /** 에러/위험 상태 - Pink 700, 흰 바탕 5.47:1. */
     error: p.pink[700],
+    /** 어두운 바탕(리더 대화 패널·캡션) 위 오류 글자 - Pink 500, 리더 어두운 패널 위 6.7:1. */
+    errorOnDark: p.pink[500],
     /** 로고 프레임(brand-lockup, 리더 top-bar) 배경. */
     brandFrameBackground: alpha(p.base.ivory, 0.96),
     /** 어두운 배경 위 반투명 패널의 테두리. */
     panelOnDarkBorder: 'rgba(255, 252, 245, 0.16)',
-    /** 폼 필드의 비활성 상태 - primary 네이비에서 파생시켜 pillBackground/pillBorder와 톤을 맞춘다. */
     /** 비활성 버튼도 라벨은 읽혀야 한다(ActionButton) - Neutral 600 on Neutral 50 = 4.75:1. 테두리로 바탕과 구분한다. */
     disabledBackground: p.neutral[50],
     disabledBorder: p.neutral[300],
@@ -139,11 +146,14 @@ export const storybookTheme = {
     readerBodyMuted: '#746987',   // 리포트 hero body/panel description 등 보조 본문
     readerShadow: '#2E1948',      // 리포트 카드/topBar 전용 그림자 (전역 shadow #12091F보다 밝음)
     readerCard: '#FFF7E9',        // 리포트 카드 배경 (surfaceCardOpaque #FFFCF5보다 따뜻한 크림)
-    /** 캘린더 주말 컬러 - 국내 캘린더 관행. 어두운 배경/크림 카드 양쪽에서 4.5:1 이상인 파스텔 톤. */
-    calendarSunday: '#FF9AA2',
-    calendarSaturday: '#9EC8FF',
-    calendarSundaySoft: alpha('#FF9AA2', 0.6),
-    calendarSaturdaySoft: alpha('#9EC8FF', 0.6),
+    /**
+     * 캘린더 주말 글자 - 국내 캘린더 관행. 흰 카드 위 일요일 Pink 700 5.47:1, 토요일 Skyblue 700 4.53:1(흰 바탕 전용 -
+     * Neutral 50 위는 4.3이라 캘린더는 흰 카드에 둔다). *Soft는 요일 칩 테두리.
+     */
+    calendarSunday: p.pink[700],
+    calendarSaturday: p.skyblue[700],
+    calendarSundaySoft: alpha(p.pink[500], 0.6),
+    calendarSaturdaySoft: alpha(p.skyblue[500], 0.6),
   },
   /**
    * 시맨틱 컬러 램프 - 카테고리별 default/secondary/hover/on-X 구조. danger는 error/status.warning과

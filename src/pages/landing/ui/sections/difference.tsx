@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   proofIndex: {
-    color: storybookTheme.color.accentOnDark,
+    color: storybookTheme.color.goldText,
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
     width: 28,

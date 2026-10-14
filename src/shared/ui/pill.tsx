@@ -6,7 +6,7 @@ import { storybookTheme } from './theme';
  * tone 카탈로그:
  *  - `onCard`(기본): 라이트 카드 위 옅은 primary 톤 pill - 카테고리/카운트 라벨 대부분.
  *  - `onLight`: 라이트 서피스 위 상태 라벨용 중립 톤 - "부모 연결 대기" 같은 상태 pill.
- *  - `accent`: 골드 강조 톤 - CTA 유도가 필요한 소수 위치.
+ *  - `accent`: 강조 톤(accentSoft) - CTA 유도가 필요한 소수 위치.
  */
 type PillProps = {
   label: string;

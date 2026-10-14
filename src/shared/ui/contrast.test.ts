@@ -1,7 +1,10 @@
 // @ts-nocheck
 /// <reference types="node" />
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import { storybookTheme } from './theme';
 
@@ -35,6 +38,9 @@ function contrast(fg: Rgb, bg: Rgb): number {
 
 const { color: c, semantic: s, status } = storybookTheme;
 const READER_DARK: Rgb = [0x12, 0x09, 0x1f];
+const WHITE: Rgb = [255, 255, 255];
+/** 반투명 바탕을 가장 밝은 장면(흰색) 위에 얹은 최악값. */
+const ON_BRIGHT_SCENE = WHITE;
 
 /**
  * [이름, 글자, 바탕, 바탕 아래(반투명 바탕일 때), 기준]. 기준 4.5 = WCAG AA 본문. 3.0은 큰 글자(18pt+ 또는 14pt bold+)·
@@ -74,6 +80,20 @@ const PAIRS: Array<[string, string, string, Rgb | undefined, number]> = [
   ['어두운 바탕 강조 글자(리더)', c.accentOnDark, c.readerControlBackground, READER_DARK, 4.5],
   ['어두운 바탕 강조 글자(사이드바)', c.accentOnDark, c.sidebarBackground, undefined, 4.5],
   ['리더 제목(ivory 카드)', c.readerHeading, c.storybookCard, undefined, 4.5],
+  ['리더 제목(ivory 카드를 어두운 리더 위에)', c.readerHeading, c.storybookCard, READER_DARK, 4.5],
+  ['리더 버튼 아이콘·글자(밝은 장면 위 반투명 버튼)', c.accentOnDark, c.readerControlBackground, ON_BRIGHT_SCENE, 4.5],
+  ['리더 버튼 흰 글자(밝은 장면 위)', c.onDark, c.readerControlBackground, ON_BRIGHT_SCENE, 4.5],
+  ['삽화 막 위 흰 글자(밝은 장면)', c.onDark, c.imageScrim, ON_BRIGHT_SCENE, 4.5],
+  ['삽화 진한 막 위 강조 글자(밝은 장면)', c.accentOnDark, c.imageScrimStrong, ON_BRIGHT_SCENE, 4.5],
+  ['리더 대화 패널 글자', c.onDark, c.readerPanelBackground, ON_BRIGHT_SCENE, 4.5],
+  ['리더 대화 패널 오류 글자', c.errorOnDark, c.readerPanelBackground, ON_BRIGHT_SCENE, 4.5],
+  ['랜딩(밝은 바탕) 강조 글자', c.goldText, c.background, undefined, 4.5],
+  ['리포트 카드 흐린 글자', c.readerBodyMuted, c.readerCard, undefined, 4.5],
+  ['리포트 카드 본문', c.readerBodyStrong, c.readerCard, undefined, 4.5],
+  ['캘린더 일요일(흰 카드)', c.calendarSunday, c.surfaceCard, undefined, 4.5],
+  ['캘린더 토요일(흰 카드)', c.calendarSaturday, c.surfaceCard, undefined, 4.5],
+  ['밝은 바탕 오류 글자(리포트 카드)', c.error, c.readerCard, undefined, 4.5],
+  ['성공 글자(흰 바탕)', s.positive.text, c.surfaceCard, undefined, 4.5],
   ['강조 마커(흰 바탕, 채움 3.0)', c.gold, c.surfaceCard, undefined, 3],
   ['비활성 버튼 라벨', c.disabledText, c.disabledBackground, undefined, 4.5],
   ['보조 흐린 표시(예외 3.0, 본문 아님)', c.onContentSubtle, c.background, undefined, 3],
@@ -85,6 +105,55 @@ test('의미 토큰 글자/바탕 짝은 WCAG 대비 기준을 넘는다', () =>
     const bgRgb = resolve(bg, under);
     const ratio = contrast(resolve(fg, bgRgb), bgRgb);
     if (ratio < min) failures.push(`${name}: ${ratio.toFixed(2)} < ${min} (${fg} on ${bg})`);
+  }
+  assert.deepEqual(failures, []);
+});
+
+
+// ── 소스 스캔: 한 스타일 객체 안에 글자색과 바탕색이 함께 있으면 그 짝을 계산한다 ─────────────────
+function tokenValue(expr: string): string | undefined {
+  const parts = expr.replace(/^storybookTheme\./, '').split('.');
+  let node: unknown = storybookTheme;
+  for (const part of parts) node = (node as Record<string, unknown> | undefined)?.[part];
+  return typeof node === 'string' ? node : undefined;
+}
+
+function sourceFiles(dir: string): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) return sourceFiles(path);
+    return /\.(ts|tsx)$/.test(name) && !/\.test\./.test(name) ? [path] : [];
+  });
+}
+
+/**
+ * 글자 토큰별로 같은 스타일 객체 바탕으로 쓰면 안 되는 바탕. accentOnDark·errorOnDark는 어두운 바탕 전용이다.
+ * (바탕이 부모 View에 있는 경우는 잡지 못한다 - 위 PAIRS가 그 짝을 따로 본다.)
+ */
+const DARK_ONLY = new Set(['color.accentOnDark', 'color.errorOnDark', 'color.linkOnDark']);
+
+test('스타일 객체 안 글자/바탕 짝은 4.5:1 이상, 어두운 바탕 전용 글자는 밝은 바탕에 쓰지 않는다', () => {
+  const root = fileURLToPath(new URL('../../', import.meta.url));
+  const failures: string[] = [];
+  for (const file of sourceFiles(root)) {
+    const text = readFileSync(file, 'utf8');
+    for (const match of text.matchAll(/(\w+): \{([^{}]*)\}/g)) {
+      const body = match[2];
+      const fg = /(?:^|[\s,{])color: (storybookTheme\.[\w.]+)/.exec(body)?.[1];
+      const bg = /backgroundColor: (storybookTheme\.[\w.]+)/.exec(body)?.[1];
+      if (!fg || !bg) continue;
+      const fgValue = tokenValue(fg);
+      const bgValue = tokenValue(bg);
+      if (!fgValue || !bgValue) continue;
+      // 반투명 바탕은 놓이는 곳 기준으로 합성한다 - 어두운 막(onDark*·scrim·리더 버튼/패널)은 어두운 리더 위, 나머지는 흰 바탕 위.
+      const overDark = /onDark|Scrim|readerControl|readerPanel/.test(bg);
+      const bgRgb = resolve(bgValue, overDark ? READER_DARK : WHITE);
+      const ratio = contrast(resolve(fgValue, bgRgb), bgRgb);
+      const where = `${file.slice(root.length)} ${match[1]}`;
+      if (ratio < 4.5) failures.push(`${where}: ${fg} on ${bg} = ${ratio.toFixed(2)}`);
+      const fgKey = fg.replace('storybookTheme.', '');
+      if (DARK_ONLY.has(fgKey) && luminance(resolve(bgValue)) > 0.4) failures.push(`${where}: ${fgKey}는 어두운 바탕 전용`);
+    }
   }
   assert.deepEqual(failures, []);
 });

@@ -78,7 +78,7 @@ export function HexagonStatChart({ data, size = 300 }: HexagonStatChartProps) {
         );
       })}
 
-      {/* 데이터 다각형 - 골드 10~20% 워시 + 2px 스트로크, 지침의 area-fill 스펙. */}
+      {/* 데이터 다각형 - 강조색(gold 토큰) 10~20% 워시 + 2px 스트로크, 지침의 area-fill 스펙. */}
       <polygon
         points={valuePoints}
         fill={storybookTheme.color.gold}

@@ -17,7 +17,7 @@ import {
   type ClassStudentResponse,
 } from '@/entities/auth';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
-import { formatReportDuration } from '@/pages/one-story';
+import { formatReportDuration } from '@/widgets/session-report';
 import { StudentReportList, sessionKindLabel } from '@/features/student-reports';
 import { ClassHistoryCard } from '@/features/class-lifecycle';
 import { pastMemberLabel } from '@/entities/class-lifecycle';

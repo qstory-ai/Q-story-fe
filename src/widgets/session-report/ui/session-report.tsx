@@ -22,9 +22,9 @@ import {
   skippedInviteScenes,
   storyChanges,
   type SceneExchange,
-} from '../../lib/session-report';
-import type { SessionReportAction } from '../../lib/report-tracking';
-import { styles } from '../styles';
+} from '../lib/session-report';
+import type { SessionReportAction } from '../lib/report-tracking';
+import { styles } from './styles';
 
 export type { SessionReportAction };
 

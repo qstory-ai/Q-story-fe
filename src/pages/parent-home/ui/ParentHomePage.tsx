@@ -17,7 +17,7 @@ import { hasKoreanBatchim } from '@/entities/narration';
 import { loadLocalStoryProgress, progressForSelectedChild, type LocalStoryProgress } from '@/entities/analytics';
 import { EXITED_BADGE_LABEL, isExitedSession, listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';
 import { listParentTutorReports, tutorReportSource, type TutorReportSummary } from '@/entities/tutor';
-import { formatReportDuration } from '@/pages/one-story';
+import { formatReportDuration } from '@/widgets/session-report';
 
 /**
  * 부모 홈("/parent") - IA "[1] 홈"의 아이 중심 큐레이션 화면:

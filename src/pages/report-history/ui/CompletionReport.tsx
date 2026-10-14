@@ -14,7 +14,7 @@ import {
   useReportTracking,
   type ReportViewSource,
   type SessionReportView,
-} from '@/pages/one-story';
+} from '@/widgets/session-report';
 import { useAuth } from '@/entities/auth';
 import { getStoryCompletion, type StoryCompletionDetail } from '@/entities/story-completion';
 import { SessionCodeNote } from '@/entities/play-session';

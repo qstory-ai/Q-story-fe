@@ -15,7 +15,7 @@ import {
   updateTutorStudent,
   type TutorStudent,
 } from '@/entities/tutor';
-import { formatReportDuration } from '@/pages/one-story';
+import { formatReportDuration } from '@/widgets/session-report';
 import { StudentReportList, sessionKindLabel } from '@/features/student-reports';
 import { ClassHistoryCard } from '@/features/class-lifecycle';
 import { useBackOr } from '@/shared/lib';

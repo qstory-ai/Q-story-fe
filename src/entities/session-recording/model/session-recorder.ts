@@ -1,9 +1,7 @@
 import { authorizationHeader } from '@/shared/api';
 import { apiBaseUrl } from '@/shared/config';
 
-import { getBetaSessionId } from './beta-events';
-import { byteLength } from './interaction-shapes';
-import { currentInteractionPlaySessionId } from './interaction-tracker';
+import { byteLength, currentInteractionPlaySessionId, getBetaSessionId } from '@/entities/analytics';
 import {
   RecordingGate,
   RecordingStateStore,

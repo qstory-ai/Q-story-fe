@@ -1,5 +1,5 @@
 import type { StoryRuntimeState } from '@/entities/story-runtime';
-import type { QuestionOutcome } from './parent-report';
+import type { QuestionOutcome } from '@/entities/report';
 
 type NarrationSnapshot = {
   isSpeaking: boolean;

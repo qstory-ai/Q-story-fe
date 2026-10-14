@@ -1,7 +1,7 @@
 import { authorizationHeader } from '@/shared/api';
 import { apiBaseUrl } from '@/shared/config';
 
-import { getBetaSessionId } from './beta-events';
+import { getBetaSessionId } from '@/entities/analytics';
 
 /**
  * 화면 녹화(rrweb)·화면 이용 기록(누른 곳·스크롤) 동의 상태.

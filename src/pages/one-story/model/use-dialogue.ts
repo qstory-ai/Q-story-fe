@@ -1,16 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import {
-  audioClockNow,
-  estimateReplySpeechSeconds,
-  playDecodedClip,
-  playResponseAudio,
-  preloadDecodedClip,
-  primeResponseAudio,
-  type DecodedClipPlayback,
-  type BufferedResponseAudio,
-  type ResponseAudio,
-} from '@/features/route-question';
+import { audioClockNow, estimateReplySpeechSeconds, playDecodedClip, playResponseAudio, preloadDecodedClip, primeResponseAudio, type DecodedClipPlayback } from '@/shared/lib';
+import type { BufferedResponseAudio, ResponseAudio } from '@/shared/lib';
 import {
   LISTEN_NOW_COPY,
   NO_SPEECH_REPROMPT_COPY,

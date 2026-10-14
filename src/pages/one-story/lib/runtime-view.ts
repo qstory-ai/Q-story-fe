@@ -6,7 +6,7 @@ import type {
 } from '@/entities/story-runtime';
 import { personalizeStoryText } from '@/entities/narration';
 import type { StoryRuntimePackage } from '@/entities/story';
-import type { QuestionOutcome } from '@/entities/analytics';
+import type { QuestionOutcome } from '@/entities/report';
 
 import { idleStatusFor, type ReadingContext } from './reading-context';
 

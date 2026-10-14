@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 
 import { useAuth } from '@/entities/auth';
 
-/** 이야기 화면(StoryPlayerRoute → OneStoryPage)과 데모 리더의 코드 묶음. App.tsx의 lazy()와 같은 모듈이라 같은 청크다. */
-const loadPlayScreen = () => Promise.all([import('@/pages/story-player'), import('@/pages/one-story')]);
+/** 이야기 화면(StoryPlayerRoute·OneStoryPage, 데모 리더 포함)의 코드 묶음. App.tsx의 lazy()와 같은 모듈이라 같은 청크다. */
+const loadPlayScreen = () => import('@/pages/one-story');
 
 type IdleWindow = Window & {
   requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;

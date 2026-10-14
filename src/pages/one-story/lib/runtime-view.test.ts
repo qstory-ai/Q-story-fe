@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { questionAnchorId, sceneId } from '@/entities/story-runtime';
-import { hanselGretelManifest } from '@/entities/story/hansel-gretel/manifest';
+import { hanselGretelManifest } from '@/test-fixtures/hansel-gretel/manifest';
 
 import { splitQuestionOutcomesAtScene } from './runtime-view';
 

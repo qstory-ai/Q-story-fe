@@ -1,7 +1,9 @@
-import {
-  generatedHanselGretelContent,
-  type GeneratedVisual,
-} from './generated-content';
+// 콘텐츠 파이프라인(scripts/generate-story-package.mjs)이 읽는 HG 삽화 생성 계약 - 운영 앱 코드는 import하지 않는다.
+import type { GeneratedStoryContent, GeneratedVisual } from '../../../src/entities/story';
+
+import generatedContentJson from './generated/generated-story-content.json';
+
+const generatedHanselGretelContent = generatedContentJson as unknown as GeneratedStoryContent;
 
 type AssetId = string;
 

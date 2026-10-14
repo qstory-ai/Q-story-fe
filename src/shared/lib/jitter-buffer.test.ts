@@ -2,14 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {
-  estimateArrivalRate,
-  estimateReplySpeechSeconds,
-  JITTER_RESUME_MIN_SECONDS,
-  JITTER_START_MAX_WAIT_SECONDS,
-  requiredBufferSeconds,
-  shouldStartPlayback,
-} from './jitter-buffer';
+import { estimateArrivalRate, estimateReplySpeechSeconds, JITTER_RESUME_MIN_SECONDS, JITTER_START_MAX_WAIT_SECONDS, requiredBufferSeconds, shouldStartPlayback } from './jitter-buffer';
 
 const base = {
   phase: 'start',

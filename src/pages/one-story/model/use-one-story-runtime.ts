@@ -3,7 +3,8 @@ import { useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 
-import { openExternalUrl } from '@/shared/lib';
+import { openExternalUrl, playResponseAudio, primeResponseAudio } from '@/shared/lib';
+import type { ResponseAudio } from '@/shared/lib';
 
 import {
   createInitialRuntimeState,
@@ -17,34 +18,8 @@ import {
   type StoryRuntimeEvent,
   type StoryRuntimeState,
 } from '@/entities/story-runtime';
-import {
-  buildExitDiagnostics,
-  sanitizeQuestionText,
-  buildParentReport,
-  hasExperiencedStoryAgency,
-  clearLocalStoryProgress,
-  loadLocalStoryProgress,
-  resumableProgressFor,
-  saveLocalStoryProgress,
-  createVoiceResearchConsent,
-  getVoiceResearchAccountConsent,
-  storeVoiceResearchSample,
-  reportClientError,
-  trackBetaEvent,
-  addQuestionAttempt,
-  endQuestionAttempt,
-  upsertQuestionOutcome,
-  getBetaSessionId,
-  setInteractionPlaySessionId,
-  setInteractionPlayerPhase,
-  currentClientDiagnostics,
-  viewportClassForWidth,
-  type BetaEventName,
-  type CompanionChatSummary,
-  type QuestionOutcome,
-  type LocalStoryProgress,
-  type VoiceResearchConsent,
-} from '@/entities/analytics';
+import { buildExitDiagnostics, sanitizeQuestionText, clearLocalStoryProgress, loadLocalStoryProgress, resumableProgressFor, saveLocalStoryProgress, createVoiceResearchConsent, getVoiceResearchAccountConsent, storeVoiceResearchSample, reportClientError, trackBetaEvent, getBetaSessionId, setInteractionPlaySessionId, setInteractionPlayerPhase, currentClientDiagnostics, viewportClassForWidth, type BetaEventName, type LocalStoryProgress, type VoiceResearchConsent } from '@/entities/analytics';
+import { buildParentReport, hasExperiencedStoryAgency, addQuestionAttempt, endQuestionAttempt, upsertQuestionOutcome, type CompanionChatSummary, type QuestionOutcome } from '@/entities/report';
 import {
   audioReadyWithin,
   personalizeStoryText,
@@ -81,16 +56,7 @@ import {
   useSpeechAutoStop,
   type RecordingResult,
 } from '@/features/record-question';
-import {
-  playResponseAudio,
-  primeResponseAudio,
-  getQuestionNarration,
-  preloadQuestionNarration,
-  getResponseNarration,
-  prefetchResponseNarration,
-  createChoicePrefetcher,
-  type ResponseAudio,
-} from '@/features/route-question';
+import { getQuestionNarration, preloadQuestionNarration, getResponseNarration, prefetchResponseNarration, createChoicePrefetcher } from '@/features/route-question';
 
 import {
   FIXED_AUDIO_FAILURE_RECOVERY_MS,

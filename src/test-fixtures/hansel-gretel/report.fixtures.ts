@@ -1,6 +1,6 @@
 import { fallbackFamilyId, questionAnchorId } from '@/entities/story-runtime';
 
-import type { CompanionChatSummary, QuestionOutcome } from './parent-report';
+import type { CompanionChatSummary, QuestionOutcome } from '@/entities/report';
 
 /**
  * 헨젤과 그레텔 리포트 회귀 테스트(hansel-gretel-report.test.ts)용 고정 outcomes.

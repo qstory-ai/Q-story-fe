@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { generatedHanselGretelContent } from './generated-content';
+import generatedHanselGretelContent from './generated/generated-story-content.json';
 import {
   hanselGretelVisualGenerationBriefs,
   hanselGretelVisualReferencePacks,

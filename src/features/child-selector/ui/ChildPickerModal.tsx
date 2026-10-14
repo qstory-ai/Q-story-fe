@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ActionButton, Modal, storybookTheme } from '@/shared/ui';
 import { AddChildAvatar, ChildAvatar, useChildren, type Child } from '@/entities/child';
-import { primeResponseAudio } from '@/features/route-question';
+import { primeResponseAudio } from '@/shared/lib';
 
 import { AddChildModal } from './AddChildModal';
 

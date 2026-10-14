@@ -1,3 +1,5 @@
+import { safeNextPath } from '@/shared/lib';
+
 export type OnboardingEntry = {
   step: 'role' | 'sign-up' | 'sign-in';
   role?: 'PARENT' | 'DIRECTOR' | 'TUTOR';
@@ -6,12 +8,6 @@ export type OnboardingEntry = {
   /** 로그인·가입 뒤 돌아갈 앱 내부 경로(반 초대 링크, 기관 초대 수락 등). */
   next?: string;
 };
-
-/** 로그인 뒤 돌아갈 경로는 앱 내부 경로만 받는다 - 외부 주소로 튕기는 오픈 리다이렉트를 막는다. */
-export function safeNextPath(value: string | null): string | undefined {
-  // "/\evil.com"은 브라우저가 "//evil.com"으로 읽고, 탭·줄바꿈은 지워진다 - 백슬래시와 공백 문자도 거절한다.
-  return value && /^\/(?![/\\])[^\\\s]*$/.test(value) ? value : undefined;
-}
 
 /**
  * `?flow=sign-in|sign-up|welcome` + 선택적 `?role=parent|organization|tutor` (+ `classCode`, `next`)를

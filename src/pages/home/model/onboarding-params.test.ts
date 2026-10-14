@@ -2,7 +2,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { readOnboardingParams, safeNextPath } from './onboarding-params';
+import { safeNextPath } from '@/shared/lib';
+
+import { readOnboardingParams } from './onboarding-params';
 
 const read = (qs: string) => readOnboardingParams(new URLSearchParams(qs));
 

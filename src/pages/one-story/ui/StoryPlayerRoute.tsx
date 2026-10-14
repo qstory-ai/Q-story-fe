@@ -2,12 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
-import { OneStoryPage } from '@/pages/one-story';
+import { OneStoryPage } from './OneStoryPage';
 import { describeStoryLoadFailure, loadStoryPackage, type StoryLoadFailure, type StoryRuntimePackage } from '@/entities/story';
 import { homePathForAuth, useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { parsePlaySetting, playEntrySource } from '@/entities/play-session';
-import { recordingConsentStore } from '@/entities/analytics';
+import { recordingConsentStore } from '@/entities/session-recording';
 import { playerChildSync } from '../model/player-child-sync';
 import { entitlementNextStep } from '../model/entitlement-next-step';
 import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/shared/ui';

@@ -1,6 +1,6 @@
 import { Image, Text, View } from 'react-native';
 
-import type { ParentReport } from '@/entities/analytics';
+import type { ParentReport } from '@/entities/report';
 import type { ImageSource } from '@/entities/story';
 
 import { formatReportDuration } from '../lib/format-report-duration';

@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { hanselGretelManifest } from '@/entities/story/hansel-gretel/manifest';
+import { hanselGretelManifest } from '@/test-fixtures/hansel-gretel/manifest';
 
 import { fetchLineNarration, fetchLineNarrationStream, fetchReplyNarration, getLineNarration } from './line-narration';
 

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { ErrorState, LoadingState, Modal, StatusBanner, SwitchField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { recordingConsentStore, useRecordingConsent } from '@/entities/analytics';
+import { recordingConsentStore, useRecordingConsent } from '@/entities/session-recording';
 
 type Notice = { variant: 'success' | 'warning'; label: string };
 

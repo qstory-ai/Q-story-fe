@@ -10,13 +10,7 @@ import { MonthCalendar } from '@/features/month-calendar';
 import { fetchStoryReportCopy, listStories, type StoryReportCopy } from '@/entities/story';
 import { messageForError } from '@/shared/api';
 import { formatReportDuration } from '@/widgets/session-report';
-import {
-  buildComprehensiveReport,
-  buildRecentApproachTrend,
-  type ComprehensiveReport,
-  type RecentApproachTrend,
-  type ReportCopyByStoryId,
-} from '@/entities/analytics';
+import { buildComprehensiveReport, buildRecentApproachTrend, type ComprehensiveReport, type RecentApproachTrend, type ReportCopyByStoryId } from '@/entities/report';
 import {
   completedOnly,
   EXITED_BADGE_LABEL,

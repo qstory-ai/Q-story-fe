@@ -15,7 +15,7 @@ import {
   hanselGretelPresentation,
 } from './manifest';
 import { buildCaptionTrack } from '@/entities/narration';
-import packageData from './story-package.generated.json';
+import packageData from '../../../content/stories/hansel-gretel/generated/story-package.generated.json';
 
 // 분기 진입 브릿지 대사는 route-context.yaml의 acknowledgementText/bridgeAudioId가 단일 원본이다.
 const branchInteractionEntries = Object.values(packageData.routeContext.anchors).flatMap(
@@ -391,7 +391,7 @@ test('C action scripts continue at 07-4 without replaying 07-3 and reach F08', (
 
 test('all visual beats use registered assets and one-breath fixed captions', () => {
   const illustrationRegistryPath = fileURLToPath(
-    new URL('../model/story-assets.generated.ts', import.meta.url),
+    new URL('../../entities/story/model/story-assets.generated.ts', import.meta.url),
   );
   const illustrationRegistry = readFileSync(illustrationRegistryPath, 'utf8');
   const sceneAssetIds = hanselGretelPresentation.scenes.flatMap((scene) =>
@@ -461,21 +461,21 @@ test('all visual beats use registered assets and one-breath fixed captions', () 
 
 test('all versioned master illustrations and every fixed narration clip are packaged', () => {
   const audioDirectory = fileURLToPath(
-    new URL('../../../../assets/story/hansel-gretel/audio/', import.meta.url),
+    new URL('../../../assets/story/hansel-gretel/audio/', import.meta.url),
   );
   // Driven by assets.json rather than a hand-written copy of it.
   const packagedAssets = JSON.parse(
     readFileSync(
       fileURLToPath(
         new URL(
-          '../../../../content/stories/hansel-gretel/assets.json',
+          '../../../content/stories/hansel-gretel/assets.json',
           import.meta.url,
         ),
       ),
       'utf8',
     ),
   );
-  const appRoot = fileURLToPath(new URL('../../../../', import.meta.url));
+  const appRoot = fileURLToPath(new URL('../../../', import.meta.url));
   const onDisk = (relativePath: string) => `${appRoot}${relativePath}`;
 
   // Only illustration originals live in the repo. Narration/bridge audio originals were removed

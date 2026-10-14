@@ -1,4 +1,4 @@
-import { STORY_IMAGE_ASSETS_BY_ID } from '@/entities/story/model/story-assets.generated';
+import { STORY_IMAGE_ASSETS_BY_ID } from '@/entities/story';
 
 /**
  * 그레텔 대화(Q-31) 상대 캐릭터. 질문 초대를 그레텔이 하므로 대화 상대도 그레텔로 고정한다

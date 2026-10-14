@@ -22,7 +22,8 @@ import {
   type UserSummary,
 } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
-import { betaErrorCode, recordingConsentStore, trackBetaEvent, trackGaEvent } from '@/entities/analytics';
+import { betaErrorCode, trackBetaEvent, trackGaEvent } from '@/entities/analytics';
+import { recordingConsentStore } from '@/entities/session-recording';
 import {
   EMPTY_TERMS_CONSENT,
   OrgGuardianAck,

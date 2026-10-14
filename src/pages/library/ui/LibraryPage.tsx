@@ -12,7 +12,7 @@ import {
 } from '@/entities/story';
 import { startFromLibraryCard, storyPlayPath } from '@/features/story-library';
 import { ChildPickerModal } from '@/features/child-selector';
-import { primeResponseAudio } from '@/features/route-question';
+import { primeResponseAudio } from '@/shared/lib';
 import { useBookmarks } from '@/entities/bookmark';
 import { useChildren, type Child } from '@/entities/child';
 import { completedOnly, listStoryCompletions, type StoryCompletionSummary } from '@/entities/story-completion';

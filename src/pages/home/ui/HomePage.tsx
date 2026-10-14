@@ -6,7 +6,7 @@ import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/share
 import { homePathFor, useAuth } from '@/entities/auth';
 import { StoryLibraryGrid } from '@/features/story-library';
 import { OnboardingFlow } from '@/features/onboarding';
-import { hasSeenTutorial } from '@/pages/tutorial';
+import { hasSeenTutorial } from '@/shared/lib';
 import { readOnboardingParams, type OnboardingEntry } from '../model/onboarding-params';
 
 // IA의 회원 유형 분류에 맞춘 표기 - 기관 소속 여부와 무관하게 모두 "선생님"으로 표기하고,

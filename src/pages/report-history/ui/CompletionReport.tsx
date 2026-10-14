@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-na
 import { useNavigate } from 'react-router-dom';
 
 import { ActionButton, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
-import { buildParentReport, type ParentReport } from '@/entities/analytics';
+import { buildParentReport, type ParentReport } from '@/entities/report';
 import { refetchStoryPackage, type StoryRuntimePackage } from '@/entities/story';
 import {
   ReportContent,

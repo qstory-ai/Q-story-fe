@@ -21,3 +21,6 @@ export const hanselGretelStoryPackage = buildStoryRuntimePackage({
 
 export const hanselGretelManifest = hanselGretelStoryPackage.manifest;
 export const hanselGretelPresentation = hanselGretelStoryPackage.presentation;
+
+/** 백엔드 /content 응답처럼 쓰는 원본 생성물 - 레지스트리 테스트가 fetch를 흉내 낼 때 쓴다. */
+export { generatedContent as hanselGretelGeneratedContent, packageData as hanselGretelPackageData };

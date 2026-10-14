@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { hanselGretelStoryPackage } from '@/test-fixtures/hansel-gretel/manifest';
-import generatedContent from '../../../../content/stories/hansel-gretel/generated/generated-story-content.json';
-import packageData from '../../../../content/stories/hansel-gretel/generated/story-package.generated.json';
+import {
+  hanselGretelGeneratedContent as generatedContent,
+  hanselGretelPackageData as packageData,
+  hanselGretelStoryPackage,
+} from '@/test-fixtures/hansel-gretel/manifest';
 import {
   loadStoryPackage,
   refetchStoryPackage,

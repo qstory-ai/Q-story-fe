@@ -7,7 +7,7 @@ import { describeStoryLoadFailure, loadStoryPackage, type StoryLoadFailure, type
 import { homePathForAuth, useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { parsePlaySetting, playEntrySource } from '@/entities/play-session';
-import { recordingConsentStore } from '@/entities/analytics';
+import { recordingConsentStore } from '@/entities/session-recording';
 import { playerChildSync } from '../model/player-child-sync';
 import { entitlementNextStep } from '../model/entitlement-next-step';
 import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/shared/ui';

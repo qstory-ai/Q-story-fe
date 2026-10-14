@@ -1,19 +1,8 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import {
-  installInteractionTracking,
-  recordingConsentStore,
-  setGaEntryHref,
-  setGoogleAnalyticsEnabled,
-  setInteractionTrackingEnabled,
-  setSessionRecordingPermitted,
-  startSessionRecording,
-  stopSessionRecording,
-  trackGaPageView,
-  trackScreenChange,
-  useRecordingConsent,
-} from '@/entities/analytics';
+import { installInteractionTracking, setGaEntryHref, setGoogleAnalyticsEnabled, setInteractionTrackingEnabled, trackGaPageView, trackScreenChange } from '@/entities/analytics';
+import { recordingConsentStore, setSessionRecordingPermitted, startSessionRecording, stopSessionRecording, useRecordingConsent } from '@/entities/session-recording';
 import { useAuth } from '@/entities/auth';
 
 /** 앱을 연 주소 - 라우터가 주소를 바꾸기 전에 읽어 둔다(`?ut=1` UT 링크). */

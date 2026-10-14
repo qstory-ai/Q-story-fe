@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { recordingConsentStore, useRecordingConsent } from '@/entities/analytics';
+import { recordingConsentStore, useRecordingConsent } from '@/entities/session-recording';
 import { Modal, SwitchField, storybookTheme } from '@/shared/ui';
 
 /**

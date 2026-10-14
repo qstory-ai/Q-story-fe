@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { recordingConsentStore } from '@/entities/analytics';
+import { recordingConsentStore } from '@/entities/session-recording';
 import { storybookTheme } from '@/shared/ui';
 
 /**

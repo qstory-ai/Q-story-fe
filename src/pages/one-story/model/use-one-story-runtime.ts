@@ -17,34 +17,8 @@ import {
   type StoryRuntimeEvent,
   type StoryRuntimeState,
 } from '@/entities/story-runtime';
-import {
-  buildExitDiagnostics,
-  sanitizeQuestionText,
-  buildParentReport,
-  hasExperiencedStoryAgency,
-  clearLocalStoryProgress,
-  loadLocalStoryProgress,
-  resumableProgressFor,
-  saveLocalStoryProgress,
-  createVoiceResearchConsent,
-  getVoiceResearchAccountConsent,
-  storeVoiceResearchSample,
-  reportClientError,
-  trackBetaEvent,
-  addQuestionAttempt,
-  endQuestionAttempt,
-  upsertQuestionOutcome,
-  getBetaSessionId,
-  setInteractionPlaySessionId,
-  setInteractionPlayerPhase,
-  currentClientDiagnostics,
-  viewportClassForWidth,
-  type BetaEventName,
-  type CompanionChatSummary,
-  type QuestionOutcome,
-  type LocalStoryProgress,
-  type VoiceResearchConsent,
-} from '@/entities/analytics';
+import { buildExitDiagnostics, sanitizeQuestionText, clearLocalStoryProgress, loadLocalStoryProgress, resumableProgressFor, saveLocalStoryProgress, createVoiceResearchConsent, getVoiceResearchAccountConsent, storeVoiceResearchSample, reportClientError, trackBetaEvent, getBetaSessionId, setInteractionPlaySessionId, setInteractionPlayerPhase, currentClientDiagnostics, viewportClassForWidth, type BetaEventName, type LocalStoryProgress, type VoiceResearchConsent } from '@/entities/analytics';
+import { buildParentReport, hasExperiencedStoryAgency, addQuestionAttempt, endQuestionAttempt, upsertQuestionOutcome, type CompanionChatSummary, type QuestionOutcome } from '@/entities/report';
 import {
   audioReadyWithin,
   personalizeStoryText,

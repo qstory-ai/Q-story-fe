@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { useRecordingConsent } from '@/entities/analytics';
+import { useRecordingConsent } from '@/entities/session-recording';
 import { useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { hasKoreanBatchim } from '@/entities/narration';

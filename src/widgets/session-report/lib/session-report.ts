@@ -1,4 +1,4 @@
-import type { QuestionOutcome } from '@/entities/analytics';
+import type { QuestionOutcome } from '@/entities/report';
 import type { PlayTurn } from '@/entities/play-session';
 import type { StoryRuntimePackage } from '@/entities/story';
 

@@ -3,15 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { ActionButton, ErrorState, LoadingState, Modal, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import {
-  VOICE_RESEARCH_CONSENT_TERMS,
-  VOICE_RESEARCH_CONSENT_VERSION,
-  getVoiceResearchAccountConsent,
-  grantVoiceResearchAccountConsent,
-  withdrawStoredVoiceResearchConsents,
-  withdrawVoiceResearchAccountConsent,
-  type VoiceResearchAccountConsent,
-} from '@/entities/analytics';
+import { VOICE_RESEARCH_CONSENT_TERMS, VOICE_RESEARCH_CONSENT_VERSION, getVoiceResearchAccountConsent, grantVoiceResearchAccountConsent, withdrawStoredVoiceResearchConsents, withdrawVoiceResearchAccountConsent, type VoiceResearchAccountConsent } from '@/entities/analytics';
 
 type LoadState =
   | { status: 'loading' }

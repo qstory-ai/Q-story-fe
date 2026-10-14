@@ -1,6 +1,6 @@
 import { apiBaseUrl } from '@/shared/config';
 import { requestJson, type PublicRequestOptions as RequestOptions } from '@/shared/api';
-import type { CompanionChatSummary, QuestionOutcome } from '@/entities/analytics';
+import type { CompanionChatSummary, QuestionOutcome } from '@/entities/report';
 import type { PlayTurn } from '@/entities/play-session';
 
 export type StoryCompletionSummary = {

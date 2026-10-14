@@ -1,14 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import {
-  RecordingChunkTooLargeError,
-  SessionRecordingApiError,
-  decodeEventsWithSize,
-  findRecordedSessions,
-  listRecordedChunks,
-  type RecordedSession,
-} from '@/entities/analytics';
+import { RecordingChunkTooLargeError, SessionRecordingApiError, decodeEventsWithSize, findRecordedSessions, listRecordedChunks, type RecordedSession } from '@/entities/session-recording';
 import { useAuth } from '@/entities/auth';
 import { ActionButton, LoadingState, TextField, storybookTheme } from '@/shared/ui';
 

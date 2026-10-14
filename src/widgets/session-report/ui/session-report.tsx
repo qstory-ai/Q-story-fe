@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { Icon, storybookTheme } from '@/shared/ui';
-import type { QuestionOutcome } from '@/entities/analytics';
+import type { QuestionOutcome } from '@/entities/report';
 import type { PlayTurn } from '@/entities/play-session';
 import type { StoryRuntimePackage } from '@/entities/story';
 import type { ReportAnalysis, ReportFollowUp, StoryEndStatus, TeacherNote } from '@/entities/story-completion';

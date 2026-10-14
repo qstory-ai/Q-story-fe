@@ -1,6 +1,6 @@
 import type { StoryRuntimeState } from '@/entities/story-runtime';
 
-import type { QuestionOutcome } from './parent-report';
+import type { QuestionOutcome } from '@/entities/report';
 
 const STORAGE_KEY = 'qstory.hg.progress.v1';
 

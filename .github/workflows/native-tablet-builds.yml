@@ -327,3 +327,73 @@ jobs:
             --apiIssuer "$ISSUER_ID"
           # .p8은 러너 임시 파일시스템이라 잡 종료와 함께 사라지지만 명시적으로 지운다.
           rm -f ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8
+
+  # 빌드 결과를 디스코드 #배포 채널로 한 줄(안드로이드·아이패드 각각 성공/실패, iOS 빌드 번호, 실행 링크, 커밋 제목·PR 번호).
+  # 둘 중 하나라도 실패하면 @개발 역할 멘션(DISCORD_ROLE_DEV_ID), 모두 성공이면 멘션 없이 조용히(flags=4096).
+  # DISCORD_WEBHOOK_DEPLOY 시크릿이 없으면 아무것도 안 한다. 알림 실패로 빌드를 실패로 만들지 않는다.
+  notify:
+    name: 디스코드 알림
+    needs: [android, ios]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Post build result to Discord
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_DEPLOY }}
+          ROLE_DEV: ${{ secrets.DISCORD_ROLE_DEV_ID }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          REF_NAME: ${{ github.ref_name }}
+          ANDROID: ${{ needs.android.result }}
+          IOS: ${{ needs.ios.result }}
+          BUILD_NO: ${{ github.run_number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$WEBHOOK" ]; then
+            echo "DISCORD_WEBHOOK_DEPLOY 시크릿이 없어 건너뛴다."
+            exit 0
+          fi
+          label() {
+            case "$1" in
+              success) echo "성공" ;;
+              failure) echo "**실패**" ;;
+              cancelled) echo "취소" ;;
+              skipped) echo "건너뜀" ;;
+              *) echo "$1" ;;
+            esac
+          }
+          short=${SHA:0:7}
+          title=$(gh api "repos/$REPO/commits/$SHA" --jq '.commit.message | split("\n")[0]' 2>/dev/null || true)
+          pr=$(gh api "repos/$REPO/commits/$SHA/pulls" --jq '.[0].number // empty' 2>/dev/null || true)
+          ref="$REF_NAME $short"
+          if [ -n "$pr" ]; then ref="#$pr $ref"; fi
+          text="[네이티브 빌드] 안드로이드 $(label "$ANDROID") · 아이패드 $(label "$IOS") (iOS 빌드 $BUILD_NO) · $ref ${title} · <$RUN_URL>"
+          prefix=""
+          roles='[]'
+          flags=4096
+          if [ "$ANDROID" = "failure" ] || [ "$IOS" = "failure" ]; then
+            flags=0
+            if printf '%s' "$ROLE_DEV" | grep -Eq '^[0-9]{5,25}$'; then
+              prefix="<@&$ROLE_DEV> "
+              roles="[\"$ROLE_DEV\"]"
+            fi
+          fi
+          body=$(jq -n --arg content "$prefix$text" --argjson roles "$roles" --argjson flags "$flags" \
+            '{content: ($content | .[0:1990]), flags: $flags, allowed_mentions: {parse: [], roles: $roles}}')
+          for attempt in 1 2 3 4; do
+            code=$(curl -sS -o /tmp/discord.out -w '%{http_code}' -m 15 -H 'content-type: application/json' \
+              -d "$body" "$WEBHOOK" || echo 000)
+            if [ "$code" = "429" ]; then
+              wait=$(jq -r '.retry_after // 1' /tmp/discord.out 2>/dev/null || echo 1)
+              sleep "$(printf '%.0f' "$wait")"; sleep 1
+              continue
+            fi
+            break
+          done
+          echo "discord status=$code"
+          exit 0

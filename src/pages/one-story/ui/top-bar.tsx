@@ -64,7 +64,7 @@ export function TopBar({
           ]}
         >
           <Image
-            source={{ uri: '/brand/q-story-question-book-logo.svg' }}
+            source={{ uri: '/brand/qstory-mark.svg' }}
             resizeMode="contain"
             style={[styles.brandLogo, compactLockup && styles.brandLogoNarrow]}
             accessibilityLabel="Q-Story 로고"

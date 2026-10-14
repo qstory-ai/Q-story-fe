@@ -9,7 +9,10 @@
     <link rel="preconnect" href="https://kbghxgejrkebdhjwizbr.supabase.co" crossorigin>
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
     <meta name="description" content="아이와 함께 듣고 답하며 이야기를 만들어가는 인터랙티브 동화 - 큐스토리." />
-    <link rel="icon" href="/brand/q-story-logo-app-icon-1024.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/brand/qstory-icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png" />
+    <meta name="theme-color" content="#FAF8FC" />
     <title>큐스토리</title>
     <!-- 초대·반 링크를 카카오톡 등에 붙였을 때의 미리보기. 경로와 상관없이 한 벌이다 - 리포트 링크도 이 공통 카드만
          보이게 해 아이 정보가 미리보기에 실리지 않게 한다. og:image는 절대 주소여야 스크래퍼가 읽는다. -->
@@ -21,13 +24,13 @@
     <meta property="og:image" content="https://demo.qstory.ai.kr/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="큐스토리 로고와 숲속 과자집 앞의 헨젤과 그레텔 삽화" />
+    <meta property="og:image:alt" content="큐스토리 워드마크와 숲속 과자집 앞의 헨젤과 그레텔 삽화" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="큐스토리" />
     <meta name="twitter:description" content="아이와 함께 듣고 답하며 이야기를 만들어 가는 인터랙티브 동화" />
     <meta name="twitter:image" content="https://demo.qstory.ai.kr/og-image.png" />
     <!-- JS가 오기 전 흰 화면 대신 보이는 정적 로딩 화면. #root 안에 두어 React가 처음 그릴 때 저절로 사라진다.
-         position: fixed라 레이아웃 자리를 차지하지 않아 사라질 때 밀림(CLS)이 없다. 배경은 첫 화면(라이트 셸)과 같다. -->
+         position: fixed라 레이아웃 자리를 차지하지 않아 사라질 때 밀림(CLS)이 없다. 배경은 첫 화면(라이트 셸)과 같고, 로고는 public/brand/qstory-mark.svg를 그대로 넣어 따로 요청하지 않는다. -->
     <style>
       #boot-splash {
         position: fixed;
@@ -37,34 +40,13 @@
         align-items: center;
         justify-content: center;
         gap: 20px;
-        background: #F7F8FA;
-        color: #1E293B;
+        background: #FAF8FC; /* Neutral 50 - 첫 화면(콘솔 바탕)과 같다 */
+        color: #27222D; /* Neutral 900 */
         font-family: 'Pretendard Variable', Pretendard, ui-sans-serif, system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
       }
       #boot-splash .boot-mark {
-        position: relative;
-        width: 72px;
+        width: 66px;
         height: 72px;
-        border-radius: 20px;
-        background: #FFF7E8;
-        box-shadow: 0 6px 18px rgba(18, 9, 31, 0.12);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 44px;
-        font-weight: 900;
-        line-height: 1;
-        color: #3B2266;
-      }
-      #boot-splash .boot-mark::after {
-        content: '';
-        position: absolute;
-        top: 14px;
-        right: 14px;
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        background: #F6C64D;
       }
       #boot-splash .boot-name {
         font-size: 22px;
@@ -79,7 +61,7 @@
         width: 7px;
         height: 7px;
         border-radius: 50%;
-        background: #F6C64D;
+        background: #9979E1; /* Purple 400 */
         animation: boot-pulse 1.2s ease-in-out infinite;
       }
       #boot-splash .boot-dots span:nth-child(2) { animation-delay: 0.15s; }
@@ -96,7 +78,11 @@
   <body>
     <div id="root">
       <div id="boot-splash" role="status" aria-live="polite" aria-label="큐스토리를 여는 중이에요">
-        <div class="boot-mark" aria-hidden="true">?</div>
+        <svg class="boot-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 270 294" aria-hidden="true">
+          <path fill="#7550D3" fill-rule="evenodd" d="M53.88 25.38 L51.00 27.88 L47.88 30.12 L45.00 32.88 L41.88 35.12 L34.12 42.88 L31.88 46.00 L28.50 49.62 L22.38 57.88 L20.38 61.38 L16.75 66.88 L10.62 79.12 L8.38 84.75 L5.75 92.25 L2.25 106.00 L1.00 113.62 L0.75 116.88 L0.12 119.75 L0.00 143.50 L0.75 147.75 L1.12 152.62 L3.12 162.88 L4.75 169.12 L7.75 178.12 L10.12 184.12 L12.25 188.75 L17.75 199.50 L24.12 209.25 L30.75 218.00 L45.62 233.00 L48.88 235.38 L51.38 237.62 L59.25 243.25 L64.62 246.50 L74.12 251.75 L86.75 257.00 L93.50 259.25 L105.62 262.25 L112.62 263.38 L115.88 263.62 L119.88 264.38 L125.62 264.38 L127.75 264.62 L145.50 264.38 L150.38 263.50 L153.62 263.25 L160.88 261.75 L162.62 261.88 L164.12 262.62 L168.62 267.00 L171.25 268.88 L174.62 271.88 L177.00 273.50 L179.88 276.00 L185.62 279.88 L192.50 284.00 L202.12 288.75 L204.62 289.75 L208.50 291.00 L217.75 293.25 L221.00 293.50 L225.88 294.38 L233.50 294.38 L239.88 293.25 L245.00 291.88 L250.25 289.75 L253.50 288.00 L257.75 284.88 L262.62 280.00 L265.75 275.25 L267.75 270.50 L269.25 264.62 L269.38 257.88 L268.75 254.25 L267.75 250.62 L266.75 248.00 L264.00 242.50 L262.00 239.62 L258.88 236.50 L257.75 235.62 L256.00 234.75 L250.75 233.12 L248.25 232.88 L244.62 232.12 L236.00 232.00 L234.12 231.75 L230.62 230.75 L228.25 229.62 L227.00 228.62 L226.50 227.62 L226.62 226.62 L227.12 225.75 L230.38 221.50 L234.25 217.50 L236.50 214.38 L238.62 212.00 L244.25 203.75 L247.75 198.25 L253.75 186.25 L256.75 178.75 L260.00 168.88 L262.25 159.75 L263.25 154.62 L263.50 151.38 L264.38 146.50 L264.62 136.00 L265.12 133.12 L265.12 131.25 L264.62 128.38 L264.38 118.88 L263.62 114.62 L263.38 111.38 L262.25 105.50 L259.25 93.50 L254.88 81.38 L248.12 67.62 L245.25 62.62 L236.88 50.62 L234.50 48.00 L232.25 44.88 L219.75 32.38 L209.50 24.38 L203.75 20.50 L197.50 16.75 L187.25 11.62 L175.25 6.88 L161.62 3.12 L156.62 2.12 L153.12 1.75 L150.62 1.12 L145.38 0.88 L140.50 0.00 L123.88 0.00 L119.62 0.75 L113.75 1.12 L103.50 3.12 L94.50 5.38 L86.62 8.00 L76.62 12.25 L65.62 17.88 L59.62 21.50 Z"/>
+          <path fill="#FFFFFF" fill-rule="evenodd" d="M75.00 110.25 L73.75 115.25 L72.88 121.25 L72.62 126.38 L72.88 131.12 L73.38 135.00 L75.00 141.75 L76.62 146.12 L78.50 150.00 L80.38 153.12 L85.00 158.88 L88.25 161.88 L91.12 164.00 L94.00 165.75 L99.38 168.12 L103.88 169.38 L108.00 170.00 L114.25 170.00 L118.75 169.38 L125.12 167.50 L129.88 165.38 L135.25 162.00 L139.00 159.00 L142.25 155.88 L145.38 152.25 L147.75 149.00 L151.38 154.75 L154.00 158.00 L159.12 162.88 L162.00 164.88 L165.25 166.75 L168.62 168.25 L172.00 169.38 L176.12 170.25 L179.25 170.62 L184.62 170.62 L190.88 169.75 L194.12 168.88 L198.25 167.38 L201.75 165.75 L205.50 163.50 L208.50 161.38 L212.12 158.25 L215.25 155.12 L219.62 149.62 L222.12 145.62 L225.75 138.00 L227.12 134.00 L228.12 130.12 L229.25 122.38 L229.38 116.62 L229.12 112.88 L228.62 109.25 L227.62 105.00 L226.50 101.38 L225.12 98.12 L223.00 94.00 L220.88 90.75 L218.12 87.38 L215.38 84.62 L213.50 83.00 L209.75 80.38 L207.12 78.88 L203.62 77.38 L199.88 76.12 L193.38 75.00 L188.75 74.88 L181.62 75.75 L177.50 76.88 L174.12 78.12 L170.00 80.12 L163.62 84.25 L160.50 86.88 L155.38 92.38 L152.50 96.25 L149.12 90.38 L145.62 86.00 L142.50 82.88 L139.12 80.25 L136.12 78.38 L133.12 76.88 L129.00 75.38 L125.50 74.50 L122.00 74.00 L117.75 73.88 L114.25 74.12 L111.00 74.62 L107.12 75.62 L101.25 78.00 L97.00 80.38 L91.00 84.88 L86.75 89.12 L82.62 94.25 L80.25 98.00 L77.62 103.12 Z"/>
+          <path fill="#4A26AC" fill-rule="evenodd" d="M209.38 97.75 L205.88 98.50 L202.25 100.12 L199.12 102.38 L196.50 105.25 L194.50 108.38 L193.00 112.12 L192.25 115.62 L192.12 120.75 L192.75 124.50 L193.88 127.75 L194.88 129.75 L196.62 132.50 L199.62 135.62 L202.50 137.62 L206.62 139.38 L209.38 139.88 L213.50 139.88 L218.25 138.62 L221.62 136.75 L223.62 135.12 L225.38 133.25 L227.75 129.88 L228.50 128.12 L229.25 122.38 L229.38 116.62 L229.12 112.88 L228.62 109.75 L227.25 107.12 L224.88 103.88 L222.00 101.25 L219.12 99.50 L215.75 98.25 L213.00 97.75 Z M137.88 97.38 L134.50 98.00 L130.88 99.50 L127.75 101.62 L124.62 104.88 L122.75 107.88 L121.00 112.25 L120.25 116.38 L120.25 120.75 L121.00 124.75 L122.00 127.62 L123.12 129.88 L124.62 132.12 L127.25 135.00 L129.75 136.88 L134.00 138.88 L137.62 139.62 L141.00 139.62 L144.12 139.00 L147.38 137.75 L149.25 136.62 L151.62 134.75 L153.88 132.25 L155.88 129.12 L157.50 125.00 L158.38 120.25 L158.38 116.75 L157.75 112.88 L156.12 108.50 L153.88 104.75 L151.12 101.88 L148.38 99.88 L145.25 98.38 L141.75 97.50 Z"/>
+        </svg>
         <div class="boot-name" aria-hidden="true">큐스토리</div>
         <div class="boot-dots" aria-hidden="true"><span></span><span></span><span></span></div>
       </div>

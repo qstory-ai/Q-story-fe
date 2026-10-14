@@ -4,7 +4,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'src/entities/story/*/generated-*.json'] },
+  { ignores: ['dist', 'node_modules', 'content/stories/*/generated/*.json'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

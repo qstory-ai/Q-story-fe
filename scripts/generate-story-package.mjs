@@ -13,7 +13,7 @@ import {
 // Only Hansel & Gretel has a visual-generation-contract.ts today (see references/packs.yaml's
 // sourceModule) - this import must stay story-scoped (see visualReferencePacksFor below) so
 // other stories in the registry don't fail trying to load a module that doesn't exist for them.
-import { hanselGretelVisualReferencePacks } from '../src/entities/story/hansel-gretel/visual-generation-contract.ts';
+import { hanselGretelVisualReferencePacks } from '../src/test-fixtures/hansel-gretel/visual-generation-contract.ts';
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const appDirectory = dirname(scriptDirectory);
@@ -170,13 +170,7 @@ for (const entry of registry.stories) {
 
 const outputs = [];
 for (const source of sources) {
-  const directory = join(
-    appDirectory,
-    'src',
-    'entities',
-    'story',
-    source.story.slug,
-  );
+  const directory = join(appDirectory, 'content', 'stories', source.story.slug, 'generated');
   outputs.push(
     [join(directory, 'generated-story-content.json'), stableJson(generatedStoryContent(source))],
     [join(directory, 'story-package.generated.json'), stableJson(packageData(source, prompts, languageRules))],

@@ -45,7 +45,7 @@ if (entries.length === 0) {
 }
 
 for (const entry of entries) {
-  const directory = join(appDirectory, 'src', 'entities', 'story', entry.slug);
+  const directory = join(appDirectory, 'content', 'stories', entry.slug, 'generated');
   const generatedContent = JSON.parse(
     await readFile(join(directory, 'generated-story-content.json'), 'utf8'),
   );

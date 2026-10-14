@@ -16,7 +16,7 @@ import {
   hasExperiencedStoryAgency,
   upsertQuestionOutcome,
 } from './parent-report';
-import { hanselGretelStoryPackage } from '@/entities/story/hansel-gretel/manifest';
+import { hanselGretelStoryPackage } from '@/test-fixtures/hansel-gretel/manifest';
 
 const storyPackage = hanselGretelStoryPackage;
 const reportCopy = storyPackage.reportCopy;

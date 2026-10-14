@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { hanselGretelStoryPackage as storyPackage } from '@/entities/story/hansel-gretel/manifest';
+import { hanselGretelStoryPackage as storyPackage } from '@/test-fixtures/hansel-gretel/manifest';
 
 import { inviteNeedsLiveNarration, questionInviteClipId } from './question-invite-audio';
 

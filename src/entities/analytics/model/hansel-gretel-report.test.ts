@@ -3,16 +3,16 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { questionAnchorId } from '@/entities/story-runtime';
-import { hanselGretelStoryPackage as storyPackage } from '@/entities/story/hansel-gretel/manifest';
+import { hanselGretelStoryPackage as storyPackage } from '@/test-fixtures/hansel-gretel/manifest';
 
 import { buildComprehensiveReport } from './comprehensive-report';
-import { HG_COMPANION_CHAT, HG_REPORT_SCENARIOS, HG_REPORT_SESSIONS } from './hansel-gretel-report.fixtures';
+import { HG_COMPANION_CHAT, HG_REPORT_SCENARIOS, HG_REPORT_SESSIONS } from '@/test-fixtures/hansel-gretel/report.fixtures';
 import { buildParentReport, buildRecentApproachTrend } from './parent-report';
 // 같은 fixture를 Q-30 최종 원고의 report-copy.yaml로 돌려 저장한 출력이다(처음에는 전략 표를
 // report-labels.ts에서 report-copy.yaml로 옮길 때 출력이 같은지 지키려고 만들었다). 리포트 문구나
 // 분기 구성을 일부러 바꾼 경우에만 다시 만들고, 바뀐 내용을 diff로 확인할 것 - 그 밖에 HG 리포트가
 // 바뀌면 이 테스트가 실패해야 한다.
-import before from './hansel-gretel-report.snapshot.json';
+import before from '@/test-fixtures/hansel-gretel/report.snapshot.json';
 
 const reportCopy = storyPackage.reportCopy;
 const reportCopyByStoryId = { HG: reportCopy };

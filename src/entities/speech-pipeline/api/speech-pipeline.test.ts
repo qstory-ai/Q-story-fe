@@ -9,7 +9,7 @@ import {
   type LocalRecordingArtifact,
 } from '@/entities/story-runtime';
 
-import { hanselGretelStoryPackage as storyPackage } from '@/entities/story/hansel-gretel/manifest';
+import { hanselGretelStoryPackage as storyPackage } from '@/test-fixtures/hansel-gretel/manifest';
 
 import { LocalSafeSpeechPipeline } from './local-safe-pipeline';
 import { HttpSpeechPipeline } from './http-speech-pipeline';

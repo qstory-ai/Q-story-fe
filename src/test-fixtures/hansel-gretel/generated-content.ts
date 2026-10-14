@@ -1,6 +1,6 @@
-import generatedContentJson from './generated-story-content.json';
+import generatedContentJson from '../../../content/stories/hansel-gretel/generated/generated-story-content.json';
 
-import type { GeneratedStoryContent } from '../model/story-package-types';
+import type { GeneratedStoryContent } from '@/entities/story';
 
 export type {
   GeneratedFallback,
@@ -9,7 +9,7 @@ export type {
   GeneratedStorySegment,
   GeneratedVisual,
   QuestionSlot,
-} from '../model/story-package-types';
+} from '@/entities/story';
 
 export const generatedHanselGretelContent =
   generatedContentJson as GeneratedStoryContent;

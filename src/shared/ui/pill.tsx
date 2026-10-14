@@ -60,6 +60,6 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   textOnCard: { color: storybookTheme.color.primary },
-  textOnLight: { color: storybookTheme.color.onContentMuted },
+  textOnLight: { color: storybookTheme.color.onCardBody },
   textAccent: { color: storybookTheme.color.onCardTitle },
 });

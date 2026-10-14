@@ -171,12 +171,12 @@ const styles = StyleSheet.create({
     aspectRatio: 5 / 3,
   },
   betaStoryFrameCaption: {
-    backgroundColor: 'rgba(18, 10, 30, 0.6)',
+    backgroundColor: storybookTheme.color.imageScrim,
     paddingHorizontal: 16,
     paddingVertical: 10,
   },
   betaStoryFrameCaptionKicker: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.accentOnDark,
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.semibold,
   },

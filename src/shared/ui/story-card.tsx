@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     // 지침(image outlines): 이미지 edge에 매우 옅은 border를 얹어 배경과의 경계를 살린다.
     // 다크 앱이라 흰색 계열 10% 알파. RN Web은 borderColor의 rgba를 CSS로 통과시킨다.
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: storybookTheme.color.onDarkHairline,
   },
   coverFrameLocked: {
     opacity: 0.55,
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(18, 10, 30, 0.6)',
+    backgroundColor: storybookTheme.color.imageScrim,
   },
   // × 오버레이 - lockBadge와 같은 우상단 자리를 공유하지만, locked/onRemove가 동시에 발생하지
   // 않는 실사용 조건(잠긴 이야기는 저장할 수 없거나, 있어도 삭제 유효)에서 크게 문제되지 않는다.
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(18, 10, 30, 0.7)',
+    backgroundColor: storybookTheme.color.imageScrimStrong,
   },
   removeBadgePressed: { opacity: 0.7 },
   /** 블록 사이는 16, 텍스트 그룹 안(제목-설명)은 8로 "eyebrow + 제목·설명 묶음" 두 단계를 드러낸다. */
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 4,
-    backgroundColor: 'rgba(18, 10, 30, 0.55)',
+    backgroundColor: storybookTheme.color.imageScrim,
   },
   progressFill: {
     height: '100%',

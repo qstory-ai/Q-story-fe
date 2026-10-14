@@ -361,11 +361,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxBoxChecked: {
-    borderColor: storybookTheme.color.gold,
-    backgroundColor: storybookTheme.color.gold,
+    borderColor: storybookTheme.color.accentFill,
+    backgroundColor: storybookTheme.color.accentFill,
   },
   checkboxMark: {
-    color: storybookTheme.color.background,
+    color: storybookTheme.color.onAccentFill,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.black,
     // 체크 마크는 박스 안에 정확히 눈금선이 맞아야 해서 lineHeight를 fontSize와 동일하게 잠근다.

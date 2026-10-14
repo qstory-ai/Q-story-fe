@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   },
   /** landing의 button--gold를 참고한 골드 채움 - 서재의 "구독하고 전체 보기" 같은 CTA용. */
   gold: {
-    backgroundColor: storybookTheme.color.gold,
+    backgroundColor: storybookTheme.color.accentFill,
   },
   goldHovered: {
     backgroundColor: storybookTheme.semantic.accent.hover,

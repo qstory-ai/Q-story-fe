@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     borderColor: storybookTheme.color.gold,
   },
   dayBadgeSelected: {
-    backgroundColor: storybookTheme.color.gold,
+    backgroundColor: storybookTheme.color.accentFill,
   },
   dayNumber: {
     fontSize: storybookTheme.type.sm,
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   dayNumberSunday: { color: storybookTheme.color.calendarSunday },
   dayNumberSaturday: { color: storybookTheme.color.calendarSaturday },
   dayNumberSelected: {
-    color: storybookTheme.semantic.accent.onAccent,
+    color: storybookTheme.color.onAccentFill,
     fontWeight: storybookTheme.type.weight.black,
   },
   dotSlot: {
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.gold,
   },
   dotSelected: {
-    backgroundColor: storybookTheme.semantic.accent.onAccent,
+    backgroundColor: storybookTheme.color.markerOnAccentFill,
   },
   list: {
     gap: storybookTheme.spacing.sm,

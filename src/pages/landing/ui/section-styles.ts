@@ -44,11 +44,11 @@ export const sectionStyles = StyleSheet.create({
     gap: storybookTheme.spacing.sm,
     minHeight: 56,
     borderRadius: storybookTheme.radius.button,
-    backgroundColor: storybookTheme.color.gold,
+    backgroundColor: storybookTheme.color.accentFill,
     paddingHorizontal: storybookTheme.spacing.lg,
   },
   buttonGoldLargeText: {
-    color: storybookTheme.color.primary,
+    color: storybookTheme.color.onAccentFill,
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
   },

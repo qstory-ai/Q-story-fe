@@ -688,14 +688,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: storybookTheme.color.contentPanelBorder,
   },
-  tabActive: { backgroundColor: storybookTheme.color.gold, borderColor: storybookTheme.color.gold },
+  tabActive: { backgroundColor: storybookTheme.color.accentFill, borderColor: storybookTheme.color.accentFill },
   tabPressed: { opacity: 0.85 },
   tabLabel: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onContentMuted,
   },
-  tabLabelActive: { color: storybookTheme.color.primary },
+  tabLabelActive: { color: storybookTheme.color.onAccentFill },
   reportCard: {
     borderRadius: storybookTheme.radius.card,
     backgroundColor: storybookTheme.color.surfaceCard,

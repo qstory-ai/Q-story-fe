@@ -1,6 +1,6 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
-import { Icon, storybookTheme } from '@/shared/ui';
+import { BrandLockup, Icon, storybookTheme } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../model';
 import type { UseDialogue } from '../model/use-dialogue';
@@ -59,31 +59,29 @@ export function TopBar({
         <View
           style={[
             styles.brandLogoFrame,
-            compactLockup && styles.brandLogoFrameNarrow,
+            compactLockup ? styles.brandLogoFrameNarrow : styles.brandWordmarkFrame,
             isParentReport && styles.reportBrandLogoFrame,
           ]}
         >
-          <Image
-            source={{ uri: '/brand/qstory-mark.svg' }}
-            resizeMode="contain"
-            style={[styles.brandLogo, compactLockup && styles.brandLogoNarrow]}
-            accessibilityLabel="Q-Story 로고"
-          />
+          {compactLockup ? (
+            <Image
+              source={{ uri: '/brand/qstory-mark.svg' }}
+              resizeMode="contain"
+              style={styles.brandLogoNarrow}
+              accessibilityLabel="Q-Story 로고"
+            />
+          ) : (
+            <BrandLockup size="mini" />
+          )}
         </View>
         {compactLockup ? (
-          // 폰에선 "Q-STORY" 워드마크를 빼고 회차 캡션 한 줄만 - 이 자리에서 실제로 필요한
+          // 폰에선 워드마크 대신 Q 마크만 두고 회차 캡션 한 줄만 - 이 자리에서 실제로 필요한
           // 정보는 "지금 몇 화, 무슨 장면인지"뿐이고 브랜드는 로고로 충분하다.
           <Text style={styles.storyTitleNarrow} numberOfLines={1}>
             {chapterCaption ?? parentReport.storyTitle}
           </Text>
         ) : (
           <View style={styles.brandTextLockup}>
-            <Text style={styles.brand}>
-              <Text style={styles.brandQ}>Q</Text>
-              <Text style={isParentReport && styles.reportTopText}>
-                -STORY
-              </Text>
-            </Text>
             <Text
               style={[
                 styles.storyTitle,

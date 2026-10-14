@@ -195,7 +195,7 @@ export function TutorHomePage() {
 function TopBar({ token }: { token: string }) {
   return (
     <View style={styles.topBar}>
-      <BrandLockup size="compact" tone="onLight" />
+      <BrandLockup size="compact" />
       <NotificationBell token={token} />
     </View>
   );

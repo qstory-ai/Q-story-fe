@@ -98,21 +98,9 @@ export const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderColor: 'transparent',
   },
-  brandLogo: { width: 37, height: 40 },
+  /** 넓은 화면 - ivory 틀 안에 워드마크(BrandLockup mini). */
+  brandWordmarkFrame: { width: 'auto', height: 36, paddingHorizontal: 10 },
   brandTextLockup: { gap: 4, flexShrink: 1 },
-  // 상단 바는 장면 삽화·idle 화면(밝은 회색) 위에 그대로 얹히므로 흰 글자만으로는 밝은 장면에서
-  // 사라진다 - 오버레이 텍스트답게 짧은 그림자를 깔아 어느 배경에서도 읽히게 한다.
-  brand: {
-    color: storybookTheme.color.surfaceWhite,
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    letterSpacing: 1.8,
-    textShadowColor: 'rgba(22, 12, 36, 0.6)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  brandQ: { color: storybookTheme.color.gold },
-  reportTopText: { color: storybookTheme.color.onCardTitle },
   storyTitle: {
     color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.md,
@@ -160,7 +148,7 @@ export const styles = StyleSheet.create({
   },
   topControlButtonPrimary: {
     borderColor: storybookTheme.color.accentSoftBorder,
-    backgroundColor: 'rgba(45, 25, 53, 0.86)',
+    backgroundColor: storybookTheme.color.readerControlBackground,
   },
   topControlButtonHighlight: {
     borderColor: storybookTheme.color.gold,
@@ -448,7 +436,7 @@ export const styles = StyleSheet.create({
   playbackContent: { gap: 5 },
   // 장면 끝 쉼 - 캡션 자리의 "그레텔에게 말해 봐" 안내와 두 버튼.
   sceneEndPrompt: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.accentOnDark,
     fontSize: storybookTheme.type.md,
     lineHeight: 25,
     fontWeight: storybookTheme.type.weight.bold,
@@ -462,14 +450,14 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: 'rgba(255, 253, 246, 0.16)',
   },
-  sceneEndButtonPrimary: { backgroundColor: storybookTheme.color.gold },
+  sceneEndButtonPrimary: { backgroundColor: storybookTheme.color.accentFill },
   sceneEndButtonPressed: { opacity: 0.8 },
   sceneEndButtonText: {
     color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
   },
-  sceneEndButtonTextPrimary: { color: storybookTheme.color.onCardTitle },
+  sceneEndButtonTextPrimary: { color: storybookTheme.color.onAccentFill },
   captionHeader: {
     minHeight: 20,
     flexDirection: 'row',
@@ -483,7 +471,7 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   playbackSpeaker: {
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.accentOnDark,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 0.3,
@@ -625,10 +613,10 @@ export const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: storybookTheme.color.gold,
+    backgroundColor: storybookTheme.color.accentFill,
   },
   choiceNumberText: {
-    color: '#38204D',
+    color: storybookTheme.color.onAccentFill,
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
   },
@@ -783,12 +771,12 @@ export const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: storybookTheme.color.gold,
+    backgroundColor: storybookTheme.color.accentFill,
     alignItems: 'center',
     justifyContent: 'center',
   },
   reportQuestionNumberText: {
-    color: storybookTheme.color.readerBodyStrong,
+    color: storybookTheme.color.onAccentFill,
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
   },
@@ -979,12 +967,12 @@ export const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: storybookTheme.color.gold,
+    backgroundColor: storybookTheme.color.accentFill,
     alignItems: 'center',
     justifyContent: 'center',
   },
   reportFollowUpNumberText: {
-    color: storybookTheme.color.readerShadow,
+    color: storybookTheme.color.onAccentFill,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
   },
@@ -1027,7 +1015,7 @@ export const styles = StyleSheet.create({
   reportActionEyebrow: {
     alignSelf: 'flex-start',
     color: storybookTheme.color.readerBodyStrong,
-    backgroundColor: '#FFE36E',
+    backgroundColor: storybookTheme.color.accentSoft,
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 1,
@@ -1095,7 +1083,7 @@ export const styles = StyleSheet.create({
   parentMessageTitle: { color: storybookTheme.color.goldText, fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold },
   parentMessageText: { color: storybookTheme.color.goldText, fontSize: storybookTheme.type.xs, lineHeight: 19 },
   parentMessageAction: {
-    color: '#4A2B61',
+    color: storybookTheme.color.goldText,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
     marginTop: 3,
@@ -1195,13 +1183,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.12)',
   },
-  chapterRowIndexActive: { backgroundColor: storybookTheme.color.gold },
+  chapterRowIndexActive: { backgroundColor: storybookTheme.color.accentFill },
   chapterRowIndexText: {
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onDarkMuted,
   },
-  chapterRowIndexTextActive: { color: '#2C1749' },
+  chapterRowIndexTextActive: { color: storybookTheme.color.onAccentFill },
   chapterRowCopy: { flex: 1, gap: 2 },
   chapterRowTitle: {
     fontSize: storybookTheme.type.sm,
@@ -1213,7 +1201,7 @@ export const styles = StyleSheet.create({
   chapterRowCaption: {
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.gold,
+    color: storybookTheme.color.accentOnDark,
   },
   chapterFooter: {
     paddingHorizontal: 18,

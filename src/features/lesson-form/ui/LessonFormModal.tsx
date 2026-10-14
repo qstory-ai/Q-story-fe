@@ -595,8 +595,8 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.primary,
     borderColor: storybookTheme.color.primary,
   },
-  weekdayChipSunday: { borderColor: 'rgba(255, 154, 162, 0.6)' },
-  weekdayChipSaturday: { borderColor: 'rgba(158, 200, 255, 0.6)' },
+  weekdayChipSunday: { borderColor: storybookTheme.color.calendarSundaySoft },
+  weekdayChipSaturday: { borderColor: storybookTheme.color.calendarSaturdaySoft },
   weekdayChipLabel: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,

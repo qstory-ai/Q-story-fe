@@ -126,6 +126,6 @@ const styles = StyleSheet.create({
   badgeBgFilledIdle: { backgroundColor: storybookTheme.color.pillBackground },
   badgeFgFilledIdle: { color: storybookTheme.color.onContentMuted },
   // primary(네이비) 채움 chip 위 → 배지는 밝은 카드 톤으로 대비.
-  badgeBgFilledActive: { backgroundColor: 'rgba(255, 255, 255, 0.18)' },
+  badgeBgFilledActive: { backgroundColor: storybookTheme.color.onDarkOverlay },
   badgeFgFilledActive: { color: storybookTheme.color.onDark },
 });

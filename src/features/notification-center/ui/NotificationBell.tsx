@@ -94,9 +94,10 @@ function toneColors(tone: Presentation['tone']): { background: string; icon: str
       };
     case 'gold':
     default:
+      // 'brand'(보라)와 구분되게 하늘색 - 키 컬러가 보라 하나라 예전 금색 자리를 Skyblue로 옮겼다.
       return {
-        background: storybookTheme.color.accentSoft,
-        icon: storybookTheme.color.gold,
+        background: storybookTheme.status.info.background,
+        icon: storybookTheme.status.info.text,
       };
   }
 }

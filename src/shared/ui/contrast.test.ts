@@ -7,6 +7,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { storybookTheme } from './theme';
+import { semanticColors } from './tokens';
 
 type Rgb = [number, number, number];
 
@@ -108,6 +109,73 @@ test('의미 토큰 글자/바탕 짝은 WCAG 대비 기준을 넘는다', () =>
   }
   assert.deepEqual(failures, []);
 });
+
+
+// ── Semantic(tokens.ts) 짝: Light·Dark 모드 각각 ─────────────────────────────────────────────────
+/**
+ * [이름, 글자(또는 아이콘·테두리), 바탕, 기준]. 반투명 바탕은 그 모드의 bg.primary 위에 얹어 계산한다.
+ * 글자 4.5, 아이콘·입력 테두리·포커스 링·큰 글자 3.0(WCAG 1.4.11).
+ */
+function semanticPairs(mode: 'light' | 'dark'): Array<[string, string, string, number]> {
+  const { text: t, bg, border: b, icon: i } = semanticColors[mode];
+  const pairs: Array<[string, string, string, number]> = [];
+  const add = (name: string, fg: string, bgs: Record<string, string>, min: number) => {
+    for (const [bgName, bgValue] of Object.entries(bgs)) pairs.push([`${name} on ${bgName}`, fg, bgValue, min]);
+  };
+  const surfaces = { 'bg.primary': bg.primary, 'bg.secondary': bg.secondary };
+  const allSurfaces = { ...surfaces, 'bg.tertiary': bg.tertiary, 'bg.brandSubtle': bg.brandSubtle };
+  add('text.primary', t.primary, { ...allSurfaces, 'bg.disabled': bg.disabled }, 4.5);
+  add('text.secondary', t.secondary, { ...allSurfaces, 'bg.infoSubtle': bg.infoSubtle, 'bg.successSubtle': bg.successSubtle, 'bg.errorSubtle': bg.errorSubtle }, 4.5);
+  add('text.tertiary', t.tertiary, mode === 'light' ? { ...surfaces, 'bg.brandSubtle': bg.brandSubtle } : allSurfaces, 4.5);
+  add('text.disabled', t.disabled, { 'bg.disabled': bg.disabled, 'bg.primary': bg.primary }, 4.5);
+  add('text.link', t.link, surfaces, 4.5);
+  add('text.info', t.info, mode === 'light' ? { 'bg.primary': bg.primary } : surfaces, 4.5);
+  add('text.success', t.success, { ...surfaces, 'bg.successSubtle': bg.successSubtle }, 4.5);
+  add('text.error', t.error, { ...surfaces, 'bg.errorSubtle': bg.errorSubtle }, 4.5);
+  for (const state of ['default', 'hover', 'pressed'] as const) {
+    add(`text.interactive.primary.${state}`, t.interactive.primary[state], surfaces, 4.5);
+    add(`text.interactive.secondary.${state}`, t.interactive.secondary[state], surfaces, 4.5);
+    add('text.interactive.inverse', t.interactive.inverse, {
+      [`bg.interactive.primary.${state}`]: bg.interactive.primary[state],
+      [`bg.interactive.error.${state}`]: bg.interactive.error[state],
+    }, 4.5);
+    add('text.interactive.selected', t.interactive.selected, {
+      [`bg.interactive.secondary.${state}`]: bg.interactive.secondary[state],
+      [`bg.interactive.selected.${state}`]: bg.interactive.selected[state],
+    }, 4.5);
+    add(`border.interactive.primary.${state}`, b.interactive.primary[state], surfaces, 3);
+    add(`border.interactive.neutral.${state}`, b.interactive.neutral[state], surfaces, 3);
+    add(`icon.interactive.primary.${state}`, i.interactive.primary[state], surfaces, 3);
+    add(`icon.interactive.secondary.${state}`, i.interactive.secondary[state], surfaces, 3);
+    add('icon.interactive.inverse', i.interactive.inverse, { [`bg.interactive.primary.${state}`]: bg.interactive.primary[state] }, 3);
+  }
+  add('text.interactive.inverse', t.interactive.inverse, {
+    'bg.brand': bg.brand, 'bg.info': bg.info, 'bg.infoBold': bg.infoBold, 'bg.successBold': bg.successBold,
+    'bg.error': bg.error, 'bg.errorBold': bg.errorBold,
+  }, 4.5);
+  add('icon.interactive.inverse(채움 위 아이콘)', i.interactive.inverse, { 'bg.success': bg.success }, 3);
+  add('text.inverse', t.inverse, { 'bg.inverse': bg.inverse }, 4.5);
+  add('border.primary(입력 경계)', b.primary, surfaces, 3);
+  add('border.focus', b.focus, surfaces, 3);
+  add('border.error', b.error, surfaces, 3);
+  for (const key of ['primary', 'secondary', 'brand', 'disabled', 'info', 'success', 'error'] as const) {
+    add(`icon.${key}`, i[key], surfaces, 3);
+  }
+  return pairs;
+}
+
+for (const mode of ['light', 'dark'] as const) {
+  test(`Semantic ${mode} 짝은 글자 4.5:1 · 아이콘/경계 3:1을 넘는다`, () => {
+    const base = resolve(semanticColors[mode].bg.primary);
+    const failures = [];
+    for (const [name, fg, bg, min] of semanticPairs(mode)) {
+      const bgRgb = resolve(bg, base);
+      const ratio = contrast(resolve(fg, bgRgb), bgRgb);
+      if (ratio < min) failures.push(`${name}: ${ratio.toFixed(2)} < ${min} (${fg} on ${bg})`);
+    }
+    assert.deepEqual(failures, []);
+  });
+}
 
 
 // ── 소스 스캔: 한 스타일 객체 안에 글자색과 바탕색이 함께 있으면 그 짝을 계산한다 ─────────────────

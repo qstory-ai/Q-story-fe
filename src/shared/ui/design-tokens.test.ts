@@ -6,6 +6,7 @@ import { test } from 'node:test';
 
 import { figmaVariableEntries, primitives, renderDesignTokensCss } from './design-tokens';
 import { storybookTheme } from './theme';
+import { renderTokensCss, semanticColors } from './tokens';
 
 const figma = JSON.parse(
   readFileSync(new URL('../../../design/figma-variables.json', import.meta.url), 'utf8'),
@@ -31,7 +32,7 @@ test('Figma 변수 34개가 design-tokens.ts에 빠짐없이 같은 값으로 �
 
 test('커밋된 design-tokens.css가 생성 결과와 같다(npm run tokens:generate)', () => {
   const css = readFileSync(new URL('./design-tokens.css', import.meta.url), 'utf8');
-  assert.equal(css.replace(/\r\n/g, '\n'), renderDesignTokensCss());
+  assert.equal(css.replace(/\r\n/g, '\n'), renderTokensCss());
 });
 
 test('CSS 변수 이름이 랜딩 규칙(--purple-500, --sky-500, --ivory)을 따른다', () => {
@@ -58,4 +59,36 @@ test('앱 의미 토큰은 CTO 대응표대로 primitive를 가리킨다(docs/pl
   // 골드는 쓰지 않는다 - 채움·마커는 Purple 400, 글자는 Purple 800.
   assert.equal(color.gold, primitives.purple[400]);
   assert.equal(color.goldText, primitives.purple[800]);
+});
+
+test('Semantic CSS 변수가 hanbit 이름 규칙(--color-bg-interactive-primary)과 다크 모드 블록을 갖는다', () => {
+  const css = renderTokensCss();
+  for (const line of [
+    '--color-bg-interactive-primary: #7550d3;',
+    '--color-bg-interactive-primary-hover: #6340c0;',
+    '--color-text-interactive-inverse: #ffffff;',
+    '--space-16: 16px;',
+    '--radius-rounded: 9999px;',
+  ]) {
+    assert.ok(css.includes(line), line);
+  }
+  assert.ok(css.includes('[data-theme="dark"] {'));
+});
+
+test('theme.ts 별칭은 tokens.ts Semantic과 같은 값을 가리킨다(점진 이전 중 호환)', () => {
+  const { color, semantic, status } = storybookTheme;
+  const L = semanticColors.light;
+  const D = semanticColors.dark;
+  assert.equal(color.background, L.bg.secondary);
+  assert.equal(color.surfaceCard, L.bg.primary);
+  assert.equal(color.onCardTitle, L.text.primary);
+  assert.equal(color.onCardBody, L.text.secondary);
+  assert.equal(color.onCardMuted, L.text.tertiary);
+  assert.equal(color.primary, L.bg.interactive.primary.default);
+  assert.equal(semantic.brand.hover, L.bg.interactive.primary.hover);
+  assert.equal(color.disabledText, L.text.disabled);
+  assert.equal(semantic.danger.background, L.bg.errorSubtle);
+  assert.equal(status.info.background, L.bg.infoSubtle);
+  assert.equal(color.accentOnDark, D.text.interactive.primary.default);
+  assert.equal(color.sidebarBackground, D.bg.secondary);
 });

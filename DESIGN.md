@@ -123,6 +123,8 @@ components:
 
 # Q-Story Design System
 
+> **2026-10 토큰 3계층 재구성**: 새 단일 출처는 `src/shared/ui/tokens.ts`(Raw → Primitive → Semantic, Light/Dark, 간격·라운드·그림자·글꼴·아이콘·반응형)다. 위 frontmatter와 아래 색 설명은 리브랜딩 전(네이비·골드) 기록이라 값이 다르다 - 지금 값은 `tokens.ts`와 `qstory/docs/planning/디자인-시스템.md` 7장을 본다. `theme.ts`의 이름은 Semantic의 별칭으로 남아 있다.
+
 ## Overview
 
 Q-Story는 두 세계를 갖는다. 토큰의 단일 출처는 `src/shared/ui/theme.ts`(`storybookTheme`)이고, 이 문서는 그 값을 옮겨 적은 것이다.

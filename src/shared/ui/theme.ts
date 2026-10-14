@@ -1,66 +1,67 @@
 import { primitives as p } from './design-tokens';
+import { alpha, radius as r, semanticColors, space } from './tokens';
 
-/** primitive hex에 투명도를 얹는다 - 반투명 표면·테두리도 같은 primitive에서 나오게 한다. */
-function alpha(hex: string, opacity: number): string {
-  const value = hex.replace('#', '');
-  const [r, g, b] = [0, 2, 4].map((offset) => parseInt(value.slice(offset, offset + 2), 16));
-  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-}
+const L = semanticColors.light;
+const D = semanticColors.dark;
 
 /**
  * Q-Story 앱 전역 의미(semantic) 토큰. 값은 디자인 시스템 primitive(design-tokens.ts, Figma 변수)를 참조한다 -
  * 대응표는 qstory/docs/planning/디자인-시스템.md 6장(2026-10-15 CTO 결정). 콘솔 세계(대시보드·인증·마이페이지)는
  * Neutral 50 바탕 + Purple 500 primary, 리더(one-story)·랜딩·사이드바는 어두운 바탕 + Purple 400 강조 + ivory 카드.
  * 골드는 쓰지 않는다(보라 하나로 통일) - 예전 gold 토큰 이름은 그대로 두고 값만 Purple로 바꿨다.
+ *
+ * 2026-10 토큰 3계층 재구성 이후: 이 객체의 이름들은 `tokens.ts` Semantic(L = Light, D = Dark)의 **별칭**이다.
+ * 새 코드는 `semanticColors`·`space`·`radius`·`shadow()`·`textStyles`를 직접 쓰고, 여기 이름은 화면을 옮기면서 줄인다.
+ * 아직 Semantic에 대응이 없는 값(리더 전용 톤, 반투명 막 등)은 primitive를 그대로 둔다.
  */
 export const storybookTheme = {
   color: {
     // 메인 컨텐츠 배경은 라이트. 다크 계열 토큰(onDark 등)은 다크로 남는 사이드바/리더용.
-    background: p.neutral[50],
+    background: L.bg.secondary,
     // ── 라이트 컨텐츠 팔레트 ────────────────────────────────────────────
     /** 메인 컨텐츠 영역의 카드/시트. 순백. */
-    contentSurface: p.base.white,
+    contentSurface: L.bg.primary,
     /** contentSurface의 경계 - 흰 배경 위에 살짝 뜨는 hairline. */
-    contentSurfaceBorder: p.neutral[300],
+    contentSurfaceBorder: L.border.secondary,
     /** 컨텐츠 위 서브 패널 - 흰 카드 안의 sub-section이나 리스트 아이템 배경. */
     /** Neutral 50 - 위에 얹는 흐린 글자(onContentMuted, Neutral 600)가 4.75:1이 되게 한다(Neutral 100이면 4.45). */
-    contentPanel: p.neutral[50],
-    contentPanelBorder: p.neutral[300],
+    contentPanel: L.bg.secondary,
+    contentPanelBorder: L.border.secondary,
     /** 컨텐츠 위 텍스트. onCard*와 별개로 페이지 배경 직접 위의 텍스트에 씀. */
-    onContent: p.neutral[900],
-    onContentMuted: p.neutral[600],
+    onContent: L.text.primary,
+    onContentMuted: L.text.tertiary,
     /** 비활성·보조 표시용 - Neutral 50 위 3.17:1이라 본문 글자에는 쓰지 않는다. */
-    onContentSubtle: p.neutral[500],
+    onContentSubtle: L.icon.disabled,
     // ── 사이드바 전용(다크 유지) ────────────────────────────────────────────
     /** AppNavShell wide 사이드바. */
-    sidebarBackground: p.purple[900],
+    sidebarBackground: D.bg.secondary,
     sidebarBorder: 'rgba(255, 255, 255, 0.08)',
     sidebarActive: 'rgba(255, 255, 255, 0.10)',
     // ── 서피스 토큰 ──────────────────────────────────────────────────────
     /** 콘솔 세계(대시보드·인증·마이페이지)의 카드 - contentSurface와 같은 순백 + hairline. */
-    surfaceCard: p.base.white,
-    surfaceCardBorder: p.neutral[300],
+    surfaceCard: L.bg.primary,
+    surfaceCardBorder: L.border.secondary,
     /** 리더(one-story)·랜딩 전용 - 다크 배경 위에 앉는 따뜻한 크림 카드. 콘솔 페이지에서는 쓰지 않는다. */
     storybookCard: alpha(p.base.ivory, 0.96),
     /**
      * 강조 채움·마커(캘린더 오늘, 사이드바 활성 아이콘, 진행 막대 등). 이름은 예전 골드에서 왔고 값은 Purple 400 -
      * 흰 바탕 3.4:1이라 글자색으로는 goldText를 쓴다.
      */
-    gold: p.purple[400],
+    gold: D.bg.interactive.primary.default,
     /**
      * 강조 "채움 위 글자" 짝 - 예전 골드 채움 버튼·탭·번호 원 자리. 채움 Purple 500 + 흰 글자 5.46:1.
      * 글자·아이콘이 없는 채움(진행 막대·점·라디오 점)은 gold(Purple 400)를 쓴다.
      */
-    accentFill: p.purple[500],
-    accentFillHover: p.purple[800],
-    onAccentFill: p.base.white,
+    accentFill: L.bg.interactive.primary.default,
+    accentFillHover: L.bg.interactive.primary.hover,
+    onAccentFill: L.text.interactive.inverse,
     /** accentFill 위에 얹는 점·마커(캘린더 선택일의 일정 점 등). */
     markerOnAccentFill: p.base.white,
     /**
      * 어두운 바탕(리더 캡션·사이드바·장면 위 반투명 패널) 위 강조 글자 - Purple 200. 리더 어두운 패널 #2D1935 위 10.1:1,
      * Purple 900 위 8.57:1.
      */
-    accentOnDark: p.purple[200],
+    accentOnDark: D.text.interactive.primary.default,
     /** 리더 상단 강조 버튼의 어두운 반투명 바탕. */
     readerControlBackground: alpha(p.purple[900], 0.86),
     /** 강조색을 옅게 깐 바탕(배지·도크 버튼·알림 아이콘 바탕) - 예전 골드 16% 자리. */
@@ -72,16 +73,16 @@ export const storybookTheme = {
     /** 리더·리포트 카드의 옅은 보라 테두리. */
     accentBorderLight: p.purple[200],
     /** 앱 전역 CTA/링크/키 컬러의 밑바탕 - 흰 글자 5.46:1. */
-    primary: p.purple[500],
-    onDark: p.base.white,
+    primary: L.bg.interactive.primary.default,
+    onDark: D.text.primary,
     onDarkMuted: 'rgba(255, 255, 255, 0.72)',
     // 카드 위 텍스트 3단 - onContent*와 같은 hue. muted는 흰 카드 기준 4.8:1(AA).
-    onCardTitle: p.neutral[900],
-    onCardBody: p.neutral[700],
-    onCardMuted: p.neutral[600],
+    onCardTitle: L.text.primary,
+    onCardBody: L.text.secondary,
+    onCardMuted: L.text.tertiary,
     /** 라이트 카드 위 은은한 배지 배경. */
-    pillBackground: p.neutral[100],
-    pillBorder: p.neutral[300],
+    pillBackground: L.bg.tertiary,
+    pillBorder: L.border.secondary,
     /** 스토리북 테마 페이지(landing/detail/story-card)의 모든 카드가 공유하는 shadowColor. */
     shadow: '#12091F',
     /** 삽화 위 글자·배지를 받치는 어두운 막(그림자 색 기반). */
@@ -97,45 +98,45 @@ export const storybookTheme = {
     /** 삽화 위 글자 그림자. */
     textShadow: alpha('#12091F', 0.6),
     /** 녹음·재생 중 점·음량 막대 채움 - Pink 500. */
-    recording: p.pink[500],
+    recording: D.icon.error,
     /** 삽화가 오기 전 자리 - Neutral 100. */
-    imagePlaceholder: p.neutral[100],
+    imagePlaceholder: L.bg.tertiary,
     /** 이야기에 아직 커버 아트가 없을 때의 커버 이미지 자리표시자 배경. */
-    coverFallback: p.purple[900],
+    coverFallback: D.bg.secondary,
     /**
      * 밝은 바탕 위 강조 글자(선택된 아이 이름, 강조 라벨, 눌리는 글자) - Purple 800, 흰 바탕 6.94:1. 이름은 예전 골드
      * 글자 토큰에서 왔다. 채움·마커는 gold, 어두운 바탕 위 강조 글자는 accentOnDark.
      */
-    goldText: p.purple[800],
+    goldText: L.text.interactive.selected,
     /** 모달 뒤 배경 딤 처리. */
     scrim: 'rgba(15, 8, 25, 0.72)',
     /** 모달 카드처럼 배경이 완전히 비쳐 보이면 안 되는 서피스용. 콘솔 세계에서는 순백. */
-    surfaceCardOpaque: p.base.white,
+    surfaceCardOpaque: L.bg.primary,
     /** 입력창/체크박스 박스처럼 항상 순수한 흰색이어야 하는 서피스. */
-    surfaceWhite: p.base.white,
+    surfaceWhite: L.bg.primary,
     /**
      * 인증·온보딩·대시보드의 "라이트 셸" 계열 - Neutral 50 바탕, 제목 900 / 본문 700 / 흐린 글자 600 / 테두리 300.
      */
-    shellBackground: p.neutral[50],
-    onLightHeading: p.neutral[900],
-    onLightBody: p.neutral[700],
-    onLightMuted: p.neutral[600],
-    lightCardBorder: p.neutral[300],
-    linkOnDark: p.purple[200],
+    shellBackground: L.bg.secondary,
+    onLightHeading: L.text.primary,
+    onLightBody: L.text.secondary,
+    onLightMuted: L.text.tertiary,
+    lightCardBorder: L.border.secondary,
+    linkOnDark: D.text.link,
     /** 라이트 배경 위 링크 - Purple 800(흰 바탕 6.94:1). 본문과 구분되게 밑줄과 함께 쓴다. */
-    linkOnLight: p.purple[800],
+    linkOnLight: L.text.link,
     /** 에러/위험 상태 - Pink 700, 흰 바탕 5.47:1. */
-    error: p.pink[700],
+    error: L.text.error,
     /** 어두운 바탕(리더 대화 패널·캡션) 위 오류 글자 - Pink 500, 리더 어두운 패널 위 6.7:1. */
-    errorOnDark: p.pink[500],
+    errorOnDark: D.text.error,
     /** 로고 프레임(brand-lockup, 리더 top-bar) 배경. */
     brandFrameBackground: alpha(p.base.ivory, 0.96),
     /** 어두운 배경 위 반투명 패널의 테두리. */
     panelOnDarkBorder: 'rgba(255, 252, 245, 0.16)',
     /** 비활성 버튼도 라벨은 읽혀야 한다(ActionButton) - Neutral 600 on Neutral 50 = 4.75:1. 테두리로 바탕과 구분한다. */
-    disabledBackground: p.neutral[50],
-    disabledBorder: p.neutral[300],
-    disabledText: p.neutral[600],
+    disabledBackground: L.bg.disabled,
+    disabledBorder: L.border.disabled,
+    disabledText: L.text.disabled,
     /**
      * 리더(one-story) 전용 톤 - 리더 여러 화면(제목/카드/그림자/본문 3단)에서 반복되는 값.
      * 리더의 크림 배경 위 대비를 위해 primary와 별도로 둔다.
@@ -150,8 +151,8 @@ export const storybookTheme = {
      * 캘린더 주말 글자 - 국내 캘린더 관행. 흰 카드 위 일요일 Pink 700 5.47:1, 토요일 Skyblue 700 4.53:1(흰 바탕 전용 -
      * Neutral 50 위는 4.3이라 캘린더는 흰 카드에 둔다). *Soft는 요일 칩 테두리.
      */
-    calendarSunday: p.pink[700],
-    calendarSaturday: p.skyblue[700],
+    calendarSunday: L.text.error,
+    calendarSaturday: L.text.info,
     calendarSundaySoft: alpha(p.pink[500], 0.6),
     calendarSaturdaySoft: alpha(p.skyblue[500], 0.6),
   },
@@ -161,37 +162,37 @@ export const storybookTheme = {
    */
   semantic: {
     brand: {
-      default: p.purple[500],
+      default: L.bg.interactive.primary.default,
       /** hover·pressed - 흰 글자 6.94:1. */
-      hover: p.purple[800],
-      secondary: p.purple[50],
-      onBrand: p.base.white,
+      hover: L.bg.interactive.primary.hover,
+      secondary: L.bg.brandSubtle,
+      onBrand: L.text.interactive.inverse,
     },
     /** 강조 채움 CTA(ActionButton variant="gold") - color.accentFill 짝과 같은 값. */
     accent: {
-      default: p.purple[500],
-      hover: p.purple[800],
-      onAccent: p.base.white,
+      default: L.bg.interactive.primary.default,
+      hover: L.bg.interactive.primary.hover,
+      onAccent: L.text.interactive.inverse,
     },
     /**
      * Figma 초록(Green 500/700)은 흰 바탕 대비가 낮아(700도 3.48:1) 글자·흰 글자 버튼에는 못 쓴다 - 진한 초록·옅은 초록이
      * Figma에 추가될 때까지 예전 값을 유지한다(디자인 추가 요청 필요). Green 500/700은 아이콘·큰 글자·배지 채움에만.
      */
     positive: {
-      default: '#2F9E62',
-      background: '#E6F6EC',
-      border: '#BFE6CC',
-      text: '#1F7A48',
+      default: L.bg.success,
+      background: L.bg.successSubtle,
+      border: L.border.successSubtle,
+      text: L.text.success,
     },
     /**
      * Figma에 옅은 분홍(배너 바탕)이 없어 background·border는 예전 값을 둔다(디자인 추가 요청 필요).
      * 글자는 Pink 700 - 바탕 #FBEAE3 위 4.68:1.
      */
     danger: {
-      default: p.pink[700],
-      background: '#FBEAE3',
-      border: '#F0C3AE',
-      text: p.pink[700],
+      default: L.bg.error,
+      background: L.bg.errorSubtle,
+      border: L.border.errorSubtle,
+      text: L.text.error,
     },
   },
   /** 경고/정보 배너(StatusBanner 등) 한 벌. */
@@ -201,27 +202,29 @@ export const storybookTheme = {
      * Neutral 700/900을 쓴다(text는 흰 바탕 위 정보 글자용).
      */
     info: {
-      background: alpha(p.skyblue[500], 0.1),
-      border: alpha(p.skyblue[500], 0.35),
+      background: L.bg.infoSubtle,
+      border: L.border.infoSubtle,
       rule: p.skyblue[500],
-      text: p.skyblue[700],
+      text: L.text.info,
     },
     warning: {
-      background: '#FBEAE3',
-      border: '#F0C3AE',
-      /** 배경 대비 4.68:1(Pink 700). */
-      text: p.pink[700],
+      background: L.bg.errorSubtle,
+      border: L.border.errorSubtle,
+      /** 배경 대비 4.68:1(Pink 700). warning 색은 정의 보류라 오류 색을 쓴다. */
+      text: L.text.error,
     },
   },
   /** 라운드 토큰. `pill`은 "완전히 둥글게", `control`은 체크박스/라디오 박스 전용. */
   radius: {
-    card: 16,
+    card: r[16],
     pill: 999,
-    logoFrame: 12,
+    logoFrame: r[12],
+    /** 스케일(16·32) 밖 - 2단계 컴포넌트 정리 때 맞춘다. */
     modalCard: 20,
+    /** 스케일 밖 - 2단계에서 정리. */
     button: 14,
-    input: 12,
-    control: 4,
+    input: r[12],
+    control: r[4],
   },
   /** 화면에 겹쳐지는 것들의 쌓임 순서 - 실제로 쓰는 만큼만 둔다. */
   zIndex: {
@@ -293,14 +296,14 @@ export const storybookTheme = {
   },
   /** 4px 배수 스페이싱 스케일. */
   spacing: {
-    xs: 4,
-    sm: 8,
-    ms: 12,
-    md: 16,
-    ml: 20,
-    lg: 24,
-    xl: 32,
-    xxl: 40,
+    xs: space[4],
+    sm: space[8],
+    ms: space[12],
+    md: space[16],
+    ml: space[20],
+    lg: space[24],
+    xl: space[32],
+    xxl: space[40],
   },
   /**
    * 페이지 콘텐츠 폭. `contentMaxWidth`는 로그인/가입처럼 순수 단일 컬럼 입력 폼 전용이고,

@@ -1,5 +1,5 @@
 import type { NarrationRequest } from '@/features/narrate-story';
-import { playResponseAudio } from '@/features/route-question';
+import { playResponseAudio } from '@/shared/lib';
 import type { ResponseAudio } from '@/shared/lib';
 import { estimateNarrationDurationSeconds } from '@/entities/narration';
 

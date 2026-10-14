@@ -3,7 +3,8 @@ import { useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 
-import { openExternalUrl } from '@/shared/lib';
+import { openExternalUrl, playResponseAudio, primeResponseAudio } from '@/shared/lib';
+import type { ResponseAudio } from '@/shared/lib';
 
 import {
   createInitialRuntimeState,
@@ -55,16 +56,7 @@ import {
   useSpeechAutoStop,
   type RecordingResult,
 } from '@/features/record-question';
-import {
-  playResponseAudio,
-  primeResponseAudio,
-  getQuestionNarration,
-  preloadQuestionNarration,
-  getResponseNarration,
-  prefetchResponseNarration,
-  createChoicePrefetcher,
-} from '@/features/route-question';
-import type { ResponseAudio } from '@/shared/lib';
+import { getQuestionNarration, preloadQuestionNarration, getResponseNarration, prefetchResponseNarration, createChoicePrefetcher } from '@/features/route-question';
 
 import {
   FIXED_AUDIO_FAILURE_RECOVERY_MS,

@@ -8,11 +8,7 @@ import {
   type NarrationRequest,
 } from './use-device-speech-narration';
 import { getLineNarration } from './line-narration';
-import {
-  playResponseAudio,
-  pauseActivePlayback,
-  resumeActivePlayback,
-} from '../../route-question/model/play-response-audio';
+import { playResponseAudio, pauseActivePlayback, resumeActivePlayback } from '@/shared/lib';
 
 type FixedPlayback = {
   generation: number;

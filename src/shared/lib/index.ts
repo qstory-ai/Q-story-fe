@@ -7,3 +7,5 @@ export * from './promise-cache';
 export * from './response-audio';
 export * from './safe-next-path';
 export * from './tutorial-seen';
+export * from './jitter-buffer';
+export * from './play-response-audio';

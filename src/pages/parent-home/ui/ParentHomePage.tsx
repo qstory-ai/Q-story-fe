@@ -4,14 +4,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { BrandLockup, AppNavShell, Card, EmptyState, Icon, LoadingState, Pill, StoryCard, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { relativeDayLabel, withParticle } from '@/shared/lib';
+import { relativeDayLabel, withParticle, primeResponseAudio } from '@/shared/lib';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
 import { resumeStart, startStoryFromHome, storyDestination, storyPlayPath, type StartDecision } from '@/features/story-library';
 import { HomeSection } from '@/features/home-section';
 import { ChildPickerModal, ChildSelector } from '@/features/child-selector';
-import { primeResponseAudio } from '@/features/route-question';
 import { AGE_BAND_CATEGORY_HINTS, AGE_BAND_LABELS, useChildren, type AgeBand } from '@/entities/child';
 import { hasKoreanBatchim } from '@/entities/narration';
 import { loadLocalStoryProgress, progressForSelectedChild, type LocalStoryProgress } from '@/entities/analytics';

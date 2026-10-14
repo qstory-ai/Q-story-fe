@@ -5,12 +5,11 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { fetchStoryEntry, type StoryCatalogEntry } from '@/entities/story';
 import { messageForError } from '@/shared/api';
-import { useBackOr, withParticle } from '@/shared/lib';
+import { useBackOr, withParticle, primeResponseAudio } from '@/shared/lib';
 import { dashboardNavItems, libraryPathFor, useAuth } from '@/entities/auth';
 import { useBookmarks } from '@/entities/bookmark';
 import { useChildren } from '@/entities/child';
 import { ChildPickerModal } from '@/features/child-selector';
-import { primeResponseAudio } from '@/features/route-question';
 import { ClassLessonStartModal } from '@/features/class-lesson-start';
 import { storyPlayPath } from '@/features/story-library';
 

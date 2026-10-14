@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
-import { figmaVariableEntries, renderDesignTokensCss } from './design-tokens';
+import { figmaVariableEntries, primitives, renderDesignTokensCss } from './design-tokens';
 import { storybookTheme } from './theme';
 
 const figma = JSON.parse(
@@ -41,10 +41,21 @@ test('CSS 변수 이름이 랜딩 규칙(--purple-500, --sky-500, --ivory)을 �
   }
 });
 
-test('이번 단계는 앱 테마 값을 바꾸지 않는다(navy·gold 그대로)', () => {
-  assert.equal(storybookTheme.color.primary, '#1E293B');
-  assert.equal(storybookTheme.color.background, '#F7F8FA');
-  assert.equal(storybookTheme.color.gold, '#F6C64D');
-  assert.equal(storybookTheme.color.linkOnLight, '#2451B2');
-  assert.equal(storybookTheme.color.error, '#C24A2E');
+test('앱 의미 토큰은 CTO 대응표대로 primitive를 가리킨다(docs/planning/디자인-시스템.md 6장)', () => {
+  const { color, semantic } = storybookTheme;
+  assert.equal(color.primary, primitives.purple[500]);
+  assert.equal(semantic.brand.default, primitives.purple[500]);
+  assert.equal(semantic.brand.hover, primitives.purple[800]);
+  assert.equal(color.linkOnLight, primitives.purple[800]);
+  assert.equal(color.linkOnDark, primitives.purple[200]);
+  assert.equal(color.sidebarBackground, primitives.purple[900]);
+  assert.equal(color.background, primitives.neutral[50]);
+  assert.equal(color.onLightHeading, primitives.neutral[900]);
+  assert.equal(color.onLightBody, primitives.neutral[700]);
+  assert.equal(color.onLightMuted, primitives.neutral[600]);
+  assert.equal(color.lightCardBorder, primitives.neutral[300]);
+  assert.equal(color.error, primitives.pink[700]);
+  // 골드는 쓰지 않는다 - 채움·마커는 Purple 400, 글자는 Purple 800.
+  assert.equal(color.gold, primitives.purple[400]);
+  assert.equal(color.goldText, primitives.purple[800]);
 });

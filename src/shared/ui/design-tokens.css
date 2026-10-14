@@ -1,5 +1,5 @@
 /* 자동 생성 파일 - 직접 고치지 말 것. design/figma-variables.json → src/shared/ui/design-tokens.ts →
-   npm run tokens:generate. 아직 어떤 화면도 이 파일을 import하지 않는다(다음 단계에서 연결). */
+   npm run tokens:generate. src/app/global.css가 불러온다. */
 :root {
   --white: #ffffff;
   --ivory: #fffdf8;

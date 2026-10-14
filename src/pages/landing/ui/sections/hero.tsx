@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.onCardTitle,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
-    borderColor: 'rgba(246, 198, 77, 0.4)',
+    borderColor: storybookTheme.color.accentSoftBorder,
     paddingHorizontal: 14,
     paddingVertical: 8,
     ...storybookTheme.elevation.low,

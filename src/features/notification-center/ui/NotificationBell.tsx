@@ -94,9 +94,8 @@ function toneColors(tone: Presentation['tone']): { background: string; icon: str
       };
     case 'gold':
     default:
-      // gold-알파 배경 - accent 계열은 아직 tinted 배경 토큰이 따로 없어 계산값을 그대로 유지.
       return {
-        background: 'rgba(246, 198, 77, 0.16)',
+        background: storybookTheme.color.accentSoft,
         icon: storybookTheme.color.gold,
       };
   }

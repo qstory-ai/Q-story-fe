@@ -1,84 +1,108 @@
+import { primitives as p } from './design-tokens';
+
+/** primitive hex에 투명도를 얹는다 - 반투명 표면·테두리도 같은 primitive에서 나오게 한다. */
+function alpha(hex: string, opacity: number): string {
+  const value = hex.replace('#', '');
+  const [r, g, b] = [0, 2, 4].map((offset) => parseInt(value.slice(offset, offset + 2), 16));
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+}
+
 /**
- * Q-Story 앱 전역 디자인 토큰. 콘솔 세계(대시보드·인증·마이페이지)는 라이트 배경 + 네이비
- * primary, 리더(one-story)·랜딩·우측 사이드바는 다크 배경 + 골드 강조 + 크림 카드를 쓴다.
+ * Q-Story 앱 전역 의미(semantic) 토큰. 값은 디자인 시스템 primitive(design-tokens.ts, Figma 변수)를 참조한다 -
+ * 대응표는 qstory/docs/planning/디자인-시스템.md 6장(2026-10-15 CTO 결정). 콘솔 세계(대시보드·인증·마이페이지)는
+ * Neutral 50 바탕 + Purple 500 primary, 리더(one-story)·랜딩·사이드바는 어두운 바탕 + Purple 400 강조 + ivory 카드.
+ * 골드는 쓰지 않는다(보라 하나로 통일) - 예전 gold 토큰 이름은 그대로 두고 값만 Purple로 바꿨다.
  */
 export const storybookTheme = {
   color: {
     // 메인 컨텐츠 배경은 라이트. 다크 계열 토큰(onDark 등)은 다크로 남는 사이드바/리더용.
-    background: '#F7F8FA',
+    background: p.neutral[50],
     // ── 라이트 컨텐츠 팔레트 ────────────────────────────────────────────
     /** 메인 컨텐츠 영역의 카드/시트. 순백. */
-    contentSurface: '#FFFFFF',
+    contentSurface: p.base.white,
     /** contentSurface의 경계 - 흰 배경 위에 살짝 뜨는 hairline. */
-    contentSurfaceBorder: 'rgba(15, 23, 42, 0.08)',
+    contentSurfaceBorder: p.neutral[300],
     /** 컨텐츠 위 서브 패널 - 흰 카드 안의 sub-section이나 리스트 아이템 배경. */
-    contentPanel: 'rgba(15, 23, 42, 0.03)',
-    contentPanelBorder: 'rgba(15, 23, 42, 0.08)',
-    /** 컨텐츠 위 텍스트 - 네이비 계열. onCard*와 별개로 페이지 배경 직접 위의 텍스트에 씀. */
-    onContent: '#1E293B',
-    onContentMuted: 'rgba(30, 41, 59, 0.68)',
-    onContentSubtle: 'rgba(30, 41, 59, 0.5)',
+    contentPanel: p.neutral[100],
+    contentPanelBorder: p.neutral[300],
+    /** 컨텐츠 위 텍스트. onCard*와 별개로 페이지 배경 직접 위의 텍스트에 씀. */
+    onContent: p.neutral[900],
+    onContentMuted: p.neutral[600],
+    /** 비활성·보조 표시용 - Neutral 50 위 3.17:1이라 본문 글자에는 쓰지 않는다. */
+    onContentSubtle: p.neutral[500],
     // ── 사이드바 전용(다크 유지) ────────────────────────────────────────────
-    /** AppNavShell wide 사이드바 - 가비아 네이비 그대로 차용. */
-    sidebarBackground: '#242D38',
+    /** AppNavShell wide 사이드바. */
+    sidebarBackground: p.purple[900],
     sidebarBorder: 'rgba(255, 255, 255, 0.08)',
     sidebarActive: 'rgba(255, 255, 255, 0.10)',
     // ── 서피스 토큰 ──────────────────────────────────────────────────────
     /** 콘솔 세계(대시보드·인증·마이페이지)의 카드 - contentSurface와 같은 순백 + hairline. */
-    surfaceCard: '#FFFFFF',
-    surfaceCardBorder: 'rgba(15, 23, 42, 0.08)',
+    surfaceCard: p.base.white,
+    surfaceCardBorder: p.neutral[300],
     /** 리더(one-story)·랜딩 전용 - 다크 배경 위에 앉는 따뜻한 크림 카드. 콘솔 페이지에서는 쓰지 않는다. */
-    storybookCard: 'rgba(255, 252, 245, 0.96)',
-    gold: '#F6C64D',
-    /** 앱 전역 CTA/링크/키 컬러의 밑바탕(네이비). */
-    primary: '#1E293B',
-    onDark: '#FFFFFF',
+    storybookCard: alpha(p.base.ivory, 0.96),
+    /**
+     * 강조 채움·마커(캘린더 오늘, 사이드바 활성 아이콘, 진행 막대 등). 이름은 예전 골드에서 왔고 값은 Purple 400 -
+     * 흰 바탕 3.4:1이라 글자색으로는 goldText를 쓴다.
+     */
+    gold: p.purple[400],
+    /** 강조색을 옅게 깐 바탕(배지·도크 버튼·알림 아이콘 바탕) - 예전 골드 16% 자리. */
+    accentSoft: alpha(p.purple[400], 0.16),
+    /** accentSoft보다 진한 강조 바탕(눌러야 할 버튼 강조). */
+    accentSoftStrong: alpha(p.purple[400], 0.28),
+    /** 강조 바탕의 테두리. */
+    accentSoftBorder: alpha(p.purple[400], 0.5),
+    /** 리더·리포트 카드의 옅은 보라 테두리. */
+    accentBorderLight: p.purple[200],
+    /** 앱 전역 CTA/링크/키 컬러의 밑바탕 - 흰 글자 5.46:1. */
+    primary: p.purple[500],
+    onDark: p.base.white,
     onDarkMuted: 'rgba(255, 255, 255, 0.72)',
     // 카드 위 텍스트 3단 - onContent*와 같은 hue. muted는 흰 카드 기준 4.8:1(AA).
-    onCardTitle: '#1E293B',
-    onCardBody: '#475569',
-    onCardMuted: '#64748B',
+    onCardTitle: p.neutral[900],
+    onCardBody: p.neutral[700],
+    onCardMuted: p.neutral[600],
     /** 라이트 카드 위 은은한 배지 배경. */
-    pillBackground: 'rgba(30, 41, 59, 0.06)',
-    pillBorder: 'rgba(30, 41, 59, 0.14)',
+    pillBackground: p.neutral[100],
+    pillBorder: p.neutral[300],
     /** 스토리북 테마 페이지(landing/detail/story-card)의 모든 카드가 공유하는 shadowColor. */
     shadow: '#12091F',
-    /** 이야기에 아직 커버 아트가 없을 때의 커버 이미지 자리표시자 배경 - 네이비 딥. */
-    coverFallback: '#243447',
+    /** 이야기에 아직 커버 아트가 없을 때의 커버 이미지 자리표시자 배경. */
+    coverFallback: p.purple[900],
     /**
      * 라이트 배경 위에 "글자"로 놓는 골드. 브랜드 골드(#F6C64D)는 흰 배경에서 1.6:1이라 글자로 못
      * 쓴다 - 선택된 아이 이름, 워드마크의 Q, 강조 라벨처럼 골드 hue를 유지해야 하는 텍스트는 이
      * 앰버(흰 배경 5.9:1)를 쓴다. 채움·마커(캘린더 오늘, 사이드바 활성 아이콘)는 계속 gold.
      */
-    goldText: '#8A6300',
+    goldText: p.purple[800],
     /** 모달 뒤 배경 딤 처리. */
     scrim: 'rgba(15, 8, 25, 0.72)',
     /** 모달 카드처럼 배경이 완전히 비쳐 보이면 안 되는 서피스용. 콘솔 세계에서는 순백. */
-    surfaceCardOpaque: '#FFFFFF',
+    surfaceCardOpaque: p.base.white,
     /** 입력창/체크박스 박스처럼 항상 순수한 흰색이어야 하는 서피스. */
-    surfaceWhite: '#FFFFFF',
+    surfaceWhite: p.base.white,
     /**
      * 인증·온보딩·대시보드의 "라이트 셸" 계열. onLightHeading은 값이 primary와 같지만
      * ("브랜드 버튼 채우기"가 아니라 "밝은 카드 위 제목") 의미가 달라 별도 토큰으로 둔다.
      */
-    shellBackground: '#F7F8FA',
-    onLightHeading: '#1E293B',
-    onLightBody: '#475569',
-    onLightMuted: '#64748B',
-    lightCardBorder: 'rgba(15, 23, 42, 0.14)',
-    linkOnDark: '#DCD1FF',
+    shellBackground: p.neutral[50],
+    onLightHeading: p.neutral[900],
+    onLightBody: p.neutral[700],
+    onLightMuted: p.neutral[600],
+    lightCardBorder: p.neutral[300],
+    linkOnDark: p.purple[200],
     /** 라이트 배경 위 링크 - 본문 네이비와 구분되는 한 단계 밝은 블루(흰 배경 7:1). 밑줄과 함께 쓴다. */
-    linkOnLight: '#2451B2',
+    linkOnLight: p.purple[800],
     /** 에러/위험 상태 - 흰 배경 기준 WCAG AA 4.5:1. */
-    error: '#C24A2E',
+    error: p.pink[700],
     /** 로고 프레임(brand-lockup, 리더 top-bar) 배경. */
-    brandFrameBackground: 'rgba(255, 249, 237, 0.96)',
+    brandFrameBackground: alpha(p.base.ivory, 0.96),
     /** 어두운 배경 위 반투명 패널의 테두리. */
     panelOnDarkBorder: 'rgba(255, 252, 245, 0.16)',
     /** 폼 필드의 비활성 상태 - primary 네이비에서 파생시켜 pillBackground/pillBorder와 톤을 맞춘다. */
-    disabledBackground: 'rgba(30, 41, 59, 0.06)',
-    disabledBorder: 'rgba(30, 41, 59, 0.18)',
-    disabledText: '#8A94A6',
+    disabledBackground: p.neutral[100],
+    disabledBorder: p.neutral[300],
+    disabledText: p.neutral[500],
     /**
      * 리더(one-story) 전용 톤 - 리더 여러 화면(제목/카드/그림자/본문 3단)에서 반복되는 값.
      * 리더의 크림 배경 위 대비를 위해 primary와 별도로 둔다.
@@ -99,29 +123,40 @@ export const storybookTheme = {
    */
   semantic: {
     brand: {
-      default: '#1E293B',
-      // primary보다 한 톤 어둡게.
-      hover: '#0F172A',
-      secondary: 'rgba(30, 41, 59, 0.08)',
-      onBrand: '#FFFFFF',
+      default: p.purple[500],
+      /** hover·pressed - 흰 글자 6.94:1. */
+      hover: p.purple[800],
+      secondary: p.purple[50],
+      onBrand: p.base.white,
     },
-    /** 골드 CTA 전용 계열 - brand(네이비)와 별개로 둔다. */
+    /**
+     * 강조 채움 CTA(ActionButton variant="gold"). 예전 골드 자리를 Purple 400으로 채우고, 흰 글자는 3.4:1이라
+     * 글자는 Neutral 900(4.57:1)을 얹는다. hover는 한 단계 옅게(Purple 300).
+     */
     accent: {
-      default: '#F6C64D',
-      hover: '#E8B93D',
-      onAccent: '#1E293B',
+      default: p.purple[400],
+      hover: p.purple[300],
+      onAccent: p.neutral[900],
     },
+    /**
+     * Figma 초록(Green 500/700)은 흰 바탕 대비가 낮아(700도 3.48:1) 글자·흰 글자 버튼에는 못 쓴다 - 진한 초록·옅은 초록이
+     * Figma에 추가될 때까지 예전 값을 유지한다(디자인 추가 요청 필요). Green 500/700은 아이콘·큰 글자·배지 채움에만.
+     */
     positive: {
       default: '#2F9E62',
       background: '#E6F6EC',
       border: '#BFE6CC',
       text: '#1F7A48',
     },
+    /**
+     * Figma에 옅은 분홍(배너 바탕)이 없어 background·border는 예전 값을 둔다(디자인 추가 요청 필요).
+     * 글자는 Pink 700 - 바탕 #FBEAE3 위 4.68:1.
+     */
     danger: {
-      default: '#C24A2E',
+      default: p.pink[700],
       background: '#FBEAE3',
       border: '#F0C3AE',
-      text: '#AC4A2A',
+      text: p.pink[700],
     },
   },
   /** 경고/정보 배너(StatusBanner 등) 한 벌. */
@@ -133,8 +168,8 @@ export const storybookTheme = {
     warning: {
       background: '#FBEAE3',
       border: '#F0C3AE',
-      /** 배경 대비 WCAG AA 4.5:1. */
-      text: '#AC4A2A',
+      /** 배경 대비 4.68:1(Pink 700). */
+      text: p.pink[700],
     },
   },
   /** 라운드 토큰. `pill`은 "완전히 둥글게", `control`은 체크박스/라디오 박스 전용. */

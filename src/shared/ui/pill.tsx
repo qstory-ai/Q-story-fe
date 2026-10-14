@@ -47,10 +47,10 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.contentPanel,
     borderColor: storybookTheme.color.contentPanelBorder,
   },
-  // 골드 강조 - CTA/알림 배지처럼 눈에 띄어야 하는 소수 케이스.
+  // 강조 - CTA/알림 배지처럼 눈에 띄어야 하는 소수 케이스.
   accent: {
-    backgroundColor: 'rgba(246, 198, 77, 0.22)',
-    borderColor: 'rgba(246, 198, 77, 0.55)',
+    backgroundColor: storybookTheme.color.accentSoft,
+    borderColor: storybookTheme.color.accentSoftBorder,
   },
   text: {
     fontSize: storybookTheme.type.xs,

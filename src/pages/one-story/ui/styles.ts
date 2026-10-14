@@ -73,7 +73,7 @@ export const styles = StyleSheet.create({
     height: 36,
     borderRadius: 10,
   },
-  brandLogoNarrow: { width: 28, height: 30 },
+  brandLogoNarrow: { width: 26, height: 28 },
   storyTitleNarrow: {
     flex: 1,
     color: storybookTheme.color.surfaceWhite,
@@ -98,7 +98,7 @@ export const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderColor: 'transparent',
   },
-  brandLogo: { width: 42, height: 46 },
+  brandLogo: { width: 37, height: 40 },
   brandTextLockup: { gap: 4, flexShrink: 1 },
   // 상단 바는 장면 삽화·idle 화면(밝은 회색) 위에 그대로 얹히므로 흰 글자만으로는 밝은 장면에서
   // 사라진다 - 오버레이 텍스트답게 짧은 그림자를 깔아 어느 배경에서도 읽히게 한다.
@@ -159,13 +159,13 @@ export const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.22)',
   },
   topControlButtonPrimary: {
-    borderColor: 'rgba(246,198,77,0.7)',
+    borderColor: storybookTheme.color.accentSoftBorder,
     backgroundColor: 'rgba(45, 25, 53, 0.86)',
   },
   topControlButtonHighlight: {
     borderColor: storybookTheme.color.gold,
     borderWidth: 2,
-    backgroundColor: 'rgba(246,198,77,0.28)',
+    backgroundColor: storybookTheme.color.accentSoftStrong,
   },
   topControlText: {
     color: storybookTheme.color.surfaceWhite,
@@ -288,9 +288,9 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   dockButtonPrimary: {
-    backgroundColor: 'rgba(246,198,77,0.16)',
+    backgroundColor: storybookTheme.color.accentSoft,
     borderWidth: 1,
-    borderColor: 'rgba(246,198,77,0.45)',
+    borderColor: storybookTheme.color.accentSoftBorder,
   },
   dockButtonPressed: { opacity: 0.7 },
   dockLabel: {
@@ -685,7 +685,7 @@ export const styles = StyleSheet.create({
   reportHero: {
     borderRadius: 28,
     borderWidth: 2,
-    borderColor: '#DCD1FF',
+    borderColor: storybookTheme.color.accentBorderLight,
     backgroundColor: storybookTheme.color.surfaceWhite,
     padding: 28,
     gap: 14,
@@ -783,7 +783,7 @@ export const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFC813',
+    backgroundColor: storybookTheme.color.gold,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -890,7 +890,7 @@ export const styles = StyleSheet.create({
   reportCoachPanel: {
     borderRadius: 28,
     borderWidth: 2,
-    borderColor: '#DCD1FF',
+    borderColor: storybookTheme.color.accentBorderLight,
     backgroundColor: storybookTheme.color.surfaceWhite,
     padding: 28,
     gap: 12,
@@ -979,7 +979,7 @@ export const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#FFC813',
+    backgroundColor: storybookTheme.color.gold,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1087,13 +1087,13 @@ export const styles = StyleSheet.create({
   parentMessage: {
     borderRadius: 15,
     borderWidth: 1,
-    borderColor: '#DFC773',
-    backgroundColor: '#FFF4CE',
+    borderColor: storybookTheme.color.accentBorderLight,
+    backgroundColor: storybookTheme.semantic.brand.secondary,
     padding: 14,
     gap: 5,
   },
-  parentMessageTitle: { color: '#6B5119', fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold },
-  parentMessageText: { color: '#6B5119', fontSize: storybookTheme.type.xs, lineHeight: 19 },
+  parentMessageTitle: { color: storybookTheme.color.goldText, fontSize: storybookTheme.type.xs, fontWeight: storybookTheme.type.weight.bold },
+  parentMessageText: { color: storybookTheme.color.goldText, fontSize: storybookTheme.type.xs, lineHeight: 19 },
   parentMessageAction: {
     color: '#4A2B61',
     fontSize: storybookTheme.type.xs,

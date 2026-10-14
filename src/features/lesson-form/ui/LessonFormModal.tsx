@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardBody,
   },
-  // 선택된 칩 배경이 primary(#1E293B)라 글자는 흰색 - onContent(같은 #1E293B)였을 땐 글자가 안 보였다.
+  // 선택된 칩 배경이 primary라 글자는 흰색 - onContent(진한 글자)였을 땐 글자가 안 보였다.
   chipLabelSelected: { color: storybookTheme.color.onDark },
   errorText: {
     fontSize: storybookTheme.type.xs,

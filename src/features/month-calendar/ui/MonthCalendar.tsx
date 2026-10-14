@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   dayNumberSunday: { color: storybookTheme.color.calendarSunday },
   dayNumberSaturday: { color: storybookTheme.color.calendarSaturday },
   dayNumberSelected: {
-    color: storybookTheme.color.primary,
+    color: storybookTheme.semantic.accent.onAccent,
     fontWeight: storybookTheme.type.weight.black,
   },
   dotSlot: {
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     backgroundColor: storybookTheme.color.gold,
   },
   dotSelected: {
-    backgroundColor: storybookTheme.color.primary,
+    backgroundColor: storybookTheme.semantic.accent.onAccent,
   },
   list: {
     gap: storybookTheme.spacing.sm,

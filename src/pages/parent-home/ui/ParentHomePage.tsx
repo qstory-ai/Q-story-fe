@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 204, 102, 0.12)',
+    backgroundColor: storybookTheme.color.accentSoft,
   },
   recentText: { flex: 1, gap: 2 },
   recentLabel: {

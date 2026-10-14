@@ -20,6 +20,7 @@ import { isDevBuild } from '@/shared/config';
 import { ActionButton, LoadingState, SafeAreaView, storybookTheme } from '@/shared/ui';
 
 import { LEGACY_REDIRECTS } from './legacy-redirects';
+import { PrefetchPlayScreen } from './prefetch-play-screen';
 import { UsageTracking } from './usage-tracking';
 
 const HomePage = lazy(() => import('@/pages/home').then((m) => ({ default: m.HomePage })));
@@ -244,6 +245,7 @@ export function App() {
       <ChildrenProvider>
         <BookmarksProvider>
           <SyncDemoCompletionOnAuth />
+          <PrefetchPlayScreen />
           <BrowserRouter>
           <UsageTracking />
           <PushNotificationsBridge />

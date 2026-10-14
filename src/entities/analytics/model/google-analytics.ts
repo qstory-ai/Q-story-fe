@@ -18,7 +18,7 @@ import { UUID_PATTERN } from './endpoint-utils';
  * 이 파일은 window가 없으면 아무것도 하지 않는다 - Node 테스트에서는 순수 함수만 쓴다.
  */
 
-export const GA_MEASUREMENT_ID_DEFAULT = 'G-79Z59DXLN3';
+export const GA_MEASUREMENT_ID_DEFAULT = 'G-7PH6EEGDR3'; // 웹·앱 스트림 (랜딩은 G-79Z59DXLN3)
 /** 랜딩 ↔ 앱이 같은 방문자로 이어지게(링커). 둘 다 qstory.ai.kr 쿠키를 함께 쓰지만, 주소 꾸밈(_gl)도 켜 둔다. */
 export const GA_LINKER_DOMAINS = ['qstory.ai.kr', 'demo.qstory.ai.kr'];
 /** 네이티브 앱의 WebView 출처는 실제로 열리는 주소가 아니라서(capacitor.config.ts) 보고서용 주소를 고정한다. */

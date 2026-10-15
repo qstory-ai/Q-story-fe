@@ -52,7 +52,7 @@ export function MyPageChildrenPage() {
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
+    <AppNavShell tone={state.user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title} accessibilityRole="header">아이 관리</Text>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { AppNavShell, ErrorState, Icon, LoadingState, StatusBanner, SwitchField, storybookTheme, openSupportMail } from '@/shared/ui';
+import { AppNavShell, ErrorState, Icon, LoadingState, openSupportMail, radius, semanticColors, shadow, StatusBanner, storybookTheme, SwitchField } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type UserSummary } from '@/entities/auth';
 import {
@@ -36,7 +36,7 @@ export function MyPageSettingsPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
+    <AppNavShell tone={state.user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">설정</Text>
 
@@ -235,6 +235,8 @@ function PrivacySections({ onDeleteAccount }: { onDeleteAccount: () => void }) {
   );
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   content: {
     flex: 1,
@@ -260,18 +262,20 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   switchCard: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.contentSurface,
+    borderRadius: radius[16],
+    backgroundColor: L.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.contentSurfaceBorder,
+    borderColor: L.border.secondary,
+    ...shadow(1),
     padding: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.ms,
   },
   card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: radius[16],
+    backgroundColor: L.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: L.border.secondary,
+    ...shadow(1),
     padding: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.xs,
   },

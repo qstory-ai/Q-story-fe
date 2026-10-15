@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { AppNavShell, Icon, Modal, ModalBody, Pill, storybookTheme } from '@/shared/ui';
+import { AppNavShell, enterFadeUp, Icon, Modal, ModalBody, Pill, radius, semanticColors, shadow, space, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, roleLabel, subscriptionPathFor, useAuth, type UserSummary } from '@/entities/auth';
 import { BETA_OPEN_ACCESS_NOTICE, subscriptionStatusLabel } from '@/shared/config';
 import { useChildren } from '@/entities/child';
@@ -31,7 +31,7 @@ export function MyPage() {
   const homePath = homePathFor(user);
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(homePath)}>
+    <AppNavShell tone={user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(homePath)}>
       <View style={styles.content}>
         <ProfileCard user={user} />
 
@@ -225,6 +225,8 @@ function MenuRow({
 
 /* -------------------------------------------------------------- styles */
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   content: {
     flex: 1,
@@ -240,14 +242,15 @@ const styles = StyleSheet.create({
   profileCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    // 마이페이지 맨 위 카드 - 랜딩식 크게 둥근 흰 카드(radius 24, elevation 2) + 은은한 등장.
+    borderRadius: radius[24],
+    backgroundColor: L.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    // spacing.lg(24)와 xl(32) 중간 - 프로필 카드는 앱 내 최상단 카드라서 살짝 여유있게.
-    padding: storybookTheme.spacing.ml,
-    gap: storybookTheme.spacing.ml,
-    ...storybookTheme.elevation.high,
+    borderColor: L.border.secondary,
+    padding: space[24],
+    gap: space[20],
+    ...shadow(2),
+    ...enterFadeUp,
   },
   avatar: {
     width: 64,
@@ -262,7 +265,8 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.goldText,
+    // 보라 원(Purple 500) 위 흰 글자 5.46:1 - 예전 Purple 800 글자는 1.27:1로 거의 안 보였다.
+    color: L.text.interactive.inverse,
   },
   profileText: { flex: 1, gap: storybookTheme.spacing.xs },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: storybookTheme.spacing.sm },
@@ -288,11 +292,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   menuCard: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: radius[16],
+    backgroundColor: L.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    paddingHorizontal: storybookTheme.spacing.ml,
+    borderColor: L.border.secondary,
+    paddingHorizontal: space[20],
+    ...shadow(1),
   },
   menuRow: {
     flexDirection: 'row',

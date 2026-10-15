@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { ErrorState, LoadingState, Modal, StatusBanner, SwitchField, storybookTheme } from '@/shared/ui';
+import { ErrorState, LoadingState, Modal, radius, semanticColors, shadow, StatusBanner, storybookTheme, SwitchField } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { recordingConsentStore, useRecordingConsent } from '@/entities/session-recording';
 
@@ -139,12 +139,15 @@ export function RecordingConsentSection({ token }: { token: string }) {
   );
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: radius[16],
+    backgroundColor: L.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: L.border.secondary,
+    ...shadow(1),
     padding: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.xs,
   },

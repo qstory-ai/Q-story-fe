@@ -53,7 +53,7 @@ export function MyPageDeleteAccountPage() {
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={goBack}>
+    <AppNavShell tone={user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(user, navigate, pathname)} onBack={goBack}>
       <View style={styles.content}>
         <View style={styles.card}>
           <Text style={styles.title} accessibilityRole="header">정말 탈퇴하시겠어요?</Text>

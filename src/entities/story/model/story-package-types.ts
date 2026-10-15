@@ -64,6 +64,12 @@ export type InviteHelp = {
   suggestions?: { label: string; familyId: string }[];
 };
 
+/**
+ * 질문 초대 시도 장면(TRY_FAIL)의 배경 그림 후보 하나(story.yaml attemptBackdrops). id는 그림 asset slug, description은
+ * 그림에 보이는 막힌 모습 - 그레텔 대화 AI가 시도 장면의 막힌 줄과 같은 그림을 고를 때 읽는다.
+ */
+export type AttemptBackdrop = { id: string; description: string };
+
 export type ServedStoryAsset = {
   slug: string;
   category: 'SCENE_ART' | 'BRANCH_ART' | 'NARRATION' | 'BRIDGE';
@@ -88,6 +94,8 @@ export type StoryPackageData = {
     sceneSynopses?: Record<string, string>;
     /** Q-31: 질문 초대의 도움 단계(앵커 id별). */
     inviteHelp?: Record<string, InviteHelp>;
+    /** 질문 초대 시도 장면 배경 그림 후보(앵커 id별). */
+    attemptBackdrops?: Record<string, AttemptBackdrop[]>;
     /** 그레텔 "생각 중" 채움말 - 미리 녹음한 dialogue-thinking-<번호>(1부터)로 재생한다. */
     thinkingFillers?: string[];
   };

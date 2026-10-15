@@ -24,6 +24,7 @@ import {
 } from '@/entities/story-runtime';
 
 import type {
+  AttemptBackdrop,
   GeneratedFallback,
   GeneratedStoryContent,
   GeneratedStoryScene,
@@ -76,6 +77,8 @@ export type StoryRuntimePackage = {
   dialogue: {
     sceneSynopses: Readonly<Record<string, string>>;
     inviteHelp: Readonly<Record<string, InviteHelp>>;
+    /** 질문 초대 시도 장면 배경 그림 후보(앵커 id별) - 그림이 실제로 있는 것만 남긴다. */
+    attemptBackdrops: Readonly<Record<string, readonly AttemptBackdrop[]>>;
     /** "생각 중" 채움말 문장 - i번째(0부터)의 녹음 id는 dialogue-thinking-<i+1>. */
     thinkingFillers: readonly string[];
   };
@@ -113,6 +116,29 @@ function previousUtteranceIndex(
 export function narrationUtteranceSlug(stem: string, segmentIndex: number): string {
   const serial = String(segmentIndex + 1).padStart(3, '0');
   return `${stem.toLowerCase().replaceAll('_', '-')}-${serial}`;
+}
+
+/**
+ * 시도 장면 배경 후보 중 그림이 실제로 내려온 것만 남긴다 - 그림을 아직 올리지 않았거나(서버 자산 목록에 없음) 형식이 어긋난
+ * 후보를 그레텔 대화에 보내면 AI가 보여 줄 수 없는 그림을 고르게 된다.
+ */
+export function availableAttemptBackdrops(
+  declared: Record<string, AttemptBackdrop[]> | undefined,
+  imageAssets: Readonly<Record<string, ImageSource>>,
+): Record<string, readonly AttemptBackdrop[]> {
+  const result: Record<string, readonly AttemptBackdrop[]> = {};
+  for (const [anchorId, backdrops] of Object.entries(declared ?? {})) {
+    if (!Array.isArray(backdrops)) continue;
+    const usable = backdrops.filter(
+      (backdrop) =>
+        typeof backdrop?.id === 'string' &&
+        typeof backdrop.description === 'string' &&
+        backdrop.description.trim().length > 0 &&
+        Boolean(imageAssets[backdrop.id]),
+    );
+    if (usable.length > 0) result[anchorId] = usable;
+  }
+  return result;
 }
 
 export function buildStoryRuntimePackage({
@@ -546,6 +572,7 @@ export function buildStoryRuntimePackage({
     dialogue: {
       sceneSynopses: packageData.story.sceneSynopses ?? {},
       inviteHelp: packageData.story.inviteHelp ?? {},
+      attemptBackdrops: availableAttemptBackdrops(packageData.story.attemptBackdrops, imageAssets),
       thinkingFillers: packageData.story.thinkingFillers ?? [],
     },
   };

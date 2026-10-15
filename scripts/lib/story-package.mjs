@@ -693,6 +693,10 @@ function validateStoryPackage(source) {
     ...fallbacks.flatMap((family) =>
       family.segments.filter((segment) => segment.kind === 'visual').map((segment) => segment.assetId),
     ),
+    // 질문 초대 시도 장면의 배경 그림(story.yaml attemptBackdrops) - 아래에서 형식을 확인한다.
+    ...Object.values(story.attemptBackdrops ?? {}).flatMap((backdrops) =>
+      Array.isArray(backdrops) ? backdrops.map((backdrop) => backdrop?.id) : [],
+    ),
   ]);
   const unusedImages = artSlugs.filter((slug) => !referencedImages.has(slug));
   if (unusedImages.length > 0) {
@@ -809,6 +813,33 @@ function validateStoryPackage(source) {
     for (const suggestion of help.suggestions ?? []) {
       if (!suggestion.label || !anchorFamilyIds.has(suggestion.familyId)) {
         fail(story.storyId, `inviteHelp ${anchorId} suggests ${suggestion.familyId}, which is not one of its families`);
+      }
+    }
+  }
+  // 질문 초대 시도 장면 배경 그림 후보(선택) - 질문 지점별로, 그림 slug와 AI가 고를 때 읽는 "무엇이 막혔는지" 설명.
+  // 서버가 후보 id를 그대로 고를 수 있는 값으로 쓰므로 id 형식·길이를 서버(DialogueInput.backdrops)와 맞춘다.
+  if (story.attemptBackdrops !== undefined) {
+    if (!isPlainObject(story.attemptBackdrops)) fail(story.storyId, 'attemptBackdrops must be a map of anchor id to a list');
+    const seenBackdropIds = new Set();
+    for (const [anchorId, backdrops] of Object.entries(story.attemptBackdrops)) {
+      if (!routeContext.anchors?.[anchorId]) fail(story.storyId, `attemptBackdrops names unknown anchor ${anchorId}`);
+      if (!Array.isArray(backdrops) || backdrops.length === 0 || backdrops.length > 8) {
+        fail(story.storyId, `attemptBackdrops ${anchorId} needs 1 to 8 backdrops`);
+      }
+      for (const backdrop of backdrops) {
+        const id = backdrop?.id;
+        if (typeof id !== 'string' || !/^[a-z0-9][a-z0-9-]{0,63}$/.test(id) || id === 'none') {
+          fail(story.storyId, `attemptBackdrops ${anchorId} has an invalid id ${id}`);
+        }
+        if (seenBackdropIds.has(id)) fail(story.storyId, `attemptBackdrops ${id} is listed twice`);
+        seenBackdropIds.add(id);
+        const asset = assetBySlug.get(id);
+        if (!asset || !IMAGE_CATEGORIES.has(asset.category)) {
+          fail(story.storyId, `attemptBackdrops ${id} is not a registered image`);
+        }
+        if (typeof backdrop.description !== 'string' || !backdrop.description.trim() || backdrop.description.length > 120) {
+          fail(story.storyId, `attemptBackdrops ${id} needs a description of 120 characters or fewer`);
+        }
       }
     }
   }

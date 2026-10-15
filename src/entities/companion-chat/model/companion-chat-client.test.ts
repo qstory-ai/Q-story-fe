@@ -73,3 +73,23 @@ test('요청 상한(429)은 상한 오류로 알아본다 - 그레텔이 잠시 
   assert.equal(isRateLimitedError(new CompanionChatError('x', 'COMPANION_CHAT_RATE_LIMITED')), true);
   assert.equal(isRateLimitedError(new CompanionChatError('x', 'LLM_FAILED')), false);
 });
+
+test('시도 장면 시작 답은 막힌 줄에서 보여 줄 배경 그림을 읽고, 없거나 예전 서버면 null이다', async () => {
+  const tryFail = (attempt: Record<string, unknown>) =>
+    readCompanionReply(
+      new Response(
+        JSON.stringify({
+          ...result,
+          type: undefined,
+          dialogue: { ...result.dialogue, replyKind: 'TRY_FAIL', attempt },
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    );
+  const scene = [{ speakerId: 'HG-SPK-NARRATOR', text: '그레텔은 창문 아래로 갔어요.' }];
+  const chosen = await tryFail({ scene, maxTurns: 3, backdropAssetId: 'c-try-high-window' });
+  assert.equal(chosen.dialogue.attempt?.backdropAssetId, 'c-try-high-window');
+  assert.equal((await tryFail({ scene, maxTurns: 3, backdropAssetId: null })).dialogue.attempt?.backdropAssetId, null);
+  assert.equal((await tryFail({ scene, maxTurns: 3 })).dialogue.attempt?.backdropAssetId, null);
+  assert.equal((await tryFail({ scene, maxTurns: 3, backdropAssetId: 7 })).dialogue.attempt?.backdropAssetId, null);
+});

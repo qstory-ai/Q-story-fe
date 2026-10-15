@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Platform } from 'react-native';
+import { AccessibilityInfo, Platform } from 'react-native';
 
 import { storybookTheme } from './theme';
 
@@ -57,3 +57,25 @@ export const enterFadeUp: object = Platform.select<object>({
   },
   default: {},
 });
+
+/**
+ * 기기의 "동작 줄이기"(웹은 prefers-reduced-motion) 설정. JS로 돌리는 애니메이션(RN Animated)은 global.css의 CSS 규칙이
+ * 닿지 않아서 이 값으로 직접 시간을 줄이거나 움직임을 뺀다. 알 수 없으면 false.
+ */
+export function useReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    let active = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((value) => {
+        if (active) setReduced(Boolean(value));
+      })
+      .catch(() => {});
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', (value) => setReduced(Boolean(value)));
+    return () => {
+      active = false;
+      subscription?.remove?.();
+    };
+  }, []);
+  return reduced;
+}

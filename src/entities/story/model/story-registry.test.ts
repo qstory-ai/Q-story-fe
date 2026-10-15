@@ -13,7 +13,7 @@ import {
   StoryLoadError,
   DEFAULT_BETA_STORY_ID,
 } from './story-registry';
-import { buildStoryRuntimePackage } from './story-package';
+import { availableAttemptBackdrops, buildStoryRuntimePackage } from './story-package';
 import { setRequestAuthToken } from '@/shared/api';
 import {
   fallbackFamilyId,
@@ -254,4 +254,29 @@ test('loadStoryPackage sends the signed-in token so entitlement-gated stories ar
     setRequestAuthToken(null);
   }
   assert.deepEqual(authHeaders, ['Bearer signed-in-token']);
+});
+
+test('attempt backdrops are declared per question and only the pictures the story actually has are offered', () => {
+  const backdrops = hanselGretelStoryPackage.dialogue.attemptBackdrops;
+  assert.deepEqual(
+    backdrops['HG-Q-A']?.map((backdrop) => backdrop.id),
+    ['a-try-thick-bushes', 'a-try-thorn-brambles', 'a-try-back-to-start'],
+  );
+  assert.deepEqual(
+    backdrops['HG-Q-C']?.map((backdrop) => backdrop.id),
+    ['c-try-high-window', 'c-try-locked-door', 'c-try-narrow-chimney'],
+  );
+  for (const backdrop of [...(backdrops['HG-Q-A'] ?? []), ...(backdrops['HG-Q-C'] ?? [])]) {
+    assert.ok(hanselGretelStoryPackage.imageAssets[backdrop.id], `${backdrop.id} has a picture`);
+    assert.ok(backdrop.description.length > 0 && backdrop.description.length <= 120);
+  }
+  // 서버 자산 목록에 아직 없는 그림(올리기 전)은 후보에서 빠진다 - 예전 콘텐츠(선언 없음)면 빈 값이다.
+  assert.deepEqual(
+    availableAttemptBackdrops(
+      { 'HG-Q-C': [{ id: 'c-try-high-window', description: '높은 창문' }, { id: 'not-uploaded', description: '없는 그림' }] },
+      { 'c-try-high-window': { uri: 'https://cdn.test/x.webp' } },
+    ),
+    { 'HG-Q-C': [{ id: 'c-try-high-window', description: '높은 창문' }] },
+  );
+  assert.deepEqual(availableAttemptBackdrops(undefined, {}), {});
 });

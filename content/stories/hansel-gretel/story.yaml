@@ -67,3 +67,15 @@ inviteHelp:
     suggestions:
       - { label: 등 돌릴 때 기다리기, familyId: C_WAIT_FOR_WITCH_TURN }
       - { label: 헨젤이 마녀 부르기, familyId: C_DISTRACT_AND_TAKE_KEYS }
+# 질문 초대 시도 장면(TRY_FAIL)의 배경 그림 후보 - 아이가 준비되지 않은 행동을 해 보다가 막히는 줄(시도 장면 3번째 줄)에서
+# 배경을 이 그림으로 바꿔 보여 준다. 그레텔 대화 AI가 description(그림에 보이는 막힌 모습)으로 그 줄과 같은 그림을 고르고,
+# 맞는 그림이 없으면 고르지 않는다(앱은 지금 그림을 살짝 확대·어둡게 한다). id는 assets.json의 그림 slug다.
+attemptBackdrops:
+  HG-Q-A:
+    - { id: a-try-thick-bushes, description: 빛나는 길 쪽 빽빽한 덤불을 그레텔이 두 손으로 헤쳐 보지만 더 나아갈 수 없음 }
+    - { id: a-try-thorn-brambles, description: 가시덤불이 벽처럼 길을 막아 그레텔이 손을 뻗다가 조심히 멈춤 }
+    - { id: a-try-back-to-start, description: 여러 갈래로 꼬인 길을 따라가다 제자리로 돌아와 남매가 두리번거림 }
+  HG-Q-C:
+    - { id: c-try-high-window, description: 까치발로 팔을 뻗어도 높은 창문에 손이 닿지 않음 }
+    - { id: c-try-locked-door, description: 부엌 문손잡이를 두 손으로 당겨 보지만 잠겨 있어 열리지 않음 }
+    - { id: c-try-narrow-chimney, description: 좁은 굴뚝 구멍에 머리를 넣어 보지만 어깨가 들어가지 않음 }

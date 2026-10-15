@@ -16,6 +16,11 @@ import {
   getSceneIndex as getSceneIndexForPackage,
   getVisualAssetId,
 } from '../lib/runtime-view';
+import {
+  attemptBackdropKey,
+  attemptBackdropView,
+  type AttemptBackdropState,
+} from '../lib/attempt-backdrop';
 
 interface BranchCaption {
   text: string;
@@ -31,6 +36,8 @@ interface UseOneStoryDerivedViewParams {
   activeBranchVisualId: string | null;
   branchCaption: BranchCaption | null;
   resumeCandidate: LocalStoryProgress | null;
+  /** 질문 초대 시도 장면 배경(그레텔 대화가 막힌 줄에서 세운다) - 없으면 null. */
+  attemptBackdrop?: AttemptBackdropState | null;
 }
 
 /**
@@ -45,6 +52,7 @@ export function useOneStoryDerivedView({
   activeBranchVisualId,
   branchCaption,
   resumeCandidate,
+  attemptBackdrop = null,
 }: UseOneStoryDerivedViewParams) {
   const storyManifest = storyPackage.manifest;
   const storyPresentation = storyPackage.presentation;
@@ -148,6 +156,18 @@ export function useOneStoryDerivedView({
     storyPackage,
   });
   const illustration = storyPackage.illustrationForAssetId(visualAssetId);
+  // 그림 우선순위 맨 앞 - 시도 장면 배경. 질문 초대를 벗어나면(이야기 재개·장면 이동) 저절로 풀린다. 배경 화면은 지금 그림
+  // (illustration) 위에 이 그림을 겹쳐 크로스페이드하고, 그림이 없으면 지금 그림을 강조한다.
+  const attemptBackdropAt = attemptBackdropKey(
+    runtimeState.status,
+    sceneIndex,
+    'anchorId' in runtimeState ? runtimeState.anchorId : null,
+  );
+  const attemptBackdropShown = attemptBackdropView(
+    attemptBackdrop,
+    attemptBackdropAt,
+    storyPackage.imageAssets,
+  );
 
   return {
     currentClip,
@@ -167,5 +187,7 @@ export function useOneStoryDerivedView({
     displayedBranchSubtitle,
     illustration,
     visualAssetId,
+    attemptBackdropAt,
+    attemptBackdropShown,
   };
 }

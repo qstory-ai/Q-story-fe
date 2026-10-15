@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 
-import { Icon, semanticColors, storybookTheme, useSemanticColors } from '@/shared/ui';
+import { Icon, storybookTheme } from '@/shared/ui';
 
 import { countdownSeconds, createAutoConfirm } from '../lib/auto-confirm';
 import { AUTO_CONFIRM_MS } from '../lib/constants';
@@ -23,7 +23,6 @@ import type { UseDialogue } from '../model/use-dialogue';
  * 어느 단계에서든 "이야기 계속 듣기"로 이야기에 돌아갈 수 있다(패널이 막혀 못 돌아가는 일이 없게).
  */
 export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialogue; hidden?: boolean }) {
-  const colors = useSemanticColors();
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
   const { open, turns, phase, character } = dialogue;
 
@@ -91,7 +90,7 @@ export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialo
 
       {dialogue.errorMessage && (phase === 'error' || phase === 'typing') && (
         <View style={panel.errorRow} accessibilityRole="alert">
-          <Icon name="alert" size={16} color={colors.icon.error} />
+          <Icon name="alert" size={16} color={storybookTheme.color.errorOnDark} />
           <Text style={panel.error}>{dialogue.errorMessage}</Text>
         </View>
       )}
@@ -366,9 +365,6 @@ const PHASES_WITHOUT_CONTINUE_CHIP = new Set<UseDialogue['phase']>([
 const PANEL_BACKGROUND = storybookTheme.color.readerPanelBackground;
 const CHILD_BUBBLE = storybookTheme.semantic.brand.secondary;
 
-// 리더 대화 패널은 어두운 막 위 - Semantic Dark(값은 예전 onDark·errorOnDark와 같다).
-const D = semanticColors.dark;
-
 const panel = StyleSheet.create({
   root: {
     position: 'absolute',
@@ -392,7 +388,7 @@ const panel = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: storybookTheme.color.storybookCard,
   },
-  name: { color: D.text.primary, fontSize: 15, fontWeight: '700' },
+  name: { color: storybookTheme.color.onDark, fontSize: 15, fontWeight: '700' },
   headerSpacer: { flex: 1 },
   continueLink: { color: storybookTheme.color.onDarkMuted, fontSize: 14, fontWeight: '600' },
   history: { flexGrow: 0, flexShrink: 1 },
@@ -412,15 +408,15 @@ const panel = StyleSheet.create({
     borderLeftWidth: 3,
     borderLeftColor: storybookTheme.color.gold,
   },
-  sceneNarrationText: { color: D.text.primary, fontSize: 15, lineHeight: 22, fontStyle: 'italic' },
+  sceneNarrationText: { color: storybookTheme.color.onDark, fontSize: 15, lineHeight: 22, fontStyle: 'italic' },
   bubbleText: { color: storybookTheme.color.onCardTitle, fontSize: 16, lineHeight: 23 },
   errorRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  error: { flexShrink: 1, color: D.text.error, fontSize: 14 },
+  error: { flexShrink: 1, color: storybookTheme.color.errorOnDark, fontSize: 14 },
   column: { gap: 8 },
   controls: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 },
   status: { color: storybookTheme.color.onDarkMuted, fontSize: 14, flexGrow: 1 },
-  listenPrompt: { color: D.text.primary, fontSize: 18, fontWeight: '700' },
-  confirmText: { color: D.text.primary, fontSize: 16, lineHeight: 23 },
+  listenPrompt: { color: storybookTheme.color.onDark, fontSize: 18, fontWeight: '700' },
+  confirmText: { color: storybookTheme.color.onDark, fontSize: 16, lineHeight: 23 },
   countdownRow: { gap: 6 },
   countdownTrack: {
     height: 4,
@@ -457,7 +453,7 @@ const panel = StyleSheet.create({
   chipPrimary: { backgroundColor: storybookTheme.color.accentFill },
   chipDisabled: { opacity: 0.5 },
   chipPressed: { opacity: 0.8 },
-  chipText: { color: D.text.primary, fontSize: 15, fontWeight: '600' },
+  chipText: { color: storybookTheme.color.onDark, fontSize: 15, fontWeight: '600' },
   chipTextPrimary: { color: storybookTheme.color.onAccentFill },
   proxyRow: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   proxyBox: {

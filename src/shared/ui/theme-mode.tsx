@@ -1,46 +1,43 @@
 import type { ReactNode } from 'react';
-import { createContext, useContext, useEffect, useLayoutEffect } from 'react';
+import { createContext, useContext } from 'react';
+import { View } from 'react-native';
+import type { ViewProps } from 'react-native';
 
 import { semanticColors, type ColorMode, type SemanticColors } from './tokens';
 
 const ThemeModeContext = createContext<ColorMode>('light');
 
-// SSR·테스트(문서 없음)에서는 useEffect로 - 경고 없이 아무것도 하지 않는다.
-const useIsoLayoutEffect = typeof document === 'undefined' ? useEffect : useLayoutEffect;
-
 /**
- * 문서 루트(<html data-theme>)에 붙은 모드 스택. Provider가 겹치거나(리더 안 모달 등) 화면 전환 중 두 Provider가 잠깐
- * 함께 살아 있어도, 가장 나중에 마운트된 것이 이기고 모두 빠지면 속성을 지운다(라이트 = 속성 없음).
+ * 색 모드 범위(Light 콘솔 / Dark 리더). 감싸는 View 하나에 `data-theme` 속성을 붙인다(react-native-web dataSet) -
+ * design-tokens.css의 `[data-theme="dark"]`·`[data-theme="light"]` 블록이 **그 요소와 하위에만** 적용된다.
+ * - 전역(<html>) 속성을 건드리지 않아 body 바탕·::selection·theme-color·포커스 링은 그대로다.
+ * - 중첩은 DOM이 해결한다(가장 가까운 조상의 data-theme이 이긴다). 언마운트하면 요소와 함께 사라진다 - 효과(effect)가 없어
+ *   StrictMode 이중 마운트·전환 중 공존에도 남는 상태가 없다.
+ * - 포털(createPortal로 body에 붙는 Modal)은 이 범위 밖이라 밝은 모달 카드는 밝게 남는다.
+ * RN 쪽은 `useSemanticColors()`가 같은 모드의 Semantic 색을 준다. `style`은 감싸는 View 스타일 - 기존 루트 View를 이것으로 바꿔 쓰면
+ * 레이아웃 노드가 늘지 않는다.
  */
-const modeStack: Array<{ id: number; mode: ColorMode }> = [];
-let nextId = 0;
-
-function applyTop() {
-  const top = modeStack[modeStack.length - 1];
-  const root = document.documentElement;
-  if (top && top.mode === 'dark') root.setAttribute('data-theme', 'dark');
-  else root.removeAttribute('data-theme');
+export function ThemeModeProvider({
+  mode,
+  style,
+  children,
+}: {
+  mode: ColorMode;
+  style?: ViewProps['style'];
+  children: ReactNode;
+}) {
+  return (
+    <ThemeModeContext.Provider value={mode}>
+      <View style={style} dataSet={themeScopeDataSet(mode)}>
+        {children}
+      </View>
+    </ThemeModeContext.Provider>
+  );
 }
 
-/**
- * 색 모드(Light 콘솔 / Dark 리더)를 아래 트리에 알린다.
- * - React Native 스타일: `useSemanticColors()`가 그 모드의 Semantic 색을 준다.
- * - 웹 CSS: 마운트된 동안 `<html data-theme="dark">` - design-tokens.css의 [data-theme="dark"] 블록이 적용된다.
- *   useLayoutEffect라 첫 그림 전에 붙고, 빠지면(리더 이탈) 같은 프레임에 원복된다.
- */
-export function ThemeModeProvider({ mode, children }: { mode: ColorMode; children: ReactNode }) {
-  useIsoLayoutEffect(() => {
-    if (typeof document === 'undefined') return;
-    const entry = { id: nextId++, mode };
-    modeStack.push(entry);
-    applyTop();
-    return () => {
-      const index = modeStack.findIndex((item) => item.id === entry.id);
-      if (index >= 0) modeStack.splice(index, 1);
-      applyTop();
-    };
-  }, [mode]);
-  return <ThemeModeContext.Provider value={mode}>{children}</ThemeModeContext.Provider>;
+/** data-theme 속성 값(react-native-web dataSet) - 테스트와 Provider가 같이 쓴다. */
+export function themeScopeDataSet(mode: ColorMode): { theme: ColorMode } {
+  return { theme: mode };
 }
 
 export function useColorMode(): ColorMode {

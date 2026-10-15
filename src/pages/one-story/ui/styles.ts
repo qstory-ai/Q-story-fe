@@ -1,9 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { semanticColors, storybookTheme } from '@/shared/ui';
-
-// 리더 위 글자는 Semantic Dark(값은 예전 onDark·accentOnDark와 같다).
-const D = semanticColors.dark;
+import { storybookTheme } from '@/shared/ui';
 
 // reader-card UI 전체가 공유하는 하나의 스타일시트. 컴포넌트별로 분리하지 않고 여기 한곳에
 // 모아둔다: 많은 키(contentGroup/questionEyebrow 등)가 여러 패널에서 재사용되고 있어, 나누면
@@ -439,7 +436,7 @@ export const styles = StyleSheet.create({
   playbackContent: { gap: 5 },
   // 장면 끝 쉼 - 캡션 자리의 "그레텔에게 말해 봐" 안내와 두 버튼.
   sceneEndPrompt: {
-    color: D.text.interactive.primary.default,
+    color: storybookTheme.color.accentOnDark,
     fontSize: storybookTheme.type.md,
     lineHeight: 25,
     fontWeight: storybookTheme.type.weight.bold,
@@ -474,7 +471,7 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   playbackSpeaker: {
-    color: D.text.interactive.primary.default,
+    color: storybookTheme.color.accentOnDark,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
     letterSpacing: 0.3,
@@ -707,7 +704,7 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
   },
   reportActionBody: {
-    color: D.text.interactive.primary.default,
+    color: storybookTheme.color.accentOnDark,
     fontSize: storybookTheme.type.sm,
     lineHeight: 21,
   },
@@ -825,7 +822,7 @@ export const styles = StyleSheet.create({
   chapterHeaderTitle: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.black,
-    color: D.text.primary,
+    color: storybookTheme.color.onDark,
   },
   chapterHeaderMeta: {
     fontSize: storybookTheme.type.xxs,
@@ -875,11 +872,11 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onDarkMuted,
   },
-  chapterRowTitleActive: { color: D.text.primary, fontWeight: storybookTheme.type.weight.bold },
+  chapterRowTitleActive: { color: storybookTheme.color.onDark, fontWeight: storybookTheme.type.weight.bold },
   chapterRowCaption: {
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.semibold,
-    color: D.text.interactive.primary.default,
+    color: storybookTheme.color.accentOnDark,
   },
   chapterFooter: {
     paddingHorizontal: 18,

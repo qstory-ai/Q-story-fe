@@ -566,7 +566,7 @@ const LANDING_COMPAT: Array<[string, string]> = [
 
 /**
  * design-tokens.css 전체 - Raw(Figma 변수 + 확장) → 크기 스케일·글꼴 → Semantic Light(:root) / Dark([data-theme="dark"]).
- * Dark 블록은 data-theme="dark" 아래에서 적용된다 - 붙이는 지점은 리더 컴포넌트를 Semantic으로 옮길 때(2·3단계) 연결한다.
+ * Dark·Light 범위 블록은 ThemeModeProvider가 붙이는 요소(data-theme) 아래에서만 적용된다 - 가장 가까운 조상이 이긴다.
  */
 export function renderTokensCss(): string {
   const block = (selector: string, entries: Array<[string, string]>, indent = '') =>
@@ -581,8 +581,10 @@ export function renderTokensCss(): string {
     `@media (max-width: ${responsive.frame.tablet - 1}px) {\n` +
     block(':root', textStyleCssEntries('mobile'), '  ') +
     '}\n' +
-    '\n/* 다크(리더) - data-theme="dark" 아래. 붙이는 지점은 리더를 Semantic으로 옮길 때 연결한다. */\n' +
+    '\n/* 범위 테마 - ThemeModeProvider가 붙인 data-theme 요소와 하위에만(가장 가까운 조상이 이긴다). 다크 = 리더 캔버스. */\n' +
     block('[data-theme="dark"]', semanticCssEntries('dark')) +
+    '\n' +
+    block('[data-theme="light"]', semanticCssEntries('light')) +
     '\n/* 랜딩 호환 별칭(리뉴얼 전 랜딩 이름) */\n' +
     block(':root', LANDING_COMPAT)
   );

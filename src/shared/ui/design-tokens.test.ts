@@ -21,9 +21,9 @@ const sameValue = (a: string, b: string) => {
   return a.toLowerCase() === b.toLowerCase();
 };
 
-test('Figma 변수 34개가 design-tokens.ts에 빠짐없이 같은 값으로 있다', () => {
+test('Figma 변수 81개가 design-tokens.ts에 빠짐없이 같은 값으로 있다', () => {
   const ours = new Map(figmaVariableEntries());
-  assert.equal(Object.keys(figma).length, 34);
+  assert.equal(Object.keys(figma).length, 81);
   assert.deepEqual([...ours.keys()].sort(), Object.keys(figma).sort());
   for (const [name, value] of Object.entries(figma)) {
     assert.ok(sameValue(ours.get(name), value), `${name}: 코드 ${ours.get(name)} ≠ Figma ${value}`);

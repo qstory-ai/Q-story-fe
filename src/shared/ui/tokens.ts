@@ -6,8 +6,8 @@ import { BODY_LINE_HEIGHT, cssVariableEntries, primitives as figma, renderDesign
  * `textStyles`, `iconSize`, `responsive`)만** 쓴다. Raw·Primitive는 이 파일 안에서만 참조한다.
  *
  * - Raw: Figma 변수 34개(`design-tokens.ts`, 단일 출처 design/figma-variables.json) + Figma에 아직 없는 값(`rawExtensions`).
- * - Primitive: 역할 이름. brand = Purple, info = Skyblue, success = Green, error = Pink, neutral = Neutral.
- *   warning은 Figma에 노랑 계열이 없어 **정의 보류**(디자인 요청).
+ * - Primitive: 역할 이름. brand = Purple, info = Skyblue, success = Green, error = Pink, warning = Yellow, neutral = Neutral
+ *   (2026-10-15 Figma 2차 변수: 모든 색 50~900 + Yellow·Orange. Purple 700은 아직 없고 600은 800과 같은 값이라 쓰지 않는다).
  * - Semantic: 용도 이름. Light(콘솔 세계) / Dark(리더 - 어두운 화면) 두 모드.
  *
  * 기존 `theme.ts`(`storybookTheme`)의 이름들은 이 Semantic의 별칭으로 남겨 두고 화면마다 점진적으로 옮긴다.
@@ -47,8 +47,10 @@ export const palette = {
   info: figma.skyblue,
   success: { ...figma.green, ...rawExtensions.green },
   error: { ...figma.pink, ...rawExtensions.pink },
+  warning: figma.yellow,
   neutral: figma.neutral,
-  // warning: 정의 보류 - Figma에 노랑/주황 계열이 없다(디자인 요청).
+  /** 보조 강조(랜딩 Accent). 아직 Semantic에 쓰지 않는다. */
+  accent: { orange: figma.orange },
 } as const;
 
 const p = palette;
@@ -71,6 +73,7 @@ export type SemanticColors = {
     onWarm: string;
     info: string;
     success: string;
+    warning: string;
     error: string;
     interactive: {
       primary: InteractiveSet;
@@ -103,6 +106,9 @@ export type SemanticColors = {
     success: string;
     successBold: string;
     successSubtle: string;
+    /** 글자 없는 경고 채움(Yellow 500) - 위 글자는 text.primary. */
+    warning: string;
+    warningSubtle: string;
     error: string;
     errorBold: string;
     errorSubtle: string;
@@ -125,6 +131,8 @@ export type SemanticColors = {
     infoSubtle: string;
     success: string;
     successSubtle: string;
+    warning: string;
+    warningSubtle: string;
     error: string;
     errorSubtle: string;
     interactive: { primary: InteractiveSet; neutral: InteractiveSet };
@@ -136,6 +144,7 @@ export type SemanticColors = {
     disabled: string;
     info: string;
     success: string;
+    warning: string;
     error: string;
     interactive: { primary: InteractiveSet; secondary: InteractiveSet; inverse: string };
   };
@@ -159,6 +168,7 @@ export const lightColors: SemanticColors = {
     /** 흰 바탕(bg.primary) 전용 - bg.secondary 위 4.30:1. 정보 배너(bg.infoSubtle) 안 글자는 text.secondary. */
     info: p.info[700],
     success: p.success[800],
+    warning: p.warning[900],
     error: p.error[700],
     interactive: {
       primary: states(p.brand[500], p.brand[800], p.brand[800]),
@@ -186,6 +196,8 @@ export const lightColors: SemanticColors = {
     success: p.success[600],
     successBold: p.success[800],
     successSubtle: p.success[50],
+    warning: p.warning[500],
+    warningSubtle: p.warning[50],
     error: p.error[700],
     errorBold: p.error[700],
     errorSubtle: p.error[50],
@@ -206,6 +218,8 @@ export const lightColors: SemanticColors = {
     infoSubtle: alpha(p.info[500], 0.35),
     success: p.success[600],
     successSubtle: p.success[200],
+    warning: p.warning[800],
+    warningSubtle: p.warning[200],
     error: p.error[700],
     errorSubtle: p.error[200],
     interactive: {
@@ -220,6 +234,7 @@ export const lightColors: SemanticColors = {
     disabled: p.neutral[500],
     info: p.info[700],
     success: p.success[700],
+    warning: p.warning[800],
     error: p.error[700],
     interactive: {
       primary: states(p.brand[500], p.brand[800], p.brand[800]),
@@ -245,6 +260,7 @@ export const darkColors: SemanticColors = {
     onWarm: p.neutral[900],
     info: p.info[500],
     success: p.success[500],
+    warning: p.warning[500],
     error: p.error[500],
     interactive: {
       primary: states(p.brand[200], p.brand[100], p.brand[50]),
@@ -271,6 +287,8 @@ export const darkColors: SemanticColors = {
     success: p.success[500],
     successBold: p.success[500],
     successSubtle: alpha(p.success[500], 0.16),
+    warning: p.warning[500],
+    warningSubtle: alpha(p.warning[500], 0.16),
     error: p.error[500],
     errorBold: p.error[500],
     /** 다크 오류 배너 바탕 - 안의 글자는 text.primary(흰), 오류 색은 아이콘(icon.error)으로만. */
@@ -291,6 +309,8 @@ export const darkColors: SemanticColors = {
     infoSubtle: alpha(p.info[500], 0.35),
     success: p.success[500],
     successSubtle: alpha(p.success[500], 0.35),
+    warning: p.warning[500],
+    warningSubtle: alpha(p.warning[500], 0.35),
     error: p.error[500],
     errorSubtle: alpha(p.error[500], 0.35),
     interactive: {
@@ -305,6 +325,7 @@ export const darkColors: SemanticColors = {
     disabled: p.neutral[500],
     info: p.info[500],
     success: p.success[500],
+    warning: p.warning[500],
     error: p.error[500],
     interactive: {
       primary: states(p.brand[300], p.brand[200], p.brand[100]),
@@ -318,14 +339,19 @@ export const semanticColors = { light: lightColors, dark: darkColors } as const;
 export type ColorMode = keyof typeof semanticColors;
 
 // ── Spacing · Radius ────────────────────────────────────────────────────────────────────────────
-/** 4px 배수 간격(2는 아이콘·글자 미세 조정용). 섹션 사이 40~64, 폼 필드 사이 24, 버튼 묶음 안 12. */
+/**
+ * 4px 배수 간격. Figma space/n(n × 4px): 0·1(4)·2(8)·3(12)·4(16)·5(20)·6(24)·8(32)·10(40)·12(48)·16(64)·20(80)·24(96)·32(128).
+ * 2·36·56·72·112는 hanbit 확장(Figma 없음). 쓰임: 4 아이콘-짧은 글자, 8 아이콘+글자·제목+설명, 12 작은 UI 사이, 16 버튼 간격·카드 안 요소,
+ * 20 카드 안 여백, 24 카드 padding·콘텐츠 묶음, 32 카드 간격, 40 큰 묶음, 48 섹션 안, 64 작은 섹션 사이, 80 섹션 사이, 96 넓은 섹션, 128 Hero.
+ */
 export const space = {
   0: 0, 2: 2, 4: 4, 8: 8, 12: 12, 16: 16, 20: 20, 24: 24, 32: 32, 36: 36, 40: 40,
   48: 48, 56: 56, 64: 64, 72: 72, 80: 80, 96: 96, 112: 112, 128: 128,
 } as const;
 
 /** 모서리. 랜딩 카드는 16·32, 버튼·칩은 rounded. */
-export const radius = { 0: 0, 2: 2, 4: 4, 6: 6, 8: 8, 12: 12, 16: 16, 32: 32, rounded: 9999 } as const;
+export const radius = { 0: 0, 2: 2, 4: 4, 6: 6, 8: 8, 12: 12, 16: 16, 24: 24, 32: 32, rounded: 9999 } as const;
+// Figma Radius 이름 대응: None 0 · XS 4 · SM 8 · MD 12 · LG 16 · XL 24 · 2XL 32 · Full(rounded). 2·6은 hanbit 확장.
 
 /** 선 두께. hanbit 원본의 thickness/1 → Unit/0 오류는 고쳐서 1로 둔다. */
 export const borderWidth = { 1: 1, 2: 2, 4: 4 } as const;
@@ -416,8 +442,17 @@ export const minTouchTarget = 44;
 export const responsive = {
   /** Figma 프레임 너비. 태블릿(744)이 Q-Story의 기준 화면이다. */
   frame: { desktop: 1280, tablet: 744, mobile: 402 },
-  /** 페이지 좌우 여백. */
-  paddingX: { desktop: 64, tablet: 32, mobile: 16 },
+  /** 페이지 좌우 여백. Desktop은 Figma Spacing "Page Side Padding" 48(1440 기준), 태블릿·모바일은 hanbit(Figma 미정). */
+  paddingX: { desktop: 48, tablet: 32, mobile: 16 },
+} as const;
+
+/** 페이지 레이아웃 - Figma Spacing 섹션 Desktop 값(Mobile은 Figma 미정, 디자인 요청). */
+export const layout = {
+  sectionPaddingY: 96,
+  sectionContentGap: 32,
+  cardGridGap: 24,
+  cardPadding: 24,
+  contentMaxWidth: 1200,
 } as const;
 export type ResponsiveMode = keyof typeof responsive.frame;
 
@@ -450,6 +485,8 @@ function rawExtensionCssEntries(): Array<[string, string]> {
 function rawVarByHex(): Map<string, string> {
   const map = new Map<string, string>();
   for (const [name, value] of [...cssVariableEntries(), ...rawExtensionCssEntries()]) {
+    // --purple-600은 Figma 값이 800과 같아(오류 의심) 참조 대상에서 뺀다.
+    if (name === '--purple-600') continue;
     if (/^#[0-9a-f]{6}$/i.test(value) && !map.has(value.toLowerCase())) map.set(value.toLowerCase(), name);
   }
   return map;

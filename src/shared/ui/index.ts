@@ -31,6 +31,7 @@ export {
   elevation,
   focusRing,
   iconSize,
+  layout,
   minTouchTarget,
   radius,
   responsive,

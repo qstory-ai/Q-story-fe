@@ -131,6 +131,9 @@ function semanticPairs(mode: 'light' | 'dark'): Array<[string, string, string, n
   add('text.link', t.link, surfaces, 4.5);
   add('text.info', t.info, mode === 'light' ? { 'bg.primary': bg.primary } : surfaces, 4.5);
   add('text.success', t.success, { ...surfaces, 'bg.successSubtle': bg.successSubtle }, 4.5);
+  add('text.warning', t.warning, mode === 'light' ? { ...surfaces, 'bg.warningSubtle': bg.warningSubtle } : surfaces, 4.5);
+  add('text.primary(경고 채움 위)', t.primary, mode === 'light' ? { 'bg.warning': bg.warning, 'bg.warningSubtle': bg.warningSubtle } : { 'bg.warningSubtle': bg.warningSubtle }, 4.5);
+  add('text.interactive.inverse(다크 경고 채움 위)', semanticColors.dark.text.interactive.inverse, mode === 'dark' ? { 'bg.warning': bg.warning } : {}, 4.5);
   // 다크 오류 배너 안 글자는 text.primary(흰) - Pink 500 글자는 옅은 분홍 막 위에서 4.5에 못 미친다.
   add('text.error', t.error, mode === 'light' ? { ...surfaces, 'bg.errorSubtle': bg.errorSubtle } : surfaces, 4.5);
   add('text.primary', t.primary, { 'bg.errorSubtle': bg.errorSubtle, 'bg.infoSubtle': bg.infoSubtle, 'bg.successSubtle': bg.successSubtle }, 4.5);
@@ -164,7 +167,8 @@ function semanticPairs(mode: 'light' | 'dark'): Array<[string, string, string, n
   add('border.primary(입력 경계)', b.primary, surfaces, 3);
   add('border.focus', b.focus, surfaces, 3);
   add('border.error', b.error, surfaces, 3);
-  for (const key of ['primary', 'secondary', 'brand', 'disabled', 'info', 'success', 'error'] as const) {
+  add('border.warning', b.warning, surfaces, 3);
+  for (const key of ['primary', 'secondary', 'brand', 'disabled', 'info', 'success', 'warning', 'error'] as const) {
     add(`icon.${key}`, i[key], surfaces, 3);
   }
   return pairs;

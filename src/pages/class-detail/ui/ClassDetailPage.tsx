@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, Modal, Pill, RadioGroup, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, Modal, Pill, RadioGroup, radius, semanticColors, shadow, space, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { useBackOr, withParticle } from '@/shared/lib';
 import {
@@ -669,6 +669,8 @@ function formatDate(iso: string) {
   return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(iso));
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   content: {
     width: '100%',
@@ -696,12 +698,14 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
   },
   flex: { flex: 1, gap: 2 },
+  // 공통 Card(surface)와 같은 모양 - 흰 카드, radius 16, elevation 2, padding 24.
   card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: radius[16],
+    backgroundColor: L.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    padding: storybookTheme.spacing.ml,
+    borderColor: L.border.secondary,
+    ...shadow(2),
+    padding: space[24],
     gap: storybookTheme.spacing.sm,
   },
   sectionTitle: {

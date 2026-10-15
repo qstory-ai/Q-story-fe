@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { BrandLockup, ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Pill, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, BrandLockup, Card, enterFadeUp, ErrorState, Icon, LoadingState, minTouchTarget, Pill, radius, semanticColors, space, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { NotificationBell } from '@/features/notification-center';
 import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
@@ -113,7 +113,7 @@ export function TutorHomePage() {
       <View style={styles.scroll}>
         <TopBar token={state.token} />
 
-        <Card variant="surface" padding="lg" style={styles.greetingCard}>
+        <Card variant="tinted" padding="lg" style={styles.greetingCard}>
           <Text style={styles.title} accessibilityRole="header">{teacherTitle(state.user.displayName)}</Text>
           <Text style={styles.body}>
             {isFirstVisit
@@ -213,6 +213,8 @@ function formatTime(date: Date) {
   return TIME_FORMAT.format(date);
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   scroll: {
     flex: 1,
@@ -230,9 +232,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   pressed: { opacity: 0.85 },
+  // 보호자 홈과 같은 옅은 보라 인사 카드(radius 24) + 은은한 등장.
   greetingCard: {
     alignItems: 'stretch',
     gap: storybookTheme.spacing.xs,
+    borderRadius: radius[24],
+    ...enterFadeUp,
   },
   title: {
     fontSize: storybookTheme.type.lg,
@@ -259,10 +264,10 @@ const styles = StyleSheet.create({
     gap: storybookTheme.spacing.ms,
     paddingVertical: storybookTheme.spacing.sm,
     paddingHorizontal: storybookTheme.spacing.sm,
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.contentPanel,
+    borderRadius: radius[12],
+    backgroundColor: L.bg.secondary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
+    borderColor: L.border.secondary,
   },
   timeCol: { width: 68, gap: 2 },
   timeText: {
@@ -305,9 +310,11 @@ const styles = StyleSheet.create({
   },
   studentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onContentMuted },
   linkRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, justifyContent: 'center', flexWrap: 'wrap' },
+  // 터치 영역 44px.
   linkChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    minHeight: minTouchTarget,
+    justifyContent: 'center',
+    paddingHorizontal: space[12],
   },
   linkLabel: {
     fontSize: storybookTheme.type.sm,

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, EmptyState, ErrorState, FilterChip, Icon, LoadingState, Pill, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, FILTER_CHIP_ROW_GAP, FilterChip, Icon, Pill, LoadingState, EmptyState, ErrorState, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
 import { listLessons, type Lesson, type LessonStatus } from '@/entities/lesson';
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onContent,
   },
-  tabRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, flexWrap: 'wrap' },
+  tabRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, rowGap: FILTER_CHIP_ROW_GAP, flexWrap: 'wrap' }, // 칩이 여러 줄로 감길 때 터치 영역(44)이 겹치지 않게
   list: { gap: 8 },
   row: {
     flexDirection: 'row',

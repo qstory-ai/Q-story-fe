@@ -16,6 +16,12 @@ const L = semanticColors.light;
  */
 export type FilterChipTone = 'outline' | 'filled';
 
+/**
+ * 칩을 여러 줄로 감싸는 줄의 세로 간격(rowGap) 최소값. 칩의 투명 터치 영역이 위아래로 7px(filled 5px)씩 나가므로
+ * 줄 간격이 14px보다 좁으면 두 줄의 터치 영역이 겹쳐 경계 근처 탭이 다른 칩으로 간다.
+ */
+export const FILTER_CHIP_ROW_GAP = 14;
+
 type Props = {
   label: string;
   selected: boolean;

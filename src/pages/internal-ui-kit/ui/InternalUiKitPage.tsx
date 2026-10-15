@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
   cell: { minWidth: 110 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space[16] },
   gridItem: { flexGrow: 1, flexBasis: 280 },
-  wrap: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space[12] },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space[12], rowGap: space[16] },
   darkStrip: { backgroundColor: D.bg.primary, borderRadius: radius[16], padding: space[16], gap: space[12] },
   swatchBox: { width: 96, height: 64, borderRadius: radius[12], backgroundColor: L.bg.primary, alignItems: 'center', justifyContent: 'center' },
   radiusBox: { width: 72, height: 48, backgroundColor: L.bg.brandSubtle, borderWidth: 1, borderColor: L.border.brandSubtle, alignItems: 'center', justifyContent: 'center' },

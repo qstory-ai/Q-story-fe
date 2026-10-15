@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Card, ErrorState, FilterChip, LoadingState, SearchField, StoryCard, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, FILTER_CHIP_ROW_GAP, FilterChip, LoadingState, ErrorState, SearchField, storybookTheme, StoryCard } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
 import {
@@ -384,8 +384,8 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onContent,
   },
-  categoryRow: { flexDirection: 'row', gap: storybookTheme.spacing.xs, flexWrap: 'wrap' },
-  tabRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, flexWrap: 'wrap' },
+  categoryRow: { flexDirection: 'row', gap: storybookTheme.spacing.xs, rowGap: FILTER_CHIP_ROW_GAP, flexWrap: 'wrap' }, // 칩이 여러 줄로 감길 때 터치 영역(44)이 겹치지 않게
+  tabRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, rowGap: FILTER_CHIP_ROW_GAP, flexWrap: 'wrap' }, // 칩이 여러 줄로 감길 때 터치 영역(44)이 겹치지 않게
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   cardSlot: { padding: storybookTheme.spacing.sm },
   stubBody: {

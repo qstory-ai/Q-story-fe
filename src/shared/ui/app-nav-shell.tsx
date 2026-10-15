@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-na
 import { Icon, type IconName } from './icon';
 import { SafeAreaView } from './safe-area-view';
 import { storybookTheme } from './theme';
+import { semanticColors } from './tokens';
 
 export type AppNavShellItem = {
   key: string;
@@ -21,6 +22,10 @@ type AppNavShellProps = {
    * 되돌아갈 곳이 없는 화면).
    */
   onBack?: () => void;
+  /**
+   * 본문 바탕. `console`(기본) = Neutral 50(선생님·기관 운영 화면), `warm` = 아이보리(보호자 화면 - 랜딩과 같은 결).
+   */
+  tone?: 'console' | 'warm';
   children: ReactNode;
 };
 
@@ -52,7 +57,8 @@ function transition(property: string) {
  * 넓은 화면(웹)에서는 오른쪽에 고정된 사이드바로, 좁은 화면(앱 크기)에서는 상단바
  * (좌: 뒤로가기, 우: 홈)와 하단 탭바로 같은 목적지들을 보여준다.
  */
-export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
+export function AppNavShell({ items, onBack, tone = 'console', children }: AppNavShellProps) {
+  const toneBg = tone === 'warm' ? styles.warmBg : null;
   const { width } = useWindowDimensions();
   const isWide = width >= WIDE_BREAKPOINT;
   const homeItem = items.find((item) => item.key === 'home') ?? items[0];
@@ -61,11 +67,11 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
 
   if (isWide) {
     return (
-      <SafeAreaView edges={['top', 'right', 'bottom', 'left']} style={styles.root}>
+      <SafeAreaView edges={['top', 'right', 'bottom', 'left']} style={[styles.root, toneBg]}>
         <View style={styles.wideRow}>
           {/* main landmark - RN AccessibilityRole엔 landmark 개념이 없어 raw aria role을 얹는다. */}
           <View
-            style={[styles.wideMain, !sidebarOpen && styles.wideMainCollapsed]}
+            style={[styles.wideMain, toneBg, !sidebarOpen && styles.wideMainCollapsed]}
             {...({ role: 'main' } as any)}
           >
             {/* 넓은 화면엔 상단바가 없어 하위 화면(마이페이지 > 수업 연결 등)에서 돌아갈 길이 사이드바뿐이었다. */}
@@ -138,7 +144,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
     // 하단바가 position:fixed로 플로우 밖으로 빠지면 이 SafeAreaView의 padding-bottom은
     // (더 이상 하단바 뒤가 아니라) narrowMain 뒤에 그대로 남아 스크롤 콘텐츠에 어색한 여백만
     // 남긴다.
-    <SafeAreaView edges={['top', 'right', 'left']} style={styles.root}>
+    <SafeAreaView edges={['top', 'right', 'left']} style={[styles.root, toneBg]}>
       <View style={styles.topBar}>
         {onBack ? (
           <Pressable accessibilityRole="link" accessibilityLabel="뒤로가기" hitSlop={8} onPress={onBack} style={styles.topBarButton}>
@@ -157,7 +163,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
           <Icon name="home" size={18} color={storybookTheme.color.onContent} />
         </Pressable>
       </View>
-      <View style={styles.narrowMain} {...({ role: 'main' } as any)}>{children}</View>
+      <View style={[styles.narrowMain, toneBg]} {...({ role: 'main' } as any)}>{children}</View>
       {/* position:fixed로 뷰포트 바닥에 붙여 스크롤과 무관하게 항상 보이게 한다. narrowMain의
           paddingBottom이 이 높이만큼 콘텐츠를 밀어줘서 마지막 줄이 하단바에 가려지지 않는다. */}
       <SafeAreaView edges={['bottom']} style={styles.bottomBarFixed}>
@@ -190,6 +196,7 @@ export function AppNavShell({ items, onBack, children }: AppNavShellProps) {
 const styles = StyleSheet.create({
   // root=라이트 배경, 사이드바(우측)는 다크. 상/하단 nav는 라이트 배경 + 다크 텍스트.
   root: { flex: 1, backgroundColor: storybookTheme.color.background },
+  warmBg: { backgroundColor: semanticColors.light.bg.warm },
   wideRow: { flex: 1, flexDirection: 'row' },
   wideMain: {
     flex: 1,

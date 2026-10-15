@@ -145,7 +145,7 @@ export function LibraryPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/parent')}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/parent')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">서재</Text>
 

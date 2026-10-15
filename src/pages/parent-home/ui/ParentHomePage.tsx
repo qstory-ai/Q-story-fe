@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { BrandLockup, AppNavShell, Card, EmptyState, Icon, LoadingState, Pill, StoryCard, storybookTheme } from '@/shared/ui';
+import { AppNavShell, BrandLockup, Card, EmptyState, enterFadeUp, Icon, LoadingState, Pill, radius, semanticColors, shadow, space, storybookTheme, StoryCard } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { relativeDayLabel, withParticle, primeResponseAudio } from '@/shared/lib';
 import { NotificationBell } from '@/features/notification-center';
@@ -157,14 +157,14 @@ export function ParentHomePage() {
     : '이야기 시작하기';
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)}>
       <View style={styles.scroll}>
         <TopBar token={state.token} />
 
         {/* 아이가 선택된 경우에만 인사말 카드 - 미선택 케이스는 아래 ChildSelector가 "아이를
             골라 주세요"로 이미 안내하므로 카드가 중복 문구가 된다. */}
         {selectedChild ? (
-          <Card variant="surface" padding="lg" style={[styles.greetingCard, isWide && styles.greetingCardWide]}>
+          <Card variant="tinted" padding="lg" style={[styles.greetingCard, isWide && styles.greetingCardWide]}>
             <Text style={styles.title} accessibilityRole="header">
               {/* "님과"(존칭) 대신 아이 이름에 받침 유무로 이/와를 붙이는 애칭 톤 - 다른 화면의
                   아이 이름 개인화(child-address.ts)와 같은 방식. */}
@@ -464,6 +464,8 @@ function formatDate(iso: string) {
   return MONTH_DAY_FORMAT.format(new Date(iso));
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   scroll: {
     flex: 1,
@@ -489,6 +491,8 @@ const styles = StyleSheet.create({
     maxWidth: storybookTheme.layout.dashboardCardMaxWidth,
     alignSelf: 'center',
     gap: storybookTheme.spacing.xs,
+    borderRadius: radius[24],
+    ...enterFadeUp,
   },
   greetingCardWide: {
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
@@ -513,11 +517,14 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    // 랜딩 이야기 카드처럼 크게 둥글게 + 옅은 그림자.
+    borderRadius: radius[24],
+    backgroundColor: L.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: L.border.secondary,
     overflow: 'hidden',
+    ...shadow(2),
+    ...enterFadeUp,
   },
   // 카탈로그 로딩 중 히어로 자리 placeholder.
   heroLoader: {
@@ -545,7 +552,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: storybookTheme.color.imageScrim,
   },
-  heroBody: { padding: 22, gap: 6 },
+  heroBody: { padding: space[24], gap: 6 },
   heroTitle: {
     fontSize: storybookTheme.type.xl,
     lineHeight: storybookTheme.type.xl * storybookTheme.lineHeight.tight,
@@ -574,10 +581,12 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: storybookTheme.color.contentPanel,
-    borderRadius: storybookTheme.radius.card,
+    // 아이보리 바탕 위 흰 카드.
+    backgroundColor: L.bg.primary,
+    borderRadius: radius[16],
     borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
+    borderColor: L.border.secondary,
+    ...shadow(1),
   },
   recentIcon: {
     width: 32,
@@ -585,7 +594,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: storybookTheme.color.accentSoft,
+    backgroundColor: L.bg.brandSubtle,
   },
   recentText: { flex: 1, gap: 2 },
   recentLabel: {

@@ -35,7 +35,7 @@ export function Card({ children, variant = 'surface', padding = 'md', title, sty
   const paddingValue =
     padding === 'sm' ? space[16]
     : padding === 'lg' ? space[24]
-    : space[20];
+    : space[24]; // Figma Spacing "Card Padding" 24
 
   // 스타일 배열을 그대로 <View style={[...]}>에 넘기면 elevation.low의 shadow 필드와
   // react-native-web View 시그니처(transformOrigin 등 웹 확장) 사이에 미묘한 불일치가

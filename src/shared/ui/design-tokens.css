@@ -112,12 +112,6 @@
 :root {
   --ink-reader: #12091f;
   --black: #000000;
-  --ext-green-50: #e6f6ec;
-  --ext-green-200: #bfe6cc;
-  --ext-green-600: #2f9e62;
-  --ext-green-800: #1f7a48;
-  --ext-pink-50: #fbeae3;
-  --ext-pink-200: #f0c3ae;
 }
 
 /* Semantic(src/shared/ui/tokens.ts) - 화면은 이쪽만 쓴다. 값은 위 Raw 변수를 참조한다. */
@@ -199,7 +193,7 @@
   --color-text-link: var(--purple-800);
   --color-text-on-warm: var(--neutral-900);
   --color-text-info: var(--sky-700);
-  --color-text-success: var(--ext-green-800);
+  --color-text-success: var(--green-800);
   --color-text-warning: var(--yellow-900);
   --color-text-error: var(--pink-700);
   --color-text-interactive-primary: var(--purple-500);
@@ -224,14 +218,14 @@
   --color-bg-info: var(--sky-700);
   --color-bg-info-bold: var(--sky-700);
   --color-bg-info-subtle: rgba(94, 182, 246, 0.1);
-  --color-bg-success: var(--ext-green-600);
-  --color-bg-success-bold: var(--ext-green-800);
-  --color-bg-success-subtle: var(--ext-green-50);
+  --color-bg-success: var(--green-700);
+  --color-bg-success-bold: var(--green-800);
+  --color-bg-success-subtle: var(--green-50);
   --color-bg-warning: var(--yellow-500);
   --color-bg-warning-subtle: var(--yellow-50);
   --color-bg-error: var(--pink-700);
   --color-bg-error-bold: var(--pink-700);
-  --color-bg-error-subtle: var(--ext-pink-50);
+  --color-bg-error-subtle: var(--pink-50);
   --color-bg-interactive-primary: var(--purple-500);
   --color-bg-interactive-primary-hover: var(--purple-800);
   --color-bg-interactive-primary-pressed: var(--purple-800);
@@ -251,12 +245,12 @@
   --color-border-brand-subtle: var(--purple-200);
   --color-border-info: var(--sky-700);
   --color-border-info-subtle: rgba(94, 182, 246, 0.35);
-  --color-border-success: var(--ext-green-600);
-  --color-border-success-subtle: var(--ext-green-200);
+  --color-border-success: var(--green-700);
+  --color-border-success-subtle: var(--green-200);
   --color-border-warning: var(--yellow-800);
   --color-border-warning-subtle: var(--yellow-200);
   --color-border-error: var(--pink-700);
-  --color-border-error-subtle: var(--ext-pink-200);
+  --color-border-error-subtle: var(--pink-200);
   --color-border-interactive-primary: var(--purple-500);
   --color-border-interactive-primary-hover: var(--purple-800);
   --color-border-interactive-primary-pressed: var(--purple-800);
@@ -387,7 +381,7 @@
   --color-border-secondary: rgba(255, 255, 255, 0.16);
   --color-border-disabled: var(--neutral-700);
   --color-border-focus: var(--purple-200);
-  --color-border-brand-subtle: color-mix(in srgb, var(--purple-400) 50%, transparent);
+  --color-border-brand-subtle: rgba(153, 121, 225, 0.5);
   --color-border-info: var(--sky-500);
   --color-border-info-subtle: rgba(94, 182, 246, 0.35);
   --color-border-success: var(--green-500);

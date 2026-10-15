@@ -174,20 +174,15 @@ export const storybookTheme = {
       hover: L.bg.interactive.primary.hover,
       onAccent: L.text.interactive.inverse,
     },
-    /**
-     * Figma 초록(Green 500/700)은 흰 바탕 대비가 낮아(700도 3.48:1) 글자·흰 글자 버튼에는 못 쓴다 - 진한 초록·옅은 초록이
-     * Figma에 추가될 때까지 예전 값을 유지한다(디자인 추가 요청 필요). Green 500/700은 아이콘·큰 글자·배지 채움에만.
-     */
+    /** 성공 - Figma Green(50 바탕 · 200 테두리 · 800 글자, 2026-10-15 2차 변수). */
     positive: {
-      default: L.bg.success,
+      /** 흰 글자를 얹는 채움(복사 완료 버튼 등) - successBold(흰 글자 5.53:1). */
+      default: L.bg.successBold,
       background: L.bg.successSubtle,
       border: L.border.successSubtle,
       text: L.text.success,
     },
-    /**
-     * Figma에 옅은 분홍(배너 바탕)이 없어 background·border는 예전 값을 둔다(디자인 추가 요청 필요).
-     * 글자는 Pink 700 - 바탕 #FBEAE3 위 4.68:1.
-     */
+    /** 오류·위험 - Figma Pink(50 바탕 · 200 테두리 · 700 글자). 글자 Pink 700은 Pink 50 위 5.02:1. */
     danger: {
       default: L.bg.error,
       background: L.bg.errorSubtle,
@@ -210,7 +205,7 @@ export const storybookTheme = {
     warning: {
       background: L.bg.errorSubtle,
       border: L.border.errorSubtle,
-      /** 배경 대비 4.68:1(Pink 700). warning 색은 정의 보류라 오류 색을 쓴다. */
+      /** 오류 분홍을 그대로 쓴다(41곳). Semantic warning(Yellow)으로 바꿀지는 화면별로 판단 - 3단계 제안. */
       text: L.text.error,
     },
   },

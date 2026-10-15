@@ -5,7 +5,7 @@ import { BODY_LINE_HEIGHT, cssVariableEntries, primitives as figma, renderDesign
  * 방향은 항상 Semantic → Primitive → Raw다. 화면·컴포넌트는 **Semantic(`semanticColors`, `space`, `radius`, `elevation`,
  * `textStyles`, `iconSize`, `responsive`)만** 쓴다. Raw·Primitive는 이 파일 안에서만 참조한다.
  *
- * - Raw: Figma 변수 34개(`design-tokens.ts`, 단일 출처 design/figma-variables.json) + Figma에 아직 없는 값(`rawExtensions`).
+ * - Raw: Figma 변수 81개(`design-tokens.ts`, 단일 출처 design/figma-variables.json) + Figma에 아직 없는 값(`rawExtensions`).
  * - Primitive: 역할 이름. brand = Purple, info = Skyblue, success = Green, error = Pink, warning = Yellow, neutral = Neutral
  *   (2026-10-15 Figma 2차 변수: 모든 색 50~900 + Yellow·Orange. Purple 700은 아직 없고 600은 800과 같은 값이라 쓰지 않는다).
  * - Semantic: 용도 이름. Light(콘솔 세계) / Dark(리더 - 어두운 화면) 두 모드.
@@ -23,10 +23,6 @@ export const rawExtensions = {
   /** 리더 어두운 바탕·전역 그림자 색(theme.ts shadow). */
   ink: '#12091f',
   black: '#000000',
-  /** 성공 - Green 700(#45996c)은 흰 바탕 3.48:1이라 글자에 못 쓴다. 진한 초록·옅은 초록 요청. */
-  green: { 50: '#e6f6ec', 200: '#bfe6cc', 600: '#2f9e62', 800: '#1f7a48' },
-  /** 오류 배너 바탕·테두리 - 옅은 분홍 요청. */
-  pink: { 50: '#fbeae3', 200: '#f0c3ae' },
 } as const;
 
 /** primitive hex에 투명도를 얹는다(theme.ts와 같은 표기 - 대비 테스트가 rgba를 읽는다). */
@@ -45,8 +41,8 @@ export const palette = {
   base: { white: figma.base.white, ivory: figma.base.ivory, ink: rawExtensions.ink, black: rawExtensions.black },
   brand: figma.purple,
   info: figma.skyblue,
-  success: { ...figma.green, ...rawExtensions.green },
-  error: { ...figma.pink, ...rawExtensions.pink },
+  success: figma.green,
+  error: figma.pink,
   warning: figma.yellow,
   neutral: figma.neutral,
   /** 보조 강조(랜딩 Accent). 아직 Semantic에 쓰지 않는다. */
@@ -197,8 +193,8 @@ export const lightColors: SemanticColors = {
     info: p.info[700],
     infoBold: p.info[700],
     infoSubtle: alpha(p.info[500], 0.1),
-    /** 채움·점·막대 전용(흰 글자 3.39:1) - 글자를 얹는 채움은 successBold. */
-    success: p.success[600],
+    /** 채움·점·막대 전용(흰 바탕 3.48:1) - 글자를 얹는 채움은 successBold(흰 글자 5.53:1). */
+    success: p.success[700],
     successBold: p.success[800],
     successSubtle: p.success[50],
     warning: p.warning[500],
@@ -222,7 +218,7 @@ export const lightColors: SemanticColors = {
     brandSubtle: p.brand[200],
     info: p.info[700],
     infoSubtle: alpha(p.info[500], 0.35),
-    success: p.success[600],
+    success: p.success[700],
     successSubtle: p.success[200],
     warning: p.warning[800],
     warningSubtle: p.warning[200],
@@ -484,8 +480,6 @@ export function rawExtensionCssEntries(): Array<[string, string]> {
   return [
     ['--ink-reader', rawExtensions.ink],
     ['--black', rawExtensions.black],
-    ...Object.entries(rawExtensions.green).map(([k, v]) => [`--ext-green-${k}`, v] as [string, string]),
-    ...Object.entries(rawExtensions.pink).map(([k, v]) => [`--ext-pink-${k}`, v] as [string, string]),
   ];
 }
 

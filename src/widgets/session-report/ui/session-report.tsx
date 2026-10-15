@@ -114,7 +114,14 @@ export function SessionReport({
             {[formatDate(data.completedAt), data.className, title, range].filter(Boolean).join(' · ')}
           </Text>
         </Section>
-        <Section title="수업 내용" description="앱에 전달한 말과 그레텔의 답, 실행한 행동이에요. 반 수업에서는 누가 말했는지 앱이 알 수 없어 아이별로 나누지 않아요.">
+        <Section
+          title="수업 내용"
+          description={
+            data.sessionKind === 'CLASS'
+              ? '앱에 전달한 말과 그레텔의 답, 실행한 행동이에요. 반 수업에서는 누가 말했는지 앱이 알 수 없어 아이별로 나누지 않아요.'
+              : '이 아이와 한 개별 수업에서 앱에 전달한 말과 그레텔의 답, 실행한 행동이에요.'
+          }
+        >
           {rows.length === 0 ? (
             <Text style={sr.empty}>이번 수업에서는 질문 초대에 답하거나 그레텔과 이야기한 기록이 없어요.</Text>
           ) : (

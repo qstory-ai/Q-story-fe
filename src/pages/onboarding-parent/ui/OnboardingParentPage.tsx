@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { ActionButton, Checkbox, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, Checkbox, enterFadeUp, radius, SafeAreaView, semanticColors, shadow, space, storybookTheme, TextField } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import {
   CONSENT_VERSION,
@@ -266,8 +266,11 @@ function ConsentBlock({
   );
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: storybookTheme.color.background },
+  // 랜딩처럼 아이보리 바탕 + 흰 카드.
+  container: { flex: 1, backgroundColor: L.bg.warm },
   skipButton: { minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' },
   skipLabelDisabled: { opacity: 0.5 },
   sectionGap: { marginTop: storybookTheme.spacing.lg },
@@ -286,6 +289,7 @@ const styles = StyleSheet.create({
     maxWidth: 480,
     width: '100%',
     alignSelf: 'center',
+    ...enterFadeUp,
   },
   eyebrow: {
     color: storybookTheme.color.primary,
@@ -330,14 +334,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   consentCard: {
-    padding: 16,
-    borderRadius: storybookTheme.radius.card,
+    padding: space[16],
+    borderRadius: radius[16],
     borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
-    backgroundColor: storybookTheme.color.contentPanel,
+    borderColor: L.border.secondary,
+    backgroundColor: L.bg.primary,
     gap: 6,
+    ...shadow(1),
   },
-  consentCardChecked: { borderColor: storybookTheme.color.gold },
+  consentCardChecked: { borderColor: L.border.interactive.primary.default, backgroundColor: L.bg.brandSubtle },
   consentHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   consentTitle: {
     flex: 1,

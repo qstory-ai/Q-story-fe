@@ -39,3 +39,17 @@ export function usePresenceAnimation(
 
   return { mounted, entered, durationMs };
 }
+
+/**
+ * 랜딩식 은은한 등장 - 아래에서 8px 올라오며 나타난다(400ms, easeOutSine). 화면 첫 묶음(카드·폼)에만 한 번.
+ * prefers-reduced-motion이면 global.css가 animation-duration을 0.01ms로 줄여 바로 보인다.
+ * react-native-web 전용 키(animationKeyframes 등)라 RN 타입에 없어 빈 타입으로 둔다(스타일에 펼쳐 쓴다) - 네이티브 RN에서는 무시된다.
+ */
+export const enterFadeUp = {
+  animationKeyframes: [
+    { from: { opacity: 0, transform: [{ translateY: 8 }] }, to: { opacity: 1, transform: [{ translateY: 0 }] } },
+  ],
+  animationDuration: '400ms',
+  animationTimingFunction: EASE_OUT_SINE,
+  animationFillMode: 'both',
+} as unknown as Record<never, never>;

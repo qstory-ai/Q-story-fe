@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, enterFadeUp, radius, SafeAreaView, semanticColors, shadow, space, StatusBanner, storybookTheme, TextField } from '@/shared/ui';
 import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
 import { hasCompletedOnboarding, homePathFor, markOnboardingDone, useAuth } from '@/entities/auth';
 import { previewHomeroomInviteByCode, tutorInviteCodeDestination } from '@/entities/homeroom-invite';
@@ -169,8 +169,11 @@ function ChoiceCard({
   );
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: storybookTheme.color.background },
+  // 랜딩처럼 아이보리 바탕.
+  container: { flex: 1, backgroundColor: L.bg.warm },
   header: {
     paddingHorizontal: 24,
     paddingVertical: 20,
@@ -193,6 +196,7 @@ const styles = StyleSheet.create({
     maxWidth: 480,
     width: '100%',
     alignSelf: 'center',
+    ...enterFadeUp,
   },
   eyebrow: {
     color: storybookTheme.color.goldText,
@@ -215,14 +219,15 @@ const styles = StyleSheet.create({
   },
   choiceList: { marginTop: 12, gap: 10 },
   choiceCard: {
-    padding: 16,
-    borderRadius: storybookTheme.radius.card,
+    padding: space[16],
+    borderRadius: radius[16],
     borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
-    backgroundColor: storybookTheme.color.contentPanel,
+    borderColor: L.border.secondary,
+    backgroundColor: L.bg.primary,
     gap: 6,
+    ...shadow(1),
   },
-  choiceCardSelected: { borderColor: storybookTheme.color.gold },
+  choiceCardSelected: { borderColor: L.border.interactive.primary.default, backgroundColor: L.bg.brandSubtle },
   choicePressed: { opacity: 0.85 },
   choiceHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   choiceTitle: {

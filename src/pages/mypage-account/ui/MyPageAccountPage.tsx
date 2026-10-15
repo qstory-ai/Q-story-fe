@@ -138,7 +138,7 @@ function AccountScreen({
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
+    <AppNavShell tone={user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">내 정보·계정</Text>
         <View style={styles.card}>

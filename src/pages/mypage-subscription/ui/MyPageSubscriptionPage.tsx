@@ -31,7 +31,7 @@ export function MyPageSubscriptionPage() {
   const isParent = user.role === 'PARENT';
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
+    <AppNavShell tone={user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <SubscriptionPageTitle />
         <SubscriptionStatusCard

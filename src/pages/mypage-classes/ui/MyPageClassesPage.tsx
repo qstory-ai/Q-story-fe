@@ -126,7 +126,7 @@ export function MyPageClassesPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
+    <AppNavShell tone={state.user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">수업 연결</Text>
 

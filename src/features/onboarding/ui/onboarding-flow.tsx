@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { afterSignUpPath } from '../model/after-sign-up';
 
-import { ActionButton, BrandLockup, Checkbox, StatusBanner, TextField, enterFadeUp, radius, semanticColors, shadow, space, storybookTheme } from '@/shared/ui';
+import { ActionButton, BrandLockup, Checkbox, enterFadeUp, radius, responsive, semanticColors, shadow, space, StatusBanner, storybookTheme, TextField } from '@/shared/ui';
 import {
   CONSENT_VERSION,
   createOrganization,
@@ -208,6 +208,7 @@ function SignUpStep({
   showStepCount?: boolean;
   onAuthed: OnAuthed;
 }) {
+  const formCard = useFormCardStyle();
   // 반 코드는 반 초대 링크로 들어왔을 때만 기본으로 켠다 - 대부분의 보호자는 반 없이 가입해, 기본으로 켜
   // 두면 끄는 클릭이 한 번 더 든다(Q-36).
   const [hasClass, setHasClass] = useState(Boolean(initialClassCode));
@@ -345,7 +346,7 @@ function SignUpStep({
   ]);
 
   return (
-    <View style={styles.form}>
+    <View style={[styles.form, formCard]}>
       <Text style={styles.eyebrow}>{showStepCount ? '회원가입 · 2 / 2' : '회원가입'}</Text>
       <Text style={styles.carouselTitle}>계정을 만들어볼까요?</Text>
       <Text style={[styles.welcomeLead, styles.formLead]}>
@@ -486,6 +487,7 @@ function SignInStep({
   /** 입력 중이던 아이디를 넘겨 재설정 화면에서 다시 타이핑하지 않게 한다. */
   onGoResetPassword: (loginId: string) => void;
 }) {
+  const formCard = useFormCardStyle();
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   // 끄면 짧은 토큰을 sessionStorage에 둔다 - 탭(네이티브 앱은 앱 프로세스)이 닫히면 로그아웃된다(entities/auth session.ts).
@@ -509,7 +511,7 @@ function SignInStep({
   }, [loginId, password, rememberMe, onAuthed]);
 
   return (
-    <View style={styles.form}>
+    <View style={[styles.form, formCard]}>
       <View style={styles.formBrand}>
         <BrandLockup size="compact" />
       </View>
@@ -562,6 +564,12 @@ function SignInStep({
 }
 
 const L = semanticColors.light;
+
+/** 폼 카드는 태블릿(744) 이상에서만. */
+function useFormCardStyle() {
+  const { width } = useWindowDimensions();
+  return width >= responsive.frame.tablet ? styles.formCard : null;
+}
 
 const styles = StyleSheet.create({
   screen: {
@@ -624,7 +632,7 @@ const styles = StyleSheet.create({
     backgroundColor: L.bg.primary,
     borderWidth: 1,
     borderColor: L.border.secondary,
-    borderRadius: radius[16],
+    borderRadius: radius[24],
     padding: space[20],
     gap: space[4],
     ...shadow(1),
@@ -638,9 +646,9 @@ const styles = StyleSheet.create({
   roleCardBody: { color: storybookTheme.color.onContentMuted, fontSize: storybookTheme.type.sm, lineHeight: 20, fontWeight: storybookTheme.type.weight.light },
 
   // Forms (sign-up / sign-in)
-  // 폼은 흰 카드(radius 24, elevation 2) - 랜딩의 둥근 카드.
-  form: {
-    gap: 14,
+  form: { gap: 14, paddingTop: 8, ...enterFadeUp },
+  // 태블릿 이상에서만 폼을 흰 카드(radius 24, elevation 2)로 - 폰에서는 카드 padding이 화면 여백과 겹쳐 입력 폭이 줄어서 예전처럼 둔다.
+  formCard: {
     marginTop: space[8],
     padding: space[24],
     borderRadius: radius[24],
@@ -648,7 +656,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: L.border.secondary,
     ...shadow(2),
-    ...enterFadeUp,
   },
   formNote: { color: storybookTheme.color.onContentMuted, fontSize: storybookTheme.type.sm },
   signInInlineLink: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center' },

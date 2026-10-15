@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Card, ErrorState, FILTER_CHIP_ROW_GAP, FilterChip, LoadingState, PillTabs, SearchField, storybookTheme, StoryCard } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, ErrorState, FILTER_CHIP_ROW_GAP, FilterChip, LoadingState, PillTabs, SearchField, type PillTabOption, storybookTheme, StoryCard } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
@@ -14,10 +14,10 @@ type Tab = 'all' | 'saved' | 'recent';
 type CatalogLoad = { status: 'loading' } | { status: 'ready'; stories: StoryCatalogEntry[] } | { status: 'error'; message: string };
 type CompletionsLoad = { status: 'loading' } | { status: 'ready'; completions: StoryCompletionSummary[] } | { status: 'error' };
 
-const TABS: { key: Tab; label: string }[] = [
-  { key: 'all', label: '전체 작품' },
-  { key: 'saved', label: '저장한 작품' },
-  { key: 'recent', label: '최근 본 작품' },
+const TABS: ReadonlyArray<PillTabOption<Tab>> = [
+  { value: 'all', label: '전체 작품' },
+  { value: 'saved', label: '저장한 작품' },
+  { value: 'recent', label: '최근 본 작품' },
 ];
 
 /**
@@ -155,7 +155,9 @@ export function TutorLibraryPage() {
           accessibilityLabel="서재 보기"
           value={tab}
           onChange={setTab}
-          options={TABS.map((entry) => ({ value: entry.key, label: entry.label, count: tabCounts[entry.key] }))}
+          options={TABS.map((entry) => ({ ...entry, count: tabCounts[entry.value] }))}
+          // 탭을 바꾸면 목록을 다시 그리므로 화살표는 포커스만, Enter/Space로 선택.
+          activation="manual"
         />
 
         {catalog.status === 'loading' ? (

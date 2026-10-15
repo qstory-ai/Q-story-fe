@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, enterFadeUp, radius, SafeAreaView, semanticColors, shadow, space, StatusBanner, storybookTheme, TextField } from '@/shared/ui';
+import { ActionButton, enterFadeUp, SafeAreaView, SELECTABLE_MARK, selectableCardStyle, semanticColors, StatusBanner, storybookTheme, TextField } from '@/shared/ui';
 import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
 import { hasCompletedOnboarding, homePathFor, markOnboardingDone, useAuth } from '@/entities/auth';
 import { previewHomeroomInviteByCode, tutorInviteCodeDestination } from '@/entities/homeroom-invite';
@@ -152,11 +152,7 @@ function ChoiceCard({
       accessibilityRole="radio"
       aria-checked={selected}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.choiceCard,
-        selected && styles.choiceCardSelected,
-        pressed && styles.choicePressed,
-      ]}
+      style={({ pressed }) => selectableCardStyle(selected, pressed)}
     >
       <View style={styles.choiceHeader}>
         <View style={[styles.radioBox, selected && styles.radioBoxSelected]}>
@@ -218,17 +214,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   choiceList: { marginTop: 12, gap: 10 },
-  choiceCard: {
-    padding: space[16],
-    borderRadius: radius[16],
-    borderWidth: 1,
-    borderColor: L.border.secondary,
-    backgroundColor: L.bg.primary,
-    gap: 6,
-    ...shadow(1),
-  },
-  choiceCardSelected: { borderColor: L.border.interactive.primary.default, backgroundColor: L.bg.brandSubtle },
-  choicePressed: { opacity: 0.85 },
   choiceHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   choiceTitle: {
     flex: 1,
@@ -247,15 +232,15 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: storybookTheme.color.onContentMuted,
+    borderColor: SELECTABLE_MARK.idle,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  radioBoxSelected: { borderColor: storybookTheme.color.gold },
+  radioBoxSelected: { borderColor: SELECTABLE_MARK.selected },
   radioDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: storybookTheme.color.gold,
+    backgroundColor: SELECTABLE_MARK.selected,
   },
 });

@@ -65,6 +65,21 @@ export function Card({ children, variant = 'surface', padding = 'md', title, sty
   );
 }
 
+/**
+ * 고르는 카드(동의·선택지)의 공통 스타일 - 흰 카드(radius 24, elevation 1), 고르면 옅은 보라 바탕 + 보라 테두리.
+ * Pressable의 style 콜백에서 `selectableCardStyle(selected, pressed)`로 쓴다. 안의 체크박스·라디오도 보라(SELECTABLE_MARK)로 맞춘다.
+ */
+export function selectableCardStyle(selected: boolean, pressed = false) {
+  return [styles.selectable, selected && styles.selectableSelected, pressed && styles.selectablePressed];
+}
+
+/** 고르는 카드 안 체크박스·라디오 표시 색 - 기본 테두리 / 고른 채움. */
+export const SELECTABLE_MARK = {
+  idle: L.border.primary,
+  selected: L.bg.interactive.primary.default,
+  onSelected: L.text.interactive.inverse,
+} as const;
+
 const styles = StyleSheet.create({
   base: {
     borderRadius: radius[16],
@@ -85,6 +100,17 @@ const styles = StyleSheet.create({
     borderWidth: borderWidth[1],
     borderColor: L.border.brandSubtle,
   },
+  selectable: {
+    padding: space[16],
+    borderRadius: radius[24],
+    borderWidth: borderWidth[1],
+    borderColor: L.border.secondary,
+    backgroundColor: L.bg.primary,
+    gap: 6,
+    ...shadow(1),
+  },
+  selectableSelected: { borderColor: L.border.interactive.primary.default, backgroundColor: L.bg.brandSubtle },
+  selectablePressed: { opacity: 0.85 },
   title: {
     color: L.text.primary,
     fontSize: storybookTheme.type.md,

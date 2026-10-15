@@ -18,6 +18,8 @@ import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { LessonPlaySettingPicker, type PlaySetting } from '@/entities/play-session';
 import { LessonFormModal } from '@/features/lesson-form';
 
+import { initialPlaySetting } from '../lib/initial-play-setting';
+
 type LoadState =
   | { requestKey: string; status: 'loading' }
   | {
@@ -47,7 +49,7 @@ export function TutorLessonDetailPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteInFlight, setDeleteInFlight] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  // 수업 진행 형태(Q-40) - 기본은 전체 반.
+  // 수업 진행 형태(Q-40) - 기본은 전체 반, 이 수업의 최근 기록이 개별 수업이면 개별(불러온 뒤 정한다).
   const [playSetting, setPlaySetting] = useState<PlaySetting>('WHOLE_CLASS');
 
   useEffect(() => {
@@ -71,6 +73,7 @@ export function TutorLessonDetailPage() {
         if (cancelled) return;
         const storyById = Object.fromEntries(stories.map((story) => [story.storyId, story]));
         setLoad({ requestKey, status: 'ready', lesson, storyById, completions });
+        setPlaySetting(initialPlaySetting(completions));
       })
       .catch((failure: unknown) => {
         if (cancelled) return;

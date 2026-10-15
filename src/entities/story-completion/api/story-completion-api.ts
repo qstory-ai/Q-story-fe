@@ -150,6 +150,8 @@ export function recordStoryCompletion(
     lessonId?: string;
     /** 끝까지 읽었는지(COMPLETED, 기본) 중간에 나갔는지(EXITED). 같은 회차를 다시 저장하면 서버가 갱신한다. */
     endStatus?: StoryEndStatus;
+    /** 수업 진행 형태(개별·소그룹·전체 반). 개별이고 참여 학생이 한 명이면 서버가 반 수업이 아니라 그 학생의 기록으로 남긴다. */
+    playSetting?: 'INDIVIDUAL' | 'SMALL_GROUP' | 'WHOLE_CLASS';
     contentVersion?: string;
     readFromSceneId?: string;
     readThroughSceneId?: string;

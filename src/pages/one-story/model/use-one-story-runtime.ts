@@ -111,6 +111,11 @@ export function useOneStoryRuntime(
 ) {
   const entrySource = utContext?.entrySource ?? (lessonId ? 'lesson' : 'detail');
   const playSetting: PlaySetting = utContext?.playSetting ?? (lessonId ? 'WHOLE_CLASS' : 'HOME');
+  // 수업 회차의 완주 기록에 진행 형태를 함께 싣는다 - 개별이면 서버가 반 수업이 아니라 그 학생의 기록으로 남긴다.
+  const lessonPlaySetting = useMemo(
+    () => (lessonId && playSetting !== 'HOME' ? { playSetting } : {}),
+    [lessonId, playSetting],
+  );
   // 실시간 새 분기 생성이 READY가 되면(폴링 effect 아래 참고) GET /v1/stories/{storyId}/content를
   // 재조회해 이 값을 교체한다 - storyPackage를 부모로부터 받은 그대로 쓰지 않고 로컬 상태로 감싸는
   // 이유는 이것 하나뿐이다. 그 갱신 전까지는 항상 부모가 최초에 넘긴 패키지와 동일하다.
@@ -810,6 +815,7 @@ export function useOneStoryRuntime(
               childId: childIdForRecord,
               companionConversationId: sessionId,
               lessonId,
+              ...lessonPlaySetting,
               endStatus: 'COMPLETED',
               contentVersion: storyManifest.contentVersion,
               ...readRange,
@@ -830,6 +836,7 @@ export function useOneStoryRuntime(
     tutorStudentId,
     sessionId,
     lessonId,
+    lessonPlaySetting,
     getTurnRecorder,
     storyManifest.contentVersion,
     storyManifest.endingSceneId,
@@ -2362,6 +2369,7 @@ export function useOneStoryRuntime(
           childId: childIdForRecord,
           companionConversationId: sessionId,
           lessonId,
+          ...lessonPlaySetting,
           endStatus: 'EXITED',
           contentVersion: storyManifest.contentVersion,
           ...readRange,
@@ -2372,6 +2380,7 @@ export function useOneStoryRuntime(
     authState,
     elapsedStorySeconds,
     lessonId,
+    lessonPlaySetting,
     questionOutcomes,
     selectedChild,
     sessionId,

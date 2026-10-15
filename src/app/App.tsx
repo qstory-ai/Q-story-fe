@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
@@ -17,7 +17,7 @@ import { PushNotificationsBridge } from '@/features/push-notifications';
 import { ReconsentGate } from '@/features/reconsent';
 import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
 import { LEGACY_REDIRECTS, isDevBuild } from '@/shared/config';
-import { ActionButton, LoadingState, SafeAreaView, storybookTheme } from '@/shared/ui';
+import { ActionButton, LoadingState, SafeAreaView, ThemeModeProvider, storybookTheme } from '@/shared/ui';
 
 import { PrefetchPlayScreen } from './prefetch-play-screen';
 import { UsageTracking } from './usage-tracking';
@@ -146,6 +146,18 @@ type LoadState =
   | { status: 'ready'; storyPackage: StoryRuntimePackage }
   | { status: 'error'; failure: StoryLoadFailure };
 
+/**
+ * 리더(이야기 재생) 경로 - Semantic Dark 모드(ThemeModeProvider). 자기 Suspense를 안에 둬서 lazy 로딩·오류·준비 화면 동안에도
+ * 모드가 유지되고, 리더를 떠나면 Provider가 빠지며 라이트로 돌아간다.
+ */
+function ReaderRoute({ children }: { children: ReactNode }) {
+  return (
+    <ThemeModeProvider mode="dark">
+      <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>
+    </ThemeModeProvider>
+  );
+}
+
 function RouteLoadingFallback() {
   return (
     <SafeAreaView
@@ -260,7 +272,7 @@ export function App() {
             <Route path="/onboarding/parent" element={<OnboardingParentPage />} />
             <Route path="/onboarding/tutor" element={<OnboardingTutorPage />} />
             <Route path="/landing" element={<LandingPage />} />
-            <Route path="/demo" element={<DemoStoryRoute />} />
+            <Route path="/demo" element={<ReaderRoute><DemoStoryRoute /></ReaderRoute>} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/join" element={<JoinClassPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -314,7 +326,7 @@ export function App() {
             <Route path="/staff/:storyId" element={<StaffStoryPage />} />
             <Route path="/staff/:storyId/scenes/:sceneId" element={<StaffScenePage />} />
             <Route path="/stories/:storyId" element={<StoryDetailPage />} />
-            <Route path="/stories/:storyId/play" element={<StoryPlayerRoute />} />
+            <Route path="/stories/:storyId/play" element={<ReaderRoute><StoryPlayerRoute /></ReaderRoute>} />
             <Route path="/internal/replay" element={<InternalReplayPage />} />
             <Route path="/internal/ui-kit" element={<InternalUiKitPage />} />
             <Route path="*" element={<NotFoundPage />} />

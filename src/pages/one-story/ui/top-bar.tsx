@@ -1,14 +1,12 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
-import { BrandLockup, Icon, storybookTheme } from '@/shared/ui';
+import { BrandLockup, Icon, storybookTheme, useSemanticColors } from '@/shared/ui';
 
 import type { OneStoryRuntime } from '../model';
 import type { UseDialogue } from '../model/use-dialogue';
 import { playbackControls } from '../lib/playback-controls';
 import { styles } from './styles';
 
-// 반투명 버튼이 밝은 장면 위에 놓여도 읽히게 - readerControlBackground 위 Purple 200.
-const TOP_ICON_COLOR = storybookTheme.color.accentOnDark;
 // topControlButton은 시각적으로 38px로 촘촘하게 배치돼 있어(기존 gap 6~9px 유지),
 // 터치 영역만 WCAG 44px 권장치에 가깝게 넓힌다 - 인접 버튼과는 겹치지 않는 선에서.
 const TOP_CONTROL_HIT_SLOP = { top: 4, bottom: 4, left: 3, right: 3 };
@@ -28,6 +26,8 @@ export function TopBar({
   /** 챕터 사이드바 토글 - 없으면(예: 스토리를 아직 안 시작해 챕터 개념이 없는 idle 화면) 버튼을 숨긴다. */
   onOpenChapters?: () => void;
 }) {
+  // 리더 Dark 모드 - 반투명 버튼이 밝은 장면 위에 놓여도 읽히게 Purple 200(readerControlBackground 위).
+  const topIconColor = useSemanticColors().text.interactive.primary.default;
   const {
     isWide,
     isNarrow,
@@ -111,7 +111,7 @@ export function TopBar({
             hitSlop={TOP_CONTROL_HIT_SLOP}
             onPress={openHomeMenu}
           >
-            <Icon name="home" size={16} color={TOP_ICON_COLOR} />
+            <Icon name="home" size={16} color={topIconColor} />
             {isWide && <Text style={styles.topControlText}>홈</Text>}
           </Pressable>
         )}
@@ -123,7 +123,7 @@ export function TopBar({
             hitSlop={TOP_CONTROL_HIT_SLOP}
             onPress={onOpenChapters}
           >
-            <Icon name="book" size={16} color={TOP_ICON_COLOR} />
+            <Icon name="book" size={16} color={topIconColor} />
             {isWide && <Text style={styles.topControlText}>챕터</Text>}
           </Pressable>
         )}
@@ -137,7 +137,7 @@ export function TopBar({
             // 대화를 열면 낭독을 멈추고(use-dialogue openChat), 닫으면 멈춘 문장부터 이어 간다.
             onPress={() => void dialogue.openChat()}
           >
-            <Icon name="chat" size={16} color={TOP_ICON_COLOR} />
+            <Icon name="chat" size={16} color={topIconColor} />
             {isWide && (
               <Text style={styles.topControlText}>
                 {dialogue.character.displayName}에게 말하기
@@ -154,7 +154,7 @@ export function TopBar({
                 <Icon
                   name={control.icon}
                   size={15}
-                  color={control.dim ? storybookTheme.color.onDarkMuted : TOP_ICON_COLOR}
+                  color={control.dim ? storybookTheme.color.onDarkMuted : topIconColor}
                 />
               );
               return (

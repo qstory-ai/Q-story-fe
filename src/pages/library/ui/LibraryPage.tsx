@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Card, FILTER_CHIP_ROW_GAP, FilterChip, LoadingState, ErrorState, SearchField, storybookTheme, StoryCard } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, ErrorState, FILTER_CHIP_ROW_GAP, FilterChip, LoadingState, PillTabs, SearchField, type PillTabOption, storybookTheme, StoryCard } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
 import {
@@ -22,11 +22,11 @@ type Tab = 'all' | 'in-progress' | 'read' | 'saved';
 type CatalogLoad = { status: 'loading' } | { status: 'ready'; stories: StoryCatalogEntry[] } | { status: 'error'; message: string };
 type CompletionsLoad = { status: 'loading' } | { status: 'ready'; completions: StoryCompletionSummary[] } | { status: 'error' };
 
-const TABS: { key: Tab; label: string }[] = [
-  { key: 'all', label: '전체' },
-  { key: 'in-progress', label: '읽는 중' },
-  { key: 'read', label: '읽은 작품' },
-  { key: 'saved', label: '저장한 작품' },
+const TABS: ReadonlyArray<PillTabOption<Tab>> = [
+  { value: 'all', label: '전체' },
+  { value: 'in-progress', label: '읽는 중' },
+  { value: 'read', label: '읽은 작품' },
+  { value: 'saved', label: '저장한 작품' },
 ];
 
 /**
@@ -170,19 +170,14 @@ export function LibraryPage() {
           </View>
         ) : null}
 
-        <View style={styles.tabRow} accessibilityRole="tablist">
-          {TABS.map((entry) => (
-            <FilterChip
-              key={entry.key}
-              accessibilityRole="tab"
-              tone="filled"
-              label={entry.label}
-              selected={entry.key === tab}
-              onPress={() => setTab(entry.key)}
-              count={tabCounts[entry.key]}
-            />
-          ))}
-        </View>
+        <PillTabs
+          accessibilityLabel="서재 보기"
+          value={tab}
+          onChange={setTab}
+          options={TABS.map((entry) => ({ ...entry, count: tabCounts[entry.value] }))}
+          // 탭을 바꾸면 목록을 다시 그리므로 화살표는 포커스만, Enter/Space로 선택.
+          activation="manual"
+        />
 
         {catalog.status === 'loading' ? (
           <LoadingState label="이야기를 불러오는 중이에요…" />
@@ -385,7 +380,6 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContent,
   },
   categoryRow: { flexDirection: 'row', gap: storybookTheme.spacing.xs, rowGap: FILTER_CHIP_ROW_GAP, flexWrap: 'wrap' }, // 칩이 여러 줄로 감길 때 터치 영역(44)이 겹치지 않게
-  tabRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, rowGap: FILTER_CHIP_ROW_GAP, flexWrap: 'wrap' }, // 칩이 여러 줄로 감길 때 터치 영역(44)이 겹치지 않게
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   cardSlot: { padding: storybookTheme.spacing.sm },
   stubBody: {

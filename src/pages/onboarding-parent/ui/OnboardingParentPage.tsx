@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { ActionButton, Checkbox, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, Checkbox, enterFadeUp, SafeAreaView, SELECTABLE_MARK, selectableCardStyle, semanticColors, storybookTheme, TextField } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import {
   CONSENT_VERSION,
@@ -158,7 +158,8 @@ export function OnboardingParentPage() {
                       onPress={() => setAvatarKey(preset.key)}
                       style={({ pressed }) => [
                         styles.avatarChoice,
-                        { borderColor: selected ? preset.accent : 'transparent', backgroundColor: `${preset.accent}33` },
+                        // 고른 아바타 테두리는 다른 선택 표시와 같은 보라.
+                        { borderColor: selected ? SELECTABLE_MARK.selected : 'transparent', backgroundColor: `${preset.accent}33` },
                         pressed && styles.chipPressed,
                       ]}
                     >
@@ -249,11 +250,7 @@ function ConsentBlock({
       accessibilityRole="checkbox"
       aria-checked={checked}
       onPress={() => onChange(!checked)}
-      style={({ pressed }) => [
-        styles.consentCard,
-        checked && styles.consentCardChecked,
-        pressed && styles.chipPressed,
-      ]}
+      style={({ pressed }) => selectableCardStyle(checked, pressed)}
     >
       <View style={styles.consentHeader}>
         <View style={[styles.checkboxBox, checked && styles.checkboxBoxChecked]}>
@@ -266,8 +263,11 @@ function ConsentBlock({
   );
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: storybookTheme.color.background },
+  // 랜딩처럼 아이보리 바탕 + 흰 카드.
+  container: { flex: 1, backgroundColor: L.bg.warm },
   skipButton: { minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' },
   skipLabelDisabled: { opacity: 0.5 },
   sectionGap: { marginTop: storybookTheme.spacing.lg },
@@ -286,6 +286,7 @@ const styles = StyleSheet.create({
     maxWidth: 480,
     width: '100%',
     alignSelf: 'center',
+    ...enterFadeUp,
   },
   eyebrow: {
     color: storybookTheme.color.primary,
@@ -329,15 +330,6 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.error,
     textAlign: 'center',
   },
-  consentCard: {
-    padding: 16,
-    borderRadius: storybookTheme.radius.card,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
-    backgroundColor: storybookTheme.color.contentPanel,
-    gap: 6,
-  },
-  consentCardChecked: { borderColor: storybookTheme.color.gold },
   consentHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   consentTitle: {
     flex: 1,
@@ -356,16 +348,16 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: storybookTheme.radius.control,
     borderWidth: 2,
-    borderColor: storybookTheme.color.onContentMuted,
+    borderColor: SELECTABLE_MARK.idle,
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxBoxChecked: {
-    borderColor: storybookTheme.color.accentFill,
-    backgroundColor: storybookTheme.color.accentFill,
+    borderColor: SELECTABLE_MARK.selected,
+    backgroundColor: SELECTABLE_MARK.selected,
   },
   checkboxMark: {
-    color: storybookTheme.color.onAccentFill,
+    color: SELECTABLE_MARK.onSelected,
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.black,
     // 체크 마크는 박스 안에 정확히 눈금선이 맞아야 해서 lineHeight를 fontSize와 동일하게 잠근다.

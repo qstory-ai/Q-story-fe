@@ -1,6 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { storybookTheme } from './theme';
+import { borderWidth, minTouchTarget, radius, semanticColors, space } from './tokens';
+
+const L = semanticColors.light;
 
 /**
  * 카테고리 필터·탭 등에 쓰는 pill 형태의 토글 컨트롤(라이트 배경용).
@@ -68,42 +71,45 @@ export function FilterChip({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: storybookTheme.radius.pill,
-    borderWidth: 1,
+    borderRadius: radius.rounded,
+    borderWidth: borderWidth[1],
+    // 터치 영역 44px - 칩이 작아 보여도 누르는 칸은 지킨다.
+    minHeight: minTouchTarget,
+    justifyContent: 'center',
   },
   outline: {
-    paddingHorizontal: storybookTheme.spacing.ms,
-    paddingVertical: 6,
-    borderColor: storybookTheme.color.contentPanelBorder,
+    paddingHorizontal: space[16],
+    borderColor: L.border.secondary,
+    backgroundColor: L.bg.primary,
   },
   outlineActive: {
-    backgroundColor: storybookTheme.color.pillBackground,
-    borderColor: storybookTheme.color.primary,
+    backgroundColor: L.bg.brandSubtle,
+    borderColor: L.border.interactive.primary.default,
   },
   filled: {
-    paddingHorizontal: 14,
-    paddingVertical: storybookTheme.spacing.sm,
-    borderColor: storybookTheme.color.contentPanelBorder,
+    paddingHorizontal: space[16],
+    borderColor: L.border.secondary,
+    backgroundColor: L.bg.primary,
   },
   filledActive: {
-    backgroundColor: storybookTheme.color.primary,
-    borderColor: storybookTheme.color.primary,
+    backgroundColor: L.bg.interactive.primary.default,
+    borderColor: L.bg.interactive.primary.default,
   },
   // press 피드백 표준 scale(0.96).
   pressed: { opacity: 0.9, transform: [{ scale: 0.96 }] },
   label: {
-    fontSize: storybookTheme.type.xs,
+    fontSize: storybookTheme.type.sm,
   },
   outlineLabel: {
     fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.onContentMuted,
+    color: L.text.secondary,
   },
-  outlineLabelActive: { color: storybookTheme.color.primary },
+  outlineLabelActive: { color: L.text.interactive.selected },
   filledLabel: {
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onContentMuted,
+    color: L.text.secondary,
   },
-  filledLabelActive: { color: storybookTheme.color.onDark },
+  filledLabelActive: { color: L.text.interactive.inverse },
   // 라벨과 뱃지를 나란히 놓기 위한 행 컨테이너 - 기본 pill에도 flexDirection이 필요.
   row: { flexDirection: 'row', alignItems: 'center', gap: storybookTheme.spacing.xs },
   badge: {
@@ -119,13 +125,13 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
   },
   // 뱃지 4가지 조합.
-  badgeBgOutlineIdle: { backgroundColor: storybookTheme.color.pillBackground },
-  badgeFgOutlineIdle: { color: storybookTheme.color.onContentMuted },
-  badgeBgOutlineActive: { backgroundColor: storybookTheme.color.pillBackground },
-  badgeFgOutlineActive: { color: storybookTheme.color.primary },
-  badgeBgFilledIdle: { backgroundColor: storybookTheme.color.pillBackground },
-  badgeFgFilledIdle: { color: storybookTheme.color.onContentMuted },
+  badgeBgOutlineIdle: { backgroundColor: L.bg.tertiary },
+  badgeFgOutlineIdle: { color: L.text.secondary },
+  badgeBgOutlineActive: { backgroundColor: L.bg.primary },
+  badgeFgOutlineActive: { color: L.text.interactive.selected },
+  badgeBgFilledIdle: { backgroundColor: L.bg.tertiary },
+  badgeFgFilledIdle: { color: L.text.secondary },
   // primary 채움 chip 위 → 배지는 밝은 카드 톤으로 대비.
   badgeBgFilledActive: { backgroundColor: storybookTheme.color.onDarkOverlay },
-  badgeFgFilledActive: { color: storybookTheme.color.onDark },
+  badgeFgFilledActive: { color: L.text.interactive.inverse },
 });

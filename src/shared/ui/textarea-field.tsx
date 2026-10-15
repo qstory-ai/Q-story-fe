@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import type { TextInputProps } from 'react-native';
 
-import { FieldDescription, FieldError, FieldLabel, fieldBackgroundColor, fieldBorderColor, fieldTextColor } from './field-primitives';
+import { FieldDescription, FieldError, FieldLabel, fieldBackgroundColor, fieldBorderColor, fieldFocusRing, fieldTextColor } from './field-primitives';
 import { storybookTheme } from './theme';
 
 type TextareaFieldProps = TextInputProps & {
@@ -26,6 +26,7 @@ export function TextareaField({ label, description, errorText, style, editable, 
         style={[
           styles.textarea,
           { borderColor: fieldBorderColor(state, isFocused), backgroundColor: fieldBackgroundColor(state), color: fieldTextColor(state) },
+          isFocused && state === 'default' && fieldFocusRing,
           style,
         ]}
         placeholderTextColor={isDisabled ? storybookTheme.color.disabledText : storybookTheme.color.onLightMuted}

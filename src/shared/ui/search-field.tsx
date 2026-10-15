@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
-import { fieldBackgroundColor, fieldBorderColor, fieldTextColor, type FieldState } from './field-primitives';
+import { fieldBackgroundColor, fieldBorderColor, fieldFocusRing, fieldTextColor, type FieldState } from './field-primitives';
 import { Icon } from './icon';
 import { storybookTheme } from './theme';
 
@@ -20,7 +20,7 @@ export function SearchField({ value, onChangeText, placeholder = '검색', disab
   const state: FieldState = disabled ? 'disabled' : 'default';
   return (
     <View
-      style={[styles.container, { borderColor: fieldBorderColor(state, isFocused), backgroundColor: fieldBackgroundColor(state) }]}
+      style={[styles.container, { borderColor: fieldBorderColor(state, isFocused), backgroundColor: fieldBackgroundColor(state) }, isFocused && state === 'default' && fieldFocusRing]}
     >
       <TextInput
         value={value}

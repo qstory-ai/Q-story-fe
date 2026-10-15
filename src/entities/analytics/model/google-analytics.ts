@@ -94,6 +94,7 @@ export const GA_ROUTE_TEMPLATES: readonly string[] = [
   '/stories/:storyId',
   '/stories/:storyId/play',
   '/internal/replay',
+  '/internal/ui-kit',
 ];
 
 const KEEP_SEGMENTS = new Set([':storyId', ':sceneId']);

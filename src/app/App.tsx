@@ -131,6 +131,9 @@ const PaymentSuccessPage = lazy(() =>
   import('@/pages/payment-success').then((m) => ({ default: m.PaymentSuccessPage })),
 );
 // 팀 내부 화면 녹화 다시 보기 - 메뉴에 걸지 않는다. rrweb 플레이어는 이 화면에서만 불러온다.
+const InternalUiKitPage = lazy(() =>
+  import('@/pages/internal-ui-kit').then((m) => ({ default: m.InternalUiKitPage })),
+);
 const InternalReplayPage = lazy(() =>
   import('@/pages/internal-replay').then((m) => ({ default: m.InternalReplayPage })),
 );
@@ -313,6 +316,7 @@ export function App() {
             <Route path="/stories/:storyId" element={<StoryDetailPage />} />
             <Route path="/stories/:storyId/play" element={<StoryPlayerRoute />} />
             <Route path="/internal/replay" element={<InternalReplayPage />} />
+            <Route path="/internal/ui-kit" element={<InternalUiKitPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
           </ReconsentGate>

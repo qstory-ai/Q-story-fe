@@ -1,6 +1,9 @@
 import { StyleSheet, Text } from 'react-native';
 
 import { storybookTheme } from './theme';
+import { focusRing, semanticColors } from './tokens';
+
+const L = semanticColors.light;
 
 /**
  * 새 입력 필드 컴포넌트들(select/date/textarea/slider/switch/search 등)이 공유하는 라벨/설명/
@@ -27,37 +30,42 @@ export function FieldError({ children }: { children: string }) {
   );
 }
 
-/** focused는 'default' 상태에서만 의미가 있다 - error/disabled는 이미 그 자체로 더
- * 우선순위 높은 신호라 focus 링보다 그대로 유지한다. */
+/**
+ * 상태: default(border/primary - 입력 경계 3.34:1) / focused(border/interactive/primary + 옅은 보라 링) /
+ * error(border/error) / disabled(bg/disabled + border/disabled). focused는 'default'에서만 의미가 있다 -
+ * error/disabled는 그 자체로 더 우선순위 높은 신호라 focus 링보다 그대로 유지한다.
+ */
 export const fieldBorderColor = (state: FieldState, focused = false) =>
   state === 'error'
-    ? storybookTheme.color.error
+    ? L.border.error
     : state === 'disabled'
-      ? storybookTheme.color.disabledBorder
+      ? L.border.disabled
       : focused
-        ? storybookTheme.color.primary
-        : storybookTheme.color.lightCardBorder;
+        ? L.border.interactive.primary.default
+        : L.border.primary;
+
+export const fieldFocusRing = { boxShadow: focusRing.light } as const;
 
 export const fieldBackgroundColor = (state: FieldState) =>
-  state === 'disabled' ? storybookTheme.color.disabledBackground : storybookTheme.color.surfaceWhite;
+  state === 'disabled' ? L.bg.disabled : L.bg.primary;
 
 export const fieldTextColor = (state: FieldState) =>
-  state === 'disabled' ? storybookTheme.color.disabledText : storybookTheme.color.onCardTitle;
+  state === 'disabled' ? L.text.disabled : L.text.primary;
 
 const styles = StyleSheet.create({
   label: {
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.medium,
-    color: storybookTheme.color.onLightBody,
+    color: L.text.secondary,
   },
-  labelDisabled: { color: storybookTheme.color.disabledText },
+  labelDisabled: { color: L.text.disabled },
   description: {
     fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onLightMuted,
+    color: L.text.tertiary,
   },
-  descriptionDisabled: { color: storybookTheme.color.disabledText },
+  descriptionDisabled: { color: L.text.disabled },
   error: {
     fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.error,
+    color: L.text.error,
   },
 });

@@ -129,6 +129,8 @@ export type SemanticColors = {
     disabled: string;
     /** 키보드 포커스 링. */
     focus: string;
+    /** 옅은 보라 카드·배지의 hairline(장식). */
+    brandSubtle: string;
     info: string;
     infoSubtle: string;
     success: string;
@@ -217,6 +219,7 @@ export const lightColors: SemanticColors = {
     secondary: p.neutral[300],
     disabled: p.neutral[300],
     focus: p.brand[800],
+    brandSubtle: p.brand[200],
     info: p.info[700],
     infoSubtle: alpha(p.info[500], 0.35),
     success: p.success[600],
@@ -309,6 +312,7 @@ export const darkColors: SemanticColors = {
     secondary: alpha(p.base.white, 0.16),
     disabled: p.neutral[700],
     focus: p.brand[200],
+    brandSubtle: alpha(p.brand[400], 0.5),
     info: p.info[500],
     infoSubtle: alpha(p.info[500], 0.35),
     success: p.success[500],

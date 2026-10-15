@@ -248,6 +248,7 @@
   --color-border-secondary: var(--neutral-300);
   --color-border-disabled: var(--neutral-300);
   --color-border-focus: var(--purple-800);
+  --color-border-brand-subtle: var(--purple-200);
   --color-border-info: var(--sky-700);
   --color-border-info-subtle: rgba(94, 182, 246, 0.35);
   --color-border-success: var(--ext-green-600);
@@ -386,6 +387,7 @@
   --color-border-secondary: rgba(255, 255, 255, 0.16);
   --color-border-disabled: var(--neutral-700);
   --color-border-focus: var(--purple-200);
+  --color-border-brand-subtle: color-mix(in srgb, var(--purple-400) 50%, transparent);
   --color-border-info: var(--sky-500);
   --color-border-info-subtle: rgba(94, 182, 246, 0.35);
   --color-border-success: var(--green-500);

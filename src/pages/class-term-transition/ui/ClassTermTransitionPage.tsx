@@ -2,17 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import {
-  ActionButton,
-  AppNavShell,
-  ErrorState,
-  FilterChip,
-  LoadingState,
-  SelectField,
-  StatusBanner,
-  SwitchField,
-  storybookTheme,
-} from '@/shared/ui';
+import { ActionButton, AppNavShell, FILTER_CHIP_ROW_GAP, FilterChip, LoadingState, ErrorState, SelectField, StatusBanner, storybookTheme, SwitchField } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { useBackOr } from '@/shared/lib';
 import {
@@ -386,5 +376,5 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardTitle,
   },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: storybookTheme.spacing.xs },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: storybookTheme.spacing.xs, rowGap: FILTER_CHIP_ROW_GAP }, // 칩이 여러 줄로 감길 때 터치 영역(44)이 겹치지 않게
 });

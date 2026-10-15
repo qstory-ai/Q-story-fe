@@ -43,3 +43,4 @@ export {
   textStylesFor,
 } from './tokens';
 export type { ColorMode, ResponsiveMode, SemanticColors, TextStyleName, TextStyleToken } from './tokens';
+export * from './pill-tabs';

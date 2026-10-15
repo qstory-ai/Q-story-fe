@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { FilterChip, storybookTheme } from '@/shared/ui';
+import { FILTER_CHIP_ROW_GAP, FilterChip, storybookTheme } from '@/shared/ui';
 
 import { LESSON_PLAY_SETTINGS, PLAY_SETTING_LABELS, type PlaySetting } from '../model/types';
 
@@ -41,6 +41,6 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardBody,
   },
-  row: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: storybookTheme.spacing.sm },
+  row: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: storybookTheme.spacing.sm, rowGap: FILTER_CHIP_ROW_GAP }, // 칩이 여러 줄로 감길 때 터치 영역(44)이 겹치지 않게
   rowStart: { justifyContent: 'flex-start' },
 });

@@ -6,6 +6,9 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ActionButton } from './action-button';
 import { EASE_IN_SINE, EASE_OUT_SINE, usePresenceAnimation } from './motion';
 import { storybookTheme } from './theme';
+import { borderWidth, radius, semanticColors, shadow, space } from './tokens';
+
+const L = semanticColors.light;
 
 type ModalAction = {
   label: string;
@@ -216,26 +219,27 @@ const styles = StyleSheet.create({
   card: {
     width: '100%',
     maxWidth: 520,
-    borderRadius: storybookTheme.radius.modalCard,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentSurfaceBorder,
-    backgroundColor: storybookTheme.color.surfaceCardOpaque,
-    padding: 24,
-    gap: 13,
-    ...storybookTheme.elevation.modal,
+    // 랜딩의 큰 카드처럼 넉넉히 둥글게(32) + 가장 높은 그림자.
+    borderRadius: radius[32],
+    borderWidth: borderWidth[1],
+    borderColor: L.border.secondary,
+    backgroundColor: L.bg.primary,
+    padding: space[24],
+    gap: space[12],
+    ...shadow(5),
   },
   eyebrow: {
     alignSelf: 'center',
-    color: storybookTheme.color.primary,
-    backgroundColor: storybookTheme.status.info.background,
-    borderRadius: storybookTheme.radius.pill,
-    paddingHorizontal: 12,
+    color: L.text.interactive.selected,
+    backgroundColor: L.bg.brandSubtle,
+    borderRadius: radius.rounded,
+    paddingHorizontal: space[12],
     paddingVertical: 6,
     fontSize: storybookTheme.type.xxs,
     fontWeight: storybookTheme.type.weight.bold,
   },
   title: {
-    color: storybookTheme.color.onCardTitle,
+    color: L.text.primary,
     fontSize: storybookTheme.type.xl,
     lineHeight: storybookTheme.type.xl * storybookTheme.lineHeight.tight,
     letterSpacing: storybookTheme.type.xl * storybookTheme.tracking.heading,
@@ -248,13 +252,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   linkButtonText: {
-    color: storybookTheme.color.linkOnLight,
+    color: L.text.link,
     fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.bold,
     textDecorationLine: 'underline',
   },
   body: {
-    color: storybookTheme.color.onCardBody,
+    color: L.text.secondary,
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     textAlign: 'center',

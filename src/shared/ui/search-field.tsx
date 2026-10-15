@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
-import { fieldBackgroundColor, fieldBorderColor, fieldTextColor, type FieldState } from './field-primitives';
+import { fieldBackgroundColor, fieldBorderColor, fieldFocusRing, fieldTextColor, FIELD_RING_DATASET, type FieldState } from './field-primitives';
 import { Icon } from './icon';
 import { storybookTheme } from './theme';
 
@@ -20,9 +20,11 @@ export function SearchField({ value, onChangeText, placeholder = '검색', disab
   const state: FieldState = disabled ? 'disabled' : 'default';
   return (
     <View
-      style={[styles.container, { borderColor: fieldBorderColor(state, isFocused), backgroundColor: fieldBackgroundColor(state) }]}
+      style={[styles.container, { borderColor: fieldBorderColor(state, isFocused), backgroundColor: fieldBackgroundColor(state) }, isFocused && state === 'default' && fieldFocusRing]}
     >
       <TextInput
+        // global.css outline 대신 컴포넌트 포커스 링(fieldFocusRing)을 쓴다.
+        dataSet={FIELD_RING_DATASET}
         value={value}
         onChangeText={disabled ? undefined : onChangeText}
         editable={!disabled}

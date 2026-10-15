@@ -161,6 +161,13 @@ function semanticPairs(mode: 'light' | 'dark'): Array<[string, string, string, n
   add('icon.interactive.inverse(채움 위 아이콘)', i.interactive.inverse, { 'bg.success': bg.success }, 3);
   add('text.inverse', t.inverse, { 'bg.inverse': bg.inverse }, 4.5);
   add('text.onWarm', t.onWarm, { 'bg.warm': bg.warm }, 4.5);
+  // ActionButton ghost·secondary: 옅은 보라 바탕(기본·hover·pressed) 위 글자는 text.interactive.selected(Purple 800).
+  add('ghost·secondary 버튼 글자', t.interactive.selected, {
+    'ghost hover': bg.interactive.selected.hover, 'ghost pressed': bg.interactive.selected.pressed,
+    'secondary': bg.interactive.secondary.default, 'secondary hover': bg.interactive.secondary.hover, 'secondary pressed': bg.interactive.secondary.pressed,
+    'ghost 기본(바탕 위)': bg.secondary,
+  }, 4.5);
+  add('비활성 버튼 글자(ghost는 투명 바탕)', t.disabled, { 'bg.disabled': bg.disabled, 'bg.secondary': bg.secondary }, 4.5);
   add('text.primary(선택 바탕 위)', t.primary, { 'bg.selection': bg.selection }, 4.5);
   add('bg.indicator(글자 없는 채움 3.0)', bg.indicator, surfaces, 3);
   add('bg.recording(글자 없는 채움 3.0)', bg.recording, surfaces, 3);

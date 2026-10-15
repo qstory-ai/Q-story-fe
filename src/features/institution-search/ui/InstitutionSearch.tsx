@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { FilterChip, Icon, Pill, SearchField, storybookTheme } from '@/shared/ui';
+import { FILTER_CHIP_ROW_GAP, FilterChip, Icon, Pill, SearchField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import {
   INSTITUTION_KIND_LABEL,
@@ -143,7 +143,7 @@ export function InstitutionSearch({ token, selectedId, onSelect, badgeFor }: Pro
 
 const styles = StyleSheet.create({
   container: { gap: storybookTheme.spacing.sm, alignSelf: 'stretch' },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: storybookTheme.spacing.xs },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: storybookTheme.spacing.xs, rowGap: FILTER_CHIP_ROW_GAP }, // 칩이 여러 줄로 감길 때 터치 영역(44)이 겹치지 않게
   hint: {
     fontSize: storybookTheme.type.xs,
     lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,

@@ -63,12 +63,13 @@ body {
   color: var(--color-text-primary);
 }
 
+/* 공통 입력(TextField·Textarea·SearchField)은 data-field-ring을 달고 자기 포커스 링(tokens focusRing)을 그린다 - 이중 링 방지. */
 :where(
   a,
   button,
-  input,
+  input:not([data-field-ring]),
   select,
-  textarea,
+  textarea:not([data-field-ring]),
   [role='button'],
   [role='link'],
   [role='menuitem'],

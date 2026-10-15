@@ -35,6 +35,7 @@ export function ReportHistoryDetailPage() {
 
   return (
     <AppNavShell
+      tone="warm"
       items={dashboardNavItems(state.user, navigate, pathname)}
       onBack={goBack}
     >

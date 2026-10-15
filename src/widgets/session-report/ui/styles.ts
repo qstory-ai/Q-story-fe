@@ -1,20 +1,18 @@
 import { StyleSheet } from 'react-native';
 
-import { storybookTheme } from '@/shared/ui';
+import { radius, shadow, storybookTheme } from '@/shared/ui';
 
-// 회차 리포트(SessionReport·ReportContent) 전용 스타일 - pages/one-story/ui/styles.ts에서 값 그대로 옮겼다.
+// 회차 리포트(SessionReport·ReportContent) 전용 스타일 - pages/one-story/ui/styles.ts에서 옮겼다.
+// 라운드·그림자는 토큰 스케일(radius 16·24, Elevation 2·3)로 맞췄다. 리더 톤 글자색(reader*)은 Figma 변수가 아니라 아직 theme 값.
 export const styles = StyleSheet.create({
   reportHero: {
-    borderRadius: 28,
+    borderRadius: radius[24],
     borderWidth: 2,
     borderColor: storybookTheme.color.accentBorderLight,
     backgroundColor: storybookTheme.color.surfaceWhite,
     padding: 28,
     gap: 14,
-    shadowColor: storybookTheme.color.readerShadow,
-    shadowOpacity: 0.08,
-    shadowRadius: 22,
-    shadowOffset: { width: 0, height: 10 },
+    ...shadow(3),
   },
   reportEyebrow: {
     color: storybookTheme.color.error,
@@ -50,7 +48,7 @@ export const styles = StyleSheet.create({
   reportStatCard: {
     flex: 1,
     minHeight: 104,
-    borderRadius: 20,
+    borderRadius: radius[16],
     backgroundColor: storybookTheme.color.readerCard,
     alignItems: 'center',
     justifyContent: 'center',
@@ -68,14 +66,11 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.semibold,
   },
   reportPanel: {
-    borderRadius: 28,
+    borderRadius: radius[24],
     backgroundColor: storybookTheme.color.surfaceWhite,
     padding: 28,
     gap: 12,
-    shadowColor: storybookTheme.color.readerShadow,
-    shadowOpacity: 0.07,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
+    ...shadow(2),
   },
   // 리포트에서 4번(질문/코치 관찰/오늘 밤 질문 등) 반복되는 제목이라 xl이 아니라 lg로 둔다.
   reportPanelTitle: {
@@ -104,7 +99,7 @@ export const styles = StyleSheet.create({
   reportQuestionNumber: {
     width: 44,
     height: 44,
-    borderRadius: 22,
+    borderRadius: radius.rounded,
     backgroundColor: storybookTheme.color.accentFill,
     alignItems: 'center',
     justifyContent: 'center',
@@ -134,7 +129,7 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
   },
   reportSceneFigure: {
-    borderRadius: 19,
+    borderRadius: radius[16],
     overflow: 'hidden',
     backgroundColor: storybookTheme.color.surfaceWhite,
   },
@@ -157,7 +152,7 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.semibold,
   },
   reportSelectedPath: {
-    borderRadius: 18,
+    borderRadius: radius[16],
     backgroundColor: storybookTheme.color.surfaceWhite,
     padding: 17,
     gap: 4,
@@ -197,7 +192,7 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.medium,
   },
   reportEmptyState: {
-    borderRadius: 21,
+    borderRadius: radius[16],
     backgroundColor: storybookTheme.color.readerCard,
     padding: 22,
     gap: 7,
@@ -210,7 +205,7 @@ export const styles = StyleSheet.create({
   },
   reportEmptyBody: { color: storybookTheme.color.readerBodyMuted, fontSize: storybookTheme.type.sm, lineHeight: 21 },
   reportCoachPanel: {
-    borderRadius: 28,
+    borderRadius: radius[24],
     borderWidth: 2,
     borderColor: storybookTheme.color.accentBorderLight,
     backgroundColor: storybookTheme.color.surfaceWhite,
@@ -218,7 +213,7 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   reportCoachSummary: {
-    borderRadius: 20,
+    borderRadius: radius[16],
     backgroundColor: storybookTheme.color.readerCard,
     padding: 21,
   },
@@ -231,7 +226,7 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.semibold,
   },
   reportEvidenceBox: {
-    borderRadius: 20,
+    borderRadius: radius[16],
     backgroundColor: storybookTheme.color.storybookCard,
     borderWidth: 1,
     borderColor: storybookTheme.color.contentPanelBorder,
@@ -257,7 +252,7 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.medium,
   },
   reportFocusBox: {
-    borderRadius: 20,
+    borderRadius: radius[16],
     backgroundColor: storybookTheme.semantic.brand.secondary,
     padding: 20,
     gap: 10,
@@ -290,7 +285,7 @@ export const styles = StyleSheet.create({
   },
   reportFollowUpList: { gap: 10, marginTop: 6 },
   reportFollowUpCard: {
-    borderRadius: 18,
+    borderRadius: radius[16],
     backgroundColor: storybookTheme.color.readerCard,
     padding: 17,
     flexDirection: 'row',
@@ -300,7 +295,7 @@ export const styles = StyleSheet.create({
   reportFollowUpNumber: {
     width: 30,
     height: 30,
-    borderRadius: 15,
+    borderRadius: radius.rounded,
     backgroundColor: storybookTheme.color.accentFill,
     alignItems: 'center',
     justifyContent: 'center',
@@ -318,7 +313,7 @@ export const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.semibold,
   },
   reportActivity: {
-    borderRadius: 20,
+    borderRadius: radius[16],
     backgroundColor: storybookTheme.semantic.positive.background,
     padding: 20,
     gap: 5,

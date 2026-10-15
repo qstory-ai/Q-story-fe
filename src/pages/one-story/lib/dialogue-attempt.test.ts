@@ -73,3 +73,19 @@ test('outside an invite or without a scene nothing changes', () => {
   const { state } = attemptAfterReply(NO_ATTEMPTS, start);
   assert.deepEqual(attemptRequest(state, 'HG-Q-A'), { tried: 0, active: null });
 });
+
+test('backdrop candidates ride along only while a new attempt scene can start', () => {
+  const backdrops = [
+    { id: 'c-try-high-window', description: '까치발로 팔을 뻗어도 높은 창문에 손이 닿지 않음', extra: 'dropped' },
+  ];
+  assert.deepEqual(attemptRequest(NO_ATTEMPTS, QC, backdrops), {
+    tried: 0,
+    active: null,
+    backdrops: [{ id: 'c-try-high-window', description: '까치발로 팔을 뻗어도 높은 창문에 손이 닿지 않음' }],
+  });
+  // 장면 안에서는 새 그림을 고르지 않는다.
+  const { state } = attemptAfterReply(NO_ATTEMPTS, start);
+  assert.equal('backdrops' in attemptRequest(state, QC, backdrops), false);
+  // 후보가 없는 질문 지점은 예전과 같은 모양이다.
+  assert.deepEqual(attemptRequest(NO_ATTEMPTS, QC, []), { tried: 0, active: null });
+});

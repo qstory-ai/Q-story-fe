@@ -39,6 +39,8 @@ import {
   type AttemptState,
 } from '../lib/dialogue-attempt';
 import { nextDialogueStep } from '../lib/dialogue-next-phase';
+import { blockedLineIndex } from '../lib/attempt-backdrop';
+import { preloadImages } from '../lib/preload-images';
 import {
   DIALOGUE_THINKING_FILLER,
   DIALOGUE_VOICE_STREAMING,
@@ -440,6 +442,8 @@ export function useDialogue({
       const closedAttempt = attemptOnClose(attemptRef.current);
       attemptRef.current = closedAttempt.state;
       if (closedAttempt.event) reportAttempt(closedAttempt.event);
+      // 시도 장면 배경도 원래 그림으로 돌린다.
+      runtime.clearAttemptBackdrop();
       if (mode === 'INVITE' && anchorId) {
         logTurn({ role: 'SYSTEM', event: inviteChildSpokeRef.current ? 'INVITE_CLOSED' : 'INVITE_SKIPPED' });
         if (childTurnCountRef.current > 0) {
@@ -671,6 +675,12 @@ export function useDialogue({
         const lineVoices = sceneLines.map((line) =>
           fetchSceneLineVoice(line.speakerId, line.text, audioController.signal),
         );
+        // 막힌 줄(마지막 내레이터 줄)에서 배경을 막힌 모습의 그림으로 바꾼다 - 그림은 장면 음성과 함께 지금 미리 받아 둔다.
+        // 서버가 그림을 고르지 않았거나 이 이야기 자산에 없는 그림이면 지금 그림을 강조한다(null).
+        const backdropId = reply.dialogue.attempt?.backdropAssetId ?? null;
+        const backdropUri = backdropId ? storyPackage.imageAssets[backdropId]?.uri : undefined;
+        if (backdropUri) void preloadImages([backdropUri]);
+        const backdropAt = blockedLineIndex(sceneLines, storyPackage.narratorSpeakerId);
         filler.skip();
         // 채움말이 이미 나오는 중이면 끝날 때까지만 기다린다(장면 내레이션과 겹치지 않게).
         for (let waited = 0; filler.isPlaying() && waited < 3_000; waited += 100) {
@@ -680,8 +690,10 @@ export function useDialogue({
           if (cancelled()) {
             lineVoices.forEach(discardVoice);
             if (replyVoice) discardVoice(replyVoice);
+            runtime.clearAttemptBackdrop();
             return null;
           }
+          if (index === backdropAt) runtime.showAttemptBackdrop(backdropUri ? backdropId : null);
           addTurn({ role: 'CHARACTER', text: line.text, sceneSpeakerId: line.speakerId });
           setPhase('speaking');
           const audio = await lineVoices[index];
@@ -695,6 +707,7 @@ export function useDialogue({
         }
         if (cancelled()) {
           if (replyVoice) discardVoice(replyVoice);
+          runtime.clearAttemptBackdrop();
           return null;
         }
         const current = show(
@@ -717,7 +730,10 @@ export function useDialogue({
         );
       return { reply, shownAt: current.at, voicePlayed: current.voicePlayed };
     },
-    [addTurn, fetchReplyVoice, fetchSceneLineVoice, logStep, startThinkingFiller],
+    [
+      addTurn, fetchReplyVoice, fetchSceneLineVoice, logStep, runtime, startThinkingFiller,
+      storyPackage.imageAssets, storyPackage.narratorSpeakerId,
+    ],
   );
 
   /**
@@ -789,7 +805,15 @@ export function useDialogue({
             executedActions,
             anchorId: mode === 'INVITE' ? anchorId : null,
             wrapUp,
-            ...(mode === 'INVITE' && anchorId ? { attempt: attemptRequest(attemptRef.current, anchorId) } : {}),
+            ...(mode === 'INVITE' && anchorId
+              ? {
+                  attempt: attemptRequest(
+                    attemptRef.current,
+                    anchorId,
+                    storyPackage.dialogue.attemptBackdrops[anchorId] ?? [],
+                  ),
+                }
+              : {}),
           },
           seq,
           controller,
@@ -838,6 +862,8 @@ export function useDialogue({
         });
         attemptRef.current = attemptStep.state;
         if (attemptStep.event) reportAttempt(attemptStep.event);
+        // 시도 장면이 끝났거나(ATTEMPT_END·상한·준비된 행동) 시작되지 않았으면 배경을 원래 그림으로 돌린다.
+        if (!inAttempt(attemptStep.state, anchorId)) runtime.clearAttemptBackdrop();
         // 시도 장면 줄도 회차 기록에 아이가 들은 그대로 남긴다(그레텔 답보다 앞).
         if (attemptStep.event?.kind === 'START') {
           for (const line of signal.attempt?.scene ?? []) {
@@ -887,7 +913,7 @@ export function useDialogue({
     [
       addTurn, anchorId, cancelPending, character.speakerId, close, conversationAttribution.childId,
       conversationId, executedActions, extended, guardianProxy, heardClipId, helpStep, helpSteps.length, lessonId,
-      logStep, logTurn, mode, reportAttempt, requestReply, sceneId, speakReply, stopSpeaking, storyPackage,
+      logStep, logTurn, mode, reportAttempt, requestReply, runtime, sceneId, speakReply, stopSpeaking, storyPackage,
       turns, tutorStudentId,
     ],
   );

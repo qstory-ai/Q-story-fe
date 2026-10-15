@@ -21,7 +21,6 @@ export const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: storybookTheme.color.imageShade,
   },
-  reportHiddenIllustration: { opacity: 0 },
   reportPageBackground: {
     backgroundColor: storybookTheme.color.readerCard,
   },

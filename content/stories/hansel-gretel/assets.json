@@ -276,6 +276,42 @@
       "integrity": "sha256-bmP9fREWVQxHU6oAVBQyOhZrKH600xlQHfQMZsRtYrs="
     },
     {
+      "slug": "a-try-thick-bushes",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-attempt-a-try-thick-bushes-v1.webp",
+      "integrity": "sha256-ZS99GPdy08Hs54uTM3ISCdWXBDLa2MV9RZcPvyUFq4w="
+    },
+    {
+      "slug": "a-try-thorn-brambles",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-attempt-a-try-thorn-brambles-v1.webp",
+      "integrity": "sha256-EC06+F0K9Nyy8CaJfUEzNtJq3JrirB3LUV2A2ds557A="
+    },
+    {
+      "slug": "a-try-back-to-start",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-attempt-a-try-back-to-start-v1.webp",
+      "integrity": "sha256-lySTFmISrKy7F9mXoU6Lhs+/zTr2lCD8hiXaM2PPNVs="
+    },
+    {
+      "slug": "c-try-high-window",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-attempt-c-try-high-window-v1.webp",
+      "integrity": "sha256-2FulTxoUPJRdysJomLZZBxpjfev/OItqA0dzS1C2x5c="
+    },
+    {
+      "slug": "c-try-locked-door",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-attempt-c-try-locked-door-v1.webp",
+      "integrity": "sha256-v3zvJwcgk708ck47lFvjuEouESeMVGwZ7BgUbRBWl68="
+    },
+    {
+      "slug": "c-try-narrow-chimney",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-attempt-c-try-narrow-chimney-v1.webp",
+      "integrity": "sha256-mWbQHuOO1MHSuiWIBc1IzT6N1Se34E4iJfmwxJvBI38="
+    },
+    {
       "slug": "f01-002",
       "category": "NARRATION",
       "file": "audio/q30-narrator-082d8add484a.mp3",

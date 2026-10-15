@@ -81,6 +81,36 @@
           }
         ]
       }
+    },
+    "attemptBackdrops": {
+      "HG-Q-A": [
+        {
+          "id": "a-try-thick-bushes",
+          "description": "빛나는 길 쪽 빽빽한 덤불을 그레텔이 두 손으로 헤쳐 보지만 더 나아갈 수 없음"
+        },
+        {
+          "id": "a-try-thorn-brambles",
+          "description": "가시덤불이 벽처럼 길을 막아 그레텔이 손을 뻗다가 조심히 멈춤"
+        },
+        {
+          "id": "a-try-back-to-start",
+          "description": "여러 갈래로 꼬인 길을 따라가다 제자리로 돌아와 남매가 두리번거림"
+        }
+      ],
+      "HG-Q-C": [
+        {
+          "id": "c-try-high-window",
+          "description": "까치발로 팔을 뻗어도 높은 창문에 손이 닿지 않음"
+        },
+        {
+          "id": "c-try-locked-door",
+          "description": "부엌 문손잡이를 두 손으로 당겨 보지만 잠겨 있어 열리지 않음"
+        },
+        {
+          "id": "c-try-narrow-chimney",
+          "description": "좁은 굴뚝 구멍에 머리를 넣어 보지만 어깨가 들어가지 않음"
+        }
+      ]
     }
   },
   "routeContext": {
@@ -1408,6 +1438,66 @@
         "generatedAt": "2026-10-11T09:29:44.433240+00:00",
         "approvedBy": "PM/이윤지",
         "note": "Q-32 그림 다시 그리기(후보 D). 참조 그림 hg-art-01-home-table.webp, cand/storehouse--C.webp, cand/corridor-lock-door--B.webp를 함께 넣은 OpenRouter 요청(3:2 2K). 출력 2528x1696를 1586x992 WebP로 맞춤."
+      },
+      {
+        "assetSlug": "a-try-thick-bushes",
+        "status": "RECOVERED",
+        "prompt": "Create one unpublished Korean children's storybook illustration for ages 6-9.\nLandscape 16:10 composition, hand-painted texture, detailed linework, warm brown and violet palette.\nKeep the exact character faces, clothing, body proportions, location geometry and prop scale from the reference image.\nHansel: slightly taller young boy, short brown hair, green vest, cream shirt, red neckerchief.\nGretel: slightly smaller young girl, brown braided pigtails with purple ribbons, mustard-yellow dress.\nLocation: the same deep European forest as the reference, the glowing sunlit path behind the white bird.\nRequired action: Gretel has walked onto the glowing path and is pushing apart a wall of very dense, tangled green bushes and branches with both hands, leaning forward with effort; the bushes are so thick she cannot step further. Hansel stands a few steps behind her watching.\nComposition: medium shot from behind-side; the dense bushes completely block the path ahead, the golden light glimmers only through tiny gaps. The white bird is small in the far upper corner on a branch.\nThe mood is a gentle, not scary, 'oh no, this way does not work' moment. Nobody is hurt.\nKeep the lower caption-safe area (bottom 40%) free of important faces, hands and key actions; put the key action in the upper-middle.\nDo not include: text, letters, UI, speech bubbles, watermark, gore, photorealism, new characters, new houses or new animals.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:06f684974ae10c51ad7f3f6e7bb9764d797f4aa53a8c051e1bc7c5a51812e9e5",
+        "generatedAt": "2026-10-15T17:39:57.906216+00:00",
+        "approvedBy": null,
+        "note": "시도 장면 배경(질문 초대 TRY_FAIL의 막힌 줄). 참조 그림 hg-art-07-white-bird.webp 한 장을 넣은 OpenRouter 이미지 요청(16:9 WebP). 출력을 1376x768 WebP로 맞춤. inputHash는 프롬프트 UTF-8 바이트 + 참조 그림 바이트의 sha256."
+      },
+      {
+        "assetSlug": "a-try-thorn-brambles",
+        "status": "RECOVERED",
+        "prompt": "Create one unpublished Korean children's storybook illustration for ages 6-9.\nLandscape 16:10 composition, hand-painted texture, detailed linework, warm brown and violet palette.\nKeep the exact character faces, clothing, body proportions, location geometry and prop scale from the reference image.\nHansel: slightly taller young boy, short brown hair, green vest, cream shirt, red neckerchief.\nGretel: slightly smaller young girl, brown braided pigtails with purple ribbons, mustard-yellow dress.\nLocation: the same deep European forest as the reference, further along the glowing path.\nRequired action: the path is blocked by a thicket of thorny brambles taller than the children; Gretel reaches out but carefully pulls her hand back from the prickly thorns, looking a little puzzled. Hansel stands beside her.\nComposition: the thorny brambles form one solid, closed wall straight across the path from the left edge to the right edge, with NO opening, arch or tunnel; the glowing path disappears under the brambles; only a little soft light glimmers above them.\nThe mood is a gentle, not scary, 'oh no, this way does not work' moment. Nobody is hurt.\nKeep the lower caption-safe area (bottom 40%) free of important faces, hands and key actions; put the key action in the upper-middle.\nDo not include: text, letters, UI, speech bubbles, watermark, gore, photorealism, new characters, new houses or new animals.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:83ffcb16af73adbd83de121f1820b674f7bf85cffed968ee8e36ad510405c55d",
+        "generatedAt": "2026-10-15T17:40:52.871214+00:00",
+        "approvedBy": null,
+        "note": "시도 장면 배경(질문 초대 TRY_FAIL의 막힌 줄). 참조 그림 hg-art-07-white-bird.webp 한 장을 넣은 OpenRouter 이미지 요청(16:9 WebP). 출력을 1376x768 WebP로 맞춤. inputHash는 프롬프트 UTF-8 바이트 + 참조 그림 바이트의 sha256."
+      },
+      {
+        "assetSlug": "a-try-back-to-start",
+        "status": "RECOVERED",
+        "prompt": "Create one unpublished Korean children's storybook illustration for ages 6-9.\nLandscape 16:10 composition, hand-painted texture, detailed linework, warm brown and violet palette.\nKeep the exact character faces, clothing, body proportions, location geometry and prop scale from the reference image.\nHansel: slightly taller young boy, short brown hair, green vest, cream shirt, red neckerchief.\nGretel: slightly smaller young girl, brown braided pigtails with purple ribbons, mustard-yellow dress.\nLocation: the same deep European forest as the reference.\nRequired action: Hansel and Gretel stand where the glowing path splits into many tangled little paths that all curve back among the same big tree trunks; they look around confused because they ended up back where they started (the same mossy root and fern from the reference are visible).\nComposition: wide shot, several faint winding paths looping around the trees, children small in the middle distance.\nThe mood is a gentle, not scary, 'oh no, this way does not work' moment. Nobody is hurt.\nKeep the lower caption-safe area (bottom 40%) free of important faces, hands and key actions; put the key action in the upper-middle.\nDo not include: text, letters, UI, speech bubbles, watermark, gore, photorealism, new characters, new houses or new animals.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:7980cd98cacd93153b937d090fdb0f4cc717283a17cf32b11b0e850d03c06457",
+        "generatedAt": "2026-10-15T17:39:57.947674+00:00",
+        "approvedBy": null,
+        "note": "시도 장면 배경(질문 초대 TRY_FAIL의 막힌 줄). 참조 그림 hg-art-07-white-bird.webp 한 장을 넣은 OpenRouter 이미지 요청(16:9 WebP). 출력을 1376x768 WebP로 맞춤. inputHash는 프롬프트 UTF-8 바이트 + 참조 그림 바이트의 sha256."
+      },
+      {
+        "assetSlug": "c-try-high-window",
+        "status": "RECOVERED",
+        "prompt": "Create one unpublished Korean children's storybook illustration for ages 6-9.\nLandscape 16:10 composition, hand-painted texture, detailed linework, warm brown and violet palette.\nKeep the exact character faces, clothing, body proportions, location geometry and prop scale from the reference image.\nHansel: slightly taller young boy, short brown hair, green vest, cream shirt, red neckerchief.\nGretel: slightly smaller young girl, brown braided pigtails with purple ribbons, mustard-yellow dress.\nLocation: the same candy-house kitchen as the reference, keep the layout: tall iron cage on the left, small arched window high on the wall, shelves of candy jars, closed oven at the back right, wooden worktable at front right.\nRequired action: Gretel stands on tiptoe under the small arched window, stretching both arms up as high as she can, but her fingertips are still far below the window sill; the window is clearly too high. Hansel watches from inside the cage. The old woman (witch) has her back turned at the far back, stirring the pot, not noticing.\nComposition: the window and Gretel's stretching arms are the focus in the upper-middle-left.\nThe mood is a gentle, not scary, 'oh no, this way does not work' moment. Nobody is hurt.\nKeep the lower caption-safe area (bottom 40%) free of important faces, hands and key actions; put the key action in the upper-middle.\nDo not include: text, letters, UI, speech bubbles, watermark, gore, photorealism, new characters, new houses or new animals.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:2fe8c71c30c88f2ea7d1f1d082a5b13862cc24861e35635fb374f2879d5b4023",
+        "generatedAt": "2026-10-15T17:39:57.103134+00:00",
+        "approvedBy": null,
+        "note": "시도 장면 배경(질문 초대 TRY_FAIL의 막힌 줄). 참조 그림 hg-art-51-witch-cooking-keys-v2.webp 한 장을 넣은 OpenRouter 이미지 요청(16:9 WebP). 출력을 1376x768 WebP로 맞춤. inputHash는 프롬프트 UTF-8 바이트 + 참조 그림 바이트의 sha256."
+      },
+      {
+        "assetSlug": "c-try-locked-door",
+        "status": "RECOVERED",
+        "prompt": "Create one unpublished Korean children's storybook illustration for ages 6-9.\nLandscape 16:10 composition, hand-painted texture, detailed linework, warm brown and violet palette.\nKeep the exact character faces, clothing, body proportions, location geometry and prop scale from the reference image.\nHansel: slightly taller young boy, short brown hair, green vest, cream shirt, red neckerchief.\nGretel: slightly smaller young girl, brown braided pigtails with purple ribbons, mustard-yellow dress.\nLocation: the same candy-house kitchen as the reference, at the heavy wooden kitchen door that leads to the corridor, with a big iron keyhole.\nRequired action: Gretel pulls the round iron door handle with both hands, leaning back with effort, but the door stays firmly shut because it is locked (a big black keyhole, no key in it). The keys still lie on the worktable in the background. The old woman (witch) has her back turned, stirring the pot.\nComposition: the door and Gretel's pulling hands in the upper-middle; kitchen visible behind.\nThe mood is a gentle, not scary, 'oh no, this way does not work' moment. Nobody is hurt.\nKeep the lower caption-safe area (bottom 40%) free of important faces, hands and key actions; put the key action in the upper-middle.\nDo not include: text, letters, UI, speech bubbles, watermark, gore, photorealism, new characters, new houses or new animals.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:873ada3018923c7f3e4d72103e23ff7a7f121e3379dca5f4352fb3658a536554",
+        "generatedAt": "2026-10-15T17:40:00.675047+00:00",
+        "approvedBy": null,
+        "note": "시도 장면 배경(질문 초대 TRY_FAIL의 막힌 줄). 참조 그림 hg-art-51-witch-cooking-keys-v2.webp 한 장을 넣은 OpenRouter 이미지 요청(16:9 WebP). 출력을 1376x768 WebP로 맞춤. inputHash는 프롬프트 UTF-8 바이트 + 참조 그림 바이트의 sha256."
+      },
+      {
+        "assetSlug": "c-try-narrow-chimney",
+        "status": "RECOVERED",
+        "prompt": "Create one unpublished Korean children's storybook illustration for ages 6-9.\nLandscape 16:10 composition, hand-painted texture, detailed linework, warm brown and violet palette.\nKeep the exact character faces, clothing, body proportions, location geometry and prop scale from the reference image.\nHansel: slightly taller young boy, short brown hair, green vest, cream shirt, red neckerchief.\nGretel: slightly smaller young girl, brown braided pigtails with purple ribbons, mustard-yellow dress.\nLocation: the same candy-house kitchen as the reference, a cold, unused narrow stone chimney opening in the wall corner beside the shelves (not the oven, no fire inside).\nRequired action: close-up of Gretel with her head and one arm poked into a very narrow, soot-blackened square chimney opening in the brick wall, looking up into the dark flue; her shoulders clearly do not fit through, and a little black soot smudges her cheek and nose. She is the main subject, large in the frame.\nComposition: medium close-up, the narrow sooty chimney opening and Gretel filling the upper-middle; the kitchen, candy jars and the old woman's back (stirring the pot) only softly in the far background; no cage needed.\nThe mood is a gentle, not scary, 'oh no, this way does not work' moment. Nobody is hurt.\nKeep the lower caption-safe area (bottom 40%) free of important faces, hands and key actions; put the key action in the upper-middle.\nDo not include: text, letters, UI, speech bubbles, watermark, gore, photorealism, new characters, new houses or new animals.",
+        "model": "google/gemini-3.1-flash-image",
+        "inputHash": "sha256:1a85bbc7789c10e128ebfbb12ba2b2861eda04323402a94b1d46945cdf6f082b",
+        "generatedAt": "2026-10-15T17:40:51.957825+00:00",
+        "approvedBy": null,
+        "note": "시도 장면 배경(질문 초대 TRY_FAIL의 막힌 줄). 참조 그림 hg-art-51-witch-cooking-keys-v2.webp 한 장을 넣은 OpenRouter 이미지 요청(16:9 WebP). 출력을 1376x768 WebP로 맞춤. inputHash는 프롬프트 UTF-8 바이트 + 참조 그림 바이트의 sha256."
       }
     ]
   },
@@ -1744,6 +1834,48 @@
       "file": "illustrations/hg-art-26-window-epilogue-v3.webp",
       "integrity": "sha256-bmP9fREWVQxHU6oAVBQyOhZrKH600xlQHfQMZsRtYrs=",
       "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-26-window-epilogue-v3.webp"
+    },
+    {
+      "slug": "a-try-thick-bushes",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-attempt-a-try-thick-bushes-v1.webp",
+      "integrity": "sha256-ZS99GPdy08Hs54uTM3ISCdWXBDLa2MV9RZcPvyUFq4w=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-attempt-a-try-thick-bushes-v1.webp"
+    },
+    {
+      "slug": "a-try-thorn-brambles",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-attempt-a-try-thorn-brambles-v1.webp",
+      "integrity": "sha256-EC06+F0K9Nyy8CaJfUEzNtJq3JrirB3LUV2A2ds557A=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-attempt-a-try-thorn-brambles-v1.webp"
+    },
+    {
+      "slug": "a-try-back-to-start",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-attempt-a-try-back-to-start-v1.webp",
+      "integrity": "sha256-lySTFmISrKy7F9mXoU6Lhs+/zTr2lCD8hiXaM2PPNVs=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-attempt-a-try-back-to-start-v1.webp"
+    },
+    {
+      "slug": "c-try-high-window",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-attempt-c-try-high-window-v1.webp",
+      "integrity": "sha256-2FulTxoUPJRdysJomLZZBxpjfev/OItqA0dzS1C2x5c=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-attempt-c-try-high-window-v1.webp"
+    },
+    {
+      "slug": "c-try-locked-door",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-attempt-c-try-locked-door-v1.webp",
+      "integrity": "sha256-v3zvJwcgk708ck47lFvjuEouESeMVGwZ7BgUbRBWl68=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-attempt-c-try-locked-door-v1.webp"
+    },
+    {
+      "slug": "c-try-narrow-chimney",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-attempt-c-try-narrow-chimney-v1.webp",
+      "integrity": "sha256-mWbQHuOO1MHSuiWIBc1IzT6N1Se34E4iJfmwxJvBI38=",
+      "url": "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-attempt-c-try-narrow-chimney-v1.webp"
     },
     {
       "slug": "f01-002",
@@ -3562,5 +3694,5 @@
       }
     }
   },
-  "sourceDigest": "c76c74d63013901ec508b602a491345d86f90b91793d2cef7d2f0f7805d01408"
+  "sourceDigest": "c536185dc05390720374a95b35b3695a5f5a1a163488332ea5c61d9a1a347907"
 }

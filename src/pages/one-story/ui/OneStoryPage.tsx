@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 import { SafeAreaView, ThemeModeProvider } from '@/shared/ui';
 import type { StoryRuntimePackage } from '@/entities/story';
@@ -10,6 +10,7 @@ import { useDialogue, useOneStoryRuntime } from '../model';
 import { ChapterSidebar } from './chapter-sidebar';
 import { DialoguePanel } from './dialogue-panel';
 import { HomeMenuModal } from './modals/home-menu-modal';
+import { IllustrationBackdrop } from './illustration-backdrop';
 import { ResumeModal } from './modals/resume-modal';
 import { PlaybackDock } from './playback-dock';
 import { ReaderCard } from './reader-card/reader-card';
@@ -63,13 +64,10 @@ export function OneStoryPage({
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
       {/* 리더 캔버스만 Semantic Dark 범위(data-theme="dark"). 포털로 뜨는 흰 모달·로딩·오류 화면은 범위 밖이라 밝게 남는다. */}
       <ThemeModeProvider mode="dark" style={styles.app}>
-        <Image
-          source={illustration}
-          resizeMode="cover"
-          style={[
-            StyleSheet.absoluteFill,
-            isParentReport && styles.reportHiddenIllustration,
-          ]}
+        <IllustrationBackdrop
+          illustration={illustration}
+          attempt={runtime.attemptBackdrop}
+          hidden={isParentReport}
           accessibilityLabel={`${scene?.title ?? runtime.storyPackage.manifest.title} 삽화`}
         />
         <View

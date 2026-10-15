@@ -47,6 +47,12 @@ export const STORY_IMAGE_ASSETS_BY_ID: Readonly<Record<string, Readonly<Record<s
     "marked-return-path": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-24-marked-return-path.webp" },
     "home-promise": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-18-home-apology-v2.webp" },
     "window-epilogue": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-art-26-window-epilogue-v3.webp" },
+    "a-try-thick-bushes": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-attempt-a-try-thick-bushes-v1.webp" },
+    "a-try-thorn-brambles": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-attempt-a-try-thorn-brambles-v1.webp" },
+    "a-try-back-to-start": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-attempt-a-try-back-to-start-v1.webp" },
+    "c-try-high-window": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-attempt-c-try-high-window-v1.webp" },
+    "c-try-locked-door": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-attempt-c-try-locked-door-v1.webp" },
+    "c-try-narrow-chimney": { uri: "https://kbghxgejrkebdhjwizbr.supabase.co/storage/v1/object/public/qstory-story-images/hansel-gretel/illustrations/hg-attempt-c-try-narrow-chimney-v1.webp" },
   },
 };
 

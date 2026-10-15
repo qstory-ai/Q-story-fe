@@ -32,12 +32,22 @@ export type AttemptEvent =
 
 export const NO_ATTEMPTS: AttemptState = { triedByAnchor: {}, active: null };
 
-/** 이번 요청에 실을 시도 장면 상태(BE DialogueInput.Attempt). */
-export function attemptRequest(state: AttemptState, anchorId: string) {
+/**
+ * 이번 요청에 실을 시도 장면 상태(BE DialogueInput.Attempt). backdrops는 이 질문 지점의 시도 장면 배경 그림 후보 - 시도 장면
+ * 밖일 때만 싣는다(새 장면을 시작할 때만 그림을 고른다).
+ */
+export function attemptRequest(
+  state: AttemptState,
+  anchorId: string,
+  backdrops: readonly { id: string; description: string }[] = [],
+) {
   const active = state.active && state.active.anchorId === anchorId ? state.active : null;
   return {
     tried: state.triedByAnchor[anchorId] ?? 0,
     active: active ? { tried: active.tried, scene: active.scene, turn: active.turns + 1 } : null,
+    ...(!active && backdrops.length > 0
+      ? { backdrops: backdrops.map(({ id, description }) => ({ id, description })) }
+      : {}),
   };
 }
 

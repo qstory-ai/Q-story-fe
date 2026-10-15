@@ -82,6 +82,7 @@ import {
   type QuestionSkipReason,
 } from '../lib/question-skip';
 import { preloadImages } from '../lib/preload-images';
+import type { AttemptBackdropState } from '../lib/attempt-backdrop';
 import { playResponseWithFallback } from '../lib/play-clip-with-fallback';
 import { resolveVoiceResearchEnabled } from './voice-research-enabled';
 import { useOneStoryDerivedView } from './use-one-story-derived-view';
@@ -328,6 +329,9 @@ export function useOneStoryRuntime(
   const [typedQuestion, setTypedQuestion] = useState('');
   const [activeBranchVisualId, setActiveBranchVisualId] =
     useState<string | null>(null);
+  // 질문 초대 시도 장면 배경 - 그레텔 대화가 막힌 줄에서 세우고, 시도 장면이 끝나면 푼다(lib/attempt-backdrop).
+  const [attemptBackdrop, setAttemptBackdrop] =
+    useState<AttemptBackdropState | null>(null);
   const [branchCaption, setBranchCaption] = useState<{
     text: string;
     speakerId: string;
@@ -585,6 +589,8 @@ export function useOneStoryRuntime(
     displayedBranchSubtitle,
     illustration,
     visualAssetId,
+    attemptBackdropAt,
+    attemptBackdropShown,
   } = useOneStoryDerivedView({
     runtimeState,
     storyPackage,
@@ -593,7 +599,25 @@ export function useOneStoryRuntime(
     activeBranchVisualId,
     branchCaption,
     resumeCandidate,
+    attemptBackdrop,
   });
+
+  // 세운 질문 지점을 벗어났으면 배경 상태도 지운다 - 처음부터 다시 읽어 같은 질문 지점에 와도 지난 배경이 되살아나지 않게.
+  if (attemptBackdrop && attemptBackdrop.key !== attemptBackdropAt) {
+    setAttemptBackdrop(null);
+  }
+
+  /**
+   * 시도 장면 배경을 세운다 - assetId는 서버가 고른 그림(없으면 null = 지금 그림 강조). 질문 초대를 기다리는 중에만 세우고,
+   * 그 질문 지점을 벗어나면 derived view가 저절로 푼다.
+   */
+  const showAttemptBackdrop = useCallback(
+    (assetId: string | null) => {
+      if (attemptBackdropAt) setAttemptBackdrop({ assetId, key: attemptBackdropAt });
+    },
+    [attemptBackdropAt],
+  );
+  const clearAttemptBackdrop = useCallback(() => setAttemptBackdrop(null), []);
 
   useEffect(() => {
     if (
@@ -2542,6 +2566,10 @@ export function useOneStoryRuntime(
     illustration,
     // 지금 보이는 삽화 asset id - 대화 기록(Q-39)에 그 줄을 말할 때의 그림으로 남긴다.
     visualAssetId,
+    // 질문 초대 시도 장면 배경(없음 / 그림 / 지금 그림 강조) - OneStoryPage 배경이 크로스페이드한다.
+    attemptBackdrop: attemptBackdropShown,
+    showAttemptBackdrop,
+    clearAttemptBackdrop,
     currentClip,
     isQuestionInvitePlayback,
     isBranchPlaybackState,

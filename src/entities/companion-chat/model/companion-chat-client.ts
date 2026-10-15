@@ -16,8 +16,11 @@ export type CompanionReplyKind = 'ANSWER' | 'EMPATHY' | 'WAIT' | 'CLOSE' | 'REDI
 /** 시도 장면 한 줄 - 내레이터 줄은 내레이터 목소리, 인물 줄은 그 인물 목소리로 읽는다. */
 export type AttemptSceneLine = { speakerId: string; text: string };
 
-/** TRY_FAIL 답에만 - 장면 줄과 장면 안에서 아이가 말할 수 있는 횟수(서버 설정). */
-export type CompanionAttemptStart = { scene: AttemptSceneLine[]; maxTurns: number };
+/**
+ * TRY_FAIL 답에만 - 장면 줄과 장면 안에서 아이가 말할 수 있는 횟수(서버 설정), 막힌 줄에서 보여 줄 배경 그림(요청에 실은
+ * 후보 중 하나, 맞는 그림이 없거나 예전 서버면 null).
+ */
+export type CompanionAttemptStart = { scene: AttemptSceneLine[]; maxTurns: number; backdropAssetId: string | null };
 
 /** Q-31 대화 표시 - 종료·도움·행동 확인 단계를 정하는 데 쓴다. 예전 서버면 기본값으로 채운다. */
 export type CompanionDialogueSignal = {
@@ -71,7 +74,12 @@ export type CompanionDialogueContext = {
    * 질문 초대 시도 장면 상태(BE DialogueInput.Attempt) - 이 질문 지점에서 이미 만든 시도 장면 수와, 지금 장면 안이면
    * 그 장면(해 본 것, 장면 글, 이번 말이 장면 안 몇 번째인지).
    */
-  attempt?: { tried: number; active: { tried: string; scene: string; turn: number } | null };
+  attempt?: {
+    tried: number;
+    active: { tried: string; scene: string; turn: number } | null;
+    /** 새 시도 장면을 만들 수 있을 때만 - 이 질문 지점의 배경 그림 후보(그림 id와 막힌 모습). 서버가 그중 하나를 고른다. */
+    backdrops?: { id: string; description: string }[];
+  };
   /** true면 서버가 음성을 만들지 않고 글 답만 바로 돌려준다 - 말풍선을 먼저 띄우려고(음성이 기다림의 대부분). */
   deferAudio?: boolean;
   /**
@@ -323,7 +331,7 @@ export async function readCompanionReply(
 /** 시도 장면 시작 정보 - 형식이 어긋난 줄은 버린다. 장면 줄이 없어도 시작은 한다(그레텔 말로 이어 간다). */
 function attemptOf(value: unknown): { attempt?: CompanionAttemptStart } {
   if (!value || typeof value !== 'object') return {};
-  const raw = value as { scene?: unknown; maxTurns?: unknown };
+  const raw = value as { scene?: unknown; maxTurns?: unknown; backdropAssetId?: unknown };
   const scene = Array.isArray(raw.scene)
     ? raw.scene.filter(
         (line): line is AttemptSceneLine =>
@@ -334,5 +342,7 @@ function attemptOf(value: unknown): { attempt?: CompanionAttemptStart } {
       )
     : [];
   const maxTurns = typeof raw.maxTurns === 'number' && raw.maxTurns >= 1 ? Math.floor(raw.maxTurns) : 4;
-  return { attempt: { scene, maxTurns } };
+  const backdropAssetId =
+    typeof raw.backdropAssetId === 'string' && raw.backdropAssetId.trim() ? raw.backdropAssetId.trim() : null;
+  return { attempt: { scene, maxTurns, backdropAssetId } };
 }

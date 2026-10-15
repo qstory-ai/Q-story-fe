@@ -91,6 +91,7 @@ function zonesFor(target, layerIndex) {
 const TOKEN_INTERNALS = ['design-tokens.ts', 'tokens.ts'].map((file) => path.join(SRC, 'shared', 'ui', file));
 const TOKEN_ZONES = [
   ...LAYERS.filter((layer) => layer !== 'shared').map((layer) => path.join(SRC, layer)),
+  path.join(SRC, 'test-fixtures'),
   ...SLICES.shared.filter((slice) => slice.name !== 'ui').map((slice) => slice.dir),
 ].flatMap((target) =>
   TOKEN_INTERNALS.map((from) => ({ target, from, message: ' Raw·Primitive 토큰은 직접 쓰지 않는다 - @/shared/ui의 Semantic(semanticColors 등)을 쓴다.' })),

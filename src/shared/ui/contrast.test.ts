@@ -97,7 +97,6 @@ const PAIRS: Array<[string, string, string, Rgb | undefined, number]> = [
   ['성공 글자(흰 바탕)', s.positive.text, c.surfaceCard, undefined, 4.5],
   ['강조 마커(흰 바탕, 채움 3.0)', c.gold, c.surfaceCard, undefined, 3],
   ['비활성 버튼 라벨', c.disabledText, c.disabledBackground, undefined, 4.5],
-  ['보조 흐린 표시(예외 3.0, 본문 아님)', c.onContentSubtle, c.background, undefined, 3],
 ];
 
 test('의미 토큰 글자/바탕 짝은 WCAG 대비 기준을 넘는다', () => {
@@ -162,6 +161,7 @@ function semanticPairs(mode: 'light' | 'dark'): Array<[string, string, string, n
   add('icon.interactive.inverse(채움 위 아이콘)', i.interactive.inverse, { 'bg.success': bg.success }, 3);
   add('text.inverse', t.inverse, { 'bg.inverse': bg.inverse }, 4.5);
   add('text.onWarm', t.onWarm, { 'bg.warm': bg.warm }, 4.5);
+  add('text.primary(선택 바탕 위)', t.primary, { 'bg.selection': bg.selection }, 4.5);
   add('bg.indicator(글자 없는 채움 3.0)', bg.indicator, surfaces, 3);
   add('bg.recording(글자 없는 채움 3.0)', bg.recording, surfaces, 3);
   add('border.primary(입력 경계)', b.primary, surfaces, 3);

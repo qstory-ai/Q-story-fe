@@ -96,6 +96,8 @@ export type SemanticColors = {
     indicator: string;
     /** 녹음·재생 중 점·음량 막대 - 글자 없는 채움. Q-Story 확장. */
     recording: string;
+    /** 글자 드래그 선택 바탕(::selection) - 위 글자는 text.primary. Q-Story 확장. */
+    selection: string;
     brand: string;
     brandSubtle: string;
     inverse: string;
@@ -185,6 +187,7 @@ export const lightColors: SemanticColors = {
     indicator: p.brand[400],
     // 밝은 바탕에서는 Pink 500이 3:1에 못 미쳐(흰 바탕 2.9) 진한 단계.
     recording: p.error[700],
+    selection: p.brand[200],
     brand: p.brand[500],
     brandSubtle: p.brand[50],
     inverse: p.neutral[900],
@@ -277,6 +280,7 @@ export const darkColors: SemanticColors = {
     warm: p.base.ivory,
     indicator: p.brand[400],
     recording: p.error[500],
+    selection: alpha(p.brand[400], 0.5),
     brand: p.brand[400],
     brandSubtle: alpha(p.brand[400], 0.16),
     inverse: p.base.ivory,
@@ -472,7 +476,7 @@ export function textStylesFor(width: number) {
 const kebab = (s: string) => s.replace(/([a-z])([A-Z0-9])/g, '$1-$2').toLowerCase();
 
 /** Figma에 없는 Raw 값의 CSS 이름. ink는 랜딩의 --ink(#241839, 글자색)와 다른 값이라 이름을 달리한다. */
-function rawExtensionCssEntries(): Array<[string, string]> {
+export function rawExtensionCssEntries(): Array<[string, string]> {
   return [
     ['--ink-reader', rawExtensions.ink],
     ['--black', rawExtensions.black],
@@ -492,15 +496,12 @@ function rawVarByHex(): Map<string, string> {
   return map;
 }
 
-/** '#rrggbb' → var(--x), 'rgba(r, g, b, a)' → color-mix(in srgb, var(--x) a%, transparent). 문자열 안 여러 개도 바꾼다. */
+/**
+ * '#rrggbb' → var(--x). 반투명 'rgba(...)'는 리터럴 그대로 둔다 - color-mix()는 iOS 15·Safari 16.2 미만·옛 Android WebView에서
+ * 무효라(배포 대상 iOS 15.0) 반투명 값은 rgba가 안전한 표기다.
+ */
 function toVarRefs(value: string, map: Map<string, string>): string {
-  const hex = (r: number, g: number, b: number) => `#${[r, g, b].map((n) => n.toString(16).padStart(2, '0')).join('')}`;
-  return value
-    .replace(/rgba\((\d+), (\d+), (\d+), ([\d.]+)\)/g, (whole, r, g, b, a) => {
-      const name = map.get(hex(Number(r), Number(g), Number(b)));
-      return name ? `color-mix(in srgb, var(${name}) ${Math.round(Number(a) * 100)}%, transparent)` : whole;
-    })
-    .replace(/#[0-9a-f]{6}\b/gi, (h) => {
+  return value.replace(/#[0-9a-f]{6}\b/gi, (h) => {
       const name = map.get(h.toLowerCase());
       return name ? `var(${name})` : h;
     });
@@ -516,7 +517,7 @@ function flatten(node: unknown, prefix: string, out: Array<[string, string]>) {
   }
 }
 
-/** Semantic 이름 그대로 CSS 변수로: text.interactive.primary.hover → --color-text-interactive-primary-hover. 값은 Raw 변수 참조. */
+/** Semantic 이름 그대로 CSS 변수로: text.interactive.primary.hover → --color-text-interactive-primary-hover. 불투명 값은 Raw 변수 참조, 반투명은 rgba. */
 export function semanticCssEntries(mode: ColorMode): Array<[string, string]> {
   const out: Array<[string, string]> = [];
   flatten(semanticColors[mode], '--color', out);
@@ -564,7 +565,7 @@ const LANDING_COMPAT: Array<[string, string]> = [
 
 /**
  * design-tokens.css 전체 - Raw(Figma 변수 + 확장) → 크기 스케일·글꼴 → Semantic Light(:root) / Dark([data-theme="dark"]).
- * Dark 블록은 ThemeModeProvider(mode="dark")가 문서 루트에 data-theme="dark"를 붙일 때 적용된다.
+ * Dark 블록은 data-theme="dark" 아래에서 적용된다 - 붙이는 지점은 리더 컴포넌트를 Semantic으로 옮길 때(2·3단계) 연결한다.
  */
 export function renderTokensCss(): string {
   const block = (selector: string, entries: Array<[string, string]>, indent = '') =>
@@ -579,7 +580,7 @@ export function renderTokensCss(): string {
     `@media (max-width: ${responsive.frame.tablet - 1}px) {\n` +
     block(':root', textStyleCssEntries('mobile'), '  ') +
     '}\n' +
-    '\n/* 다크(리더) - ThemeModeProvider가 <html data-theme="dark">를 붙인다. */\n' +
+    '\n/* 다크(리더) - data-theme="dark" 아래. 붙이는 지점은 리더를 Semantic으로 옮길 때 연결한다. */\n' +
     block('[data-theme="dark"]', semanticCssEntries('dark')) +
     '\n/* 랜딩 호환 별칭(리뉴얼 전 랜딩 이름) */\n' +
     block(':root', LANDING_COMPAT)

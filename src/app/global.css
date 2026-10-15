@@ -1,13 +1,13 @@
 @import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
-/* 디자인 시스템 primitive(Figma 변수) - --purple-500 등. theme.ts와 같은 값이다. */
+/* 디자인 토큰(Raw → Semantic). 이 파일은 Semantic --color-* 만 쓴다(Raw --purple-500 등 직접 사용 금지 - css-tokens.test.ts). */
 @import '../shared/ui/design-tokens.css';
 
 :root {
   --font-display:
     'Pretendard Variable', Pretendard, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji,
     Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
-  --focus-ring: var(--purple-800);
-  --focus-ring-offset: var(--neutral-50);
+  --focus-ring: var(--color-border-focus);
+  --focus-ring-offset: var(--color-bg-secondary);
 }
 
 html,
@@ -47,8 +47,8 @@ body {
   overflow-x: hidden;
   font-family: var(--font-display);
   /* 페이지 최외곽 배경(라이트). 개별 페이지가 자기 wrapper에 다른 색을 칠하면 그게 덮인다. */
-  background-color: var(--neutral-50);
-  color: var(--neutral-900);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
   /* 짧은-중간 길이 텍스트에서 마지막 줄에 단어 하나만 남는 orphan을 방지 -
      문단 전체 wrapping을 조정. 긴 텍스트(10줄+)에는 조용히 무시되므로 전역 안전. */
   text-wrap: pretty;
@@ -59,8 +59,8 @@ body {
 }
 
 ::selection {
-  background: var(--purple-200);
-  color: var(--neutral-900);
+  background: var(--color-bg-selection);
+  color: var(--color-text-primary);
 }
 
 :where(

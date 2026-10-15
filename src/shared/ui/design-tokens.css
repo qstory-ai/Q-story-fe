@@ -216,13 +216,14 @@
   --color-bg-warm: var(--ivory);
   --color-bg-indicator: var(--purple-400);
   --color-bg-recording: var(--pink-700);
+  --color-bg-selection: var(--purple-200);
   --color-bg-brand: var(--purple-500);
   --color-bg-brand-subtle: var(--purple-50);
   --color-bg-inverse: var(--neutral-900);
   --color-bg-disabled: var(--neutral-50);
   --color-bg-info: var(--sky-700);
   --color-bg-info-bold: var(--sky-700);
-  --color-bg-info-subtle: color-mix(in srgb, var(--sky-500) 10%, transparent);
+  --color-bg-info-subtle: rgba(94, 182, 246, 0.1);
   --color-bg-success: var(--ext-green-600);
   --color-bg-success-bold: var(--ext-green-800);
   --color-bg-success-subtle: var(--ext-green-50);
@@ -248,7 +249,7 @@
   --color-border-disabled: var(--neutral-300);
   --color-border-focus: var(--purple-800);
   --color-border-info: var(--sky-700);
-  --color-border-info-subtle: color-mix(in srgb, var(--sky-500) 35%, transparent);
+  --color-border-info-subtle: rgba(94, 182, 246, 0.35);
   --color-border-success: var(--ext-green-600);
   --color-border-success-subtle: var(--ext-green-200);
   --color-border-warning: var(--yellow-800);
@@ -277,12 +278,12 @@
   --color-icon-interactive-secondary-pressed: var(--neutral-800);
   --color-icon-interactive-inverse: var(--white);
   --elevation-0: none;
-  --elevation-1: 0px 0px 1px 0px color-mix(in srgb, var(--neutral-900) 12%, transparent), 0px 1px 1px 0px color-mix(in srgb, var(--neutral-900) 8%, transparent);
-  --elevation-2: 0px 1px 3px 0px color-mix(in srgb, var(--neutral-900) 12%, transparent), 0px 3px 3px 0px color-mix(in srgb, var(--neutral-900) 8%, transparent);
-  --elevation-3: 0px 3px 6px 0px color-mix(in srgb, var(--neutral-900) 12%, transparent), 0px 6px 6px 0px color-mix(in srgb, var(--neutral-900) 8%, transparent);
-  --elevation-4: 0px 6px 8px 0px color-mix(in srgb, var(--neutral-900) 12%, transparent), 0px 8px 8px 0px color-mix(in srgb, var(--neutral-900) 8%, transparent);
-  --elevation-5: 0px 8px 12px 0px color-mix(in srgb, var(--neutral-900) 12%, transparent), 0px 12px 12px 0px color-mix(in srgb, var(--neutral-900) 8%, transparent);
-  --focus-ring-shadow: 0px 0px 0px 3px color-mix(in srgb, var(--purple-500) 15%, transparent);
+  --elevation-1: 0px 0px 1px 0px rgba(39, 34, 45, 0.12), 0px 1px 1px 0px rgba(39, 34, 45, 0.08);
+  --elevation-2: 0px 1px 3px 0px rgba(39, 34, 45, 0.12), 0px 3px 3px 0px rgba(39, 34, 45, 0.08);
+  --elevation-3: 0px 3px 6px 0px rgba(39, 34, 45, 0.12), 0px 6px 6px 0px rgba(39, 34, 45, 0.08);
+  --elevation-4: 0px 6px 8px 0px rgba(39, 34, 45, 0.12), 0px 8px 8px 0px rgba(39, 34, 45, 0.08);
+  --elevation-5: 0px 8px 12px 0px rgba(39, 34, 45, 0.12), 0px 12px 12px 0px rgba(39, 34, 45, 0.08);
+  --focus-ring-shadow: 0px 0px 0px 3px rgba(117, 80, 211, 0.15);
 }
 
 @media (max-width: 743px) {
@@ -326,7 +327,7 @@
   }
 }
 
-/* 다크(리더) - ThemeModeProvider가 <html data-theme="dark">를 붙인다. */
+/* 다크(리더) - data-theme="dark" 아래. 붙이는 지점은 리더를 Semantic으로 옮길 때 연결한다. */
 [data-theme="dark"] {
   --color-text-primary: var(--white);
   --color-text-secondary: var(--neutral-100);
@@ -353,45 +354,46 @@
   --color-bg-warm: var(--ivory);
   --color-bg-indicator: var(--purple-400);
   --color-bg-recording: var(--pink-500);
+  --color-bg-selection: rgba(153, 121, 225, 0.5);
   --color-bg-brand: var(--purple-400);
-  --color-bg-brand-subtle: color-mix(in srgb, var(--purple-400) 16%, transparent);
+  --color-bg-brand-subtle: rgba(153, 121, 225, 0.16);
   --color-bg-inverse: var(--ivory);
-  --color-bg-disabled: color-mix(in srgb, var(--white) 8%, transparent);
+  --color-bg-disabled: rgba(255, 255, 255, 0.08);
   --color-bg-info: var(--sky-500);
   --color-bg-info-bold: var(--sky-500);
-  --color-bg-info-subtle: color-mix(in srgb, var(--sky-500) 16%, transparent);
+  --color-bg-info-subtle: rgba(94, 182, 246, 0.16);
   --color-bg-success: var(--green-500);
   --color-bg-success-bold: var(--green-500);
-  --color-bg-success-subtle: color-mix(in srgb, var(--green-500) 16%, transparent);
+  --color-bg-success-subtle: rgba(123, 217, 166, 0.16);
   --color-bg-warning: var(--yellow-500);
-  --color-bg-warning-subtle: color-mix(in srgb, var(--yellow-500) 16%, transparent);
+  --color-bg-warning-subtle: rgba(255, 212, 71, 0.16);
   --color-bg-error: var(--pink-500);
   --color-bg-error-bold: var(--pink-500);
-  --color-bg-error-subtle: color-mix(in srgb, var(--pink-500) 16%, transparent);
+  --color-bg-error-subtle: rgba(255, 102, 133, 0.16);
   --color-bg-interactive-primary: var(--purple-400);
   --color-bg-interactive-primary-hover: var(--purple-300);
   --color-bg-interactive-primary-pressed: var(--purple-200);
-  --color-bg-interactive-secondary: color-mix(in srgb, var(--white) 8%, transparent);
-  --color-bg-interactive-secondary-hover: color-mix(in srgb, var(--white) 12%, transparent);
-  --color-bg-interactive-secondary-pressed: color-mix(in srgb, var(--white) 16%, transparent);
+  --color-bg-interactive-secondary: rgba(255, 255, 255, 0.08);
+  --color-bg-interactive-secondary-hover: rgba(255, 255, 255, 0.12);
+  --color-bg-interactive-secondary-pressed: rgba(255, 255, 255, 0.16);
   --color-bg-interactive-error: var(--pink-500);
   --color-bg-interactive-error-hover: var(--pink-500);
   --color-bg-interactive-error-pressed: var(--pink-500);
-  --color-bg-interactive-selected: color-mix(in srgb, var(--purple-400) 16%, transparent);
-  --color-bg-interactive-selected-hover: color-mix(in srgb, var(--purple-400) 28%, transparent);
-  --color-bg-interactive-selected-pressed: color-mix(in srgb, var(--purple-400) 36%, transparent);
+  --color-bg-interactive-selected: rgba(153, 121, 225, 0.16);
+  --color-bg-interactive-selected-hover: rgba(153, 121, 225, 0.28);
+  --color-bg-interactive-selected-pressed: rgba(153, 121, 225, 0.36);
   --color-border-primary: var(--neutral-500);
-  --color-border-secondary: color-mix(in srgb, var(--white) 16%, transparent);
+  --color-border-secondary: rgba(255, 255, 255, 0.16);
   --color-border-disabled: var(--neutral-700);
   --color-border-focus: var(--purple-200);
   --color-border-info: var(--sky-500);
-  --color-border-info-subtle: color-mix(in srgb, var(--sky-500) 35%, transparent);
+  --color-border-info-subtle: rgba(94, 182, 246, 0.35);
   --color-border-success: var(--green-500);
-  --color-border-success-subtle: color-mix(in srgb, var(--green-500) 35%, transparent);
+  --color-border-success-subtle: rgba(123, 217, 166, 0.35);
   --color-border-warning: var(--yellow-500);
-  --color-border-warning-subtle: color-mix(in srgb, var(--yellow-500) 35%, transparent);
+  --color-border-warning-subtle: rgba(255, 212, 71, 0.35);
   --color-border-error: var(--pink-500);
-  --color-border-error-subtle: color-mix(in srgb, var(--pink-500) 35%, transparent);
+  --color-border-error-subtle: rgba(255, 102, 133, 0.35);
   --color-border-interactive-primary: var(--purple-400);
   --color-border-interactive-primary-hover: var(--purple-300);
   --color-border-interactive-primary-pressed: var(--purple-200);
@@ -414,12 +416,12 @@
   --color-icon-interactive-secondary-pressed: var(--neutral-50);
   --color-icon-interactive-inverse: var(--neutral-900);
   --elevation-0: none;
-  --elevation-1: 0px 0px 1px 0px color-mix(in srgb, var(--black) 28%, transparent), 0px 1px 1px 0px color-mix(in srgb, var(--black) 24%, transparent);
-  --elevation-2: 0px 1px 3px 0px color-mix(in srgb, var(--black) 28%, transparent), 0px 3px 3px 0px color-mix(in srgb, var(--black) 24%, transparent);
-  --elevation-3: 0px 3px 6px 0px color-mix(in srgb, var(--black) 28%, transparent), 0px 6px 6px 0px color-mix(in srgb, var(--black) 24%, transparent);
-  --elevation-4: 0px 6px 8px 0px color-mix(in srgb, var(--black) 28%, transparent), 0px 8px 8px 0px color-mix(in srgb, var(--black) 24%, transparent);
-  --elevation-5: 0px 8px 12px 0px color-mix(in srgb, var(--black) 28%, transparent), 0px 12px 12px 0px color-mix(in srgb, var(--black) 24%, transparent);
-  --focus-ring-shadow: 0px 0px 0px 3px color-mix(in srgb, var(--purple-300) 35%, transparent);
+  --elevation-1: 0px 0px 1px 0px rgba(0, 0, 0, 0.28), 0px 1px 1px 0px rgba(0, 0, 0, 0.24);
+  --elevation-2: 0px 1px 3px 0px rgba(0, 0, 0, 0.28), 0px 3px 3px 0px rgba(0, 0, 0, 0.24);
+  --elevation-3: 0px 3px 6px 0px rgba(0, 0, 0, 0.28), 0px 6px 6px 0px rgba(0, 0, 0, 0.24);
+  --elevation-4: 0px 6px 8px 0px rgba(0, 0, 0, 0.28), 0px 8px 8px 0px rgba(0, 0, 0, 0.24);
+  --elevation-5: 0px 8px 12px 0px rgba(0, 0, 0, 0.28), 0px 12px 12px 0px rgba(0, 0, 0, 0.24);
+  --focus-ring-shadow: 0px 0px 0px 3px rgba(186, 160, 236, 0.35);
 }
 
 /* 랜딩 호환 별칭(리뉴얼 전 랜딩 이름) */

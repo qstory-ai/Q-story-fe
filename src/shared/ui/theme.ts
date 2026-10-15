@@ -32,8 +32,6 @@ export const storybookTheme = {
     /** 컨텐츠 위 텍스트. onCard*와 별개로 페이지 배경 직접 위의 텍스트에 씀. */
     onContent: L.text.primary,
     onContentMuted: L.text.tertiary,
-    /** 보조 흐린 글자 - text.tertiary와 같다(예전 Neutral 500 3.17:1을 4.75:1로 올림). */
-    onContentSubtle: L.text.tertiary,
     // ── 사이드바 전용(다크 유지) ────────────────────────────────────────────
     /** AppNavShell wide 사이드바. */
     sidebarBackground: D.bg.secondary,

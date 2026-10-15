@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, radius, semanticColors, shadow, space, StatusBanner, storybookTheme, TextField } from '@/shared/ui';
 import {
   createClass,
   dashboardNavItems,
@@ -201,6 +201,8 @@ export function OrganizationClassesPage() {
   );
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   content: {
     flex: 1,
@@ -217,12 +219,14 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onContent,
   },
+  // 공통 Card(surface)와 같은 모양 - 흰 카드, radius 16, elevation 2, padding 24.
   card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: radius[16],
+    backgroundColor: L.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    padding: 20,
+    borderColor: L.border.secondary,
+    ...shadow(2),
+    padding: space[24],
     gap: 10,
   },
   sectionTitle: {

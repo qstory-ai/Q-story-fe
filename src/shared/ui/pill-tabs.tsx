@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRef } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { storybookTheme } from './theme';
 import { minTouchTarget, radius, semanticColors, shadow, space } from './tokens';
@@ -18,18 +19,51 @@ type Props<T extends string> = {
 
 /**
  * 알약형 탭(segmented). 옅은 보라 트랙 위에 선택된 탭만 흰 알약 + 그림자로 떠오른다(랜딩 "어떻게" 탭과 같은 결).
- * 탭 높이 44px 이상. role=tablist/tab, aria-selected.
+ * 탭 높이 44px 이상. 줄바꿈하지 않고, 넘치면 가로로 스크롤한다(fill이면 칸을 나눠 꽉 채운다).
+ * 접근성(ARIA tabs 패턴): role=tablist/tab, aria-selected, roving tabindex(선택된 탭만 Tab 키로 들어온다),
+ * 좌우 화살표·Home·End로 탭을 옮기며 바로 선택한다.
  */
 export function PillTabs<T extends string>({ options, value, onChange, accessibilityLabel, fill = false }: Props<T>) {
-  return (
-    <View accessibilityRole="tablist" accessibilityLabel={accessibilityLabel} style={[styles.track, fill && styles.trackFill]}>
-      {options.map((option) => {
-        const selected = option.value === value;
+  const tabRefs = useRef<Array<unknown>>([]);
+  const selectedIndex = Math.max(0, options.findIndex((option) => option.value === value));
+
+  const moveTo = (index: number) => {
+    const next = (index + options.length) % options.length;
+    onChange(options[next].value);
+    (tabRefs.current[next] as unknown as { focus?: () => void } | null)?.focus?.();
+  };
+  const onKeyDown = (event: { key: string; preventDefault: () => void }) => {
+    const keys: Record<string, number> = {
+      ArrowRight: selectedIndex + 1,
+      ArrowLeft: selectedIndex - 1,
+      Home: 0,
+      End: options.length - 1,
+    };
+    if (!(event.key in keys)) return;
+    event.preventDefault();
+    moveTo(keys[event.key]);
+  };
+
+  const track = (
+    <View
+      accessibilityRole="tablist"
+      accessibilityLabel={accessibilityLabel}
+      style={[styles.track, fill && styles.trackFill]}
+      {...({ onKeyDown } as object)}
+    >
+      {options.map((option, index) => {
+        const selected = index === selectedIndex;
         return (
           <Pressable
             key={option.value}
+            ref={(node) => {
+              tabRefs.current[index] = node;
+            }}
             accessibilityRole="tab"
             aria-selected={selected}
+            // roving tabindex - 선택된 탭만 Tab 순서에 들어간다.
+            focusable={selected}
+            {...({ tabIndex: selected ? 0 : -1 } as object)}
             onPress={() => onChange(option.value)}
             style={({ hovered, pressed }: { pressed: boolean; hovered?: boolean }) => [
               styles.tab,
@@ -38,7 +72,7 @@ export function PillTabs<T extends string>({ options, value, onChange, accessibi
               selected && styles.tabSelected,
             ]}
           >
-            <Text style={[styles.label, selected && styles.labelSelected]}>{option.label}</Text>
+            <Text style={[styles.label, selected && styles.labelSelected]} numberOfLines={1}>{option.label}</Text>
             {option.count != null && option.count > 0 ? (
               <View style={[styles.count, selected && styles.countSelected]}>
                 <Text style={[styles.countLabel, selected && styles.countLabelSelected]}>{option.count}</Text>
@@ -49,19 +83,29 @@ export function PillTabs<T extends string>({ options, value, onChange, accessibi
       })}
     </View>
   );
+
+  if (fill) return track;
+  // 내용 폭 모드: 좁은 화면에서 넘치면 줄바꿈 대신 가로 스크롤.
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContent} style={styles.scroll}>
+      {track}
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
   track: {
     flexDirection: 'row',
     alignSelf: 'flex-start',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
     gap: space[4],
     padding: space[4],
     borderRadius: radius.rounded,
     backgroundColor: L.bg.brandSubtle,
   },
-  trackFill: { alignSelf: 'stretch', flexWrap: 'nowrap' },
+  trackFill: { alignSelf: 'stretch' },
+  scroll: { flexGrow: 0 },
+  scrollContent: { flexGrow: 0 },
   tab: {
     minHeight: minTouchTarget,
     minWidth: minTouchTarget,

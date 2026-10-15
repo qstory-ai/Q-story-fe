@@ -53,18 +53,24 @@ export function FilterChip({
       ? selected ? styles.badgeFgFilledActive : styles.badgeFgFilledIdle
       : selected ? styles.badgeFgOutlineActive : styles.badgeFgOutlineIdle;
   return (
+    // 바깥 Pressable은 투명한 터치 영역(44px) - 위아래 padding만큼 음수 margin을 줘서 칩 줄의 레이아웃 높이는 예전(30~34) 그대로.
+    // (react-native-web Pressable은 hitSlop을 무시한다.)
     <Pressable
       accessibilityRole={accessibilityRole}
       aria-selected={selected}
       onPress={onPress}
-      style={({ pressed }) => [...containerStyle, styles.row, pressed && styles.pressed]}
+      style={[styles.hit, tone === 'filled' ? styles.hitFilled : styles.hitOutline]}
     >
-      <Text style={labelStyle}>{label}</Text>
-      {count != null && count > 0 ? (
-        <View style={[styles.badge, badgeBg]}>
-          <Text style={[styles.badgeText, badgeFg]}>{count}</Text>
+      {({ pressed }) => (
+        <View style={[...containerStyle, styles.row, pressed && styles.pressed]}>
+          <Text style={labelStyle}>{label}</Text>
+          {count != null && count > 0 ? (
+            <View style={[styles.badge, badgeBg]}>
+              <Text style={[styles.badgeText, badgeFg]}>{count}</Text>
+            </View>
+          ) : null}
         </View>
-      ) : null}
+      )}
     </Pressable>
   );
 }
@@ -73,12 +79,16 @@ const styles = StyleSheet.create({
   base: {
     borderRadius: radius.rounded,
     borderWidth: borderWidth[1],
-    // 터치 영역 44px - 칩이 작아 보여도 누르는 칸은 지킨다.
-    minHeight: minTouchTarget,
     justifyContent: 'center',
   },
+  hit: { justifyContent: 'center' },
+  /** 보이는 칩 높이 약 30 → 위아래 7씩 늘려 터치 44(minTouchTarget). */
+  hitOutline: { paddingVertical: (minTouchTarget - 30) / 2, marginVertical: -(minTouchTarget - 30) / 2 },
+  /** 보이는 칩 높이 약 34 → 위아래 5씩. */
+  hitFilled: { paddingVertical: (minTouchTarget - 34) / 2, marginVertical: -(minTouchTarget - 34) / 2 },
   outline: {
-    paddingHorizontal: space[16],
+    paddingHorizontal: space[12],
+    paddingVertical: 6,
     borderColor: L.border.secondary,
     backgroundColor: L.bg.primary,
   },
@@ -87,7 +97,8 @@ const styles = StyleSheet.create({
     borderColor: L.border.interactive.primary.default,
   },
   filled: {
-    paddingHorizontal: space[16],
+    paddingHorizontal: 14,
+    paddingVertical: space[8],
     borderColor: L.border.secondary,
     backgroundColor: L.bg.primary,
   },
@@ -98,7 +109,7 @@ const styles = StyleSheet.create({
   // press 피드백 표준 scale(0.96).
   pressed: { opacity: 0.9, transform: [{ scale: 0.96 }] },
   label: {
-    fontSize: storybookTheme.type.sm,
+    fontSize: storybookTheme.type.xs,
   },
   outlineLabel: {
     fontWeight: storybookTheme.type.weight.semibold,

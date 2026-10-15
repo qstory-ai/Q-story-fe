@@ -424,7 +424,7 @@
     "--elevation-3": "0px 3px 6px 0px rgba(39, 34, 45, 0.12), 0px 6px 6px 0px rgba(39, 34, 45, 0.08)",
     "--elevation-4": "0px 6px 8px 0px rgba(39, 34, 45, 0.12), 0px 8px 8px 0px rgba(39, 34, 45, 0.08)",
     "--elevation-5": "0px 8px 12px 0px rgba(39, 34, 45, 0.12), 0px 12px 12px 0px rgba(39, 34, 45, 0.08)",
-    "--focus-ring-shadow": "0px 0px 0px 3px rgba(117, 80, 211, 0.15)"
+    "--focus-ring-shadow": "0px 0px 0px 2px var(--white), 0px 0px 0px 4px var(--purple-800)"
   },
   "cssDark": {
     "--color-text-primary": "var(--white)",
@@ -520,6 +520,6 @@
     "--elevation-3": "0px 3px 6px 0px rgba(0, 0, 0, 0.28), 0px 6px 6px 0px rgba(0, 0, 0, 0.24)",
     "--elevation-4": "0px 6px 8px 0px rgba(0, 0, 0, 0.28), 0px 8px 8px 0px rgba(0, 0, 0, 0.24)",
     "--elevation-5": "0px 8px 12px 0px rgba(0, 0, 0, 0.28), 0px 12px 12px 0px rgba(0, 0, 0, 0.24)",
-    "--focus-ring-shadow": "0px 0px 0px 3px rgba(186, 160, 236, 0.35)"
+    "--focus-ring-shadow": "0px 0px 0px 2px var(--ink-reader), 0px 0px 0px 4px var(--purple-200)"
   }
 }

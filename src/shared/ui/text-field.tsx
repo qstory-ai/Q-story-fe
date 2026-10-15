@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import type { TextInputProps } from 'react-native';
 
-import { FieldDescription, FieldError, FieldLabel, fieldBackgroundColor, fieldBorderColor, fieldFocusRing, fieldTextColor } from './field-primitives';
+import { FieldDescription, FieldError, FieldLabel, fieldBackgroundColor, fieldBorderColor, fieldFocusRing, fieldTextColor, FIELD_RING_DATASET } from './field-primitives';
 import { storybookTheme } from './theme';
 
 type TextFieldProps = TextInputProps & {
@@ -21,6 +21,8 @@ export function TextField({ label, description, errorText, style, editable, acce
       <FieldLabel disabled={isDisabled}>{label}</FieldLabel>
       {description ? <FieldDescription disabled={isDisabled}>{description}</FieldDescription> : null}
       <TextInput
+        // global.css outline 대신 컴포넌트 포커스 링(fieldFocusRing)을 쓴다.
+        dataSet={FIELD_RING_DATASET}
         style={[
           styles.input,
           { borderColor: fieldBorderColor(state, isFocused), backgroundColor: fieldBackgroundColor(state), color: fieldTextColor(state) },

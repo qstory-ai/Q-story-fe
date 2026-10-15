@@ -69,3 +69,6 @@ const styles = StyleSheet.create({
     color: L.text.error,
   },
 });
+
+/** 컴포넌트 포커스 링을 쓰는 입력 표시(data-field-ring) - global.css가 이 입력의 기본 outline을 끈다. */
+export const FIELD_RING_DATASET = { fieldRing: 'true' } as const;

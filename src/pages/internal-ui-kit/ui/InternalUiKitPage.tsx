@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
+import { Link } from 'react-router-dom';
+
 import { useAuth } from '@/entities/auth';
 import { isDevBuild } from '@/shared/config';
 import {
@@ -10,6 +12,7 @@ import {
   Card,
   EmptyState,
   ErrorState,
+  LoadingState,
   FilterChip,
   Modal,
   Pill,
@@ -26,10 +29,14 @@ import {
   shadow,
   space,
   textStylesFor,
+  actionButtonStyle,
+  type ActionButtonState,
   type ActionButtonVariant,
 } from '@/shared/ui';
 
 const L = semanticColors.light;
+/** DOM <a> 스타일(CSS) - 터치 높이 44. */
+const LOGIN_LINK = { color: L.text.link, fontSize: 16, fontWeight: 700, textDecoration: 'underline', display: 'inline-block', padding: '12px 0' } as const;
 const D = semanticColors.dark;
 
 /**
@@ -39,11 +46,20 @@ const D = semanticColors.dark;
 export function InternalUiKitPage() {
   const { state } = useAuth();
   const allowed = isDevBuild() || (state.status === 'authenticated' && state.user.role === 'STAFF');
+  if (!allowed && state.status === 'loading') {
+    // 로그인 상태를 확인하는 동안 거부 문구가 깜빡이지 않게.
+    return (
+      <SafeAreaView style={styles.page}>
+        <LoadingState />
+      </SafeAreaView>
+    );
+  }
   if (!allowed) {
     return (
       <SafeAreaView style={styles.page}>
         <View style={styles.inner}>
           <Text style={styles.h1}>팀 계정으로 로그인해 주세요</Text>
+          <Link to="/login?next=%2Finternal%2Fui-kit" style={LOGIN_LINK}>로그인하러 가기</Link>
         </View>
       </SafeAreaView>
     );
@@ -81,14 +97,7 @@ function Kit() {
               <Text style={styles.rowLabel}>{variant}</Text>
               {STATES.map((s) => (
                 <View key={s.key} style={styles.cell}>
-                  <ActionButton
-                    label={s.label}
-                    variant={variant}
-                    size="md"
-                    onPress={() => {}}
-                    disabled={s.key === 'disabled'}
-                    previewState={s.key === 'hover' || s.key === 'pressed' ? s.key : undefined}
-                  />
+                  <ButtonPreview variant={variant} state={s.key} label={s.label} />
                 </View>
               ))}
             </View>
@@ -205,6 +214,16 @@ function Kit() {
         </Section>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+/** 상태를 고정한 버튼 그림 - ActionButton과 같은 actionButtonStyle을 쓴다(누를 수 없는 견본). */
+function ButtonPreview({ variant, state, label }: { variant: ActionButtonVariant; state: ActionButtonState; label: string }) {
+  const look = actionButtonStyle(variant, state, 'md');
+  return (
+    <View style={look.container} aria-hidden>
+      <Text style={look.labelStyle}>{label}</Text>
+    </View>
   );
 }
 

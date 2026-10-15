@@ -31,7 +31,8 @@ export type ActionButtonVariant =
 export type ActionButtonSize = 'sm' | 'md' | 'lg';
 
 const BUTTON_HEIGHT: Record<ActionButtonSize, number> = {
-  sm: 40,
+  // 터치 영역 44px 이상 - 가장 작은 버튼도 44.
+  sm: 44,
   md: 48,
   lg: 56,
 };
@@ -56,9 +57,55 @@ type ActionButtonProps = {
   icon?: string;
   /** Solid 2.0 버튼 상태 카탈로그의 Loading - 라벨 대신 스피너를 보여주고 프레스를 막는다. */
   loading?: boolean;
-  /** 내부 UI 키트(/internal/ui-kit) 캡처용 - 상태를 고정해 보여 준다. 화면에서는 쓰지 않는다. */
-  previewState?: 'hover' | 'pressed';
 };
+
+export type ActionButtonState = 'default' | 'hover' | 'pressed' | 'disabled';
+
+/**
+ * variant × 상태 → 겉모습(컨테이너 스타일·라벨 색·라벨 스타일). 순수 함수라 ActionButton과 내부 UI 키트가 같이 쓴다.
+ * 비활성은 반투명(opacity 0.5)이 아니라 disabled 토큰으로 - 채움 버튼을 반투명으로 흐리면 라벨이 2:1 아래로 떨어진다.
+ * 채움 variant는 회색 채움 + 테두리 + 회색 라벨(4.5:1), ghost는 투명 바탕에 회색 라벨만.
+ */
+export function actionButtonStyle(variant: ActionButtonVariant, state: ActionButtonState, size?: ActionButtonSize) {
+  const isSizedVariant = variant !== 'record' && variant !== 'stop';
+  const resolvedSize = size ?? DEFAULT_SIZE_BY_VARIANT[variant] ?? 'md';
+  const active = state === 'hover' || state === 'pressed' ? state : null;
+  const disabled = state === 'disabled';
+  const isFilledPrimary = variant === 'primary' || variant === 'gold';
+  const isSecondaryFill = variant === 'secondary' || variant === 'secondaryFull';
+  const labelColor = disabled && isSizedVariant
+    ? L.text.disabled
+    : isFilledPrimary || variant === 'danger' || variant === 'record' || variant === 'stop'
+      ? L.text.interactive.inverse
+      : variant === 'outline'
+        ? D.text.primary
+        // secondary·ghost: 옅은 보라 바탕(hover·pressed 포함) 위 Purple 800 - 5.54:1 이상.
+        : L.text.interactive.selected;
+  const container = [
+    styles.base,
+    isFilledPrimary && styles.primary,
+    isFilledPrimary && active && { backgroundColor: L.bg.interactive.primary[active] },
+    variant === 'secondary' && styles.secondary,
+    variant === 'secondaryFull' && styles.secondaryFull,
+    isSecondaryFill && active && { backgroundColor: L.bg.interactive.secondary[active] },
+    variant === 'ghost' && styles.ghost,
+    variant === 'ghost' && active && { backgroundColor: L.bg.interactive.selected[active] },
+    variant === 'danger' && styles.danger,
+    variant === 'outline' && styles.outline,
+    variant === 'outline' && active && { backgroundColor: D.bg.interactive.secondary[active] },
+    variant === 'record' && styles.record,
+    variant === 'stop' && styles.stop,
+    isSizedVariant && { minHeight: BUTTON_HEIGHT[resolvedSize] },
+    state === 'pressed' && styles.pressed,
+    disabled && (!isSizedVariant ? styles.disabled : variant === 'ghost' ? styles.disabledGhost : styles.disabledFilled),
+  ];
+  const labelStyle = [
+    styles.label,
+    { color: labelColor },
+    (isSecondaryFill || variant === 'ghost') && styles.labelSecondary,
+  ];
+  return { container, labelColor, labelStyle, iconStyle: [styles.icon, { color: labelColor }] };
+}
 
 /** 앱 전역 CTA. 색·간격·라운드는 tokens.ts Semantic만 참조한다(variant × 기본/hover/pressed/disabled). */
 export function ActionButton({
@@ -69,24 +116,10 @@ export function ActionButton({
   disabled = false,
   icon,
   loading = false,
-  previewState,
 }: ActionButtonProps) {
-  const isSecondary = variant === 'secondary' || variant === 'secondaryFull' || variant === 'ghost';
-  const isOutline = variant === 'outline';
-  const isSizedVariant = variant !== 'record' && variant !== 'stop';
-  const resolvedSize = size ?? DEFAULT_SIZE_BY_VARIANT[variant] ?? 'md';
-  const labelColor =
-    variant === 'gold' || variant === 'primary' || variant === 'danger' || variant === 'record' || variant === 'stop'
-      ? L.text.interactive.inverse
-      : isOutline
-        ? D.text.primary
-        : variant === 'ghost'
-          ? L.text.interactive.primary.default
-          : L.text.interactive.selected;
-  // 비활성은 반투명(opacity 0.5)이 아니라 disabled 토큰으로 - 채움 버튼을 반투명으로 흐리면 라벨이
-  // 2:1 아래로 떨어진다. 회색 채움 + 회색 라벨(4.5:1)로 상태를 말한다.
-  const isInactive = disabled && !loading;
-  const effectiveLabelColor = isInactive && isSizedVariant ? L.text.disabled : labelColor;
+  const live = !disabled && !loading;
+  // 스피너·아이콘 색은 기본 상태 라벨 색(비활성이면 비활성 색).
+  const resting = actionButtonStyle(variant, disabled && !loading ? 'disabled' : 'default', size);
 
   return (
     <Pressable
@@ -97,45 +130,20 @@ export function ActionButton({
       // react-native-web은 웹에서 Pressable의 style 콜백에 pressed 말고도 hovered를 실제로
       // 넘겨주지만, 이 프로젝트가 쓰는 RN 타입 선언(PressableStateCallbackType)에는 hovered가
       // 없다 - 런타임 동작은 맞고 타입 선언만 웹 확장을 안 담고 있는 경우라 여기서만 좁혀서 받는다.
-      style={({ hovered: hoveredLive, pressed: pressedLive }: { pressed: boolean; hovered?: boolean }) => {
-        const hovered = hoveredLive || previewState === 'hover';
-        const pressed = pressedLive || previewState === 'pressed';
-        const live = !disabled && !loading;
-        const state = live && pressed ? 'pressed' : live && hovered ? 'hover' : null;
-        return [
-          styles.base,
-          (variant === 'primary' || variant === 'gold') && styles.primary,
-          (variant === 'primary' || variant === 'gold') && state && { backgroundColor: L.bg.interactive.primary[state] },
-          variant === 'secondary' && styles.secondary,
-          variant === 'secondaryFull' && styles.secondaryFull,
-          (variant === 'secondary' || variant === 'secondaryFull') && state && { backgroundColor: L.bg.interactive.secondary[state] },
-          variant === 'ghost' && styles.ghost,
-          variant === 'ghost' && state && { backgroundColor: L.bg.interactive.selected[state] },
-          variant === 'danger' && styles.danger,
-          variant === 'outline' && styles.outline,
-          variant === 'outline' && state && { backgroundColor: D.bg.interactive.secondary[state] },
-          variant === 'record' && styles.record,
-          variant === 'stop' && styles.stop,
-          isSizedVariant && { minHeight: BUTTON_HEIGHT[resolvedSize] },
-          pressed && live && styles.pressed,
-          disabled && !loading && (isSizedVariant ? styles.disabledFilled : styles.disabled),
-        ];
-      }}
+      style={({ hovered, pressed }: { pressed: boolean; hovered?: boolean }) =>
+        actionButtonStyle(
+          variant,
+          disabled && !loading ? 'disabled' : live && pressed ? 'pressed' : live && hovered ? 'hover' : 'default',
+          size,
+        ).container
+      }
     >
       {loading ? (
-        <ActivityIndicator size="small" color={effectiveLabelColor} />
+        <ActivityIndicator size="small" color={resting.labelColor} />
       ) : (
         <>
-          {icon ? <Text style={[styles.icon, { color: effectiveLabelColor }]}>{icon}</Text> : null}
-          <Text
-            style={[
-              styles.label,
-              { color: effectiveLabelColor },
-              isSecondary && styles.labelSecondary,
-            ]}
-          >
-            {label}
-          </Text>
+          {icon ? <Text style={resting.iconStyle}>{icon}</Text> : null}
+          <Text style={resting.labelStyle}>{label}</Text>
         </>
       )}
     </Pressable>
@@ -144,7 +152,7 @@ export function ActionButton({
 
 const styles = StyleSheet.create({
   // minHeight는 BUTTON_HEIGHT[resolvedSize]가 유일한 출처다(record/stop만 자기 높이를 직접 갖는다).
-  // 랜딩처럼 알약형(radius rounded). 가장 작은 sm(40)도 터치 영역은 minWidth로 44를 지킨다.
+  // 랜딩처럼 알약형(radius rounded). 높이는 BUTTON_HEIGHT(최소 44), 폭도 minWidth 44.
   base: {
     borderRadius: radius.rounded,
     alignItems: 'center',
@@ -190,6 +198,9 @@ const styles = StyleSheet.create({
   pressed: { transform: [{ scale: 0.96 }] },
   disabled: {
     opacity: 0.5,
+  },
+  disabledGhost: {
+    backgroundColor: 'transparent',
   },
   disabledFilled: {
     backgroundColor: L.bg.disabled,

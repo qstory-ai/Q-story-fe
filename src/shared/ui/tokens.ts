@@ -386,10 +386,13 @@ export const elevation = {
   dark: elevationSet(alpha(p.base.black, 0.28), alpha(p.base.black, 0.24)),
 } as const;
 
-/** 입력창 포커스 링(랜딩 입력창과 같은 옅은 보라 3px) - 테두리 두께를 바꾸지 않아 레이아웃이 밀리지 않는다. */
+/**
+ * 입력창 포커스 링 - 바탕색 2px 틈 + border/focus 2px(Purple 800, 바탕 대비 6.5:1 이상). box-shadow라 알약·둥근 모서리를 그대로 따르고
+ * 테두리 두께를 바꾸지 않아 레이아웃이 밀리지 않는다. 이 링을 쓰는 입력은 data-field-ring을 달아 global.css의 outline을 끈다.
+ */
 export const focusRing = {
-  light: `0px 0px 0px 3px ${alpha(p.brand[500], 0.15)}`,
-  dark: `0px 0px 0px 3px ${alpha(p.brand[300], 0.35)}`,
+  light: `0px 0px 0px 2px ${lightColors.bg.primary}, 0px 0px 0px 4px ${lightColors.border.focus}`,
+  dark: `0px 0px 0px 2px ${darkColors.bg.primary}, 0px 0px 0px 4px ${darkColors.border.focus}`,
 } as const;
 
 /** RN 스타일로 쓰는 그림자 - `...shadow(3)`. */

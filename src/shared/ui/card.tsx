@@ -34,7 +34,7 @@ type Props = {
 export function Card({ children, variant = 'surface', padding = 'md', title, style, elevation = 2 }: Props) {
   const paddingValue =
     padding === 'sm' ? space[16]
-    : padding === 'lg' ? space[24]
+    : padding === 'lg' ? space[32]
     : space[24]; // Figma Spacing "Card Padding" 24
 
   // 스타일 배열을 그대로 <View style={[...]}>에 넘기면 elevation.low의 shadow 필드와

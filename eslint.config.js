@@ -84,7 +84,21 @@ function zonesFor(target, layerIndex) {
   return zones;
 }
 
+/**
+ * 디자인 토큰: Raw(design-tokens.ts)·Primitive(tokens.ts의 palette)는 shared/ui 안에서만 쓴다. 바깥은 @/shared/ui 배럴의
+ * Semantic(semanticColors·space·radius·shadow…)만 - tokens.ts를 직접 경로로 가져오는 것도 막는다.
+ */
+const TOKEN_INTERNALS = ['design-tokens.ts', 'tokens.ts'].map((file) => path.join(SRC, 'shared', 'ui', file));
+const TOKEN_ZONES = [
+  ...LAYERS.filter((layer) => layer !== 'shared').map((layer) => path.join(SRC, layer)),
+  path.join(SRC, 'test-fixtures'),
+  ...SLICES.shared.filter((slice) => slice.name !== 'ui').map((slice) => slice.dir),
+].flatMap((target) =>
+  TOKEN_INTERNALS.map((from) => ({ target, from, message: ' Raw·Primitive 토큰은 직접 쓰지 않는다 - @/shared/ui의 Semantic(semanticColors 등)을 쓴다.' })),
+);
+
 const BOUNDARY_ZONES = [
+  ...TOKEN_ZONES,
   ...LAYERS.flatMap((layer, layerIndex) => SLICES[layer].flatMap((slice) => zonesFor(slice, layerIndex))),
   // 테스트 픽스처는 레이어 밖이라 맨 위처럼 취급하되, 운영 레이어는 공개 API로만.
   ...zonesFor({ layer: 'test-fixtures', name: '', dir: path.join(SRC, 'test-fixtures') }, 0),

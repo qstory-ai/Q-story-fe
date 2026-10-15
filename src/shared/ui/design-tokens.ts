@@ -1,6 +1,6 @@
 /**
  * Q-Story 디자인 시스템 원시(primitive) 토큰 - Figma 파일 "Q-story"(wIHYjX71gs80XNB1FMOaYW)의
- * 변수 34개를 그대로 옮긴 것. 단일 출처는 `design/figma-variables.json`이고, 이 파일과 그 JSON이
+ * 변수(색 71 + 글꼴 8 + 기타 2 = 81개)를 그대로 옮긴 것. 단일 출처는 `design/figma-variables.json`이고, 이 파일과 그 JSON이
  * 어긋나면 `design-tokens.test.ts`가 실패한다. 웹 CSS 변수(`design-tokens.css`)는
  * `npm run tokens:generate`로 이 파일에서 만든다.
  *
@@ -8,7 +8,7 @@
  * (docs/planning/디자인-시스템.md 대응표).
  *
  * 이름 규칙: Figma `Purple/500` → `primitives.purple[500]` → CSS `--purple-500`.
- * Figma에 없는 단계(Purple 600·700, Neutral 200·400)는 만들어 채우지 않는다.
+ * Figma에 없는 단계(Purple 700)는 만들어 채우지 않는다.
  */
 
 export const primitives = {
@@ -23,13 +23,16 @@ export const primitives = {
     300: '#baa0ec', // Purple/300
     400: '#9979e1', // Purple/400
     500: '#7550d3', // Purple/500
+    600: '#6340c0', // Purple/600 - Figma 값이 Purple/800과 같다(오류 의심 - 디자인 확인 요청). Semantic에서 쓰지 않는다.
     800: '#6340c0', // Purple/800
     900: '#302068', // Purple/900
   },
   neutral: {
     50: '#faf8fc', // Neutral/50
     100: '#f3f0f7', // Neutral/100
+    200: '#e8e2ee', // Neutral/200
     300: '#d6cedf', // Neutral/300
+    400: '#b5abbf', // Neutral/400
     500: '#94889f', // Neutral/500
     600: '#766b80', // Neutral/600
     700: '#5a5062', // Neutral/700
@@ -37,16 +40,64 @@ export const primitives = {
     900: '#27222d', // Neutral/900
   },
   skyblue: {
+    50: '#f1f9ff', // Skyblue/50
+    100: '#ddf1ff', // Skyblue/100
+    200: '#bfe4ff', // Skyblue/200
+    300: '#97d2fd', // Skyblue/300
+    400: '#78c4fa', // Skyblue/400
     500: '#5eb6f6', // Skyblue/500
+    600: '#4299d8', // Skyblue/600
     700: '#2f7cb0', // Skyblue/700
+    800: '#236089', // Skyblue/800
+    900: '#184563', // Skyblue/900
   },
   pink: {
+    50: '#fff2f5', // Pink/50
+    100: '#ffe0e8', // Pink/100
+    200: '#ffc2d0', // Pink/200
+    300: '#ff9cb2', // Pink/300
+    400: '#ff7f9a', // Pink/400
     500: '#ff6685', // Pink/500
+    600: '#e34e6e', // Pink/600
     700: '#bc3857', // Pink/700
+    800: '#922742', // Pink/800
+    900: '#6a1a2f', // Pink/900
   },
   green: {
+    50: '#f1fcf6', // Green/50
+    100: '#dcf7e8', // Green/100
+    200: '#bcefd0', // Green/200
+    300: '#98e5b8', // Green/300
+    400: '#88dfae', // Green/400
     500: '#7bd9a6', // Green/500
+    600: '#5fbe8a', // Green/600
     700: '#45996c', // Green/700
+    800: '#317553', // Green/800
+    900: '#21543b', // Green/900
+  },
+  yellow: {
+    50: '#fffcef', // Yellow/50
+    100: '#fff6d2', // Yellow/100
+    200: '#ffeea8', // Yellow/200
+    300: '#ffe37a', // Yellow/300
+    400: '#ffdb5c', // Yellow/400
+    500: '#ffd447', // Yellow/500
+    600: '#e6bb2f', // Yellow/600
+    700: '#c2981e', // Yellow/700
+    800: '#967415', // Yellow/800
+    900: '#6a530e', // Yellow/900
+  },
+  orange: {
+    50: '#fff5ef', // Orange/50
+    100: '#ffe5d4', // Orange/100
+    200: '#ffc7a0', // Orange/200
+    300: '#ffa66b', // Orange/300
+    400: '#ff8c45', // Orange/400
+    500: '#fd7b26', // Orange/500
+    600: '#e06414', // Orange/600
+    700: '#b84e0d', // Orange/700
+    800: '#8c3a09', // Orange/800
+    900: '#632806', // Orange/900
   },
 } as const;
 
@@ -132,6 +183,8 @@ export function figmaVariableEntries(): Array<[string, string]> {
     ['Skyblue', primitives.skyblue],
     ['Pink', primitives.pink],
     ['Green', primitives.green],
+    ['Yellow', primitives.yellow],
+    ['Orange', primitives.orange],
   ] as const;
   for (const [figmaGroup, scale] of scales) {
     for (const [step, hex] of Object.entries(scale)) entries.push([`${figmaGroup}/${step}`, hex]);
@@ -149,6 +202,9 @@ export function figmaVariableEntries(): Array<[string, string]> {
   return entries;
 }
 
+/** 본문 행간(px) - Figma 값(100% = 16px) 대신 쓰는 가정값. */
+export const BODY_LINE_HEIGHT = 24;
+
 const kebab = (s: string) => s.replace(/([a-z])([A-Z0-9])/g, '$1-$2').toLowerCase();
 
 /** CSS 변수 이름 규칙 - 랜딩(q-story-landing src/styles.css)과 같게: --purple-500, --sky-500, --ivory. */
@@ -163,15 +219,19 @@ export function cssVariableEntries(): Array<[string, string]> {
     ['sky', primitives.skyblue],
     ['pink', primitives.pink],
     ['green', primitives.green],
+    ['yellow', primitives.yellow],
+    ['orange', primitives.orange],
   ] as const;
   for (const [prefix, scale] of scales) {
     for (const [step, hex] of Object.entries(scale)) entries.push([`--${prefix}-${step}`, hex]);
   }
   for (const [key, s] of Object.entries(typography)) {
     const name = `--text-${kebab(key)}`;
+    // Body 행간은 Figma 100(=16px)이 한글 본문에 빽빽해 24px로 쓴다(tokens.ts textStyles와 같음 - 디자이너 확인 요청 중).
+    const lineHeight = key === 'body' ? BODY_LINE_HEIGHT : s.lineHeight;
     entries.push([`${name}-size`, `${s.fontSize}px`]);
     entries.push([`${name}-weight`, s.fontWeight]);
-    entries.push([`${name}-line-height`, `${s.lineHeight}px`]);
+    entries.push([`${name}-line-height`, `${lineHeight}px`]);
     entries.push([`${name}-letter-spacing`, s.letterSpacing === 0 ? '0' : `${s.letterSpacing}px`]);
   }
   entries.push(['--stroke-weight-1-8', `${strokeWeight['1_8']}px`]);

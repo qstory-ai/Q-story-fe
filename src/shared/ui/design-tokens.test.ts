@@ -6,6 +6,7 @@ import { test } from 'node:test';
 
 import { figmaVariableEntries, primitives, renderDesignTokensCss } from './design-tokens';
 import { storybookTheme } from './theme';
+import { renderTokensCss, semanticColors, semanticCssEntries } from './tokens';
 
 const figma = JSON.parse(
   readFileSync(new URL('../../../design/figma-variables.json', import.meta.url), 'utf8'),
@@ -20,9 +21,9 @@ const sameValue = (a: string, b: string) => {
   return a.toLowerCase() === b.toLowerCase();
 };
 
-test('Figma 변수 34개가 design-tokens.ts에 빠짐없이 같은 값으로 있다', () => {
+test('Figma 변수 81개가 design-tokens.ts에 빠짐없이 같은 값으로 있다', () => {
   const ours = new Map(figmaVariableEntries());
-  assert.equal(Object.keys(figma).length, 34);
+  assert.equal(Object.keys(figma).length, 81);
   assert.deepEqual([...ours.keys()].sort(), Object.keys(figma).sort());
   for (const [name, value] of Object.entries(figma)) {
     assert.ok(sameValue(ours.get(name), value), `${name}: 코드 ${ours.get(name)} ≠ Figma ${value}`);
@@ -31,7 +32,7 @@ test('Figma 변수 34개가 design-tokens.ts에 빠짐없이 같은 값으로 �
 
 test('커밋된 design-tokens.css가 생성 결과와 같다(npm run tokens:generate)', () => {
   const css = readFileSync(new URL('./design-tokens.css', import.meta.url), 'utf8');
-  assert.equal(css.replace(/\r\n/g, '\n'), renderDesignTokensCss());
+  assert.equal(css.replace(/\r\n/g, '\n'), renderTokensCss());
 });
 
 test('CSS 변수 이름이 랜딩 규칙(--purple-500, --sky-500, --ivory)을 따른다', () => {
@@ -58,4 +59,52 @@ test('앱 의미 토큰은 CTO 대응표대로 primitive를 가리킨다(docs/pl
   // 골드는 쓰지 않는다 - 채움·마커는 Purple 400, 글자는 Purple 800.
   assert.equal(color.gold, primitives.purple[400]);
   assert.equal(color.goldText, primitives.purple[800]);
+});
+
+test('Semantic CSS 변수가 hanbit 이름 규칙(--color-bg-interactive-primary)과 다크 모드 블록을 갖는다', () => {
+  const css = renderTokensCss();
+  for (const line of [
+    '--color-bg-interactive-primary: var(--purple-500);',
+    '--color-bg-interactive-primary-hover: var(--purple-800);',
+    '--color-text-interactive-inverse: var(--white);',
+    '--color-bg-primary: var(--ink-reader);',
+    '--text-body-line-height: 24px;',
+    '--font-heading-1-size: 30px;',
+    '--radius-md: 20px;',
+    '--space-16: 16px;',
+    '--radius-rounded: 9999px;',
+  ]) {
+    assert.ok(css.includes(line), line);
+  }
+  assert.ok(css.includes('[data-theme="dark"] {'));
+  // Semantic 블록에는 hex 리터럴을 다시 적지 않는다 - 모두 Raw 변수 참조.
+  const semantic = css.slice(css.indexOf('/* Semantic'), css.indexOf('/* 랜딩 호환'));
+  assert.deepEqual(semantic.match(/#[0-9a-f]{6}/gi) ?? [], []);
+  // color-mix()는 iOS 15·옛 WebView에서 무효 - 반투명은 rgba로.
+  assert.ok(!css.includes('color-mix('));
+});
+
+/**
+ * 토큰 스냅샷 - theme.ts 별칭 값, Semantic Light·Dark, Semantic CSS 변수를 고정한다. theme 부분은 origin/main(재구성 전) 값에서
+ * 출발했다. **스냅샷은 의도한 변경 때만 갱신한다**(이 테스트가 깨지면 화면이 바뀐다는 뜻 - PR에 이유를 적고 갱신).
+ */
+test('토큰 값이 스냅샷(tokens.snapshot.json)과 같다 - 의도한 변경 때만 갱신', () => {
+  const snapshot = JSON.parse(readFileSync(new URL('./tokens.snapshot.json', import.meta.url), 'utf8'));
+  const flat = (root: unknown) => {
+    const out: Record<string, string | number> = {};
+    const walk = (node: unknown, path: string) => {
+      if (typeof node === 'string' || typeof node === 'number') {
+        out[path] = typeof node === 'string' ? node.toLowerCase() : node;
+        return;
+      }
+      if (node && typeof node === 'object') for (const [k, v] of Object.entries(node)) walk(v, path ? `${path}.${k}` : k);
+    };
+    walk(root, '');
+    return out;
+  };
+  assert.deepEqual(flat(storybookTheme), snapshot.theme);
+  assert.deepEqual(flat(semanticColors.light), snapshot.semanticLight);
+  assert.deepEqual(flat(semanticColors.dark), snapshot.semanticDark);
+  assert.deepEqual(Object.fromEntries(semanticCssEntries('light')), snapshot.cssLight);
+  assert.deepEqual(Object.fromEntries(semanticCssEntries('dark')), snapshot.cssDark);
 });

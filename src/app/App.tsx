@@ -329,5 +329,5 @@ const styles = StyleSheet.create({
   content: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, paddingHorizontal: 32 },
   title: { fontSize: storybookTheme.type.md, fontWeight: '900', color: storybookTheme.color.onContent, textAlign: 'center' },
   body: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onContentMuted, textAlign: 'center' },
-  debugCode: { fontSize: storybookTheme.type.xxs, color: storybookTheme.color.onContentSubtle, textAlign: 'center' },
+  debugCode: { fontSize: storybookTheme.type.xxs, color: storybookTheme.color.onContentMuted, textAlign: 'center' },
 });

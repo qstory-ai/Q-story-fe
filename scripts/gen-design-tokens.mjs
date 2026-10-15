@@ -1,12 +1,12 @@
-// design-tokens.ts(→ Figma 변수 사본 design/figma-variables.json과 테스트로 묶여 있음)에서
+// design-tokens.ts(Raw, Figma 변수 사본 design/figma-variables.json과 테스트로 묶여 있음)와 tokens.ts(Semantic)에서
 // 웹 CSS 변수 파일을 만든다. 실행: npm run tokens:generate  /  확인만: npm run tokens:check
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-import { renderDesignTokensCss } from '../src/shared/ui/design-tokens.ts';
+import { renderTokensCss } from '../src/shared/ui/tokens.ts';
 
 const outPath = fileURLToPath(new URL('../src/shared/ui/design-tokens.css', import.meta.url));
-const next = renderDesignTokensCss();
+const next = renderTokensCss();
 
 if (process.argv.includes('--check')) {
   let current = '';

@@ -161,6 +161,10 @@ function semanticPairs(mode: 'light' | 'dark'): Array<[string, string, string, n
   add('icon.interactive.inverse(채움 위 아이콘)', i.interactive.inverse, { 'bg.success': bg.success }, 3);
   add('text.inverse', t.inverse, { 'bg.inverse': bg.inverse }, 4.5);
   add('text.onWarm', t.onWarm, { 'bg.warm': bg.warm }, 4.5);
+  // 보호자 화면(AppNavShell tone="warm") - 아이보리 바탕 위 글자 3단.
+  if (mode === 'light') add('text.primary', t.primary, { 'bg.warm': bg.warm }, 4.5);
+  if (mode === 'light') add('text.secondary', t.secondary, { 'bg.warm': bg.warm }, 4.5);
+  if (mode === 'light') add('text.tertiary', t.tertiary, { 'bg.warm': bg.warm }, 4.5);
   // PillTabs: 선택 탭(보라 채움)이 트랙(옅은 보라)과 비텍스트 3:1 이상으로 구분된다. 선택 탭 글자는 흰색.
   add('선택 탭 채움(비텍스트)', bg.interactive.primary.default, { 'tabs track(bg.brandSubtle)': bg.brandSubtle }, 3);
   add('선택 탭 글자', t.interactive.inverse, { 'bg.interactive.primary': bg.interactive.primary.default }, 4.5);

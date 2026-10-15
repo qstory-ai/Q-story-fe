@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
-import { SafeAreaView } from '@/shared/ui';
+import { SafeAreaView, ThemeModeProvider } from '@/shared/ui';
 import type { StoryRuntimePackage } from '@/entities/story';
 import type { PlayEntrySource, PlaySetting } from '@/entities/play-session';
 import { CompletionSurveyModal } from '@/features/completion-survey-modal';
@@ -61,7 +61,8 @@ export function OneStoryPage({
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
-      <View style={styles.app}>
+      {/* 리더 캔버스만 Semantic Dark 범위(data-theme="dark"). 포털로 뜨는 흰 모달·로딩·오류 화면은 범위 밖이라 밝게 남는다. */}
+      <ThemeModeProvider mode="dark" style={styles.app}>
         <Image
           source={illustration}
           resizeMode="cover"
@@ -127,7 +128,7 @@ export function OneStoryPage({
           storyId={storyPackage.storyId}
           onClose={runtime.closeCompletionSurvey}
         />
-      </View>
+      </ThemeModeProvider>
     </SafeAreaView>
   );
 }

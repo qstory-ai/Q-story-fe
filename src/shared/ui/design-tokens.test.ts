@@ -77,6 +77,9 @@ test('Semantic CSS 변수가 hanbit 이름 규칙(--color-bg-interactive-primary
     assert.ok(css.includes(line), line);
   }
   assert.ok(css.includes('[data-theme="dark"] {'));
+  // 범위 테마: 다크 안에 밝은 범위를 다시 둘 수 있게 light 블록도 있다. 전역(<html>)이 아니라 요소 선택자뿐이다.
+  assert.ok(css.includes('[data-theme="light"] {'));
+  assert.ok(!css.includes('html[data-theme'));
   // Semantic 블록에는 hex 리터럴을 다시 적지 않는다 - 모두 Raw 변수 참조.
   const semantic = css.slice(css.indexOf('/* Semantic'), css.indexOf('/* 랜딩 호환'));
   assert.deepEqual(semantic.match(/#[0-9a-f]{6}/gi) ?? [], []);

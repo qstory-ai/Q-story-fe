@@ -20,6 +20,7 @@ import {
   SafeAreaView,
   SearchField,
   SectionHeader,
+  ThemeModeProvider,
   TextField,
   elevation,
   radius,
@@ -206,6 +207,19 @@ function Kit() {
           </View>
         </Section>
 
+        <Section title="테마 범위(ThemeModeProvider)" note="요소 범위 data-theme - 가장 가까운 조상이 이긴다. 바깥 dark 안에 light 중첩.">
+          <ThemeModeProvider mode="dark" style={styles.darkStrip}>
+            <View nativeID="theme-scope-dark">
+              <Text style={{ color: D.text.primary }}>dark 범위</Text>
+            </View>
+            <ThemeModeProvider mode="light" style={styles.lightInset}>
+              <View nativeID="theme-scope-light-in-dark">
+                <Text style={styles.body}>dark 안의 light 범위</Text>
+              </View>
+            </ThemeModeProvider>
+          </ThemeModeProvider>
+        </Section>
+
         <Section title="Semantic 색 (Light / Dark)">
           <Swatches colors={L} />
           <View style={styles.darkStrip}>
@@ -275,6 +289,7 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space[16] },
   gridItem: { flexGrow: 1, flexBasis: 280 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space[12], rowGap: space[16] },
+  lightInset: { backgroundColor: L.bg.primary, borderRadius: radius[12], padding: space[12] },
   darkStrip: { backgroundColor: D.bg.primary, borderRadius: radius[16], padding: space[16], gap: space[12] },
   swatchBox: { width: 96, height: 64, borderRadius: radius[12], backgroundColor: L.bg.primary, alignItems: 'center', justifyContent: 'center' },
   radiusBox: { width: 72, height: 48, backgroundColor: L.bg.brandSubtle, borderWidth: 1, borderColor: L.border.brandSubtle, alignItems: 'center', justifyContent: 'center' },

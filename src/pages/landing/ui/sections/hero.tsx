@@ -17,10 +17,10 @@ export function HeroSection({ isWide, onGoToDemo, onExploreExperience }: HeroSec
       <View style={[styles.heroCopy, isWide && styles.heroCopyWide]}>
         <Pill label="6–9세 아이와 부모가 함께하는 AI 동화" tone="accent" />
         <Text style={styles.heroTitle} accessibilityRole="header">
-          아이의 질문과 선택으로,{'\n'}중간 장면이 달라져요.
+          아이의 호기심이{'\n'}멈추지 않도록
         </Text>
         <Text style={styles.heroLead}>
-          아이의 질문·추측·제안이 동화 속 행동으로 이어집니다. 중요한 사건과 결말은 안전하게 이어져요.
+          우리 아이의 궁금증을 자극하고 질문과 생각을 이끄는 상호작용형 동화
         </Text>
         <View style={styles.heroActions}>
           <Pressable

@@ -20,7 +20,7 @@ export function FinalCtaSection({ onGoToDemo }: FinalCtaSectionProps) {
       />
       <View style={styles.finalCtaScrim} />
       <View style={styles.finalCtaInner}>
-        <Text style={styles.finalCtaEyebrow}>AI 시대, 스스로 묻는 아이로 자라게</Text>
+        <Text style={styles.finalCtaEyebrow}>아이의 호기심이 멈추지 않도록</Text>
         <Text style={styles.finalCtaTitle}>오늘 밤, 아이와 함께{'\n'}질문이 움직이는 동화를 시작해 보세요.</Text>
         <Text style={styles.finalCtaLead}>「헨젤과 그레텔」 한 편을 무료로 체험할 수 있어요.</Text>
         <Pressable

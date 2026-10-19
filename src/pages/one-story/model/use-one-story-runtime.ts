@@ -806,10 +806,23 @@ export function useOneStoryRuntime(
           return [storyPackage.illustrationForAssetId(masterAssetId).uri];
         }),
       );
-    void preloadImages(imageUris);
+    // 그 장면 질문에서 고를 수 있는 행동의 전개 그림도 - [그렇게 해보기] 직후 그림을 받는 동안 빈 화면이 보였다(10/19 QA).
+    const branchUris = storyManifest.questionAnchors
+      .filter((anchor) =>
+        storyManifest.scenes
+          .slice(sceneIndex, Math.min(sceneIndex + 2, TOTAL_SCENES))
+          .some((preloadScene) => preloadScene.id === anchor.sceneId),
+      )
+      .flatMap((anchor) => anchor.fallbackFamilyIds)
+      .flatMap((familyId) => {
+        const branchAssetId = storyPackage.branchIllustrationAssetId(familyId);
+        return branchAssetId ? [storyPackage.illustrationForAssetId(branchAssetId).uri] : [];
+      });
+    void preloadImages([...imageUris, ...branchUris]);
   }, [
     sceneIndex,
     TOTAL_SCENES,
+    storyManifest.questionAnchors,
     storyManifest.scenes,
     storyManifest.visualStates,
     storyPackage,

@@ -18,7 +18,12 @@ export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
     isClassLesson,
     completionSaveStatus,
     retryCompletionSave,
+    liveTurns,
   } = runtime;
+  // 오늘 아이가 한 말 - 끝나는 순간 "내가 한 생각"을 한 번 돌아보게 한다(10/19 QA). 도와줘 버튼 말은 뺀다.
+  const childLines = liveTurns
+    .filter((turn) => turn.role === 'CHILD' && turn.text && !HELP_LABELS.has(turn.text.trim()))
+    .map((turn) => turn.text!.trim());
 
   if (runtimeState.status !== 'complete') {
     return null;
@@ -36,6 +41,18 @@ export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
             {objectParticle}{'\n'}끝까지 함께 읽었어요!
           </Text>
           <Text style={styles.introBody}>{parentReport.completedStory}</Text>
+          {childLines.length > 0 && (
+            <View style={styles.completeThoughts}>
+              <Text style={styles.completeThoughtsTitle}>
+                {`오늘 ${isClassLesson ? '우리 반이 ' : ''}그레텔에게 한 말 ${childLines.length}개`}
+              </Text>
+              {childLines.slice(-3).map((line, index) => (
+                <Text key={`${index}-${line}`} style={styles.completeThoughtLine} numberOfLines={2}>
+                  “{line}”
+                </Text>
+              ))}
+            </View>
+          )}
           {/* 완주 기록 저장 안내 - 실패하면 리포트·수업 완료가 남지 않으니 숨기지 않고 알린다(lib/completion-save). */}
           {completionSaveStatus === 'saving' && (
             <Text style={styles.completionSaveNote} accessibilityLiveRegion="polite">
@@ -76,3 +93,5 @@ export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
     </View>
   );
 }
+
+const HELP_LABELS = new Set(['도와줘', '응, 도와줘']);

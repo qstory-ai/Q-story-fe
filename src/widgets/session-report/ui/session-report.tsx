@@ -141,8 +141,13 @@ export function SessionReport({
             {skipped.length > 0
               ? `건너뛴 질문: ${skipped.join(', ')}. 다음 수업에서 이어 볼 수 있어요.`
               : '이번 수업의 질문 초대는 모두 진행했어요.'}
-            {' '}보호자에게는 공유용 한마디와 집에서 나눌 대화 거리가 함께 가요.
+            {' '}보호자에게는 선생님 한마디(교사 메모)와 아래 대화 거리가 함께 가요.
           </Text>
+        </Section>
+        {/* 보호자 리포트와 같은 대화 거리 - 선생님도 보호자에게 무엇이 가는지 알고 다음 수업에 이어 쓸 수 있게(10/19 QA). */}
+        <Section title="보호자에게 가는 대화 거리">
+          <AnalysisState analysis={data.analysis} onRetry={retryAnalysis} personal={false} />
+          <TalkCards analysis={data.analysis} storyPackage={storyPackage} isWide={isWide} />
         </Section>
       </View>
     );

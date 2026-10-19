@@ -16,6 +16,8 @@ export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
     restartStory,
     parentReport,
     isClassLesson,
+    completionSaveStatus,
+    retryCompletionSave,
   } = runtime;
 
   if (runtimeState.status !== 'complete') {
@@ -34,6 +36,21 @@ export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
             {objectParticle}{'\n'}끝까지 함께 읽었어요!
           </Text>
           <Text style={styles.introBody}>{parentReport.completedStory}</Text>
+          {/* 완주 기록 저장 안내 - 실패하면 리포트·수업 완료가 남지 않으니 숨기지 않고 알린다(lib/completion-save). */}
+          {completionSaveStatus === 'saving' && (
+            <Text style={styles.completionSaveNote} accessibilityLiveRegion="polite">
+              오늘 기록을 저장하고 있어요…
+            </Text>
+          )}
+          {completionSaveStatus === 'failed' && (
+            <View style={styles.completionSaveError} accessibilityRole="alert">
+              <Text style={styles.completionSaveErrorTitle}>오늘 기록을 아직 저장하지 못했어요</Text>
+              <Text style={styles.completionSaveErrorBody}>
+                인터넷 연결을 확인한 뒤 다시 저장해 주세요. 저장해야 {isClassLesson ? '수업 기록과 보호자 리포트' : '리포트'}가 남아요.
+              </Text>
+              <ActionButton variant="secondaryFull" label="다시 저장하기" onPress={retryCompletionSave} />
+            </View>
+          )}
           <ActionButton
             variant="primary"
             // 반 수업은 선생님이 보는 수업 기록 - 보호자 리포트는 연결된 보호자에게 따로 간다.

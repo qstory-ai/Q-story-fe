@@ -64,6 +64,11 @@ import {
   RESPONSE_AUDIO_PREPARE_MS,
 } from '../lib/constants';
 import {
+  COMPLETION_SAVE_RETRY_DELAYS_MS,
+  saveWithRetry,
+  type CompletionSaveStatus,
+} from '../lib/completion-save';
+import {
   getBranchFamily,
   getRuntimeClip,
   getSceneIndex as getSceneIndexForPackage,
@@ -218,6 +223,10 @@ export function useOneStoryRuntime(
   const [liveTurns, setLiveTurns] = useState<PlayTurn[]>([]);
   // 방금 저장한 완주 기록 id - 실시간 리포트가 서버 분석(관심·대화 카드)을 받아 오는 데 쓴다.
   const [completedRecordId, setCompletedRecordId] = useState<string | null>(null);
+  // 완주 기록 저장 상태(lib/completion-save) - 실패하면 완주 화면이 알리고 [다시 저장하기]를 준다.
+  const [completionSaveStatus, setCompletionSaveStatus] = useState<CompletionSaveStatus>('idle');
+  // 이번 회차의 완주 저장 요청 - 다시 저장할 때 같은 내용을 보낸다. 처음부터 다시 읽으면 비운다.
+  const completionSaveRef = useRef<(() => ReturnType<typeof recordStoryCompletion>) | null>(null);
   // 이 회차에서 처음 읽은 장면과 가장 멀리 읽은 장면 - 리포트의 "읽은 범위".
   const readFromSceneRef = useRef<string | null>(null);
   const readThroughSceneRef = useRef<string | null>(null);
@@ -355,6 +364,29 @@ export function useOneStoryRuntime(
   // history 상세 화면은 자체적으로 detail을 다시 조회하므로 이 state를 공유하지 않는다.
   const [companionChatSummary, setCompanionChatSummary] =
     useState<CompanionChatSummary | null>(null);
+  const runCompletionSave = useCallback(() => {
+    const save = completionSaveRef.current;
+    if (!save) return;
+    setCompletionSaveStatus('saving');
+    void saveWithRetry(save, COMPLETION_SAVE_RETRY_DELAYS_MS)
+      .then((saved) => {
+        if (completionSaveRef.current !== save) return;
+        if (saved.companionChatSummary) {
+          setCompanionChatSummary(saved.companionChatSummary);
+        }
+        setCompletedRecordId(saved.id);
+        setCompletionSaveStatus('saved');
+      })
+      .catch(() => {
+        if (completionSaveRef.current === save) setCompletionSaveStatus('failed');
+      });
+  }, []);
+  // 저장에 실패한 뒤 연결이 돌아오면 한 번 더 저장한다 - 선생님이 버튼을 못 보고 지나가도 기록이 남게.
+  useEffect(() => {
+    if (completionSaveStatus !== 'failed' || typeof window === 'undefined') return undefined;
+    window.addEventListener('online', runCompletionSave);
+    return () => window.removeEventListener('online', runCompletionSave);
+  }, [completionSaveStatus, runCompletionSave]);
   const [resumeCandidate, setResumeCandidate] =
     useState<LocalStoryProgress | null>(() =>
       resumableProgressFor(loadLocalStoryProgress(), storyPackage.storyId, selectedChild?.id),
@@ -810,9 +842,8 @@ export function useOneStoryRuntime(
         question_count: questionOutcomes.length,
         changed_scene_count: parentReport.changedSceneCount,
       });
-      // 로그인한 부모에게만 저장 - 익명 데모(/demo)는 계정이 없어 남길 곳이 없다.
-      // 리포트 저장 실패는 화면에 드러내지 않는다: 다시 시도할 뚜렷한 방법이 없고, 지금 보고
-      // 있는 리포트 자체는 이미 완성된 상태라 아이/부모 경험에 영향을 주지 않는다.
+      // 로그인한 경우에만 저장 - 익명 데모(/demo)는 계정이 없어 남길 곳이 없다. 저장이 실패하면 몇 번 더 시도하고,
+      // 그래도 안 되면 완주 화면에 알린다 - 리포트·수업 완료·보호자 알림이 모두 이 기록에서 나온다.
       if (authState.status === 'authenticated') {
         // 선생님 세션(tutorStudentId 있음)은 childId를 붙이지 않는다 - 그 세션의 아이별
         // 필터는 부모 계정 리포트와 별개로 tutor_student_id 축에서 관리된다.
@@ -828,30 +859,25 @@ export function useOneStoryRuntime(
           readThroughSceneId: readThroughSceneRef.current ?? undefined,
         };
         // 대화 줄을 먼저 다 보낸 뒤 완주를 저장한다 - 서버 분석이 이 회차 대화를 빠짐없이 보게.
-        void getTurnRecorder()
-          .flush()
-          .then(() =>
-            recordStoryCompletion(token, {
-              storyId: storyPackage.storyId,
-              durationSeconds,
-              outcomes: questionOutcomes,
-              tutorStudentId,
-              childId: childIdForRecord,
-              companionConversationId: sessionId,
-              lessonId,
-              ...lessonPlaySetting,
-              endStatus: 'COMPLETED',
-              contentVersion: storyManifest.contentVersion,
-              ...readRange,
-            }),
-          )
-          .then((saved) => {
-            if (saved.companionChatSummary) {
-              setCompanionChatSummary(saved.companionChatSummary);
-            }
-            setCompletedRecordId(saved.id);
-          })
-          .catch(() => {});
+        completionSaveRef.current = () =>
+          getTurnRecorder()
+            .flush()
+            .then(() =>
+              recordStoryCompletion(token, {
+                storyId: storyPackage.storyId,
+                durationSeconds,
+                outcomes: questionOutcomes,
+                tutorStudentId,
+                childId: childIdForRecord,
+                companionConversationId: sessionId,
+                lessonId,
+                ...lessonPlaySetting,
+                endStatus: 'COMPLETED',
+                contentVersion: storyManifest.contentVersion,
+                ...readRange,
+              }),
+            );
+        runCompletionSave();
       }
     }
   }, [
@@ -870,6 +896,7 @@ export function useOneStoryRuntime(
     storyDurationSeconds,
     storyPackage.storyId,
     trackStoryEvent,
+    runCompletionSave,
   ]);
 
   /**
@@ -912,6 +939,8 @@ export function useOneStoryRuntime(
     trackedFailuresRef.current.clear();
     trackedPlaybackResultsRef.current.clear();
     completionTrackedRef.current = false;
+    completionSaveRef.current = null;
+    setCompletionSaveStatus('idle');
     questionAttemptCountRef.current = 0;
     sttAttemptCountRef.current = 0;
     questionInputSwitchedRef.current = false;
@@ -2671,6 +2700,9 @@ export function useOneStoryRuntime(
     recordTurn,
     liveTurns,
     completedRecordId,
+    // 완주 기록 저장 상태와 다시 저장하기 - 완주 화면의 저장 안내(complete-panel).
+    completionSaveStatus,
+    retryCompletionSave: runCompletionSave,
     flushTurns: () => getTurnRecorder().flush(),
   };
 }

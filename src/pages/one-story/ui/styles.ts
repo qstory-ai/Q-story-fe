@@ -372,6 +372,31 @@ export const styles = StyleSheet.create({
     lineHeight: 25,
     textAlign: 'center',
   },
+  // 완주 기록 저장 안내(complete-panel) - 저장 중은 작은 회색 글, 실패는 빨간 테두리 상자와 다시 저장하기.
+  completionSaveNote: {
+    color: storybookTheme.color.onCardMuted,
+    fontSize: storybookTheme.type.xs,
+    textAlign: 'center',
+  },
+  completionSaveError: {
+    gap: 8,
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: storybookTheme.color.error,
+  },
+  completionSaveErrorTitle: {
+    color: storybookTheme.color.error,
+    fontSize: storybookTheme.type.md,
+    fontWeight: storybookTheme.type.weight.bold,
+    textAlign: 'center',
+  },
+  completionSaveErrorBody: {
+    color: storybookTheme.color.onCardBody,
+    fontSize: storybookTheme.type.sm,
+    lineHeight: 21,
+    textAlign: 'center',
+  },
   nameField: {
     gap: 7,
     backgroundColor: storybookTheme.semantic.brand.secondary,

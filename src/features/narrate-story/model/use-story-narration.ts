@@ -7,6 +7,7 @@ import {
   useDeviceSpeechNarration,
   type NarrationRequest,
 } from './use-device-speech-narration';
+import { exposedNarrationProgress } from './narration-progress';
 import { getLineNarration } from './line-narration';
 import { playResponseAudio, pauseActivePlayback, resumeActivePlayback } from '@/shared/lib';
 
@@ -73,6 +74,9 @@ export function useStoryNarration(
   const [fixedPaused, setFixedPaused] = useState(false);
   const [fixedError, setFixedError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
+  // progress가 어느 대사의 진행률인지 - 다음 대사를 준비하는 동안(재생 전) 자막은 아직 앞 대사인데 진행률만 0으로
+  // 돌아가면 앞 대사의 첫 줄이 잠깐 다시 뜬다. 자막 대사와 진행률 주인이 다르면 앞 대사의 끝(1)으로 본다.
+  const [progressRequestId, setProgressRequestId] = useState<string | null>(null);
   const [captionRequestId, setCaptionRequestId] = useState<string | null>(null);
   const [liveSpeaking, setLiveSpeaking] = useState(false);
   const [livePaused, setLivePaused] = useState(false);
@@ -214,6 +218,7 @@ export function useStoryNarration(
       setFixedPaused(false);
       setFixedError(null);
       setProgress(0);
+      setProgressRequestId(request.id);
 
       return new Promise<void>((resolve, reject) => {
         const timeoutMillis = Math.min(
@@ -280,7 +285,8 @@ export function useStoryNarration(
       } finally {
         setLiveSpeaking(false);
         setLivePaused(false);
-        setLiveProgress(0);
+        // 0으로 돌리면 다음 대사가 시작되기 전까지 이 대사의 첫 줄 자막이 다시 뜬다 - 끝에 둔다.
+        setLiveProgress(1);
         if (liveAbortRef.current === controller) {
           liveAbortRef.current = null;
         }
@@ -407,14 +413,14 @@ export function useStoryNarration(
       // 더 가깝다 - 바깥에는 'fixed'로 묶어 노출한다.
       source:
         activeSource === 'device' ? ('device' as const) : ('fixed' as const),
-      progress:
-        activeSource === 'fixed'
-          ? progress
-          : activeSource === 'live'
-            ? liveProgress
-            : activeSource === 'device'
-              ? deviceState.progress
-              : 0,
+      progress: exposedNarrationProgress({
+        activeSource,
+        fixedProgress: progress,
+        fixedProgressRequestId: progressRequestId,
+        captionRequestId,
+        liveProgress,
+        deviceProgress: deviceState.progress,
+      }),
       captionRequestId,
     }),
     [
@@ -425,6 +431,7 @@ export function useStoryNarration(
       fixedPaused,
       fixedPlaying,
       progress,
+      progressRequestId,
       liveProgress,
       liveSpeaking,
       livePaused,

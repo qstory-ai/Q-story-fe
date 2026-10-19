@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, Pill, Radio, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
 import {
@@ -33,8 +33,8 @@ type LoadState =
 
 /**
  * IA "[3] 수업 상세" 화면. 기본 정보(이름/목표/일정) + 참여 학생 + 사용 이야기 + 상태 전환
- * 액션(시작/완료) + 삭제. 이야기 행은 카탈로그와 join해 제목을 표시하고, "시작"은 lessonId를
- * 붙여 스토리 플레이어로 넘긴다.
+ * 액션(시작/완료) + 삭제. 이야기 행은 카탈로그와 join해 제목을 표시하고, 이야기 카드의 "수업 시작" 하나가
+ * 상태를 진행 중으로 바꾸고 lessonId를 붙여 스토리 플레이어로 넘긴다.
  */
 export function TutorLessonDetailPage() {
   const { lessonId } = useParams<{ lessonId: string }>();
@@ -51,6 +51,8 @@ export function TutorLessonDetailPage() {
   const [editOpen, setEditOpen] = useState(false);
   // 수업 진행 형태(Q-40) - 기본은 전체 반, 이 수업의 최근 기록이 개별 수업이면 개별(불러온 뒤 정한다).
   const [playSetting, setPlaySetting] = useState<PlaySetting>('WHOLE_CLASS');
+  // 이야기가 여럿인 수업에서 "수업 시작"으로 들어갈 이야기(null이면 첫 이야기).
+  const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -103,8 +105,35 @@ export function TutorLessonDetailPage() {
     },
     [token, lessonId, requestKey],
   );
-  const doStart = useCallback(() => transition(startLesson, '수업을 시작하지 못했어요.'), [transition]);
   const doComplete = useCallback(() => transition(completeLesson, '수업을 완료 처리하지 못했어요.'), [transition]);
+
+  // 이야기 카드의 "수업 시작" - 예정 수업이면 먼저 진행 중으로 바꾸고(예전 하단 "수업 시작"), 이야기가
+  // 있으면 스토리 플레이어로 넘긴다(예전 이야기별 "시작"). 이야기가 없으면 상태만 바꾼다.
+  const startClass = useCallback(
+    async (lesson: Lesson, storyId: string | null) => {
+      if (!storyId) {
+        if (lesson.status === 'SCHEDULED') await transition(startLesson, '수업을 시작하지 못했어요.');
+        return;
+      }
+      if (lesson.status === 'SCHEDULED' && token) {
+        setTransitioning(true);
+        try {
+          await startLesson(token, lesson.id);
+        } catch {
+          // 상태 전환이 실패해도 이야기는 그대로 진행한다 - 기록은 lessonId로 묶이고, 상태는 돌아와서 다시 바꿀 수 있다.
+        } finally {
+          setTransitioning(false);
+        }
+      }
+      // lessonId를 붙여 서버가 참여 학생 전원을 한 기록으로 묶게 한다(반 수업이면 반 수업 리포트).
+      // 개별 수업은 tutorStudentId의 학생 기록이 된다.
+      const firstStudent = lesson.students[0];
+      const params = new URLSearchParams({ lessonId: lesson.id, setting: playSetting });
+      if (firstStudent) params.set('tutorStudentId', firstStudent.id);
+      navigate(`/stories/${storyId}/play?${params.toString()}`);
+    },
+    [token, transition, playSetting, navigate],
+  );
 
   const doDelete = useCallback(async () => {
     if (!token || !lessonId) return;
@@ -123,6 +152,12 @@ export function TutorLessonDetailPage() {
   if (state.status !== 'authenticated') return null;
 
   const effective = load.requestKey === requestKey ? load : { requestKey, status: 'loading' as const };
+  // 시작할 이야기 - 고른 게 없거나 목록에 없으면 첫 이야기.
+  const activeStoryId = effective.status === 'ready'
+    ? (selectedStoryId && effective.lesson.storyIds.includes(selectedStoryId)
+        ? selectedStoryId
+        : (effective.lesson.storyIds[0] ?? null))
+    : null;
 
   return (
     <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate(TUTOR_PATHS.lessons)}>
@@ -183,45 +218,48 @@ export function TutorLessonDetailPage() {
 
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>사용 이야기 {effective.lesson.storyIds.length}편</Text>
+              {effective.lesson.storyIds.length === 0 ? (
+                <Text style={styles.helper}>담긴 이야기가 없어요. 수업 편집에서 이야기를 담거나 서재에서 바로 골라 시작해요.</Text>
+              ) : effective.lesson.storyIds.length === 1 ? (
+                <StoryRow story={effective.storyById[effective.lesson.storyIds[0]]} storyId={effective.lesson.storyIds[0]} />
+              ) : (
+                // 이야기가 여럿이면 시작할 이야기를 고른다 - 시작 버튼은 하나만 둔다.
+                <View style={styles.storyChoices} accessibilityRole="radiogroup" accessibilityLabel="시작할 이야기">
+                  {effective.lesson.storyIds.map((storyId) => {
+                    const story = effective.storyById[storyId];
+                    return (
+                      <Radio
+                        key={storyId}
+                        selected={storyId === activeStoryId}
+                        onSelect={() => setSelectedStoryId(storyId)}
+                        label={story?.title ?? storyId}
+                        description={story?.category ?? undefined}
+                      />
+                    );
+                  })}
+                </View>
+              )}
               {effective.lesson.storyIds.length > 0 && (
                 <LessonPlaySettingPicker value={playSetting} onChange={setPlaySetting} align="start" />
               )}
-              {effective.lesson.storyIds.length === 0 ? (
-                <Text style={styles.helper}>담긴 이야기가 없어요.</Text>
-              ) : (
-                effective.lesson.storyIds.map((storyId) => {
-                  const story = effective.storyById[storyId];
-                  return (
-                    <View key={storyId} style={styles.studentRow}>
-                      <View style={styles.studentInfo}>
-                        <Text style={styles.studentName}>{story?.title ?? storyId}</Text>
-                        {story?.category ? <Text style={styles.studentMeta}>{story.category}</Text> : null}
-                      </View>
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={`${story?.title ?? storyId} 시작하기`}
-                        onPress={() => {
-                          // lessonId를 붙여 서버가 참여 학생 전원을 한 기록으로 묶게 한다(반 수업이면 반 수업 리포트).
-                          // 개별 수업은 tutorStudentId의 학생 기록이 된다.
-                          const firstStudent = effective.lesson.students[0];
-                          const params = new URLSearchParams({ lessonId: effective.lesson.id, setting: playSetting });
-                          if (firstStudent) params.set('tutorStudentId', firstStudent.id);
-                          navigate(`/stories/${storyId}/play?${params.toString()}`);
-                        }}
-                        style={({ pressed }) => [styles.startButton, pressed && styles.pressed]}
-                      >
-                        <Text style={styles.startLabel}>시작</Text>
-                      </Pressable>
-                    </View>
-                  );
-                })
-              )}
+              {/* 수업 시작은 이 버튼 하나 - 예전엔 이야기마다 작은 "시작"과 화면 아래 "수업 시작"이 따로 있어
+                  어느 쪽을 눌러야 하는지 헷갈렸다. 예정 수업이면 진행 중으로 바꾼 뒤 고른 이야기로 넘어간다. */}
+              {activeStoryId || effective.lesson.status === 'SCHEDULED' ? (
+                <ActionButton
+                  label={startLabel(effective.lesson, activeStoryId ? effective.storyById[activeStoryId] : undefined, transitioning)}
+                  onPress={() => {
+                    void startClass(effective.lesson, activeStoryId);
+                  }}
+                  loading={transitioning}
+                  disabled={transitioning}
+                />
+              ) : null}
             </View>
 
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>리포트 {effective.completions.length}건</Text>
               {effective.completions.length === 0 ? (
-                <Text style={styles.helper}>아직 이 수업에서 끝까지 들은 이야기가 없어요. 위 "시작"으로 진행하면 기록이 남고, 연결된 보호자께 리포트가 전달돼요.</Text>
+                <Text style={styles.helper}>아직 이 수업에서 끝까지 들은 이야기가 없어요. 위 "수업 시작"으로 진행하면 기록이 남고, 연결된 보호자께 리포트가 전달돼요.</Text>
               ) : (
                 effective.completions.map((completion) => {
                   const student = effective.lesson.students.find((candidate) => candidate.id === completion.tutorStudentId);
@@ -262,14 +300,12 @@ export function TutorLessonDetailPage() {
             ) : null}
 
             <View style={styles.actionCard}>
-              {effective.lesson.status !== 'COMPLETED' ? (
+              {/* 시작은 이야기 카드의 버튼으로 옮겼다 - 여기엔 진행 중인 수업의 완료만 남긴다. */}
+              {effective.lesson.status === 'IN_PROGRESS' ? (
                 <ActionButton
-                  label={
-                    effective.lesson.status === 'IN_PROGRESS'
-                      ? transitioning ? '완료 처리 중…' : '수업 완료'
-                      : transitioning ? '시작 중…' : '수업 시작'
-                  }
-                  onPress={effective.lesson.status === 'IN_PROGRESS' ? doComplete : doStart}
+                  variant="secondaryFull"
+                  label={transitioning ? '완료 처리 중…' : '수업 완료'}
+                  onPress={doComplete}
                   loading={transitioning}
                   disabled={transitioning}
                 />
@@ -340,6 +376,24 @@ export function TutorLessonDetailPage() {
 }
 
 /* -------------------------------------------------------------- helpers */
+
+function StoryRow({ story, storyId }: { story: StoryCatalogEntry | undefined; storyId: string }) {
+  return (
+    <View style={styles.studentRow}>
+      <View style={styles.studentInfo}>
+        <Text style={styles.studentName}>{story?.title ?? storyId}</Text>
+        {story?.category ? <Text style={styles.studentMeta}>{story.category}</Text> : null}
+      </View>
+    </View>
+  );
+}
+
+/** 시작 버튼 문구 - 이야기가 여럿이면 어느 이야기로 들어가는지 버튼에서 바로 보이게 한다. */
+function startLabel(lesson: Lesson, story: StoryCatalogEntry | undefined, busy: boolean) {
+  if (busy) return '시작 중…';
+  const verb = lesson.status === 'SCHEDULED' ? '수업 시작' : '이야기 시작';
+  return lesson.storyIds.length > 1 && story ? `${verb} · ${story.title}` : verb;
+}
 
 const STATUS_LABEL: Record<Lesson['status'], string> = {
   SCHEDULED: '예정',
@@ -422,18 +476,13 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardTitle,
   },
   studentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
-  startButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: storybookTheme.radius.pill,
-    backgroundColor: storybookTheme.color.primary,
+  storyChoices: {
+    gap: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: storybookTheme.color.pillBorder,
   },
   pressed: { opacity: 0.85 },
-  startLabel: {
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onContent,
-  },
   actionCard: {
     gap: 8,
   },

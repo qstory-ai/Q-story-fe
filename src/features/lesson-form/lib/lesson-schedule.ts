@@ -1,5 +1,6 @@
 /**
- * 수업 만들기 모달의 날짜 계산(Q-35에서 모달에서 분리). 날짜는 모두 텍스트로 받는다 - "YYYY-MM-DD HH:MM".
+ * 수업 만들기 모달의 날짜 계산(Q-35에서 모달에서 분리). 날짜는 "YYYY-MM-DD HH:MM" 문자열 하나로 다룬다 -
+ * 화면은 날짜·시각 선택기 두 칸으로 받고 splitDateTimeInput/joinDateTimeInput으로 오간다.
  */
 
 export const DEFAULT_RECURRING_COUNT = 12; // 학기 3개월 기준 근사치
@@ -110,4 +111,24 @@ export function describeRecurrence(dates: string[], weekdays: ReadonlySet<number
   const time = `${pad2(first.getHours())}:${pad2(first.getMinutes())}`;
   const md = (date: Date) => `${date.getMonth() + 1}월 ${date.getDate()}일`;
   return `매주 ${dayLabel}요일 ${time} · ${dates.length}회 (${md(first)} ~ ${md(last)})`;
+}
+
+/** "YYYY-MM-DD HH:MM" → 날짜·시각 선택기 값. 형식이 틀리면 둘 다 빈 값(선택기가 미정으로 보인다). */
+export function splitDateTimeInput(raw: string): { date: string; time: string } {
+  const parsed = parseLessonDateTime(raw);
+  if (!parsed) return { date: '', time: '' };
+  return { date: formatDateOnly(parsed), time: `${pad2(parsed.getHours())}:${pad2(parsed.getMinutes())}` };
+}
+
+/** 날짜·시각 선택기 값 → "YYYY-MM-DD HH:MM". 날짜가 없으면 빈 값(일정 미정), 시각이 없으면 기본 시각. */
+export function joinDateTimeInput(date: string, time: string): string {
+  if (!date.trim()) return '';
+  return `${date.trim()} ${time.trim() || DEFAULT_LESSON_TIME}`;
+}
+
+/** 단발 수업 요약 - "한 번만 · 10월 8일(목) 15:00". 일시가 없으면 "일정 미정". */
+export function describeOneOff(raw: string): string {
+  const date = parseLessonDateTime(raw);
+  if (!date) return '한 번만 · 일정 미정';
+  return `한 번만 · ${date.getMonth() + 1}월 ${date.getDate()}일(${WEEKDAY_LABELS[date.getDay()]}) ${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
 }

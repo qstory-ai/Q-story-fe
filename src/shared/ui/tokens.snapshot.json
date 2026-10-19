@@ -150,7 +150,7 @@
     "layout.dashboardCardMaxWidth": 640,
     "layout.dashboardCardWideMaxWidth": 760,
     "layout.narrowMaxWidth": 560,
-    "layout.tabletMaxWidth": 720
+    "layout.tabletMaxWidth": 960
   },
   "semanticLight": {
     "text.primary": "#27222d",

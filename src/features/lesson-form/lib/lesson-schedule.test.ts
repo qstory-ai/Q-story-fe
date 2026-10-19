@@ -5,10 +5,13 @@ import { test } from 'node:test';
 import {
   computeRecurringDates,
   defaultFirstLessonInput,
+  describeOneOff,
   describeRecurrence,
   formatDateTimeForInput,
+  joinDateTimeInput,
   parseDateTime,
   parseLessonDateTime,
+  splitDateTimeInput,
 } from './lesson-schedule';
 
 const local = (iso: string) => new Date(iso);
@@ -58,4 +61,22 @@ test('텍스트 날짜 입력 파싱', () => {
 
 test('첫 수업 기본값은 오늘 15:00', () => {
   assert.equal(defaultFirstLessonInput(new Date(2026, 9, 3, 11, 20)), '2026-10-03 15:00');
+});
+
+test('날짜·시각 선택기 값과 "YYYY-MM-DD HH:MM"을 오간다', () => {
+  assert.deepEqual(splitDateTimeInput('2026-10-08 09:30'), { date: '2026-10-08', time: '09:30' });
+  assert.deepEqual(splitDateTimeInput('2026-10-08'), { date: '2026-10-08', time: '15:00' });
+  assert.deepEqual(splitDateTimeInput(''), { date: '', time: '' });
+  assert.deepEqual(splitDateTimeInput('2026-02-31 10:00'), { date: '', time: '' });
+  assert.equal(joinDateTimeInput('2026-10-08', '09:30'), '2026-10-08 09:30');
+  assert.equal(joinDateTimeInput('2026-10-08', ''), '2026-10-08 15:00');
+  assert.equal(joinDateTimeInput('', '09:30'), '');
+  // 선택기에서 고른 값이 기존 일정 계산에 그대로 들어간다.
+  const dates = computeRecurringDates({ firstLesson: joinDateTimeInput('2026-10-08', '15:00'), count: 2 });
+  assert.deepEqual(dates.map(formatDateTimeForInput), ['2026-10-08 15:00', '2026-10-15 15:00']);
+});
+
+test('단발 수업 요약', () => {
+  assert.equal(describeOneOff('2026-10-08 15:00'), '한 번만 · 10월 8일(목) 15:00');
+  assert.equal(describeOneOff(''), '한 번만 · 일정 미정');
 });

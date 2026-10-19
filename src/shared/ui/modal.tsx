@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { ActionButton } from './action-button';
 import { EASE_IN_SINE, EASE_OUT_SINE, usePresenceAnimation } from './motion';
@@ -29,6 +29,13 @@ type ModalProps = {
   /** 팝업을 닫거나 단계를 전환하는 등, 버튼이 아닌 텍스트 링크 액션. */
   linkAction?: { label: string; onPress: () => void };
   accessibilityLabel: string;
+  /**
+   * 긴 폼(새 수업 만들기 등)용 - 카드 높이를 화면 안으로 제한하고 본문만 스크롤해, 버튼은 늘 카드 아래에
+   * 보이게 한다. 끄면(기본) 예전처럼 카드 전체가 스크림 안에서 스크롤된다.
+   */
+  pinActions?: boolean;
+  /** pinActions일 때 버튼 바로 위에 붙는 요약(예: "매주 목요일 15:00 · 12회"). */
+  actionsNote?: ReactNode;
 };
 
 /**
@@ -49,8 +56,11 @@ export function Modal({
   negativeAction,
   linkAction,
   accessibilityLabel,
+  pinActions = false,
+  actionsNote,
 }: ModalProps) {
   const { mounted, entered, durationMs } = usePresenceAnimation(visible);
+  const { height: windowHeight } = useWindowDimensions();
   const cardRef = useRef<View>(null);
   const previouslyFocused = useRef<Element | null>(null);
 
@@ -110,6 +120,8 @@ export function Modal({
 
   if (!mounted) return null;
 
+  const actions = <ModalActions positiveAction={positiveAction} negativeAction={negativeAction} linkAction={linkAction} />;
+
   const scrim = (
     <View
       // position:'fixed'로 조상 높이와 무관하게 항상 뷰포트 전체를 덮는다.
@@ -138,6 +150,8 @@ export function Modal({
           // 통과시켜 주지만, RN의 ViewStyle 타입에는 없어서 이 스타일 객체만 any로 둔다.
           style={[
             styles.card,
+            // 스크림 여백(위아래 20씩)을 뺀 화면 높이까지만 - 넘치는 본문은 pinnedBody 안에서 스크롤한다.
+            pinActions && { maxHeight: windowHeight - 40 },
             {
               opacity: entered ? 1 : 0,
               transform: [{ scale: entered ? 1 : 0.96 }],
@@ -150,35 +164,17 @@ export function Modal({
         >
           {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
           {title ? <Text style={styles.title} accessibilityRole="header">{title}</Text> : null}
-          {children}
-          {positiveAction ? (
-            <ActionButton
-              variant="primary"
-              label={positiveAction.label}
-              onPress={positiveAction.onPress}
-              disabled={positiveAction.disabled}
-              loading={positiveAction.loading}
-            />
-          ) : null}
-          {negativeAction ? (
-            <ActionButton
-              variant="secondaryFull"
-              label={negativeAction.label}
-              onPress={negativeAction.onPress}
-              disabled={negativeAction.disabled}
-              loading={negativeAction.loading}
-            />
-          ) : null}
-          {linkAction ? (
-            <Pressable
-              style={styles.linkButton}
-              onPress={linkAction.onPress}
-              accessibilityRole="button"
-              accessibilityLabel={linkAction.label}
-            >
-              <Text style={styles.linkButtonText}>{linkAction.label}</Text>
-            </Pressable>
-          ) : null}
+          {pinActions ? (
+            <ScrollView style={styles.pinnedBody} contentContainerStyle={styles.pinnedBodyContent}>
+              {children}
+            </ScrollView>
+          ) : children}
+          {pinActions ? (
+            <View style={styles.pinnedActions}>
+              {actionsNote}
+              {actions}
+            </View>
+          ) : actions}
         </View>
       </ScrollView>
     </View>
@@ -190,6 +186,45 @@ export function Modal({
   // (React context는 포탈을 통과해도 유지된다).
   if (typeof document === 'undefined') return scrim;
   return createPortal(scrim, document.body);
+}
+
+function ModalActions({
+  positiveAction,
+  negativeAction,
+  linkAction,
+}: Pick<ModalProps, 'positiveAction' | 'negativeAction' | 'linkAction'>) {
+  return (
+    <>
+      {positiveAction ? (
+        <ActionButton
+          variant="primary"
+          label={positiveAction.label}
+          onPress={positiveAction.onPress}
+          disabled={positiveAction.disabled}
+          loading={positiveAction.loading}
+        />
+      ) : null}
+      {negativeAction ? (
+        <ActionButton
+          variant="secondaryFull"
+          label={negativeAction.label}
+          onPress={negativeAction.onPress}
+          disabled={negativeAction.disabled}
+          loading={negativeAction.loading}
+        />
+      ) : null}
+      {linkAction ? (
+        <Pressable
+          style={styles.linkButton}
+          onPress={linkAction.onPress}
+          accessibilityRole="button"
+          accessibilityLabel={linkAction.label}
+        >
+          <Text style={styles.linkButtonText}>{linkAction.label}</Text>
+        </Pressable>
+      ) : null}
+    </>
+  );
 }
 
 /** Modal 안에서 본문 문단에 쓰는 표준 텍스트 스타일 - one-story 모달 3개가 공유하던 값. */
@@ -245,6 +280,14 @@ const styles = StyleSheet.create({
     letterSpacing: storybookTheme.type.xl * storybookTheme.tracking.heading,
     fontWeight: storybookTheme.type.weight.bold,
     textAlign: 'center',
+  },
+  pinnedBody: { flexGrow: 0, flexShrink: 1 },
+  pinnedBodyContent: { paddingBottom: space[4] },
+  pinnedActions: {
+    gap: space[12],
+    paddingTop: space[12],
+    borderTopWidth: borderWidth[1],
+    borderTopColor: L.border.secondary,
   },
   linkButton: {
     minHeight: 44,

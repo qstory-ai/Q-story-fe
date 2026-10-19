@@ -154,6 +154,12 @@ export const styles = StyleSheet.create({
     borderWidth: 2,
     backgroundColor: storybookTheme.color.accentSoftStrong,
   },
+  topControlButtonApart: { marginLeft: 14 },
+  topTextScaleGlyph: {
+    color: storybookTheme.color.accentOnDark,
+    fontSize: storybookTheme.type.md,
+    fontWeight: storybookTheme.type.weight.bold,
+  },
   topControlText: {
     color: storybookTheme.color.surfaceWhite,
     fontSize: storybookTheme.type.xxs,

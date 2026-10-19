@@ -194,7 +194,7 @@ export function statusCopy(state: StoryRuntimeState, context: ReadingContext = '
     case 'playing-fixed':
       return '이야기 듣는 중';
     case 'awaiting-question':
-      return '아이의 궁금한 것을 기다리는 중';
+      return '아이의 생각을 기다리는 중';
     case 'recording-question':
       return '목소리 담는 중';
     case 'processing-question':

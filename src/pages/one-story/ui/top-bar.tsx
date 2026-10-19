@@ -5,6 +5,7 @@ import { BrandLockup, Icon, storybookTheme } from '@/shared/ui';
 import type { OneStoryRuntime } from '../model';
 import type { UseDialogue } from '../model/use-dialogue';
 import { playbackControls } from '../lib/playback-controls';
+import { textScaleLabel, type ReaderTextScaleKey } from '../lib/reader-text-scale';
 import { styles } from './styles';
 
 // 반투명 버튼이 밝은 장면 위에 놓여도 읽히게 - readerControlBackground 위 Purple 200.
@@ -22,11 +23,16 @@ export function TopBar({
   runtime,
   dialogue,
   onOpenChapters,
+  textScaleKey,
+  onCycleTextScale,
 }: {
   runtime: OneStoryRuntime;
   dialogue: UseDialogue;
   /** 챕터 사이드바 토글 - 없으면(예: 스토리를 아직 안 시작해 챕터 개념이 없는 idle 화면) 버튼을 숨긴다. */
   onOpenChapters?: () => void;
+  /** 지금 글씨 크기와 다음 크기로 바꾸기(lib/reader-text-scale) - 이야기 중에만 버튼을 보인다. */
+  textScaleKey: ReaderTextScaleKey;
+  onCycleTextScale: () => void;
 }) {
   const {
     isWide,
@@ -127,6 +133,19 @@ export function TopBar({
             {isWide && <Text style={styles.topControlText}>챕터</Text>}
           </Pressable>
         )}
+        {/* 글씨 크기 - 반 수업에서 선생님이 아이들 자리에 맞춰 바로 키울 수 있게 늘 같은 자리에 둔다. */}
+        {inStory && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`글씨 크기 ${textScaleLabel(textScaleKey)}, 눌러서 바꾸기`}
+            style={styles.topControlButton}
+            hitSlop={TOP_CONTROL_HIT_SLOP}
+            onPress={onCycleTextScale}
+          >
+            <Text style={styles.topTextScaleGlyph}>가</Text>
+            {isWide && <Text style={styles.topControlText}>글씨 {textScaleLabel(textScaleKey)}</Text>}
+          </Pressable>
+        )}
         {inStory && !dialogue.open && (
           <Pressable
             accessibilityRole="button"
@@ -162,7 +181,12 @@ export function TopBar({
                   key={control.key}
                   accessibilityRole="button"
                   accessibilityLabel={control.accessibilityLabel}
-                  style={[styles.topControlButton, control.primary && styles.topControlButtonPrimary]}
+                  style={[
+                    styles.topControlButton,
+                    control.primary && styles.topControlButtonPrimary,
+                    // "다음 장면"은 한 화를 통째로 넘기니 다른 버튼과 떼어 둬 잘못 누르지 않게 한다.
+                    control.key === 'next' && styles.topControlButtonApart,
+                  ]}
                   hitSlop={TOP_CONTROL_HIT_SLOP}
                   onPress={control.onPress}
                 >

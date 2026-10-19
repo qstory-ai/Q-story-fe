@@ -15,6 +15,7 @@ export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
     finishExperience,
     restartStory,
     parentReport,
+    isClassLesson,
   } = runtime;
 
   if (runtimeState.status !== 'complete') {
@@ -30,12 +31,13 @@ export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
           <Text style={styles.completeMark}>✦</Text>
           <Text style={styles.heroTitle}>
             오늘 {parentReport.storyTitle}
-            {objectParticle}{'\n'}함께 읽었어요! 더 대화 나눠 볼까요?
+            {objectParticle}{'\n'}끝까지 함께 읽었어요!
           </Text>
           <Text style={styles.introBody}>{parentReport.completedStory}</Text>
           <ActionButton
             variant="primary"
-            label="보호자 리포트 보기"
+            // 반 수업은 선생님이 보는 수업 기록 - 보호자 리포트는 연결된 보호자에게 따로 간다.
+            label={isClassLesson ? '오늘 수업 기록 보기' : '보호자 리포트 보기'}
             onPress={openParentReport}
           />
           <View style={styles.splitRow}>

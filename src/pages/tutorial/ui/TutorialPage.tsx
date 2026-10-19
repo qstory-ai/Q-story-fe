@@ -50,9 +50,9 @@ export function TutorialPage() {
 
       <View style={styles.content}>
         <Text style={styles.eyebrow}>Q-Story 소개</Text>
-        <Text style={styles.title} accessibilityRole="header">아이의 질문이 이야기를 움직여요</Text>
+        <Text style={styles.title} accessibilityRole="header">아이의 호기심이 멈추지 않도록</Text>
         <Text style={styles.body}>
-          검수된 이야기를 함께 듣고, 아이가 궁금해할 순간에만 짧게 대화해요. 대화가 다음 장면과 리포트로 이어져요.
+          우리 아이의 궁금증을 자극하고 질문과 생각을 이끄는 상호작용형 동화예요.
         </Text>
         <View style={styles.bulletList}>
           {BULLETS.map((bullet) => (

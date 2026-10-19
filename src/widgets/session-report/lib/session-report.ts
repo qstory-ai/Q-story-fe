@@ -170,40 +170,76 @@ export function readRangeLabel(
   return `${from}~${through ?? total}화 끝까지 읽음`;
 }
 
+/** 시도 장면에서 내레이터가 읽은 줄 - 대사가 아니라 이야기 서술이다. */
+export function isNarrationTurn(turn: PlayTurn) {
+  return turn.role === 'CHARACTER' && turn.replyKind === 'ATTEMPT_SCENE' && Boolean(turn.characterSpeakerId?.endsWith('NARRATOR'));
+}
+
+/** 수업 기록 표의 대화 한 줄 - 아이 말, 그레텔 말, 시도 장면 서술. */
+export type ClassLine = {
+  seq: number;
+  who: 'CHILD' | 'CHARACTER' | 'NARRATION';
+  text: string;
+};
+
 export type ClassSceneRow = {
   sceneId: string;
   sceneTitle: string;
-  sent: string[];
-  replies: string[];
+  /** 주고받은 말을 기록 순서(seq)대로 - 아이 말 뒤에 그 말에 대한 그레텔 답·장면 줄이 이어진다. */
+  lines: ClassLine[];
+  /** 그 장면에서 이야기가 어떻게 이어졌는지 - 보호자·선생님이 읽을 문장. */
   result: string;
 };
 
-/** 선생님용 수업 기록 표 - 장면마다 앱에 전달한 말, 그레텔 답, 실행한 행동. */
+/** 대화 뒤 이야기가 어떻게 이어졌는지 - 아무 기록이 없으면 원래 이야기로 이어진 것. */
+export const CLASS_RESULT_DEFAULT = '원래 이야기로 이어졌어요';
+
+/**
+ * 선생님용 수업 기록 표 - 장면마다 주고받은 말(순서대로)과 이어진 이야기. 준비된 말(질문 초대 등)은 빼고
+ * 아이 말과 그 자리에서 만든 그레텔 답·시도 장면 줄만 남긴다.
+ */
 export function classSceneRows(storyPackage: StoryRuntimePackage, turns: readonly PlayTurn[]): ClassSceneRow[] {
   const rows = new Map<string, ClassSceneRow>();
+  // 결과 문장이 정해진 장면 - 없으면 기본 문장(원래 이야기로)이 남는다.
+  const decided = new Set<string>();
   for (const turn of [...turns].sort((a, b) => a.seq - b.seq)) {
     const row = rows.get(turn.sceneId) ?? {
       sceneId: turn.sceneId,
       sceneTitle: sceneTitleOf(storyPackage, turn.sceneId),
-      sent: [],
-      replies: [],
-      result: '',
+      lines: [],
+      result: CLASS_RESULT_DEFAULT,
     };
-    if (turn.role === 'CHILD' && turn.text) row.sent.push(turn.text);
-    if (turn.role === 'CHARACTER' && !turn.fixed && turn.text) row.replies.push(turn.text);
+    const text = turn.text?.trim();
+    if (turn.role === 'CHILD' && text) row.lines.push({ seq: turn.seq, who: 'CHILD', text });
+    if (turn.role === 'CHARACTER' && !turn.fixed && text) {
+      row.lines.push({ seq: turn.seq, who: isNarrationTurn(turn) ? 'NARRATION' : 'CHARACTER', text });
+    }
+    // 행동 확인은 앞선 기록을 덮고, 나머지는 그 장면의 첫 기록만 쓴다.
     if (turn.event === 'ACTION_CONFIRMED' && turn.familyId) {
-      row.result =
+      const meaning =
         storyPackage.manifest.fallbackFamilies.find((family) => family.id === turn.familyId)?.meaning ?? turn.familyId;
-    } else if (turn.event === 'INVITE_SKIPPED' && !row.result) {
-      row.result = '건너뜀 - 원래 이야기대로';
-    } else if (turn.event === 'TRY_FAILED' && !row.result) {
-      row.result = `해 봤다가 막힘(${turn.text ?? '시도 장면'}) - 다른 방법 찾기`;
-    } else if (turn.event === 'INVITE_CLOSED' && !row.result) {
-      row.result = '대화만 - 원래 이야기대로';
+      row.result = `선택한 행동: ${meaning}${turn.viaSuggestion ? ' (예시를 보고 골랐어요)' : ''}`;
+      decided.add(turn.sceneId);
+    } else if (!decided.has(turn.sceneId)) {
+      const label = classResultLabel(turn);
+      if (label) {
+        row.result = label;
+        decided.add(turn.sceneId);
+      }
     }
     rows.set(turn.sceneId, row);
   }
-  return [...rows.values()].filter((row) => row.sent.length > 0 || row.replies.length > 0 || row.result);
+  return [...rows.values()].filter((row) => row.lines.length > 0 || decided.has(row.sceneId));
+}
+
+function classResultLabel(turn: PlayTurn) {
+  if (turn.event === 'INVITE_SKIPPED') return '질문을 건너뛰고 원래 이야기로 이어졌어요';
+  if (turn.event === 'TRY_FAILED') {
+    const tried = turn.text?.trim();
+    return `${tried ? `해 본 것: ${tried} - ` : '해 봤지만 '}잘 안 돼서 다른 방법을 찾아보기로 했어요`;
+  }
+  if (turn.event === 'INVITE_CLOSED') return '대화만 나누고 원래 이야기로 이어졌어요';
+  return '';
 }
 
 /** 질문 초대를 건너뛴 장면 - 선생님에게 "다음 수업에서 이어 볼 것"으로 보여 준다. */

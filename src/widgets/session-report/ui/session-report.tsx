@@ -21,6 +21,8 @@ import {
   sceneTitleOf,
   skippedInviteScenes,
   storyChanges,
+  type ClassLine,
+  type ClassSceneRow,
   type SceneExchange,
 } from '../lib/session-report';
 import type { SessionReportAction } from '../lib/report-tracking';
@@ -118,23 +120,19 @@ export function SessionReport({
           title="수업 내용"
           description={
             data.sessionKind === 'CLASS'
-              ? '앱에 전달한 말과 그레텔의 답, 실행한 행동이에요. 반 수업에서는 누가 말했는지 앱이 알 수 없어 아이별로 나누지 않아요.'
-              : '이 아이와 한 개별 수업에서 앱에 전달한 말과 그레텔의 답, 실행한 행동이에요.'
+              ? '앱에 전달한 말과 그레텔의 답을 주고받은 순서대로, 그 뒤 이야기가 어떻게 이어졌는지와 함께 보여 줘요. 반 수업에서는 누가 말했는지 앱이 알 수 없어 아이별로 나누지 않아요.'
+              : '이 아이와 한 개별 수업에서 주고받은 말을 순서대로, 그 뒤 이야기가 어떻게 이어졌는지와 함께 보여 줘요.'
           }
         >
           {rows.length === 0 ? (
             <Text style={sr.empty}>이번 수업에서는 질문 초대에 답하거나 그레텔과 이야기한 기록이 없어요.</Text>
           ) : (
-            rows.map((row) => (
-              <View key={row.sceneId} style={[sr.tableRow, isWide && sr.tableRowWide]}>
-                <Text style={[sr.tableScene, isWide && sr.tableCellWide]}>
-                  {sceneNumberOf(storyPackage, row.sceneId)}화 {row.sceneTitle}
-                </Text>
-                <TableCell label="앱에 전달한 말" values={row.sent} isWide={isWide} />
-                <TableCell label="그레텔 답" values={row.replies} isWide={isWide} />
-                <TableCell label="실행한 행동·결과" values={[row.result || '원래 이야기대로']} isWide={isWide} />
-              </View>
-            ))
+            <ClassTable
+              rows={rows}
+              storyPackage={storyPackage}
+              isWide={isWide}
+              childLabel={data.sessionKind === 'CLASS' ? '전달한 말' : '아이'}
+            />
           )}
         </Section>
         <Section title="교사 메모">{teacherNoteSlot ?? <TeacherNoteView note={data.teacherNote} showInternal />}</Section>
@@ -295,11 +293,67 @@ function Tag({ label }: { label: string }) {
   );
 }
 
-function TableCell({ label, values, isWide }: { label: string; values: string[]; isWide: boolean }) {
+/**
+ * 선생님 수업 기록 표 - 화 · 주고받은 말 · 이어진 이야기. 넓은 화면은 머리줄이 있는 세 칸 표, 좁은 화면은
+ * 장면마다 위에서 아래로 쌓고 칸 이름을 각 묶음 위에 둔다. 주고받은 말은 기록 순서대로 한 줄씩 보여 줘서
+ * 어느 답이 어느 말에 대한 것인지 바로 보인다.
+ */
+function ClassTable({
+  rows,
+  storyPackage,
+  isWide,
+  childLabel,
+}: {
+  rows: ClassSceneRow[];
+  storyPackage: StoryRuntimePackage;
+  isWide: boolean;
+  childLabel: string;
+}) {
   return (
-    <View style={[sr.tableCell, isWide && sr.tableCellWide]}>
-      {!isWide && <Text style={sr.muted}>{label}</Text>}
-      <Text style={sr.body}>{values.length > 0 ? values.join('\n') : '-'}</Text>
+    <View>
+      {isWide && (
+        <View style={[sr.tableRowWide, sr.tableHead]}>
+          <Text style={[sr.tableHeadText, sr.tableSceneCol]}>화</Text>
+          <Text style={[sr.tableHeadText, sr.tableTalkCol]}>주고받은 말</Text>
+          <Text style={[sr.tableHeadText, sr.tableResultCol]}>이어진 이야기</Text>
+        </View>
+      )}
+      {rows.map((row, index) => (
+        <View
+          key={row.sceneId}
+          style={[sr.tableRow, isWide && sr.tableRowWide, index === rows.length - 1 && sr.tableRowLast]}
+        >
+          <Text style={[sr.tableScene, isWide && sr.tableSceneCol]}>
+            {sceneNumberOf(storyPackage, row.sceneId)}화 {row.sceneTitle}
+          </Text>
+          <View style={[sr.tableCell, isWide && sr.tableTalkCol]}>
+            {!isWide && <Text style={sr.tableLabel}>주고받은 말</Text>}
+            {row.lines.length > 0 ? (
+              row.lines.map((line) => <ClassLineView key={line.seq} line={line} childLabel={childLabel} />)
+            ) : (
+              <Text style={sr.muted}>주고받은 말 없이 지나갔어요.</Text>
+            )}
+          </View>
+          <View style={[sr.tableCell, isWide && sr.tableResultCol]}>
+            {!isWide && <Text style={sr.tableLabel}>이어진 이야기</Text>}
+            <Text style={sr.tableResult}>{row.result}</Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** 표 안 대화 한 줄 - 아이 말·그레텔 말은 이름 붙은 띠, 시도 장면 서술은 이름 없이 기울인 흐린 글씨. */
+function ClassLineView({ line, childLabel }: { line: ClassLine; childLabel: string }) {
+  if (line.who === 'NARRATION') {
+    return <Text style={sr.tableNarration}>{line.text}</Text>;
+  }
+  const isChild = line.who === 'CHILD';
+  return (
+    <View style={[sr.tableLine, isChild ? sr.childLine : sr.characterLine]}>
+      <Text style={[sr.who, isChild ? sr.childWho : sr.characterWho]}>{isChild ? childLabel : '그레텔'}</Text>
+      <Text style={sr.tableLineText}>{line.text}</Text>
     </View>
   );
 }
@@ -897,9 +951,25 @@ const sr = StyleSheet.create({
   followUpText: { color: storybookTheme.color.onCardBody, fontSize: storybookTheme.type.md, lineHeight: 26 },
 
   // 선생님 표
-  tableRow: { gap: 6, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: storybookTheme.color.surfaceCardBorder },
-  tableRowWide: { flexDirection: 'row', gap: 12 },
+  tableHead: { paddingBottom: 8, borderBottomWidth: 2, borderBottomColor: storybookTheme.color.surfaceCardBorder },
+  tableHeadText: { color: storybookTheme.color.onCardMuted, fontSize: storybookTheme.type.sm, lineHeight: 20, fontWeight: storybookTheme.type.weight.bold },
+  tableRow: { gap: 10, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: storybookTheme.color.surfaceCardBorder },
+  tableRowWide: { flexDirection: 'row', alignItems: 'flex-start', gap: 20 },
+  tableRowLast: { borderBottomWidth: 0 },
   tableScene: { color: storybookTheme.color.onCardTitle, fontSize: storybookTheme.type.md, lineHeight: 24, fontWeight: storybookTheme.type.weight.bold },
-  tableCell: { gap: 2 },
-  tableCellWide: { flex: 1 },
+  tableSceneCol: { width: 150, flexShrink: 0 },
+  tableTalkCol: { flex: 2, minWidth: 0 },
+  tableResultCol: { flex: 1, minWidth: 0 },
+  tableCell: { gap: 6 },
+  tableLabel: { color: storybookTheme.color.onCardMuted, fontSize: storybookTheme.type.sm, lineHeight: 20, fontWeight: storybookTheme.type.weight.semibold },
+  tableLine: { borderLeftWidth: 3, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 7, gap: 2 },
+  tableLineText: { color: storybookTheme.color.onCardTitle, fontSize: storybookTheme.type.md, lineHeight: 24 },
+  tableNarration: {
+    color: storybookTheme.color.onCardMuted,
+    fontSize: storybookTheme.type.sm,
+    lineHeight: 22,
+    fontStyle: 'italic',
+    paddingHorizontal: 15,
+  },
+  tableResult: { color: storybookTheme.color.onCardBody, fontSize: storybookTheme.type.md, lineHeight: 25 },
 });

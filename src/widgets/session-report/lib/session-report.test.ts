@@ -5,6 +5,7 @@ import test from 'node:test';
 import { hanselGretelStoryPackage as storyPackage } from '@/test-fixtures/hansel-gretel/manifest';
 
 import {
+  CLASS_RESULT_DEFAULT,
   childReplyPairs,
   classSceneRows,
   evidenceTurns,
@@ -69,14 +70,39 @@ test('read range reads like the report sentence', () => {
   assert.equal(readRangeLabel(storyPackage, 'HG-F01', 'HG-F06', 'EXITED'), '1~6화까지 읽고 멈춤');
 });
 
-test('class rows show what was sent, the reply and what happened per scene', () => {
+test('class rows keep the conversation in turn order and say what happened per scene', () => {
   const rows = classSceneRows(storyPackage, turns);
   assert.equal(rows[0].sceneId, 'HG-F04');
-  assert.deepEqual(rows[0].sent, ['새는 어디 가?', '응 보자']);
-  assert.deepEqual(rows[0].replies, ['나도 몰라. 같이 지켜볼까?']);
-  assert.match(rows[0].result, /새/);
-  assert.equal(rows[1].result, '건너뜀 - 원래 이야기대로');
+  assert.deepEqual(
+    rows[0].lines.map((line) => [line.who, line.text]),
+    [
+      ['CHILD', '새는 어디 가?'],
+      ['CHARACTER', '나도 몰라. 같이 지켜볼까?'],
+      ['CHILD', '응 보자'],
+    ],
+    'prepared lines are left out and each reply sits right after the line it answered',
+  );
+  assert.match(rows[0].result, /^선택한 행동: .*새/);
+  assert.equal(rows[1].result, '질문을 건너뛰고 원래 이야기로 이어졌어요');
+  assert.match(rows[2].result, /예시를 보고 골랐어요/);
   assert.deepEqual(skippedInviteScenes(storyPackage, turns), ['5화 과자집 문 앞의 초대']);
+});
+
+test('class rows mark try-scene narration and read talk-only scenes in plain words', () => {
+  const rows = classSceneRows(storyPackage, [
+    { seq: 1, occurredAt: '', sceneId: 'HG-F04', role: 'CHILD', text: '새를 잡아 볼래' },
+    { seq: 2, occurredAt: '', sceneId: 'HG-F04', role: 'SYSTEM', event: 'TRY_FAILED', text: '새 잡기' },
+    { seq: 3, occurredAt: '', sceneId: 'HG-F04', role: 'CHARACTER', text: '그레텔은 손을 뻗어 보았지만, 새는 날아갔어요.', replyKind: 'ATTEMPT_SCENE', characterSpeakerId: 'HG_NARRATOR' },
+    { seq: 4, occurredAt: '', sceneId: 'HG-F04', role: 'CHARACTER', text: '어떡하지?', replyKind: 'TRY_FAIL' },
+    { seq: 5, occurredAt: '', sceneId: 'HG-F06', role: 'CHILD', text: '배고파' },
+    { seq: 6, occurredAt: '', sceneId: 'HG-F06', role: 'CHARACTER', text: '나도 배고파.', replyKind: 'EMPATHY' },
+    { seq: 7, occurredAt: '', sceneId: 'HG-F06', role: 'SYSTEM', event: 'INVITE_CLOSED' },
+    { seq: 8, occurredAt: '', sceneId: 'HG-F08', role: 'CHILD', text: '음' },
+  ]);
+  assert.deepEqual(rows[0].lines.map((line) => line.who), ['CHILD', 'NARRATION', 'CHARACTER']);
+  assert.equal(rows[0].result, '해 본 것: 새 잡기 - 잘 안 돼서 다른 방법을 찾아보기로 했어요');
+  assert.equal(rows[1].result, '대화만 나누고 원래 이야기로 이어졌어요');
+  assert.equal(rows[2].result, CLASS_RESULT_DEFAULT, 'no recorded outcome means the story went on as written');
 });
 
 test('evidence resolves only to child lines', () => {
@@ -116,7 +142,7 @@ test('a tried-and-failed scene shows as its own result until an action is taken'
     { seq: 3, occurredAt: '', sceneId: 'HG-F07', role: 'SYSTEM', event: 'TRY_FAILED', text: '마녀가 잘 때 열쇠를 가져가고 싶음' },
     { seq: 4, occurredAt: '', sceneId: 'HG-F07', role: 'SYSTEM', event: 'INVITE_CLOSED' },
   ];
-  assert.equal(classSceneRows(storyPackage, tried)[0].result, '해 봤다가 막힘(마녀가 잘 때 열쇠를 가져가고 싶음) - 다른 방법 찾기');
+  assert.equal(classSceneRows(storyPackage, tried)[0].result, '해 본 것: 마녀가 잘 때 열쇠를 가져가고 싶음 - 잘 안 돼서 다른 방법을 찾아보기로 했어요');
   const thenActed = [
     ...tried.slice(0, 3),
     { seq: 4, occurredAt: '', sceneId: 'HG-F07', role: 'SYSTEM', event: 'ACTION_CONFIRMED', familyId: 'C_WAIT_FOR_WITCH_TURN' },

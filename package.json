@@ -27,7 +27,11 @@
     "content:import": "node scripts/import-story-to-backend.mjs --all",
     "tokens:generate": "tsx scripts/gen-design-tokens.mjs",
     "tokens:check": "tsx scripts/gen-design-tokens.mjs --check",
-    "assets:upload": "node scripts/upload-story-assets-to-supabase.mjs --all"
+    "assets:upload": "node scripts/upload-story-assets-to-supabase.mjs --all",
+    "art:jobs": "node scripts/illustrations/build-jobs.mjs",
+    "art:generate": "node scripts/illustrations/generate-higgsfield.mjs",
+    "art:review": "node scripts/illustrations/review-sheet.mjs",
+    "art:promote": "node scripts/illustrations/promote.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

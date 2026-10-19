@@ -372,6 +372,26 @@ export const styles = StyleSheet.create({
     lineHeight: 25,
     textAlign: 'center',
   },
+  // 완주 화면 "오늘 그레텔에게 한 말" - 아이가 한 말 몇 줄을 다시 보여 준다.
+  completeThoughts: {
+    gap: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    backgroundColor: storybookTheme.color.accentSoftStrong,
+  },
+  completeThoughtsTitle: {
+    color: storybookTheme.color.readerHeading,
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
+    textAlign: 'center',
+  },
+  completeThoughtLine: {
+    color: storybookTheme.color.onCardBody,
+    fontSize: storybookTheme.type.md,
+    lineHeight: 24,
+    textAlign: 'center',
+  },
   // 완주 기록 저장 안내(complete-panel) - 저장 중은 작은 회색 글, 실패는 빨간 테두리 상자와 다시 저장하기.
   completionSaveNote: {
     color: storybookTheme.color.onCardMuted,
@@ -450,8 +470,8 @@ export const styles = StyleSheet.create({
   },
   parentHint: {
     color: storybookTheme.color.onLightMuted,
-    fontSize: storybookTheme.type.xxs,
-    lineHeight: 17,
+    fontSize: storybookTheme.type.xs,
+    lineHeight: 19,
     textAlign: 'center',
   },
   parentHintList: { gap: 2, alignItems: 'center' },

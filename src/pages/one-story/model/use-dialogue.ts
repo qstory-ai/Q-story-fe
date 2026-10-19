@@ -1309,12 +1309,18 @@ export function useDialogue({
   /** 행동 제안·복귀 제안·도움 제안을 미루고 대화를 이어 간다. */
   const keepTalking = useCallback(() => {
     if (phase === 'suggest-return') setExtended(true);
+    // 그레텔이 제안 답을 말하는 중에 눌렀으면(확인 카드는 말하는 동안에도 보인다) 말을 끊는다 - 끝난 뒤 다시
+    // 제안 단계로 돌아가지 않게.
+    if (phase === 'speaking') {
+      cancelPending();
+      stopSpeaking();
+    }
     logStep('KEEP_TALKING', { reply_kind: phase });
     // 제안한 행동을 지금은 하지 않기로 함 - 제안과 실제 실행을 구분해 남긴다.
-    if (phase === 'proposal' && proposal) logTurn({ role: 'SYSTEM', event: 'ACTION_DECLINED', familyId: proposal.familyId });
+    if (proposal) logTurn({ role: 'SYSTEM', event: 'ACTION_DECLINED', familyId: proposal.familyId });
     setProposal(null);
     setPhase('ready');
-  }, [logStep, logTurn, phase, proposal]);
+  }, [cancelPending, logStep, logTurn, phase, proposal, stopSpeaking]);
 
   // 이야기 화면을 떠나면 진행 중인 요청·음성을 멈춘다.
   useEffect(
@@ -1346,8 +1352,12 @@ export function useDialogue({
     canAskHelp: mode === 'INVITE' && helpStep < helpSteps.length,
     helpStep,
     suggestions,
+    // 행동 확인 카드 문구 - 아이에게 보이는 짧은 이름("잠깐 새 지켜보기")이 있으면 그것을, 없으면 행동 뜻 문장을 쓴다.
+    // 뜻 문장("~지켜본다.")은 서버가 아이 말을 분류하는 기준이라 그대로 두고 화면에서만 바꾼다.
     proposalLabel: proposal
-      ? (storyPackage.manifest.fallbackFamilies.find((family) => family.id === proposal.familyId)?.meaning ?? null)
+      ? (inviteHelp?.suggestions?.find((suggestion) => suggestion.familyId === proposal.familyId)?.label
+        ?? storyPackage.manifest.fallbackFamilies.find((family) => family.id === proposal.familyId)?.meaning
+        ?? null)
       : null,
     openChat,
     openInvite,

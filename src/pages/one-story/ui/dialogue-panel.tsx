@@ -184,11 +184,15 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
     );
   }
 
-  if (phase === 'proposal') {
+  // 행동 확인 - 그레텔이 제안 답을 말하는 동안에도 카드를 먼저 보인다(답이 끝날 때까지 말하기 버튼이 먼저 떠서
+  // 아이가 다른 말을 하던 문제, 10/19 QA).
+  if (phase === 'proposal' || (phase === 'speaking' && dialogue.proposalLabel)) {
     return (
       <View style={panel.column}>
         {dialogue.proposalLabel && (
-          <Text style={[panel.proposalText, scaledText(panel.proposalText, textScale)]}>{dialogue.proposalLabel}</Text>
+          <Text style={[panel.proposalText, scaledText(panel.proposalText, textScale)]}>
+            이렇게 해 볼까? · {dialogue.proposalLabel}
+          </Text>
         )}
         <View style={panel.controls}>
           <Chip primary label="그렇게 해보기" onPress={dialogue.acceptProposal} />

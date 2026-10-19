@@ -18,7 +18,7 @@ const TABS: { key: Tab; label: string }[] = [
 
 type LoadState =
   | { status: 'loading' }
-  | { status: 'ready'; lessons: Lesson[] }
+  | { status: 'ready'; lessons: Lesson[]; tab: Tab; reloadKey: number }
   | { status: 'error'; message: string };
 
 /**
@@ -51,7 +51,7 @@ export function TutorLessonsPage() {
     // 이전 데이터는 그대로 두고 응답 도착 시 갈아 낀다(setState-in-effect 규칙 회피).
     listLessons(token, { status: tab as LessonStatus })
       .then((lessons) => {
-        if (!cancelled) setLoad({ status: 'ready', lessons });
+        if (!cancelled) setLoad({ status: 'ready', lessons, tab, reloadKey });
       })
       .catch((failure: unknown) => {
         if (cancelled) return;
@@ -64,6 +64,10 @@ export function TutorLessonsPage() {
   }, [token, tab, reloadKey]);
 
   const refresh = useCallback(() => setReloadKey((n) => n + 1), []);
+  // 탭을 바꾼 직후에는 앞 탭 목록이 남아 있다 - 다른 탭의 수업이 잠깐 보이지 않게 새 응답이 올 때까지 불러오는 중으로 둔다.
+  // 새로 만든 뒤 다시 불러올 때(reloadKey)는 지금 목록을 둔 채 아래에 작게 알린다.
+  const staleTab = load.status === 'ready' && load.tab !== tab;
+  const refreshing = load.status === 'ready' && !staleTab && load.reloadKey !== reloadKey;
 
   if (state.status !== 'authenticated') return null;
 
@@ -88,13 +92,14 @@ export function TutorLessonsPage() {
           ))}
         </View>
 
-        {load.status === 'loading' ? (
+        {refreshing && <Text style={styles.refreshing}>목록을 새로 불러오는 중이에요…</Text>}
+        {load.status === 'loading' || staleTab ? (
           <LoadingState label="수업을 불러오는 중이에요…" />
         ) : load.status === 'error' ? (
           <ErrorState message={load.message} onRetry={refresh} />
-        ) : load.lessons.length === 0 ? (
+        ) : load.status === 'ready' && load.lessons.length === 0 && !refreshing ? (
           <EmptyForTab tab={tab} onNewLesson={() => setFormOpen(true)} />
-        ) : (
+        ) : load.status === 'ready' ? (
           <View style={styles.list}>
             {load.lessons.map((lesson) => (
               <LessonRow
@@ -105,7 +110,7 @@ export function TutorLessonsPage() {
               />
             ))}
           </View>
-        )}
+        ) : null}
       </View>
 
       {/* key로 open/closed(+ 편집 대상)를 걸어 열 때마다 폼을 초기값으로 remount한다. */}
@@ -229,6 +234,7 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onContent,
   },
+  refreshing: { color: storybookTheme.color.onLightMuted, fontSize: storybookTheme.type.xs },
   tabRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, rowGap: FILTER_CHIP_ROW_GAP, flexWrap: 'wrap' }, // 칩이 여러 줄로 감길 때 터치 영역(44)이 겹치지 않게
   list: { gap: 8 },
   row: {

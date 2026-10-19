@@ -7,6 +7,13 @@ import type { PlayEntrySource, PlaySetting } from '@/entities/play-session';
 import { CompletionSurveyModal } from '@/features/completion-survey-modal';
 
 import { useDialogue, useOneStoryRuntime } from '../model';
+import {
+  loadTextScale,
+  nextTextScale,
+  ReaderTextScaleContext,
+  saveTextScale,
+  textScaleFactor,
+} from '../lib/reader-text-scale';
 import { ChapterSidebar } from './chapter-sidebar';
 import { DialoguePanel } from './dialogue-panel';
 import { HomeMenuModal } from './modals/home-menu-modal';
@@ -59,73 +66,93 @@ export function OneStoryPage({
     paused: runtime.homeMenuVisible || chaptersOpen,
   });
   const closeChapters = useCallback(() => setChaptersOpen(false), [setChaptersOpen]);
+  // 글씨 크기(lib/reader-text-scale) - 반 수업은 "크게"로 시작한다. 상단 [글씨] 버튼이 돌아가며 바꾼다.
+  const isClassLesson = runtime.isClassLesson;
+  const [textScaleKey, setTextScaleKey] = useState(() => loadTextScale(isClassLesson));
+  const cycleTextScale = useCallback(() => {
+    setTextScaleKey((key) => {
+      const next = nextTextScale(key);
+      saveTextScale(isClassLesson, next);
+      return next;
+    });
+  }, [isClassLesson]);
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
       {/* 리더 캔버스만 Semantic Dark 범위(data-theme="dark"). 포털로 뜨는 흰 모달·로딩·오류 화면은 범위 밖이라 밝게 남는다. */}
       <ThemeModeProvider mode="dark" style={styles.app}>
-        <IllustrationBackdrop
-          illustration={illustration}
-          attempt={runtime.attemptBackdrop}
-          hidden={isParentReport}
-          accessibilityLabel={`${scene?.title ?? runtime.storyPackage.manifest.title} 삽화`}
-        />
-        <View
-          style={[
-            styles.imageShade,
-            isParentReport && styles.reportPageBackground,
-          ]}
-        />
+        <ReaderTextScaleContext.Provider value={textScaleFactor(textScaleKey)}>
+          <IllustrationBackdrop
+            illustration={illustration}
+            attempt={runtime.attemptBackdrop}
+            // 대화 패널이 아래를 덮는 동안 그림을 위로 올려 장면의 가운데가 패널 위에 보이게 한다.
+            lifted={dialogue.open && !runtime.homeMenuVisible && !chaptersOpen}
+            hidden={isParentReport}
+            accessibilityLabel={`${scene?.title ?? runtime.storyPackage.manifest.title} 삽화`}
+          />
+          <View
+            style={[
+              styles.imageShade,
+              isParentReport && styles.reportPageBackground,
+            ]}
+          />
 
-        {/* onOpenChapters를 항상 넘겨도 된다 - TopBar 자신이 이미 같은 조건(idle 아님 && 리포트
-            아님)으로 다른 버튼들과 함께 보임/숨김을 판단한다. */}
-        <TopBar runtime={runtime} dialogue={dialogue} onOpenChapters={() => setChaptersOpen(true)} />
-        <SceneProgressBar runtime={runtime} />
+          {/* onOpenChapters를 항상 넘겨도 된다 - TopBar 자신이 이미 같은 조건(idle 아님 && 리포트
+              아님)으로 다른 버튼들과 함께 보임/숨김을 판단한다. */}
+          <TopBar
+            runtime={runtime}
+            dialogue={dialogue}
+            onOpenChapters={() => setChaptersOpen(true)}
+            textScaleKey={textScaleKey}
+            onCycleTextScale={cycleTextScale}
+          />
+          <SceneProgressBar runtime={runtime} />
 
-        <ScrollView
-          contentContainerStyle={[
-            styles.scrollContent,
-            isWide && styles.scrollContentWide,
-            isShort && styles.scrollContentShort,
-            isPlaybackDockState && styles.scrollContentPlayback,
-            isNarrow && !isParentReport && styles.scrollContentNarrow,
-            showPlaybackDock && styles.scrollContentNarrowPlayback,
-            !isPlaybackDockState && styles.scrollContentCentered,
-            isShort && !isPlaybackDockState && styles.scrollContentShortCentered,
-            isParentReport && styles.reportScrollContent,
-            isParentReport && isWide && styles.reportScrollContentWide,
-          ]}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {isPlaybackDockState && (
-            <View
-              style={[
-                styles.spacer,
-                styles.playbackSpacer,
-                isNarrow && styles.playbackSpacerCompact,
-              ]}
-            />
-          )}
-          {!dialogue.open && <ReaderCard runtime={runtime} dialogue={dialogue} />}
-        </ScrollView>
+          <ScrollView
+            contentContainerStyle={[
+              styles.scrollContent,
+              isWide && styles.scrollContentWide,
+              isShort && styles.scrollContentShort,
+              isPlaybackDockState && styles.scrollContentPlayback,
+              isNarrow && !isParentReport && styles.scrollContentNarrow,
+              showPlaybackDock && styles.scrollContentNarrowPlayback,
+              !isPlaybackDockState && styles.scrollContentCentered,
+              isShort && !isPlaybackDockState && styles.scrollContentShortCentered,
+              isParentReport && styles.reportScrollContent,
+              isParentReport && isWide && styles.reportScrollContentWide,
+            ]}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {isPlaybackDockState && (
+              <View
+                style={[
+                  styles.spacer,
+                  styles.playbackSpacer,
+                  isNarrow && styles.playbackSpacerCompact,
+                ]}
+              />
+            )}
+            {!dialogue.open && <ReaderCard runtime={runtime} dialogue={dialogue} />}
+          </ScrollView>
 
-        {!dialogue.open && <PlaybackDock runtime={runtime} />}
-        <DialoguePanel dialogue={dialogue} hidden={runtime.homeMenuVisible || chaptersOpen} />
+          {!dialogue.open && <PlaybackDock runtime={runtime} />}
+          <DialoguePanel dialogue={dialogue} hidden={runtime.homeMenuVisible || chaptersOpen} />
 
-        <ChapterSidebar
-          runtime={runtime}
-          open={chaptersOpen}
-          onClose={closeChapters}
-        />
+          <ChapterSidebar
+            runtime={runtime}
+            open={chaptersOpen}
+            onClose={closeChapters}
+          />
 
-        <ResumeModal runtime={runtime} />
-        <HomeMenuModal runtime={runtime} />
-        <CompletionSurveyModal
-          visible={runtime.completionSurveyVisible}
-          storyId={storyPackage.storyId}
-          onClose={runtime.closeCompletionSurvey}
-        />
+          <ResumeModal runtime={runtime} />
+          <HomeMenuModal runtime={runtime} />
+          <CompletionSurveyModal
+            visible={runtime.completionSurveyVisible}
+            storyId={storyPackage.storyId}
+            onClose={runtime.closeCompletionSurvey}
+          />
+        </ReaderTextScaleContext.Provider>
       </ThemeModeProvider>
     </SafeAreaView>
   );

@@ -1,10 +1,12 @@
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { OneStoryRuntime } from '../../model';
 import type { UseDialogue } from '../../model/use-dialogue';
+import { scaledText, useReaderTextScale } from '../../lib/reader-text-scale';
 import { styles } from '../styles';
 
 export function PlaybackCaption({ runtime, dialogue }: { runtime: OneStoryRuntime; dialogue: UseDialogue }) {
+  const textScale = useReaderTextScale();
   const {
     isPlaybackDockState,
     currentClip,
@@ -32,7 +34,7 @@ export function PlaybackCaption({ runtime, dialogue }: { runtime: OneStoryRuntim
     return (
       <View style={styles.playbackContent}>
         <Pressable accessibilityRole="button" accessibilityLabel="다음 장면으로 넘어가지 않고 기다리기" onPress={holdSceneEnd}>
-          <Text accessibilityLiveRegion="polite" style={styles.sceneEndPrompt}>
+          <Text accessibilityLiveRegion="polite" style={[styles.sceneEndPrompt, scaledText(flat(styles.sceneEndPrompt), textScale)]}>
             궁금한 게 있으면 {name}에게 말해 봐
           </Text>
         </Pressable>
@@ -42,14 +44,14 @@ export function PlaybackCaption({ runtime, dialogue }: { runtime: OneStoryRuntim
             onPress={() => void dialogue.openChat()}
             style={({ pressed }) => [styles.sceneEndButton, styles.sceneEndButtonPrimary, pressed && styles.sceneEndButtonPressed]}
           >
-            <Text style={[styles.sceneEndButtonText, styles.sceneEndButtonTextPrimary]}>{name}에게 말하기</Text>
+            <Text style={[styles.sceneEndButtonText, styles.sceneEndButtonTextPrimary, scaledText(flat(styles.sceneEndButtonText), textScale)]}>{name}에게 말하기</Text>
           </Pressable>
           <Pressable
             accessibilityRole="button"
             onPress={advanceFromSceneEnd}
             style={({ pressed }) => [styles.sceneEndButton, pressed && styles.sceneEndButtonPressed]}
           >
-            <Text style={styles.sceneEndButtonText}>
+            <Text style={[styles.sceneEndButtonText, scaledText(flat(styles.sceneEndButtonText), textScale)]}>
               {sceneEndAutoAdvancing ? '바로 다음 장면' : '다음 장면 듣기'}
             </Text>
           </Pressable>
@@ -71,7 +73,7 @@ export function PlaybackCaption({ runtime, dialogue }: { runtime: OneStoryRuntim
                 styles.playingDotActive,
             ]}
           />
-          <Text style={styles.playbackSpeaker}>
+          <Text style={[styles.playbackSpeaker, scaledText(flat(styles.playbackSpeaker), textScale)]}>
             {isBranchPlaybackState
               ? branchCaptionSpeaker?.displayName ?? '그레텔'
               : captionSpeaker?.displayName ?? '이야기꾼'}
@@ -82,7 +84,7 @@ export function PlaybackCaption({ runtime, dialogue }: { runtime: OneStoryRuntim
         <Text
           accessibilityLiveRegion="polite"
           numberOfLines={2}
-          style={styles.playbackSubtitle}
+          style={[styles.playbackSubtitle, scaledText(flat(styles.playbackSubtitle), textScale)]}
         >
           {isBranchPlaybackState ? displayedBranchSubtitle : displayedSubtitle}
         </Text>
@@ -90,3 +92,5 @@ export function PlaybackCaption({ runtime, dialogue }: { runtime: OneStoryRuntim
     </View>
   );
 }
+
+const flat = StyleSheet.flatten;

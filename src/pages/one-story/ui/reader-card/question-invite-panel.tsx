@@ -1,9 +1,12 @@
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { ActionButton, storybookTheme } from '@/shared/ui';
+import { hasKoreanBatchim } from '@/entities/narration';
 
 import type { OneStoryRuntime } from '../../model';
 import type { UseDialogue } from '../../model/use-dialogue';
+import { inviteAskCopy, inviteAskKind } from '../../lib/invite-ask-kind';
+import { scaledText, useReaderTextScale } from '../../lib/reader-text-scale';
 import { styles } from '../styles';
 
 export function QuestionInvitePanel({ runtime, dialogue }: { runtime: OneStoryRuntime; dialogue: UseDialogue }) {
@@ -18,6 +21,10 @@ export function QuestionInvitePanel({ runtime, dialogue }: { runtime: OneStoryRu
     beginTypedQuestion,
     continueStory,
   } = runtime;
+  const textScale = useReaderTextScale();
+  // 방법을 묻는 초대("어떻게 하면 좋을까?")는 버튼·안내를 "내 생각 말하기"로 맞춘다(lib/invite-ask-kind).
+  const askCopy = inviteAskCopy(inviteAskKind(activeQuestionPrompt));
+  const speakerName = speaker?.displayName ?? '이야기 친구';
 
   const awaitingInvite = runtimeState.status === 'awaiting-question';
   // 초대 대사가 끝난 뒤(awaiting-question)에도 카드를 남겨 아이가 고를 때까지 기다린다 - [궁금한 거 물어보기]를
@@ -38,12 +45,12 @@ export function QuestionInvitePanel({ runtime, dialogue }: { runtime: OneStoryRu
       <Text style={styles.questionEyebrow}>
         이야기 속 질문 {activeQuestionOrdinal}
       </Text>
-      <Text style={styles.questionTitle}>{activeQuestionPrompt}</Text>
-      <Text style={styles.questionHelp}>
+      <Text style={[styles.questionTitle, scaledText(flat(styles.questionTitle), textScale)]}>{activeQuestionPrompt}</Text>
+      <Text style={[styles.questionHelp, scaledText(flat(styles.questionHelp), textScale)]}>
         {isQuestionInvitePlayback
           ? `${speaker?.displayName ?? '이야기 친구'}의 질문을 들어봐요.`
           : awaitingInvite
-            ? '궁금한 게 있으면 물어봐요. 없으면 이야기를 계속 들어도 돼요.'
+            ? askCopy.help
           : runtimeState.status === 'awaiting-clarification'
             ? '조금만 더 알려주면 그레텔이 뜻을 이해할 수 있어요.'
             : runtimeState.status === 'awaiting-safety-retry'
@@ -54,14 +61,15 @@ export function QuestionInvitePanel({ runtime, dialogue }: { runtime: OneStoryRu
         <View style={styles.questionListening}>
           <ActivityIndicator color={storybookTheme.color.error} size="small" />
           <Text style={styles.questionListeningText}>
+            {/* 그레텔이 묻는 동안 - "듣고 있어요"라고 하면 앱이 아이 말을 듣는 것처럼 읽힌다. */}
             {questionInviteSpeaking
-              ? '질문을 듣고 있어요'
+              ? `${speakerName}${hasKoreanBatchim(speakerName) ? '이' : '가'} 말하고 있어요`
               : '질문 음성을 준비하고 있어요'}
           </Text>
         </View>
       ) : awaitingInvite ? (
         <>
-          <ActionButton variant="primary" label="궁금한 거 물어보기" onPress={dialogue.openInvite} />
+          <ActionButton variant="primary" label={askCopy.askLabel} onPress={dialogue.openInvite} />
           <ActionButton variant="secondaryFull" label="이야기 계속 듣기" onPress={() => void dialogue.skipInvite()} />
         </>
       ) : (
@@ -89,3 +97,5 @@ export function QuestionInvitePanel({ runtime, dialogue }: { runtime: OneStoryRu
     </View>
   );
 }
+
+const flat = StyleSheet.flatten;

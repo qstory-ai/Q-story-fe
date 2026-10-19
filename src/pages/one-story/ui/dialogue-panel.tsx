@@ -15,6 +15,7 @@ import { Icon, storybookTheme } from '@/shared/ui';
 import { countdownSeconds, createAutoConfirm } from '../lib/auto-confirm';
 import { AUTO_CONFIRM_MS } from '../lib/constants';
 import { punctuateChildQuestion } from '../lib/question-punctuation';
+import { scaledText, useReaderTextScale } from '../lib/reader-text-scale';
 import type { UseDialogue } from '../model/use-dialogue';
 
 /**
@@ -25,6 +26,7 @@ import type { UseDialogue } from '../model/use-dialogue';
 export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialogue; hidden?: boolean }) {
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
   const { open, turns, phase, character } = dialogue;
+  const textScale = useReaderTextScale();
 
   useEffect(() => {
     scrollRef.current?.scrollToEnd({ animated: true });
@@ -66,7 +68,7 @@ export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialo
           // 말풍선으로 보인다. 이야기는 같은 질문 지점에 그대로 있다.
           turn.sceneSpeakerId && turn.sceneSpeakerId !== character.speakerId ? (
             <View key={turn.id} style={panel.sceneNarration}>
-              <Text style={panel.sceneNarrationText}>{turn.text}</Text>
+              <Text style={[panel.sceneNarrationText, scaledText(panel.sceneNarrationText, textScale)]}>{turn.text}</Text>
             </View>
           ) : (
             <View
@@ -77,7 +79,7 @@ export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialo
                 turn.sceneSpeakerId && panel.sceneBubble,
               ]}
             >
-              <Text style={panel.bubbleText}>{turn.text}</Text>
+              <Text style={[panel.bubbleText, scaledText(panel.bubbleText, textScale)]}>{turn.text}</Text>
             </View>
           )
         ))}
@@ -102,17 +104,18 @@ export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialo
 
 function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onContinue: () => void }) {
   const { phase } = dialogue;
+  const textScale = useReaderTextScale();
 
   if (phase === 'recording') {
     return (
       <View style={panel.column}>
         {/* Q-34: 탭 없이 듣기 시작했을 수 있으니 지금 말하면 된다고 알려 준다. 15초 말이 없으면 다시 묻는다. */}
-        <Text style={panel.listenPrompt} accessibilityLiveRegion="polite">
+        <Text style={[panel.listenPrompt, scaledText(panel.listenPrompt, textScale)]} accessibilityLiveRegion="polite">
           {dialogue.listenPrompt}
         </Text>
         {/* 실시간 받아 적기 - 말하는 동안 알아들은 말을 보여 준다(멈추면 이 문장이 확인 단계로 바로 넘어간다). */}
         {dialogue.livePartial ? (
-          <Text style={panel.confirmText} numberOfLines={3}>
+          <Text style={[panel.confirmText, scaledText(panel.confirmText, textScale)]} numberOfLines={3}>
             듣고 있어요: {dialogue.livePartial}
           </Text>
         ) : null}
@@ -144,7 +147,7 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
           autoFocus
           returnKeyType="send"
           onSubmitEditing={dialogue.sendTyped}
-          style={panel.input}
+          style={[panel.input, scaledText(panel.input, textScale)]}
         />
         <View style={panel.controls}>
           <Chip primary label="보내기" disabled={!dialogue.draft.trim()} onPress={dialogue.sendTyped} />
@@ -173,7 +176,7 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
   if (phase === 'transcribing' || phase === 'thinking') {
     return (
       <View style={panel.controls}>
-        <Text style={panel.status}>
+        <Text style={[panel.status, scaledText(panel.status, textScale)]}>
           {phase === 'transcribing' ? '무슨 말인지 듣는 중…' : '그레텔이 생각하는 중…'}
         </Text>
         <Chip label="이야기 계속 듣기" onPress={onContinue} />
@@ -184,7 +187,9 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
   if (phase === 'proposal') {
     return (
       <View style={panel.column}>
-        {dialogue.proposalLabel && <Text style={panel.status}>{dialogue.proposalLabel}</Text>}
+        {dialogue.proposalLabel && (
+          <Text style={[panel.proposalText, scaledText(panel.proposalText, textScale)]}>{dialogue.proposalLabel}</Text>
+        )}
         <View style={panel.controls}>
           <Chip primary label="그렇게 해보기" onPress={dialogue.acceptProposal} />
           <Chip label="더 이야기하기" onPress={dialogue.keepTalking} />
@@ -228,7 +233,8 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
         </View>
       )}
       <View style={panel.controls}>
-        <Chip primary label={phase === 'error' ? '● 다시 말하기' : '● 말하기'} onPress={() => void dialogue.startTalking()} />
+        {/* 아이 차례의 주 버튼 - 다른 칩보다 크게 둬서 무엇을 누르면 되는지 바로 보이게 한다. */}
+        <Chip primary large label={phase === 'error' ? '● 다시 말하기' : '● 말하기'} onPress={() => void dialogue.startTalking()} />
         <Chip label="글로 쓰기" onPress={dialogue.startTyping} />
         {dialogue.canAskHelp && <Chip label="도와줘" onPress={() => void dialogue.askHelp()} />}
         <Chip label="이야기 계속 듣기" onPress={onContinue} />
@@ -277,6 +283,7 @@ function ConfirmControls({ dialogue }: { dialogue: UseDialogue }) {
     controllerRef.current?.cancel();
     setHeldDraft(draft);
   };
+  const textScale = useReaderTextScale();
   const secondsLeft = countdownSeconds(remainingMs);
   const counting = !held && secondsLeft > 0;
 
@@ -288,11 +295,11 @@ function ConfirmControls({ dialogue }: { dialogue: UseDialogue }) {
         accessibilityHint="누르면 자동으로 보내지 않아요"
         onPress={hold}
       >
-        <Text style={panel.confirmText}>“{punctuateChildQuestion(draft)}”</Text>
+        <Text style={[panel.confirmText, scaledText(panel.confirmText, textScale)]}>“{punctuateChildQuestion(draft)}”</Text>
       </Pressable>
       {counting ? (
         <View style={panel.countdownRow}>
-          <Text style={panel.status} accessibilityLiveRegion="polite">
+          <Text style={[panel.status, scaledText(panel.status, textScale)]} accessibilityLiveRegion="polite">
             {secondsLeft}초 뒤에 {dialogue.characterName}에게 보낼게
           </Text>
           <View style={panel.countdownTrack}>
@@ -300,7 +307,7 @@ function ConfirmControls({ dialogue }: { dialogue: UseDialogue }) {
           </View>
         </View>
       ) : (
-        <Text style={panel.status}>맞으면 "응, 이렇게 말했어"를 눌러 줘</Text>
+        <Text style={[panel.status, scaledText(panel.status, textScale)]}>맞으면 "응, 이렇게 말했어"를 눌러 줘</Text>
       )}
       <View style={panel.controls}>
         <Chip primary label="응, 이렇게 말했어" onPress={dialogue.confirmTranscript} />
@@ -327,13 +334,17 @@ function Chip({
   label,
   onPress,
   primary = false,
+  large = false,
   disabled = false,
 }: {
   label: string;
   onPress: () => void;
   primary?: boolean;
+  /** 아이 차례의 주 버튼(말하기) - 더 크게. */
+  large?: boolean;
   disabled?: boolean;
 }) {
+  const textScale = useReaderTextScale();
   return (
     <Pressable
       accessibilityRole="button"
@@ -342,12 +353,22 @@ function Chip({
       onPress={onPress}
       style={({ pressed }) => [
         panel.chip,
+        large && panel.chipLarge,
         primary && panel.chipPrimary,
         disabled && panel.chipDisabled,
         pressed && panel.chipPressed,
       ]}
     >
-      <Text style={[panel.chipText, primary && panel.chipTextPrimary]}>{label}</Text>
+      <Text
+        style={[
+          panel.chipText,
+          large && panel.chipTextLarge,
+          primary && panel.chipTextPrimary,
+          scaledText(large ? panel.chipTextLarge : panel.chipText, textScale),
+        ]}
+      >
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -371,7 +392,7 @@ const panel = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    maxHeight: '44%',
+    maxHeight: '40%',
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 16,
@@ -417,6 +438,7 @@ const panel = StyleSheet.create({
   status: { color: storybookTheme.color.onDarkMuted, fontSize: 14, flexGrow: 1 },
   listenPrompt: { color: storybookTheme.color.onDark, fontSize: 18, fontWeight: '700' },
   confirmText: { color: storybookTheme.color.onDark, fontSize: 16, lineHeight: 23 },
+  proposalText: { color: storybookTheme.color.onDark, fontSize: 16, lineHeight: 23, fontWeight: '600' },
   countdownRow: { gap: 6 },
   countdownTrack: {
     height: 4,
@@ -450,10 +472,12 @@ const panel = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: storybookTheme.color.onDarkOverlay,
   },
+  chipLarge: { minHeight: 52, paddingHorizontal: 24 },
   chipPrimary: { backgroundColor: storybookTheme.color.accentFill },
   chipDisabled: { opacity: 0.5 },
   chipPressed: { opacity: 0.8 },
   chipText: { color: storybookTheme.color.onDark, fontSize: 15, fontWeight: '600' },
+  chipTextLarge: { fontSize: 18, fontWeight: '700' },
   chipTextPrimary: { color: storybookTheme.color.onAccentFill },
   proxyRow: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   proxyBox: {

@@ -20,6 +20,7 @@ export * from './select-field';
 export * from './search-field';
 export * from './switch-field';
 export * from './textarea-field';
+export * from './date-time-field';
 export * from './field-primitives';
 export * from './state-views';
 export * from './support-mail';

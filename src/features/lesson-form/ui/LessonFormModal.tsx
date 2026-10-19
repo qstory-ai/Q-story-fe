@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { Modal, TextField, TextareaField, storybookTheme } from '@/shared/ui';
+import { DateTimeField, Modal, TextField, TextareaField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { TUTOR_PATHS, useAuth } from '@/entities/auth';
 import { createLesson, updateLesson, type Lesson } from '@/entities/lesson';
@@ -16,10 +16,13 @@ import {
   WEEKDAY_LABELS,
   computeRecurringDates,
   defaultFirstLessonInput,
+  describeOneOff,
   describeRecurrence,
   formatDateTimeForInput,
+  joinDateTimeInput,
   parseDateTime,
   parseLessonDateTime,
+  splitDateTimeInput,
 } from '../lib/lesson-schedule';
 
 type Props = {
@@ -43,8 +46,8 @@ type RefsLoad =
 /**
  * 새 수업 만들기 / 수업 편집 모달. 수업은 언제나 반 수업이다(1:1 과외도 아이 한 명짜리 반).
  *
- * <p>Q-35에서 만들기 단계를 줄였다: 반 → 첫 수업 일시(텍스트 "YYYY-MM-DD HH:MM") → 반복(기본 "매주 12회")만 정하면
- * 된다. 수업 이름은 비워 두면 "{반 이름} 수업", 요일은 첫 수업의 요일, 참여 학생은 반 학생 전원이다. 여러 요일·
+ * <p>Q-35에서 만들기 단계를 줄였다: 반 → 첫 수업 일시(날짜·시각 선택기, 값은 "YYYY-MM-DD HH:MM") → 반복(기본
+ * "매주 12회")만 정하면 된다. 몇 회가 만들어지는지는 버튼 바로 위 요약과 버튼 문구로 늘 보인다. 수업 이름은 비워 두면 "{반 이름} 수업", 요일은 첫 수업의 요일, 참여 학생은 반 학생 전원이다. 여러 요일·
  * 종료일·수업 목표는 "자세히"를 펼쳐서 정한다(기능은 그대로).
  */
 export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved, initialClass }: Props) {
@@ -211,6 +214,13 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved,
   }
 
   const recurrenceSummary = describeRecurrence(recurringDates, weekdays.size > 0 ? weekdays : null);
+  const dateTimeParts = splitDateTimeInput(dateTimeInput);
+  // 버튼 바로 위에 붙는 요약 - 기본이 "매주 12회"라 한 번만 하려던 선생님이 12개를 만들지 않게 늘 보인다.
+  const submitSummary = isEdit
+    ? null
+    : kind === 'RECURRING'
+      ? (recurrenceSummary ?? '첫 수업 일시와 회차를 확인해 주세요.')
+      : describeOneOff(dateTimeInput);
 
   return (
     <Modal
@@ -233,6 +243,18 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved,
         loading: submitting,
       }}
       negativeAction={{ label: '취소', onPress: onClose, disabled: submitting }}
+      // 800px 높이 태블릿에서 만들기 버튼이 화면 밖으로 밀려나 있었다 - 본문만 스크롤하고 버튼은 고정.
+      pinActions
+      actionsNote={submitSummary ? (
+        <View style={styles.summary} accessibilityLiveRegion="polite">
+          <Text style={styles.summaryText}>{submitSummary}</Text>
+          {kind === 'RECURRING' ? (
+            <Pressable accessibilityRole="button" hitSlop={8} onPress={() => setKind('ONE_OFF')}>
+              <Text style={styles.summaryLink}>한 번만 할래요</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
     >
       <View style={styles.body}>
         {state.status === 'authenticated' ? (
@@ -286,17 +308,18 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved,
           </View>
         ) : null}
 
-        <TextField
+        <DateTimeField
           label={!isEdit && kind === 'RECURRING' ? '첫 수업 일시' : '수업 일시 (선택)'}
-          value={dateTimeInput}
-          onChangeText={setDateTimeInput}
-          placeholder="예: 2026-03-05 15:00"
+          date={dateTimeParts.date}
+          time={dateTimeParts.time}
+          onChange={({ date, time }) => setDateTimeInput(joinDateTimeInput(date, time))}
+          onClear={!isEdit && kind === 'RECURRING' ? undefined : () => setDateTimeInput('')}
           description={
             !isEdit && kind === 'RECURRING'
-              ? 'YYYY-MM-DD HH:MM 형식으로 적어 주세요. 이 날부터 같은 요일·시각으로 반복해요.'
-              : 'YYYY-MM-DD HH:MM 형식으로 적어 주세요. 비워 두면 일정 미정으로 저장돼요.'
+              ? '이 날부터 같은 요일·시각으로 반복해요.'
+              : '비워 두면 일정 미정으로 저장돼요.'
           }
-          errorText={dateTimeInvalid ? '날짜를 2026-03-05 15:00처럼 적어 주세요.' : undefined}
+          errorText={dateTimeInvalid ? '수업 일시를 다시 골라 주세요.' : undefined}
         />
 
         {!isEdit ? (
@@ -320,9 +343,9 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved,
                   description={`최대 ${MAX_RECURRING_COUNT}회. 자세히에서 종료일을 정하면 그날까지 만들어요.`}
                   keyboardType="numeric"
                 />
-                <Text style={styles.helper}>
-                  {recurrenceSummary ?? '첫 수업 일시와 회차를 확인해 주세요. 아직 만들 수 있는 수업이 없어요.'}
-                </Text>
+                {recurrenceSummary ? null : (
+                  <Text style={styles.helper}>첫 수업 일시와 회차를 확인해 주세요. 아직 만들 수 있는 수업이 없어요.</Text>
+                )}
               </>
             ) : null}
           </View>
@@ -442,12 +465,13 @@ export function LessonFormModal({ visible, onClose, editing, onCreated, onSaved,
                     })}
                   </View>
                 </View>
-                <TextField
+                <DateTimeField
                   label="종료 날짜 (선택)"
-                  value={endDateInput}
-                  onChangeText={setEndDateInput}
-                  placeholder="예: 2026-06-30"
-                  description="YYYY-MM-DD 형식. 적으면 회차 대신 이 날짜(포함)까지 만들어요."
+                  withTime={false}
+                  date={endDateInput}
+                  onChange={({ date }) => setEndDateInput(date)}
+                  onClear={() => setEndDateInput('')}
+                  description="고르면 회차 대신 이 날짜(포함)까지 만들어요."
                 />
               </>
             ) : null}
@@ -603,4 +627,29 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContent,
   },
   weekdayChipLabelSelected: { color: storybookTheme.color.onDark },
+  summary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: storybookTheme.radius.card,
+    backgroundColor: storybookTheme.color.contentPanel,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.contentPanelBorder,
+  },
+  summaryText: {
+    flexShrink: 1,
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.onCardTitle,
+  },
+  summaryLink: {
+    fontSize: storybookTheme.type.xs,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.primary,
+    textDecorationLine: 'underline',
+  },
 });

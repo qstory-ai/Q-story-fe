@@ -313,7 +313,18 @@ export function buildStoryRuntimePackage({
     });
   }
 
-  for (const fallback of generatedContent.fallbacks) {
+  // 실시간 생성 분기(LIVE_*)는 재임포트에도 남는데, 그 사이 콘텐츠가 바뀌어 예전 앵커 이름
+  // (예: HG-F07-DEMONSTRATION)으로 돌아가려는 것이 섞여 올 수 있다. 그 분기 하나 때문에 이야기
+  // 전체를 못 여는 대신, 갈 곳이 없는 분기만 빼고 경고로 남긴다 - 서버 쪽 정리는 임포트가 맡는다.
+  const fallbacks = generatedContent.fallbacks.filter((fallback) => {
+    if (targetGroupByAnchor.has(fallback.rejoin.target)) return true;
+    console.warn(
+      `[story-package] ${fallback.id}: rejoin target ${fallback.rejoin.target} is not an anchor in this story - skipped`,
+    );
+    return false;
+  });
+
+  for (const fallback of fallbacks) {
     const anchor = anchorBySlot.get(fallback.rejoin.slot);
     if (!anchor) throw new Error(`No question anchor for ${fallback.rejoin.slot}`);
     const sourceScene = generatedContent.scenes.find(
@@ -354,7 +365,7 @@ export function buildStoryRuntimePackage({
   }
 
   const rejoinTargets = new Map<string, Set<string>>();
-  for (const fallback of generatedContent.fallbacks) {
+  for (const fallback of fallbacks) {
     const targets = rejoinTargets.get(fallback.rejoin.slot) ?? new Set<string>();
     targets.add(fallback.rejoin.target);
     rejoinTargets.set(fallback.rejoin.slot, targets);
@@ -393,7 +404,7 @@ export function buildStoryRuntimePackage({
       ) {
         throw new Error(`${scene.id} interaction ${segment.slot} is incomplete`);
       }
-      const slotFallbacks = generatedContent.fallbacks.filter(
+      const slotFallbacks = fallbacks.filter(
         (fallback) => fallback.rejoin.slot === segment.slot,
       );
       questionAnchors.push({
@@ -437,7 +448,7 @@ export function buildStoryRuntimePackage({
   };
   const presentation: StoryPresentation = {
     scenes: generatedContent.scenes,
-    fallbacks: generatedContent.fallbacks,
+    fallbacks,
     utteranceByClipId,
     fallbackByFamilyId,
   };

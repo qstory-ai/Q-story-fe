@@ -20,7 +20,13 @@ export type AttemptSceneLine = { speakerId: string; text: string };
  * TRY_FAIL 답에만 - 장면 줄과 장면 안에서 아이가 말할 수 있는 횟수(서버 설정), 막힌 줄에서 보여 줄 배경 그림(요청에 실은
  * 후보 중 하나, 맞는 그림이 없거나 예전 서버면 null).
  */
-export type CompanionAttemptStart = { scene: AttemptSceneLine[]; maxTurns: number; backdropAssetId: string | null };
+export type CompanionAttemptStart = {
+  scene: AttemptSceneLine[];
+  maxTurns: number;
+  backdropAssetId: string | null;
+  /** 아이 말대로 실시간으로 만드는 막힌 그림의 작업 id(GET /v1/realtime-images/{id}) - 상한에 닿았거나 꺼져 있으면 null. */
+  imageJobId: string | null;
+};
 
 /** Q-31 대화 표시 - 종료·도움·행동 확인 단계를 정하는 데 쓴다. 예전 서버면 기본값으로 채운다. */
 export type CompanionDialogueSignal = {
@@ -331,7 +337,7 @@ export async function readCompanionReply(
 /** 시도 장면 시작 정보 - 형식이 어긋난 줄은 버린다. 장면 줄이 없어도 시작은 한다(그레텔 말로 이어 간다). */
 function attemptOf(value: unknown): { attempt?: CompanionAttemptStart } {
   if (!value || typeof value !== 'object') return {};
-  const raw = value as { scene?: unknown; maxTurns?: unknown; backdropAssetId?: unknown };
+  const raw = value as { scene?: unknown; maxTurns?: unknown; backdropAssetId?: unknown; imageJobId?: unknown };
   const scene = Array.isArray(raw.scene)
     ? raw.scene.filter(
         (line): line is AttemptSceneLine =>
@@ -344,5 +350,6 @@ function attemptOf(value: unknown): { attempt?: CompanionAttemptStart } {
   const maxTurns = typeof raw.maxTurns === 'number' && raw.maxTurns >= 1 ? Math.floor(raw.maxTurns) : 4;
   const backdropAssetId =
     typeof raw.backdropAssetId === 'string' && raw.backdropAssetId.trim() ? raw.backdropAssetId.trim() : null;
-  return { attempt: { scene, maxTurns, backdropAssetId } };
+  const imageJobId = typeof raw.imageJobId === 'string' && raw.imageJobId.trim() ? raw.imageJobId.trim() : null;
+  return { attempt: { scene, maxTurns, backdropAssetId, imageJobId } };
 }

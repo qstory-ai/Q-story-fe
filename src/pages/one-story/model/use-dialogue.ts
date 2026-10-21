@@ -24,6 +24,7 @@ import {
   type LiveTranscription,
 } from '@/entities/companion-chat';
 import { STT_UNAVAILABLE_CHILD_COPY, isSttUnavailableCode } from '@/entities/speech-pipeline';
+import { waitForRealtimeImage } from '@/entities/realtime-image';
 import type { PlayTurnInput } from '@/entities/play-session';
 import { STT_STREAMING_ENABLED } from '@/shared/config';
 
@@ -182,6 +183,14 @@ export function useDialogue({
   const [livePartial, setLivePartial] = useState('');
   // 이번 말하기의 실시간 받아 적기. 실패하면 같이 녹음한 blob으로 배치 받아 적기를 한다.
   const liveRef = useRef<LiveTranscription | null>(null);
+
+  // 시도 장면의 실시간 막힌 그림(서버가 아이 말대로 만드는 중)을 지켜보는 폴링 - 장면이 끝나거나 배경을 풀면 멈춘다.
+  const attemptImageAbortRef = useRef<AbortController | null>(null);
+  const stopAttemptImage = useCallback(() => {
+    attemptImageAbortRef.current?.abort();
+    attemptImageAbortRef.current = null;
+  }, []);
+  useEffect(() => stopAttemptImage, [stopAttemptImage]);
 
   const childTurnCountRef = useRef(0);
   const openedAtRef = useRef(0);
@@ -443,6 +452,7 @@ export function useDialogue({
       attemptRef.current = closedAttempt.state;
       if (closedAttempt.event) reportAttempt(closedAttempt.event);
       // 시도 장면 배경도 원래 그림으로 돌린다.
+      stopAttemptImage();
       runtime.clearAttemptBackdrop();
       if (mode === 'INVITE' && anchorId) {
         logTurn({ role: 'SYSTEM', event: inviteChildSpokeRef.current ? 'INVITE_CLOSED' : 'INVITE_SKIPPED' });
@@ -463,7 +473,7 @@ export function useDialogue({
       await runtime.resumeAfterDialogue();
     },
     [
-      anchorId, cancelPending, inviteHelp?.continueLine, logStep, logTurn, mode, recorder, reportAttempt, runtime,
+      anchorId, cancelPending, inviteHelp?.continueLine, logStep, logTurn, mode, recorder, reportAttempt, runtime, stopAttemptImage,
       sayFixedLine, stopSpeaking,
     ],
   );
@@ -681,6 +691,20 @@ export function useDialogue({
         const backdropUri = backdropId ? storyPackage.imageAssets[backdropId]?.uri : undefined;
         if (backdropUri) void preloadImages([backdropUri]);
         const backdropAt = blockedLineIndex(sceneLines, storyPackage.narratorSpeakerId);
+        // 서버가 아이 말대로 막힌 그림을 실시간으로 만들고 있으면(imageJobId) 완성될 때까지 지켜보다가, 아직 같은 시도 장면
+        // 안이면 미리 만든 그림 대신 그 그림으로 바꾼다. 못 만들면(실패·상한·시간 초과) 미리 만든 그림 그대로다.
+        const imageJobId = reply.dialogue.attempt?.imageJobId ?? null;
+        if (imageJobId) {
+          stopAttemptImage();
+          const controller = new AbortController();
+          attemptImageAbortRef.current = controller;
+          void waitForRealtimeImage(imageJobId, controller.signal).then(async (uri) => {
+            if (!uri || controller.signal.aborted) return;
+            await preloadImages([uri]);
+            if (controller.signal.aborted || !inAttempt(attemptRef.current, anchorId)) return;
+            runtime.showAttemptBackdrop(backdropId, uri);
+          });
+        }
         filler.skip();
         // 채움말이 이미 나오는 중이면 끝날 때까지만 기다린다(장면 내레이션과 겹치지 않게).
         for (let waited = 0; filler.isPlaying() && waited < 3_000; waited += 100) {
@@ -690,6 +714,7 @@ export function useDialogue({
           if (cancelled()) {
             lineVoices.forEach(discardVoice);
             if (replyVoice) discardVoice(replyVoice);
+            stopAttemptImage();
             runtime.clearAttemptBackdrop();
             return null;
           }
@@ -707,6 +732,7 @@ export function useDialogue({
         }
         if (cancelled()) {
           if (replyVoice) discardVoice(replyVoice);
+          stopAttemptImage();
           runtime.clearAttemptBackdrop();
           return null;
         }
@@ -731,7 +757,7 @@ export function useDialogue({
       return { reply, shownAt: current.at, voicePlayed: current.voicePlayed };
     },
     [
-      addTurn, fetchReplyVoice, fetchSceneLineVoice, logStep, runtime, startThinkingFiller,
+      addTurn, anchorId, fetchReplyVoice, fetchSceneLineVoice, logStep, runtime, startThinkingFiller, stopAttemptImage,
       storyPackage.imageAssets, storyPackage.narratorSpeakerId,
     ],
   );
@@ -863,7 +889,10 @@ export function useDialogue({
         attemptRef.current = attemptStep.state;
         if (attemptStep.event) reportAttempt(attemptStep.event);
         // 시도 장면이 끝났거나(ATTEMPT_END·상한·준비된 행동) 시작되지 않았으면 배경을 원래 그림으로 돌린다.
-        if (!inAttempt(attemptStep.state, anchorId)) runtime.clearAttemptBackdrop();
+        if (!inAttempt(attemptStep.state, anchorId)) {
+          stopAttemptImage();
+          runtime.clearAttemptBackdrop();
+        }
         // 시도 장면 줄도 회차 기록에 아이가 들은 그대로 남긴다(그레텔 답보다 앞).
         if (attemptStep.event?.kind === 'START') {
           for (const line of signal.attempt?.scene ?? []) {
@@ -911,7 +940,7 @@ export function useDialogue({
       }
     },
     [
-      addTurn, anchorId, cancelPending, character.speakerId, close, conversationAttribution.childId,
+      addTurn, anchorId, cancelPending, character.speakerId, close, conversationAttribution.childId, stopAttemptImage,
       conversationId, executedActions, extended, guardianProxy, heardClipId, helpStep, helpSteps.length, lessonId,
       logStep, logTurn, mode, reportAttempt, requestReply, runtime, sceneId, speakReply, stopSpeaking, storyPackage,
       turns, tutorStudentId,

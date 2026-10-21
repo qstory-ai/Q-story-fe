@@ -15,6 +15,21 @@
   export HF_API_KEY_ID=...   HF_API_KEY_SECRET=...     # 또는 HF_CREDENTIALS=id:secret
   ```
 
+## 0-1. 실시간 삽화도 같은 시트를 쓴다
+
+앱이 실시간으로 만드는 그림(새 선택지 전개 그림, 시도 장면 막힘 그림)은 백엔드 `RealtimeImageService`가 같은 Higgsfield 모델·같은 공통
+프롬프트(`be/.../realtime-image/style-01-common.txt`, 여기 `style-01.mjs`의 COMMON_TEMPLATE와 같은 글)·같은 인물 시트로 만든다.
+시트는 버킷 `qstory-story-images/<slug>/references/<인물>-sheet.png`에서 읽으므로, 시트를 바꾸면 여기도 다시 올린다:
+
+```bash
+# 예: 그레텔 시트 교체 (be/.env의 SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+curl -X POST "$SUPABASE_URL/storage/v1/object/qstory-story-images/hansel-gretel/references/gretel-sheet.png" \
+  -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -H "content-type: image/png" -H "x-upsert: true" --data-binary @gretel-sheet.png
+```
+
+공통 프롬프트를 고치면 `style-01.mjs`와 백엔드 `style-01-common.txt`를 함께 고친다. 상한·해상도는 백엔드 `qstory.realtime-image`
+(질문 지점·세션당 3장, 2k·high)다.
+
 ## 1. 프롬프트 만들기 (API 안 부름)
 
 ```bash

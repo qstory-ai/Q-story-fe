@@ -644,8 +644,8 @@ export function useOneStoryRuntime(
    * 그 질문 지점을 벗어나면 derived view가 저절로 푼다.
    */
   const showAttemptBackdrop = useCallback(
-    (assetId: string | null) => {
-      if (attemptBackdropAt) setAttemptBackdrop({ assetId, key: attemptBackdropAt });
+    (assetId: string | null, uri?: string) => {
+      if (attemptBackdropAt) setAttemptBackdrop(uri ? { assetId, uri, key: attemptBackdropAt } : { assetId, key: attemptBackdropAt });
     },
     [attemptBackdropAt],
   );

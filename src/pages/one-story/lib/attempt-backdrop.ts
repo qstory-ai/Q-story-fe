@@ -6,9 +6,13 @@ import type { ImageSource } from '@/entities/story';
  * 돌아가기·장면 이동) 원래 그림으로 돌아온다.
  *
  * - assetId: 서버가 고른 그림 id(요청에 실은 후보 중 하나). null이면 그림 없이 지금 그림으로 연출한다.
+ * - uri: 서버가 아이 말대로 실시간으로 만든 그림(GET /v1/realtime-images/{id}가 READY를 주면). 있으면 assetId보다 먼저 쓴다.
  * - key: 세운 때의 질문 지점(장면·앵커). 이야기가 그 질문 지점을 벗어나면 저절로 풀린다(attemptBackdropView).
  */
-export type AttemptBackdropState = { assetId: string | null; key: string };
+export type AttemptBackdropState = { assetId: string | null; uri?: string; key: string };
+
+/** 실시간으로 만든 그림의 자리표시 id - 자산 목록에는 없고, 뷰의 assetId로만 쓴다(그림 바뀜 감지용). */
+export const REALTIME_BACKDROP_ASSET_ID = 'realtime-attempt-backdrop';
 
 /** 배경이 지금 보여 줄 것 - 없음 / 시도 장면 그림 / 지금 그림 강조(확대·어둡게). */
 export type AttemptBackdropView =
@@ -37,6 +41,9 @@ export function attemptBackdropView(
   imageAssets: Readonly<Record<string, ImageSource>>,
 ): AttemptBackdropView {
   if (!state || !currentKey || state.key !== currentKey) return NO_ATTEMPT_BACKDROP;
+  if (state.uri) {
+    return { kind: 'image', assetId: `${REALTIME_BACKDROP_ASSET_ID}:${state.uri}`, image: { uri: state.uri } };
+  }
   const image = state.assetId ? imageAssets[state.assetId] : undefined;
   return state.assetId && image ? { kind: 'image', assetId: state.assetId, image } : { kind: 'emphasis' };
 }

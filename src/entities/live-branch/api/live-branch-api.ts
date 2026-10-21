@@ -71,6 +71,40 @@ function isLiveBranchJobStatusResponse(
   );
 }
 
+export type EnqueueLiveBranchInput = {
+  storyId: string;
+  sceneId: string;
+  anchorId: string;
+  /** 아이가 한 말 그대로 - 백엔드가 이 말로 새 행동 가족을 만든다. */
+  transcript: string;
+  /** 읽기 세션(대화 id) - 실시간 그림 상한을 세는 단위. */
+  sessionId: string;
+  questionRound: number;
+};
+
+/**
+ * POST /v1/live-branch - 그레텔 대화에서 아이가 낸 새 계획(NEW_BRANCH)을 수락했을 때 실시간 분기 생성을 큐에 넣는다.
+ * jobId가 null이면(그 질문 지점이 꺼져 있거나 상한) 만들지 않은 것이다 - 앱은 그냥 이야기로 돌아간다.
+ */
+export async function enqueueLiveBranch(
+  input: EnqueueLiveBranchInput,
+  { baseUrl = speechApiUrl, fetchImpl = fetch }: RequestOptions = {},
+): Promise<{ jobId: string | null }> {
+  if (!baseUrl) {
+    throw new LiveBranchApiError('이야기 서버 주소가 설정되지 않았어요. (VITE_QSTORY_API_URL)');
+  }
+  const response = await fetchImpl.call(globalThis, `${baseUrl}/v1/live-branch`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) {
+    throw new LiveBranchApiError(`새 선택지를 만들기 시작하지 못했어요. (HTTP ${response.status})`, response.status);
+  }
+  const payload = (await response.json()) as { jobId?: unknown };
+  return { jobId: typeof payload.jobId === 'string' && payload.jobId ? payload.jobId : null };
+}
+
 /**
  * GET /v1/live-branch/{jobId} - 아이 질문이 기존 선택지 어디에도 맞지 않아 백엔드가 실시간(비동기)
  * 새 분기 생성을 큐에 넣었을 때(RoutePlan.liveBranchJobId), 그 작업의 진행 상태를 폴링한다.

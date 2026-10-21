@@ -1123,3 +1123,43 @@ test('typed question goes straight to processing and text routing without a conf
     { type: 'PROCESS_TEXT', transcript: '저 새는 어디로 가?' },
   ]);
 });
+
+test('a live branch requested from the dialogue goes straight to generating-branch', () => {
+  const manifest = createManifest();
+  const plan = {
+    kind: 'route' as const,
+    route: 'ANSWER_RESUME' as const,
+    childRelevantMeaning: '화장실 간다고 말하고 다녀오기',
+    coverageStatus: 'uncovered' as const,
+    coverageReason: 'dialogue-new-branch',
+    text: '좋아, 그 방법으로 이야기를 준비해 볼게.',
+    speakerId: speakerId('HG-SPK-GRETEL'),
+    actionFamilyId: null,
+    rejoinAt: null,
+    fallbackFamilyId: null,
+    options: [],
+    liveBranchJobId: 'job-1',
+    versions: { modelId: 'dialogue', promptVersion: 'dialogue', storyManifestVersion: 'v1', routePolicyVersion: 'dialogue' },
+  };
+  const waiting = {
+    status: 'awaiting-question' as const,
+    sceneId: IDS.scene1,
+    anchorId: IDS.question,
+    questionRound: 1,
+    consecutiveSafetyFailures: 0,
+  };
+  const transition = transitionStoryRuntime(manifest, waiting, { type: 'LIVE_BRANCH_REQUESTED', plan });
+  assert.equal(transition.ok, true);
+  if (!transition.ok) return;
+  assert.equal(transition.state.status, 'generating-branch');
+  if (transition.state.status !== 'generating-branch') return;
+  assert.equal(transition.state.jobId, 'job-1');
+  assert.equal(transition.state.anchorId, IDS.question);
+  assert.deepEqual(transition.commands, []);
+  // 작업 id가 없으면 만드는 중으로 갈 수 없다.
+  const noJob = transitionStoryRuntime(manifest, waiting, {
+    type: 'LIVE_BRANCH_REQUESTED',
+    plan: { ...plan, liveBranchJobId: undefined },
+  });
+  assert.equal(noJob.ok, false);
+});

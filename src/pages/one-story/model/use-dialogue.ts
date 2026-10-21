@@ -97,7 +97,10 @@ export type DialoguePhase =
 
 const MAX_TEXT = 160;
 
-type Proposal = { familyId: string; childMeaning: string };
+type Proposal =
+  | { kind: 'family'; familyId: string; childMeaning: string }
+  /** 새 선택지 제안(NEW_BRANCH) - 수락하면 transcript로 실시간 분기를 만든다. */
+  | { kind: 'live'; transcript: string; childMeaning: string };
 
 type StepMetadata = Record<string, string | number | boolean>;
 
@@ -901,8 +904,15 @@ export function useDialogue({
         }
         if (nextPhase === 'proposal' && signal.proposedActionFamilyId) {
           setProposal({
+            kind: 'family',
             familyId: signal.proposedActionFamilyId,
             childMeaning: signal.childMeaning || text,
+          });
+        } else if (nextPhase === 'proposal' && signal.replyKind === 'NEW_BRANCH') {
+          setProposal({
+            kind: 'live',
+            transcript: signal.newBranch?.transcript || text,
+            childMeaning: signal.childMeaning || signal.newBranch?.meaning || text,
           });
         }
 
@@ -1324,9 +1334,26 @@ export function useDialogue({
     [cancelPending, helpStep, logStep, logTurn, recorder, runtime, stopSpeaking, storyPackage],
   );
 
+  /** 새 선택지 제안을 수락 - 대화를 닫고 런타임이 실시간 분기를 만들게 한다. 못 만들면 그냥 이야기로 돌아간다. */
+  const runLiveBranch = useCallback(
+    async (transcript: string, childMeaning: string) => {
+      cancelPending();
+      stopSpeaking();
+      if (recorder.isRecording) await recorder.stopRecording();
+      logStep('CONFIRM_NEW_BRANCH', { help_step: helpStep });
+      inviteChildSpokeRef.current = true;
+      setOpen(false);
+      const started = await runtime.requestDialogueLiveBranch(transcript, childMeaning, conversationId);
+      if (!started) await close('CONTINUE');
+    },
+    [cancelPending, close, conversationId, helpStep, logStep, recorder, runtime, stopSpeaking],
+  );
+
   const acceptProposal = useCallback(() => {
-    if (proposal) void runAction(proposal.familyId, proposal.childMeaning, false);
-  }, [proposal, runAction]);
+    if (!proposal) return;
+    if (proposal.kind === 'live') void runLiveBranch(proposal.transcript, proposal.childMeaning);
+    else void runAction(proposal.familyId, proposal.childMeaning, false);
+  }, [proposal, runAction, runLiveBranch]);
 
   const chooseSuggestion = useCallback(
     (familyId: string, label: string) => {
@@ -1346,7 +1373,9 @@ export function useDialogue({
     }
     logStep('KEEP_TALKING', { reply_kind: phase });
     // 제안한 행동을 지금은 하지 않기로 함 - 제안과 실제 실행을 구분해 남긴다.
-    if (proposal) logTurn({ role: 'SYSTEM', event: 'ACTION_DECLINED', familyId: proposal.familyId });
+    if (proposal) {
+      logTurn({ role: 'SYSTEM', event: 'ACTION_DECLINED', familyId: proposal.kind === 'family' ? proposal.familyId : null });
+    }
     setProposal(null);
     setPhase('ready');
   }, [cancelPending, logStep, logTurn, phase, proposal, stopSpeaking]);
@@ -1384,9 +1413,11 @@ export function useDialogue({
     // 행동 확인 카드 문구 - 아이에게 보이는 짧은 이름("잠깐 새 지켜보기")이 있으면 그것을, 없으면 행동 뜻 문장을 쓴다.
     // 뜻 문장("~지켜본다.")은 서버가 아이 말을 분류하는 기준이라 그대로 두고 화면에서만 바꾼다.
     proposalLabel: proposal
-      ? (inviteHelp?.suggestions?.find((suggestion) => suggestion.familyId === proposal.familyId)?.label
-        ?? storyPackage.manifest.fallbackFamilies.find((family) => family.id === proposal.familyId)?.meaning
-        ?? null)
+      ? proposal.kind === 'live'
+        ? proposal.childMeaning
+        : (inviteHelp?.suggestions?.find((suggestion) => suggestion.familyId === proposal.familyId)?.label
+          ?? storyPackage.manifest.fallbackFamilies.find((family) => family.id === proposal.familyId)?.meaning
+          ?? null)
       : null,
     openChat,
     openInvite,

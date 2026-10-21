@@ -91,6 +91,8 @@ import type { AttemptBackdropState } from '../lib/attempt-backdrop';
 import { playResponseWithFallback } from '../lib/play-clip-with-fallback';
 import { resolveVoiceResearchEnabled } from './voice-research-enabled';
 import { useOneStoryDerivedView } from './use-one-story-derived-view';
+import { enqueueLiveBranch } from '@/entities/live-branch';
+
 import { useLiveBranchPolling } from './use-live-branch-polling';
 
 // Q-34: 선택지 음성 미리 만들기 캐시. 모듈 단위라 409 PREFETCH_DISABLED 후 세션 내내 멈춘다.
@@ -2094,6 +2096,69 @@ export function useOneStoryRuntime(
     [commitEvent, rememberQuestionOutcome, stopNarration, storyManifest, trackStoryEvent],
   );
 
+  /**
+   * 그레텔 대화에서 아이가 낸 새 계획(NEW_BRANCH)을 수락했을 때 - 백엔드에 실시간 분기 생성을 요청하고 '만드는 중'
+   * 화면(generating-branch)으로 간다. 완성되면 기존 폴링(useLiveBranchPolling)이 새 선택지 3개를 띄운다. 만들 수 없으면
+   * (꺼짐·상한·네트워크) false를 돌려주고, 대화는 그냥 이야기로 돌아간다.
+   */
+  const requestDialogueLiveBranch = useCallback(
+    async (transcript: string, childMeaning: string, sessionId: string) => {
+      const state = runtimeRef.current;
+      if (state.status !== 'awaiting-question') return false;
+      const anchor = storyManifest.questionAnchors.find((candidate) => candidate.id === state.anchorId);
+      if (!anchor) return false;
+      let jobId: string | null = null;
+      try {
+        jobId = (
+          await enqueueLiveBranch({
+            storyId: storyManifest.storyId,
+            sceneId: anchor.sceneId,
+            anchorId: anchor.id,
+            transcript,
+            sessionId,
+            questionRound: state.questionRound ?? 1,
+          })
+        ).jobId;
+      } catch {
+        jobId = null;
+      }
+      if (!jobId) return false;
+      const plan: RoutePlan = {
+        kind: 'route',
+        route: 'ANSWER_RESUME',
+        childRelevantMeaning: childMeaning || transcript,
+        coverageStatus: 'uncovered',
+        coverageReason: 'dialogue-new-branch',
+        text: '좋아, 그 방법으로 이야기를 준비해 볼게. 잠깐만 기다려 줘.',
+        speakerId: anchor.promptSpeakerId,
+        actionFamilyId: null,
+        rejoinAt: null,
+        fallbackFamilyId: null,
+        options: [],
+        liveBranchJobId: jobId,
+        versions: {
+          modelId: 'dialogue',
+          promptVersion: 'dialogue',
+          storyManifestVersion: storyManifest.contentVersion,
+          routePolicyVersion: 'dialogue',
+        },
+      };
+      await stopNarration();
+      activeNarrationIdRef.current = null;
+      setPendingResponseAudio(null);
+      setBranchCaption(null);
+      if (!commitEvent({ type: 'LIVE_BRANCH_REQUESTED', plan })) return false;
+      void trackStoryEvent('dialogue_step', {
+        anchor_id: anchor.id,
+        scene_id: anchor.sceneId,
+        entry_mode: 'INVITE',
+        turn_kind: 'NEW_BRANCH',
+      });
+      return true;
+    },
+    [commitEvent, stopNarration, storyManifest, trackStoryEvent],
+  );
+
   /** 행동 없이 대화만 하고 이야기로 돌아간 질문 초대도 리포트에 남긴다(아이가 실제로 말한 경우만). */
   const recordDialogueOutcome = useCallback(
     (anchorId: string, childMeaning: string, lastReply: string) => {
@@ -2680,6 +2745,7 @@ export function useOneStoryRuntime(
     replayCurrent,
     toggleNarration,
     confirmDialogueAction,
+    requestDialogueLiveBranch,
     trackStoryEvent,
     recordDialogueOutcome,
     recordAttemptStarted,

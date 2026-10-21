@@ -14,6 +14,16 @@ const base = {
   helpAvailable: true,
 };
 
+test('a new-branch proposal goes to the confirm card like a prepared action', () => {
+  assert.deepEqual(nextDialogueStep({ ...base, replyKind: 'NEW_BRANCH', wrapUp: 'SUGGEST_RETURN' }), {
+    ending: false,
+    phase: 'proposal',
+    attemptTurn: false,
+  });
+  // 상시 대화에서는 새 선택지를 만들 수 없다 - 보통 답처럼 둔다.
+  assert.equal(nextDialogueStep({ ...base, replyKind: 'NEW_BRANCH', mode: 'CHAT' }).phase, 'ready');
+});
+
 test('a failure scene goes back to the same question point - no action, no help offer, no return offer', () => {
   // 서버가 실패 장면에 행동 제안·도움 요청을 실어 보내도(검증에서 지우지만) 실행 확인으로 가지 않는다.
   const step = nextDialogueStep({

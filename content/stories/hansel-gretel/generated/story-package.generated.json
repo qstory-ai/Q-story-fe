@@ -994,7 +994,7 @@
             "~지"
           ],
           "catchphrases": [
-            "오빠, 저기 봐"
+            "저기 봐!"
           ],
           "sentenceLengthBias": "SHORT"
         },
@@ -3694,5 +3694,5 @@
       }
     }
   },
-  "sourceDigest": "c536185dc05390720374a95b35b3695a5f5a1a163488332ea5c61d9a1a347907"
+  "sourceDigest": "0b77591481e12f3f71310785db34e39bcaaaade0e8cc1f2e9502a79a5419f5c8"
 }

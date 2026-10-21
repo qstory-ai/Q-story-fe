@@ -118,7 +118,7 @@ personas:
       oneLiner: 무서워도 오빠와 함께 방법을 찾는 동생
     speechStyle:
       endings: ["~야", "~지"]
-      catchphrases: ["오빠, 저기 봐"]
+      catchphrases: ["저기 봐!"]
       sentenceLengthBias: SHORT
     emotionRange:
       allowed: [두려움, 호기심, 안도, 결단력]

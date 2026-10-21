@@ -69,10 +69,26 @@ function cageRule(visual, hanselCaged) {
     return 'CAGE: Gretel turns the small silver key in the cage lock and Hansel steps OUT of the open cage; the witch is at the back shelf, not in the cage; each character appears once.';
   }
   if (hanselCaged) {
-    return 'CAGE: Hansel is INSIDE the iron cage behind the bars (nowhere else); Gretel is the only child outside; the witch is never in the cage; each character appears once.';
+    // 10/21 3차: 속삭이는 장면에서 그레텔 옆에 헨젤을 한 명 더 그렸다 - 창살 너머로 속삭인다고 못 박는다.
+    const whisper = /whisper/.test(action) ? ' Gretel whispers to Hansel THROUGH the bars; NO other boy.' : '';
+    return 'CAGE: Hansel is INSIDE the iron cage behind the bars (nowhere else); Gretel is the only child outside; the witch is never in the cage; each character appears once.' + whisper;
   }
   return 'CAGE: the cage is EMPTY; both children stand outside it; each character appears once.';
 }
+
+// 글 규칙만으로는 모델이 "누가 창살 안인지"를 자주 틀렸다(10/21 2차: 8/11 실패). 정답 상태가 담긴 승인 그림을
+// 마지막 참고 이미지로 붙이고 "마지막 참고 그림의 창살 상황을 그대로"라고 못 박는다. 파일은 build-output의 후보 그림.
+const STATE_REFS = {
+  'state-hansel-caged': join(outDir, 'images', 'c-wait-for-witch-turn-01', '1.png'),
+  'state-corridor': join(outDir, 'images', 'corridor-lock-door', '1.png'),
+};
+function sceneRefsFor(visual, hanselCaged) {
+  const key = locationKey(visual.location);
+  if (key === 'CANDY_CORRIDOR') return ['state-corridor'];
+  if (key === 'CANDY_INTERIOR' && hanselCaged) return ['state-hansel-caged'];
+  return [];
+}
+const STATE_REF_RULE = " Match the LAST reference picture's cage situation exactly (who is inside/outside).";
 
 // 1) 장면 삽화 - 장면 순서대로. 앞 그림을 이어 그리도록 continuity에 앞 그림의 끝 상태를 적는다.
 let previous = null;
@@ -83,6 +99,8 @@ for (const scene of generated.scenes) {
     const action = `${visual.mode ?? ''} ${words(visual.requiredAction)}`;
     if (CAGE_LOCK.test(action)) hanselCaged = true;
     const cage = cageRule(visual, hanselCaged);
+    // 창살을 여는 그림도 "헨젤이 안에 있던" 참고 그림이 있어야 밖으로 나오는 장면을 맞게 그린다.
+    const refs = sceneRefsFor(visual, hanselCaged);
     if (CAGE_OPEN.test(action)) hanselCaged = false;
     jobs.push({
       id: visual.assetId,
@@ -99,7 +117,8 @@ for (const scene of generated.scenes) {
         `It starts from: ${words(visual.entryState)}; it ends with: ${words(visual.exitState)}.`,
         lines.length ? `The story text read with this picture (Korean): ${lines.join(' / ')}` : '',
       ].filter(Boolean).join(' '),
-      rules: cage,
+      sceneRefs: refs,
+      rules: cage + (refs.length ? STATE_REF_RULE : ''),
       composition: shotFor(visual),
       background: BACKGROUNDS[locationKey(visual.location)],
       lighting: LIGHTING[visual.time] ?? LIGHTING.day,
@@ -128,7 +147,8 @@ for (const fallback of generated.fallbacks) {
         `The child chose this action for the siblings: ${words(segment.mode)}.`,
         lines.length ? `The story text read with this picture (Korean): ${lines.join(' / ')}` : '',
       ].filter(Boolean).join(' '),
-      rules: kitchen ? cageRule({ location: 'candy-house-kitchen', mode: '' }, true) : '',
+      sceneRefs: kitchen ? ['state-hansel-caged'] : [],
+      rules: kitchen ? cageRule({ location: 'candy-house-kitchen', mode: '' }, true) + STATE_REF_RULE : '',
       composition: 'Medium shot focused on the chosen action, faces and hands clearly readable.',
       background: BACKGROUNDS[kitchen ? 'CANDY_INTERIOR' : 'FOREST'],
       lighting: kitchen ? LIGHTING.day : LIGHTING.morning,
@@ -156,7 +176,8 @@ for (const [anchorId, backdrops] of Object.entries(storyYaml.attemptBackdrops ??
           ? 'The witch has her back turned, stirring a pot, not noticing. The key ring (two keys) still lies on the worktable.'
           : 'This happens on the glowing forest path where the white bird keeps looking back.',
       ].join(' '),
-      rules: kitchen ? cageRule({ location: 'candy-house-kitchen', mode: '' }, true) : '',
+      sceneRefs: kitchen ? ['state-hansel-caged'] : [],
+      rules: kitchen ? cageRule({ location: 'candy-house-kitchen', mode: '' }, true) + STATE_REF_RULE : '',
       composition: 'Medium shot; the blocked attempt is the main subject, large in the frame.',
       background: BACKGROUNDS[kitchen ? 'CANDY_INTERIOR' : 'FOREST'],
       lighting: kitchen ? LIGHTING.day : LIGHTING.morning,
@@ -173,7 +194,7 @@ for (const job of jobs) {
 
 const tooLong = jobs.filter((job) => job.prompt.length > 5000);
 mkdirSync(outDir, { recursive: true });
-writeFileSync(join(outDir, 'jobs.json'), `${JSON.stringify({ style: STYLE_ID, story, createdAt: new Date().toISOString(), jobs }, null, 2)}\n`);
+writeFileSync(join(outDir, 'jobs.json'), `${JSON.stringify({ style: STYLE_ID, story, createdAt: new Date().toISOString(), stateRefs: STATE_REFS, jobs }, null, 2)}\n`);
 const count = (kind) => jobs.filter((job) => job.kind === kind).length;
 console.log(`jobs ${jobs.length} (scene ${count('scene')}, branch ${count('branch')}, attempt ${count('attempt')}) → ${join(outDir, 'jobs.json')}`);
 console.log(`prompt length max ${Math.max(...jobs.map((job) => job.prompt.length))} chars`);

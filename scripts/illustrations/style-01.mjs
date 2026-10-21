@@ -84,7 +84,7 @@ export function buildPrompt({ characters, story, composition, background, lighti
   const cast = characters.map((key) => CHARACTER_SPECS[key]).filter(Boolean);
   // 장면 글(대사 포함)은 340자까지 - 상한 5,000자 안에서 공통 글·인물·구도 칸을 지키기 위해. 규칙 칸이 있는
   // 장면(부엌·인물 3명)은 그만큼 글을 더 줄인다(220자) - 대사보다 "누가 창살 안인지"가 더 중요하다.
-  const cap = rules ? 220 : 340;
+  const cap = rules ? 110 : 340;
   const storyText = story.length > cap ? `${story.slice(0, cap)}…` : story;
   return [
     COMMON_TEMPLATE,

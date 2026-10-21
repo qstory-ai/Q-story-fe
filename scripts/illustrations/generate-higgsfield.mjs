@@ -38,7 +38,7 @@ const ENDPOINT = 'marketing-studio/image/flare';
 const MODEL_LABEL = 'higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)';
 const POLL_TIMEOUT_MS = 15 * 60 * 1000;
 
-const { jobs } = JSON.parse(readFileSync(join(workDir, 'jobs.json'), 'utf8'));
+const { jobs, stateRefs = {} } = JSON.parse(readFileSync(join(workDir, 'jobs.json'), 'utf8'));
 let selected = only.length ? jobs.filter((job) => only.includes(job.id)) : jobs;
 if (limit > 0) selected = selected.slice(0, limit);
 if (selected.length === 0) throw new Error('No jobs selected');
@@ -125,7 +125,9 @@ function refsFor(job, urls) {
     ...new Set(job.characters.map((character) => REF_FILES[character]).filter((stem) => stem && urls[stem])),
   ];
   const backgrounds = Object.keys(urls).filter((stem) => stem.startsWith('background-')).sort();
-  return [...stems, ...backgrounds].slice(0, 16).map((stem) => ({ stem, url: urls[stem] }));
+  // 상태 참고 그림(누가 창살 안인지 등)은 맨 뒤 - 프롬프트가 "마지막 참고 그림"이라고 가리킨다.
+  const states = (job.sceneRefs ?? []).filter((stem) => urls[stem]);
+  return [...stems, ...backgrounds, ...states].slice(0, 16).map((stem) => ({ stem, url: urls[stem] }));
 }
 
 async function runVariant(job, variant, refs, auth, results) {
@@ -180,6 +182,10 @@ async function runVariant(job, variant, refs, auth, results) {
 }
 
 const byStem = findRefs();
+// 상태 참고 그림(jobs.json stateRefs - build-output의 승인 후보)도 같이 올린다. 없으면 조용히 건너뛴다.
+for (const [stem, file] of Object.entries(stateRefs)) {
+  if (existsSync(file)) byStem.set(stem, file);
+}
 console.log(`장면 ${selected.length}개 × 후보 ${variants}장 = 요청 ${selected.length * variants}건 (${resolution}, ${quality})`);
 if (dryRun) {
   for (const job of selected) {

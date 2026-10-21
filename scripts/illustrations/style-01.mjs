@@ -53,7 +53,9 @@ export const BACKGROUNDS = {
   CANDY_EXTERIOR:
     'A charming gingerbread-and-candy cottage in a sunny forest clearing: biscuit walls, icing trim, candy windows, a lollipop garden, inviting rather than scary. Keep the same door and window positions. Before the children enter, the door is closed and there are no scratches, sugar swirls or magic glows.',
   CANDY_INTERIOR:
-    'Inside the candy cottage: candy-studded walls, shelves of candy jars. Fixed kitchen layout - tall black iron cage LEFT, wooden worktable FRONT RIGHT, shelves on the back wall, CLOSED brick oven back right, heavy wooden door to the corridor.',
+    'Inside the candy cottage kitchen: candy-studded walls, shelves of candy jars; tall black iron cage LEFT, wooden worktable FRONT RIGHT, CLOSED brick oven back right, heavy wooden door to the corridor. Key ring: EXACTLY TWO keys (small silver = cage, big black = door), never three.',
+  CANDY_CORRIDOR:
+    'A hallway inside the candy cottage: candy-studded walls, the heavy wooden kitchen door (closed), a storeroom door and the outside door at the far end. NO cage and NO oven here - those are in the kitchen.',
   WATERWAY:
     'A wide, calm forest waterway with grassy banks on both sides and no bridge or boat; soft reflections, trees fading into mist on the far bank.',
 };
@@ -78,15 +80,19 @@ export const NEGATIVE =
   'Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.';
 
 /** 한 장면의 최종 프롬프트(Flare 상한 5000자). */
-export function buildPrompt({ characters, story, composition, background, lighting, continuity }) {
+export function buildPrompt({ characters, story, composition, background, lighting, continuity, rules = '' }) {
   const cast = characters.map((key) => CHARACTER_SPECS[key]).filter(Boolean);
-  // 장면 글(대사 포함)은 700자까지 - 상한 5,000자 안에서 공통 글·인물·구도 칸을 지키기 위해.
-  const storyText = story.length > 340 ? `${story.slice(0, 340)}…` : story;
+  // 장면 글(대사 포함)은 340자까지 - 상한 5,000자 안에서 공통 글·인물·구도 칸을 지키기 위해. 규칙 칸이 있는
+  // 장면(부엌·인물 3명)은 그만큼 글을 더 줄인다(220자) - 대사보다 "누가 창살 안인지"가 더 중요하다.
+  const cap = rules ? 110 : 340;
+  const storyText = story.length > cap ? `${story.slice(0, cap)}…` : story;
   return [
     COMMON_TEMPLATE,
     '',
     cast.length ? `CHARACTERS IN THIS SCENE (match the attached sheets; no one else): ${cast.join(' ')}` : 'No people in this scene.',
     `STORY: ${storyText}`,
+    // 창살 안에 누가 있는지 같은 "틀리면 안 되는" 규칙 - 글 요약(340자 컷) 뒤에 따로 두어 잘리지 않게 한다.
+    rules,
     `COMPOSITION: ${composition} ${COMPOSITION_RULE}`,
     `BACKGROUND: ${background}`,
     `LIGHTING / MOOD: ${lighting}`,

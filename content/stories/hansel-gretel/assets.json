@@ -24,16 +24,16 @@
       "category": "BRANCH_ART",
       "familyId": "C_WAIT_FOR_WITCH_TURN",
       "panel": 1,
-      "file": "illustrations/fb-c-wait-for-witch-turn-v2.webp",
-      "integrity": "sha256-g2F0YtWM3EhsqdKl8ZL2GUIAmrH+9Cox/xBZMUaQQuw="
+      "file": "illustrations/fb-c-wait-for-witch-turn-s1.webp",
+      "integrity": "sha256-UoLeLx+dvo4YOCq9rJqVGvDGPuILHw9A2mn16ozKsgM="
     },
     {
       "slug": "c-distract-and-take-keys-01",
       "category": "BRANCH_ART",
       "familyId": "C_DISTRACT_AND_TAKE_KEYS",
       "panel": 1,
-      "file": "illustrations/fb-c-distract-and-take-keys-s1.webp",
-      "integrity": "sha256-V1URtr2TVJsDIzN5ALd+0q004FMYD0ybWv5kQAr5mdA="
+      "file": "illustrations/fb-c-distract-and-take-keys-s2.webp",
+      "integrity": "sha256-f+DCz7ClCiyYnizjXt0Ih3ZjLHiUuD0mSR9EOVnUdeQ="
     },
     {
       "slug": "home-table",
@@ -170,8 +170,8 @@
     {
       "slug": "kitchen-door-locked",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-49-kitchen-door-locked-v2.webp",
-      "integrity": "sha256-WesVQLp2y9gyi8iC4/4ulfKz/MdRK8t/iEKLPs4Nlbs="
+      "file": "illustrations/hg-art-49-kitchen-door-locked-s1.webp",
+      "integrity": "sha256-xbUHQbothl/nsUHO19NquzwmETK6c/XyKrB30wsSsHc="
     },
     {
       "slug": "witch-reveal",
@@ -182,32 +182,32 @@
     {
       "slug": "gretel-watches-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-31-gretel-watches-keys-s1.webp",
-      "integrity": "sha256-MN021Hhj7RMiN9lM/i5rgjHzsQbwBaSR6Fkfa/Xl+AQ="
+      "file": "illustrations/hg-art-31-gretel-watches-keys-s2.webp",
+      "integrity": "sha256-nPRcNHciB+M93LaKxPOV++WlaZqy4WIcPqLeaNr97j4="
     },
     {
       "slug": "gretel-whispers-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-50-gretel-whispers-keys-s1.webp",
-      "integrity": "sha256-kVt5BJ/KfuWxYG55cTWErQaOseuEkP6iSkEYzVsktJ0="
+      "file": "illustrations/hg-art-50-gretel-whispers-keys-s2.webp",
+      "integrity": "sha256-FqisxhWrl2kGRnPip88Zb6iXQFN/6Ngas+S3svp4GjU="
     },
     {
       "slug": "witch-cooking-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-51-witch-cooking-keys-s1.webp",
-      "integrity": "sha256-gC2MEcFFxMQfVPnr0XWJcIs4Li5b5mCiO9DryZ3MP/8="
+      "file": "illustrations/hg-art-51-witch-cooking-keys-s2.webp",
+      "integrity": "sha256-gjced0Gkd0Uq9LoQ1NX5GrrNo7mhGEwcFF0Zl7MaoVc="
     },
     {
       "slug": "wait-and-take-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-52-wait-and-take-keys-s1.webp",
-      "integrity": "sha256-d1DwtJUsTQXY0Z/64ILhMhqNcb3h9gIb5+IxF0ynMDE="
+      "file": "illustrations/hg-art-52-wait-and-take-keys-s2.webp",
+      "integrity": "sha256-C/sf0cV2TmgvrMZ7mv4Dgc+h5rJ3VGZRuLtECmYk/+Q="
     },
     {
       "slug": "cage-unlock-oven-secured",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-45-cage-unlock-oven-secured-s1.webp",
-      "integrity": "sha256-xuxPIXEioQXGo3/U747zEE7Ql3u+mPdXJXJTbWYCyIg="
+      "file": "illustrations/hg-art-45-cage-unlock-oven-secured-s2.webp",
+      "integrity": "sha256-8hx19qGDCV3PMfznsGIDpqlp1zPYUT0qQzzJL0MFEXU="
     },
     {
       "slug": "black-key-side-door",
@@ -224,8 +224,8 @@
     {
       "slug": "escape-corridor",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-34-escape-corridor-s1.webp",
-      "integrity": "sha256-Ms0kgPWuBI2ZNzFK0loW6JMDFuEONDBIz4ZOgu+ymvs="
+      "file": "illustrations/hg-art-34-escape-corridor-s2.webp",
+      "integrity": "sha256-9Ne+1GlJJhT4Bgx7K4X2mz2HnjbiAQmfiiUFfiQ5ydc="
     },
     {
       "slug": "storehouse",
@@ -302,8 +302,8 @@
     {
       "slug": "c-try-locked-door",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-attempt-c-try-locked-door-s1.webp",
-      "integrity": "sha256-V2W9WrdNlzsH4YHx05FTJnTCng41otPfPRGyT5zMijM="
+      "file": "illustrations/hg-attempt-c-try-locked-door-s2.webp",
+      "integrity": "sha256-xjmVsYLiBlhKdbOp5S43YFva9K6bYrRmZgcJSxKI3QM="
     },
     {
       "slug": "c-try-narrow-chimney",

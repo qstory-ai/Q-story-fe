@@ -28,7 +28,6 @@ const workDir = flag('--out', join(appDirectory, 'build-output', 'illustrations'
 const dryRun = args.includes('--dry-run');
 const storyDir = join(appDirectory, 'content', 'stories', story);
 const assetsRoot = join(appDirectory, 'assets', 'story', story);
-const SUFFIX = '-s1';
 
 const { jobs } = JSON.parse(readFileSync(join(workDir, 'jobs.json'), 'utf8'));
 const picks = JSON.parse(readFileSync(join(workDir, 'picks.json'), 'utf8'));
@@ -46,11 +45,15 @@ for (const job of jobs) {
   if (!existsSync(source)) throw new Error(`${job.id}: 후보 ${pick}이 없어요 (${source})`);
   const asset = assets.assets.find((entry) => entry.slug === job.id);
   if (!asset) throw new Error(`${job.id}: assets.json에 없어요`);
-  // 예전 이름에서 버전 꼬리(-v2 등)와 스타일 꼬리를 떼고 스타일 01 꼬리를 붙인다.
-  const stem = basename(asset.file, '.webp').replace(/-(v\d+|s\d+)$/, '');
-  const file = `illustrations/${stem}${SUFFIX}.webp`;
+  // 예전 이름에서 버전 꼬리(-v2 등)와 스타일 꼬리를 떼고 스타일 꼬리를 붙인다. 이미 같은 스타일 꼬리(-s1)가 붙어 있는데
+  // 그림이 바뀌었으면 번호를 올린다(-s2) - 이름이 같으면 CDN·브라우저가 예전 그림을 1시간 넘게 보여 준다(10/21 부엌 장면).
+  // 그림이 그대로면(같은 후보를 다시 골라도) 건드리지 않는다.
   const webp = await sharp(source).resize(1920, 1080, { fit: 'cover' }).webp({ quality: 82 }).toBuffer();
   const integrity = `sha256-${createHash('sha256').update(webp).digest('base64')}`;
+  if (integrity === asset.integrity) continue;
+  const current = /-s(\d+)$/.exec(basename(asset.file, '.webp'));
+  const stem = basename(asset.file, '.webp').replace(/-(v\d+|s\d+)$/, '');
+  const file = `illustrations/${stem}-s${current ? Number(current[1]) + 1 : 1}.webp`;
   const record = results.find((entry) => entry.id === job.id && entry.variant === pick && entry.file);
   changed.push({ id: job.id, from: asset.file, to: file, kb: Math.round(webp.length / 1024) });
   if (dryRun) continue;

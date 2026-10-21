@@ -33,7 +33,10 @@ const words = (slug) => (slug ? String(slug).replace(/-/g, ' ') : '');
 function locationKey(location = '') {
   if (location.startsWith('home') || location === 'outside-home') return 'HOME';
   if (location.startsWith('candy-house-')) {
-    return /exterior|threshold|clearing/.test(location) ? 'CANDY_EXTERIOR' : 'CANDY_INTERIOR';
+    if (/exterior|threshold|clearing/.test(location)) return 'CANDY_EXTERIOR';
+    // 10/21: 복도 장면이 부엌 배경(창살 LEFT)으로 그려져 복도에 창살이 나왔다 - 복도는 따로.
+    if (/corridor|hallway/.test(location)) return 'CANDY_CORRIDOR';
+    return 'CANDY_INTERIOR';
   }
   if (location.startsWith('wide-waterway')) return 'WATERWAY';
   return 'FOREST';
@@ -55,11 +58,32 @@ function shotFor(visual) {
 
 const jobs = [];
 
+// 10/21 재생성에서 모델이 그레텔·마녀를 창살 안에 넣거나 헨젤을 두 번 그렸다. 부엌 장면마다 "누가 창살 안에 있는지"를
+// 장면 흐름(마녀가 헨젤을 가둠 → 그레텔이 창살을 엶)에 따라 추적해 한 문장으로 못 박는다.
+const CAGE_LOCK = /locks-hansel-in-cage|hansel-inside-cage|hansel-in-cage/;
+const CAGE_OPEN = /opens-cage|unlocks-cage|hansel-steps-out|hansel-free/;
+function cageRule(visual, hanselCaged) {
+  if (locationKey(visual.location) !== 'CANDY_INTERIOR') return '';
+  const action = `${visual.mode ?? ''} ${words(visual.requiredAction)}`;
+  if (CAGE_OPEN.test(action)) {
+    return 'CAGE: Gretel turns the small silver key in the cage lock and Hansel steps OUT of the open cage; the witch is at the back shelf, not in the cage; each character appears once.';
+  }
+  if (hanselCaged) {
+    return 'CAGE: Hansel is INSIDE the iron cage behind the bars (nowhere else); Gretel is the only child outside; the witch is never in the cage; each character appears once.';
+  }
+  return 'CAGE: the cage is EMPTY; both children stand outside it; each character appears once.';
+}
+
 // 1) 장면 삽화 - 장면 순서대로. 앞 그림을 이어 그리도록 continuity에 앞 그림의 끝 상태를 적는다.
 let previous = null;
+let hanselCaged = false;
 for (const scene of generated.scenes) {
   for (const visual of scene.visuals) {
     const lines = linesFor(scene.segments, visual.id);
+    const action = `${visual.mode ?? ''} ${words(visual.requiredAction)}`;
+    if (CAGE_LOCK.test(action)) hanselCaged = true;
+    const cage = cageRule(visual, hanselCaged);
+    if (CAGE_OPEN.test(action)) hanselCaged = false;
     jobs.push({
       id: visual.assetId,
       kind: 'scene',
@@ -75,6 +99,7 @@ for (const scene of generated.scenes) {
         `It starts from: ${words(visual.entryState)}; it ends with: ${words(visual.exitState)}.`,
         lines.length ? `The story text read with this picture (Korean): ${lines.join(' / ')}` : '',
       ].filter(Boolean).join(' '),
+      rules: cage,
       composition: shotFor(visual),
       background: BACKGROUNDS[locationKey(visual.location)],
       lighting: LIGHTING[visual.time] ?? LIGHTING.day,
@@ -102,8 +127,8 @@ for (const fallback of generated.fallbacks) {
       story: [
         `The child chose this action for the siblings: ${words(segment.mode)}.`,
         lines.length ? `The story text read with this picture (Korean): ${lines.join(' / ')}` : '',
-        kitchen ? 'Hansel is still locked inside the iron cage until Gretel unlocks it.' : '',
       ].filter(Boolean).join(' '),
+      rules: kitchen ? cageRule({ location: 'candy-house-kitchen', mode: '' }, true) : '',
       composition: 'Medium shot focused on the chosen action, faces and hands clearly readable.',
       background: BACKGROUNDS[kitchen ? 'CANDY_INTERIOR' : 'FOREST'],
       lighting: kitchen ? LIGHTING.day : LIGHTING.morning,
@@ -128,9 +153,10 @@ for (const [anchorId, backdrops] of Object.entries(storyYaml.attemptBackdrops ??
         `A gentle "oh no, this way does not work" moment (Korean description: ${backdrop.description}).`,
         'Show the attempt and clearly why it is blocked. Nobody is hurt; the mood stays gentle.',
         kitchen
-          ? 'Hansel watches from inside the iron cage; the witch has her back turned, stirring a pot, not noticing. The key ring still lies on the worktable.'
+          ? 'The witch has her back turned, stirring a pot, not noticing. The key ring (two keys) still lies on the worktable.'
           : 'This happens on the glowing forest path where the white bird keeps looking back.',
       ].join(' '),
+      rules: kitchen ? cageRule({ location: 'candy-house-kitchen', mode: '' }, true) : '',
       composition: 'Medium shot; the blocked attempt is the main subject, large in the frame.',
       background: BACKGROUNDS[kitchen ? 'CANDY_INTERIOR' : 'FOREST'],
       lighting: kitchen ? LIGHTING.day : LIGHTING.morning,

@@ -280,3 +280,34 @@ test('attempt backdrops are declared per question and only the pictures the stor
   );
   assert.deepEqual(availableAttemptBackdrops(undefined, {}), {});
 });
+
+test('a fallback whose rejoin target is no longer an anchor is skipped instead of failing the whole story', () => {
+  // 운영에서 실제로 난 일: 2026-08-31에 실시간 생성된 LIVE_C_* 분기가 그 뒤 이름이 바뀐 앵커
+  // (HG-F07-DEMONSTRATION → HG-F07-KEYS-TAKEN)로 돌아가려 해서 이야기 전체가 열리지 않았다.
+  const staleContent = structuredClone(generatedContent);
+  const authored = staleContent.fallbacks.find((fallback) => fallback.id === 'C_DISTRACT_AND_TAKE_KEYS');
+  assert.ok(authored);
+  staleContent.fallbacks.push({
+    ...structuredClone(authored),
+    id: 'LIVE_C_STALE_0',
+    rejoin: { slot: 'C', target: 'HG-F07-DEMONSTRATION' },
+  });
+  const warnings: string[] = [];
+  const originalWarn = console.warn;
+  console.warn = (message: unknown) => warnings.push(String(message));
+  try {
+    const storyPackage = buildStoryRuntimePackage({
+      generatedContent: staleContent as Parameters<typeof buildStoryRuntimePackage>[0]['generatedContent'],
+      packageData: packageData as Parameters<typeof buildStoryRuntimePackage>[0]['packageData'],
+      imageAssets: hanselGretelStoryPackage.imageAssets,
+      audioAssets: hanselGretelStoryPackage.audioAssets,
+    });
+    assert.ok(!storyPackage.presentation.fallbacks.some((fallback) => fallback.id === 'LIVE_C_STALE_0'));
+    assert.ok(!storyPackage.manifest.fallbackFamilies.some((family) => family.id.includes('LIVE_C_STALE_0')));
+    assert.ok(storyPackage.presentation.fallbacks.some((fallback) => fallback.id === 'C_DISTRACT_AND_TAKE_KEYS'));
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0], /LIVE_C_STALE_0.*HG-F07-DEMONSTRATION/);
+  } finally {
+    console.warn = originalWarn;
+  }
+});

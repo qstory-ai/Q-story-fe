@@ -1,16 +1,18 @@
 # 삽화 다시 만들기 (스타일 01 · Higgsfield)
 
-「헨젤과 그레텔」 그림 50장(장면 40 · 행동 전개 4 · 시도 장면 막힘 6)을 스타일 01 "Crisp Characters × Soft Painterly Backgrounds"로 다시 만들어 바꾸는 순서다. 모델은 Higgsfield **GPT Image 2.5 Flare**(`marketing-studio/image/flare`, 16:9 · 4k · high).
+「헨젤과 그레텔」 그림 50장(장면 40 · 행동 전개 4 · 시도 장면 막힘 6)을 스타일 01로 다시 만들어 바꾸는 순서다. 모델은 Higgsfield **GPT Image 2.5 Flare**(`marketing-studio/image/flare`, 16:9 · **2k · high**). 공통 프롬프트는 디자이너 문서(노션 "삽화 제작 방법")와 같은 내용이다.
+
+**돈 먼저**: 2k·high 한 장 약 $0.275(5.5크레딧), 4k는 그 2~5배. 기본은 **장면당 후보 1장·2k**(50장 ≈ $14)다. 앱은 1920×1080으로 줄여 쓰니 4k는 필요 없다. 후보를 늘리거나 4k로 돌리기 전에 장수와 금액을 먼저 말하고 확인받는다(10/21: 5달러 충전에 후보 2장·4k 시험을 돌려 모자랐다).
 
 ## 0. 준비
 
-- **참고 그림 폴더**(저장소 밖, 예: `docs/삽화/style-01-refs/`). 파일 이름으로 찾는다.
-  - 필수: `gretel-sheet.png`, `hansel-sheet.png` (캐릭터 시트)
+- **참고 그림 폴더**(저장소 밖, 지금은 `Q-story/docs/삽화/style-01-refs/`). 파일 이름으로 찾는다. 원본은 피그마 「삽화」 파일의 등장인물 섹션 3면도 - Figma MCP `download_assets`로 받는다.
+  - 필수: `gretel-sheet.png`, `hansel-sheet.png`
+  - 인물 시트: `father-sheet`, `stepmother-sheet`, `witch-sheet` (그 인물이 나오는 장면에만 붙음. 없으면 `style-01.mjs`의 글 설명만 씀)
   - 선택: `background-1.png`, `background-2.png` (배경·분위기 참고 - 모든 장면에 붙음)
-  - 선택: `father-sheet`, `stepmother-sheet`, `witch-sheet` (있으면 그 인물이 나오는 장면에만 붙음. 없으면 `style-01.mjs`의 글 설명만 씀)
-- **API 키**: Higgsfield 콘솔에서 만든 키를 환경변수로. 저장소·대화에 붙여 넣지 않는다.
+- **API 키**: Higgsfield 콘솔에서 만든 키를 환경변수로. 저장소·대화에 붙여 넣지 않는다. 이 앱의 `.env`(git 제외)에 `HF_CREDENTIALS=id:secret`로 두면 `set -a && . ./.env`로 읽을 수 있다.
   ```bash
-  export HF_API_KEY_ID=...   HF_API_KEY_SECRET=...
+  export HF_API_KEY_ID=...   HF_API_KEY_SECRET=...     # 또는 HF_CREDENTIALS=id:secret
   ```
 
 ## 1. 프롬프트 만들기 (API 안 부름)
@@ -26,18 +28,22 @@ npm run art:jobs
 ## 2. 후보 만들기
 
 ```bash
-# 먼저 몇 장만, 무엇을 보낼지 확인
+# 먼저 몇 장만, 무엇을 보낼지 확인 (API 안 부름)
 npm run art:generate -- --refs <참고그림폴더> --only home-table,white-bird --dry-run
-# 시험으로 2장면 × 후보 2장
-npm run art:generate -- --refs <참고그림폴더> --only home-table,white-bird --variants 2
-# 전체 (50장면 × 2장 = 100건)
-npm run art:generate -- --refs <참고그림폴더> --variants 2
+# 시험으로 2장면 × 후보 1장 (≈ $0.55)
+npm run art:generate -- --refs <참고그림폴더> --only home-table,white-bird
+# 전체 (50장면 × 1장 ≈ $14)
+npm run art:generate -- --refs <참고그림폴더>
+# 마음에 안 드는 장면만 후보 하나 더 (그 장면은 2.png가 생긴다)
+npm run art:generate -- --refs <참고그림폴더> --only witch-reveal --variants 2
 ```
 
+- 기본값은 후보 1장, 2k, high. `--variants`, `--resolution 4k`는 꼭 필요할 때만, 금액을 말한 뒤에 쓴다.
 - 결과: `build-output/illustrations/hansel-gretel/images/<장면>/<후보번호>.png`, 요청 기록은 `results.json`.
 - 이미 받은 후보는 건너뛴다. 끊기면 같은 명령을 다시 돌리면 된다(같은 요청은 Idempotency-Key로 중복 과금 없음).
 - Higgsfield 결과 주소는 7일만 보관돼서 바로 내려받는다.
 - 동시 요청 기본 3건(`--concurrency`), 몇 장만 하려면 `--limit N`.
+- 프롬프트 상한 5,000자: `art:jobs`가 넘는 장면을 알려 준다. 넘으면 `style-01.mjs`의 장면 칸(STORY 상한·배경 설명)을 줄인다.
 
 ## 3. 고르기
 

@@ -8,8 +8,8 @@
 //   father-sheet.* stepmother-sheet.* witch-sheet.* ← 선택(있으면 그 인물이 나오는 장면에 붙는다)
 // 인증: HF_API_KEY_ID / HF_API_KEY_SECRET (또는 HF_CREDENTIALS="id:secret") 환경변수. 키는 저장소에 넣지 않는다.
 //
-// 사용법: node scripts/illustrations/generate-higgsfield.mjs --refs <dir> [--only id1,id2] [--variants 2]
-//          [--resolution 4k] [--quality high] [--concurrency 3] [--limit N] [--dry-run]
+// 사용법: node scripts/illustrations/generate-higgsfield.mjs --refs <dir> [--only id1,id2] [--variants 1]
+//          [--resolution 2k] [--quality high] [--concurrency 3] [--limit N] [--dry-run]
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join } from 'node:path';
@@ -25,8 +25,8 @@ const story = flag('--story', 'hansel-gretel');
 const workDir = flag('--out', join(appDirectory, 'build-output', 'illustrations', story));
 const refsDir = flag('--refs', null);
 const only = (flag('--only', '') || '').split(',').filter(Boolean);
-const variants = Number(flag('--variants', '2'));
-const resolution = flag('--resolution', '4k');
+const variants = Number(flag('--variants', '1'));
+const resolution = flag('--resolution', '2k');
 const quality = flag('--quality', 'high');
 const concurrency = Number(flag('--concurrency', '3'));
 const limit = Number(flag('--limit', '0'));

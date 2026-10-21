@@ -11,7 +11,16 @@ export type CompanionChatSafetyMode = 'ANSWER' | 'GENTLE_REDIRECT';
  * - ATTEMPT_END: 시도 장면을 마치고 "다른 방법을 찾아보자"며 원래 질문 지점으로 돌아왔다.
  * 이야기 진행은 어느 쪽도 바꾸지 않는다.
  */
-export type CompanionReplyKind = 'ANSWER' | 'EMPATHY' | 'WAIT' | 'CLOSE' | 'REDIRECT' | 'TRY_FAIL' | 'ATTEMPT_END';
+export type CompanionReplyKind =
+  | 'ANSWER'
+  | 'EMPATHY'
+  | 'WAIT'
+  | 'CLOSE'
+  | 'REDIRECT'
+  | 'TRY_FAIL'
+  | 'ATTEMPT_END'
+  // 아이가 준비된 행동에 없는, 해 볼 만한 계획을 냈다 - 그레텔이 '그럼 그렇게 해 볼까?'라고 물었고, 수락하면 새 선택지를 만든다.
+  | 'NEW_BRANCH';
 
 /** 시도 장면 한 줄 - 내레이터 줄은 내레이터 목소리, 인물 줄은 그 인물 목소리로 읽는다. */
 export type AttemptSceneLine = { speakerId: string; text: string };
@@ -38,6 +47,8 @@ export type CompanionDialogueSignal = {
   proposedActionFamilyId: string | null;
   /** TRY_FAIL일 때만. */
   attempt?: CompanionAttemptStart;
+  /** NEW_BRANCH일 때만 - 아이가 수락하면 이 말(transcript)로 실시간 분기를 만든다. meaning은 아이 말의 뜻(확인 카드 문구). */
+  newBranch?: { transcript: string; meaning: string };
 };
 
 export type CompanionChatReply = {
@@ -330,8 +341,17 @@ export async function readCompanionReply(
       asksForHelp: body.dialogue?.asksForHelp ?? false,
       proposedActionFamilyId: body.dialogue?.proposedActionFamilyId ?? null,
       ...attemptOf(body.dialogue?.attempt),
+      ...newBranchOf(body.dialogue?.newBranch),
     },
   };
+}
+
+/** 새 선택지 제안 정보 - transcript가 없으면(예전 서버) 제안으로 보지 않는다. */
+function newBranchOf(value: unknown): { newBranch?: { transcript: string; meaning: string } } {
+  if (!value || typeof value !== 'object') return {};
+  const raw = value as { transcript?: unknown; meaning?: unknown };
+  if (typeof raw.transcript !== 'string' || !raw.transcript.trim()) return {};
+  return { newBranch: { transcript: raw.transcript, meaning: typeof raw.meaning === 'string' ? raw.meaning : '' } };
 }
 
 /** 시도 장면 시작 정보 - 형식이 어긋난 줄은 버린다. 장면 줄이 없어도 시작은 한다(그레텔 말로 이어 간다). */

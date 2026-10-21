@@ -37,9 +37,12 @@ export function nextDialogueStep(input: {
     return { ending: input.wrapUp === 'CLOSE', phase: 'ready', attemptTurn };
   }
   const ending = input.replyKind === 'CLOSE' || input.childWantsToEnd || input.wrapUp === 'CLOSE';
+  // 새 선택지 제안(NEW_BRANCH)도 준비된 행동 제안처럼 "그렇게 해보기 / 더 이야기하기" 확인 카드로 간다.
+  const proposes =
+    input.mode === 'INVITE' && (Boolean(input.proposedActionFamilyId) || input.replyKind === 'NEW_BRANCH');
   const phase: NextDialoguePhase = ending
     ? 'ready'
-    : input.proposedActionFamilyId && input.mode === 'INVITE'
+    : proposes
       ? 'proposal'
       : input.asksForHelp && input.helpAvailable
         ? 'offer-help'

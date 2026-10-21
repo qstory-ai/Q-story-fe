@@ -135,6 +135,8 @@ export type StoryRuntimeEvent =
   | { type: 'CONTINUE_SELECTED' }
   /** 질문 초대 대화에서 아이가 뜻을 확인한 행동을 실행한다(Q-31) - plan은 DIRECT_ACTION route여야 한다. */
   | { type: 'ACTION_CONFIRMED'; plan: RoutePlan }
+  /** 그레텔 대화에서 아이의 새 계획으로 실시간 분기를 요청했다(plan.liveBranchJobId) - 바로 generating-branch로. */
+  | { type: 'LIVE_BRANCH_REQUESTED'; plan: RoutePlan }
   | { type: 'RECORDING_STARTED' }
   | { type: 'RECORDING_STOPPED'; recording: LocalRecordingArtifact }
   | { type: 'TEXT_SUBMITTED'; transcript: string }
@@ -802,6 +804,25 @@ function transitionSharedQuestionAnchorActions(
       return anchor.allowedActions.includes('continue-story')
         ? continueFromAnchor(manifest, waitingState, anchor)
         : invalidTransition(state, event, 'Continue is not allowed.');
+    }
+
+    if (event.type === 'LIVE_BRANCH_REQUESTED') {
+      if (state.status !== 'awaiting-question' || !event.plan.liveBranchJobId) {
+        return invalidTransition(state, event, 'A live branch can only be requested from the dialogue at a question anchor.');
+      }
+      return {
+        ok: true,
+        state: {
+          status: 'generating-branch',
+          sceneId: state.sceneId,
+          anchorId: anchor.id,
+          questionRound: state.questionRound ?? 1,
+          consecutiveSafetyFailures: state.consecutiveSafetyFailures ?? 0,
+          jobId: event.plan.liveBranchJobId,
+          plan: event.plan,
+        },
+        commands: [],
+      };
     }
 
     if (event.type === 'ACTION_CONFIRMED') {

@@ -85,8 +85,8 @@ export function OneStoryPage({
           <IllustrationBackdrop
             illustration={illustration}
             attempt={runtime.attemptBackdrop}
-            // 대화 패널이 아래를 덮는 동안 그림을 위로 올려 장면의 가운데가 패널 위에 보이게 한다.
-            lifted={dialogue.open && !runtime.homeMenuVisible && !chaptersOpen}
+            // 대화 패널이 아래를 덮는 동안 그림을 패널 위 영역에 맞추고 여백은 흐린 그림으로 채운다.
+            fitted={dialogue.open && !runtime.homeMenuVisible && !chaptersOpen}
             hidden={isParentReport}
             accessibilityLabel={`${scene?.title ?? runtime.storyPackage.manifest.title} 삽화`}
           />

@@ -100,10 +100,10 @@ export const STAGING = {
     props: 'Only the two children. A tiny campfire. No adults visible anywhere.',
   },
   'birds-eat-breadcrumbs': {
-    shot: 'Medium-wide shot of the forest path at night. The birds are at the children’s CHEST height in the CENTER of the frame - nothing important in the lower half.',
+    shot: 'Medium-wide shot of a night forest path seen from slightly above; the path winds AWAY from the viewer into the middle of the picture, so the stretch where the birds are sits in the CENTER of the frame (30-55% of the height).',
     stage:
-      'A row of small brown forest birds perches along a fallen tree trunk lying across the path at the children’s chest height, pecking up the last breadcrumbs from the top of the trunk. Hansel and Gretel stand behind the trunk, dismayed; Hansel points at the birds, Gretel puts a hand over her mouth. The ground below is empty.',
-    props: 'Four or five small brown birds, clearly visible at mid-height of the picture. Almost no crumbs left. No white bird.',
+      'On the open path itself (no fallen tree, nothing blocking the path), four or five small brown forest birds hop and peck up the last breadcrumbs a few steps ahead of the children. Hansel and Gretel stand at the left side of the path, dismayed; Hansel points at the birds, Gretel puts a hand over her mouth.',
+    props: 'The path is clear and continuous. Almost no crumbs left. No white bird. No logs or trunks across the path.',
   },
   'lost-forest': {
     shot: 'Wide shot of a tangled forest with many similar paths in the morning.',
@@ -198,24 +198,25 @@ export const STAGING = {
   'cage-unlock-oven-secured': {
     shot: 'Medium shot at the cage.',
     stage:
-      'Gretel turns the small silver key in the lock of the tall iron cage on the LEFT; the cage door swings open and Hansel steps OUT quietly. The witch is still at the SHELF AREA on the RIGHT wall with her back turned, searching for the pot lid.',
+      'Gretel hurriedly turns the small silver key in the lock of the tall iron cage on the LEFT; the cage door swings open and Hansel squeezes OUT quickly and quietly. Both faces show URGENCY and fear of being caught: wide eyes, tense mouths, glancing back - NOT smiling, NOT relaxed. The witch is still at the SHELF AREA on the RIGHT wall with her back turned, searching for the pot lid.',
     props: 'Gretel holds the ring with exactly two keys.',
   },
   'black-key-side-door': {
-    shot: 'Medium-wide shot from inside the kitchen toward the kitchen door.',
+    shot: 'Medium-wide shot from inside the kitchen toward the corridor door.',
     stage:
-      'Gretel has opened the heavy corridor door (back wall, left of center) with the big black key; Hansel is already slipping through into the corridor. The witch, at the SHELF AREA on the RIGHT wall holding a pot lid, turns around and shouts. The tall iron cage at the left stands open and empty.',
-    props: 'The open, now-empty cage at the far left. Exactly two keys on the ring.',
+      'Hansel and Gretel RUN out together through the open corridor door (back wall, left of center), Gretel pulling Hansel by the hand, both mid-stride, looking back over their shoulders in alarm. Both faces show URGENCY and fear of being caught: wide eyes, tense mouths, glancing back - NOT smiling, NOT relaxed. The witch, at the SHELF AREA on the RIGHT wall holding a pot lid, turns around and shouts. The tall iron cage at the left stands open and empty.',
+    props: 'Exactly two keys on the ring in Gretel hand.',
   },
   'corridor-lock-door': {
     shot: 'Medium shot in the corridor, outside the kitchen door.',
     stage:
-      'In the corridor, Gretel turns the big black key in the closed kitchen door to lock it while Hansel pushes the door shut with both hands. The witch is NOT visible (she is inside the kitchen, behind the closed door).',
+      'In the corridor, Gretel quickly turns the big black key in the closed kitchen door to lock it while Hansel braces the door shut with both hands. Both faces show URGENCY and fear of being caught: wide eyes, tense mouths, glancing back - NOT smiling, NOT relaxed. The witch is NOT visible (she is inside the kitchen, behind the closed door).',
     props: 'Corridor only: NO cage, NO oven here. Candy-studded walls, the outside door at the far end.',
   },
   'escape-corridor': {
     shot: 'Medium-wide shot down the corridor toward the bright outside door.',
-    stage: 'Hansel and Gretel run hand in hand down the corridor toward the open outside door at the far end.',
+    stage:
+      'Hansel and Gretel dash hand in hand down the corridor toward the open outside door at the far end, leaning forward as they run, Hansel glancing back. Both faces show URGENCY and fear of being caught: wide eyes, tense mouths, glancing back - NOT smiling, NOT relaxed.',
     props: 'Corridor only: NO cage, NO oven, no witch. No bags yet.',
   },
   'storehouse': {
@@ -232,7 +233,8 @@ export const STAGING = {
   },
   'candy-house-exit': {
     shot: 'Medium-wide shot outside the candy house.',
-    stage: 'Hansel and Gretel step out of the candy house door into the forest, each carrying a small cloth bundle bag, looking ahead with determination.',
+    stage:
+      'Hansel and Gretel hurry out of the candy house door into the forest, each carrying a small cloth bundle bag, walking fast and glancing back at the house, nervous and determined - not smiling yet.',
     props: 'The two small cloth bags from the storeroom.',
   },
   'waterway-obstacle': {
@@ -268,8 +270,8 @@ export const STAGING = {
   'window-epilogue': {
     shot: 'Medium-wide shot of the cottage kitchen in the evening.',
     stage:
-      'Father and the two children sit together at the table, talking and smiling; a kind neighbor woman (not the stepmother, not the old woman) brings a basket of vegetables through the open door.',
-    props: 'A modest meal: one loaf and a pot of soup. Stepmother is NOT here.',
+      'Father and the two children sit together at the table, talking quietly and smiling a little, safe at home.',
+    props: 'A modest meal: one loaf and a pot of soup. EXACTLY 3 people: Father, Hansel, Gretel - no other adult, no woman, no neighbor, no stepmother.',
   },
   'a-observe-bird-01': {
     shot: 'Medium-wide shot; the white bird is large and clearly visible in the center, at the children eye level (30-50% of the height).',

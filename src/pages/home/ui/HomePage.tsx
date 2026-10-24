@@ -74,7 +74,7 @@ export function HomePage() {
       <View style={styles.scroll}>
         <View style={styles.header}>
           <BrandLockup />
-          <Text style={styles.tagline}>아이가 이야기 속 궁금증을 질문으로 표현하고, 얻은 답을 다음 선택에 써봐요</Text>
+          <Text style={styles.tagline}>우리 아이의 궁금증을 자극하고, 질문과 생각을 이끌어주는 상호작용형 동화</Text>
         </View>
 
         <StoryLibraryGrid />

@@ -11,18 +11,17 @@ export type ExitPlan = {
   clearProgress: boolean;
 };
 
-export type ExitOptions = {
-  /** 리포트 끝 보라색 안내 상자의 "홈으로": 로그인 안 했으면 데모 첫 화면이 아니라 메인 홈페이지로 보낸다. */
-  anonymousToMainSite?: boolean;
-};
-
-/** 나가기 한 곳으로 통일: 어디서 나가든 목적지와 진행 처리를 여기서 정한다. */
-export function resolveExit(authState: AuthState, runtimeStatus: string, options: ExitOptions = {}): ExitPlan {
+/**
+ * 나가기 한 곳으로 통일: 어디서 나가든 목적지와 진행 처리를 여기서 정한다.
+ * 로그인 안 한 체험(데모)은 어느 "홈"을 눌러도 메인 홈페이지(qstory.ai.kr)로 간다 - 리포트의 "홈으로"만 그랬고
+ * 완주 화면 "홈으로 돌아가기"·상단 "홈"은 앱 첫 화면(로그인·가입)으로 가서 헷갈렸다(10/24 대표 QA).
+ */
+export function resolveExit(authState: AuthState, runtimeStatus: string): ExitPlan {
   const complete = runtimeStatus === 'complete';
   const authenticated = authState.status === 'authenticated';
   return {
     path: homePathForAuth(authState),
-    ...(options.anonymousToMainSite && !authenticated ? { externalUrl: MAIN_SITE_URL } : {}),
+    ...(authenticated ? {} : { externalUrl: MAIN_SITE_URL }),
     saveProgress: !complete,
     clearProgress: complete && authenticated,
   };

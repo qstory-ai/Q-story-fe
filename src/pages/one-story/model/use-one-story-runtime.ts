@@ -2591,9 +2591,10 @@ export function useOneStoryRuntime(
     setParentReportVisible(false);
   }, []);
 
-  const openCompletionSurvey = useCallback(async () => {
-    await trackStoryEvent('survey_opened');
+  // 설문은 바로 연다 - 기록 요청을 기다린 뒤 열면 서버가 느릴 때 몇 초씩 안 열리고, 요청이 실패하면 아예 안 열렸다(10/24).
+  const openCompletionSurvey = useCallback(() => {
     setCompletionSurveyVisible(true);
+    void Promise.resolve(trackStoryEvent('survey_opened')).catch(() => {});
   }, [trackStoryEvent]);
 
   const closeCompletionSurvey = useCallback(() => {

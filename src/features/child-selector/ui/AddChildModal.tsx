@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Modal, TextField, storybookTheme } from '@/shared/ui';
+import { Modal, TextField, radius, semanticColors, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { ageYearsFromBirthYear, trackBetaEvent } from '@/entities/analytics';
 import {
@@ -196,9 +196,9 @@ const styles = StyleSheet.create({
     minHeight: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: storybookTheme.radius.card,
+    borderRadius: radius[16],
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: semanticColors.light.border.secondary,
     backgroundColor: 'transparent',
   },
   cancelLabel: {
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: storybookTheme.radius.card,
+    borderRadius: radius[16],
     backgroundColor: storybookTheme.color.primary,
   },
   submitButtonDisabled: { backgroundColor: storybookTheme.color.disabledBackground },

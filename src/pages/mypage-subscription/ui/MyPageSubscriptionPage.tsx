@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell } from '@/shared/ui';
+import { ActionButton, AppNavShell, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { BETA_OPEN_ACCESS_NOTICE, subscriptionStatusLabel } from '@/shared/config';
 import {
@@ -31,8 +31,8 @@ export function MyPageSubscriptionPage() {
   const isParent = user.role === 'PARENT';
 
   return (
-    <AppNavShell tone={user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
-      <View style={styles.content}>
+    <AppNavShell tone="warm" items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
+      <View style={[styles.content, layoutStyles.content]}>
         <SubscriptionPageTitle />
         <SubscriptionStatusCard
           statusLabel={subscriptionStatusLabel(user.subscriptionStatus)}
@@ -60,3 +60,8 @@ export function MyPageSubscriptionPage() {
     </AppNavShell>
   );
 }
+
+// 공유 subscriptionPageStyles는 폼 폭이라, 기관 이용권 화면처럼 보호자 하위 화면 폭으로 넓힌다.
+const layoutStyles = StyleSheet.create({
+  content: { maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth, gap: 20 },
+});

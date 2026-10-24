@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { AppNavShell, ErrorState, Icon, LoadingState, openSupportMail, radius, semanticColors, shadow, StatusBanner, storybookTheme, SwitchField } from '@/shared/ui';
+import { AppNavShell, ErrorState, Icon, LoadingState, openSupportMail, radius, semanticColors, shadow, StatusBanner, storybookTheme, SwitchField, type IconName } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type UserSummary } from '@/entities/auth';
 import {
@@ -10,6 +10,7 @@ import {
   updateNotificationSettings,
   type NotificationSettings,
 } from '@/entities/notification-settings';
+import { HomeSection } from '@/features/home-section';
 
 import { RecordingConsentSection } from './RecordingConsentSection';
 import { VoiceResearchConsentSection } from './VoiceResearchConsentSection';
@@ -36,17 +37,19 @@ export function MyPageSettingsPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell tone={state.user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">설정</Text>
 
-        <Text style={styles.groupTitle} accessibilityRole="header">알림</Text>
-        <NotificationSection token={state.token} user={state.user} />
+        <HomeSection title="알림" layout="list">
+          <NotificationSection token={state.token} user={state.user} />
+        </HomeSection>
 
-        <Text style={styles.groupTitle} accessibilityRole="header">개인정보와 데이터</Text>
-        <PrivacySections onDeleteAccount={() => navigate('/mypage/delete-account')} />
-        {state.user.role === 'PARENT' ? <VoiceResearchConsentSection token={state.token} userId={state.user.id} /> : null}
-        <RecordingConsentSection token={state.token} />
+        <HomeSection title="개인정보와 데이터" layout="list">
+          <PrivacySections onDeleteAccount={() => navigate('/mypage/delete-account')} />
+          {state.user.role === 'PARENT' ? <VoiceResearchConsentSection token={state.token} userId={state.user.id} /> : null}
+          <RecordingConsentSection token={state.token} />
+        </HomeSection>
       </View>
     </AppNavShell>
   );
@@ -151,6 +154,7 @@ function NotificationSection({ token, user }: { token: string; user: UserSummary
 /* -------------------------------------------------------------- 개인정보와 데이터 */
 
 type Section = {
+  icon: IconName;
   title: string;
   body: string;
   /** URL/이메일 처럼 클릭 시 실제 행동이 있는 경우. pendingLabel과 배타적. */
@@ -173,28 +177,31 @@ async function openDoc(url: string) {
 }
 
 /** URL이 있으면 클릭 가능한 action, 없으면 "곧 공개" pill로 자리 지키는 pendingLabel을 만든다. */
-function docSection(title: string, body: string, url: string, label: string): Section {
+function docSection(icon: IconName, title: string, body: string, url: string, label: string): Section {
   if (url) {
-    return { title, body, action: { label, onPress: () => openDoc(url) } };
+    return { icon, title, body, action: { label, onPress: () => openDoc(url) } };
   }
-  return { title, body, pendingLabel: '곧 공개' };
+  return { icon, title, body, pendingLabel: '곧 공개' };
 }
 
 function PrivacySections({ onDeleteAccount }: { onDeleteAccount: () => void }) {
   const sections: Section[] = [
     docSection(
+      'book',
       '서비스 이용약관',
       '서비스를 이용하며 지켜야 할 약속과 회사의 책임 범위를 확인해요.',
       TERMS_URL,
       '약관 보기',
     ),
     docSection(
+      'shield',
       '개인정보 처리방침',
       '수집되는 정보와 사용 목적, 보관 기간, 파기 절차를 안내해요.',
       PRIVACY_URL,
       '방침 보기',
     ),
     {
+      icon: 'report',
       title: '내 데이터 열람·내보내기',
       body: '프로필, 수업 또는 완주 리포트, 질문 기록 등 계정에 저장된 데이터의 사본을 요청할 수 있어요.',
       action: {
@@ -203,6 +210,7 @@ function PrivacySections({ onDeleteAccount }: { onDeleteAccount: () => void }) {
       },
     },
     {
+      icon: 'alert',
       title: '데이터 삭제 (회원 탈퇴)',
       body: '계정을 지우면 아이 프로필과 이용 기록이 함께 정리돼요. 되돌릴 수 없어요.',
       action: { label: '회원 탈퇴 화면으로', onPress: onDeleteAccount },
@@ -213,22 +221,27 @@ function PrivacySections({ onDeleteAccount }: { onDeleteAccount: () => void }) {
     <>
       {sections.map((section) => (
         <View key={section.title} style={styles.card}>
-          <Text style={styles.sectionTitle}>{section.title}</Text>
-          <Text style={styles.body}>{section.body}</Text>
-          {section.action ? (
-            <Pressable
-              accessibilityRole="link"
-              onPress={section.action.onPress}
-              style={({ pressed }) => [styles.actionLink, pressed && styles.pressed]}
-            >
-              <Text style={styles.actionLabel}>{section.action.label}</Text>
-              <Icon name="chevronRight" size={14} color={storybookTheme.color.primary} />
-            </Pressable>
-          ) : section.pendingLabel ? (
-            <View style={styles.pendingPill}>
-              <Text style={styles.pendingLabel}>{section.pendingLabel}</Text>
-            </View>
-          ) : null}
+          <View style={styles.cardIcon}>
+            <Icon name={section.icon} size={16} color={storybookTheme.color.gold} />
+          </View>
+          <View style={styles.cardText}>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+            <Text style={styles.body}>{section.body}</Text>
+            {section.action ? (
+              <Pressable
+                accessibilityRole="link"
+                onPress={section.action.onPress}
+                style={({ pressed }) => [styles.actionLink, pressed && styles.pressed]}
+              >
+                <Text style={styles.actionLabel}>{section.action.label}</Text>
+                <Icon name="chevronRight" size={14} color={storybookTheme.color.gold} />
+              </Pressable>
+            ) : section.pendingLabel ? (
+              <View style={styles.pendingPill}>
+                <Text style={styles.pendingLabel}>{section.pendingLabel}</Text>
+              </View>
+            ) : null}
+          </View>
         </View>
       ))}
     </>
@@ -241,28 +254,22 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // 보호자 하위 화면(LibraryPage/ReportHistoryPage)과 같은 폭.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: storybookTheme.spacing.ms,
+    gap: 20,
   },
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onContent,
   },
-  groupTitle: {
-    marginTop: storybookTheme.spacing.sm,
-    paddingHorizontal: storybookTheme.spacing.xs,
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onContentMuted,
-    letterSpacing: 0.4,
-  },
+  // 알림 스위치 묶음 - 보호자 홈과 같은 흰 패널(radius 24).
   switchCard: {
-    borderRadius: radius[16],
+    borderRadius: radius[24],
     backgroundColor: L.bg.primary,
     borderWidth: 1,
     borderColor: L.border.secondary,
@@ -270,24 +277,37 @@ const styles = StyleSheet.create({
     padding: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.ms,
   },
+  // HomeListRow와 같은 흰 행(아이콘 + 제목·설명) - 설명이 길고 행 안에 링크가 있어 HomeListRow 대신 직접 그린다.
   card: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     borderRadius: radius[16],
     backgroundColor: L.bg.primary,
     borderWidth: 1,
     borderColor: L.border.secondary,
     ...shadow(1),
-    padding: storybookTheme.spacing.ml,
-    gap: storybookTheme.spacing.xs,
   },
+  cardIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: L.bg.brandSubtle,
+  },
+  cardText: { flex: 1, gap: 2 },
   sectionTitle: {
-    fontSize: storybookTheme.type.md,
+    fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
+    color: storybookTheme.color.onContent,
   },
   body: {
-    fontSize: storybookTheme.type.sm,
-    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onCardBody,
+    fontSize: storybookTheme.type.xs,
+    lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onContentMuted,
   },
   actionLink: {
     marginTop: 6,
@@ -299,7 +319,7 @@ const styles = StyleSheet.create({
   actionLabel: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.primary,
+    color: storybookTheme.color.goldText,
   },
   // "곧 공개" 상태 pill - 클릭 가능한 액션이 아니라는 신호를 시각적으로 확실히 준다.
   pendingPill: {

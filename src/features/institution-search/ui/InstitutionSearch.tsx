@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { FILTER_CHIP_ROW_GAP, FilterChip, Icon, Pill, SearchField, storybookTheme } from '@/shared/ui';
+import { FILTER_CHIP_ROW_GAP, FilterChip, Icon, Pill, SearchField, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import {
   INSTITUTION_KIND_LABEL,
@@ -152,17 +152,20 @@ const styles = StyleSheet.create({
   error: { color: storybookTheme.color.error },
   center: { alignItems: 'center', paddingVertical: storybookTheme.spacing.ms },
   list: { gap: storybookTheme.spacing.xs },
+  // 보호자 홈 행과 같은 흰 행(radius 16, 옅은 테두리·그림자, 16/14 여백).
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: storybookTheme.spacing.sm,
-    padding: storybookTheme.spacing.ms,
-    borderRadius: storybookTheme.radius.input,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: radius[16],
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderColor: semanticColors.light.border.secondary,
+    backgroundColor: semanticColors.light.bg.primary,
+    ...shadow(1),
   },
-  rowSelected: { borderColor: storybookTheme.color.primary, borderWidth: 2, padding: storybookTheme.spacing.ms - 1 },
+  rowSelected: { borderColor: storybookTheme.color.primary, borderWidth: 2, paddingHorizontal: 15, paddingVertical: 13 },
   pressed: { opacity: 0.85 },
   rowText: { flex: 1, minWidth: 0, gap: 4 },
   name: {

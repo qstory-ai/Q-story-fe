@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, Modal, SwitchField, storybookTheme } from '@/shared/ui';
+import { ActionButton, Modal, SwitchField, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { withParticle } from '@/shared/lib';
 import { TUTOR_PATHS } from '@/entities/auth';
@@ -173,22 +173,24 @@ const styles = StyleSheet.create({
   },
   errorText: { color: storybookTheme.color.error },
   list: { gap: storybookTheme.spacing.sm },
+  // 보호자 홈 행과 같은 흰 행(radius 16, 옅은 테두리·그림자, 16/14 여백).
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: storybookTheme.spacing.sm,
-    paddingHorizontal: storybookTheme.spacing.md,
-    paddingVertical: storybookTheme.spacing.ms,
-    borderRadius: storybookTheme.radius.card,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: radius[16],
     borderWidth: 1,
-    borderColor: storybookTheme.color.lightCardBorder,
-    backgroundColor: storybookTheme.color.surfaceWhite,
+    borderColor: semanticColors.light.border.secondary,
+    backgroundColor: semanticColors.light.bg.primary,
+    ...shadow(1),
   },
   pressed: { opacity: 0.8 },
   rowName: {
     flex: 1,
-    fontSize: storybookTheme.type.md,
+    fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardTitle,
   },

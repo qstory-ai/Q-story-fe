@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Pill, SafeAreaView, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, Pill, radius, SafeAreaView, semanticColors, shadow, space, storybookTheme } from '@/shared/ui';
 import { fetchStoryEntry, type StoryCatalogEntry } from '@/entities/story';
 import { messageForError } from '@/shared/api';
 import { useBackOr, withParticle, primeResponseAudio } from '@/shared/lib';
@@ -128,51 +128,53 @@ export function StoryDetailPage() {
         )}
 
         {effectiveLoad.status === 'ready' && (
-          <View style={[styles.content, isWide && styles.contentWide]}>
-            <View style={isWide ? styles.coverFrameWide : styles.coverFrame}>
-              {effectiveLoad.story.coverImageUrl ? (
-                <Image
-                  source={{ uri: effectiveLoad.story.coverImageUrl }}
-                  resizeMode="cover"
-                  style={styles.cover}
-                  accessibilityLabel={`${effectiveLoad.story.title} 표지 그림`}
-                />
-              ) : (
-                <View style={styles.coverFallback}>
-                  <Icon name="book" size={36} color={storybookTheme.color.onContentMuted} />
-                </View>
-              )}
-            </View>
-            <Card variant="surface" padding="lg" style={[styles.infoCard, isWide && styles.infoCardWide]}>
-              {effectiveLoad.story.category ? <Pill label={effectiveLoad.story.category} /> : null}
-              <Text style={styles.title} accessibilityRole="header">{effectiveLoad.story.title}</Text>
-              {effectiveLoad.story.description ? (
-                <Text style={styles.description}>{effectiveLoad.story.description}</Text>
-              ) : null}
-              <ActionButton
-                label="이야기 시작하기"
-                onPress={() => startPlay(effectiveLoad.story.storyId)}
-              />
-              <View style={styles.secondaryActions}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={bookmarks.isBookmarked(effectiveLoad.story.storyId) ? '저장됨, 누르면 저장 해제' : '저장하기'}
-                  onPress={toggleBookmark}
-                  disabled={bookmarkPending}
-                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
-                >
-                  <Icon
-                    name={bookmarks.isBookmarked(effectiveLoad.story.storyId) ? 'check' : 'plus'}
-                    size={16}
-                    color={storybookTheme.color.primary}
+          <View style={styles.content}>
+            <View style={[styles.heroCard, isWide && styles.heroCardWide]}>
+              <View style={isWide ? styles.coverFrameWide : styles.coverFrame}>
+                {effectiveLoad.story.coverImageUrl ? (
+                  <Image
+                    source={{ uri: effectiveLoad.story.coverImageUrl }}
+                    resizeMode="cover"
+                    style={styles.cover}
+                    accessibilityLabel={`${effectiveLoad.story.title} 표지 그림`}
                   />
-                  <Text style={styles.secondaryLabel}>
-                    {bookmarks.isBookmarked(effectiveLoad.story.storyId) ? '저장됨' : '저장하기'}
-                  </Text>
-                </Pressable>
+                ) : (
+                  <View style={styles.coverFallback}>
+                    <Icon name="book" size={36} color={storybookTheme.color.onContentMuted} />
+                  </View>
+                )}
               </View>
-              {bookmarkError ? <Text style={styles.actionError}>{bookmarkError}</Text> : null}
-            </Card>
+              <View style={[styles.infoBody, isWide && styles.infoBodyWide]}>
+                {effectiveLoad.story.category ? <Pill label={effectiveLoad.story.category} /> : null}
+                <Text style={styles.title} accessibilityRole="header">{effectiveLoad.story.title}</Text>
+                {effectiveLoad.story.description ? (
+                  <Text style={styles.description}>{effectiveLoad.story.description}</Text>
+                ) : null}
+                <ActionButton
+                  label="이야기 시작하기"
+                  onPress={() => startPlay(effectiveLoad.story.storyId)}
+                />
+                <View style={styles.secondaryActions}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={bookmarks.isBookmarked(effectiveLoad.story.storyId) ? '저장됨, 누르면 저장 해제' : '저장하기'}
+                    onPress={toggleBookmark}
+                    disabled={bookmarkPending}
+                    style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+                  >
+                    <Icon
+                      name={bookmarks.isBookmarked(effectiveLoad.story.storyId) ? 'check' : 'plus'}
+                      size={16}
+                      color={storybookTheme.color.primary}
+                    />
+                    <Text style={styles.secondaryLabel}>
+                      {bookmarks.isBookmarked(effectiveLoad.story.storyId) ? '저장됨' : '저장하기'}
+                    </Text>
+                  </Pressable>
+                </View>
+                {bookmarkError ? <Text style={styles.actionError}>{bookmarkError}</Text> : null}
+              </View>
+            </View>
           </View>
         )}
 
@@ -203,7 +205,7 @@ export function StoryDetailPage() {
 
   if (state.status === 'authenticated') {
     return (
-      <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
+      <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
         {body}
       </AppNavShell>
     );
@@ -233,34 +235,41 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.medium,
   },
+  // 보호자 홈 히어로(HomeHeroCard)와 같은 흰 카드 - 좁은 화면은 16:9 표지 위·정보 아래, 넓은 화면은 나란히.
   content: {
     flex: 1,
     width: '100%',
-    // 진입점(/library, 홈 히어로)과 비슷한 폭을 유지한다.
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
+    gap: 20,
+    paddingHorizontal: storybookTheme.spacing.ml,
+    paddingTop: storybookTheme.spacing.lg,
+    paddingBottom: storybookTheme.spacing.xl,
   },
-  // WIDE_BREAKPOINT 이상에서는 표지+카드를 나란히 둔다(좁은 화면 구성을 넓히면 4:3 표지가 너무
-  // 커진다). stretch로 표지 높이를 옆 카드 높이에 맞춘다(coverFrameWide 참고).
-  contentWide: {
+  heroCard: {
+    width: '100%',
+    borderRadius: radius[24],
+    backgroundColor: semanticColors.light.bg.primary,
+    borderWidth: 1,
+    borderColor: semanticColors.light.border.secondary,
+    overflow: 'hidden',
+    ...shadow(2),
+  },
+  // WIDE_BREAKPOINT 이상에서는 표지+정보를 나란히 둔다. stretch로 표지 높이를 옆 정보 높이에 맞춘다.
+  heroCardWide: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    gap: storybookTheme.spacing.lg,
-    paddingTop: storybookTheme.spacing.xl,
-    paddingHorizontal: storybookTheme.spacing.ml,
   },
   coverFrame: {
     width: '100%',
-    aspectRatio: 4 / 3,
+    aspectRatio: 16 / 9,
     backgroundColor: storybookTheme.color.coverFallback,
   },
-  // aspectRatio 없이 폭만 고정해 부모(contentWide)의 stretch로 높이가 정해지게 한다.
+  // aspectRatio 없이 폭만 고정해 부모(heroCardWide)의 stretch로 높이가 정해지게 한다.
   coverFrameWide: {
     width: 320,
     flexShrink: 0,
     alignSelf: 'stretch',
-    borderRadius: storybookTheme.radius.card,
-    overflow: 'hidden',
     backgroundColor: storybookTheme.color.coverFallback,
   },
   cover: {
@@ -273,31 +282,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // 커버 이미지 위로 살짝 겹치는 negative margin과 강조 elevation만 오버라이드한다.
-  infoCard: {
-    // Card 기본값 width:'100%'에 좌우 margin이 더해지면 화면보다 넓어져 가로 스크롤이 생긴다 -
-    // auto로 두고 부모 폭에서 margin을 뺀 만큼만 차지하게 한다.
-    width: 'auto',
-    marginTop: -28,
-    marginHorizontal: storybookTheme.spacing.ml,
+  infoBody: {
+    padding: space[24],
     gap: storybookTheme.spacing.ms,
-    ...storybookTheme.elevation.high,
   },
-  // 넓은 화면은 표지와 나란히 두므로 겹침을 지우고 남은 폭을 채운다.
-  infoCardWide: {
+  infoBodyWide: {
     flex: 1,
-    marginTop: 0,
-    marginHorizontal: 0,
   },
   title: {
     fontSize: storybookTheme.type.xl,
-    fontWeight: storybookTheme.type.weight.semibold,
+    lineHeight: storybookTheme.type.xl * storybookTheme.lineHeight.tight,
+    fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onCardTitle,
   },
   description: {
-    fontSize: storybookTheme.type.md,
-    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
-    fontWeight: storybookTheme.type.weight.light,
+    fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onCardBody,
   },
   secondaryActions: {

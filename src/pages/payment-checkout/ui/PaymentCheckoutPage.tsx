@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { loadTossPayments, type TossPaymentsWidgets } from '@tosspayments/tosspayments-sdk';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, homePathFor, useAuth } from '@/entities/auth';
 import { createPaymentOrder, type PaymentOrder, type PaymentTarget } from '@/entities/payment';
@@ -79,7 +79,7 @@ export function PaymentCheckoutPage() {
   const user = state.user;
   if (!allowed) {
     return (
-      <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(homePathFor(user))}>
+      <AppNavShell tone="warm" items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(homePathFor(user))}>
         <View style={styles.content}>
           <Text style={styles.title} accessibilityRole="header">이 계정으로는 결제할 수 없어요</Text>
           <StatusBanner
@@ -110,7 +110,7 @@ export function PaymentCheckoutPage() {
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(backPath)}>
+    <AppNavShell tone="warm" items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(backPath)}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">이용권 결제</Text>
         {load.status === 'error' ? <ErrorState message={load.message} onRetry={() => window.location.reload()} /> : null}
@@ -137,9 +137,27 @@ export function PaymentCheckoutPage() {
 }
 
 const styles = StyleSheet.create({
-  content: { flex: 1, width: '100%', maxWidth: storybookTheme.layout.contentMaxWidth, alignSelf: 'center', paddingHorizontal: storybookTheme.spacing.ml, paddingVertical: storybookTheme.spacing.lg, gap: storybookTheme.spacing.md },
+  content: {
+    flex: 1,
+    width: '100%',
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
+    alignSelf: 'center',
+    paddingHorizontal: storybookTheme.spacing.ml,
+    paddingTop: storybookTheme.spacing.lg,
+    paddingBottom: storybookTheme.spacing.xl,
+    gap: 20,
+  },
   title: { fontSize: storybookTheme.type.xl, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onContent },
-  card: { borderRadius: storybookTheme.radius.card, backgroundColor: storybookTheme.color.surfaceCard, borderWidth: 1, borderColor: storybookTheme.color.surfaceCardBorder, padding: storybookTheme.spacing.ml, gap: storybookTheme.spacing.sm },
+  // 보호자 홈과 같은 흰 카드(radius 24, 옅은 테두리·그림자).
+  card: {
+    borderRadius: radius[24],
+    backgroundColor: semanticColors.light.bg.primary,
+    borderWidth: 1,
+    borderColor: semanticColors.light.border.secondary,
+    ...shadow(1),
+    padding: storybookTheme.spacing.ml,
+    gap: storybookTheme.spacing.sm,
+  },
   orderName: { fontSize: storybookTheme.type.md, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onCardTitle },
   amount: { fontSize: storybookTheme.type.xl, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.primary },
 });

@@ -142,8 +142,9 @@ export function RecordingConsentSection({ token }: { token: string }) {
 const L = semanticColors.light;
 
 const styles = StyleSheet.create({
+  // 보호자 홈과 같은 흰 패널(radius 24).
   card: {
-    borderRadius: radius[16],
+    borderRadius: radius[24],
     backgroundColor: L.bg.primary,
     borderWidth: 1,
     borderColor: L.border.secondary,

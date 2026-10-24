@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, RadioGroup, StatusBanner, TextareaField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, RadioGroup, radius, semanticColors, shadow, StatusBanner, TextareaField, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, deleteAccount, useAuth } from '@/entities/auth';
 import { messageForError } from '@/shared/api';
 import { useBackOr } from '@/shared/lib';
@@ -53,7 +53,7 @@ export function MyPageDeleteAccountPage() {
   }
 
   return (
-    <AppNavShell tone={user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(user, navigate, pathname)} onBack={goBack}>
+    <AppNavShell tone="warm" items={dashboardNavItems(user, navigate, pathname)} onBack={goBack}>
       <View style={styles.content}>
         <View style={styles.card}>
           <Text style={styles.title} accessibilityRole="header">정말 탈퇴하시겠어요?</Text>
@@ -91,31 +91,34 @@ export function MyPageDeleteAccountPage() {
   );
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // 보호자 하위 화면(LibraryPage/ReportHistoryPage)과 같은 폭.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: storybookTheme.spacing.md,
+    gap: 16,
   },
+  // 보호자 홈과 같은 흰 카드(radius 24, 옅은 테두리·그림자).
   card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: radius[24],
+    backgroundColor: L.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: L.border.secondary,
     padding: storybookTheme.spacing.lg,
     gap: storybookTheme.spacing.md,
-    ...storybookTheme.elevation.high,
+    ...shadow(1),
   },
   title: {
-    fontSize: storybookTheme.type.lg,
-    lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
-    letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
-    fontWeight: storybookTheme.type.weight.bold,
+    fontSize: storybookTheme.type.xl,
+    lineHeight: storybookTheme.type.xl * storybookTheme.lineHeight.tight,
+    fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onCardTitle,
   },
   body: {
@@ -125,7 +128,7 @@ const styles = StyleSheet.create({
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
   },
   sectionTitle: {
-    fontSize: storybookTheme.type.sm,
+    fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardTitle,
   },

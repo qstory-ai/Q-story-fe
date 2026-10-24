@@ -105,6 +105,10 @@ const DYNAMIC_ROUTES = [
   { method: 'GET', pattern: new RegExp(`^v1/stories/${STORY_ID_SEGMENT}$`) },
   // NEW_CHOICES 실시간 생성 job 폴링(entities/live-branch/api/live-branch-api.ts) - jobId는 UUID.
   { method: 'GET', pattern: new RegExp(`^v1/live-branch/${UUID_SEGMENT}$`) },
+  // 그레텔이 제안한 새 계획을 아이가 수락하면 실시간 분기 생성을 큐에 넣는다(같은 파일 enqueueLiveBranch).
+  { method: 'POST', pattern: /^v1\/live-branch$/ },
+  // 시도 장면 막힌 그림 실시간 생성 상태(entities/realtime-image/api/realtime-image-api.ts) - id는 UUID.
+  { method: 'GET', pattern: new RegExp(`^v1/realtime-images/${UUID_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/story-completions/${UUID_SEGMENT}$`) },
   // Q-39: 교사 메모 저장, 분석 다시 시도, 회차 대화 줄 저장(sessionId = conversationId, UUID).
   { method: 'PUT', pattern: new RegExp(`^v1/story-completions/${UUID_SEGMENT}/teacher-note$`) },

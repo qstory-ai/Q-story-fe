@@ -48,7 +48,7 @@ export function useLaunchNotificationGate() {
   // 어느 버튼을 눌렀는지 구분해야 그 버튼에만 로딩 스피너가 뜬다.
   const [submittingIntent, setSubmittingIntent] = useState<'contact' | 'decline' | null>(null);
 
-  // 이메일은 항상 선택, 전화번호는 "연락 받고 싶어요"일 때만 필수다.
+  // 이메일은 항상 선택, 전화번호는 "소식 받고 데모 시작"일 때만 필수다.
   const values = { parentName, phone, childGender, childAge, discoverySource };
   const canSubmitFor = useCallback(
     (wantsContact: boolean) => canSubmitLaunchNotification(values, wantsContact),

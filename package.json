@@ -31,7 +31,8 @@
     "art:jobs": "node scripts/illustrations/build-jobs.mjs",
     "art:generate": "node scripts/illustrations/generate-higgsfield.mjs",
     "art:review": "node scripts/illustrations/review-sheet.mjs",
-    "art:promote": "node scripts/illustrations/promote.mjs"
+    "art:promote": "node scripts/illustrations/promote.mjs",
+    "art:devices": "node scripts/illustrations/device-preview.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

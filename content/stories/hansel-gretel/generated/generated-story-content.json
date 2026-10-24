@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": {
     "package": "content/stories/hansel-gretel",
-    "digest": "ae7db8f5af0f37a077f7bfb31fbb7a72f682f4c0306873b5aa0f4b2f6dcbd8fa"
+    "digest": "4f1bfafae8094bc97066808cfbb8f80c46649e4795341e6ab3d3689a2a0aaeac"
   },
   "story": {
     "id": "HG",
@@ -2353,6 +2353,22 @@
       "visuals": [
         {
           "id": "HG-VIS-F10-01",
+          "assetId": "father-runs-home",
+          "mode": "father-runs-from-house-to-returning-siblings",
+          "time": "evening",
+          "location": "home-front",
+          "characters": [
+            "HANSEL",
+            "GRETEL",
+            "FATHER"
+          ],
+          "entryState": "home-roof-seen",
+          "requiredAction": "father-runs-out-to-meet-siblings",
+          "exitState": "father-reaches-siblings",
+          "exception": null
+        },
+        {
+          "id": "HG-VIS-F10-02",
           "assetId": "home-promise",
           "mode": "father-kneels-and-apologizes-to-returned-siblings",
           "time": "evening",
@@ -2362,13 +2378,13 @@
             "GRETEL",
             "FATHER"
           ],
-          "entryState": "home-roof-seen",
+          "entryState": "father-reaches-siblings",
           "requiredAction": "father-kneels-and-admits-his-wrong",
           "exitState": "apology-heard-trust-not-yet-restored",
           "exception": "dialogue-resolution-same-moment"
         },
         {
-          "id": "HG-VIS-F10-02",
+          "id": "HG-VIS-F10-03",
           "assetId": "window-epilogue",
           "mode": "family-talks-together-by-window-at-night",
           "time": "later-evening",
@@ -2388,8 +2404,8 @@
         {
           "kind": "visual",
           "id": "HG-VIS-F10-01",
-          "assetId": "home-promise",
-          "mode": "father-kneels-and-apologizes-to-returned-siblings",
+          "assetId": "father-runs-home",
+          "mode": "father-runs-from-house-to-returning-siblings",
           "time": "evening",
           "location": "home-front",
           "characters": [
@@ -2398,9 +2414,9 @@
             "FATHER"
           ],
           "entryState": "home-roof-seen",
-          "requiredAction": "father-kneels-and-admits-his-wrong",
-          "exitState": "apology-heard-trust-not-yet-restored",
-          "exception": "dialogue-resolution-same-moment"
+          "requiredAction": "father-runs-out-to-meet-siblings",
+          "exitState": "father-reaches-siblings",
+          "exception": null
         },
         {
           "kind": "utterance",
@@ -2417,78 +2433,95 @@
           "text": "하얀 천은 아버지가 남매를 찾으러 다니며 묶은 것이었어요."
         },
         {
+          "kind": "visual",
+          "id": "HG-VIS-F10-02",
+          "assetId": "home-promise",
+          "mode": "father-kneels-and-apologizes-to-returned-siblings",
+          "time": "evening",
+          "location": "home-front",
+          "characters": [
+            "HANSEL",
+            "GRETEL",
+            "FATHER"
+          ],
+          "entryState": "father-reaches-siblings",
+          "requiredAction": "father-kneels-and-admits-his-wrong",
+          "exitState": "apology-heard-trust-not-yet-restored",
+          "exception": "dialogue-resolution-same-moment"
+        },
+        {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-01",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
           "text": "아버지는 아이들 앞에 무릎을 꿇었어요."
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-01",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "FATHER",
           "role": "DIALOGUE",
           "text": "“내가 너희를 숲에 두고 온 건 잘못이야.”"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-01",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "FATHER",
           "role": "DIALOGUE",
           "text": "“정말 미안해.”"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-01",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "GRETEL",
           "role": "DIALOGUE",
           "text": "“집에 와서 좋지만, 아직 무서워요.”"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-01",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "FATHER",
           "role": "DIALOGUE",
           "text": "“그럴 수 있어.”"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-01",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "FATHER",
           "role": "DIALOGUE",
           "text": "“바로 괜찮아지지 않아도 돼.”"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-01",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "FATHER",
           "role": "DIALOGUE",
           "text": "“다시는 너희를 두고 가지 않을게.”"
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-01",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
           "text": "새어머니는 그동안 집을 떠났어요."
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-01",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
           "text": "남매는 과자집에서 겪은 일도 이야기했어요."
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-01",
+          "visualId": "HG-VIS-F10-02",
           "speaker": "NARRATOR",
           "role": "FIXED",
           "text": "마을 사람들은 다른 아이들이 그 집에 가지 않도록 소식을 알렸어요."
         },
         {
           "kind": "visual",
-          "id": "HG-VIS-F10-02",
+          "id": "HG-VIS-F10-03",
           "assetId": "window-epilogue",
           "mode": "family-talks-together-by-window-at-night",
           "time": "later-evening",
@@ -2505,21 +2538,21 @@
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-02",
+          "visualId": "HG-VIS-F10-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
           "text": "그 뒤 아버지는 어려운 일이 생기면 이웃에게 도움을 구하며 남매를 돌봤어요."
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-02",
+          "visualId": "HG-VIS-F10-03",
           "speaker": "NARRATOR",
           "role": "FIXED",
           "text": "헨젤과 그레텔도 무섭거나 걱정되는 일이 있으면 서로 이야기했어요."
         },
         {
           "kind": "utterance",
-          "visualId": "HG-VIS-F10-02",
+          "visualId": "HG-VIS-F10-03",
           "speaker": "NARRATOR",
           "role": "END",
           "text": "헨젤과 그레텔의 이야기는 여기에서 끝났어요."

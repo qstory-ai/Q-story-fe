@@ -52,8 +52,10 @@ export const BACKGROUNDS = {
     'A deep European fairy-tale forest of tall ancient trees with thick trunks, dirt paths, mossy roots, ferns and rocks; distant trees fade into soft mist. Keep the same tree shapes and world across all forest scenes.',
   CANDY_EXTERIOR:
     'A charming gingerbread-and-candy cottage in a sunny forest clearing: biscuit walls, icing trim, candy windows, a lollipop garden, inviting rather than scary. Keep the same door and window positions. Before the children enter, the door is closed and there are no scratches, sugar swirls or magic glows.',
+  // 10/24 대표 QA: 장면마다 요리하던 곳이 선반으로 바뀌었다 - 요리하는 곳(오븐)과 선반(사탕 병·냄비 뚜껑)을 못 박고, 마녀는
+  // 장면마다 staging에서 둘 중 어디에 있는지 정한다.
   CANDY_INTERIOR:
-    'Inside the candy cottage kitchen: candy-studded walls, shelves of candy jars; a TALL RECTANGULAR floor-standing black iron cage LEFT (taller than an adult, straight vertical bars, never a round birdcage), wooden worktable FRONT RIGHT, CLOSED brick oven back right, heavy wooden door to the corridor. Key ring: EXACTLY TWO keys (small silver = cage, big black = door), never three.',
+    'The SAME candy cottage kitchen in every kitchen picture, fixed layout: a TALL RECTANGULAR floor-standing iron cage LEFT (taller than an adult, never a round birdcage); corridor door on the back wall left of center; COOKING AREA back CENTER = brick oven with a stove top and one big pot; SHELF AREA on the RIGHT wall = shelves of candy jars, bowls and pot lids; worktable FRONT RIGHT. Key ring: EXACTLY TWO keys (small silver = cage, big black = door).',
   // 10/24: 식당 겸 침실·창고 장면에 부엌 배경(창살·오븐)이 들어가 창살이 나왔다 - 방마다 따로.
   CANDY_DINING:
     'A cozy dining-and-sleeping room inside the candy cottage: candy-studded walls, a small wooden table, two small beds side by side against the wall, a lamp. NO cage, NO oven, NO kitchen worktable in this room.',

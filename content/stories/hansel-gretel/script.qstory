@@ -423,11 +423,15 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 
 [SCENE | HG-F10 | title=집으로 돌아온 남매]
 
-[VISUAL | HG-VIS-F10-01 | asset=home-promise | mode=father-kneels-and-apologizes-to-returned-siblings | time=evening | location=home-front | characters=HANSEL,GRETEL,FATHER | entry=home-roof-seen | action=father-kneels-and-admits-his-wrong | exit=apology-heard-trust-not-yet-restored | exception=dialogue-resolution-same-moment]
+[VISUAL | HG-VIS-F10-01 | asset=father-runs-home | mode=father-runs-from-house-to-returning-siblings | time=evening | location=home-front | characters=HANSEL,GRETEL,FATHER | entry=home-roof-seen | action=father-runs-out-to-meet-siblings | exit=father-reaches-siblings]
 
 [NARRATOR | FIXED]
 집 앞에 있던 아버지가 달려왔어요.
 하얀 천은 아버지가 남매를 찾으러 다니며 묶은 것이었어요.
+
+[VISUAL | HG-VIS-F10-02 | asset=home-promise | mode=father-kneels-and-apologizes-to-returned-siblings | time=evening | location=home-front | characters=HANSEL,GRETEL,FATHER | entry=father-reaches-siblings | action=father-kneels-and-admits-his-wrong | exit=apology-heard-trust-not-yet-restored | exception=dialogue-resolution-same-moment]
+
+[NARRATOR | FIXED]
 아버지는 아이들 앞에 무릎을 꿇었어요.
 
 [FATHER | DIALOGUE]
@@ -447,7 +451,7 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 남매는 과자집에서 겪은 일도 이야기했어요.
 마을 사람들은 다른 아이들이 그 집에 가지 않도록 소식을 알렸어요.
 
-[VISUAL | HG-VIS-F10-02 | asset=window-epilogue | mode=family-talks-together-by-window-at-night | time=later-evening | location=home-window | characters=HANSEL,GRETEL,FATHER | entry=family-rebuilding-trust | action=family-shares-worries-and-asks-for-help | exit=story-complete | exception=epilogue-same-setting]
+[VISUAL | HG-VIS-F10-03 | asset=window-epilogue | mode=family-talks-together-by-window-at-night | time=later-evening | location=home-window | characters=HANSEL,GRETEL,FATHER | entry=family-rebuilding-trust | action=family-shares-worries-and-asks-for-help | exit=story-complete | exception=epilogue-same-setting]
 
 [NARRATOR | FIXED]
 그 뒤 아버지는 어려운 일이 생기면 이웃에게 도움을 구하며 남매를 돌봤어요.

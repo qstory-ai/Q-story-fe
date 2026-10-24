@@ -15,7 +15,7 @@ const visuals = generatedHanselGretelContent.scenes.flatMap(
 const approvedAssetIds = new Set(visuals.map((visual) => visual.assetId));
 
 test('every fixed visual has a versioned reference-guided generation brief', () => {
-  assert.equal(hanselGretelVisualGenerationBriefs.length, 41);
+  assert.equal(hanselGretelVisualGenerationBriefs.length, 42);
   assert.deepEqual(
     hanselGretelVisualGenerationBriefs.map((brief) => brief.visualId),
     visuals.map((visual) => visual.id),
@@ -26,7 +26,7 @@ test('every fixed visual has a versioned reference-guided generation brief', () 
         (brief) => brief.targetAssetId,
       ),
     ).size,
-    41,
+    42,
   );
 
   for (const brief of hanselGretelVisualGenerationBriefs) {

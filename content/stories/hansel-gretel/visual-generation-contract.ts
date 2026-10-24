@@ -105,6 +105,7 @@ const CHARACTER_PACKS: Record<string, VisualReferencePack> = {
     label: '아버지',
     canonicalAssetIds: [
       'home-table',
+      'father-runs-home',
       'home-promise',
     ],
     immutableFacts: [

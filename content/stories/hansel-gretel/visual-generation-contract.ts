@@ -252,6 +252,7 @@ const LOCATION_PACKS: Record<string, VisualReferencePack> = {
     label: '과자집 내부',
     canonicalAssetIds: [
       'candy-house-interior',
+      'candy-house-sleep',
       'kitchen-door-locked',
       'witch-cooking-keys',
     ],

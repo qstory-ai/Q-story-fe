@@ -36,7 +36,10 @@ curl -X POST "$SUPABASE_URL/storage/v1/object/qstory-story-images/hansel-gretel/
 npm run art:jobs
 ```
 
-`build-output/illustrations/hansel-gretel/jobs.json`에 장면별 STORY·COMPOSITION·BACKGROUND·LIGHTING이 채워진 프롬프트가 생긴다. 공통 문구·인물 외형·장소·조명은 `style-01.mjs`에서 고친다.
+`build-output/illustrations/hansel-gretel/jobs.json`에 장면별 SCENE·PROPS·COMPOSITION·BACKGROUND·LIGHTING이 채워진 프롬프트가 생긴다. 공통 문구·인물 외형·장소·조명은 `style-01.mjs`에서 고친다.
+
+- **장면 연출 메모가 먼저다** (`staging-<story>.mjs`): 그림마다 누가 어디에 있는지, 누구 몰래 하는지(숨어서 엿듣기, 부모 뒤에서 몰래 떨어뜨리기), 사람 수, 소품 개수·상태(빵 한 조각, 가방 유무)를 영어로 적는다. 메모가 없는 그림이 있으면 `art:jobs`가 멈춘다. 동화 문장만 넘기면 모델이 모두를 한 줄로 세워 그린다(10/24 QA).
+- 장면을 새로 만들거나 대본을 바꾸면 메모부터 고친다. 방마다 배경이 다르면 `BACKGROUNDS`에 장소를 따로 둔다 - 부엌 배경을 쓰면 다른 방에도 창살·오븐이 나온다.
 
 - 구도 규칙: 앱에서는 그림 **아래 40%**를 자막·대화창이 덮는다. 그래서 얼굴·손·중요한 행동은 위~가운데에 두도록 모든 장면에 넣었다(`COMPOSITION_RULE`).
 

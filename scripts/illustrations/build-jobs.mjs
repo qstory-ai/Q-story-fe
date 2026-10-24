@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 import { parse as parseYaml } from 'yaml';
 
+import { BAG_SCENES, CONTINUITY_RULES, STAGING } from './staging-hansel-gretel.mjs';
 import { BACKGROUNDS, buildPrompt, LIGHTING, STYLE_ID } from './style-01.mjs';
 
 const appDirectory = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
@@ -36,6 +37,8 @@ function locationKey(location = '') {
     if (/exterior|threshold|clearing/.test(location)) return 'CANDY_EXTERIOR';
     // 10/21: 복도 장면이 부엌 배경(창살 LEFT)으로 그려져 복도에 창살이 나왔다 - 복도는 따로.
     if (/corridor|hallway/.test(location)) return 'CANDY_CORRIDOR';
+    if (/dining|bedroom/.test(location)) return 'CANDY_DINING';
+    if (/storehouse|storeroom/.test(location)) return 'CANDY_STOREROOM';
     return 'CANDY_INTERIOR';
   }
   if (location.startsWith('wide-waterway')) return 'WATERWAY';
@@ -77,10 +80,11 @@ function cageRule(visual, hanselCaged) {
 }
 
 // 글 규칙만으로는 모델이 "누가 창살 안인지"를 자주 틀렸다(10/21 2차: 8/11 실패). 정답 상태가 담긴 승인 그림을
-// 마지막 참고 이미지로 붙이고 "마지막 참고 그림의 창살 상황을 그대로"라고 못 박는다. 파일은 build-output의 후보 그림.
+// 마지막 참고 이미지로 붙이고 "마지막 참고 그림의 창살 상황을 그대로"라고 못 박는다. 앱에 들어간 그림 중 상태가 맞는 것.
+const illustration = (slug) => join(appDirectory, 'assets', 'story', story, assetBySlug.get(slug)?.file ?? '');
 const STATE_REFS = {
-  'state-hansel-caged': join(outDir, 'images', 'c-wait-for-witch-turn-01', '1.png'),
-  'state-corridor': join(outDir, 'images', 'corridor-lock-door', '1.png'),
+  'state-hansel-caged': illustration('c-wait-for-witch-turn-01'),
+  'state-corridor': illustration('escape-corridor'),
 };
 function sceneRefsFor(visual, hanselCaged) {
   const key = locationKey(visual.location);
@@ -186,8 +190,15 @@ for (const [anchorId, backdrops] of Object.entries(storyYaml.attemptBackdrops ??
   }
 }
 
+const unstaged = jobs.filter((job) => !STAGING[job.id]).map((job) => job.id);
+if (unstaged.length) throw new Error(`장면 연출 메모(staging-${story}.mjs)가 없는 그림: ${unstaged.join(', ')}`);
 for (const job of jobs) {
   job.currentFile = assetBySlug.get(job.id)?.file ?? null;
+  job.staging = STAGING[job.id];
+  job.continuityRule = BAG_SCENES.has(job.id) ? CONTINUITY_RULES.bag : CONTINUITY_RULES.noBag;
+  // 창살 규칙은 연출 메모가 대신한다(누가 창살 안인지 메모에 적음) - 상태 참고 그림 문장만 남겨 5,000자 안에 맞춘다.
+  if (job.sceneRefs?.length) job.rules = STATE_REF_RULE.trim();
+  else job.rules = '';
   job.prompt = buildPrompt(job);
   job.promptHash = createHash('sha256').update(job.prompt).digest('hex').slice(0, 16);
 }

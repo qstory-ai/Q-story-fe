@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { AppNavShell, BrandLockup, Card, EmptyState, enterFadeUp, Icon, LoadingState, Pill, radius, semanticColors, shadow, space, storybookTheme, StoryCard } from '@/shared/ui';
+import { AppNavShell, BrandLockup, Card, EmptyState, Icon, LoadingState, Pill, storybookTheme, StoryCard } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { relativeDayLabel, withParticle, primeResponseAudio } from '@/shared/lib';
 import { NotificationBell } from '@/features/notification-center';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
 import { resumeStart, startStoryFromHome, storyDestination, storyPlayPath, type StartDecision } from '@/features/story-library';
-import { HomeSection } from '@/features/home-section';
+import { HomeGreetingCard, HomeHeroCard, HomeListRow, HomeSection, timeOfDayGreeting } from '@/features/home-section';
 import { ChildPickerModal, ChildSelector } from '@/features/child-selector';
 import { AGE_BAND_CATEGORY_HINTS, AGE_BAND_LABELS, useChildren, type AgeBand } from '@/entities/child';
 import { hasKoreanBatchim } from '@/entities/narration';
@@ -38,8 +38,6 @@ export function ParentHomePage() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { state } = useAuth();
-  const { width } = useWindowDimensions();
-  const isWide = width >= 640;
   const { children, selectedChild, load: childrenLoad } = useChildren();
   // 아이가 없거나(등록) 누구의 진행인지 모를 때(이어서 읽기) 띄우는 아이 선택 - 고르면 그 아이로 재생한다.
   const [picker, setPicker] = useState<{ storyId: string; resume: boolean } | null>(null);
@@ -164,14 +162,12 @@ export function ParentHomePage() {
         {/* 아이가 선택된 경우에만 인사말 카드 - 미선택 케이스는 아래 ChildSelector가 "아이를
             골라 주세요"로 이미 안내하므로 카드가 중복 문구가 된다. */}
         {selectedChild ? (
-          <Card variant="tinted" padding="lg" style={[styles.greetingCard, isWide && styles.greetingCardWide]}>
-            <Text style={styles.title} accessibilityRole="header">
-              {/* "님과"(존칭) 대신 아이 이름에 받침 유무로 이/와를 붙이는 애칭 톤 - 다른 화면의
-                  아이 이름 개인화(child-address.ts)와 같은 방식. */}
-              {selectedChild.name}{hasKoreanBatchim(selectedChild.name) ? '이와' : '와'} 오늘의 이야기
-            </Text>
-            <Text style={styles.body}>{timeOfDayGreeting()}. {selectedChild.name}에게 딱 맞는 이야기를 골라 봤어요.</Text>
-          </Card>
+          <HomeGreetingCard
+            // "님과"(존칭) 대신 아이 이름에 받침 유무로 이/와를 붙이는 애칭 톤 - 다른 화면의
+            // 아이 이름 개인화(child-address.ts)와 같은 방식.
+            title={`${selectedChild.name}${hasKoreanBatchim(selectedChild.name) ? '이와' : '와'} 오늘의 이야기`}
+            body={`${timeOfDayGreeting()}. ${selectedChild.name}에게 딱 맞는 이야기를 골라 봤어요.`}
+          />
         ) : null}
 
         <View style={styles.section}>
@@ -302,39 +298,20 @@ function HeroRecommendation({
   locked: boolean;
 }) {
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`${story.title} ${ctaLabel}`}
+    <HomeHeroCard
+      title={story.title}
+      description={story.description}
+      ctaLabel={ctaLabel}
+      coverImageUrl={story.coverImageUrl}
       onPress={onPress}
-      style={({ pressed }) => [styles.hero, pressed && styles.pressed]}
-    >
-      <View style={styles.heroCoverFrame}>
-        {story.coverImageUrl ? (
-          <Image source={{ uri: story.coverImageUrl }} resizeMode="cover" style={styles.heroCover} />
-        ) : (
-          <View style={styles.heroCoverFallback}>
-            <Icon name="book" size={36} color={storybookTheme.color.onContentMuted} />
-          </View>
-        )}
-        {locked ? (
+      badge={
+        locked ? (
           <View style={styles.heroLockBadge}>
             <Icon name="lock" size={16} color={storybookTheme.color.onContent} />
           </View>
-        ) : null}
-      </View>
-      <View style={styles.heroBody}>
-        <Text style={styles.heroTitle} accessibilityRole="header" numberOfLines={2}>
-          {story.title}
-        </Text>
-        {story.description ? (
-          <Text style={styles.heroDescription} numberOfLines={3}>{story.description}</Text>
-        ) : null}
-        <View style={styles.heroCta}>
-          <Text style={styles.heroCtaLabel}>{ctaLabel}</Text>
-          <Icon name="chevronRight" size={16} color={storybookTheme.color.gold} />
-        </View>
-      </View>
-    </Pressable>
+        ) : null
+      }
+    />
   );
 }
 
@@ -373,31 +350,15 @@ function RecentActivityRow({
   entry: RecentActivityEntry;
   onPress: () => void;
 }) {
-  const iconName = entry.kind === 'completion' ? 'sparkles' : 'users';
   return (
-    <Pressable
-      accessibilityRole="link"
+    <HomeListRow
+      icon={entry.kind === 'completion' ? 'sparkles' : 'users'}
+      label={entry.label}
+      meta={entry.meta}
+      trailing={entry.kind === 'completion' && entry.exited ? <Pill label={EXITED_BADGE_LABEL} tone="onLight" /> : null}
       onPress={onPress}
-      style={({ pressed }) => [styles.recentRow, pressed && styles.pressed]}
-    >
-      <View style={styles.recentIcon}>
-        <Icon name={iconName} size={16} color={storybookTheme.color.gold} />
-      </View>
-      <View style={styles.recentText}>
-        <Text style={styles.recentLabel} numberOfLines={1}>{entry.label}</Text>
-        <Text style={styles.recentMeta} numberOfLines={1}>{entry.meta}</Text>
-      </View>
-      {entry.kind === 'completion' && entry.exited ? <Pill label={EXITED_BADGE_LABEL} tone="onLight" /> : null}
-      <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
-    </Pressable>
+    />
   );
-}
-
-function timeOfDayGreeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return '좋은 아침이에요';
-  if (hour < 18) return '좋은 오후예요';
-  return '좋은 저녁이에요';
 }
 
 /**
@@ -464,8 +425,6 @@ function formatDate(iso: string) {
   return MONTH_DAY_FORMAT.format(new Date(iso));
 }
 
-const L = semanticColors.light;
-
 const styles = StyleSheet.create({
   scroll: {
     flex: 1,
@@ -484,47 +443,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  pressed: { opacity: 0.85 },
-  // Card 프리미티브(padding='lg'=spacing.lg)를 쓰되 인사 카드만 maxWidth/gap을 페이지 컨텍스트에
-  // 맞게 오버라이드한다. 넓은 화면에서는 dashboardCardWide(760)까지 늘어난다.
-  greetingCard: {
-    maxWidth: storybookTheme.layout.dashboardCardMaxWidth,
-    alignSelf: 'center',
-    gap: storybookTheme.spacing.xs,
-    borderRadius: radius[24],
-    ...enterFadeUp,
-  },
-  greetingCardWide: {
-    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
-  },
-  title: {
-    fontSize: storybookTheme.type.lg,
-    fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onCardTitle,
-  },
-  body: {
-    fontSize: storybookTheme.type.sm,
-    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onCardBody,
-    marginTop: 2,
-  },
   section: {
     width: '100%',
     maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
-  },
-  hero: {
-    width: '100%',
-    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
-    alignSelf: 'center',
-    // 랜딩 이야기 카드처럼 크게 둥글게 + 옅은 그림자.
-    borderRadius: radius[24],
-    backgroundColor: L.bg.primary,
-    borderWidth: 1,
-    borderColor: L.border.secondary,
-    overflow: 'hidden',
-    ...shadow(2),
-    ...enterFadeUp,
   },
   // 카탈로그 로딩 중 히어로 자리 placeholder.
   heroLoader: {
@@ -534,77 +456,13 @@ const styles = StyleSheet.create({
     minHeight: 96,
     justifyContent: 'center',
   },
-  heroCoverFrame: {
-    width: '100%',
-    aspectRatio: 16 / 9,
-    backgroundColor: storybookTheme.color.coverFallback,
-  },
-  heroCover: { width: '100%', height: '100%' },
-  heroCoverFallback: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   heroLockBadge: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
     width: 32,
     height: 32,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: storybookTheme.color.imageScrim,
-  },
-  heroBody: { padding: space[24], gap: 6 },
-  heroTitle: {
-    fontSize: storybookTheme.type.xl,
-    lineHeight: storybookTheme.type.xl * storybookTheme.lineHeight.tight,
-    fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onCardTitle,
-  },
-  heroDescription: {
-    fontSize: storybookTheme.type.sm,
-    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onCardBody,
-  },
-  heroCta: {
-    marginTop: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  heroCtaLabel: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.goldText,
-  },
-  recentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    // 아이보리 바탕 위 흰 카드.
-    backgroundColor: L.bg.primary,
-    borderRadius: radius[16],
-    borderWidth: 1,
-    borderColor: L.border.secondary,
-    ...shadow(1),
-  },
-  recentIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: L.bg.brandSubtle,
-  },
-  recentText: { flex: 1, gap: 2 },
-  recentLabel: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onContent,
-  },
-  recentMeta: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onContentMuted,
   },
   errorText: {
     fontSize: storybookTheme.type.sm,

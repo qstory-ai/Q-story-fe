@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Card, Icon, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, BrandLockup, Card, SafeAreaView, StatusBanner, StoryCard, TextField, storybookTheme, type IconName } from '@/shared/ui';
 import { NotificationBell } from '@/features/notification-center';
 import { OrgGuardianAck } from '@/features/terms-consent';
 import {
@@ -17,6 +17,9 @@ import {
 import { messageForError } from '@/shared/api';
 import { BETA_OPEN_ACCESS_NOTICE, subscriptionStatusLabel } from '@/shared/config';
 import { InstitutionSearch } from '@/features/institution-search';
+import { HomeGreetingCard, HomeListRow, HomeSection, timeOfDayGreeting } from '@/features/home-section';
+import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
+import { storyDestination } from '@/features/story-library';
 import { INSTITUTION_KIND_LABEL, type PublicInstitution } from '@/entities/public-institution';
 
 /**
@@ -174,7 +177,18 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
   );
 }
 
-/** 기관 등록 이후의 대시보드 - IA "관리자"의 각 화면으로 가는 진입점 카드만 모은다. */
+/** 관리자 홈의 바로가기 - IA "관리자"의 각 화면. 가장 자주 쓰는 반/학생 관리가 맨 위. */
+const DIRECTOR_SHORTCUTS: Array<{ title: string; body: string; icon: IconName; path: string }> = [
+  { title: '반/학생 관리', body: '반을 만들고 담임 선생님을 배정하고 학생 명단을 확인해요.', icon: 'graduationCap', path: '/organization/classes' },
+  { title: '선생님 관리', body: '소속 선생님을 초대하고, 선생님이 보낸 소속 신청을 수락해요.', icon: 'users', path: '/organization/tutors' },
+  { title: '리포트', body: '이용 현황과 반별 활동을 보고, 수업 기록은 개별 리포트로 열어 봐요.', icon: 'report', path: '/organization/reports' },
+  { title: '이용권', body: '기관 이용권 상태와 활성 이용 범위를 확인해요.', icon: 'shield', path: '/organization/subscription' },
+];
+
+/**
+ * 기관 등록 이후의 관리자 홈 - 보호자 홈(/parent)과 같은 생김새(상단 바 → 인사 카드 → "더 보기"가 달린 섹션).
+ * 인사 카드에 이용권 상태, 그 아래 관리 화면 바로가기와 우리 기관 아이들이 읽는 이야기 줄.
+ */
 function ClassManagementStep({
   token,
   organizationId,
@@ -186,10 +200,12 @@ function ClassManagementStep({
 }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { state } = useAuth();
   const [entitlement, setEntitlement] = useState<EntitlementResponse | null>(null);
   // fetchEntitlement가 조용히 실패해도 대시보드가 살아 있어야 하지만, 로딩 중임을 표시는 해야
   // "구독 상태가 없는 건지, 아직 안 온 건지" 사용자가 혼동하지 않는다. done=true는 성공/실패 무관.
   const [entitlementDone, setEntitlementDone] = useState(false);
+  const [stories, setStories] = useState<StoryCatalogEntry[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -208,102 +224,89 @@ function ClassManagementStep({
     };
   }, [token, organizationId]);
 
+  useEffect(() => {
+    let cancelled = false;
+    listStories()
+      .then((list) => {
+        if (!cancelled) setStories(list);
+      })
+      .catch(() => {
+        // 이야기 줄은 부가 섹션이라 실패하면 줄째 숨긴다.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, pathname)}>
-      <View style={styles.scroll}>
-        {/* Parent/Tutor 홈과 시각 일관성을 위해 우측 정렬 벨 하나만 두는 얇은 상단 행.
-            Director는 브랜드가 AppNavShell 사이드바에 이미 있어 좌측 브랜드는 생략. */}
-        <View style={styles.bellRow}>
+    <AppNavShell tone="warm" items={dashboardNavItems(user, navigate, pathname)}>
+      <View style={styles.homeScroll}>
+        <View style={styles.topBar}>
+          <BrandLockup size="compact" />
           <NotificationBell token={token} />
         </View>
-        <Card variant="surface" padding="lg" style={styles.greetingCard}>
-          <Text style={styles.title} accessibilityRole="header">관리자 대시보드</Text>
-          <Text style={styles.body}>
-            반과 학생, 소속 선생님, 이용 현황을 이곳에서 한눈에 관리해요.
-          </Text>
+
+        <HomeGreetingCard
+          title={`${user.displayName}님, ${timeOfDayGreeting()}`}
+          body="반과 학생, 소속 선생님, 이용 현황을 이곳에서 한눈에 관리해요."
+        >
           {/* grantsAccess=false여도 requiresEntitlement=false인 무료 데모는 계속 열린다
               (EntitlementService.assertAccessible) - 그래서 "구독 후 전체 이야기"라고만 안내한다. */}
           {entitlement ? (
-            <StatusBanner
-              variant={entitlement.grantsAccess || user.grantsAccess ? 'info' : 'warning'}
-              label={subscriptionStatusLabel(entitlement.subscriptionStatus)}
-              body={
-                entitlement.grantsAccess
-                  ? undefined
-                  : user.grantsAccess
-                  ? BETA_OPEN_ACCESS_NOTICE
-                  : '이용권 없이도 무료 데모 한 편은 계속 이용할 수 있어요. 전체 이야기는 이용권이 있으면 열려요.'
-              }
-            />
+            <View style={styles.entitlementBanner}>
+              <StatusBanner
+                variant={entitlement.grantsAccess || user.grantsAccess ? 'info' : 'warning'}
+                label={subscriptionStatusLabel(entitlement.subscriptionStatus)}
+                body={
+                  entitlement.grantsAccess
+                    ? undefined
+                    : user.grantsAccess
+                    ? BETA_OPEN_ACCESS_NOTICE
+                    : '이용권 없이도 무료 데모 한 편은 계속 이용할 수 있어요. 전체 이야기는 이용권이 있으면 열려요.'
+                }
+              />
+            </View>
           ) : !entitlementDone ? (
             <View style={styles.entitlementLoader}>
               <ActivityIndicator color={storybookTheme.color.primary} />
               <Text style={styles.entitlementLoaderText}>이용권 상태를 확인 중이에요…</Text>
             </View>
           ) : null}
-        </Card>
+        </HomeGreetingCard>
 
-        <View style={styles.dashboardGrid}>
-          {/* 가장 자주 쓰는 반/학생 관리만 primary로 강조한다. */}
-          <DashboardCard
-            title="반/학생 관리"
-            body="반을 만들고 담임 선생님을 배정하고 학생 명단을 확인해요."
-            onPress={() => navigate('/organization/classes')}
-            primary
-          />
-          <DashboardCard
-            title="선생님 관리"
-            body="소속 선생님을 초대하고, 선생님이 보낸 소속 신청을 수락해요."
-            onPress={() => navigate('/organization/tutors')}
-          />
-          <DashboardCard
-            title="리포트"
-            body="이용 현황과 반별 활동을 보고, 수업 기록은 개별 리포트로 열어 봐요."
-            onPress={() => navigate('/organization/reports')}
-          />
-          <DashboardCard
-            title="이용권"
-            body="기관 이용권 상태와 활성 이용 범위를 확인해요."
-            onPress={() => navigate('/organization/subscription')}
-          />
+        <View style={styles.section}>
+          <HomeSection title="기관 관리" layout="list">
+            {DIRECTOR_SHORTCUTS.map((shortcut) => (
+              <HomeListRow
+                key={shortcut.path}
+                icon={shortcut.icon}
+                label={shortcut.title}
+                meta={shortcut.body}
+                onPress={() => navigate(shortcut.path)}
+                accessibilityLabel={shortcut.title}
+              />
+            ))}
+          </HomeSection>
         </View>
+
+        {stories.length > 0 ? (
+          <View style={styles.section}>
+            <HomeSection title="우리 기관 이야기" subtitle="선생님들이 수업에 쓰는 이야기예요. 눌러서 미리 볼 수 있어요.">
+              {stories.slice(0, 8).map((story) => (
+                <StoryCard
+                  key={story.storyId}
+                  size="mini"
+                  title={story.title}
+                  coverImageUrl={story.coverImageUrl}
+                  onPress={() => navigate(storyDestination(story, state))}
+                  locked={unlockStateFor(story, state) === 'locked'}
+                />
+              ))}
+            </HomeSection>
+          </View>
+        ) : null}
       </View>
     </AppNavShell>
-  );
-}
-
-function DashboardCard({
-  title,
-  body,
-  onPress,
-  primary = false,
-}: {
-  title: string;
-  body: string;
-  onPress: () => void;
-  primary?: boolean;
-}) {
-  return (
-    <Pressable
-      accessibilityRole="link"
-      accessibilityLabel={title}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.dashboardCard,
-        primary && styles.dashboardCardPrimary,
-        pressed && styles.dashboardCardPressed,
-      ]}
-    >
-      <View style={styles.dashboardCardText}>
-        <Text style={styles.dashboardCardTitle}>{title}</Text>
-        <Text style={styles.dashboardCardBody}>{body}</Text>
-      </View>
-      <Icon
-        name="chevronRight"
-        size={16}
-        color={primary ? storybookTheme.color.primary : storybookTheme.color.onCardMuted}
-      />
-    </Pressable>
   );
 }
 
@@ -319,10 +322,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-  },
-  bellRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
   },
   // Card 프리미티브(padding='lg')가 배경/테두리/라운드/패딩을 담당. 자식 gap만 오버라이드.
   greetingCard: {
@@ -340,43 +339,33 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onCardMuted,
   },
+  homeScroll: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'stretch',
+    gap: 20,
+    paddingHorizontal: storybookTheme.spacing.ml,
+    paddingTop: storybookTheme.spacing.lg,
+    paddingBottom: storybookTheme.spacing.xl,
+  },
+  topBar: {
+    width: '100%',
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  section: {
+    width: '100%',
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
+    alignSelf: 'center',
+  },
+  entitlementBanner: { marginTop: storybookTheme.spacing.sm },
   modeLink: { alignSelf: 'center', paddingVertical: storybookTheme.spacing.xs },
   modeLinkText: {
     fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.linkOnLight,
     textDecorationLine: 'underline',
-  },
-  dashboardGrid: {
-    gap: storybookTheme.spacing.sm,
-  },
-  dashboardCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: storybookTheme.spacing.ms,
-    // spacing.md(16)와 ml(20) 사이 - 대시보드 카드는 좁은 폭에서 여백을 조금 더 둠.
-    padding: 18,
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-  },
-  // 가장 자주 쓰는 카드 하나만 primary 테두리로 먼저 읽히게 한다(골드는 경고 배너처럼 보여서 쓰지 않는다).
-  dashboardCardPrimary: {
-    borderColor: storybookTheme.color.primary,
-    borderWidth: 2,
-    padding: 17, // border 2 → padding 17로 인접 카드와 실제 콘텐츠 offset 유지
-  },
-  dashboardCardPressed: { opacity: 0.85 },
-  dashboardCardText: { flex: 1, gap: storybookTheme.spacing.xs },
-  dashboardCardTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
-  },
-  dashboardCardBody: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onCardMuted,
-    lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
   },
 });

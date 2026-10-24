@@ -2,14 +2,19 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, BrandLockup, Card, enterFadeUp, ErrorState, Icon, LoadingState, minTouchTarget, Pill, radius, semanticColors, space, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, BrandLockup, Card, EmptyState, ErrorState, Icon, LoadingState, Pill, radius, semanticColors, storybookTheme, StoryCard } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { NotificationBell } from '@/features/notification-center';
 import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
 import { listTutorStudents, type TutorStudent } from '@/entities/tutor';
 import { listLessons, type Lesson } from '@/entities/lesson';
+import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
+import { storyDestination } from '@/features/story-library';
 import { MonthCalendar } from '@/features/month-calendar';
+import { HomeGreetingCard, HomeHeroCard, HomeListRow, HomeSection, timeOfDayGreeting } from '@/features/home-section';
 import { teacherTitle } from '@/shared/lib';
+
+import { countToday, formatLessonTime as formatTime, lessonWhen, pickNextLesson } from '../model/next-lesson';
 
 type LoadState =
   | { status: 'loading' }
@@ -17,14 +22,14 @@ type LoadState =
   | { status: 'error'; message: string };
 
 /**
- * 선생님 홈("/tutor") - IA "[1] 홈" 섹션. 캘린더는 Lesson.scheduledAt 기준 월 그리드이고,
- * 일자를 탭하면 그 날의 수업 목록이 뜬다.
+ * 선생님 홈("/tutor") - 보호자 홈(/parent)과 같은 생김새(인사 카드 → 큰 대표 카드 → "더 보기"가 달린 섹션).
  *
- *   1. 상단 바 - 브랜드 라벨 + 알림 벨.
- *   2. 인사말 카드.
- *   3. 캘린더 - 월 그리드, 일자별 dot, 선택된 일자의 수업 목록.
- *   4. 첫 방문에는 "새 반 만들기", 그 뒤로는 반·학생 / 수업 바로가기.
- *   5. 부모 연결 대기 학생 - 아직 부모님이 반 초대 링크로 연결하지 않은 학생 목록.
+ *   1. 상단 바 - 브랜드 + 알림 벨.
+ *   2. 인사 카드 - 오늘 수업 수. 반도 수업도 없는 첫 방문이면 시작 안내 + "새 반 만들기".
+ *   3. 다음 수업 - 진행 중이거나 가장 가까운 예정 수업 한 개를 큰 카드로(첫 이야기 그림). 누르면 수업 상세.
+ *   4. 수업 캘린더 - Lesson.scheduledAt 기준 월 그리드, 일자를 탭하면 그 날의 수업 목록.
+ *   5. 수업에 쓸 이야기 - 서재로 가는 가로 카드 줄.
+ *   6. 보호자 연결 대기 - 아직 보호자가 반 초대 링크로 연결하지 않은 아이.
  */
 export function TutorHomePage() {
   const navigate = useNavigate();
@@ -32,6 +37,7 @@ export function TutorHomePage() {
   const { state } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
+  const [stories, setStories] = useState<StoryCatalogEntry[]>([]);
 
   useEffect(() => {
     if (state.status === 'loading') return;
@@ -62,6 +68,20 @@ export function TutorHomePage() {
     };
   }, [token, reloadKey]);
 
+  useEffect(() => {
+    let cancelled = false;
+    listStories()
+      .then((list) => {
+        if (!cancelled) setStories(list);
+      })
+      .catch(() => {
+        // 이야기 줄·대표 카드 그림은 부가 정보라 실패해도 조용히 넘긴다.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const calendarItems = useMemo(() => {
     if (load.status !== 'ready') return [] as { id: string; date: Date; lesson: Lesson }[];
     return load.lessons
@@ -78,109 +98,143 @@ export function TutorHomePage() {
     return load.students.filter((student) => student.status === 'PENDING_PARENT').slice(0, 4);
   }, [load]);
 
+  const nextLesson = useMemo(() => (load.status === 'ready' ? pickNextLesson(load.lessons, new Date()) : null), [load]);
+  const todayCount = useMemo(() => (load.status === 'ready' ? countToday(load.lessons, new Date()) : 0), [load]);
+
   // 반도 수업도 아직 없는 첫 방문 - 빈 캘린더가 한 화면을 다 차지해 "새 반 만들기"가 접힌 아래로
-  // 밀려나 있었다. 이때는 시작 안내와 CTA를 캘린더 위로 올린다.
+  // 밀려나 있었다. 이때는 시작 안내와 CTA를 위로 올린다.
   const isFirstVisit = load.status === 'ready' && load.lessons.length === 0 && load.students.length === 0;
 
   if (state.status !== 'authenticated') return null;
 
-  // 반 만들기는 반·학생 탭이 기본 진입점이다(Q-35). 홈에서는 반도 수업도 없는 첫 방문에만 시작 버튼을 보이고,
-  // 그 뒤로는 탭과 같은 곳으로 가는 바로가기만 둔다.
-  const firstVisitCta = (
-    <ActionButton label="새 반 만들기" onPress={() => navigate(TUTOR_PATHS.newClass)} />
-  );
-  const shortcutRow = (
-    <View style={styles.linkRow}>
-      <Pressable
-        accessibilityRole="link"
-        onPress={() => navigate(TUTOR_PATHS.classes)}
-        style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
-      >
-        <Text style={styles.linkLabel}>반·학생 →</Text>
-      </Pressable>
-      <Pressable
-        accessibilityRole="link"
-        onPress={() => navigate(TUTOR_PATHS.lessons)}
-        style={({ pressed }) => [styles.linkChip, pressed && styles.pressed]}
-      >
-        <Text style={styles.linkLabel}>수업 →</Text>
-      </Pressable>
-    </View>
-  );
+  const greetingBody = isFirstVisit
+    ? '반을 만들고 초대 링크를 보호자에게 보내면 아이들이 명단에 들어와요. 1:1 과외도 아이 한 명짜리 반으로 시작해요.'
+    : load.status !== 'ready'
+    ? '오늘 만날 아이와 수업을 준비해 보세요.'
+    : todayCount > 0
+    ? `오늘 수업이 ${todayCount}개 있어요.`
+    : '오늘은 예정된 수업이 없어요. 다음 수업을 준비해 보세요.';
+  const heroStory = nextLesson ? stories.find((story) => story.storyId === nextLesson.storyIds[0]) : undefined;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)}>
       <View style={styles.scroll}>
         <TopBar token={state.token} />
 
-        <Card variant="tinted" padding="lg" style={styles.greetingCard}>
-          <Text style={styles.title} accessibilityRole="header">{teacherTitle(state.user.displayName)}</Text>
-          <Text style={styles.body}>
-            {isFirstVisit
-              ? '반을 만들고 초대 링크를 보호자에게 보내면 아이들이 명단에 들어와요. 1:1 과외도 아이 한 명짜리 반으로 시작해요.'
-              : '오늘 만날 아이와 수업을 준비해 보세요.'}
-          </Text>
-        </Card>
+        <HomeGreetingCard title={`${teacherTitle(state.user.displayName)}, ${timeOfDayGreeting()}`} body={greetingBody}>
+          {isFirstVisit ? (
+            <View style={styles.greetingCta}>
+              <ActionButton label="새 반 만들기" onPress={() => navigate(TUTOR_PATHS.newClass)} />
+            </View>
+          ) : null}
+        </HomeGreetingCard>
 
-        {isFirstVisit ? firstVisitCta : null}
+        {nextLesson ? (
+          <View style={styles.section}>
+            <HomeSection title={nextLesson.status === 'IN_PROGRESS' ? '진행 중인 수업' : '다음 수업'} layout="list">
+              <HomeHeroCard
+                title={nextLesson.name}
+                description={nextLesson.goal}
+                coverImageUrl={heroStory?.coverImageUrl}
+                fallbackIcon="calendarDays"
+                ctaLabel={nextLesson.status === 'IN_PROGRESS' ? '수업 이어서 열기' : '수업 열기'}
+                onPress={() => navigate(TUTOR_PATHS.lesson(nextLesson.id))}
+                meta={
+                  <View style={styles.metaRow}>
+                    {nextLesson.scheduledAt ? <Pill label={lessonWhen(nextLesson.scheduledAt)} tone="onCard" /> : null}
+                    {nextLesson.classGroupName ? <Pill label={nextLesson.classGroupName} tone="onCard" /> : null}
+                    <Pill label={`학생 ${nextLesson.students.length}명`} tone="onCard" />
+                    {heroStory ? <Pill label={heroStory.title} tone="onCard" /> : null}
+                  </View>
+                }
+              />
+            </HomeSection>
+          </View>
+        ) : null}
 
-        <Card variant="surface" padding="md" title="수업 캘린더" style={styles.panel}>
-          {load.status === 'loading' ? (
-            <LoadingState compact label="수업 일정을 불러오는 중이에요…" />
-          ) : (
-            <MonthCalendar
-              items={calendarItems}
-              emptyDayMessage="이 날에는 예정된 수업이 없어요."
-              renderItem={(item) => (
-                <Pressable
-                  key={item.id}
-                  accessibilityRole="link"
-                  accessibilityLabel={`${item.lesson.name} 수업 상세 열기`}
-                  onPress={() => navigate(TUTOR_PATHS.lesson(item.lesson.id))}
-                  style={({ pressed }) => [styles.lessonRow, pressed && styles.pressed]}
-                >
-                  <View style={styles.timeCol}>
-                    <Text style={styles.timeText}>{formatTime(item.date)}</Text>
-                    <StatusPill status={item.lesson.status} />
-                  </View>
-                  <View style={styles.lessonBody}>
-                    <Text style={styles.lessonName}>{item.lesson.name}</Text>
-                    {item.lesson.goal ? (
-                      <Text style={styles.lessonMeta} numberOfLines={1}>{item.lesson.goal}</Text>
-                    ) : null}
-                    <View style={styles.metaRow}>
-                      <Pill label={`학생 ${item.lesson.students.length}명`} tone="onCard" />
-                      <Pill label={`이야기 ${item.lesson.storyIds.length}편`} tone="onCard" />
-                    </View>
-                  </View>
-                  <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
-                </Pressable>
+        <View style={styles.section}>
+          <HomeSection title="수업 캘린더" layout="list" onSeeAll={() => navigate(TUTOR_PATHS.lessons)}>
+            <Card variant="surface" padding="md" style={styles.calendarCard}>
+              {load.status === 'loading' ? (
+                <LoadingState compact label="수업 일정을 불러오는 중이에요…" />
+              ) : (
+                <MonthCalendar
+                  items={calendarItems}
+                  emptyDayMessage="이 날에는 예정된 수업이 없어요."
+                  renderItem={(item) => (
+                    <Pressable
+                      key={item.id}
+                      accessibilityRole="link"
+                      accessibilityLabel={`${item.lesson.name} 수업 상세 열기`}
+                      onPress={() => navigate(TUTOR_PATHS.lesson(item.lesson.id))}
+                      style={({ pressed }) => [styles.lessonRow, pressed && styles.pressed]}
+                    >
+                      <View style={styles.timeCol}>
+                        <Text style={styles.timeText}>{formatTime(item.date)}</Text>
+                        <StatusPill status={item.lesson.status} />
+                      </View>
+                      <View style={styles.lessonBody}>
+                        <Text style={styles.lessonName}>{item.lesson.name}</Text>
+                        {item.lesson.goal ? (
+                          <Text style={styles.lessonMeta} numberOfLines={1}>{item.lesson.goal}</Text>
+                        ) : null}
+                        <View style={styles.metaRow}>
+                          <Pill label={`학생 ${item.lesson.students.length}명`} tone="onCard" />
+                          <Pill label={`이야기 ${item.lesson.storyIds.length}편`} tone="onCard" />
+                        </View>
+                      </View>
+                      <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
+                    </Pressable>
+                  )}
+                />
               )}
-            />
-          )}
-        </Card>
+            </Card>
+          </HomeSection>
+        </View>
 
-        {isFirstVisit ? null : shortcutRow}
+        {stories.length > 0 ? (
+          <View style={styles.section}>
+            <HomeSection title="수업에 쓸 이야기" subtitle="수업에 넣기 전에 미리 읽어 볼 수 있어요." onSeeAll={() => navigate('/tutor/library')}>
+              {stories.slice(0, 8).map((story) => (
+                <StoryCard
+                  key={story.storyId}
+                  size="mini"
+                  title={story.title}
+                  coverImageUrl={story.coverImageUrl}
+                  onPress={() => navigate(storyDestination(story, state))}
+                  locked={unlockStateFor(story, state) === 'locked'}
+                />
+              ))}
+            </HomeSection>
+          </View>
+        ) : null}
 
-        <Card variant="panel" padding="md" title="보호자 연결 대기" style={styles.panel}>
-          {load.status === 'loading' ? (
-            <LoadingState compact label="학생 목록을 불러오는 중이에요…" />
-          ) : load.status === 'ready' && load.students.length === 0 ? (
-            <Text style={styles.panelBody}>아직 반에 들어온 아이가 없어요. 반 초대 링크를 보내면 보호자가 아이를 연결해요.</Text>
-          ) : pendingStudents.length === 0 ? (
-            <Text style={styles.panelBody}>모든 아이의 보호자 연결이 끝났어요.</Text>
-          ) : (
-            pendingStudents.map((student) => (
-              <View key={student.id} style={styles.studentRow}>
-                <View style={styles.studentInfo}>
-                  <Text style={styles.studentName}>{student.name} · {student.ageBand}</Text>
-                  {student.classType ? <Text style={styles.studentMeta}>{student.classType}</Text> : null}
-                </View>
-                <Pill label="보호자 연결 대기" tone="onLight" />
-              </View>
-            ))
-          )}
-        </Card>
+        <View style={styles.section}>
+          <HomeSection title="보호자 연결 대기" layout="list" onSeeAll={() => navigate(TUTOR_PATHS.classes)}>
+            {load.status === 'loading' ? (
+              <LoadingState compact label="학생 목록을 불러오는 중이에요…" />
+            ) : load.status === 'ready' && load.students.length === 0 ? (
+              <EmptyState
+                title="아직 반에 들어온 아이가 없어요"
+                body="반 초대 링크를 보내면 보호자가 아이를 연결해요."
+              />
+            ) : pendingStudents.length === 0 ? (
+              <EmptyState title="모든 아이의 보호자 연결이 끝났어요" body="새 아이가 들어오면 여기에 보여요." />
+            ) : (
+              pendingStudents.map((student) => (
+                <HomeListRow
+                  key={student.id}
+                  icon="user"
+                  label={`${student.name} · ${student.ageBand}`}
+                  meta={student.classType}
+                  trailing={<Pill label="보호자 연결 대기" tone="onLight" />}
+                  onPress={() => navigate(TUTOR_PATHS.student(student.id))}
+                  accessibilityLabel={`${student.name} 학생 상세 열기`}
+                />
+              ))
+            )}
+          </HomeSection>
+        </View>
 
         {load.status === 'error' ? (
           <ErrorState message={load.message} onRetry={() => setReloadKey((n) => n + 1)} />
@@ -207,57 +261,34 @@ function StatusPill({ status }: { status: Lesson['status'] }) {
   return null;
 }
 
-const TIME_FORMAT = new Intl.DateTimeFormat('ko-KR', { hour: 'numeric', minute: '2-digit' });
-
-function formatTime(date: Date) {
-  return TIME_FORMAT.format(date);
-}
-
 const L = semanticColors.light;
 
 const styles = StyleSheet.create({
   scroll: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.tabletMaxWidth,
-    alignSelf: 'center',
-    gap: storybookTheme.spacing.md,
+    alignItems: 'stretch',
+    gap: 20,
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
   },
   topBar: {
+    width: '100%',
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
+    alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  section: {
+    width: '100%',
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
+    alignSelf: 'center',
+  },
   pressed: { opacity: 0.85 },
-  // 보호자 홈과 같은 옅은 보라 인사 카드(radius 24) + 은은한 등장.
-  greetingCard: {
-    alignItems: 'stretch',
-    gap: storybookTheme.spacing.xs,
-    borderRadius: radius[24],
-    ...enterFadeUp,
-  },
-  title: {
-    fontSize: storybookTheme.type.lg,
-    fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onCardTitle,
-  },
-  body: {
-    fontSize: storybookTheme.type.sm,
-    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onCardBody,
-    marginTop: 2,
-  },
-  panel: {
-    gap: storybookTheme.spacing.ms,
-  },
-  panelBody: {
-    fontSize: storybookTheme.type.sm,
-    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onContentMuted,
-  },
+  greetingCta: { marginTop: storybookTheme.spacing.sm, alignItems: 'flex-start' },
+  calendarCard: { gap: storybookTheme.spacing.ms },
   lessonRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -293,32 +324,4 @@ const styles = StyleSheet.create({
   },
   lessonMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onContentMuted },
   metaRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap', marginTop: 2 },
-  studentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: storybookTheme.spacing.sm,
-    paddingVertical: storybookTheme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.contentPanelBorder,
-  },
-  studentInfo: { gap: 2 },
-  studentName: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onContent,
-  },
-  studentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onContentMuted },
-  linkRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, justifyContent: 'center', flexWrap: 'wrap' },
-  // 터치 영역 44px.
-  linkChip: {
-    minHeight: minTouchTarget,
-    justifyContent: 'center',
-    paddingHorizontal: space[12],
-  },
-  linkLabel: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.primary,
-  },
 });

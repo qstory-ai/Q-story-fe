@@ -5,18 +5,9 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { ActionButton, BrandLockup, SafeAreaView, storybookTheme } from '@/shared/ui';
 import { homePathFor, useAuth } from '@/entities/auth';
 import { StoryLibraryGrid } from '@/features/story-library';
-import { OnboardingFlow } from '@/features/onboarding';
+import { OnboardingFlow, ROLE_CARDS, RoleCard } from '@/features/onboarding';
 import { hasSeenTutorial } from '@/shared/lib';
 import { readOnboardingParams, type OnboardingEntry } from '../model/onboarding-params';
-
-// IA의 회원 유형 분류에 맞춘 표기 - 기관 소속 여부와 무관하게 모두 "선생님"으로 표기하고,
-// 실제 소속은 온보딩 이후에 결정된다.
-const ROLE_OPTIONS: { role: 'DIRECTOR' | 'PARENT' | 'TUTOR'; label: string; body: string }[] = [
-  { role: 'PARENT', label: '보호자', body: '아이와 함께 이야기 서재를 시작해요' },
-  { role: 'TUTOR', label: '선생님', body: '반을 만들고 수업을 준비해요' },
-  // OnboardingFlow의 ROLE_CARDS와 같은 표기("기관")를 유지한다.
-  { role: 'DIRECTOR', label: '기관', body: '유치원·기관을 등록하고 반을 만들어요' },
-];
 
 /**
  * "/"의 서재 홈. <StoryLibraryGrid />가 책장이고, 언락 여부는 entities/story의 unlockStateFor()가
@@ -60,23 +51,21 @@ export function HomePage() {
 
   if (onboarding) {
     return (
-      <SafeAreaView edges={['top', 'left', 'right']} style={styles.screen}>
-        <OnboardingFlow
-          initialStep={onboarding.step}
-          initialRole={onboarding.role}
-          initialClassCode={onboarding.classCode}
-          signInNext={onboarding.step === 'sign-in' ? onboarding.next : undefined}
-          signUpNext={onboarding.step === 'sign-in' ? undefined : onboarding.next}
-          // URL 파라미터로 들어온 경우엔 state를 비워도 paramEntry가 계속 이기므로 파라미터 없는
-          // "/"로 실제로 이동한다.
-          onExit={() => {
-            setManualOnboarding(null);
-            setFlowOwnsSession(false);
-            if (paramEntry) navigate('/', { replace: true });
-          }}
-          onSessionCreated={() => setFlowOwnsSession(true)}
-        />
-      </SafeAreaView>
+      <OnboardingFlow
+        initialStep={onboarding.step}
+        initialRole={onboarding.role}
+        initialClassCode={onboarding.classCode}
+        signInNext={onboarding.step === 'sign-in' ? onboarding.next : undefined}
+        signUpNext={onboarding.step === 'sign-in' ? undefined : onboarding.next}
+        // URL 파라미터로 들어온 경우엔 state를 비워도 paramEntry가 계속 이기므로 파라미터 없는
+        // "/"로 실제로 이동한다.
+        onExit={() => {
+          setManualOnboarding(null);
+          setFlowOwnsSession(false);
+          if (paramEntry) navigate('/', { replace: true });
+        }}
+        onSessionCreated={() => setFlowOwnsSession(true)}
+      />
     );
   }
 
@@ -96,31 +85,28 @@ export function HomePage() {
           <View style={[styles.panel, isWide && styles.panelWide]}>
             <Text style={styles.panelTitle}>가입하고 나에게 맞는 홈을 열어보세요</Text>
             <View style={styles.authButtonRow}>
-              {/* ActionButton secondary는 흰 카드용이라 어두운 패널에선 안 보인다 - role 카드와
-                  같은 톤으로 직접 스타일링한다. */}
-              <Pressable
-                accessibilityRole="button"
-                style={styles.loginButton}
-                onPress={() => setManualOnboarding({ step: 'sign-in' })}
-              >
-                <Text style={styles.loginButtonText}>로그인</Text>
-              </Pressable>
+              <View style={styles.authButtonHalf}>
+                <ActionButton
+                  variant="secondaryFull"
+                  size="lg"
+                  label="로그인"
+                  onPress={() => setManualOnboarding({ step: 'sign-in' })}
+                />
+              </View>
               <View style={styles.authButtonHalf}>
                 <ActionButton variant="gold" label="회원가입" onPress={() => setManualOnboarding({ step: 'role' })} />
               </View>
             </View>
             <Text style={styles.panelNote}>또는 이미 어떤 역할인지 알고 있다면 바로 골라주세요.</Text>
             <View style={[styles.roles, isWide && styles.rolesWide]}>
-              {ROLE_OPTIONS.map(({ role, label, body }) => (
-                <Pressable
+              {ROLE_CARDS.map(({ role, title, description }) => (
+                <RoleCard
                   key={role}
-                  accessibilityRole="button"
-                  style={styles.role}
+                  title={title}
+                  description={description}
+                  fill={isWide}
                   onPress={() => setManualOnboarding({ step: 'sign-up', role })}
-                >
-                  <Text style={styles.roleLabel}>{label}</Text>
-                  <Text style={styles.roleBody}>{body}</Text>
-                </Pressable>
+                />
               ))}
             </View>
             <Text style={styles.panelNote}>
@@ -193,37 +179,8 @@ const styles = StyleSheet.create({
   },
   authButtonRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm, width: '100%' },
   authButtonHalf: { flex: 1 },
-  loginButton: {
-    flex: 1,
-    minHeight: 56,
-    borderRadius: storybookTheme.radius.button,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: storybookTheme.color.contentPanel,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
-  },
-  loginButtonText: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onContent,
-  },
   roles: { width: '100%', gap: storybookTheme.spacing.sm },
   rolesWide: { flexDirection: 'row' },
-  role: {
-    flex: 1,
-    gap: storybookTheme.spacing.xs,
-    backgroundColor: storybookTheme.color.contentPanel,
-    borderRadius: storybookTheme.radius.card,
-    paddingHorizontal: storybookTheme.spacing.md,
-    paddingVertical: storybookTheme.spacing.ms,
-  },
-  roleLabel: { fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onContent },
-  roleBody: {
-    fontSize: storybookTheme.type.xs,
-    lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onContentMuted,
-  },
   panelNote: {
     fontSize: storybookTheme.type.xs,
     lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,

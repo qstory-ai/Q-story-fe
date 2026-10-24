@@ -1,8 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, BrandLockup, Card, SafeAreaView, StatusBanner, StoryCard, TextField, storybookTheme, type IconName } from '@/shared/ui';
+import {
+  ActionButton,
+  AppNavShell,
+  AuthColumn,
+  AuthLink,
+  authText,
+  BrandLockup,
+  enterFadeUp,
+  SafeAreaView,
+  StatusBanner,
+  StoryCard,
+  TextField,
+  storybookTheme,
+  type IconName,
+} from '@/shared/ui';
 import { NotificationBell } from '@/features/notification-center';
 import { OrgGuardianAck } from '@/features/terms-consent';
 import {
@@ -96,13 +110,14 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
   }, [token, mode, picked, name, guardianAck, setSession]);
 
   return (
-    <AppNavShell items={dashboardNavItems(user, navigate, pathname)}>
-      <View style={styles.scroll}>
-        <Card variant="surface" padding="lg" style={styles.greetingCard}>
-          <Text style={styles.title} accessibilityRole="header">기관 등록</Text>
+    // 가입 흐름의 마지막 단계라 로그인·가입 화면과 같은 컬럼(420, 아이보리)에 둔다 - 내비게이션은 그대로.
+    <AppNavShell tone="warm" items={dashboardNavItems(user, navigate, pathname)}>
+      <AuthColumn>
+        <View style={styles.form}>
+          <Text style={authText.title} accessibilityRole="header">기관 등록</Text>
           {mode === 'search' ? (
             <>
-              <Text style={styles.body}>
+              <Text style={authText.lead}>
                 거의 다 됐어요. 우리 유치원·어린이집을 찾아 골라 주세요. 목록에서 고르면 선생님들이 검색해 소속을 신청할 수 있어요.
               </Text>
               <InstitutionSearch
@@ -132,47 +147,46 @@ function CreateOrganizationStep({ token, user }: { token: string; user: UserSumm
               <OrgGuardianAck checked={guardianAck} onChange={setGuardianAck} />
               {error ? <StatusBanner variant="warning" label={error} /> : null}
               <ActionButton
+                variant="gold"
                 label="이 기관으로 등록하기"
                 loading={submitting}
                 onPress={onSubmit}
-                disabled={!picked || pickedTaken || !guardianAck || submitting}
+                disabled={!picked || pickedTaken || !guardianAck}
               />
-              <Pressable
+              <AuthLink
                 accessibilityRole="button"
+                label="목록에 없어요 · 이름 직접 입력하기"
                 onPress={() => {
                   setMode('manual');
                   setError(null);
                 }}
-                style={styles.modeLink}
-              >
-                <Text style={styles.modeLinkText}>목록에 없어요 · 이름 직접 입력하기</Text>
-              </Pressable>
+              />
             </>
           ) : (
             <>
-              <Text style={styles.body}>기관 이름을 알려주세요. 나중에 목록과 연결할 수도 있어요.</Text>
-              <TextField label="기관 이름" value={name} onChangeText={setName} errorText={error ?? undefined} />
+              <Text style={authText.lead}>기관 이름을 알려주세요. 나중에 목록과 연결할 수도 있어요.</Text>
+              <TextField label="기관 이름" value={name} onChangeText={setName} />
               <OrgGuardianAck checked={guardianAck} onChange={setGuardianAck} />
+              {error ? <StatusBanner variant="warning" label={error} /> : null}
               <ActionButton
+                variant="gold"
                 label="등록하기"
                 loading={submitting}
                 onPress={onSubmit}
-                disabled={!name.trim() || !guardianAck || submitting}
+                disabled={!name.trim() || !guardianAck}
               />
-              <Pressable
+              <AuthLink
                 accessibilityRole="button"
+                label="유치원·어린이집 목록에서 찾기"
                 onPress={() => {
                   setMode('search');
                   setError(null);
                 }}
-                style={styles.modeLink}
-              >
-                <Text style={styles.modeLinkText}>유치원·어린이집 목록에서 찾기</Text>
-              </Pressable>
+              />
             </>
           )}
-        </Card>
-      </View>
+        </View>
+      </AuthColumn>
     </AppNavShell>
   );
 }
@@ -313,23 +327,7 @@ function ClassManagementStep({
 const styles = StyleSheet.create({
   loadingContainer: { flex: 1, backgroundColor: storybookTheme.color.background },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  scroll: {
-    flex: 1,
-    width: '100%',
-    maxWidth: storybookTheme.layout.dashboardCardMaxWidth,
-    alignSelf: 'center',
-    gap: storybookTheme.spacing.md,
-    paddingHorizontal: storybookTheme.spacing.ml,
-    paddingTop: storybookTheme.spacing.lg,
-    paddingBottom: storybookTheme.spacing.xl,
-  },
-  // Card 프리미티브(padding='lg')가 배경/테두리/라운드/패딩을 담당. 자식 gap만 오버라이드.
-  greetingCard: {
-    alignItems: 'stretch',
-    gap: storybookTheme.spacing.ms,
-  },
-  title: { fontSize: storybookTheme.type.lg, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onCardTitle },
-  body: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onCardBody },
+  form: { gap: 14, ...enterFadeUp },
   entitlementLoader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -362,10 +360,4 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   entitlementBanner: { marginTop: storybookTheme.spacing.sm },
-  modeLink: { alignSelf: 'center', paddingVertical: storybookTheme.spacing.xs },
-  modeLinkText: {
-    fontSize: storybookTheme.type.sm,
-    color: storybookTheme.color.linkOnLight,
-    textDecorationLine: 'underline',
-  },
 });

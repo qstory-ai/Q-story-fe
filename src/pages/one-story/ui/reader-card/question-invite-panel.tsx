@@ -20,6 +20,7 @@ export function QuestionInvitePanel({ runtime, dialogue }: { runtime: OneStoryRu
     beginQuestion,
     beginTypedQuestion,
     continueStory,
+    isCompact,
   } = runtime;
   const textScale = useReaderTextScale();
   // 방법을 묻는 초대("어떻게 하면 좋을까?")는 버튼·안내를 "내 생각 말하기"로 맞춘다(lib/invite-ask-kind).
@@ -46,6 +47,7 @@ export function QuestionInvitePanel({ runtime, dialogue }: { runtime: OneStoryRu
         이야기 속 질문 {activeQuestionOrdinal}
       </Text>
       <Text style={[styles.questionTitle, scaledText(flat(styles.questionTitle), textScale)]}>{activeQuestionPrompt}</Text>
+      {!isCompact && (
       <Text style={[styles.questionHelp, scaledText(flat(styles.questionHelp), textScale)]}>
         {isQuestionInvitePlayback
           ? `${speaker?.displayName ?? '이야기 친구'}의 질문을 들어봐요.`
@@ -57,6 +59,7 @@ export function QuestionInvitePanel({ runtime, dialogue }: { runtime: OneStoryRu
               ? '그건 이야기랑 조금 다른 이야기인 것 같아, 다시 말해줄래?'
               : '궁금한 것뿐 아니라 알고 싶은 것, 해 보고 싶은 것, 걱정되는 것도 말해도 돼요.'}
       </Text>
+      )}
       {isQuestionInvitePlayback ? (
         <View style={styles.questionListening}>
           <ActivityIndicator color={storybookTheme.color.error} size="small" />
@@ -66,6 +69,12 @@ export function QuestionInvitePanel({ runtime, dialogue }: { runtime: OneStoryRu
               ? `${speakerName}${hasKoreanBatchim(speakerName) ? '이' : '가'} 말하고 있어요`
               : '질문 음성을 준비하고 있어요'}
           </Text>
+        </View>
+      ) : awaitingInvite && isCompact ? (
+        // 낮은 화면은 두 버튼을 한 줄로.
+        <View style={styles.splitRow}>
+          <ActionButton variant="primary" label={askCopy.askLabel} onPress={dialogue.openInvite} />
+          <ActionButton variant="secondary" label="이야기 계속 듣기" onPress={() => void dialogue.skipInvite()} />
         </View>
       ) : awaitingInvite ? (
         <>

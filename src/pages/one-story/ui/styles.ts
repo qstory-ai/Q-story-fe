@@ -11,7 +11,14 @@ import { storybookTheme } from '@/shared/ui';
 // (readerHeading/readerCard/readerShadow/readerBody* 등)은 storybookTheme 토큰으로 통일했고,
 // 남은 hex는 씬별 일회성 tint라 의도적으로 하드코딩으로 둔다.
 export const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: storybookTheme.color.background },
+  // 플레이어는 화면 높이에 고정한다 - #root가 min-height라 질문 카드처럼 긴 내용이 들어오면 페이지 전체가 늘어나 상단 바가
+  // 화면 밖으로 밀렸다(휴대폰 가로 844x390, 10/24). 넘치는 내용은 리더 안 ScrollView가 스크롤한다.
+  safeArea: {
+    flex: 1,
+    height: '100dvh' as unknown as number,
+    maxHeight: '100dvh' as unknown as number,
+    backgroundColor: storybookTheme.color.background,
+  },
   app: { flex: 1, backgroundColor: storybookTheme.color.background, overflow: 'hidden' },
   imageShade: {
     position: 'absolute',
@@ -235,6 +242,8 @@ export const styles = StyleSheet.create({
     paddingBottom: 'calc(88px + env(safe-area-inset-bottom))' as unknown as number,
   },
   scrollContentCentered: { justifyContent: 'center' },
+  // 아주 낮은 화면(휴대폰 가로): 카드를 아래에 붙여 그림 가운데(얼굴)를 덮지 않게.
+  scrollContentCompact: { justifyContent: 'flex-end', paddingTop: 76, paddingBottom: 10 },
   scrollContentShortCentered: { justifyContent: 'flex-start' },
   reportScrollContent: {
     justifyContent: 'flex-start',
@@ -336,6 +345,7 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
   },
   playbackCardCollapsed: { maxWidth: 250, minHeight: 42 },
+  readerCardCompact: { padding: 14, gap: 10, borderRadius: 22 },
   cardMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',

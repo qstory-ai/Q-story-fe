@@ -245,7 +245,7 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
         </View>
       )}
       <View style={panel.controls}>
-        {/* 아이 차례의 주 버튼 - 주 버튼 크기(56)라 무엇을 누르면 되는지 바로 보인다. */}
+        {/* 아이 차례의 주 버튼 - 색으로 강조해 무엇을 누르면 되는지 바로 보인다. */}
         <Chip primary label={phase === 'error' ? '● 다시 말하기' : '● 말하기'} onPress={() => void dialogue.startTalking()} />
         <Chip label="글로 쓰기" onPress={dialogue.startTyping} />
         {dialogue.canAskHelp && <Chip label="도와줘" onPress={() => void dialogue.askHelp()} />}
@@ -349,7 +349,7 @@ function Chip({
 }: {
   label: string;
   onPress: () => void;
-  /** 단계의 주 버튼 - 앱 공용 버튼(ActionButton)의 주 버튼 크기(56). 나머지는 보조 크기(44). */
+  /** 단계의 주 버튼 - 크기는 다른 버튼과 같고 색만 강조한다. */
   primary?: boolean;
   disabled?: boolean;
 }) {
@@ -463,18 +463,18 @@ const panel = StyleSheet.create({
     overflow: 'hidden',
   },
   meterFill: { height: 8, backgroundColor: storybookTheme.color.gold },
-  // 버튼 규격은 질문 카드·선택지의 공용 버튼(ActionButton)과 같게 - 주 버튼 56·16px, 보조 44·14px(10/24 QA: 52/40과 섞여 있었다).
+  // 한 줄에 놓이는 버튼은 높이·글자 크기를 모두 같게(48·16px) - 주 버튼은 색으로만 구분한다(10/25 PM: 말하기만 높아 보였다).
   chip: {
-    minHeight: 44,
+    minHeight: 48,
     justifyContent: 'center',
-    paddingHorizontal: 18,
+    paddingHorizontal: 20,
     borderRadius: 999,
     backgroundColor: storybookTheme.color.onDarkOverlay,
   },
-  chipPrimary: { minHeight: 56, paddingHorizontal: 26, backgroundColor: storybookTheme.color.accentFill },
+  chipPrimary: { backgroundColor: storybookTheme.color.accentFill },
   chipDisabled: { opacity: 0.5 },
   chipPressed: { opacity: 0.8 },
-  chipText: { color: storybookTheme.color.onDark, fontSize: storybookTheme.type.sm, fontWeight: '700' },
+  chipText: { color: storybookTheme.color.onDark, fontSize: storybookTheme.type.md, fontWeight: '700' },
   chipTextPrimary: { color: storybookTheme.color.onAccentFill, fontSize: storybookTheme.type.md, fontWeight: '700' },
   proxyRow: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   proxyBox: {

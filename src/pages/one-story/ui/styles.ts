@@ -494,7 +494,7 @@ export const styles = StyleSheet.create({
     paddingTop: 2,
   },
   playbackContent: { gap: 5 },
-  // 장면 끝 쉼 - 캡션 자리의 "그레텔에게 말해 봐" 안내와 두 버튼.
+  // 장면 끝 쉼 - 캡션 자리의 그레텔이 묻는 말과 두 버튼.
   sceneEndPrompt: {
     color: storybookTheme.color.accentOnDark,
     fontSize: storybookTheme.type.md,

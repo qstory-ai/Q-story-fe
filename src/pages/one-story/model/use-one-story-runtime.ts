@@ -2648,7 +2648,7 @@ export function useOneStoryRuntime(
     isClassLesson: Boolean(lessonId),
     // 누가 아이와 읽는지(가정·선생님 한 명·반 수업) - 시작 화면 문구가 "부모님/선생님"을 고른다.
     readingContext,
-    // 장면 끝 쉼(lib/scene-end-pause) - 캡션 자리에 "그레텔에게 말해 봐" 안내, 상단 말하기 버튼 강조.
+    // 장면 끝 쉼(lib/scene-end-pause) - 캡션 자리에 그레텔이 묻는 말(장면마다 돌아감), 상단 말하기 버튼 강조.
     sceneEndActive,
     sceneEndAutoAdvancing,
     holdSceneEnd,

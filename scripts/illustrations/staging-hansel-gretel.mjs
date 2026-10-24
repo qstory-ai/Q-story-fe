@@ -26,9 +26,9 @@ export const STAGING = {
   },
   'night-plan': {
     hidden: true,
-    shot: 'Medium-wide shot across the dim cottage kitchen at night; the children are small in the frame, at the edge.',
+    shot: 'Medium-wide shot across the dim cottage kitchen at night; the children are small in the frame, at the left side but well inside the frame (about 20-30% of the width).',
     stage:
-      'Stepmother and Father talk at the round table by one oil lamp: Stepmother leans in, insisting; Father looks down, torn and unhappy. They do NOT see the children. Hansel and Gretel are HIDING in the dark doorway of the side bedroom at the far left, only their heads and hands peeking around the door frame, eavesdropping with frightened faces.',
+      'Stepmother and Father talk at the round table by one oil lamp: Stepmother leans in, insisting; Father looks down, torn and unhappy. They do NOT see the children. Hansel and Gretel are HIDING in the dark doorway of the side bedroom on the left (about 20-30% of the width, not at the frame edge), only their heads and hands peeking around the door frame, eavesdropping with frightened faces.',
     props: 'No food on the table. The bedroom door is half open; the children are partly behind it.',
   },
   'pebble-collection': {
@@ -38,7 +38,7 @@ export const STAGING = {
     props: 'A few glowing-white pebbles on the moonlit path; the cottage door slightly open behind him, the house dark inside.',
   },
   'first-walk-pebbles': {
-    shot: 'Wide shot along a forest path, the adults ahead in the upper middle, the children following behind.',
+    shot: 'Wide shot along a forest path, the adults a little ahead in the middle distance, the children following behind.',
     stage:
       'Father and Stepmother walk AHEAD on the path with their backs to the children, not looking back (Father carries an axe on his shoulder). A few steps BEHIND them, Hansel and Gretel follow; Hansel secretly lets one white pebble slip from his hand at his side while Gretel walks close beside him, glancing at the adults to make sure they do not notice.',
     props: 'A trail of small white pebbles on the path behind the children. No bread.',
@@ -71,7 +71,7 @@ export const STAGING = {
     hidden: true,
     shot: 'Medium-wide shot of the cottage kitchen at night, seen from beside the children\'s bedroom door.',
     stage:
-      'In the foreground edge, the children\'s bedroom door is open only a crack: Hansel and Gretel are INSIDE the dark bedroom, in their nightclothes over their usual clothes, peeking through the narrow gap, only parts of their faces visible, listening. In the kitchen beyond, Stepmother points toward the window and the forest while Father shakes his head sadly. The adults do NOT see the children.',
+      'On the left side (about 20-35% of the width, not at the frame edge), the children\'s bedroom door is open only a crack: Hansel and Gretel are INSIDE the dark bedroom, in their nightclothes over their usual clothes, peeking through the narrow gap, only parts of their faces visible, listening. In the kitchen beyond, Stepmother points toward the window and the forest while Father shakes his head sadly. The adults do NOT see the children.',
     props: 'The table is empty except one oil lamp and an empty bowl.',
   },
   'locked-door-night': {
@@ -88,7 +88,7 @@ export const STAGING = {
       'POVERTY: exactly ONE small piece of bread, smaller than Hansel\'s hand - no loaves, no bowl, no basket of bread, no other food anywhere.',
   },
   'second-walk-breadcrumbs': {
-    shot: 'Wide shot of a darker, deeper forest path; adults ahead in the upper middle, children behind.',
+    shot: 'Wide shot of a darker, deeper forest path; adults a little ahead in the middle distance, children behind.',
     stage:
       'Father and Stepmother walk AHEAD with their backs to the children; Stepmother leads briskly, Father follows with an axe. Several steps BEHIND them, Hansel quietly drops a tiny breadcrumb from his hand behind his back while Gretel walks beside him, watching Stepmother\'s back so she will not see.',
     props: 'A few tiny breadcrumbs on the path behind the children. No pebbles. No bags.',
@@ -180,7 +180,7 @@ export const STAGING = {
   'gretel-whispers-keys': {
     shot: 'Medium close shot at the cage; the witch small in the background with her back turned.',
     stage:
-      'Gretel stands OUTSIDE the cage on the left, leaning close to the bars and whispering. Hansel is INSIDE the cage, leaning toward her, his face clearly BEHIND the iron bars - his head never pokes through them. In the background the witch stands at the COOKING AREA (brick oven, back center) with her back turned, stirring the pot.',
+      'Gretel stands OUTSIDE the cage on the left, leaning close to the bars and whispering. Hansel is INSIDE the cage, leaning toward her, his face clearly BEHIND the iron bars, never through them. In the background the witch stands at the COOKING AREA (brick oven, back center) with her back turned, stirring the pot.',
     props: 'Solid, evenly spaced vertical bars too narrow for a head. One Hansel, one Gretel, one witch.',
   },
   'witch-cooking-keys': {

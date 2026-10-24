@@ -55,7 +55,7 @@ export const BACKGROUNDS = {
   // 10/24 대표 QA: 장면마다 요리하던 곳이 선반으로 바뀌었다 - 요리하는 곳(오븐)과 선반(사탕 병·냄비 뚜껑)을 못 박고, 마녀는
   // 장면마다 staging에서 둘 중 어디에 있는지 정한다.
   CANDY_INTERIOR:
-    'The SAME candy cottage kitchen in every kitchen picture, fixed layout: a TALL RECTANGULAR floor-standing iron cage LEFT (taller than an adult, never a round birdcage); corridor door on the back wall left of center; COOKING AREA back CENTER = brick oven with a stove top and one big pot; SHELF AREA on the RIGHT wall = shelves of candy jars, bowls and pot lids; worktable FRONT RIGHT. Key ring: EXACTLY TWO keys (small silver = cage, big black = door).',
+    'The SAME candy cottage kitchen in every kitchen picture, fixed layout: a TALL RECTANGULAR floor-standing iron cage on the left at 15-35% of the width (not touching the frame edge, never a round birdcage); corridor door on the back wall left of center; COOKING AREA back CENTER = brick oven with a stove top and one big pot; SHELF AREA on the RIGHT wall = shelves of candy jars, bowls and pot lids; worktable FRONT RIGHT. Key ring: EXACTLY TWO keys (small silver = cage, big black = door).',
   // 10/24: 식당 겸 침실·창고 장면에 부엌 배경(창살·오븐)이 들어가 창살이 나왔다 - 방마다 따로.
   CANDY_DINING:
     'A cozy dining-and-sleeping room inside the candy cottage: candy-studded walls, a small wooden table, two small beds side by side against the wall, a lamp. NO cage, NO oven, NO kitchen worktable in this room.',
@@ -79,12 +79,12 @@ export const LIGHTING = {
 };
 
 /**
- * 플레이어 화면에 맞춘 구도 - 아래 약 40%는 자막·대화 패널이 덮는다(10/19 UI 리뷰). 위 20%와 귀퉁이는 상단 버튼 줄이
- * 덮고, 2:1에 가까운 태블릿에서는 위아래가 잘린다(10/24: 하얀 새가 잘림).
+ * 플레이어 화면에 맞춘 구도 - 가장 좁게 보이는 휴대폰 가로(19.5:9) 기준. 16:9 그림의 위아래가 9%씩 잘리고, 화면 위 22%는
+ * 상단 버튼 줄, 74% 아래는 자막이 덮는다. 아이패드 가로(4:3)는 양옆이 12.5%씩 잘린다. 그래서 그림 기준 가로 15~85%,
+ * 세로 27~70% 안에 얼굴·동물·중요한 행동을 둔다(10/24 기기별 미리보기, npm run art:devices).
  */
 export const COMPOSITION_RULE =
-  'Keep faces, animals and the key action in the MIDDLE band of the frame (20-60% of the height). The app covers the bottom 40% with subtitles and the top 20% and corners with buttons or crops them, so keep those areas calm (sky, foliage, walls, ground).';
-// 숨거나 엿듣는 장면(hidden)에는 넣지 않는다 - "모두 무릎까지 보이게"가 아이들을 부모 옆에 세웠다(10/24 QA).
+  'SAFE BOX: keep every face, animal and the key action within 15-85% of the width and 27-70% of the height; above 27% only sky, treetops, ceiling or wall, below 70% only ground. Medium-wide framing with headroom: heads at 30-40% of the height.';
 export const FULL_BODY_RULE = 'Characters visible from head to at least the knees.';
 
 /** 공통 프롬프트의 FINAL REQUIREMENTS가 금지 항목을 이미 담으므로 여기는 아이 대상 수위만. */

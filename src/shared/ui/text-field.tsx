@@ -18,7 +18,8 @@ export function TextField({ label, description, errorText, style, editable, acce
   const state = isDisabled ? 'disabled' : errorText ? 'error' : 'default';
   return (
     <View style={styles.container}>
-      <FieldLabel disabled={isDisabled}>{label}</FieldLabel>
+      {/* 문항 칸처럼 위에 질문이 따로 있으면 label을 비워 두 번 쓰지 않는다(accessibilityLabel은 따로 넘긴다). */}
+      {label ? <FieldLabel disabled={isDisabled}>{label}</FieldLabel> : null}
       {description ? <FieldDescription disabled={isDisabled}>{description}</FieldDescription> : null}
       <TextInput
         // global.css outline 대신 컴포넌트 포커스 링(fieldFocusRing)을 쓴다.

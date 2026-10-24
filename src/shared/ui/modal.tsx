@@ -36,6 +36,15 @@ type ModalProps = {
   pinActions?: boolean;
   /** pinActions일 때 버튼 바로 위에 붙는 요약(예: "매주 목요일 15:00 · 12회"). */
   actionsNote?: ReactNode;
+  /**
+   * 'form': 여러 단계로 나뉜 긴 설문용 - 넓게(640) 하고 높이를 화면에 맞춰 고정해 단계가 바뀌어도 카드 크기가 그대로다.
+   * pinActions와 같이 쓴다.
+   */
+  size?: 'default' | 'form';
+  /** pinActions일 때 기본 버튼 대신 넣는 하단 줄(예: 이전·다음을 한 줄로). */
+  footer?: ReactNode;
+  /** 바뀌면 본문 스크롤을 맨 위로 - 여러 단계 폼에서 다음 단계가 앞 단계 스크롤 위치에서 열리지 않게. */
+  bodyKey?: string | number;
 };
 
 /**
@@ -58,6 +67,9 @@ export function Modal({
   accessibilityLabel,
   pinActions = false,
   actionsNote,
+  size = 'default',
+  footer,
+  bodyKey,
 }: ModalProps) {
   const { mounted, entered, durationMs } = usePresenceAnimation(visible);
   const { height: windowHeight } = useWindowDimensions();
@@ -152,6 +164,7 @@ export function Modal({
             styles.card,
             // 스크림 여백(위아래 20씩)을 뺀 화면 높이까지만 - 넘치는 본문은 pinnedBody 안에서 스크롤한다.
             pinActions && { maxHeight: windowHeight - 40 },
+            size === 'form' && [styles.formCard, { height: Math.min(FORM_CARD_MAX_HEIGHT, windowHeight - 40) }],
             {
               opacity: entered ? 1 : 0,
               transform: [{ scale: entered ? 1 : 0.96 }],
@@ -165,14 +178,18 @@ export function Modal({
           {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
           {title ? <Text style={styles.title} accessibilityRole="header">{title}</Text> : null}
           {pinActions ? (
-            <ScrollView style={styles.pinnedBody} contentContainerStyle={styles.pinnedBodyContent}>
+            <ScrollView
+              key={bodyKey}
+              style={[styles.pinnedBody, size === 'form' && styles.formBody]}
+              contentContainerStyle={styles.pinnedBodyContent}
+            >
               {children}
             </ScrollView>
           ) : children}
           {pinActions ? (
             <View style={styles.pinnedActions}>
               {actionsNote}
-              {actions}
+              {footer ?? actions}
             </View>
           ) : actions}
         </View>
@@ -227,12 +244,18 @@ function ModalActions({
   );
 }
 
+// size='form' 카드 높이 상한 - 노트북 화면에서 한 단계(문항 3~5개)가 스크롤 없이 들어가는 높이.
+const FORM_CARD_MAX_HEIGHT = 720;
+
 /** Modal 안에서 본문 문단에 쓰는 표준 텍스트 스타일 - one-story 모달 3개가 공유하던 값. */
 export function ModalBody({ children }: { children: ReactNode }) {
   return <Text style={styles.body}>{children}</Text>;
 }
 
 const styles = StyleSheet.create({
+  formCard: { maxWidth: 640 },
+  // 높이가 고정된 카드에서 본문이 남는 높이를 채워 하단 줄이 늘 카드 바닥에 붙게.
+  formBody: { flexGrow: 1 },
   scrim: {
     position: 'absolute',
     left: 0,

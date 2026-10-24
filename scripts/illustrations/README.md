@@ -73,6 +73,15 @@ npm run art:review
 
 품질 확인은 `docs/guides/품질-QA-체크리스트.md`의 "1. 삽화"를 쓴다.
 
+### 기기별로 보기
+
+```bash
+npm run art:devices                 # 앱에 들어간 그림
+npm run art:devices -- --candidates # 새 후보(images/<장면>/1.png)
+```
+
+`device-preview/index.html`에 휴대폰 가로(19.5:9)·노트북(1.9:1)·아이패드 가로(4:3) 틀로 잘라 보여 주고, 상단 버튼 줄·자막(빨강), 질문 카드(주황), 대화창(파랑 아래)을 겹친다. 얼굴·동물·중요한 행동이 빨강 안에 있거나 틀 밖으로 잘리면 고른 후보를 바꾸거나 다시 그린다.
+
 ## 4. 앱에 넣기
 
 ```bash

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, FILTER_CHIP_ROW_GAP, FilterChip, Icon, Pill, LoadingState, EmptyState, ErrorState, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, FILTER_CHIP_ROW_GAP, FilterChip, Icon, Pill, LoadingState, EmptyState, ErrorState, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
 import { listLessons, type Lesson, type LessonStatus } from '@/entities/lesson';
@@ -72,7 +72,7 @@ export function TutorLessonsPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title} accessibilityRole="header">수업</Text>
@@ -211,13 +211,15 @@ function formatShortTime(iso: string) {
   return SHORT_TIME_FORMAT.format(new Date(iso));
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.tabletMaxWidth,
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
-    gap: storybookTheme.spacing.md,
+    gap: 16,
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
@@ -240,10 +242,12 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    backgroundColor: storybookTheme.color.contentPanel,
-    borderRadius: storybookTheme.radius.card,
+    // 보호자 화면 흰 행(HomeListRow)과 같은 카드 - 편집 버튼을 형제로 둬야 해서 직접 그린다.
+    backgroundColor: L.bg.primary,
+    borderRadius: radius[16],
     borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
+    borderColor: L.border.secondary,
+    ...shadow(1),
   },
   rowWithEdit: { paddingRight: 4 },
   rowAction: {
@@ -251,27 +255,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
   rowPressed: { opacity: 0.9 },
   rowEditButton: {
     alignSelf: 'center',
     padding: 10,
-    borderRadius: storybookTheme.radius.card,
+    borderRadius: radius[12],
   },
-  rowEditButtonPressed: { backgroundColor: storybookTheme.color.contentPanelBorder },
+  rowEditButtonPressed: { backgroundColor: L.bg.secondary },
   // "12월 25일"까지 한 줄에 들어가는 폭 - 60일 땐 두 자리 일자에서 "10월 / 8일"로 줄이 갈렸다.
   rowLead: {
     width: 76,
     gap: 2,
     paddingRight: 8,
     borderRightWidth: 1,
-    borderRightColor: storybookTheme.color.contentPanelBorder,
+    borderRightColor: L.border.secondary,
   },
   rowLeadDay: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.primary,
+    color: storybookTheme.color.goldText,
   },
   rowLeadTime: {
     fontSize: storybookTheme.type.xxs,
@@ -279,7 +284,7 @@ const styles = StyleSheet.create({
   },
   rowBody: { flex: 1, gap: 4 },
   rowTitle: {
-    fontSize: storybookTheme.type.md,
+    fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onContent,
   },

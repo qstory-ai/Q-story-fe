@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, Pill, Radio, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, ErrorState, LoadingState, Modal, Pill, Radio, radius, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
 import {
@@ -17,6 +17,7 @@ import { EXITED_BADGE_LABEL, isExitedSession, type StoryCompletionSummary } from
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { LessonPlaySettingPicker, type PlaySetting } from '@/entities/play-session';
 import { LessonFormModal } from '@/features/lesson-form';
+import { HomeListRow, HomeSection } from '@/features/home-section';
 
 import { initialPlaySetting } from '../lib/initial-play-setting';
 
@@ -160,7 +161,7 @@ export function TutorLessonDetailPage() {
     : null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate(TUTOR_PATHS.lessons)}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate(TUTOR_PATHS.lessons)}>
       <View style={styles.content}>
         {effective.status === 'loading' && <LoadingState label="수업 정보를 불러오는 중이에요…" />}
 
@@ -170,7 +171,7 @@ export function TutorLessonDetailPage() {
 
         {effective.status === 'ready' && (
           <>
-            <View style={styles.card}>
+            <Card variant="tinted" style={styles.summaryCard}>
               <View style={styles.headerRow}>
                 <Text style={styles.title} accessibilityRole="header">{effective.lesson.name}</Text>
                 <Pill label={STATUS_LABEL[effective.lesson.status]} tone="onCard" />
@@ -194,70 +195,71 @@ export function TutorLessonDetailPage() {
                   <Text style={styles.metaValue}>{formatDateTime(effective.lesson.completedAt)}</Text>
                 </View>
               ) : null}
-            </View>
+            </Card>
 
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>참여 학생 {effective.lesson.students.length}명</Text>
+            <HomeSection title={`참여 학생 ${effective.lesson.students.length}명`} layout="list">
               {effective.lesson.students.length === 0 ? (
                 <Text style={styles.helper}>담긴 학생이 없어요. 수업 편집에서 학생을 추가해 주세요.</Text>
               ) : (
                 effective.lesson.students.map((student) => (
-                  <View key={student.id} style={styles.studentRow}>
-                    <View style={styles.studentInfo}>
-                      <Text style={styles.studentName}>{student.name}</Text>
-                      <Text style={styles.studentMeta}>{student.ageBand}</Text>
-                    </View>
-                    <Pill
-                      label={student.status === 'CONFIRMED' ? '보호자 연결됨' : '보호자 연결 대기'}
-                      tone="onCard"
-                    />
-                  </View>
+                  <HomeListRow
+                    key={student.id}
+                    icon="user"
+                    label={student.name}
+                    meta={student.ageBand}
+                    trailing={
+                      <Pill
+                        label={student.status === 'CONFIRMED' ? '보호자 연결됨' : '보호자 연결 대기'}
+                        tone="onCard"
+                      />
+                    }
+                  />
                 ))
               )}
-            </View>
+            </HomeSection>
 
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>사용 이야기 {effective.lesson.storyIds.length}편</Text>
-              {effective.lesson.storyIds.length === 0 ? (
-                <Text style={styles.helper}>담긴 이야기가 없어요. 수업 편집에서 이야기를 담거나 서재에서 바로 골라 시작해요.</Text>
-              ) : effective.lesson.storyIds.length === 1 ? (
-                <StoryRow story={effective.storyById[effective.lesson.storyIds[0]]} storyId={effective.lesson.storyIds[0]} />
-              ) : (
-                // 이야기가 여럿이면 시작할 이야기를 고른다 - 시작 버튼은 하나만 둔다.
-                <View style={styles.storyChoices} accessibilityRole="radiogroup" accessibilityLabel="시작할 이야기">
-                  {effective.lesson.storyIds.map((storyId) => {
-                    const story = effective.storyById[storyId];
-                    return (
-                      <Radio
-                        key={storyId}
-                        selected={storyId === activeStoryId}
-                        onSelect={() => setSelectedStoryId(storyId)}
-                        label={story?.title ?? storyId}
-                        description={story?.category ?? undefined}
-                      />
-                    );
-                  })}
-                </View>
-              )}
-              {effective.lesson.storyIds.length > 0 && (
-                <LessonPlaySettingPicker value={playSetting} onChange={setPlaySetting} align="start" />
-              )}
-              {/* 수업 시작은 이 버튼 하나 - 예전엔 이야기마다 작은 "시작"과 화면 아래 "수업 시작"이 따로 있어
-                  어느 쪽을 눌러야 하는지 헷갈렸다. 예정 수업이면 진행 중으로 바꾼 뒤 고른 이야기로 넘어간다. */}
-              {activeStoryId || effective.lesson.status === 'SCHEDULED' ? (
-                <ActionButton
-                  label={startLabel(effective.lesson, activeStoryId ? effective.storyById[activeStoryId] : undefined, transitioning)}
-                  onPress={() => {
-                    void startClass(effective.lesson, activeStoryId);
-                  }}
-                  loading={transitioning}
-                  disabled={transitioning}
-                />
-              ) : null}
-            </View>
+            <HomeSection title={`사용 이야기 ${effective.lesson.storyIds.length}편`} layout="list">
+              <Card variant="surface" elevation={1} style={styles.formCard}>
+                {effective.lesson.storyIds.length === 0 ? (
+                  <Text style={styles.helper}>담긴 이야기가 없어요. 수업 편집에서 이야기를 담거나 서재에서 바로 골라 시작해요.</Text>
+                ) : effective.lesson.storyIds.length === 1 ? (
+                  <StoryRow story={effective.storyById[effective.lesson.storyIds[0]]} storyId={effective.lesson.storyIds[0]} />
+                ) : (
+                  // 이야기가 여럿이면 시작할 이야기를 고른다 - 시작 버튼은 하나만 둔다.
+                  <View style={styles.storyChoices} accessibilityRole="radiogroup" accessibilityLabel="시작할 이야기">
+                    {effective.lesson.storyIds.map((storyId) => {
+                      const story = effective.storyById[storyId];
+                      return (
+                        <Radio
+                          key={storyId}
+                          selected={storyId === activeStoryId}
+                          onSelect={() => setSelectedStoryId(storyId)}
+                          label={story?.title ?? storyId}
+                          description={story?.category ?? undefined}
+                        />
+                      );
+                    })}
+                  </View>
+                )}
+                {effective.lesson.storyIds.length > 0 && (
+                  <LessonPlaySettingPicker value={playSetting} onChange={setPlaySetting} align="start" />
+                )}
+                {/* 수업 시작은 이 버튼 하나 - 예전엔 이야기마다 작은 "시작"과 화면 아래 "수업 시작"이 따로 있어
+                    어느 쪽을 눌러야 하는지 헷갈렸다. 예정 수업이면 진행 중으로 바꾼 뒤 고른 이야기로 넘어간다. */}
+                {activeStoryId || effective.lesson.status === 'SCHEDULED' ? (
+                  <ActionButton
+                    label={startLabel(effective.lesson, activeStoryId ? effective.storyById[activeStoryId] : undefined, transitioning)}
+                    onPress={() => {
+                      void startClass(effective.lesson, activeStoryId);
+                    }}
+                    loading={transitioning}
+                    disabled={transitioning}
+                  />
+                ) : null}
+              </Card>
+            </HomeSection>
 
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>리포트 {effective.completions.length}건</Text>
+            <HomeSection title={`리포트 ${effective.completions.length}건`} layout="list">
               {effective.completions.length === 0 ? (
                 <Text style={styles.helper}>아직 이 수업에서 끝까지 들은 이야기가 없어요. 위 "수업 시작"으로 진행하면 기록이 남고, 연결된 보호자께 리포트가 전달돼요.</Text>
               ) : (
@@ -269,24 +271,18 @@ export function TutorLessonDetailPage() {
                       ? `반 수업 · ${completion.participantCount}명 참여`
                       : (student?.name ?? '학생 미지정');
                   return (
-                    <Pressable
+                    <HomeListRow
                       key={completion.id}
-                      accessibilityRole="link"
+                      icon="report"
+                      label={who}
+                      meta={`${story?.title ?? completion.storyId} · ${formatDateTime(completion.completedAt)}`}
+                      trailing={<Pill label={isExitedSession(completion) ? EXITED_BADGE_LABEL : '완주'} tone={isExitedSession(completion) ? 'onLight' : 'onCard'} />}
                       onPress={() => navigate(`/reports/${completion.id}`)}
-                      style={({ pressed }) => [styles.studentRow, pressed && styles.pressed]}
-                    >
-                      <View style={styles.studentInfo}>
-                        <Text style={styles.studentName}>{who}</Text>
-                        <Text style={styles.studentMeta}>
-                          {story?.title ?? completion.storyId} · {formatDateTime(completion.completedAt)}
-                        </Text>
-                      </View>
-                      <Pill label={isExitedSession(completion) ? EXITED_BADGE_LABEL : '완주'} tone={isExitedSession(completion) ? 'onLight' : 'onCard'} />
-                    </Pressable>
+                    />
                   );
                 })
               )}
-            </View>
+            </HomeSection>
 
             {transitionError ? <StatusBanner variant="warning" label={transitionError} /> : null}
 
@@ -379,7 +375,7 @@ export function TutorLessonDetailPage() {
 
 function StoryRow({ story, storyId }: { story: StoryCatalogEntry | undefined; storyId: string }) {
   return (
-    <View style={styles.studentRow}>
+    <View style={styles.storyRow}>
       <View style={styles.studentInfo}>
         <Text style={styles.studentName}>{story?.title ?? storyId}</Text>
         {story?.category ? <Text style={styles.studentMeta}>{story.category}</Text> : null}
@@ -413,21 +409,16 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.tabletMaxWidth,
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
-    gap: storybookTheme.spacing.ms,
+    gap: 20,
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
   },
-  card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    padding: 20,
-    gap: 10,
-  },
+  // 보호자 화면과 같은 옅은 보라 요약 카드 / 흰 폼 카드(radius 24).
+  summaryCard: { borderRadius: radius[24], gap: 10 },
+  formCard: { borderRadius: radius[24], gap: 12 },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -454,20 +445,11 @@ const styles = StyleSheet.create({
   },
   metaLabel: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
   metaValue: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardBody, fontWeight: storybookTheme.type.weight.semibold },
-  sectionTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
-  },
-  helper: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onCardMuted },
-  studentRow: {
+  helper: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onContentMuted, paddingHorizontal: 4 },
+  storyRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     gap: 10,
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
   },
   studentInfo: { flex: 1, gap: 2 },
   studentName: {
@@ -478,11 +460,7 @@ const styles = StyleSheet.create({
   studentMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
   storyChoices: {
     gap: 12,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
   },
-  pressed: { opacity: 0.85 },
   actionCard: {
     gap: 8,
   },

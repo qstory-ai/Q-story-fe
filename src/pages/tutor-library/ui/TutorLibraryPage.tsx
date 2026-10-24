@@ -125,7 +125,7 @@ export function TutorLibraryPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">서재</Text>
         <Text style={styles.subtitle}>다음 수업에 쓸 이야기를 미리 살펴보고 저장해 두세요.</Text>
@@ -310,9 +310,10 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.wideMaxWidth,
+    // 보호자 서재(LibraryPage)와 같은 폭.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
-    gap: 14,
+    gap: 16,
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,

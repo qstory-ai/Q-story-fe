@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, radius, TextField, storybookTheme } from '@/shared/ui';
 import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { previewHomeroomInviteByCode, tutorInviteCodeDestination } from '@/entities/homeroom-invite';
@@ -11,6 +11,7 @@ import {
   type TutorOrganizationLink,
 } from '@/entities/organization-tutor';
 import { messageForError } from '@/shared/api';
+import { HomeListRow, HomeSection } from '@/features/home-section';
 import { JoinBySearchSection } from './JoinBySearchSection';
 
 type OrgsLoad = { status: 'loading' } | { status: 'ready'; organizations: TutorOrganizationLink[] } | { status: 'error'; message: string };
@@ -85,7 +86,7 @@ export function TutorJoinOrganizationPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">기관 소속 참여</Text>
         <Text style={styles.subtitle}>
@@ -97,49 +98,50 @@ export function TutorJoinOrganizationPage() {
           memberOrganizationIds={orgs.status === 'ready' ? orgs.organizations.map((o) => o.organizationId) : []}
         />
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>초대 코드로 참여</Text>
-          <TextField
-            label="초대 코드"
-            value={codeInput}
-            onChangeText={(value) => {
-              setCodeInput(value);
-              if (codeError) setCodeError(null);
-            }}
-            placeholder="예: 42QRKM3P"
-            autoCapitalize="characters"
-            errorText={codeError ?? undefined}
-          />
-          <ActionButton
-            label={checking ? '코드 확인 중…' : '코드로 확인하기'}
-            onPress={() => { void goToCode(); }}
-            loading={checking}
-            disabled={checking || codeInput.trim().length === 0}
-          />
-        </View>
+        <HomeSection title="초대 코드로 참여" layout="list">
+          <Card variant="surface" elevation={1} style={styles.card}>
+            <TextField
+              label="초대 코드"
+              value={codeInput}
+              onChangeText={(value) => {
+                setCodeInput(value);
+                if (codeError) setCodeError(null);
+              }}
+              placeholder="예: 42QRKM3P"
+              autoCapitalize="characters"
+              errorText={codeError ?? undefined}
+            />
+            <ActionButton
+              label={checking ? '코드 확인 중…' : '코드로 확인하기'}
+              onPress={() => { void goToCode(); }}
+              loading={checking}
+              disabled={checking || codeInput.trim().length === 0}
+            />
+          </Card>
+        </HomeSection>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>초대 링크로 참여</Text>
-          <TextField
-            label="초대 링크 또는 토큰"
-            value={inviteInput}
-            onChangeText={(value) => {
-              setInviteInput(value);
-              if (inviteError) setInviteError(null);
-            }}
-            placeholder="https://... 또는 토큰 문자열"
-            errorText={inviteError ?? undefined}
-          />
-          <ActionButton
-            label="링크로 확인하기"
-            variant="secondaryFull"
-            onPress={goToLink}
-            disabled={inviteInput.trim().length === 0}
-          />
-        </View>
+        <HomeSection title="초대 링크로 참여" layout="list">
+          <Card variant="surface" elevation={1} style={styles.card}>
+            <TextField
+              label="초대 링크 또는 토큰"
+              value={inviteInput}
+              onChangeText={(value) => {
+                setInviteInput(value);
+                if (inviteError) setInviteError(null);
+              }}
+              placeholder="https://... 또는 토큰 문자열"
+              errorText={inviteError ?? undefined}
+            />
+            <ActionButton
+              label="링크로 확인하기"
+              variant="secondaryFull"
+              onPress={goToLink}
+              disabled={inviteInput.trim().length === 0}
+            />
+          </Card>
+        </HomeSection>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>지금 소속된 기관</Text>
+        <HomeSection title="지금 소속된 기관" layout="list">
           {orgs.status === 'loading' ? (
             <View style={styles.centerBox}><ActivityIndicator color={storybookTheme.color.primary} /></View>
           ) : orgs.status === 'error' ? (
@@ -147,16 +149,16 @@ export function TutorJoinOrganizationPage() {
           ) : orgs.organizations.length === 0 ? (
             <Text style={styles.body}>아직 소속된 기관이 없어요. 위에서 기관을 찾아 신청하거나 코드·링크로 참여해 보세요.</Text>
           ) : (
-            <View style={styles.list}>
-              {orgs.organizations.map((organization) => (
-                <View key={organization.id} style={styles.orgRow}>
-                  <Text style={styles.orgName}>{organization.organizationName}</Text>
-                  <Text style={styles.orgMeta}>합류: {formatDate(organization.joinedAt)}</Text>
-                </View>
-              ))}
-            </View>
+            orgs.organizations.map((organization) => (
+              <HomeListRow
+                key={organization.id}
+                icon="graduationCap"
+                label={organization.organizationName}
+                meta={`합류: ${formatDate(organization.joinedAt)}`}
+              />
+            ))
           )}
-        </View>
+        </HomeSection>
       </View>
     </AppNavShell>
   );
@@ -189,12 +191,12 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: 16,
+    gap: 20,
   },
   title: {
     fontSize: storybookTheme.type.xl,
@@ -202,33 +204,14 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContent,
   },
   subtitle: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onContentMuted },
-  card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    padding: 20,
-    gap: 10,
+  // 보호자 화면과 같은 흰 폼 카드(radius 24).
+  card: { borderRadius: radius[24], gap: 12 },
+  body: {
+    fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onContentMuted,
+    paddingHorizontal: 4,
   },
-  sectionTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
-  },
-  body: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onCardBody },
   centerBox: { alignItems: 'center', paddingVertical: 12 },
-  list: { gap: 8 },
-  orgRow: {
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
-    gap: 2,
-  },
-  orgName: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
-  },
-  orgMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
   errorText: { color: storybookTheme.color.error },
 });

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, RadioGroup, radius, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { useBackOr } from '@/shared/lib';
 import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
@@ -70,13 +70,13 @@ export function TutorClassGroupNewPage() {
   }
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.title} accessibilityRole="header">새 반 만들기</Text>
         <Text style={styles.body}>
           학생을 미리 등록하지 않아도 돼요. 반을 만들면 초대 링크가 생기고, 보호자가 링크로 들어와 아이를 고르면 명단에 자동으로 올라가요.
         </Text>
-        <View style={styles.card}>
+        <Card variant="surface" elevation={1} style={styles.card}>
           <TextField label="반 이름" value={name} onChangeText={setName} placeholder="예: 햇님반" maxLength={60} />
           {organizations.length > 0 ? (
             <RadioGroup
@@ -99,7 +99,7 @@ export function TutorClassGroupNewPage() {
             loading={submitting}
             disabled={!name.trim() || submitting}
           />
-        </View>
+        </Card>
       </ScrollView>
     </AppNavShell>
   );
@@ -108,7 +108,7 @@ export function TutorClassGroupNewPage() {
 const styles = StyleSheet.create({
   content: {
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
@@ -125,12 +125,6 @@ const styles = StyleSheet.create({
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onContentMuted,
   },
-  card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.contentPanel,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
-    padding: storybookTheme.spacing.ml,
-    gap: storybookTheme.spacing.ms,
-  },
+  // 보호자 화면과 같은 흰 폼 카드(radius 24).
+  card: { borderRadius: radius[24], gap: storybookTheme.spacing.ms },
 });

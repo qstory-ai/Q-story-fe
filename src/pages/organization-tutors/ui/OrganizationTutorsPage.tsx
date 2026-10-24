@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Modal, Pill, radius, semanticColors, shadow, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useDirectorSession } from '@/entities/auth';
 import {
@@ -15,6 +15,7 @@ import {
   type OrganizationTutorLink,
 } from '@/entities/organization-tutor';
 import { InviteCodeCard, formatInviteExpiry, organizationTutorInviteLink } from '@/features/invite-issue';
+import { HomeListRow, HomeSection } from '@/features/home-section';
 import { teacherTitle } from '@/shared/lib';
 import { JoinRequestsSection } from './JoinRequestsSection';
 
@@ -108,12 +109,14 @@ export function OrganizationTutorsPage() {
     : [];
 
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization')}>
+    <AppNavShell tone="warm" items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization')}>
       <View style={styles.content}>
-        <Text style={styles.title} accessibilityRole="header">선생님 관리</Text>
-        <Text style={styles.subtitle}>
-          기관에 소속된 선생님을 초대하고 관리해요. 초대 코드·링크를 전달하거나, 선생님이 기관을 검색해 보낸 소속 신청을 수락하면 돼요.
-        </Text>
+        <View style={styles.header}>
+          <Text style={styles.title} accessibilityRole="header">선생님 관리</Text>
+          <Text style={styles.subtitle}>
+            기관에 소속된 선생님을 초대하고 관리해요. 초대 코드·링크를 전달하거나, 선생님이 기관을 검색해 보낸 소속 신청을 수락하면 돼요.
+          </Text>
+        </View>
 
         {token && organizationId ? (
           <JoinRequestsSection
@@ -123,7 +126,7 @@ export function OrganizationTutorsPage() {
           />
         ) : null}
 
-        <View style={styles.card}>
+        <Card variant="surface" style={styles.formCard}>
           <Text style={styles.sectionTitle}>새 선생님 초대</Text>
           <Text style={styles.body}>
             발급된 초대는 14일 동안 유효해요. 한 번 사용되면 다시 쓸 수 없어요.
@@ -142,61 +145,64 @@ export function OrganizationTutorsPage() {
               onDismiss={() => setFreshInvite(null)}
             />
           ) : null}
-        </View>
+        </Card>
 
         {activeInvites.length > 0 ? (
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>진행 중인 초대</Text>
-            <Text style={styles.body}>
-              아직 사용되지 않은 초대예요. 원본 링크는 발급 시점에만 노출되니, 잃어버렸다면 새로 발급해 주세요.
-            </Text>
+          <HomeSection
+            title="진행 중인 초대"
+            subtitle="아직 사용되지 않은 초대예요. 원본 링크는 발급 시점에만 노출되니, 잃어버렸다면 새로 발급해 주세요."
+            layout="list"
+          >
             {activeInvites.map((invite) => (
-              <View key={invite.id} style={styles.inviteRow}>
-                <View style={styles.inviteBody}>
-                  <Text style={styles.inviteCode}>{invite.shortCode}</Text>
-                  <Text style={styles.inviteMeta}>{formatInviteExpiry(invite.expiresAt)}까지</Text>
-                </View>
-                <Pill label="사용 대기" tone="onCard" />
-              </View>
+              <HomeListRow
+                key={invite.id}
+                icon="clock"
+                label={invite.shortCode}
+                meta={`${formatInviteExpiry(invite.expiresAt)}까지`}
+                trailing={<Pill label="사용 대기" tone="onCard" />}
+              />
             ))}
-          </View>
+          </HomeSection>
         ) : null}
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>소속 선생님</Text>
+        <HomeSection title="소속 선생님" layout="list">
           {tutors.status === 'loading' ? (
             <LoadingState compact label="선생님 목록을 불러오는 중이에요…" />
           ) : tutors.status === 'error' ? (
             <ErrorState message={tutors.message} onRetry={() => setReloadKey((n) => n + 1)} />
           ) : tutors.tutors.length === 0 ? (
-            <Text style={styles.body}>아직 소속된 선생님이 없어요. 위의 초대로 시작해 보세요.</Text>
+            <Text style={styles.emptyText}>아직 소속된 선생님이 없어요. 위의 초대로 시작해 보세요.</Text>
           ) : (
-            <View style={styles.list}>
-              {tutors.tutors.map((tutor) => (
-                <View key={tutor.id} style={styles.tutorRow}>
-                  <Pressable
-                    accessibilityRole="link"
-                    accessibilityLabel={`${teacherTitle(tutor.tutorDisplayName)}의 학생·수업 보기`}
-                    onPress={() => navigate(`/organization/tutors/${tutor.tutorId}`)}
-                    style={({ pressed }) => [styles.tutorInfo, pressed && styles.pressed]}
-                  >
+            tutors.tutors.map((tutor) => (
+              // 해제 버튼이 함께 있어 HomeListRow 대신 같은 모양의 흰 행을 직접 그린다.
+              <View key={tutor.id} style={styles.tutorRow}>
+                <Pressable
+                  accessibilityRole="link"
+                  accessibilityLabel={`${teacherTitle(tutor.tutorDisplayName)}의 학생·수업 보기`}
+                  onPress={() => navigate(`/organization/tutors/${tutor.tutorId}`)}
+                  style={({ pressed }) => [styles.tutorInfo, pressed && styles.pressed]}
+                >
+                  <View style={styles.rowIcon}>
+                    <Icon name="user" size={16} color={storybookTheme.color.gold} />
+                  </View>
+                  <View style={styles.tutorText}>
                     <Text style={styles.tutorName}>{tutor.tutorDisplayName}</Text>
                     {tutor.tutorEmail ? <Text style={styles.tutorMeta}>{tutor.tutorEmail}</Text> : null}
                     <Text style={styles.tutorMeta}>합류: {formatShortDate(tutor.joinedAt)} · 학생·수업 보기 ›</Text>
-                  </Pressable>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`${tutor.tutorDisplayName} 소속 해제`}
-                    onPress={() => setUnlinkTarget(tutor)}
-                    style={({ pressed }) => [styles.unlinkButton, pressed && styles.pressed]}
-                  >
-                    <Text style={styles.unlinkLabel}>해제</Text>
-                  </Pressable>
-                </View>
-              ))}
-            </View>
+                  </View>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${tutor.tutorDisplayName} 소속 해제`}
+                  onPress={() => setUnlinkTarget(tutor)}
+                  style={({ pressed }) => [styles.unlinkButton, pressed && styles.pressed]}
+                >
+                  <Text style={styles.unlinkLabel}>해제</Text>
+                </Pressable>
+              </View>
+            ))
           )}
-        </View>
+        </HomeSection>
       </View>
 
       <Modal
@@ -230,17 +236,21 @@ function formatShortDate(iso: string) {
   return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // 보호자 하위 화면(LibraryPage/ReportHistoryPage)과 같은 폭.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: storybookTheme.spacing.md,
+    gap: 20,
   },
+  header: { gap: 4 },
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
@@ -248,16 +258,11 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onContentMuted,
   },
-  card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.contentSurface,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentSurfaceBorder,
-    padding: storybookTheme.spacing.ml,
-    gap: storybookTheme.spacing.sm,
-  },
+  // 폼 묶음 - 공통 Card(surface)에 보호자 홈 카드와 같은 radius 24.
+  formCard: { borderRadius: radius[24], gap: storybookTheme.spacing.sm },
   sectionTitle: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
@@ -268,43 +273,41 @@ const styles = StyleSheet.create({
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onCardBody,
   },
-  inviteRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: storybookTheme.spacing.sm,
-    paddingVertical: storybookTheme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
+  emptyText: {
+    fontSize: storybookTheme.type.sm,
+    color: storybookTheme.color.onContentMuted,
+    paddingHorizontal: 4,
   },
-  inviteBody: { flex: 1, gap: 2 },
-  inviteCode: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onCardTitle,
-    letterSpacing: 1.5,
-  },
-  inviteMeta: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onCardMuted,
-  },
-  list: { gap: storybookTheme.spacing.sm },
+  // HomeListRow와 같은 흰 행(radius 16, elevation 1).
   tutorRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: storybookTheme.spacing.sm,
-    paddingVertical: storybookTheme.spacing.ms,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
+    backgroundColor: L.bg.primary,
+    borderRadius: radius[16],
+    borderWidth: 1,
+    borderColor: L.border.secondary,
+    ...shadow(1),
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
-  tutorInfo: { flex: 1, gap: 2 },
+  tutorInfo: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  rowIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: L.bg.brandSubtle,
+  },
+  tutorText: { flex: 1, gap: 2 },
   tutorName: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
+    color: storybookTheme.color.onContent,
   },
-  tutorMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
+  tutorMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onContentMuted },
   unlinkButton: {
     paddingHorizontal: storybookTheme.spacing.ms,
     paddingVertical: storybookTheme.spacing.sm,

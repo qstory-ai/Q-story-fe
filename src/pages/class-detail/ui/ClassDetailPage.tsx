@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, Modal, Pill, RadioGroup, radius, semanticColors, shadow, space, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Modal, Pill, RadioGroup, radius, semanticColors, shadow, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { useBackOr, withParticle } from '@/shared/lib';
 import {
@@ -33,6 +33,7 @@ import {
   summarizeStudentNames,
   type ClassReportItem,
 } from '@/entities/story-completion';
+import { HomeListRow, HomeSection } from '@/features/home-section';
 import { LessonFormModal } from '@/features/lesson-form';
 import { HomeroomInvitePanel, InviteCodeCard, classInviteLink, classInviteShareMessage } from '@/features/invite-issue';
 import {
@@ -199,7 +200,7 @@ export function ClassDetailPage() {
   const reload = () => setAttempt((n) => n + 1);
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
       <ScrollView contentContainerStyle={styles.content}>
         {effective.status === 'loading' && <LoadingState label="반 정보를 불러오는 중이에요…" />}
         {effective.status === 'error' && (
@@ -210,7 +211,7 @@ export function ClassDetailPage() {
             <View style={styles.header}>
               <Text style={styles.eyebrow}>{effective.organizationName ?? (viewer === 'DIRECTOR' ? '우리 기관' : '반')}</Text>
               <Text style={styles.title} accessibilityRole="header">{effective.classGroup.name}</Text>
-              <Text style={styles.body}>
+              <Text style={styles.subtitle}>
                 보호자 연결 {effective.students.filter((student) => student.status === 'CONFIRMED').length} /{' '}
                 {effective.students.length}명
               </Text>
@@ -284,7 +285,7 @@ export function ClassDetailPage() {
             ) : null}
 
             {viewer === 'DIRECTOR' ? (
-              <View style={styles.card}>
+              <Card variant="surface" style={styles.formCard}>
                 <Text style={styles.sectionTitle}>담임 선생님</Text>
                 {effective.classGroup.tutorId ? (
                   <View style={styles.homeroomRow}>
@@ -381,7 +382,7 @@ export function ClassDetailPage() {
                     ))}
                   </View>
                 ) : null}
-              </View>
+              </Card>
             ) : null}
 
             {viewer === 'TUTOR' && !readOnly ? (
@@ -402,14 +403,14 @@ export function ClassDetailPage() {
             />
 
             {readOnly && effective.students.length === 0 ? null : (
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>학생 {effective.students.length}명</Text>
+            <HomeSection title={`학생 ${effective.students.length}명`} layout="list">
               {effective.students.length === 0 ? (
-                <Text style={styles.body}>
+                <Text style={styles.emptyText}>
                   아직 들어온 아이가 없어요. 위 반 초대 링크를 보내면 보호자가 아이를 연결할 때 명단에 자동으로 올라가요. 수업은 명단이 비어 있어도 먼저 만들 수 있어요.
                 </Text>
               ) : (
                 effective.students.map((student) => (
+                  // 보호자 연결 해제 버튼이 함께 있어 HomeListRow 대신 같은 모양의 흰 행을 직접 그린다.
                   <View key={student.id} style={styles.rowGroup}>
                     <Pressable
                       accessibilityRole="link"
@@ -418,6 +419,9 @@ export function ClassDetailPage() {
                       disabled={formerHomeroom}
                       style={({ pressed }) => [styles.rowLink, pressed && styles.pressed]}
                     >
+                      <View style={styles.rowIcon}>
+                        <Icon name="user" size={16} color={storybookTheme.color.gold} />
+                      </View>
                       <View style={styles.flex}>
                         <Text style={styles.rowTitle}>
                           {student.name} · {student.ageBand}
@@ -432,7 +436,7 @@ export function ClassDetailPage() {
                         label={student.status === 'CONFIRMED' ? '연결됨' : '보호자 연결 대기'}
                         tone={student.status === 'CONFIRMED' ? 'accent' : 'onCard'}
                       />
-                      <Text style={styles.chevron}>›</Text>
+                      <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
                     </Pressable>
                     {/* 반 코드로 남의 아이를 골라 이을 수 있어 담임·원장이 잘못된 연결을 끊는다(be#43). 지난 반·지난 담임은 못 끊는다. */}
                     {!readOnly && student.status === 'CONFIRMED' && student.parentDisplayName ? (
@@ -450,7 +454,7 @@ export function ClassDetailPage() {
                   </View>
                 ))
               )}
-            </View>
+            </HomeSection>
             )}
 
             <PastMembersCard
@@ -528,33 +532,27 @@ function ClassLessonsSection({
   const value: SectionLoad<Lesson[]> = load.key === key ? load.value : { status: 'loading' };
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.sectionTitle}>수업</Text>
+    <HomeSection title="수업" layout="list">
       {value.status === 'loading' ? <LoadingState compact label="수업을 불러오는 중이에요…" /> : null}
       {value.status === 'error' ? <ErrorState message={value.message} onRetry={() => setRetry((n) => n + 1)} /> : null}
       {value.status === 'ready' && value.data.length === 0 ? (
-        <Text style={styles.body}>아직 이 반의 수업이 없어요. 수업을 만들면 여기에 모여요.</Text>
+        <Text style={styles.emptyText}>아직 이 반의 수업이 없어요. 수업을 만들면 여기에 모여요.</Text>
       ) : null}
       {value.status === 'ready'
         ? value.data.map((lesson) => (
-            <Pressable
+            <HomeListRow
               key={lesson.id}
-              accessibilityRole="link"
+              icon="calendarDays"
+              label={lesson.name}
+              meta={lesson.scheduledAt ? formatDateTime(lesson.scheduledAt) : '일정 미정'}
+              trailing={<Pill label={LESSON_STATUS_LABEL[lesson.status]} tone="onCard" />}
               accessibilityLabel={`${lesson.name} 수업 열기`}
               onPress={() => onOpen(lesson.id)}
-              style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-            >
-              <View style={styles.flex}>
-                <Text style={styles.rowTitle}>{lesson.name}</Text>
-                <Text style={styles.rowMeta}>{lesson.scheduledAt ? formatDateTime(lesson.scheduledAt) : '일정 미정'}</Text>
-              </View>
-              <Pill label={LESSON_STATUS_LABEL[lesson.status]} tone="onCard" />
-              <Text style={styles.chevron}>›</Text>
-            </Pressable>
+            />
           ))
         : null}
       <ActionButton variant="secondary" label="수업 만들기" onPress={onCreate} />
-    </View>
+    </HomeSection>
   );
 }
 
@@ -609,41 +607,34 @@ function ClassReportsSection({
   const value: SectionLoad<ReportsData> = load.key === key ? load.value : { status: 'loading' };
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.sectionTitle}>최근 리포트</Text>
+    <HomeSection title="최근 리포트" layout="list">
       {value.status === 'loading' ? <LoadingState compact label="리포트를 불러오는 중이에요…" /> : null}
       {value.status === 'error' ? <ErrorState message={value.message} onRetry={() => setRetry((n) => n + 1)} /> : null}
       {value.status === 'ready' && value.data.items.length === 0 ? (
-        <Text style={styles.body}>아직 이 반의 리포트가 없어요. 수업에서 이야기를 읽으면 여기에 쌓여요.</Text>
+        <Text style={styles.emptyText}>아직 이 반의 리포트가 없어요. 수업에서 이야기를 읽으면 여기에 쌓여요.</Text>
       ) : null}
       {value.status === 'ready'
         ? value.data.items.map((report) => {
             const title = value.data.titles[report.storyId] ?? report.storyId;
             const students = summarizeStudentNames(report.studentNames);
+            const when = `${formatDateTime(report.completedAt)}${
+              report.className && report.className !== className ? ` · ${report.className}` : ''
+            }${report.tutorName ? ` · ${report.tutorName}` : ''}`;
             return (
-              <Pressable
+              <HomeListRow
                 key={report.id}
-                accessibilityRole="link"
+                icon="report"
+                label={title}
+                // 둘째 줄은 참여한 학생 이름(있을 때만).
+                meta={students ? `${when}\n${students}` : when}
+                trailing={isExitedSession(report) ? <Pill label={EXITED_BADGE_LABEL} tone="onLight" /> : null}
                 accessibilityLabel={`${title} 리포트 열기`}
                 onPress={() => onOpen(report.id)}
-                style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-              >
-                <View style={styles.flex}>
-                  <Text style={styles.rowTitle}>{title}</Text>
-                  <Text style={styles.rowMeta}>
-                    {formatDateTime(report.completedAt)}
-                    {report.className && report.className !== className ? ` · ${report.className}` : ''}
-                    {report.tutorName ? ` · ${report.tutorName}` : ''}
-                  </Text>
-                  {students ? <Text style={styles.rowMeta}>{students}</Text> : null}
-                </View>
-                {isExitedSession(report) ? <Pill label={EXITED_BADGE_LABEL} tone="onLight" /> : null}
-                <Text style={styles.chevron}>›</Text>
-              </Pressable>
+              />
             );
           })
         : null}
-    </View>
+    </HomeSection>
   );
 }
 
@@ -674,12 +665,13 @@ const L = semanticColors.light;
 const styles = StyleSheet.create({
   content: {
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // 보호자 하위 화면(LibraryPage/ReportHistoryPage)과 같은 폭.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: storybookTheme.spacing.md,
+    gap: 20,
   },
   header: { gap: storybookTheme.spacing.xs },
   eyebrow: {
@@ -692,22 +684,24 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onContent,
   },
+  subtitle: {
+    fontSize: storybookTheme.type.sm,
+    color: storybookTheme.color.onContentMuted,
+  },
   body: {
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onCardBody,
   },
-  flex: { flex: 1, gap: 2 },
-  // 공통 Card(surface)와 같은 모양 - 흰 카드, radius 16, elevation 2, padding 24.
-  card: {
-    borderRadius: radius[16],
-    backgroundColor: L.bg.primary,
-    borderWidth: 1,
-    borderColor: L.border.secondary,
-    ...shadow(2),
-    padding: space[24],
-    gap: storybookTheme.spacing.sm,
+  emptyText: {
+    fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onContentMuted,
+    paddingHorizontal: 4,
   },
+  flex: { flex: 1, gap: 2 },
+  // 담임 배정 폼 - 공통 Card(surface)에 보호자 홈 카드와 같은 radius 24.
+  formCard: { borderRadius: radius[24], gap: storybookTheme.spacing.sm },
   sectionTitle: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
@@ -739,24 +733,29 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardBody,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: storybookTheme.spacing.sm,
-    paddingVertical: storybookTheme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
-  },
+  // HomeListRow와 같은 흰 행(radius 16, elevation 1) - 아래에 보호자 연결 해제 버튼이 붙을 수 있다.
   rowGroup: {
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
-    paddingBottom: storybookTheme.spacing.xs,
+    gap: storybookTheme.spacing.xs,
+    backgroundColor: L.bg.primary,
+    borderRadius: radius[16],
+    borderWidth: 1,
+    borderColor: L.border.secondary,
+    ...shadow(1),
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
   rowLink: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: storybookTheme.spacing.sm,
-    paddingVertical: storybookTheme.spacing.sm,
+    gap: 12,
+  },
+  rowIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: L.bg.brandSubtle,
   },
   rowActions: { flexDirection: 'row', justifyContent: 'flex-end' },
   modalBody: {
@@ -768,8 +767,8 @@ const styles = StyleSheet.create({
   rowTitle: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
+    color: storybookTheme.color.onContent,
   },
-  rowMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
-  chevron: { fontSize: storybookTheme.type.lg, color: storybookTheme.color.onCardMuted, paddingHorizontal: 4 },
+  rowMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onContentMuted },
 });
+

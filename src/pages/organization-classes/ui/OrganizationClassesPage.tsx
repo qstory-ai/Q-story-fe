@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, Icon, LoadingState, radius, semanticColors, shadow, space, StatusBanner, storybookTheme, TextField } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, radius, semanticColors, shadow, StatusBanner, storybookTheme, TextField } from '@/shared/ui';
 import {
   createClass,
   dashboardNavItems,
@@ -15,6 +15,7 @@ import { listOrganizationTutors, type OrganizationTutorLink } from '@/entities/o
 import { createHomeroomInvite } from '@/entities/homeroom-invite';
 import { messageForError } from '@/shared/api';
 import { archivedOnLabel } from '@/entities/class-lifecycle';
+import { HomeListRow, HomeSection } from '@/features/home-section';
 
 type LoadState =
   | { status: 'loading' }
@@ -107,11 +108,11 @@ export function OrganizationClassesPage() {
   if (!director) return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization')}>
+    <AppNavShell tone="warm" items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">반/학생 관리</Text>
 
-        <View style={styles.card}>
+        <Card variant="surface" style={styles.formCard}>
           <Text style={styles.sectionTitle}>새 반 만들기</Text>
           <TextField label="반 이름" value={name} onChangeText={setName} />
           <Text style={styles.body}>
@@ -124,74 +125,58 @@ export function OrganizationClassesPage() {
             onPress={onCreate}
             disabled={!name.trim() || submitting}
           />
-        </View>
+        </Card>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>등록된 반</Text>
+        <HomeSection title="등록된 반" layout="list">
           {load.status === 'loading' ? (
             <LoadingState compact label="반 목록을 불러오는 중이에요…" />
           ) : load.status === 'error' ? (
             <ErrorState message={load.message} onRetry={() => setReloadKey((n) => n + 1)} />
           ) : activeClasses.length === 0 ? (
-            <Text style={styles.body}>
+            <Text style={styles.emptyText}>
               {pastClasses.length > 0 ? '지금 쓰는 반이 없어요. 위 폼으로 새 반을 만들어 보세요.' : '아직 등록된 반이 없어요. 위 폼으로 첫 반을 만들어 보세요.'}
             </Text>
           ) : (
             activeClasses.map((classGroup) => (
-              <Pressable
+              <HomeListRow
                 key={classGroup.id}
-                accessibilityRole="link"
+                icon="graduationCap"
+                label={classGroup.name}
+                meta={`${classGroup.tutorId ? `담임 ${tutorNameById.get(classGroup.tutorId) ?? '배정됨'}` : '담임 초대 대기'} · 반 코드 ${classGroup.joinCode}`}
                 accessibilityLabel={`${classGroup.name} 반 상세 열기`}
                 onPress={() => navigate(ORGANIZATION_PATHS.classDetail(classGroup.id))}
-                style={({ pressed }) => [styles.classRow, pressed && styles.classRowPressed]}
-              >
-                <View style={styles.classBody}>
-                  <Text style={styles.className}>{classGroup.name}</Text>
-                  <Text style={styles.classMeta}>
-                    {classGroup.tutorId ? `담임 ${tutorNameById.get(classGroup.tutorId) ?? '배정됨'}` : '담임 초대 대기'} · 반 코드 {classGroup.joinCode}
-                  </Text>
-                </View>
-                <Icon name="chevronRight" size={16} color={storybookTheme.color.onCardMuted} />
-              </Pressable>
+              />
             ))
           )}
-        </View>
+        </HomeSection>
 
         {pastClasses.length > 0 ? (
-          <View style={styles.card}>
+          <View style={styles.pastSection}>
             <Pressable
               accessibilityRole="button"
               accessibilityState={{ expanded: pastOpen }}
               accessibilityLabel={`지난 반 ${pastClasses.length}개 ${pastOpen ? '접기' : '펼치기'}`}
               onPress={() => setPastOpen((open) => !open)}
-              style={({ pressed }) => [styles.pastToggle, pressed && styles.classRowPressed]}
+              style={({ pressed }) => [styles.pastToggle, pressed && styles.pressed]}
             >
-              <View style={styles.classBody}>
+              <View style={styles.pastToggleBody}>
                 <Text style={styles.sectionTitle}>지난 반 {pastClasses.length}개</Text>
-                <Text style={styles.classMeta}>보관한 반이에요. 기록과 리포트는 그대로 볼 수 있어요.</Text>
+                <Text style={styles.meta}>보관한 반이에요. 기록과 리포트는 그대로 볼 수 있어요.</Text>
               </View>
               <View style={pastOpen ? styles.flipped : undefined}>
-                <Icon name="chevronDown" size={16} color={storybookTheme.color.onCardMuted} />
+                <Icon name="chevronDown" size={16} color={storybookTheme.color.onContentMuted} />
               </View>
             </Pressable>
             {pastOpen
               ? pastClasses.map((classGroup) => (
-                  <Pressable
+                  <HomeListRow
                     key={classGroup.id}
-                    accessibilityRole="link"
+                    icon="graduationCap"
+                    label={classGroup.name}
+                    meta={`${archivedOnLabel(classGroup.archivedAt)}${classGroup.tutorId ? ` · 담임 ${tutorNameById.get(classGroup.tutorId) ?? '배정됨'}` : ''}`}
                     accessibilityLabel={`지난 반 ${classGroup.name} 상세 열기`}
                     onPress={() => navigate(ORGANIZATION_PATHS.classDetail(classGroup.id))}
-                    style={({ pressed }) => [styles.classRow, pressed && styles.classRowPressed]}
-                  >
-                    <View style={styles.classBody}>
-                      <Text style={styles.className}>{classGroup.name}</Text>
-                      <Text style={styles.classMeta}>
-                        {archivedOnLabel(classGroup.archivedAt)}
-                        {classGroup.tutorId ? ` · 담임 ${tutorNameById.get(classGroup.tutorId) ?? '배정됨'}` : ''}
-                      </Text>
-                    </View>
-                    <Icon name="chevronRight" size={16} color={storybookTheme.color.onCardMuted} />
-                  </Pressable>
+                  />
                 ))
               : null}
           </View>
@@ -207,28 +192,21 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // 보호자 하위 화면(LibraryPage/ReportHistoryPage)과 같은 폭.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: 16,
+    gap: 20,
   },
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onContent,
   },
-  // 공통 Card(surface)와 같은 모양 - 흰 카드, radius 16, elevation 2, padding 24.
-  card: {
-    borderRadius: radius[16],
-    backgroundColor: L.bg.primary,
-    borderWidth: 1,
-    borderColor: L.border.secondary,
-    ...shadow(2),
-    padding: space[24],
-    gap: 10,
-  },
+  // 폼 묶음 - 공통 Card(surface)에 보호자 홈 카드와 같은 radius 24.
+  formCard: { borderRadius: radius[24], gap: 10 },
   sectionTitle: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
@@ -238,25 +216,31 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onCardBody,
   },
-  classRow: {
+  emptyText: {
+    fontSize: storybookTheme.type.sm,
+    color: storybookTheme.color.onContentMuted,
+    paddingHorizontal: 4,
+  },
+  pastSection: { width: '100%', gap: 8 },
+  // HomeListRow와 같은 흰 행 - 펼침 토글이라 화살표 대신 아래 방향 표시.
+  pastToggle: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
     gap: 10,
+    minHeight: 44,
+    backgroundColor: L.bg.primary,
+    borderRadius: radius[16],
+    borderWidth: 1,
+    borderColor: L.border.secondary,
+    ...shadow(1),
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
-  classRowPressed: { opacity: 0.85 },
-  pastToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, minHeight: 44 },
+  pressed: { opacity: 0.85 },
   flipped: { transform: [{ rotate: '180deg' }] },
-  classBody: { flex: 1, gap: 2 },
-  className: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
-  },
-  classMeta: {
+  pastToggleBody: { flex: 1, gap: 2 },
+  meta: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onCardMuted,
   },

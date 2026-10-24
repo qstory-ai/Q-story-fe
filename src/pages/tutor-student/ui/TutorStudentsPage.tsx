@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, EmptyState, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
@@ -7,6 +7,7 @@ import { messageForError } from '@/shared/api';
 import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
 import { listTutorClasses, listTutorStudents, type TutorClass, type TutorStudent } from '@/entities/tutor';
 import { archivedOnLabel, formatLifecycleDate, listPastTutorClasses, type PastTutorClass } from '@/entities/class-lifecycle';
+import { HomeListRow, HomeSection } from '@/features/home-section';
 
 type LoadState =
   | { status: 'loading' }
@@ -86,7 +87,7 @@ export function TutorStudentsPage() {
   const newClass = () => navigate(TUTOR_PATHS.newClass);
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title} accessibilityRole="header">반·학생</Text>
@@ -102,80 +103,61 @@ export function TutorStudentsPage() {
             cta={{ label: '새 반 만들기', onPress: newClass }}
           />
         ) : (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>내 반</Text>
+          <HomeSection title="내 반" layout="list">
             {(homeroomClasses ?? []).map((classGroup) => (
-              <Pressable
+              <HomeListRow
                 key={classGroup.id}
-                accessibilityRole="link"
-                accessibilityLabel={`${classGroup.name} 반 상세 열기`}
+                icon="users"
+                label={classGroup.name}
+                meta="초대 링크 · 명단 · 보호자 연결 현황"
                 onPress={() => navigate(TUTOR_PATHS.classDetail(classGroup.id))}
-                style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-              >
-                <View style={styles.rowText}>
-                  <Text style={styles.rowTitle}>{classGroup.name}</Text>
-                  <Text style={styles.rowMeta}>초대 링크 · 명단 · 보호자 연결 현황</Text>
-                </View>
-                <Text style={styles.chevron}>›</Text>
-              </Pressable>
+                accessibilityLabel={`${classGroup.name} 반 상세 열기`}
+              />
             ))}
-          </View>
+          </HomeSection>
         )}
 
         {pastClasses.length > 0 ? (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>지난 반</Text>
-            <Text style={styles.rowMeta}>예전에 맡았던 반이에요. 내가 진행한 수업과 리포트를 그대로 볼 수 있어요.</Text>
+          <HomeSection
+            title="지난 반"
+            subtitle="예전에 맡았던 반이에요. 내가 진행한 수업과 리포트를 그대로 볼 수 있어요."
+            layout="list"
+          >
             {pastClasses.map((classGroup) => (
-              <Pressable
+              <HomeListRow
                 key={classGroup.id}
-                accessibilityRole="link"
-                accessibilityLabel={`지난 반 ${classGroup.name} 상세 열기`}
+                icon="graduationCap"
+                label={classGroup.name}
+                meta={pastClassMeta(classGroup)}
                 onPress={() => navigate(TUTOR_PATHS.classDetail(classGroup.id))}
-                style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-              >
-                <View style={styles.rowText}>
-                  <Text style={styles.rowTitle}>{classGroup.name}</Text>
-                  <Text style={styles.rowMeta}>{pastClassMeta(classGroup)}</Text>
-                </View>
-                <Text style={styles.chevron}>›</Text>
-              </Pressable>
+                accessibilityLabel={`지난 반 ${classGroup.name} 상세 열기`}
+              />
             ))}
-          </View>
+          </HomeSection>
         ) : null}
 
-        <Text style={styles.sectionTitle} accessibilityRole="header">반에 들어온 아이</Text>
+        <HomeSection title="반에 들어온 아이" layout="list">
+          {load.status === 'loading' && <LoadingState label="학생 목록을 불러오는 중이에요…" />}
 
-        {load.status === 'loading' && <LoadingState label="학생 목록을 불러오는 중이에요…" />}
+          {load.status === 'ready' && load.students.length === 0 && (
+            <Text style={styles.cardBody}>
+              아직 들어온 아이가 없어요. 반 상세의 초대 링크를 보내면 보호자가 아이를 연결할 때 여기에 올라와요.
+            </Text>
+          )}
 
-        {load.status === 'ready' && load.students.length === 0 && (
-          <Text style={styles.cardBody}>
-            아직 들어온 아이가 없어요. 반 상세의 초대 링크를 보내면 보호자가 아이를 연결할 때 여기에 올라와요.
-          </Text>
-        )}
-
-        {load.status === 'ready' && load.students.length > 0 && (
-          <View style={styles.card}>
-            {load.students.map((student) => (
-              <Pressable
+          {load.status === 'ready' &&
+            load.students.map((student) => (
+              <HomeListRow
                 key={student.id}
-                accessibilityRole="link"
-                accessibilityLabel={`${student.name} 학생 상세 열기`}
+                icon="user"
+                label={`${student.name} · ${student.ageBand}`}
+                meta={student.classGroupName}
+                trailing={<Pill label={STATUS_LABEL[student.status]} />}
                 onPress={() => navigate(TUTOR_PATHS.student(student.id))}
-                style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-              >
-                <View style={styles.rowText}>
-                  <Text style={styles.rowTitle}>
-                    {student.name} · {student.ageBand}
-                  </Text>
-                  {student.classGroupName ? <Text style={styles.rowMeta}>{student.classGroupName}</Text> : null}
-                </View>
-                <Pill label={STATUS_LABEL[student.status]} />
-                <Text style={styles.chevron}>›</Text>
-              </Pressable>
+                accessibilityLabel={`${student.name} 학생 상세 열기`}
+              />
             ))}
-          </View>
-        )}
+        </HomeSection>
 
         {load.status === 'error' && <ErrorState message={load.message} onRetry={refresh} />}
       </View>
@@ -198,9 +180,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.narrowMaxWidth,
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
-    gap: storybookTheme.spacing.ms,
+    gap: 20,
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
@@ -217,33 +199,10 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onContent,
   },
-  sectionTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onContent,
-    marginTop: storybookTheme.spacing.sm,
+  cardBody: {
+    fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onContentMuted,
+    paddingHorizontal: 4,
   },
-  card: {
-    gap: storybookTheme.spacing.xs,
-    padding: storybookTheme.spacing.md,
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceWhite,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.lightCardBorder,
-  },
-  cardTitle: { fontSize: storybookTheme.type.md, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onCardTitle },
-  cardBody: { fontSize: storybookTheme.type.sm, lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal, color: storybookTheme.color.onContentMuted },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: storybookTheme.spacing.sm,
-    paddingVertical: storybookTheme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
-  },
-  pressed: { opacity: 0.85 },
-  rowText: { flex: 1, gap: 2 },
-  rowTitle: { fontSize: storybookTheme.type.sm, fontWeight: storybookTheme.type.weight.bold, color: storybookTheme.color.onCardTitle },
-  rowMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
-  chevron: { fontSize: storybookTheme.type.lg, color: storybookTheme.color.onCardMuted, paddingHorizontal: 4 },
 });

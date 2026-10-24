@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { ActionButton, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, Card, Pill, radius, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { InstitutionSearch } from '@/features/institution-search';
+import { HomeSection } from '@/features/home-section';
 import {
   cancelJoinRequest,
   createJoinRequest,
@@ -96,79 +97,69 @@ export function JoinBySearchSection({
   const visibleRequests = requests.filter((r) => r.status !== 'CANCELED').slice(0, 5);
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.sectionTitle}>유치원·어린이집 찾아 소속 신청</Text>
-      <Text style={styles.body}>
-        기관을 찾아 신청하면 관리자에게 알림이 가요. 관리자가 수락하면 초대 코드로 참여한 것과 똑같이 소속돼요.
-      </Text>
-      <InstitutionSearch
-        token={token}
-        selectedId={picked?.id ?? null}
-        onSelect={(institution) => {
-          setPicked(institution);
-          setMessage(null);
-        }}
-        badgeFor={badgeFor}
-      />
-      {picked && !picked.organizationId ? (
-        <StatusBanner
-          variant="warning"
-          label="아직 Q-Story에 등록되지 않은 기관이에요."
-          body="관리자에게 Q-Story 기관 등록을 부탁하거나, 관리자에게 받은 초대 코드로 참여해 주세요."
+    <HomeSection title="유치원·어린이집 찾아 소속 신청" layout="list">
+      <Card variant="surface" elevation={1} style={styles.card}>
+        <Text style={styles.body}>
+          기관을 찾아 신청하면 관리자에게 알림이 가요. 관리자가 수락하면 초대 코드로 참여한 것과 똑같이 소속돼요.
+        </Text>
+        <InstitutionSearch
+          token={token}
+          selectedId={picked?.id ?? null}
+          onSelect={(institution) => {
+            setPicked(institution);
+            setMessage(null);
+          }}
+          badgeFor={badgeFor}
         />
-      ) : null}
-      {message ? <StatusBanner variant={message.variant} label={message.label} /> : null}
-      <ActionButton
-        label={picked && canRequest ? `${picked.name}에 소속 신청` : '소속 신청'}
-        onPress={() => { void submit(); }}
-        loading={submitting}
-        disabled={!canRequest || submitting}
-      />
+        {picked && !picked.organizationId ? (
+          <StatusBanner
+            variant="warning"
+            label="아직 Q-Story에 등록되지 않은 기관이에요."
+            body="관리자에게 Q-Story 기관 등록을 부탁하거나, 관리자에게 받은 초대 코드로 참여해 주세요."
+          />
+        ) : null}
+        {message ? <StatusBanner variant={message.variant} label={message.label} /> : null}
+        <ActionButton
+          label={picked && canRequest ? `${picked.name}에 소속 신청` : '소속 신청'}
+          onPress={() => { void submit(); }}
+          loading={submitting}
+          disabled={!canRequest || submitting}
+        />
 
-      {visibleRequests.length > 0 ? (
-        <View style={styles.list}>
-          <Text style={styles.listTitle}>내 소속 신청</Text>
-          {visibleRequests.map((request) => (
-            <View key={request.id} style={styles.requestRow}>
-              <View style={styles.requestInfo}>
-                <Text style={styles.requestName} numberOfLines={2}>{request.organizationName}</Text>
-                <View style={styles.pillRow}>
-                  <Pill label={STATUS_LABEL[request.status]} tone={request.status === 'PENDING' ? 'accent' : 'onLight'} />
+        {visibleRequests.length > 0 ? (
+          <View style={styles.list}>
+            <Text style={styles.listTitle}>내 소속 신청</Text>
+            {visibleRequests.map((request) => (
+              <View key={request.id} style={styles.requestRow}>
+                <View style={styles.requestInfo}>
+                  <Text style={styles.requestName} numberOfLines={2}>{request.organizationName}</Text>
+                  <View style={styles.pillRow}>
+                    <Pill label={STATUS_LABEL[request.status]} tone={request.status === 'PENDING' ? 'accent' : 'onLight'} />
+                  </View>
                 </View>
+                {request.status === 'PENDING' ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`${request.organizationName} 소속 신청 취소`}
+                    onPress={() => { void cancel(request); }}
+                    disabled={cancellingId !== null}
+                    style={({ pressed }) => [styles.cancelButton, pressed && styles.pressed]}
+                  >
+                    <Text style={styles.cancelLabel}>{cancellingId === request.id ? '취소 중…' : '신청 취소'}</Text>
+                  </Pressable>
+                ) : null}
               </View>
-              {request.status === 'PENDING' ? (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`${request.organizationName} 소속 신청 취소`}
-                  onPress={() => { void cancel(request); }}
-                  disabled={cancellingId !== null}
-                  style={({ pressed }) => [styles.cancelButton, pressed && styles.pressed]}
-                >
-                  <Text style={styles.cancelLabel}>{cancellingId === request.id ? '취소 중…' : '신청 취소'}</Text>
-                </Pressable>
-              ) : null}
-            </View>
-          ))}
-        </View>
-      ) : null}
-    </View>
+            ))}
+          </View>
+        ) : null}
+      </Card>
+    </HomeSection>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    padding: 20,
-    gap: 10,
-  },
-  sectionTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
-  },
+  // 보호자 화면과 같은 흰 폼 카드(radius 24).
+  card: { borderRadius: radius[24], gap: 12 },
   body: {
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,

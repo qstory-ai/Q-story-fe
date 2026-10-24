@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { AppNavShell, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
@@ -13,6 +13,7 @@ import {
 } from '@/entities/organization-tutor';
 import type { Lesson } from '@/entities/lesson';
 import type { TutorStudent } from '@/entities/tutor';
+import { HomeListRow, HomeSection } from '@/features/home-section';
 import { teacherTitle } from '@/shared/lib';
 
 type Load =
@@ -88,7 +89,7 @@ export function OrganizationTutorDetailPage() {
   const openClass = (classId: string) => navigate(ORGANIZATION_PATHS.classDetail(classId));
 
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization/tutors')}>
+    <AppNavShell tone="warm" items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization/tutors')}>
       <View style={styles.content}>
         {load.status === 'loading' ? (
           <LoadingState label="선생님 정보를 불러오는 중이에요…" />
@@ -96,68 +97,53 @@ export function OrganizationTutorDetailPage() {
           <ErrorState message={load.message} onRetry={() => setReloadKey((n) => n + 1)} />
         ) : (
           <>
-            <Text style={styles.title} accessibilityRole="header">
-              {load.tutor ? `${teacherTitle(load.tutor.tutorDisplayName)}` : '선생님'}
-            </Text>
-            <Text style={styles.subtitle}>
-              {load.tutor?.tutorEmail ? `${load.tutor.tutorEmail} · ` : ''}학생 {load.students.length}명 · 수업 {load.lessons.length}개
-            </Text>
+            <View style={styles.header}>
+              <Text style={styles.title} accessibilityRole="header">
+                {load.tutor ? `${teacherTitle(load.tutor.tutorDisplayName)}` : '선생님'}
+              </Text>
+              <Text style={styles.subtitle}>
+                {load.tutor?.tutorEmail ? `${load.tutor.tutorEmail} · ` : ''}학생 {load.students.length}명 · 수업 {load.lessons.length}개
+              </Text>
+            </View>
 
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>맡고 있는 학생</Text>
+            <HomeSection title="맡고 있는 학생" layout="list">
               {load.students.length === 0 ? (
-                <Text style={styles.body}>아직 등록한 학생이 없어요.</Text>
+                <Text style={styles.emptyText}>아직 등록한 학생이 없어요.</Text>
               ) : (
                 load.students.map((student) => {
-                  const rowContent = (
-                    <>
-                    <View style={styles.rowBody}>
-                      <Text style={styles.rowTitle}>
-                        {student.name} · {student.ageBand}
-                      </Text>
-                      <Text style={styles.rowMeta}>
-                        {student.lessonType === 'CLASS'
-                          ? `반 수업${student.classGroupName ? ` · ${student.classGroupName}` : ''}`
-                          : '개인 레슨'}
-                        {student.classType ? ` · ${student.classType}` : ''}
-                      </Text>
-                    </View>
-                    <Pill label={STUDENT_STATUS_LABEL[student.status]} tone="onCard" />
-                    </>
-                  );
                   // 반에 속한 학생만 관리자 학생 상세(/organization/classes/:classId/students/:id)가 있다.
                   const classId = student.classGroupId;
-                  if (!classId) return <View key={student.id} style={styles.row}>{rowContent}</View>;
                   return (
-                    <Pressable
+                    <HomeListRow
                       key={student.id}
-                      accessibilityRole="link"
-                      accessibilityLabel={`${student.name} 학생 상세 열기`}
-                      onPress={() => navigate(ORGANIZATION_PATHS.student(classId, student.id))}
-                      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-                    >
-                      {rowContent}
-                      <Text style={styles.chevron}>›</Text>
-                    </Pressable>
+                      icon="user"
+                      label={`${student.name} · ${student.ageBand}`}
+                      meta={`${
+                        student.lessonType === 'CLASS'
+                          ? `반 수업${student.classGroupName ? ` · ${student.classGroupName}` : ''}`
+                          : '개인 레슨'
+                      }${student.classType ? ` · ${student.classType}` : ''}`}
+                      trailing={<Pill label={STUDENT_STATUS_LABEL[student.status]} tone="onCard" />}
+                      accessibilityLabel={classId ? `${student.name} 학생 상세 열기` : undefined}
+                      onPress={classId ? () => navigate(ORGANIZATION_PATHS.student(classId, student.id)) : undefined}
+                    />
                   );
                 })
               )}
-            </View>
+            </HomeSection>
 
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>예정·진행 중 수업</Text>
+            <HomeSection title="예정·진행 중 수업" layout="list">
               {upcomingLessons.length === 0 ? (
-                <Text style={styles.body}>예정된 수업이 없어요.</Text>
+                <Text style={styles.emptyText}>예정된 수업이 없어요.</Text>
               ) : (
                 upcomingLessons.map((lesson) => <LessonRow key={lesson.id} lesson={lesson} onOpenClass={openClass} />)
               )}
-            </View>
+            </HomeSection>
 
             {completedLessons.length > 0 ? (
-              <View style={styles.card}>
-                <Text style={styles.sectionTitle}>완료한 수업</Text>
+              <HomeSection title="완료한 수업" layout="list">
                 {completedLessons.map((lesson) => <LessonRow key={lesson.id} lesson={lesson} onOpenClass={openClass} />)}
-              </View>
+              </HomeSection>
             ) : null}
           </>
         )}
@@ -168,31 +154,17 @@ export function OrganizationTutorDetailPage() {
 
 function LessonRow({ lesson, onOpenClass }: { lesson: Lesson; onOpenClass: (classId: string) => void }) {
   const classId = lesson.classGroupId;
-  const content = (
-    <>
-      <View style={styles.rowBody}>
-        <Text style={styles.rowTitle}>{lesson.name}</Text>
-        <Text style={styles.rowMeta}>
-          {lesson.scheduledAt ? formatDateTime(lesson.scheduledAt) : '일정 미정'}
-          {lesson.classGroupName ? ` · ${lesson.classGroupName}` : ''}
-          {` · 학생 ${lesson.students.length}명`}
-          {lesson.storyIds.length > 0 ? ` · 이야기 ${lesson.storyIds.length}편` : ''}
-        </Text>
-      </View>
-      <Pill label={LESSON_STATUS_LABEL[lesson.status]} tone="onCard" />
-    </>
-  );
-  if (!classId) return <View style={styles.row}>{content}</View>;
   return (
-    <Pressable
-      accessibilityRole="link"
-      accessibilityLabel={`${lesson.name} 수업의 반 열기`}
-      onPress={() => onOpenClass(classId)}
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-    >
-      {content}
-      <Text style={styles.chevron}>›</Text>
-    </Pressable>
+    <HomeListRow
+      icon="calendarDays"
+      label={lesson.name}
+      meta={`${lesson.scheduledAt ? formatDateTime(lesson.scheduledAt) : '일정 미정'}${
+        lesson.classGroupName ? ` · ${lesson.classGroupName}` : ''
+      } · 학생 ${lesson.students.length}명${lesson.storyIds.length > 0 ? ` · 이야기 ${lesson.storyIds.length}편` : ''}`}
+      trailing={<Pill label={LESSON_STATUS_LABEL[lesson.status]} tone="onCard" />}
+      accessibilityLabel={classId ? `${lesson.name} 수업의 반 열기` : undefined}
+      onPress={classId ? () => onOpenClass(classId) : undefined}
+    />
   );
 }
 
@@ -210,53 +182,25 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // 보호자 하위 화면(LibraryPage/ReportHistoryPage)과 같은 폭.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: storybookTheme.spacing.md,
+    gap: 20,
   },
+  header: { gap: 4 },
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onContent,
   },
   subtitle: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onContentMuted },
-  card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.contentSurface,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentSurfaceBorder,
-    padding: storybookTheme.spacing.ml,
-    gap: storybookTheme.spacing.sm,
-  },
-  sectionTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
-  },
-  body: {
+  emptyText: {
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onCardBody,
+    color: storybookTheme.color.onContentMuted,
+    paddingHorizontal: 4,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: storybookTheme.spacing.sm,
-    paddingVertical: storybookTheme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
-  },
-  pressed: { opacity: 0.85 },
-  chevron: { fontSize: storybookTheme.type.lg, color: storybookTheme.color.onCardMuted, paddingHorizontal: 4 },
-  rowBody: { flex: 1, gap: 2 },
-  rowTitle: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
-  },
-  rowMeta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
 });

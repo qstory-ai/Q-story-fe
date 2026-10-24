@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { AppNavShell, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
+import { AppNavShell, Card, ErrorState, LoadingState, Pill, radius, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { useBackOr } from '@/shared/lib';
 import {
@@ -20,6 +20,7 @@ import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { formatReportDuration } from '@/widgets/session-report';
 import { StudentReportList, sessionKindLabel } from '@/features/student-reports';
 import { ClassHistoryCard } from '@/features/class-lifecycle';
+import { HomeSection } from '@/features/home-section';
 import { pastMemberLabel } from '@/entities/class-lifecycle';
 
 type LoadState =
@@ -89,7 +90,7 @@ export function OrganizationStudentDetailPage() {
   const effective: LoadState = load.requestKey === requestKey ? load : { requestKey, status: 'loading' };
 
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={goBack}>
+    <AppNavShell tone="warm" items={dashboardNavItems(director.user, navigate, pathname)} onBack={goBack}>
       <ScrollView contentContainerStyle={styles.content}>
         {effective.status === 'loading' && <LoadingState label="학생 정보를 불러오는 중이에요…" />}
         {effective.status === 'error' && (
@@ -97,7 +98,7 @@ export function OrganizationStudentDetailPage() {
         )}
         {effective.status === 'ready' && (
           <>
-            <View style={styles.card}>
+            <Card variant="tinted" style={styles.headerCard}>
               <View style={styles.headerRow}>
                 <View style={styles.flex}>
                   <Text style={styles.eyebrow}>{effective.className}</Text>
@@ -118,29 +119,31 @@ export function OrganizationStudentDetailPage() {
                   ? `보호자 ${effective.student.parentDisplayName}${effective.student.parentEmail ? ` · ${effective.student.parentEmail}` : ''}`
                   : '아직 보호자가 반 초대 링크로 들어오지 않았어요.'}
               </Text>
-            </View>
+            </Card>
 
             <ClassHistoryCard token={director.token} studentId={effective.student.id} />
 
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>리포트</Text>
-              <StudentReportList
-                rows={effective.reports.map((report) => ({
-                  id: report.id,
-                  title: effective.titleByStoryId[report.storyId] ?? report.storyId,
-                  meta: [
-                    formatCompletedAt(report.completedAt),
-                    // 그때 반 이름 - 반을 옮겼거나 이름을 바꿨어도 기록 당시 반.
-                    ...(report.className ? [report.className] : []),
-                    formatReportDuration(report.durationSeconds),
-                    sessionKindLabel(report.sessionKind),
-                    `${report.tutorDisplayName} 선생님`,
-                  ].join(' · '),
-                }))}
-                emptyMessage="아직 이 학생이 참여한 수업 리포트가 없어요."
-                onOpen={(completionId) => navigate(reportDetailPath(completionId))}
-              />
-            </View>
+            <HomeSection title="리포트" layout="list">
+              {/* StudentReportList는 줄 사이 구분선이 있는 목록이라 흰 카드 한 장에 담는다(선생님 학생 상세와 공유). */}
+              <Card variant="surface" style={styles.listCard}>
+                <StudentReportList
+                  rows={effective.reports.map((report) => ({
+                    id: report.id,
+                    title: effective.titleByStoryId[report.storyId] ?? report.storyId,
+                    meta: [
+                      formatCompletedAt(report.completedAt),
+                      // 그때 반 이름 - 반을 옮겼거나 이름을 바꿨어도 기록 당시 반.
+                      ...(report.className ? [report.className] : []),
+                      formatReportDuration(report.durationSeconds),
+                      sessionKindLabel(report.sessionKind),
+                      `${report.tutorDisplayName} 선생님`,
+                    ].join(' · '),
+                  }))}
+                  emptyMessage="아직 이 학생이 참여한 수업 리포트가 없어요."
+                  onOpen={(completionId) => navigate(reportDetailPath(completionId))}
+                />
+              </Card>
+            </HomeSection>
           </>
         )}
       </ScrollView>
@@ -157,21 +160,17 @@ function formatCompletedAt(iso: string) {
 const styles = StyleSheet.create({
   content: {
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // 보호자 하위 화면(LibraryPage/ReportHistoryPage)과 같은 폭.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: storybookTheme.spacing.md,
+    gap: 20,
   },
-  card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    padding: storybookTheme.spacing.ml,
-    gap: storybookTheme.spacing.sm,
-  },
+  // 학생 요약 - 보호자 홈 인사 카드와 같은 옅은 보라 카드(radius 24).
+  headerCard: { borderRadius: radius[24], gap: storybookTheme.spacing.sm },
+  listCard: { borderRadius: radius[24], paddingVertical: storybookTheme.spacing.sm },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: storybookTheme.spacing.sm },
   flex: { flex: 1, gap: 2 },
   eyebrow: {
@@ -189,10 +188,5 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onCardBody,
-  },
-  sectionTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
   },
 });

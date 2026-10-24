@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { AppNavShell, EmptyState, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
+import { AppNavShell, EmptyState, ErrorState, Icon, LoadingState, Pill, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { TUTOR_PATHS, dashboardNavItems, reportDetailPath, useAuth } from '@/entities/auth';
 import { listStories } from '@/entities/story';
 import { formatReportDuration } from '@/widgets/session-report';
+import { HomeSection } from '@/features/home-section';
 import {
   listTutorStudents,
   listTutorStudentCompletions,
@@ -115,7 +116,7 @@ export function TutorReportsPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/tutor')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">수업 리포트</Text>
         <Text style={styles.subtitle}>
@@ -162,50 +163,49 @@ function StudentSection({
 }) {
   const isLinked = section.student.status === 'CONFIRMED' && section.student.linkedParentUserId;
   return (
-    <View style={styles.studentCard}>
-      <View style={styles.studentHeader}>
-        <View style={styles.studentInfo}>
-          <Text style={styles.studentName}>{section.student.name}</Text>
-          <Text style={styles.studentMeta}>
-            {section.student.ageBand}
-            {section.student.classType ? ` · ${section.student.classType}` : ''}
-          </Text>
-        </View>
+    <HomeSection
+      title={section.student.name}
+      subtitle={`${section.student.ageBand}${section.student.classType ? ` · ${section.student.classType}` : ''}`}
+      layout="list"
+    >
+      <View style={styles.statusRow}>
         <Pill label={isLinked ? '보호자 연결됨 · 자동 전달' : '보호자 연결 대기'} tone="onCard" />
       </View>
 
       {section.loading ? (
-        <Text style={styles.loadingText}>세션을 불러오는 중이에요…</Text>
+        <Text style={styles.inlineText}>세션을 불러오는 중이에요…</Text>
       ) : section.error ? (
-        <Text style={styles.errorInline}>{section.error}</Text>
+        <Text style={[styles.inlineText, styles.errorInline]}>{section.error}</Text>
       ) : section.completions.length === 0 ? (
-        <Text style={styles.emptyInline}>아직 이 학생과의 완주 세션이 없어요.</Text>
+        <Text style={styles.inlineText}>아직 이 학생과의 완주 세션이 없어요.</Text>
       ) : (
-        <View style={styles.sessionList}>
-          {section.completions.map((completion) => (
-            <Pressable
-              key={completion.id}
-              accessibilityRole="button"
-              accessibilityLabel={`${titleByStoryId[completion.storyId] ?? completion.storyId} 리포트 열기`}
-              onPress={() => onOpen(completion.id)}
-              style={({ pressed }) => [styles.sessionRow, pressed && styles.sessionRowPressed]}
-            >
-              <View style={styles.sessionBody}>
-                <Text style={styles.sessionTitle}>
-                  {titleByStoryId[completion.storyId] ?? completion.storyId}
-                </Text>
-                <Text style={styles.sessionMeta}>
-                  {formatCompletedAt(completion.completedAt)} · {formatReportDuration(completion.durationSeconds)}
-                  {completion.className ? ` · ${completion.className}` : ''}
-                </Text>
-              </View>
-              {isExitedSession(completion) ? <Pill label={EXITED_BADGE_LABEL} tone="onLight" /> : null}
-              <Text style={styles.chevron}>›</Text>
-            </Pressable>
-          ))}
-        </View>
+        section.completions.map((completion) => (
+          // HomeListRow와 같은 흰 행 - 역할(button)을 그대로 두려고 직접 그린다.
+          <Pressable
+            key={completion.id}
+            accessibilityRole="button"
+            accessibilityLabel={`${titleByStoryId[completion.storyId] ?? completion.storyId} 리포트 열기`}
+            onPress={() => onOpen(completion.id)}
+            style={({ pressed }) => [styles.sessionRow, pressed && styles.sessionRowPressed]}
+          >
+            <View style={styles.sessionIcon}>
+              <Icon name="report" size={16} color={storybookTheme.color.gold} />
+            </View>
+            <View style={styles.sessionBody}>
+              <Text style={styles.sessionTitle}>
+                {titleByStoryId[completion.storyId] ?? completion.storyId}
+              </Text>
+              <Text style={styles.sessionMeta}>
+                {formatCompletedAt(completion.completedAt)} · {formatReportDuration(completion.durationSeconds)}
+                {completion.className ? ` · ${completion.className}` : ''}
+              </Text>
+            </View>
+            {isExitedSession(completion) ? <Pill label={EXITED_BADGE_LABEL} tone="onLight" /> : null}
+            <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
+          </Pressable>
+        ))
       )}
-    </View>
+    </HomeSection>
   );
 }
 
@@ -215,13 +215,15 @@ function formatCompletedAt(iso: string) {
   return COMPLETED_AT_FORMAT.format(new Date(iso));
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.tabletMaxWidth,
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
-    gap: storybookTheme.spacing.md,
+    gap: 20,
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
@@ -235,57 +237,39 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onContentMuted,
   },
-  studentCard: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.contentSurface,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentSurfaceBorder,
-    padding: 18,
-    gap: 12,
-    ...storybookTheme.elevation.low,
-  },
-  studentHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  studentInfo: { flex: 1, gap: 2 },
-  studentName: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
-  },
-  studentMeta: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onCardMuted,
-  },
-  loadingText: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onCardMuted },
-  errorInline: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.error },
-  emptyInline: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onCardMuted },
-  sessionList: { gap: 6 },
+  statusRow: { flexDirection: 'row', paddingHorizontal: 4 },
+  inlineText: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onContentMuted, paddingHorizontal: 4 },
+  errorInline: { color: storybookTheme.color.error },
   sessionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: L.bg.primary,
+    borderRadius: radius[16],
+    borderWidth: 1,
+    borderColor: L.border.secondary,
+    ...shadow(1),
   },
   sessionRowPressed: { opacity: 0.85 },
+  sessionIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: L.bg.brandSubtle,
+  },
   sessionBody: { flex: 1, gap: 2 },
   sessionTitle: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
+    color: storybookTheme.color.onContent,
   },
   sessionMeta: {
     fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onCardMuted,
-  },
-  chevron: {
-    fontSize: storybookTheme.type.lg,
-    color: storybookTheme.color.onCardMuted,
-    paddingHorizontal: 4,
+    lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onContentMuted,
   },
 });

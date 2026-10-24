@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, StatusBanner, TextField, TextareaField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, ErrorState, LoadingState, Modal, radius, StatusBanner, TextField, TextareaField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { formatStudentAge } from '@/entities/child';
 import { TUTOR_PATHS, dashboardNavItems, reportDetailPath, useAuth } from '@/entities/auth';
@@ -18,6 +18,7 @@ import {
 import { formatReportDuration } from '@/widgets/session-report';
 import { StudentReportList, sessionKindLabel } from '@/features/student-reports';
 import { ClassHistoryCard } from '@/features/class-lifecycle';
+import { HomeSection } from '@/features/home-section';
 import { useBackOr } from '@/shared/lib';
 
 type ReportsLoad =
@@ -150,7 +151,7 @@ export function TutorStudentDetailPage() {
   const effective = load.requestKey === requestKey ? load : { requestKey, status: 'loading' as const };
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
       <View style={styles.content}>
         {effective.status === 'loading' && <LoadingState label="학생 정보를 불러오는 중이에요…" />}
 
@@ -160,7 +161,7 @@ export function TutorStudentDetailPage() {
 
         {effective.status === 'ready' && (
           <>
-            <View style={styles.card}>
+            <Card variant="tinted" style={styles.summaryCard}>
               <View style={styles.headerRow}>
                 <View style={styles.headerText}>
                   <Text style={styles.title} accessibilityRole="header">{effective.student.name}</Text>
@@ -187,67 +188,70 @@ export function TutorStudentDetailPage() {
                 <Text style={styles.metaLabel}>등록일</Text>
                 <Text style={styles.metaValue}>{formatDate(effective.student.createdAt)}</Text>
               </View>
-            </View>
+            </Card>
 
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>메모</Text>
-              <TextField
-                label="수업 방식 메모"
-                value={classType}
-                onChangeText={setClassType}
-                placeholder="예: 1:1 방문 · 화요일 오후"
-              />
-              <TextareaField
-                label="특이사항 메모"
-                value={prepNote}
-                onChangeText={setPrepNote}
-                placeholder="예: 새 인물이 나오면 잠깐 이야기를 멈추고 아이 반응을 기다려 주세요."
-              />
-              {savedFlag ? <StatusBanner label="저장했어요." /> : null}
-              {saveError ? <StatusBanner variant="warning" label={saveError} /> : null}
-              <ActionButton label={saving ? '저장 중…' : '저장'} onPress={handleSave} loading={saving} />
-            </View>
+            <HomeSection title="메모" layout="list">
+              <Card variant="surface" elevation={1} style={styles.formCard}>
+                <TextField
+                  label="수업 방식 메모"
+                  value={classType}
+                  onChangeText={setClassType}
+                  placeholder="예: 1:1 방문 · 화요일 오후"
+                />
+                <TextareaField
+                  label="특이사항 메모"
+                  value={prepNote}
+                  onChangeText={setPrepNote}
+                  placeholder="예: 새 인물이 나오면 잠깐 이야기를 멈추고 아이 반응을 기다려 주세요."
+                />
+                {savedFlag ? <StatusBanner label="저장했어요." /> : null}
+                {saveError ? <StatusBanner variant="warning" label={saveError} /> : null}
+                <ActionButton label={saving ? '저장 중…' : '저장'} onPress={handleSave} loading={saving} />
+              </Card>
+            </HomeSection>
 
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>보호자 연결</Text>
-              {effective.student.status === 'CONFIRMED' ? (
-                <Text style={styles.body}>
-                  보호자와 연결이 완료됐어요. 이 학생과 진행한 수업 리포트는 보호자 앱에 자동으로 전달돼요.
-                </Text>
-              ) : (
-                <Text style={styles.body}>
-                  아직 보호자 연결이 되지 않았어요. 반 초대 링크로 보호자가 아이를 연결하면 자동으로 연결돼요.
-                </Text>
-              )}
-            </View>
+            <HomeSection title="보호자 연결" layout="list">
+              <Card variant="surface" elevation={1} style={styles.formCard}>
+                {effective.student.status === 'CONFIRMED' ? (
+                  <Text style={styles.body}>
+                    보호자와 연결이 완료됐어요. 이 학생과 진행한 수업 리포트는 보호자 앱에 자동으로 전달돼요.
+                  </Text>
+                ) : (
+                  <Text style={styles.body}>
+                    아직 보호자 연결이 되지 않았어요. 반 초대 링크로 보호자가 아이를 연결하면 자동으로 연결돼요.
+                  </Text>
+                )}
+              </Card>
+            </HomeSection>
 
             {effective.student.classGroupId ? <ClassHistoryCard token={state.token} studentId={effective.student.id} /> : null}
 
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>리포트</Text>
-              {reports.requestKey !== requestKey || reports.status === 'loading' ? (
-                <Text style={styles.body}>리포트를 불러오는 중이에요…</Text>
-              ) : reports.status === 'error' ? (
-                <Text style={styles.body}>{reports.message}</Text>
-              ) : (
-                <StudentReportList
-                  rows={reports.reports.map((report) => ({
-                    id: report.id,
-                    title: reports.titleByStoryId[report.storyId] ?? report.storyId,
-                    meta: [
-                      REPORT_DATE_FORMAT.format(new Date(report.completedAt)),
-                      // 그때 반 이름 - 반을 옮겼거나 이름을 바꿨어도 기록 당시 반.
-                      ...(report.className ? [report.className] : []),
-                      formatReportDuration(report.durationSeconds),
-                      sessionKindLabel(report.sessionKind),
-                      ...(isExitedSession(report) ? [EXITED_BADGE_LABEL] : []),
-                    ].join(' · '),
-                  }))}
-                  emptyMessage="아직 이 학생과 진행한 수업 리포트가 없어요."
-                  onOpen={(completionId) => navigate(reportDetailPath(completionId))}
-                />
-              )}
-            </View>
+            <HomeSection title="리포트" layout="list">
+              <Card variant="surface" elevation={1} style={styles.formCard}>
+                {reports.requestKey !== requestKey || reports.status === 'loading' ? (
+                  <Text style={styles.body}>리포트를 불러오는 중이에요…</Text>
+                ) : reports.status === 'error' ? (
+                  <Text style={styles.body}>{reports.message}</Text>
+                ) : (
+                  <StudentReportList
+                    rows={reports.reports.map((report) => ({
+                      id: report.id,
+                      title: reports.titleByStoryId[report.storyId] ?? report.storyId,
+                      meta: [
+                        REPORT_DATE_FORMAT.format(new Date(report.completedAt)),
+                        // 그때 반 이름 - 반을 옮겼거나 이름을 바꿨어도 기록 당시 반.
+                        ...(report.className ? [report.className] : []),
+                        formatReportDuration(report.durationSeconds),
+                        sessionKindLabel(report.sessionKind),
+                        ...(isExitedSession(report) ? [EXITED_BADGE_LABEL] : []),
+                      ].join(' · '),
+                    }))}
+                    emptyMessage="아직 이 학생과 진행한 수업 리포트가 없어요."
+                    onOpen={(completionId) => navigate(reportDetailPath(completionId))}
+                  />
+                )}
+              </Card>
+            </HomeSection>
 
             {/* 학생 삭제 - 마이너 액션이라 카드 밖 얇은 링크로 둔다. 확인 모달이 방어막. */}
             <Pressable
@@ -316,21 +320,16 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.tabletMaxWidth,
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
-    gap: storybookTheme.spacing.ms,
+    gap: 20,
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
   },
-  card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    padding: 20,
-    gap: 10,
-  },
+  // 보호자 화면과 같은 옅은 보라 요약 카드 / 흰 폼 카드(radius 24).
+  summaryCard: { borderRadius: radius[24], gap: 10 },
+  formCard: { borderRadius: radius[24], gap: 12 },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -358,11 +357,6 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.semibold,
   },
   metaLink: { color: storybookTheme.color.primary, textDecorationLine: 'underline' },
-  sectionTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
-  },
   body: {
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,

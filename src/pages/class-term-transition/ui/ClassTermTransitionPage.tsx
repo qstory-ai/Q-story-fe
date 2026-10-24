@@ -2,7 +2,22 @@ import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, FILTER_CHIP_ROW_GAP, FilterChip, LoadingState, ErrorState, SelectField, StatusBanner, storybookTheme, SwitchField } from '@/shared/ui';
+import {
+  ActionButton,
+  AppNavShell,
+  Card,
+  FILTER_CHIP_ROW_GAP,
+  FilterChip,
+  LoadingState,
+  ErrorState,
+  radius,
+  SelectField,
+  semanticColors,
+  shadow,
+  StatusBanner,
+  storybookTheme,
+  SwitchField,
+} from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { useBackOr } from '@/shared/lib';
 import {
@@ -30,6 +45,7 @@ import {
   type TermChoices,
   type TermTransitionResult,
 } from '@/entities/class-lifecycle';
+import { HomeSection } from '@/features/home-section';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -161,7 +177,7 @@ export function ClassTermTransitionPage() {
   };
 
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={goBack}>
+    <AppNavShell tone="warm" items={dashboardNavItems(director.user, navigate, pathname)} onBack={goBack}>
       <ScrollView contentContainerStyle={styles.content}>
         {effective.status === 'loading' && <LoadingState label="반 정보를 불러오는 중이에요…" />}
         {effective.status === 'error' && <ErrorState message={effective.message} onRetry={() => setAttempt((n) => n + 1)} />}
@@ -176,12 +192,12 @@ export function ClassTermTransitionPage() {
             </View>
 
             {effective.classGroup.archivedAt ? (
-              <View style={styles.card}>
+              <Card variant="surface" style={styles.formCard}>
                 <Text style={styles.body}>이미 지난 반으로 보관한 반이에요. 다시 열어야 학기 마무리를 할 수 있어요.</Text>
                 <ActionButton variant="secondary" label="반 상세로" onPress={() => navigate(detailPath)} />
-              </View>
+              </Card>
             ) : step === 'done' && result ? (
-              <View style={styles.card}>
+              <Card variant="surface" style={styles.formCard}>
                 <StatusBanner variant="success" label="학기 마무리를 마쳤어요." body={termResultSummary(result)} />
                 {result.skipped.length > 0 ? (
                   <StatusBanner
@@ -192,14 +208,14 @@ export function ClassTermTransitionPage() {
                 ) : null}
                 <Text style={styles.body}>{RECORDS_STAY}</Text>
                 <ActionButton label="반 상세로" onPress={() => navigate(detailPath, { replace: true })} />
-              </View>
+              </Card>
             ) : students.length === 0 ? (
-              <View style={styles.card}>
+              <Card variant="surface" style={styles.formCard}>
                 <Text style={styles.body}>이 반에 지금 학생이 없어요. 더 쓰지 않는 반이면 반 상세의 반 관리에서 바로 지난 반으로 보관할 수 있어요.</Text>
                 <ActionButton variant="secondary" label="반 상세로" onPress={() => navigate(detailPath)} />
-              </View>
+              </Card>
             ) : step === 'confirm' ? (
-              <View style={styles.card}>
+              <Card variant="surface" style={styles.formCard}>
                 <Text style={styles.sectionTitle}>이렇게 마무리할까요?</Text>
                 {termChoiceSummaryLines(summarizeTermChoices(studentIds, choices, classNameById)).map((line) => (
                   <Text key={line} style={styles.summaryLine}>· {line}</Text>
@@ -213,17 +229,17 @@ export function ClassTermTransitionPage() {
                   <ActionButton label={submitting ? '마무리하는 중…' : '학기 마무리하기'} loading={submitting} disabled={submitting} onPress={onSubmit} />
                   <ActionButton variant="secondary" label="다시 고르기" disabled={submitting} onPress={() => setStep('choose')} />
                 </View>
-              </View>
+              </Card>
             ) : (
               <>
-                <View style={styles.card}>
+                <Card variant="tinted" style={styles.introCard}>
                   <Text style={styles.body}>
                     학생마다 다음 반, 이 반에 그대로, 수료 중 하나를 골라 주세요. 고르지 않은 학생은 이 반에 그대로 남아요.
                   </Text>
                   <Text style={styles.muted}>{RECORDS_STAY}</Text>
-                </View>
+                </Card>
 
-                <View style={styles.card}>
+                <Card variant="surface" style={styles.formCard}>
                   <Text style={styles.sectionTitle}>한 번에 정하기</Text>
                   {effective.targets.length > 0 ? (
                     <View style={styles.bulkRow}>
@@ -247,13 +263,13 @@ export function ClassTermTransitionPage() {
                     <ActionButton variant="secondary" label="모두 수료" onPress={() => setAll({ action: 'GRADUATE' })} />
                     <ActionButton variant="secondary" label="모두 그대로" onPress={() => setAll({ action: 'KEEP' })} />
                   </View>
-                </View>
+                </Card>
 
-                <View style={styles.card}>
-                  <Text style={styles.sectionTitle}>학생 {students.length}명</Text>
+                <HomeSection title={`학생 ${students.length}명`} layout="list">
                   {students.map((student) => {
                     const choice = choices[student.id] ?? { action: 'KEEP' };
                     return (
+                      // 칩·선택 칸이 함께 있어 HomeListRow 대신 같은 모양의 흰 행을 직접 그린다.
                       <View key={student.id} style={styles.studentRow} accessibilityLabel={`${student.name} 다음 학기`}>
                         <Text style={styles.rowTitle}>
                           {student.name} · {student.ageBand}
@@ -285,9 +301,9 @@ export function ClassTermTransitionPage() {
                       </View>
                     );
                   })}
-                </View>
+                </HomeSection>
 
-                <View style={styles.card}>
+                <Card variant="surface" style={styles.formCard}>
                   <SwitchField
                     label="마무리 후 이 반을 지난 반으로 보관"
                     description={
@@ -299,7 +315,7 @@ export function ClassTermTransitionPage() {
                     disabled={!archiveAllowed}
                     onChange={setArchiveWanted}
                   />
-                </View>
+                </Card>
 
                 {problem ? <StatusBanner variant="warning" label={problem} /> : null}
                 <ActionButton label="다음" onPress={onReview} />
@@ -312,15 +328,18 @@ export function ClassTermTransitionPage() {
   );
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   content: {
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // 보호자 하위 화면(LibraryPage/ReportHistoryPage)과 같은 폭.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: storybookTheme.spacing.md,
+    gap: 20,
   },
   header: { gap: storybookTheme.spacing.xs },
   eyebrow: {
@@ -334,14 +353,9 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContent,
   },
   stepLabel: { fontSize: storybookTheme.type.sm, color: storybookTheme.color.onContentMuted },
-  card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    padding: storybookTheme.spacing.ml,
-    gap: storybookTheme.spacing.sm,
-  },
+  // 안내 묶음은 옅은 보라(tinted), 고르기·확인 폼은 흰 카드(surface) - 둘 다 보호자 홈 카드와 같은 radius 24.
+  introCard: { borderRadius: radius[24], gap: storybookTheme.spacing.sm },
+  formCard: { borderRadius: radius[24], gap: storybookTheme.spacing.sm },
   sectionTitle: {
     fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
@@ -365,11 +379,16 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: storybookTheme.spacing.sm },
   bulkRow: { flexDirection: 'row', gap: storybookTheme.spacing.sm },
   flex: { flex: 1 },
+  // HomeListRow와 같은 흰 행(radius 16, elevation 1).
   studentRow: {
     gap: storybookTheme.spacing.sm,
-    paddingVertical: storybookTheme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
+    backgroundColor: L.bg.primary,
+    borderRadius: radius[16],
+    borderWidth: 1,
+    borderColor: L.border.secondary,
+    ...shadow(1),
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
   rowTitle: {
     fontSize: storybookTheme.type.sm,

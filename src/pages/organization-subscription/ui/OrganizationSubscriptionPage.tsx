@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, fetchEntitlement, useDirectorSession, type EntitlementResponse } from '@/entities/auth';
 import { getOrganizationQuote, type OrganizationQuote } from '@/entities/payment';
 import { messageForError } from '@/shared/api';
@@ -39,8 +39,8 @@ export function OrganizationSubscriptionPage() {
 
   if (!director) return null;
   return (
-    <AppNavShell items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization')}>
-      <View style={styles.content}>
+    <AppNavShell tone="warm" items={dashboardNavItems(director.user, navigate, pathname)} onBack={() => navigate('/organization')}>
+      <View style={[styles.content, layoutStyles.content]}>
         <SubscriptionPageTitle />
         {load.status === 'loading' ? <LoadingState label="이용권 정보를 불러오는 중이에요." /> : null}
         {load.status === 'error' ? <ErrorState message={load.message} onRetry={() => window.location.reload()} /> : null}
@@ -106,3 +106,7 @@ function QuoteSection({ quote }: { quote: OrganizationQuote }) {
   );
 }
 
+// 카드 모양은 보호자 이용권 화면과 공유(subscriptionPageStyles)하고, 폭만 관리자 하위 화면(보호자 하위 화면과 같은 넓은 칸)에 맞춘다.
+const layoutStyles = StyleSheet.create({
+  content: { maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth, gap: 20 },
+});

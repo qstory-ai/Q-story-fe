@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { ActionButton, ErrorState, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, Card, ErrorState, LoadingState, radius, semanticColors, shadow, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
+import { HomeSection } from '@/features/home-section';
 import { InstitutionSearch } from '@/features/institution-search';
 import {
   INSTITUTION_KIND_LABEL,
@@ -94,18 +95,16 @@ export function JoinRequestsSection({
 
   if (load.status === 'loading') {
     return (
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>소속 신청</Text>
+      <HomeSection title="소속 신청" layout="list">
         <LoadingState compact label="소속 신청을 불러오는 중이에요…" />
-      </View>
+      </HomeSection>
     );
   }
   if (load.status === 'error') {
     return (
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>소속 신청</Text>
+      <HomeSection title="소속 신청" layout="list">
         <ErrorState message={load.message} onRetry={() => setReloadKey((n) => n + 1)} />
-      </View>
+      </HomeSection>
     );
   }
 
@@ -113,55 +112,51 @@ export function JoinRequestsSection({
   const pickedTaken = picked?.registered === true && picked.organizationId !== organizationId;
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.sectionTitle}>
-        소속 신청{load.requests.length > 0 ? ` ${load.requests.length}건` : ''}
-      </Text>
+    <HomeSection title={`소속 신청${load.requests.length > 0 ? ` ${load.requests.length}건` : ''}`} layout="list">
       {actionError ? <StatusBanner variant="warning" label={actionError} /> : null}
       {load.requests.length === 0 ? (
-        <Text style={styles.body}>
+        <Text style={styles.emptyText}>
           {linked
             ? '아직 기다리는 신청이 없어요. 선생님이 기관을 검색해 신청하면 여기에 보여요.'
             : '선생님이 검색해서 신청하려면 먼저 우리 기관을 유치원·어린이집 목록과 연결해 주세요.'}
         </Text>
       ) : (
-        <View style={styles.list}>
-          {load.requests.map((request) => (
-            <View key={request.id} style={styles.requestRow}>
-              <View style={styles.requestInfo}>
-                <Text style={styles.requestName}>{request.tutorDisplayName}</Text>
-                {request.tutorEmail ? <Text style={styles.meta}>{request.tutorEmail}</Text> : null}
-                <Text style={styles.meta}>신청: {formatDate(request.createdAt)}</Text>
-              </View>
-              <View style={styles.requestActions}>
-                <ActionButton
-                  label="수락"
-                  size="sm"
-                  onPress={() => { void decide(request, true); }}
-                  loading={busyId === request.id}
-                  disabled={busyId !== null}
-                />
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`${request.tutorDisplayName} 소속 신청 거절`}
-                  onPress={() => { void decide(request, false); }}
-                  disabled={busyId !== null}
-                  style={({ pressed }) => [styles.rejectButton, pressed && styles.pressed]}
-                >
-                  <Text style={styles.rejectLabel}>거절</Text>
-                </Pressable>
-              </View>
+        load.requests.map((request) => (
+          // 수락·거절 버튼이 함께 있어 HomeListRow 대신 같은 모양의 흰 행을 직접 그린다.
+          <View key={request.id} style={styles.requestRow}>
+            <View style={styles.requestInfo}>
+              <Text style={styles.requestName}>{request.tutorDisplayName}</Text>
+              {request.tutorEmail ? <Text style={styles.meta}>{request.tutorEmail}</Text> : null}
+              <Text style={styles.meta}>신청: {formatDate(request.createdAt)}</Text>
             </View>
-          ))}
-        </View>
+            <View style={styles.requestActions}>
+              <ActionButton
+                label="수락"
+                size="sm"
+                onPress={() => { void decide(request, true); }}
+                loading={busyId === request.id}
+                disabled={busyId !== null}
+              />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`${request.tutorDisplayName} 소속 신청 거절`}
+                onPress={() => { void decide(request, false); }}
+                disabled={busyId !== null}
+                style={({ pressed }) => [styles.rejectButton, pressed && styles.pressed]}
+              >
+                <Text style={styles.rejectLabel}>거절</Text>
+              </Pressable>
+            </View>
+          </View>
+        ))
       )}
 
       {linked ? (
-        <Text style={styles.meta}>
+        <Text style={styles.linkedText}>
           목록 연결: {linked.name}({INSTITUTION_KIND_LABEL[linked.kind]}){linked.address ? ` · ${linked.address}` : ''}
         </Text>
       ) : (
-        <View style={styles.linkBox}>
+        <Card variant="surface" style={styles.linkBox}>
           <Text style={styles.linkTitle}>우리 기관을 목록과 연결하기</Text>
           <InstitutionSearch
             token={token}
@@ -179,9 +174,9 @@ export function JoinRequestsSection({
             loading={linking}
             disabled={!picked || pickedTaken || linking}
           />
-        </View>
+        </Card>
       )}
-    </View>
+    </HomeSection>
   );
 }
 
@@ -191,43 +186,38 @@ function formatDate(iso: string) {
   return DATE_FORMAT.format(new Date(iso));
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.contentSurface,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.contentSurfaceBorder,
-    padding: storybookTheme.spacing.ml,
-    gap: storybookTheme.spacing.sm,
-  },
-  sectionTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
-  },
-  body: {
+  emptyText: {
     fontSize: storybookTheme.type.sm,
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onCardBody,
+    color: storybookTheme.color.onContentMuted,
+    paddingHorizontal: 4,
   },
-  list: { gap: storybookTheme.spacing.xs },
+  // HomeListRow와 같은 흰 행(radius 16, elevation 1). 좁은 화면에서는 버튼이 아래로 감긴다.
   requestRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: storybookTheme.spacing.sm,
-    paddingVertical: storybookTheme.spacing.ms,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
+    backgroundColor: L.bg.primary,
+    borderRadius: radius[16],
+    borderWidth: 1,
+    borderColor: L.border.secondary,
+    ...shadow(1),
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
   requestInfo: { flexGrow: 1, flexShrink: 1, minWidth: 160, gap: 2 },
   requestName: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
+    color: storybookTheme.color.onContent,
   },
-  meta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onCardMuted },
+  meta: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onContentMuted },
+  linkedText: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.onContentMuted, paddingHorizontal: 4 },
   requestActions: { flexDirection: 'row', alignItems: 'center', gap: storybookTheme.spacing.sm },
   rejectButton: {
     paddingHorizontal: storybookTheme.spacing.ms,
@@ -242,12 +232,8 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.error,
   },
   pressed: { opacity: 0.8 },
-  linkBox: {
-    gap: storybookTheme.spacing.sm,
-    paddingTop: storybookTheme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
-  },
+  // 목록 연결 폼 - 공통 Card(surface)에 보호자 홈 카드와 같은 radius 24.
+  linkBox: { borderRadius: radius[24], gap: storybookTheme.spacing.sm },
   linkTitle: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,

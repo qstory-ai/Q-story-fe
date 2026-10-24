@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { ActionButton, ErrorState, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, ErrorState, LoadingState, radius, semanticColors, shadow, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { createHomeroomInvite, fetchCurrentHomeroomInvite, type HomeroomInvite } from '@/entities/homeroom-invite';
 
@@ -115,12 +115,14 @@ export function HomeroomInvitePanel({ token, classId, className, organizationNam
 
 const styles = StyleSheet.create({
   stack: { gap: storybookTheme.spacing.sm },
+  // 보호자 화면과 같은 흰 카드(radius 24). 초대는 눈에 띄어야 해서 테두리만 primary로 둔다.
   emptyCard: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: radius[24],
+    backgroundColor: semanticColors.light.bg.primary,
     borderWidth: 1,
     borderColor: storybookTheme.color.primary,
-    padding: 18,
+    ...shadow(1),
+    padding: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.sm,
   },
   title: {

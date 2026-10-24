@@ -1,14 +1,15 @@
 import { StyleSheet } from 'react-native';
 
-import { storybookTheme } from '@/shared/ui';
+import { radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 
-/** 반 관리 카드들이 함께 쓰는 모양 - 반 상세(ClassDetailPage)의 카드와 같은 토큰. */
+/** 반 관리 카드들이 함께 쓰는 모양 - 보호자 화면과 같은 흰 카드(radius 24, 옅은 테두리·그림자). */
 export const lifecycleStyles = StyleSheet.create({
   card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: radius[24],
+    backgroundColor: semanticColors.light.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: semanticColors.light.border.secondary,
+    ...shadow(1),
     padding: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.sm,
   },

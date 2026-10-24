@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { ErrorState, Icon, LoadingState, Pill, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ErrorState, Icon, LoadingState, Pill, radius, semanticColors, shadow, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { getPaymentHistory, type PaymentHistoryItem } from '@/entities/payment';
 
@@ -158,14 +158,15 @@ export const subscriptionPageStyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
   title: { fontSize: storybookTheme.type.xl, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onContent },
+  // 보호자 홈·마이페이지와 같은 흰 카드(radius 24, 옅은 테두리·그림자).
   card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: radius[24],
+    backgroundColor: semanticColors.light.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: semanticColors.light.border.secondary,
+    ...shadow(1),
     padding: storybookTheme.spacing.lg,
     gap: storybookTheme.spacing.md,
-    ...storybookTheme.elevation.high,
   },
   sectionTitle: {
     fontSize: storybookTheme.type.md,

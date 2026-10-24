@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { useBackOr } from '@/shared/lib';
 import { dashboardNavItems, fetchCurrentUser, subscriptionPathFor, useAuth } from '@/entities/auth';
@@ -55,7 +55,7 @@ export function PaymentSuccessPage() {
   const backPath = result.status === 'success' && result.order.target === 'ORGANIZATION' ? '/organization/subscription' : '/mypage/subscription';
 
   return (
-    <AppNavShell items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={goBack}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">{result.status === 'success' ? '결제가 완료되었어요' : '결제 확인'}</Text>
         {result.status === 'loading' ? <LoadingState label="결제를 확인하고 있어요." /> : null}
@@ -77,7 +77,25 @@ function formatDate(value: string | null) {
 }
 
 const styles = StyleSheet.create({
-  content: { flex: 1, width: '100%', maxWidth: storybookTheme.layout.contentMaxWidth, alignSelf: 'center', paddingHorizontal: storybookTheme.spacing.ml, paddingVertical: storybookTheme.spacing.lg, gap: storybookTheme.spacing.md },
+  content: {
+    flex: 1,
+    width: '100%',
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
+    alignSelf: 'center',
+    paddingHorizontal: storybookTheme.spacing.ml,
+    paddingTop: storybookTheme.spacing.lg,
+    paddingBottom: storybookTheme.spacing.xl,
+    gap: 20,
+  },
   title: { fontSize: storybookTheme.type.xl, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onContent },
-  card: { borderRadius: storybookTheme.radius.card, backgroundColor: storybookTheme.color.surfaceCard, borderWidth: 1, borderColor: storybookTheme.color.surfaceCardBorder, padding: storybookTheme.spacing.lg, gap: storybookTheme.spacing.md },
+  // 보호자 홈과 같은 흰 카드(radius 24, 옅은 테두리·그림자).
+  card: {
+    borderRadius: radius[24],
+    backgroundColor: semanticColors.light.bg.primary,
+    borderWidth: 1,
+    borderColor: semanticColors.light.border.secondary,
+    ...shadow(1),
+    padding: storybookTheme.spacing.lg,
+    gap: storybookTheme.spacing.md,
+  },
 });

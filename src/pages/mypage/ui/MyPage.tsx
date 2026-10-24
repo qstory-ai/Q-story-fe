@@ -1,15 +1,16 @@
-import { Children, Fragment, useEffect, useState } from 'react';
-import type { ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { AppNavShell, enterFadeUp, Icon, Modal, ModalBody, Pill, radius, semanticColors, shadow, space, storybookTheme } from '@/shared/ui';
+import { AppNavShell, Card, enterFadeUp, Icon, Modal, ModalBody, Pill, radius, semanticColors, shadow, space, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, roleLabel, subscriptionPathFor, useAuth, type UserSummary } from '@/entities/auth';
 import { BETA_OPEN_ACCESS_NOTICE, subscriptionStatusLabel } from '@/shared/config';
 import { useChildren } from '@/entities/child';
+import { HomeListRow, HomeSection } from '@/features/home-section';
 
 /**
  * IA [4] 마이페이지 허브. 보호자는 그룹 메뉴, 그 외 역할(원장/선생님/스태프)은 간단한 리스트를 본다.
+ * 생김새는 보호자 홈(/parent)과 같다 - 옅은 보라 프로필 카드 + HomeSection 목록(HomeListRow).
  * 하위 화면은 별도 라우트(pages/mypage-*)다.
  */
 export function MyPage() {
@@ -31,7 +32,7 @@ export function MyPage() {
   const homePath = homePathFor(user);
 
   return (
-    <AppNavShell tone={user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(homePath)}>
+    <AppNavShell tone="warm" items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate(homePath)}>
       <View style={styles.content}>
         <ProfileCard user={user} />
 
@@ -41,14 +42,18 @@ export function MyPage() {
           <GenericMenu user={user} navigate={navigate} />
         )}
 
-        <MenuGroup>
-          <MenuRow
-            label="로그아웃"
-            leadingIcon="logout"
-            onPress={() => setConfirmingLogout(true)}
-            accessibilityRole="button"
-          />
-        </MenuGroup>
+        {/* 로그아웃은 이동이 아니라 확인 모달을 여는 버튼이라 HomeListRow(link) 대신 같은 모양의 흰 행을 직접 그린다. */}
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => setConfirmingLogout(true)}
+          style={({ pressed }) => [styles.logoutRow, pressed && styles.pressed]}
+        >
+          <View style={styles.rowIcon}>
+            <Icon name="logout" size={16} color={storybookTheme.color.gold} />
+          </View>
+          <Text style={styles.logoutLabel} numberOfLines={1}>로그아웃</Text>
+          <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
+        </Pressable>
         <Pressable
           accessibilityRole="link"
           onPress={() => navigate('/mypage/delete-account')}
@@ -82,7 +87,7 @@ function ProfileCard({ user }: { user: UserSummary }) {
       : `등록된 아이 ${children.length}명`
     : null;
   return (
-    <View style={styles.profileCard}>
+    <Card variant="tinted" padding="lg" style={styles.profileCard}>
       {/* profileImageUrl(현재는 TUTOR만 업로드 가능)이 있으면 사진, 없으면 이니셜. */}
       <View style={styles.avatar}>
         {user.profileImageUrl ? (
@@ -102,7 +107,7 @@ function ProfileCard({ user }: { user: UserSummary }) {
         </View>
         {childrenSummary ? <Text style={styles.profileMeta}>{childrenSummary}</Text> : null}
       </View>
-    </View>
+    </Card>
   );
 }
 
@@ -112,24 +117,25 @@ function ParentMenu({ user, navigate }: { user: UserSummary; navigate: (path: st
   const expiry = user.subscriptionExpiresAt ? ` · ${formatShortDate(user.subscriptionExpiresAt)} 만료` : '';
   return (
     <View style={styles.menuGroups}>
-      <MenuGroup title="아이와 수업">
-        <MenuRow label="아이 관리" hint="아이 프로필 추가·수정·삭제" onPress={() => navigate('/mypage/children')} />
-        <MenuRow label="수업 연결" hint="반 코드로 반에 연결해요" onPress={() => navigate('/mypage/classes')} />
-      </MenuGroup>
+      <HomeSection title="아이와 수업" layout="list">
+        <HomeListRow icon="users" label="아이 관리" meta="아이 프로필 추가·수정·삭제" onPress={() => navigate('/mypage/children')} />
+        <HomeListRow icon="graduationCap" label="수업 연결" meta="반 코드로 반에 연결해요" onPress={() => navigate('/mypage/classes')} />
+      </HomeSection>
 
-      <MenuGroup title="계정">
-        <MenuRow label="내 정보·계정" hint="이름·아이디 확인·비밀번호 변경" onPress={() => navigate('/mypage/account')} />
-        <MenuRow
+      <HomeSection title="계정" layout="list">
+        <HomeListRow icon="user" label="내 정보·계정" meta="이름·아이디 확인·비밀번호 변경" onPress={() => navigate('/mypage/account')} />
+        <HomeListRow
+          icon="calendarDays"
           label="이용권"
-          hint={`${subscriptionStatusLabel(user.subscriptionStatus)}${expiry}`}
+          meta={`${subscriptionStatusLabel(user.subscriptionStatus)}${expiry}`}
           onPress={() => navigate('/mypage/subscription')}
         />
-      </MenuGroup>
+      </HomeSection>
 
-      <MenuGroup title="설정과 도움">
-        <MenuRow label="설정" hint="알림·개인정보와 데이터" onPress={() => navigate('/mypage/settings')} />
-        <MenuRow label="고객지원" onPress={() => navigate('/mypage/support')} />
-      </MenuGroup>
+      <HomeSection title="설정과 도움" layout="list">
+        <HomeListRow icon="bell" label="설정" meta="알림·개인정보와 데이터" onPress={() => navigate('/mypage/settings')} />
+        <HomeListRow icon="chat" label="고객지원" onPress={() => navigate('/mypage/support')} />
+      </HomeSection>
     </View>
   );
 }
@@ -142,84 +148,29 @@ function GenericMenu({ user, navigate }: { user: UserSummary; navigate: (path: s
   return (
     <View style={styles.menuGroups}>
       {user.role === 'TUTOR' ? (
-        <MenuGroup title="소속">
-          <MenuRow
+        <HomeSection title="소속" layout="list">
+          <HomeListRow
+            icon="home"
             label="기관 참여"
-            hint="유치원·어린이집 소속 신청 또는 초대 코드로 참여해요"
+            meta="유치원·어린이집 소속 신청 또는 초대 코드로 참여해요"
             onPress={() => navigate('/tutor/join-organization')}
           />
-        </MenuGroup>
+        </HomeSection>
       ) : null}
-      <MenuGroup title="계정">
-        <MenuRow label="내 정보·계정" hint="이름·아이디 확인·비밀번호 변경" onPress={() => navigate('/mypage/account')} />
-        <MenuRow
+      <HomeSection title="계정" layout="list">
+        <HomeListRow icon="user" label="내 정보·계정" meta="이름·아이디 확인·비밀번호 변경" onPress={() => navigate('/mypage/account')} />
+        <HomeListRow
+          icon="calendarDays"
           label="이용권"
-          hint={user.grantsAccess ? BETA_OPEN_ACCESS_NOTICE : '이용권은 관리자에게 문의해 주세요.'}
+          meta={user.grantsAccess ? BETA_OPEN_ACCESS_NOTICE : '이용권은 관리자에게 문의해 주세요.'}
           onPress={() => navigate(subscriptionPathFor(user))}
         />
-      </MenuGroup>
-      <MenuGroup title="설정과 도움">
-        <MenuRow label="설정" hint="알림·개인정보와 데이터" onPress={() => navigate('/mypage/settings')} />
-        <MenuRow label="고객지원" onPress={() => navigate('/mypage/support')} />
-      </MenuGroup>
+      </HomeSection>
+      <HomeSection title="설정과 도움" layout="list">
+        <HomeListRow icon="bell" label="설정" meta="알림·개인정보와 데이터" onPress={() => navigate('/mypage/settings')} />
+        <HomeListRow icon="chat" label="고객지원" onPress={() => navigate('/mypage/support')} />
+      </HomeSection>
     </View>
-  );
-}
-
-/* -------------------------------------------------------------- menu primitives */
-
-function MenuGroup({ title, children }: { title?: string; children: ReactNode }) {
-  // 구분선은 행 사이에만 넣는다 - 행마다 위쪽 테두리를 그리면 첫 행 위에도 선이 생겨 카드 테두리와 겹친다.
-  const rows = Children.toArray(children);
-  return (
-    <View style={styles.menuGroup}>
-      {title ? <Text style={styles.menuGroupTitle}>{title}</Text> : null}
-      <View style={styles.menuCard}>
-        {rows.map((row, index) => (
-          <Fragment key={index}>
-            {index > 0 ? <View style={styles.menuDivider} /> : null}
-            {row}
-          </Fragment>
-        ))}
-      </View>
-    </View>
-  );
-}
-
-function MenuRow({
-  label,
-  hint,
-  leadingIcon,
-  variant = 'default',
-  onPress,
-  accessibilityRole = 'link',
-}: {
-  label: string;
-  hint?: string;
-  leadingIcon?: 'logout';
-  variant?: 'default' | 'danger';
-  onPress: () => void;
-  accessibilityRole?: 'link' | 'button';
-}) {
-  return (
-    <Pressable
-      accessibilityRole={accessibilityRole}
-      onPress={onPress}
-      style={({ pressed }) => [styles.menuRow, pressed && styles.pressed]}
-    >
-      <View style={styles.menuLead}>
-        {leadingIcon ? (
-          <Icon name={leadingIcon} size={16} color={storybookTheme.color.onCardMuted} />
-        ) : null}
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.menuLabel, variant === 'danger' && styles.menuLabelDanger]} numberOfLines={1}>
-            {label}
-          </Text>
-          {hint ? <Text style={styles.menuHint} numberOfLines={2}>{hint}</Text> : null}
-        </View>
-      </View>
-      <Icon name="chevronRight" size={16} color={storybookTheme.color.onCardMuted} />
-    </Pressable>
   );
 }
 
@@ -237,19 +188,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: storybookTheme.spacing.ml,
+    gap: 20,
   },
+  // 마이페이지 맨 위 프로필 - 보호자 홈 인사 카드와 같은 옅은 보라 카드(radius 24) + 은은한 등장.
   profileCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    // 마이페이지 맨 위 카드 - 랜딩식 크게 둥근 흰 카드(radius 24, elevation 2) + 은은한 등장.
     borderRadius: radius[24],
-    backgroundColor: L.bg.primary,
-    borderWidth: 1,
-    borderColor: L.border.secondary,
     padding: space[24],
     gap: space[20],
-    ...shadow(2),
     ...enterFadeUp,
   },
   avatar: {
@@ -282,47 +229,35 @@ const styles = StyleSheet.create({
     fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onCardMuted,
   },
-  menuGroups: { gap: storybookTheme.spacing.md },
-  menuGroup: { gap: storybookTheme.spacing.xs },
-  menuGroupTitle: {
-    paddingHorizontal: storybookTheme.spacing.xs,
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onContentMuted,
-    letterSpacing: 0.4,
-  },
-  menuCard: {
-    borderRadius: radius[16],
-    backgroundColor: L.bg.primary,
-    borderWidth: 1,
-    borderColor: L.border.secondary,
-    paddingHorizontal: space[20],
-    ...shadow(1),
-  },
-  menuRow: {
+  menuGroups: { gap: 20 },
+  // HomeListRow와 같은 흰 행(로그아웃 버튼용).
+  logoutRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: 56,
-    gap: storybookTheme.spacing.ms,
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: L.bg.primary,
+    borderRadius: radius[16],
+    borderWidth: 1,
+    borderColor: L.border.secondary,
+    ...shadow(1),
   },
-  menuDivider: {
-    height: 1,
-    backgroundColor: storybookTheme.color.pillBorder,
+  rowIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: L.bg.brandSubtle,
   },
-  pressed: { opacity: 0.7 },
-  menuLead: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: storybookTheme.spacing.sm },
-  menuLabel: {
+  logoutLabel: {
+    flex: 1,
     fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.onCardTitle,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.onContent,
   },
-  menuLabelDanger: { color: storybookTheme.color.error },
+  pressed: { opacity: 0.85 },
   withdrawLink: { alignSelf: 'center', minHeight: 44, paddingHorizontal: storybookTheme.spacing.ml, justifyContent: 'center' },
   withdrawText: { fontSize: storybookTheme.type.xs, color: storybookTheme.color.error, textDecorationLine: 'underline' },
-  menuHint: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onCardMuted,
-    marginTop: 2,  // 라벨 바로 아래 hint - xs(4)보다 좁은 시각적 결합.
-  },
 });

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { RadioGroup, storybookTheme } from '@/shared/ui';
+import { RadioGroup, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { listClassRosterByCode, type ClassRosterEntry } from '@/entities/auth';
 
 /**
@@ -120,10 +120,12 @@ const styles = StyleSheet.create({
   box: {
     gap: storybookTheme.spacing.sm,
     padding: storybookTheme.spacing.md,
-    borderRadius: storybookTheme.radius.card,
+    // 보호자 화면과 같은 흰 패널(radius 24, 옅은 테두리·그림자).
+    borderRadius: radius[24],
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderColor: semanticColors.light.border.secondary,
+    backgroundColor: semanticColors.light.bg.primary,
+    ...shadow(1),
   },
   title: {
     fontSize: storybookTheme.type.sm,

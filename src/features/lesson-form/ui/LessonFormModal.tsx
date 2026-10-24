@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { DateTimeField, Modal, TextField, TextareaField, storybookTheme } from '@/shared/ui';
+import { DateTimeField, Modal, TextField, TextareaField, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { TUTOR_PATHS, useAuth } from '@/entities/auth';
 import { createLesson, updateLesson, type Lesson } from '@/entities/lesson';
@@ -547,7 +547,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: storybookTheme.radius.pill,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: semanticColors.light.border.secondary,
     backgroundColor: 'transparent',
   },
   chipSelected: {
@@ -596,10 +596,10 @@ const styles = StyleSheet.create({
   detailsBlock: {
     gap: 14,
     padding: 14,
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.contentPanel,
+    borderRadius: radius[16],
+    backgroundColor: semanticColors.light.bg.secondary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
+    borderColor: semanticColors.light.border.secondary,
   },
   // 일~토 7칸을 한 줄에 나눠 담는다 - wrap이면 390px 폭에서 "토"만 아랫줄로 떨어졌다.
   weekdayRow: { flexDirection: 'row', gap: 6 },
@@ -635,10 +635,12 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.contentPanel,
+    // 보호자 홈 행과 같은 흰 행(radius 16, 옅은 테두리·그림자).
+    borderRadius: radius[16],
+    backgroundColor: semanticColors.light.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.contentPanelBorder,
+    borderColor: semanticColors.light.border.secondary,
+    ...shadow(1),
   },
   summaryText: {
     flexShrink: 1,

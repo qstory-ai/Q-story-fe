@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, EmptyState, ErrorState, Icon, LoadingState, Modal, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, EmptyState, ErrorState, Icon, LoadingState, Modal, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth } from '@/entities/auth';
 import { ChildAvatar, formatChildAge, useChildren, type Child } from '@/entities/child';
@@ -52,7 +52,7 @@ export function MyPageChildrenPage() {
   }
 
   return (
-    <AppNavShell tone={state.user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title} accessibilityRole="header">아이 관리</Text>
@@ -154,16 +154,19 @@ function ChildRow({
   );
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // 보호자 하위 화면(LibraryPage/ReportHistoryPage)과 같은 폭.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: storybookTheme.spacing.md,
+    gap: 16,
   },
   headerRow: {
     flexDirection: 'row',
@@ -177,26 +180,29 @@ const styles = StyleSheet.create({
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onContent,
   },
-  list: { gap: storybookTheme.spacing.sm },
+  list: { gap: 8 },
+  // HomeListRow와 같은 흰 행 - 편집/삭제 버튼이 행 안에 있어 HomeListRow 대신 직접 그린다.
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: storybookTheme.spacing.ms,
-    padding: storybookTheme.spacing.md,
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: radius[16],
+    backgroundColor: L.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: L.border.secondary,
+    ...shadow(1),
   },
   rowBody: { flex: 1, gap: 2 },
   rowName: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
+    color: storybookTheme.color.onContent,
   },
   rowMeta: {
     fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onCardMuted,
+    color: storybookTheme.color.onContentMuted,
   },
   rowActions: { flexDirection: 'row', gap: storybookTheme.spacing.xs },
   actionButton: {
@@ -205,7 +211,7 @@ const styles = StyleSheet.create({
     borderRadius: storybookTheme.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: storybookTheme.color.pillBorder,
+    backgroundColor: L.bg.brandSubtle,
   },
   pressed: { opacity: 0.7 },
   deleteBody: {

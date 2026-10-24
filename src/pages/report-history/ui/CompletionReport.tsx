@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
+import { ActionButton, ErrorState, LoadingState, Pill, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { buildParentReport, type ParentReport } from '@/entities/report';
 import { refetchStoryPackage, type StoryRuntimePackage } from '@/entities/story';
 import {
@@ -276,10 +276,12 @@ function SessionHeader({
 
 const styles = StyleSheet.create({
   header: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    // 보호자 홈과 같은 흰 카드(radius 24, 옅은 테두리·그림자).
+    borderRadius: radius[24],
+    backgroundColor: semanticColors.light.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: semanticColors.light.border.secondary,
+    ...shadow(1),
     padding: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.sm,
     alignItems: 'flex-start',

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, Pill, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Pill, radius, semanticColors, shadow, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import {
   changePassword,
   dashboardNavItems,
@@ -138,7 +138,7 @@ function AccountScreen({
   }
 
   return (
-    <AppNavShell tone={user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
+    <AppNavShell tone="warm" items={dashboardNavItems(user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">내 정보·계정</Text>
         <View style={styles.card}>
@@ -230,29 +230,33 @@ function AccountScreen({
   );
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   title: { fontSize: storybookTheme.type.xl, fontWeight: storybookTheme.type.weight.black, color: storybookTheme.color.onContent },
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // 보호자 하위 화면(LibraryPage/ReportHistoryPage)과 같은 폭.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: storybookTheme.spacing.md,
+    gap: 16,
   },
+  // 보호자 홈과 같은 흰 카드(radius 24, 옅은 테두리·그림자).
   card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: radius[24],
+    backgroundColor: L.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: L.border.secondary,
     padding: storybookTheme.spacing.lg,
     gap: storybookTheme.spacing.md,
-    ...storybookTheme.elevation.high,
+    ...shadow(1),
   },
   sectionTitle: {
-    fontSize: storybookTheme.type.sm,
+    fontSize: storybookTheme.type.md,
     fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onCardTitle,
   },

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { AppNavShell, EmptyState, ErrorState, HexagonStatChart, Icon, LoadingState, Pill, storybookTheme } from '@/shared/ui';
+import { AppNavShell, EmptyState, ErrorState, HexagonStatChart, Icon, LoadingState, Pill, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { dashboardNavItems, homePathFor, libraryPathFor, listClassMemberships, useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { ChildSelector } from '@/features/child-selector';
@@ -271,20 +271,19 @@ function ReportListView({
       onPress={() => onOpen(completion.id)}
       accessibilityRole="button"
       accessibilityLabel={`${titleByStoryId[completion.storyId] ?? completion.storyId} 리포트 열기`}
-      style={({ pressed }) => [styles.reportCard, styles.reportRow, pressed && styles.reportCardPressed]}
+      style={({ pressed }) => [styles.reportRow, pressed && styles.reportRowPressed]}
     >
+      <View style={styles.reportRowIcon}>
+        <Icon name="sparkles" size={16} color={storybookTheme.color.gold} />
+      </View>
       <View style={styles.reportRowText}>
-        <Text style={styles.reportCardTitle}>{titleByStoryId[completion.storyId] ?? completion.storyId}</Text>
-        <Text style={styles.reportCardMeta}>
+        <Text style={styles.reportRowLabel} numberOfLines={1}>{titleByStoryId[completion.storyId] ?? completion.storyId}</Text>
+        <Text style={styles.reportRowMeta}>
           {formatCompletedAt(completion.completedAt)} · {formatReportDuration(completion.durationSeconds)}
         </Text>
-        {isExitedSession(completion) ? (
-          <View style={styles.exitedBadge}>
-            <Pill label={EXITED_BADGE_LABEL} tone="onLight" />
-          </View>
-        ) : null}
       </View>
-      <Icon name="chevronRight" size={20} color={storybookTheme.color.onCardMuted} />
+      {isExitedSession(completion) ? <Pill label={EXITED_BADGE_LABEL} tone="onLight" /> : null}
+      <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
     </Pressable>
   );
   return (
@@ -337,13 +336,19 @@ function TutorReportView({
               key={report.id}
               onPress={() => onOpen(report.id)}
               accessibilityRole="button"
-              style={({ pressed }) => [styles.reportCard, pressed && styles.reportCardPressed]}
+              style={({ pressed }) => [styles.reportRow, pressed && styles.reportRowPressed]}
             >
-              <Text style={styles.reportCardTitle}>{titleByStoryId[report.storyId] ?? report.storyId}</Text>
-              <Text style={styles.classReportTeacher}>{tutorReportSource(report)}</Text>
-              <Text style={styles.reportCardMeta}>
-                {formatCompletedAt(report.completedAt)} · {formatReportDuration(report.durationSeconds)}
-              </Text>
+              <View style={styles.reportRowIcon}>
+                <Icon name="users" size={16} color={storybookTheme.color.gold} />
+              </View>
+              <View style={styles.reportRowText}>
+                <Text style={styles.reportRowLabel} numberOfLines={1}>{titleByStoryId[report.storyId] ?? report.storyId}</Text>
+                <Text style={styles.classReportTeacher}>{tutorReportSource(report)}</Text>
+                <Text style={styles.reportRowMeta}>
+                  {formatCompletedAt(report.completedAt)} · {formatReportDuration(report.durationSeconds)}
+                </Text>
+              </View>
+              <Icon name="chevronRight" size={16} color={storybookTheme.color.onContentMuted} />
             </Pressable>
           ))}
         </View>
@@ -602,6 +607,8 @@ function TabButton({ label, active, onPress }: { label: string; active: boolean;
   );
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   content: {
     flex: 1,
@@ -612,7 +619,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: 14,
+    gap: 16,
   },
   title: {
     fontSize: storybookTheme.type.xl,
@@ -626,19 +633,20 @@ const styles = StyleSheet.create({
   tabRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 4 },
   sectionRow: {
     flexDirection: 'row',
-    borderRadius: storybookTheme.radius.card,
+    borderRadius: radius[16],
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderColor: L.border.secondary,
+    backgroundColor: L.bg.primary,
     padding: 4,
     gap: 4,
+    ...shadow(1),
   },
   section: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 44,
-    borderRadius: storybookTheme.radius.card,
+    borderRadius: radius[12],
   },
   sectionActive: { backgroundColor: storybookTheme.color.primary },
   sectionLabel: {
@@ -654,16 +662,48 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onContentMuted,
     marginTop: 4,
   },
+  // 보호자 홈과 같은 흰 카드(radius 24, 옅은 테두리·그림자).
   calendarCard: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: radius[24],
+    backgroundColor: L.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
+    borderColor: L.border.secondary,
     padding: 16,
-    ...storybookTheme.elevation.low,
+    ...shadow(1),
   },
-  reportRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  reportRowText: { flex: 1, minWidth: 0, gap: 6 },
+  // 보호자 홈 "최근 리포트" 행(HomeListRow)과 같은 흰 행 - 동그란 아이콘 + 제목·보조 문구 + 화살표.
+  reportRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: L.bg.primary,
+    borderRadius: radius[16],
+    borderWidth: 1,
+    borderColor: L.border.secondary,
+    ...shadow(1),
+  },
+  reportRowPressed: { opacity: 0.85 },
+  reportRowIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: L.bg.brandSubtle,
+  },
+  reportRowText: { flex: 1, minWidth: 0, gap: 2 },
+  reportRowLabel: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.onContent,
+  },
+  reportRowMeta: {
+    fontSize: storybookTheme.type.xs,
+    lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onContentMuted,
+  },
   filterNote: {
     fontSize: storybookTheme.type.xs,
     color: storybookTheme.color.onContentMuted,
@@ -691,32 +731,17 @@ const styles = StyleSheet.create({
   },
   tabLabelActive: { color: storybookTheme.color.onAccentFill },
   reportCard: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: radius[24],
+    backgroundColor: L.bg.primary,
     borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    padding: 18,
+    borderColor: L.border.secondary,
+    padding: storybookTheme.spacing.ml,
     gap: 8,
-    ...storybookTheme.elevation.low,
+    ...shadow(1),
   },
-  reportCardPressed: { opacity: 0.9 },
   hexRow: { alignItems: 'center', marginTop: 4 },
-  exitedBadge: {
-    alignSelf: 'flex-start',
-    marginTop: 6,
-  },
-  reportCardTitle: {
-    fontSize: storybookTheme.type.md,
-    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
-    fontWeight: storybookTheme.type.weight.semibold,
-    color: storybookTheme.color.onCardTitle,
-  },
-  reportCardMeta: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onCardMuted,
-  },
   classReportTeacher: {
-    fontSize: storybookTheme.type.sm,
+    fontSize: storybookTheme.type.xs,
     fontWeight: storybookTheme.type.weight.semibold,
     color: storybookTheme.color.onCardBody,
   },

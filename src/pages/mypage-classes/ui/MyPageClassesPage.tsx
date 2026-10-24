@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ActionButton, AppNavShell, ErrorState, LoadingState, Modal, RadioGroup, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Modal, RadioGroup, radius, semanticColors, shadow, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { normalizeInviteCode, isValidInviteCode, withParticle, teacherTitle } from '@/shared/lib';
 import { betaErrorCode, trackBetaEvent } from '@/entities/analytics';
@@ -15,6 +15,7 @@ import {
   type ClassMembershipResponse,
 } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
+import { HomeSection } from '@/features/home-section';
 import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
 
 type Load<T> = { status: 'loading' } | { status: 'ready'; items: T[] } | { status: 'error'; message: string };
@@ -126,22 +127,23 @@ export function MyPageClassesPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <AppNavShell tone={state.user.role === 'PARENT' ? 'warm' : 'console'} items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
+    <AppNavShell tone="warm" items={dashboardNavItems(state.user, navigate, pathname)} onBack={() => navigate('/mypage')}>
       <View style={styles.content}>
         <Text style={styles.title} accessibilityRole="header">수업 연결</Text>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>우리 아이가 들어간 반</Text>
+        <HomeSection title="우리 아이가 들어간 반" layout="list">
           {memberships.status === 'loading' ? (
             <LoadingState compact label="반 목록을 불러오는 중이에요…" />
           ) : memberships.status === 'error' ? (
             <ErrorState message={memberships.message} onRetry={() => setReloadKey((n) => n + 1)} />
           ) : memberships.items.length === 0 ? (
-            <Text style={styles.body}>아직 들어간 반이 없어요. 기관이나 선생님께 받은 반 코드로 아이를 올려 주세요.</Text>
+            <Text style={styles.emptyText}>아직 들어간 반이 없어요. 기관이나 선생님께 받은 반 코드로 아이를 올려 주세요.</Text>
           ) : (
-            <View style={styles.list}>
-              {memberships.items.map((membership) => (
+            memberships.items.map((membership) => (
                 <View key={membership.studentId} style={styles.row}>
+                  <View style={styles.rowIcon}>
+                    <Icon name="graduationCap" size={16} color={storybookTheme.color.gold} />
+                  </View>
                   <View style={styles.rowInfo}>
                     <Text style={styles.rowTitle}>{membership.studentName} · {membership.className}</Text>
                     <Text style={styles.rowSub}>
@@ -152,11 +154,11 @@ export function MyPageClassesPage() {
                   </View>
                   <ActionButton label="빼기" variant="outline" size="sm" onPress={() => setLeaveTarget(membership)} />
                 </View>
-              ))}
-            </View>
+            ))
           )}
+        </HomeSection>
 
-          <View style={styles.divider} />
+        <Card variant="surface" style={styles.formCard}>
           <Text style={styles.body}>반 코드를 넣고 등록한 아이 중 반에 올릴 아이를 골라 주세요. 아이가 여러 명이면 아이마다 한 번씩 올려 주세요.</Text>
           <TextField
             label="반 코드"
@@ -205,7 +207,7 @@ export function MyPageClassesPage() {
             }
           />
           {classJoinSuccess ? <StatusBanner label="반에 올렸어요." /> : null}
-        </View>
+        </Card>
       </View>
       <Modal
         visible={leaveTarget !== null}
@@ -222,34 +224,32 @@ export function MyPageClassesPage() {
   );
 }
 
+const L = semanticColors.light;
+
 const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
+    // 보호자 하위 화면(LibraryPage/ReportHistoryPage)과 같은 폭.
+    maxWidth: storybookTheme.layout.dashboardCardWideMaxWidth,
     alignSelf: 'center',
     paddingHorizontal: storybookTheme.spacing.ml,
     paddingTop: storybookTheme.spacing.lg,
     paddingBottom: storybookTheme.spacing.xl,
-    gap: storybookTheme.spacing.md,
+    gap: 20,
   },
   title: {
     fontSize: storybookTheme.type.xl,
     fontWeight: storybookTheme.type.weight.black,
     color: storybookTheme.color.onContent,
   },
-  card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
-    borderWidth: 1,
-    borderColor: storybookTheme.color.surfaceCardBorder,
-    padding: storybookTheme.spacing.ml,
-    gap: storybookTheme.spacing.sm,
-  },
-  sectionTitle: {
-    fontSize: storybookTheme.type.md,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
+  // 반 코드 폼 - 공통 Card(surface)에 보호자 홈 카드와 같은 radius 24.
+  formCard: { borderRadius: radius[24], gap: storybookTheme.spacing.sm },
+  emptyText: {
+    fontSize: storybookTheme.type.sm,
+    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
+    color: storybookTheme.color.onContentMuted,
+    paddingHorizontal: 4,
   },
   body: {
     fontSize: storybookTheme.type.sm,
@@ -261,29 +261,37 @@ const styles = StyleSheet.create({
     lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onCardBody,
   },
-  divider: {
-    height: 1,
-    marginVertical: 8,
-    backgroundColor: storybookTheme.color.pillBorder,
-  },
   list: { gap: 8 },
+  // HomeListRow와 같은 흰 행 - "빼기" 버튼이 행 안에 있어 HomeListRow 대신 직접 그린다.
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 12,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: storybookTheme.color.pillBorder,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: L.bg.primary,
+    borderRadius: radius[16],
+    borderWidth: 1,
+    borderColor: L.border.secondary,
+    ...shadow(1),
+  },
+  rowIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: L.bg.brandSubtle,
   },
   rowInfo: { flex: 1, gap: 2 },
   rowTitle: {
     fontSize: storybookTheme.type.sm,
     fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onCardTitle,
+    color: storybookTheme.color.onContent,
   },
   rowSub: {
     fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.onCardMuted,
+    color: storybookTheme.color.onContentMuted,
   },
 });

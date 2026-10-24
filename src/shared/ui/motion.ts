@@ -15,6 +15,8 @@ export const EASE_IN_SINE = 'cubic-bezier(0.12, 0, 0.39, 0)';
  * mounted/entered가 엉뚱한 세대로 되돌아가서, effect 안에서 mount -> 다음 프레임에 entered ->
  * 언마운트는 setTimeout인 표준 패턴을 쓴다.
  */
+const ENTER_FALLBACK_MS = 60;
+
 export function usePresenceAnimation(
   visible: boolean,
   durationMs: number = storybookTheme.motion.durationMs.moderate,
@@ -30,7 +32,13 @@ export function usePresenceAnimation(
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setMounted(true);
       const frame = requestAnimationFrame(() => setEntered(true));
-      return () => cancelAnimationFrame(frame);
+      // 다음 프레임이 늦게 오는 환경(백그라운드 탭, 바쁜 화면)에서도 카드가 투명한 채로 남지 않게 - 10/24 1분 후기 카드가
+      // 배경만 어둡고 몇 초 동안 안 보였다.
+      const fallback = setTimeout(() => setEntered(true), ENTER_FALLBACK_MS);
+      return () => {
+        cancelAnimationFrame(frame);
+        clearTimeout(fallback);
+      };
     }
 
     setEntered(false);

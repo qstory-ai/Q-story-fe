@@ -9,7 +9,7 @@ export type LaunchNotificationFormValues = {
 };
 
 /**
- * 이메일은 항상 선택이다. 전화번호는 "연락 받고 싶어요"일 때만 필수 - "괜찮아요"는 연락처 없이
+ * 이메일은 항상 선택이다. 전화번호는 "소식 받고 데모 시작"일 때만 필수 - "소식 없이 데모 시작"은 연락처 없이
  * 이름·아이 정보만으로 신청을 남긴다.
  */
 export function canSubmitLaunchNotification(

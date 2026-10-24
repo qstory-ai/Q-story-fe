@@ -14,8 +14,8 @@ const GENDER_OPTIONS: { value: ChildGender; label: string }[] = [
 
 /**
  * 무료 데모("/demo")에 들어가기 전 거치는 연락처 수집 모달 - DemoStoryRoute 전용(정식 플레이
- * 경로는 이미 가입한 사용자라 걸지 않는다). "연락 받고 싶어요"는 전화번호까지, "괜찮아요"는
- * 전화번호 없이 나머지 필드만 요구하고(전화번호는 보내지 않는다), 서버에는 wantsContact 플래그로 구분한다. linkAction/scrim 닫기를 주지 않아
+ * 경로는 이미 가입한 사용자라 걸지 않는다). "소식 받고 데모 시작"은 휴대폰 번호까지, "소식 없이 데모 시작"은
+ * 번호 없이 나머지 필드만 요구하고(번호는 보내지 않는다), 서버에는 wantsContact 플래그로 구분한다. linkAction/scrim 닫기를 주지 않아
  * 정보 없이 지나치는 경로를 막는다.
  */
 export function LaunchNotificationGate({ children }: { children: ReactNode }) {
@@ -43,16 +43,16 @@ export function LaunchNotificationGate({ children }: { children: ReactNode }) {
   return (
     <Modal
       visible
-      eyebrow="정식 출시 소식 받기"
-      title="이야기가 준비되면 가장 먼저 알려드릴게요"
+      eyebrow="무료 데모 시작"
+      title="정식 출시 소식을 가장 먼저 받아 보세요"
       positiveAction={{
-        label: '연락 받고 싶어요',
+        label: '소식 받고 데모 시작',
         onPress: () => attempt(true),
         disabled: form.submittingIntent !== null,
         loading: form.submittingIntent === 'contact',
       }}
       negativeAction={{
-        label: '괜찮아요',
+        label: '소식 없이 데모 시작',
         onPress: () => attempt(false),
         disabled: form.submittingIntent !== null,
         loading: form.submittingIntent === 'decline',
@@ -60,10 +60,10 @@ export function LaunchNotificationGate({ children }: { children: ReactNode }) {
       accessibilityLabel="정식 출시 알림 신청"
     >
       <ModalBody>
-        전화로는 연락드리지 않아요. 정식 출시 소식은 이메일과 문자로만 안내해 드려요.
+        정식 출시일과 새 이야기 소식을 문자로 알려 드려요. 전화는 걸지 않고, 원하면 언제든 그만 받을 수 있어요.
       </ModalBody>
       <Text style={styles.requiredNotice}>
-        무료 데모를 시작하려면 아래 항목을 입력해야 해요 (이메일 제외, 전화번호는 연락을 받고 싶을 때만).
+        데모를 시작하려면 아래 항목을 적어 주세요. 이메일은 선택이고, 휴대폰 번호는 소식을 받을 때만 적으면 돼요.
       </Text>
 
       <TextField
@@ -81,12 +81,12 @@ export function LaunchNotificationGate({ children }: { children: ReactNode }) {
         placeholder="parent@example.com"
       />
       <TextField
-        label="전화번호 (연락 받고 싶을 때만)"
+        label="휴대폰 번호 (소식 받을 때만)"
         value={form.phone}
         onChangeText={form.setPhone}
         keyboardType="phone-pad"
         placeholder="010-0000-0000"
-        errorText={fieldError(!wantsContactAttempt || form.phone.trim().length > 0, '연락을 받으시려면 전화번호를 입력해 주세요.')}
+        errorText={fieldError(!wantsContactAttempt || form.phone.trim().length > 0, '소식을 받으시려면 휴대폰 번호를 적어 주세요.')}
       />
 
       <View style={styles.field}>

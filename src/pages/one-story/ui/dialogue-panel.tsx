@@ -62,8 +62,9 @@ export function DialoguePanel({
         </View>
         <Text style={panel.name}>{character.displayName}</Text>
         <View style={panel.headerSpacer} />
-        {/* 버튼 줄에 '이야기 계속 듣기'가 없는 단계에서도 언제든 이야기로 돌아갈 수 있게 머리에 둔다. */}
-        {PHASES_WITHOUT_CONTINUE_CHIP.has(phase) && (
+        {/* '이야기 계속 듣기'는 모든 단계에서 머리의 이 링크 하나로 - 단계마다 칩·링크로 모양이 바뀌었다(10/24 QA).
+            이야기로 돌아가기를 권하는 단계는 그 버튼이 주 버튼이라 링크를 두지 않는다. */}
+        {phase !== 'suggest-return' && (
           <Pressable accessibilityRole="button" onPress={continueStory} hitSlop={10}>
             <Text style={panel.continueLink}>이야기 계속 듣기 ›</Text>
           </Pressable>
@@ -127,10 +128,11 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
             듣고 있어요: {dialogue.livePartial}
           </Text>
         ) : null}
+        <View style={panel.meterTrack}>
+          <View style={[panel.meterFill, { width: `${dialogue.meterPercent}%` }]} />
+        </View>
+        {/* 버튼은 다른 단계처럼 왼쪽부터 주 버튼 - 소리 막대 옆 오른쪽에 붙어 단계마다 위치가 바뀌었다(10/24 QA). */}
         <View style={panel.controls}>
-          <View style={panel.meterTrack}>
-            <View style={[panel.meterFill, { width: `${dialogue.meterPercent}%` }]} />
-          </View>
           <Chip primary label="다 말했어" onPress={dialogue.stopTalking} />
           <Chip label="그만할래" onPress={dialogue.cancelInput} />
         </View>
@@ -187,7 +189,6 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
         <Text style={[panel.status, scaledText(panel.status, textScale)]}>
           {phase === 'transcribing' ? '무슨 말인지 듣는 중…' : '그레텔이 생각하는 중…'}
         </Text>
-        <Chip label="이야기 계속 듣기" onPress={onContinue} />
       </View>
     );
   }
@@ -224,7 +225,6 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
       <View style={panel.controls}>
         <Chip primary label="응, 도와줘" onPress={() => void dialogue.askHelp('응, 도와줘')} />
         <Chip label="말하기" onPress={() => void dialogue.startTalking()} />
-        <Chip label="이야기 계속 듣기" onPress={onContinue} />
       </View>
     );
   }
@@ -245,11 +245,10 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
         </View>
       )}
       <View style={panel.controls}>
-        {/* 아이 차례의 주 버튼 - 다른 칩보다 크게 둬서 무엇을 누르면 되는지 바로 보이게 한다. */}
-        <Chip primary large label={phase === 'error' ? '● 다시 말하기' : '● 말하기'} onPress={() => void dialogue.startTalking()} />
+        {/* 아이 차례의 주 버튼 - 주 버튼 크기(56)라 무엇을 누르면 되는지 바로 보인다. */}
+        <Chip primary label={phase === 'error' ? '● 다시 말하기' : '● 말하기'} onPress={() => void dialogue.startTalking()} />
         <Chip label="글로 쓰기" onPress={dialogue.startTyping} />
         {dialogue.canAskHelp && <Chip label="도와줘" onPress={() => void dialogue.askHelp()} />}
-        <Chip label="이야기 계속 듣기" onPress={onContinue} />
       </View>
     </View>
   );
@@ -346,14 +345,12 @@ function Chip({
   label,
   onPress,
   primary = false,
-  large = false,
   disabled = false,
 }: {
   label: string;
   onPress: () => void;
+  /** 단계의 주 버튼 - 앱 공용 버튼(ActionButton)의 주 버튼 크기(56). 나머지는 보조 크기(44). */
   primary?: boolean;
-  /** 아이 차례의 주 버튼(말하기) - 더 크게. */
-  large?: boolean;
   disabled?: boolean;
 }) {
   const textScale = useReaderTextScale();
@@ -365,7 +362,6 @@ function Chip({
       onPress={onPress}
       style={({ pressed }) => [
         panel.chip,
-        large && panel.chipLarge,
         primary && panel.chipPrimary,
         disabled && panel.chipDisabled,
         pressed && panel.chipPressed,
@@ -374,9 +370,8 @@ function Chip({
       <Text
         style={[
           panel.chipText,
-          large && panel.chipTextLarge,
           primary && panel.chipTextPrimary,
-          scaledText(large ? panel.chipTextLarge : panel.chipText, textScale),
+          scaledText(primary ? panel.chipTextPrimary : panel.chipText, textScale),
         ]}
       >
         {label}
@@ -385,12 +380,6 @@ function Chip({
   );
 }
 
-const PHASES_WITHOUT_CONTINUE_CHIP = new Set<UseDialogue['phase']>([
-  'recording',
-  'confirm',
-  'typing',
-  'proposal',
-]);
 
 /** 숲 그림 위에 얹는 어두운 패널 - 말풍선만 밝게 둬서 글이 그림과 섞이지 않게 한다. */
 const PANEL_BACKGROUND = storybookTheme.color.readerPanelBackground;
@@ -468,28 +457,25 @@ const panel = StyleSheet.create({
     fontSize: 16,
   },
   meterTrack: {
-    flexGrow: 1,
-    minWidth: 80,
     height: 8,
     borderRadius: 4,
     backgroundColor: storybookTheme.color.onDarkOverlay,
     overflow: 'hidden',
   },
   meterFill: { height: 8, backgroundColor: storybookTheme.color.gold },
+  // 버튼 규격은 질문 카드·선택지의 공용 버튼(ActionButton)과 같게 - 주 버튼 56·16px, 보조 44·14px(10/24 QA: 52/40과 섞여 있었다).
   chip: {
-    minHeight: 40,
+    minHeight: 44,
     justifyContent: 'center',
-    paddingHorizontal: 14,
+    paddingHorizontal: 18,
     borderRadius: 999,
     backgroundColor: storybookTheme.color.onDarkOverlay,
   },
-  chipLarge: { minHeight: 52, paddingHorizontal: 24 },
-  chipPrimary: { backgroundColor: storybookTheme.color.accentFill },
+  chipPrimary: { minHeight: 56, paddingHorizontal: 26, backgroundColor: storybookTheme.color.accentFill },
   chipDisabled: { opacity: 0.5 },
   chipPressed: { opacity: 0.8 },
-  chipText: { color: storybookTheme.color.onDark, fontSize: 15, fontWeight: '600' },
-  chipTextLarge: { fontSize: 18, fontWeight: '700' },
-  chipTextPrimary: { color: storybookTheme.color.onAccentFill },
+  chipText: { color: storybookTheme.color.onDark, fontSize: storybookTheme.type.sm, fontWeight: '700' },
+  chipTextPrimary: { color: storybookTheme.color.onAccentFill, fontSize: storybookTheme.type.md, fontWeight: '700' },
   proxyRow: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   proxyBox: {
     width: 18,

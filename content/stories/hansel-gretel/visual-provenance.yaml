@@ -312,18 +312,18 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: In the corridor, Gretel turns the big black key in the closed kitchen door to lock it while Hansel pushes the door shut with both hands. The witch is NOT visible (she is inside the kitchen, behind the closed door).
+      SCENE - follow exactly, it overrides any default staging: In the corridor, Gretel quickly turns the big black key in the closed kitchen door to lock it while Hansel braces the door shut with both hands. Both faces show URGENCY and fear of being caught: wide eyes, tense mouths, glancing back - NOT smiling, NOT relaxed. The witch is NOT visible (she is inside the kitchen, behind the closed door).
       PROPS AND STATE: Corridor only: NO cage, NO oven here. Candy-studded walls, the outside door at the far end. Neither child carries any bag, backpack, satchel or strap.
       Match the LAST reference picture's cage situation exactly (who is inside/outside).
-      COMPOSITION: Medium shot in the corridor, outside the kitchen door. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      COMPOSITION: Medium shot in the corridor, outside the kitchen door. SAFE BOX: keep every face, animal and the key action within 15-85% of the width and 27-70% of the height; above 27% only sky, treetops, ceiling or wall, below 70% only ground. Medium-wide framing with headroom: heads at 30-40% of the height. Characters visible from head to at least the knees.
       BACKGROUND: A hallway inside the candy cottage: candy-studded walls, the heavy wooden kitchen door (closed), a storeroom door and the outside door at the far end. NO cage and NO oven here - those are in the kitchen.
       LIGHTING / MOOD: soft diffused daylight, warm and calm
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:9fbced03c0db0e349bb1fc05d3c3ea1da51d8b36907d7b67695c7eb3532950fa
+    inputHash: sha256:30ed23d426536a89ceebe8f89c3212ab85322deb56ce6f97fc5c35cea036d8aa
     generatedAt: 2026-10-24T07:18:11.120Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet, state-corridor. 요청 99e0d257-6b35-468c-a903-c7a7e6f882bb, 2k/high. 원본 PNG sha256:e730ef0232158769… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet, state-corridor. 요청 99e0d257-6b35-468c-a903-c7a7e6f882bb, 2k/high. 원본 PNG sha256:6d1a2f42b427cbfc… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: storehouse
     status: RECOVERED
     prompt: |-
@@ -379,17 +379,17 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes. Father: worn, gentle woodcutter, untidy brown hair, short beard, white rolled-sleeve shirt, olive vest, brown trousers and boots; tired and regretful, never villainous.
       EXACTLY 3 people in the picture (Hansel, Gretel, Father); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: Father and the two children sit together at the table, talking and smiling; a kind neighbor woman (not the stepmother, not the old woman) brings a basket of vegetables through the open door.
-      PROPS AND STATE: A modest meal: one loaf and a pot of soup. Stepmother is NOT here. Neither child carries any bag, backpack, satchel or strap.
-      COMPOSITION: Medium-wide shot of the cottage kitchen in the evening. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      SCENE - follow exactly, it overrides any default staging: Father and the two children sit together at the table, talking quietly and smiling a little, safe at home.
+      PROPS AND STATE: A modest meal: one loaf and a pot of soup. EXACTLY 3 people: Father, Hansel, Gretel - no other adult, no woman, no neighbor, no stepmother. Neither child carries any bag, backpack, satchel or strap.
+      COMPOSITION: Medium-wide shot of the cottage kitchen in the evening. SAFE BOX: keep every face, animal and the key action within 15-85% of the width and 27-70% of the height; above 27% only sky, treetops, ceiling or wall, below 70% only ground. Medium-wide framing with headroom: heads at 30-40% of the height. Characters visible from head to at least the knees.
       BACKGROUND: A poor but cozy woodcutter's cottage by a great forest: rough plank walls, one small window, round wooden table, oil lamp, simple shelves; same table, window, wall and door layout in every home scene.
       LIGHTING / MOOD: quiet warm lamplight at night, gentle and safe
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:180d5d4c4e3a5427995ba97f04f9205fb768e2da89198111ba5469383267aa58
+    inputHash: sha256:9ff854c09975184af65a0efae9b56d3d6adb006f652bc32ca6019e288639c7ea
     generatedAt: 2026-10-24T07:19:38.991Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet, father-sheet. 요청 942f7396-29fb-403e-a35d-197e372762fa, 2k/high. 원본 PNG sha256:237ad9d1771d417e… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet, father-sheet. 요청 942f7396-29fb-403e-a35d-197e372762fa, 2k/high. 원본 PNG sha256:99a4fa07941f3181… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: old-woman-door
     status: RECOVERED
     prompt: |-
@@ -491,18 +491,18 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: Gretel turns the small silver key in the lock of the tall iron cage on the LEFT; the cage door swings open and Hansel steps OUT quietly. The witch is still at the SHELF AREA on the RIGHT wall with her back turned, searching for the pot lid.
+      SCENE - follow exactly, it overrides any default staging: Gretel hurriedly turns the small silver key in the lock of the tall iron cage on the LEFT; the cage door swings open and Hansel squeezes OUT quickly and quietly. Both faces show URGENCY and fear of being caught: wide eyes, tense mouths, glancing back - NOT smiling, NOT relaxed. The witch is still at the SHELF AREA on the RIGHT wall with her back turned, searching for the pot lid.
       PROPS AND STATE: Gretel holds the ring with exactly two keys. Neither child carries any bag, backpack, satchel or strap.
       Match the LAST reference picture's cage situation exactly (who is inside/outside).
-      COMPOSITION: Medium shot at the cage. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
-      BACKGROUND: The SAME candy cottage kitchen in every kitchen picture, fixed layout: a TALL RECTANGULAR floor-standing iron cage LEFT (taller than an adult, never a round birdcage); corridor door on the back wall left of center; COOKING AREA back CENTER = brick oven with a stove top and one big pot; SHELF AREA on the RIGHT wall = shelves of candy jars, bowls and pot lids; worktable FRONT RIGHT. Key ring: EXACTLY TWO keys (small silver = cage, big black = door).
+      COMPOSITION: Medium shot at the cage. SAFE BOX: keep every face, animal and the key action within 15-85% of the width and 27-70% of the height; above 27% only sky, treetops, ceiling or wall, below 70% only ground. Medium-wide framing with headroom: heads at 30-40% of the height. Characters visible from head to at least the knees.
+      BACKGROUND: The SAME candy cottage kitchen in every kitchen picture, fixed layout: a TALL RECTANGULAR floor-standing iron cage on the left at 15-35% of the width (not touching the frame edge, never a round birdcage); corridor door on the back wall left of center; COOKING AREA back CENTER = brick oven with a stove top and one big pot; SHELF AREA on the RIGHT wall = shelves of candy jars, bowls and pot lids; worktable FRONT RIGHT. Key ring: EXACTLY TWO keys (small silver = cage, big black = door).
       LIGHTING / MOOD: soft diffused daylight, warm and calm
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:ed02c0fdbb172a4cf8c0bdc7d0e5e635768e9fde7172eaf405b78759f1993cc1
+    inputHash: sha256:6531f755ad78d5a4326257d643ed62e967842775dd56ffadc6857c0a7f7c47d3
     generatedAt: 2026-10-24T07:17:48.391Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet, state-hansel-caged. 요청 b3b3d83d-0d11-44b5-a17c-e621d3acf064, 2k/high. 원본 PNG sha256:bc38cc6d29f5abc6… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet, state-hansel-caged. 요청 b3b3d83d-0d11-44b5-a17c-e621d3acf064, 2k/high. 원본 PNG sha256:5641bcf45ee889a0… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: black-key-side-door
     status: RECOVERED
     prompt: |-
@@ -514,17 +514,18 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: Gretel has opened the heavy corridor door (back wall, left of center) with the big black key; Hansel is already slipping through into the corridor. The witch, at the SHELF AREA on the RIGHT wall holding a pot lid, turns around and shouts. The tall iron cage at the left stands open and empty.
-      PROPS AND STATE: The open, now-empty cage at the far left. Exactly two keys on the ring. Neither child carries any bag, backpack, satchel or strap.
-      COMPOSITION: Medium-wide shot from inside the kitchen toward the kitchen door. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
-      BACKGROUND: The SAME candy cottage kitchen in every kitchen picture, fixed layout: a TALL RECTANGULAR floor-standing iron cage LEFT (taller than an adult, never a round birdcage); corridor door on the back wall left of center; COOKING AREA back CENTER = brick oven with a stove top and one big pot; SHELF AREA on the RIGHT wall = shelves of candy jars, bowls and pot lids; worktable FRONT RIGHT. Key ring: EXACTLY TWO keys (small silver = cage, big black = door).
+      SCENE - follow exactly, it overrides any default staging: Hansel and Gretel RUN out together through the open corridor door (back wall, left of center), Gretel pulling Hansel by the hand, both mid-stride, looking back over their shoulders in alarm. Both faces show URGENCY and fear of being caught: wide eyes, tense mouths, glancing back - NOT smiling, NOT relaxed. The witch, at the SHELF AREA on the RIGHT wall holding a pot lid, turns around and shouts. The tall iron cage at the left stands open and empty.
+      PROPS AND STATE: Exactly two keys on the ring in Gretel hand. Neither child carries any bag, backpack, satchel or strap.
+      Match the LAST reference picture's kitchen layout (oven and pot position, shelves, door) and the witch's face, clothes and colors exactly; only the cage is now open and empty.
+      COMPOSITION: Medium-wide shot from inside the kitchen toward the corridor door. SAFE BOX: keep every face, animal and the key action within 15-85% of the width and 27-70% of the height; above 27% only sky, treetops, ceiling or wall, below 70% only ground. Medium-wide framing with headroom: heads at 30-40% of the height. Characters visible from head to at least the knees.
+      BACKGROUND: The SAME candy cottage kitchen in every kitchen picture, fixed layout: a TALL RECTANGULAR floor-standing iron cage on the left at 15-35% of the width (not touching the frame edge, never a round birdcage); corridor door on the back wall left of center; COOKING AREA back CENTER = brick oven with a stove top and one big pot; SHELF AREA on the RIGHT wall = shelves of candy jars, bowls and pot lids; worktable FRONT RIGHT. Key ring: EXACTLY TWO keys (small silver = cage, big black = door).
       LIGHTING / MOOD: soft diffused daylight, warm and calm
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:88817c02257e6c79f3cace7764fc9fa9e6679cd49ea84f40eb6c0d7ebafb4867
+    inputHash: sha256:eaad089a1008e2bd7f6933bd6df17dc3caa76755cf8cc98e655bdc5b8a6d1b03
     generatedAt: 2026-10-24T07:18:09.515Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 154bd1a2-d22c-4064-878b-707019b4b879, 2k/high. 원본 PNG sha256:638a950961fc0f0f… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 154bd1a2-d22c-4064-878b-707019b4b879, 2k/high. 원본 PNG sha256:3265be54eac6b368… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: escape-corridor
     status: RECOVERED
     prompt: |-
@@ -536,18 +537,18 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: Hansel and Gretel run hand in hand down the corridor toward the open outside door at the far end.
+      SCENE - follow exactly, it overrides any default staging: Hansel and Gretel dash hand in hand down the corridor toward the open outside door at the far end, leaning forward as they run, Hansel glancing back. Both faces show URGENCY and fear of being caught: wide eyes, tense mouths, glancing back - NOT smiling, NOT relaxed.
       PROPS AND STATE: Corridor only: NO cage, NO oven, no witch. No bags yet. Neither child carries any bag, backpack, satchel or strap.
       Match the LAST reference picture's cage situation exactly (who is inside/outside).
-      COMPOSITION: Medium-wide shot down the corridor toward the bright outside door. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      COMPOSITION: Medium-wide shot down the corridor toward the bright outside door. SAFE BOX: keep every face, animal and the key action within 15-85% of the width and 27-70% of the height; above 27% only sky, treetops, ceiling or wall, below 70% only ground. Medium-wide framing with headroom: heads at 30-40% of the height. Characters visible from head to at least the knees.
       BACKGROUND: A hallway inside the candy cottage: candy-studded walls, the heavy wooden kitchen door (closed), a storeroom door and the outside door at the far end. NO cage and NO oven here - those are in the kitchen.
       LIGHTING / MOOD: soft diffused daylight, warm and calm
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:cb0df581f046f207cf0ff38467a39a5daf8fb41477feed88fe3a1582e1b2f7fd
+    inputHash: sha256:e1b4c5eebe6bd8163d8e0c291efb4e13a506aab61cdc2d85672e9a03179e03b4
     generatedAt: 2026-10-24T07:18:24.409Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet, state-corridor. 요청 54de71e6-a38b-4b85-9266-6ff1fe453c08, 2k/high. 원본 PNG sha256:cc4b6e3d0c326160… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet, state-corridor. 요청 54de71e6-a38b-4b85-9266-6ff1fe453c08, 2k/high. 원본 PNG sha256:293cb4eeb8de3889… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: a-try-thick-bushes
     status: RECOVERED
     prompt: |-
@@ -892,17 +893,17 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes. Small forest birds (brown and grey), clearly different from the white bird.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: A row of small brown forest birds perches along a fallen tree trunk lying across the path at the children’s chest height, pecking up the last breadcrumbs from the top of the trunk. Hansel and Gretel stand behind the trunk, dismayed; Hansel points at the birds, Gretel puts a hand over her mouth. The ground below is empty.
-      PROPS AND STATE: Four or five small brown birds, clearly visible at mid-height of the picture. Almost no crumbs left. No white bird. Neither child carries any bag, backpack, satchel or strap.
-      COMPOSITION: Medium-wide shot of the forest path at night. The birds are at the children’s CHEST height in the CENTER of the frame - nothing important in the lower half. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      SCENE - follow exactly, it overrides any default staging: On the open path itself (no fallen tree, nothing blocking the path), four or five small brown forest birds hop and peck up the last breadcrumbs a few steps ahead of the children. Hansel and Gretel stand at the left side of the path, dismayed; Hansel points at the birds, Gretel puts a hand over her mouth.
+      PROPS AND STATE: The path is clear and continuous. Almost no crumbs left. No white bird. No logs or trunks across the path. Neither child carries any bag, backpack, satchel or strap.
+      COMPOSITION: Medium-wide shot of a night forest path seen from slightly above; the path winds AWAY from the viewer into the middle of the picture, so the stretch where the birds are sits in the CENTER of the frame (30-55% of the height). SAFE BOX: keep every face, animal and the key action within 15-85% of the width and 27-70% of the height; above 27% only sky, treetops, ceiling or wall, below 70% only ground. Medium-wide framing with headroom: heads at 30-40% of the height. Characters visible from head to at least the knees.
       BACKGROUND: A deep European fairy-tale forest of tall ancient trees with thick trunks, dirt paths, mossy roots, ferns and rocks; distant trees fade into soft mist. Keep the same tree shapes and world across all forest scenes.
       LIGHTING / MOOD: blue moonlit night, muted sapphire and teal shadows, pale moonlight on hair and sleeves for legibility
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:97d231960c1dba564f087f60c725d563cd4929ac6f21cc48df2c5efa96179d3d
+    inputHash: sha256:d1ad7414ede8d3219f0b4e1d9d1084167ecc9ca4f45f563c9812594fff01aacc
     generatedAt: 2026-10-24T07:15:19.780Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 800d52e8-3bad-4363-ade2-eddcf2018811, 2k/high. 원본 PNG sha256:ac1601959d91e732… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 800d52e8-3bad-4363-ade2-eddcf2018811, 2k/high. 원본 PNG sha256:652d4ad6a84ff1a4… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: lost-forest
     status: RECOVERED
     prompt: |-
@@ -980,17 +981,17 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: Hansel and Gretel step out of the candy house door into the forest, each carrying a small cloth bundle bag, looking ahead with determination.
+      SCENE - follow exactly, it overrides any default staging: Hansel and Gretel hurry out of the candy house door into the forest, each carrying a small cloth bundle bag, walking fast and glancing back at the house, nervous and determined - not smiling yet.
       PROPS AND STATE: The two small cloth bags from the storeroom. Each child carries one small cloth bundle bag (packed bread and water) - the same small bags in every picture from now on.
-      COMPOSITION: Medium-wide shot outside the candy house. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      COMPOSITION: Medium-wide shot outside the candy house. SAFE BOX: keep every face, animal and the key action within 15-85% of the width and 27-70% of the height; above 27% only sky, treetops, ceiling or wall, below 70% only ground. Medium-wide framing with headroom: heads at 30-40% of the height. Characters visible from head to at least the knees.
       BACKGROUND: A charming gingerbread-and-candy cottage in a sunny forest clearing: biscuit walls, icing trim, candy windows, a lollipop garden, inviting rather than scary. Keep the same door and window positions. Before the children enter, the door is closed and there are no scratches, sugar swirls or magic glows.
       LIGHTING / MOOD: soft diffused daylight, warm and calm
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:29edaf1e20a3a33a78f667355e3bd836893a60bc420476e9cad70dc810248414
+    inputHash: sha256:2b19feb72edca54d501e5a6e7e1efb1513f5de53adebf71859bd5b16f652023c
     generatedAt: 2026-10-24T07:18:48.394Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 4781451e-80e7-4a00-9700-882fa4c1a62d, 2k/high. 원본 PNG sha256:0de364e974f2c3fa… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 4781451e-80e7-4a00-9700-882fa4c1a62d, 2k/high. 원본 PNG sha256:2048b5c298604ca2… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: waterway-obstacle
     status: RECOVERED
     prompt: |-

@@ -85,13 +85,18 @@ const illustration = (slug) => join(appDirectory, 'assets', 'story', story, asse
 const STATE_REFS = {
   'state-hansel-caged': illustration('c-wait-for-witch-turn-01'),
   'state-corridor': illustration('escape-corridor'),
+  // 10/24 3차 QA: 문을 나가는 장면만 오븐·솥 위치와 마녀 옷이 달랐다 - 바로 앞 장면 그림(같은 부엌·같은 마녀)을 붙인다.
+  'state-kitchen-layout': illustration('wait-and-take-keys'),
 };
 function sceneRefsFor(visual, hanselCaged) {
+  if (visual.assetId === 'black-key-side-door') return ['state-kitchen-layout'];
   const key = locationKey(visual.location);
   if (key === 'CANDY_CORRIDOR') return ['state-corridor'];
   if (key === 'CANDY_INTERIOR' && hanselCaged) return ['state-hansel-caged'];
   return [];
 }
+const KITCHEN_LAYOUT_RULE =
+  "Match the LAST reference picture's kitchen layout (oven and pot position, shelves, door) and the witch's face, clothes and colors exactly; only the cage is now open and empty.";
 const STATE_REF_RULE = " Match the LAST reference picture's cage situation exactly (who is inside/outside).";
 
 // 1) 장면 삽화 - 장면 순서대로. 앞 그림을 이어 그리도록 continuity에 앞 그림의 끝 상태를 적는다.
@@ -197,7 +202,8 @@ for (const job of jobs) {
   job.staging = STAGING[job.id];
   job.continuityRule = BAG_SCENES.has(job.id) ? CONTINUITY_RULES.bag : CONTINUITY_RULES.noBag;
   // 창살 규칙은 연출 메모가 대신한다(누가 창살 안인지 메모에 적음) - 상태 참고 그림 문장만 남겨 5,000자 안에 맞춘다.
-  if (job.sceneRefs?.length) job.rules = STATE_REF_RULE.trim();
+  if (job.sceneRefs?.includes('state-kitchen-layout')) job.rules = KITCHEN_LAYOUT_RULE;
+  else if (job.sceneRefs?.length) job.rules = STATE_REF_RULE.trim();
   else job.rules = '';
   job.prompt = buildPrompt(job);
   job.promptHash = createHash('sha256').update(job.prompt).digest('hex').slice(0, 16);

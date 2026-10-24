@@ -200,6 +200,12 @@ const GA_EVENT_KEYS: Record<GaEventName, readonly string[]> = {
   report_open: ['kind', 'source', 'viewer_role'],
 };
 
+/**
+ * GA가 유입 정보로 읽는 이름(source·medium·campaign 등)으로 보내면 그 세션의 유입 경로가 바뀐다 - 리포트를 열 때 보낸
+ * source=history가 세션 소스 'history'로 잡혀 유입 통계를 흐렸다. 그런 키는 다른 이름으로 보낸다.
+ */
+const GA_PARAM_RENAMES: Record<string, string> = { source: 'view_source' };
+
 /** 분류값 모양(영문·숫자·_-.:) 40자까지만 - 그 밖의 글자(이름·문장)는 보내지 않는다. */
 const CATEGORY_VALUE = /^[A-Za-z0-9_.:-]{1,40}$/;
 
@@ -208,12 +214,12 @@ export function shapeGaParams(eventName: GaEventName, input: BetaMetadataInput):
   for (const key of GA_EVENT_KEYS[eventName]) {
     const value = input[key];
     if (typeof value === 'number') {
-      if (Number.isFinite(value)) params[key] = value;
+      if (Number.isFinite(value)) params[GA_PARAM_RENAMES[key] ?? key] = value;
     } else if (typeof value === 'boolean') {
-      params[key] = value ? 'true' : 'false';
+      params[GA_PARAM_RENAMES[key] ?? key] = value ? 'true' : 'false';
     } else if (typeof value === 'string') {
       const text = value.trim();
-      if (CATEGORY_VALUE.test(text)) params[key] = text.toLowerCase();
+      if (CATEGORY_VALUE.test(text)) params[GA_PARAM_RENAMES[key] ?? key] = text.toLowerCase();
     }
   }
   return params;

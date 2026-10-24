@@ -68,7 +68,7 @@ test('page_referrer는 다른 사이트면 출처만, 같은 사이트면 경로
 test('이벤트 값은 허용 키의 분류값·숫자만 - id·문장·이름은 버린다', () => {
   assert.deepEqual(
     shapeGaParams('report_open', { kind: 'HOME', source: 'list', completion_id: 'abc', viewer_role: 'PARENT' }),
-    { kind: 'home', source: 'list', viewer_role: 'parent' },
+    { kind: 'home', view_source: 'list', viewer_role: 'parent' },
   );
   assert.deepEqual(shapeGaParams('story_start', { resume: false, play_session_id: 'x', entry_source: '홍길동' }), {
     resume: 'false',
@@ -150,4 +150,10 @@ test('네이티브 앱은 보고서 주소의 출처를 app.qstory.ai.kr로 바�
     originOverride: 'https://app.qstory.ai.kr',
   });
   assert.equal(new URL(scrubbed?.url ?? COLLECT).searchParams.get('dl'), 'https://app.qstory.ai.kr/library');
+});
+
+test('GA가 유입 정보로 읽는 source 키는 view_source로 바꿔 보낸다 - 세션 유입 경로를 덮어쓰지 않게', () => {
+  const params = shapeGaParams('report_open', { source: 'history' });
+  assert.equal(params.source, undefined);
+  assert.equal(params.view_source, 'history');
 });

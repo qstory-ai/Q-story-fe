@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, ErrorState, LoadingState, Pill, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
+import { ActionButton, ErrorState, LoadingState, storybookTheme } from '@/shared/ui';
 import { buildParentReport, type ParentReport } from '@/entities/report';
 import { refetchStoryPackage, type StoryRuntimePackage } from '@/entities/story';
 import {
   ReportContent,
+  ReportHeader,
   SessionReport,
   TeacherNoteEditor,
   readAgainChoice,
@@ -260,47 +261,18 @@ function SessionHeader({
         ? `선생님과 아이가 함께 읽은 수업이에요${teacher ? ` (${teacher})` : ''}.`
         : '집에서 우리 아이와 함께 읽은 기록이에요.';
   return (
-    <View style={styles.header}>
-      <Pill label={kindLabel} tone="accent" />
-      <Text style={styles.headerTitle}>{storyTitle}</Text>
-      <Text style={styles.headerBody}>{description}</Text>
-      {onReadAgain && detail.sessionKind !== 'HOME' && (
-        <View style={styles.headerAction}>
+    <ReportHeader kindLabel={kindLabel} title={storyTitle} description={description}>
+      {onReadAgain && detail.sessionKind !== 'HOME' ? (
+        <>
           <Text style={styles.headerHint}>오늘 읽은 이야기를 집에서 아이와 한 번 더 읽어 보세요.</Text>
           <ActionButton label={readAgainLabel(detail)} onPress={onReadAgain} />
-        </View>
-      )}
-    </View>
+        </>
+      ) : undefined}
+    </ReportHeader>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    // 보호자 홈과 같은 흰 카드(radius 24, 옅은 테두리·그림자).
-    borderRadius: radius[24],
-    backgroundColor: semanticColors.light.bg.primary,
-    borderWidth: 1,
-    borderColor: semanticColors.light.border.secondary,
-    ...shadow(1),
-    padding: storybookTheme.spacing.ml,
-    gap: storybookTheme.spacing.sm,
-    alignItems: 'flex-start',
-  },
-  headerTitle: {
-    fontSize: storybookTheme.type.lg,
-    fontWeight: storybookTheme.type.weight.black,
-    color: storybookTheme.color.onCardTitle,
-  },
-  headerBody: {
-    fontSize: storybookTheme.type.sm,
-    lineHeight: 21,
-    color: storybookTheme.color.onCardBody,
-  },
-  headerAction: {
-    alignSelf: 'stretch',
-    gap: storybookTheme.spacing.sm,
-    marginTop: storybookTheme.spacing.xs,
-  },
   headerHint: {
     fontSize: storybookTheme.type.sm,
     color: storybookTheme.color.onCardBody,

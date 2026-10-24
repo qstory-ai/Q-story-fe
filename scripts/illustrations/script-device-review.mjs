@@ -8,7 +8,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import sharp from 'sharp';
+import { DEVICES, deviceFrame } from './device-frames.mjs';
 
 const appDirectory = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const args = process.argv.slice(2);
@@ -21,11 +21,6 @@ const workDir = join(appDirectory, 'build-output', 'illustrations', story);
 const outFile = flag('--out', join(workDir, '대본-기기별-삽화.html'));
 const useCandidates = args.includes('--candidates');
 
-const DEVICES = [
-  { name: '휴대폰 가로 19.5:9', aspect: 19.5 / 9, top: 22, caption: [74, 95] },
-  { name: '노트북 1.9:1', aspect: 1.9, top: 11, caption: [87, 98] },
-  { name: '아이패드 가로 4:3', aspect: 4 / 3, top: 11, caption: [87, 98] },
-];
 const FRAME_H = 240;
 const KIND_LABEL = { scene: '장면', branch: '행동 전개', attempt: '시도 장면 막힘' };
 
@@ -38,21 +33,9 @@ const fileFor = (job) => {
   return asset ? join(appDirectory, 'assets', 'story', story, asset.file) : null;
 };
 
-function overlay(width, height, device) {
-  const y = (pct) => (height * pct) / 100;
-  const x = (pct) => (width * pct) / 100;
-  return Buffer.from(`<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-  <rect x="0" y="0" width="${width}" height="${y(device.top)}" fill="rgba(220,30,30,0.35)"/>
-  <rect x="${x(4)}" y="${y(device.caption[0])}" width="${x(92)}" height="${y(device.caption[1] - device.caption[0])}" fill="rgba(220,30,30,0.35)"/>
-  <rect x="${x(28)}" y="${y(36)}" width="${x(44)}" height="${y(38)}" fill="none" stroke="orange" stroke-width="2" stroke-dasharray="6 4"/>
-  <line x1="0" y1="${y(60)}" x2="${width}" y2="${y(60)}" stroke="#2a7fff" stroke-width="2" stroke-dasharray="6 4"/>
-</svg>`);
-}
 
 async function frame(file, device) {
-  const width = Math.round(FRAME_H * device.aspect);
-  const image = await sharp(file).resize(width, FRAME_H, { fit: 'cover', position: 'centre' }).toBuffer();
-  const jpeg = await sharp(image).composite([{ input: overlay(width, FRAME_H, device) }]).jpeg({ quality: 72 }).toBuffer();
+  const jpeg = await deviceFrame(file, device, FRAME_H, 'jpeg');
   return `data:image/jpeg;base64,${jpeg.toString('base64')}`;
 }
 

@@ -1,5 +1,5 @@
 // 삽화 기기별 미리보기 - 앱에 들어간 그림(또는 --candidates로 새 후보)을 휴대폰 가로·노트북·아이패드 가로 화면 비율로
-// 잘라(플레이어와 같은 cover, 가운데 기준) 나란히 놓고, 그림 위를 덮는 화면 요소 자리를 겹쳐 그린다. 그림을 고르기 전에
+// 잘라(플레이어와 같게 - device-frames.mjs) 나란히 놓고, 그림 위를 덮는 화면 요소 자리를 겹쳐 그린다. 그림을 고르기 전에
 // "잘리거나 가리는지"를 한 번에 본다(10/24: 하얀 새가 상단 버튼에 가리고 2:1 태블릿에서 잘림).
 //
 // 덮는 자리(10/24 demo에서 잰 값, 화면 높이 대비 %):
@@ -16,6 +16,8 @@ import { fileURLToPath } from 'node:url';
 
 import sharp from 'sharp';
 
+import { DEVICES, deviceFrame } from './device-frames.mjs';
+
 const appDirectory = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const args = process.argv.slice(2);
 const flag = (name, fallback) => {
@@ -28,11 +30,6 @@ const outDir = join(workDir, 'device-preview');
 const only = (flag('--only', '') || '').split(',').filter(Boolean);
 const useCandidates = args.includes('--candidates');
 
-const DEVICES = [
-  { name: '휴대폰 가로 19.5:9', aspect: 19.5 / 9, top: 22, caption: [74, 95] },
-  { name: '노트북 브라우저 1.9:1', aspect: 1.9, top: 11, caption: [87, 98] },
-  { name: '아이패드 가로 4:3', aspect: 4 / 3, top: 11, caption: [87, 98] },
-];
 const FRAME_H = 220;
 const LABEL_H = 28;
 const GAP = 12;
@@ -47,22 +44,8 @@ const sourceFor = (asset) => {
   return join(appDirectory, 'assets', 'story', story, asset.file);
 };
 
-function overlay(width, height, device) {
-  const y = (pct) => (height * pct) / 100;
-  const x = (pct) => (width * pct) / 100;
-  return Buffer.from(`<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-  <rect x="0" y="0" width="${width}" height="${y(device.top)}" fill="rgba(220,30,30,0.35)"/>
-  <rect x="${x(4)}" y="${y(device.caption[0])}" width="${x(92)}" height="${y(device.caption[1] - device.caption[0])}" fill="rgba(220,30,30,0.35)"/>
-  <rect x="${x(28)}" y="${y(36)}" width="${x(44)}" height="${y(38)}" fill="none" stroke="orange" stroke-width="2" stroke-dasharray="6 4"/>
-  <line x1="0" y1="${y(60)}" x2="${width}" y2="${y(60)}" stroke="#2a7fff" stroke-width="2" stroke-dasharray="6 4"/>
-</svg>`);
-}
 
-async function frame(file, device) {
-  const width = Math.round(FRAME_H * device.aspect);
-  const image = await sharp(file).resize(width, FRAME_H, { fit: 'cover', position: 'centre' }).toBuffer();
-  return sharp(image).composite([{ input: overlay(width, FRAME_H, device) }]).png().toBuffer();
-}
+const frame = (file, device) => deviceFrame(file, device, FRAME_H);
 
 const label = (text, width) =>
   Buffer.from(`<svg width="${width}" height="${LABEL_H}" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#222"/>

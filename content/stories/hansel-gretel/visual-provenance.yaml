@@ -21,17 +21,17 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes. White bird: a small snow-white songbird with natural proportions, not a magical creature.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: A snow-white bird sits on a low bare branch at the upper middle of the picture, in an open patch of light, looking back at the children. Hansel and Gretel stand below at the left, looking up at it with curiosity; Gretel points to the bird.
+      SCENE - follow exactly, it overrides any default staging: A snow-white bird sits on a low bare branch in the center of the picture, at the height of the children faces, in an open patch of light, looking back at the children. Hansel and Gretel stand below at the left, looking up at it with curiosity; Gretel points to the bird.
       PROPS AND STATE: Exactly one white bird, clearly separated from leaves and branches; no other birds. Neither child carries any bag, backpack, satchel or strap.
-      COMPOSITION: Medium-wide shot; the white bird is LARGE and clearly visible in the upper middle of the frame, not hidden by leaves. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      COMPOSITION: Medium-wide shot; the white bird is LARGE and clearly visible in the CENTER of the frame at the children eye level (about 30-50% of the height), not hidden by leaves, never near the top edge. Keep faces, animals and the key action in the MIDDLE band of the frame (20-60% of the height). The app covers the bottom 40% with subtitles and the top 20% and corners with buttons or crops them, so keep those areas calm (sky, foliage, walls, ground). Characters visible from head to at least the knees.
       BACKGROUND: A deep European fairy-tale forest of tall ancient trees with thick trunks, dirt paths, mossy roots, ferns and rocks; distant trees fade into soft mist. Keep the same tree shapes and world across all forest scenes.
       LIGHTING / MOOD: pale, hopeful morning light filtering through the trees
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:6196691558e628a71bda9bb428bdad4588e9de077f666d3befeb637ac7cdded9
+    inputHash: sha256:9d910bc4242da635de2feb961ef3a88dd610404bcadf65a9d8632cfe6d3a2213
     generatedAt: 2026-10-24T07:15:54.467Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 a68b11f0-9343-41f0-b463-82987b5c6da3, 2k/high. 원본 PNG sha256:713c265265ee78ea… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 a68b11f0-9343-41f0-b463-82987b5c6da3, 2k/high. 원본 PNG sha256:0ee5a23d9cd638fe… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: locked-door-night
     status: RECOVERED
     prompt: |-
@@ -559,17 +559,17 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes. White bird: a small snow-white songbird with natural proportions, not a magical creature.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: Gretel pushes into a wall of thick bushes with both hands but cannot get through; Hansel watches. The white bird waits on a branch above.
+      SCENE - follow exactly, it overrides any default staging: Gretel pushes into a wall of thick bushes with both hands but cannot get through; Hansel watches. The white bird waits on a low branch at the children eye level in the middle of the frame (30-50% of the height), never near the top edge.
       PROPS AND STATE: No bags. Neither child carries any bag, backpack, satchel or strap.
-      COMPOSITION: Medium shot of a wall of thick bushes on the path. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      COMPOSITION: Medium shot of a wall of thick bushes on the path. Keep faces, animals and the key action in the MIDDLE band of the frame (20-60% of the height). The app covers the bottom 40% with subtitles and the top 20% and corners with buttons or crops them, so keep those areas calm (sky, foliage, walls, ground). Characters visible from head to at least the knees.
       BACKGROUND: A deep European fairy-tale forest of tall ancient trees with thick trunks, dirt paths, mossy roots, ferns and rocks; distant trees fade into soft mist. Keep the same tree shapes and world across all forest scenes.
       LIGHTING / MOOD: pale, hopeful morning light filtering through the trees
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:70c8a1f97d7c581a0762640368dc5813bc57420796cf0dd0eaf29bb1d736920f
+    inputHash: sha256:0083e97fb6130f8ed9172bc8fd91dff75b4cf380f7f9dc14c16dc1c96e492af9
     generatedAt: 2026-10-24T07:20:18.437Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 18c387e8-71a6-4c7f-b1d8-e514fc14286d, 2k/high. 원본 PNG sha256:d3afb05f26ba7ca9… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 18c387e8-71a6-4c7f-b1d8-e514fc14286d, 2k/high. 원본 PNG sha256:f8bd5625e290dae8… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: a-try-thorn-brambles
     status: RECOVERED
     prompt: |-
@@ -581,17 +581,17 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes. White bird: a small snow-white songbird with natural proportions, not a magical creature.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: A wall of thorny brambles blocks the path; Gretel reaches out and carefully pulls her hand back. Hansel holds her other hand. The white bird waits above.
+      SCENE - follow exactly, it overrides any default staging: A wall of thorny brambles blocks the path; Gretel reaches out and carefully pulls her hand back. Hansel holds her other hand. The white bird waits on a low branch at the children eye level in the middle of the frame (30-50% of the height), never near the top edge.
       PROPS AND STATE: Nobody is hurt. No bags. Neither child carries any bag, backpack, satchel or strap.
-      COMPOSITION: Medium shot of a thorny bramble wall. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      COMPOSITION: Medium shot of a thorny bramble wall. Keep faces, animals and the key action in the MIDDLE band of the frame (20-60% of the height). The app covers the bottom 40% with subtitles and the top 20% and corners with buttons or crops them, so keep those areas calm (sky, foliage, walls, ground). Characters visible from head to at least the knees.
       BACKGROUND: A deep European fairy-tale forest of tall ancient trees with thick trunks, dirt paths, mossy roots, ferns and rocks; distant trees fade into soft mist. Keep the same tree shapes and world across all forest scenes.
       LIGHTING / MOOD: pale, hopeful morning light filtering through the trees
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:e032e0d0b80dcb67a83cf42ba27d38a15603c58bd811ddbbb7a607d6e5e6304e
+    inputHash: sha256:dcb02c094363b6d9c0dd02febf21a9e75b93b7f901af1189ef697231912f6f6a
     generatedAt: 2026-10-24T07:20:37.613Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 20de5eff-e1f2-476e-a5fc-12d3ad7f1581, 2k/high. 원본 PNG sha256:fac2f414dc37e085… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 20de5eff-e1f2-476e-a5fc-12d3ad7f1581, 2k/high. 원본 PNG sha256:b49af025ebf54a03… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: a-try-back-to-start
     status: RECOVERED
     prompt: |-
@@ -603,17 +603,17 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes. White bird: a small snow-white songbird with natural proportions, not a magical creature.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: Hansel and Gretel stand at a crossing of tangled paths, realizing they are back where they started - the same split tree stump beside them. The white bird waits on a branch above.
+      SCENE - follow exactly, it overrides any default staging: Hansel and Gretel stand at a crossing of tangled paths, realizing they are back where they started - the same split tree stump beside them. The white bird waits on a low branch at the children eye level in the middle of the frame (30-50% of the height), never near the top edge.
       PROPS AND STATE: No bags. Neither child carries any bag, backpack, satchel or strap.
-      COMPOSITION: Wide shot of a forest crossing with tangled paths. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      COMPOSITION: Wide shot of a forest crossing with tangled paths. Keep faces, animals and the key action in the MIDDLE band of the frame (20-60% of the height). The app covers the bottom 40% with subtitles and the top 20% and corners with buttons or crops them, so keep those areas calm (sky, foliage, walls, ground). Characters visible from head to at least the knees.
       BACKGROUND: A deep European fairy-tale forest of tall ancient trees with thick trunks, dirt paths, mossy roots, ferns and rocks; distant trees fade into soft mist. Keep the same tree shapes and world across all forest scenes.
       LIGHTING / MOOD: pale, hopeful morning light filtering through the trees
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:81d67343c4beb5faa430f4e93104c748ecc10cf69ac638dcd927cc5d191ffbc4
+    inputHash: sha256:b9f68d323e56b7ea9004e380049b2bf271cde54d741b76ab4a8297a14eeebb9a
     generatedAt: 2026-10-24T07:21:00.658Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 16d407a5-ca04-430d-a91c-22f09a6f16b5, 2k/high. 원본 PNG sha256:6062a9ef9dc9dca8… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 16d407a5-ca04-430d-a91c-22f09a6f16b5, 2k/high. 원본 PNG sha256:4e372ec1d917003f… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: c-try-high-window
     status: RECOVERED
     prompt: |-
@@ -936,17 +936,17 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes. White bird: a small snow-white songbird with natural proportions, not a magical creature.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: The white bird flies ahead along the path at the upper middle of the frame; Hansel and Gretel follow it hand in hand, Hansel sniffing the air (a sweet smell). Far down the path, only a hint of a colorful roof between the trees.
+      SCENE - follow exactly, it overrides any default staging: The white bird flies ahead along the path in the CENTER of the frame at eye level (not near the top edge or corners); Hansel and Gretel follow it hand in hand, Hansel sniffing the air (a sweet smell). Far down the path, only a hint of a colorful roof between the trees.
       PROPS AND STATE: Exactly one white bird. No bags. Neither child carries any bag, backpack, satchel or strap.
-      COMPOSITION: Wide shot of a sunny forest path. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      COMPOSITION: Wide shot of a sunny forest path. Keep faces, animals and the key action in the MIDDLE band of the frame (20-60% of the height). The app covers the bottom 40% with subtitles and the top 20% and corners with buttons or crops them, so keep those areas calm (sky, foliage, walls, ground). Characters visible from head to at least the knees.
       BACKGROUND: A deep European fairy-tale forest of tall ancient trees with thick trunks, dirt paths, mossy roots, ferns and rocks; distant trees fade into soft mist. Keep the same tree shapes and world across all forest scenes.
       LIGHTING / MOOD: pale, hopeful morning light filtering through the trees
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:72f80538605fa72b73393af2270431895b6e29c57e357a502562778076eb9cce
+    inputHash: sha256:8eeeefb9a3aa4fbc2668de2a86e40f4247aafeaa103e3e40a10271861a7e6fbf
     generatedAt: 2026-10-24T07:15:56.991Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 e8c387e3-45ce-410c-bd9e-fcad63e781e1, 2k/high. 원본 PNG sha256:cbcda8e60cd64e9a… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 e8c387e3-45ce-410c-bd9e-fcad63e781e1, 2k/high. 원본 PNG sha256:6da757f1664daaa3… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: candy-house-reveal
     status: RECOVERED
     prompt: |-
@@ -958,17 +958,17 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes. White bird: a small snow-white songbird with natural proportions, not a magical creature.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: Between the trees appears a cottage made of bread and cookies with sparkling sugar windows. Hansel and Gretel stand at the edge of the clearing, amazed; Gretel holds up both hands in delight. The white bird sits on the roof.
+      SCENE - follow exactly, it overrides any default staging: Between the trees appears a cottage made of bread and cookies with sparkling sugar windows. Hansel and Gretel stand at the edge of the clearing, amazed; Gretel holds up both hands in delight. The white bird sits on a candy fence post beside the house at the children eye level in the middle of the frame (30-50% of the height), never near the top edge.
       PROPS AND STATE: The door is closed. No people other than the two children. Neither child carries any bag, backpack, satchel or strap.
-      COMPOSITION: Wide establishing shot of a forest clearing. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      COMPOSITION: Wide establishing shot of a forest clearing. Keep faces, animals and the key action in the MIDDLE band of the frame (20-60% of the height). The app covers the bottom 40% with subtitles and the top 20% and corners with buttons or crops them, so keep those areas calm (sky, foliage, walls, ground). Characters visible from head to at least the knees.
       BACKGROUND: A charming gingerbread-and-candy cottage in a sunny forest clearing: biscuit walls, icing trim, candy windows, a lollipop garden, inviting rather than scary. Keep the same door and window positions. Before the children enter, the door is closed and there are no scratches, sugar swirls or magic glows.
       LIGHTING / MOOD: soft diffused daylight, warm and calm
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:d985cc271ea3544d3fc327747fb30f02d162a94ac8638b293947edf3e8d6b3b2
+    inputHash: sha256:f5d0117c3526cc3b2353771852f4f59bd2073b239474cff3721c1b70b56eb55e
     generatedAt: 2026-10-24T07:16:17.181Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 6ffeff5b-da4a-47ac-a317-0393649909e3, 2k/high. 원본 PNG sha256:636ec9483cc6e862… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 6ffeff5b-da4a-47ac-a317-0393649909e3, 2k/high. 원본 PNG sha256:69ac6a260c1e39bc… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: candy-house-exit
     status: RECOVERED
     prompt: |-
@@ -1002,17 +1002,17 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes. White bird: a small snow-white songbird with natural proportions, not a magical creature. White duck: a large white duck with an orange beak, big enough to carry one child at a time.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: Hansel and Gretel stand on the grassy bank of a wide waterway with no bridge and no boat. The white bird sings from a branch above; a large white duck swims toward them.
+      SCENE - follow exactly, it overrides any default staging: Hansel and Gretel stand on the grassy bank of a wide waterway with no bridge and no boat. The white bird sings from a low reed-covered branch by the bank at the children eye level in the middle of the frame (30-50% of the height), never near the top edge; a large white duck swims toward them.
       PROPS AND STATE: Their two small cloth bags. Exactly one white bird and one white duck. Each child carries one small cloth bundle bag (packed bread and water) - the same small bags in every picture from now on.
-      COMPOSITION: Wide shot of the wide waterway. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      COMPOSITION: Wide shot of the wide waterway. Keep faces, animals and the key action in the MIDDLE band of the frame (20-60% of the height). The app covers the bottom 40% with subtitles and the top 20% and corners with buttons or crops them, so keep those areas calm (sky, foliage, walls, ground). Characters visible from head to at least the knees.
       BACKGROUND: A wide, calm forest waterway with grassy banks on both sides and no bridge or boat; soft reflections, trees fading into mist on the far bank.
       LIGHTING / MOOD: soft diffused daylight, warm and calm
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:72c4458b051f4392769d94394e049c9d850aeda112ddcc164066333cdd51d2a4
+    inputHash: sha256:89ed3541ac439041d8e282b927631ccfb6142e83cd5730ab4887ee0c76b8bc64
     generatedAt: 2026-10-24T07:19:01.488Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 030538fc-0ce6-4d75-afe8-c865cd040ce6, 2k/high. 원본 PNG sha256:041e1dd6fdc32ded… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 030538fc-0ce6-4d75-afe8-c865cd040ce6, 2k/high. 원본 PNG sha256:7f21d8de5cca416a… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: water-return
     status: RECOVERED
     prompt: |-
@@ -1090,17 +1090,17 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes. White bird: a small snow-white songbird with natural proportions, not a magical creature.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: Hansel and Gretel stand still on the path, watching quietly. The white bird sits on a branch a little ahead in the upper middle of the picture and looks back at them over its shoulder.
+      SCENE - follow exactly, it overrides any default staging: Hansel and Gretel stand still on the path, watching quietly. The white bird sits on a low branch a little ahead in the center of the picture and looks back at them over its shoulder.
       PROPS AND STATE: Exactly one white bird, clearly separated from the leaves. Neither child carries any bag, backpack, satchel or strap.
-      COMPOSITION: Medium-wide shot; the white bird is large and clearly visible in the upper middle. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      COMPOSITION: Medium-wide shot; the white bird is large and clearly visible in the center, at the children eye level (30-50% of the height). Keep faces, animals and the key action in the MIDDLE band of the frame (20-60% of the height). The app covers the bottom 40% with subtitles and the top 20% and corners with buttons or crops them, so keep those areas calm (sky, foliage, walls, ground). Characters visible from head to at least the knees.
       BACKGROUND: A deep European fairy-tale forest of tall ancient trees with thick trunks, dirt paths, mossy roots, ferns and rocks; distant trees fade into soft mist. Keep the same tree shapes and world across all forest scenes.
       LIGHTING / MOOD: pale, hopeful morning light filtering through the trees
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:b1be9dc56bb019bc6fa9e5f619a60f9267128290c30fb1c8e45f18d2426b9619
+    inputHash: sha256:1cc4a08b3338355ffa45c25543dad23cd0bc26936b1ff3d8543330ac9ed7ecb7
     generatedAt: 2026-10-24T07:19:40.250Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 fcef482f-f136-474c-b81d-34f3d02e962e, 2k/high. 원본 PNG sha256:dd34c8d212b509ad… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 fcef482f-f136-474c-b81d-34f3d02e962e, 2k/high. 원본 PNG sha256:833739413ef56033… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: a-speak-to-bird-01
     status: RECOVERED
     prompt: |-
@@ -1112,17 +1112,17 @@ records:
       FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.
       CHARACTERS IN THIS SCENE (match the attached sheets; no one else): Hansel: about 8, tousled brown hair, blue eyes, white puff shirt, dark brown vest, brown knee breeches, white socks, dark loafers; same height as Gretel. Gretel: about 8, blonde braids under a white kerchief, blue eyes, white puff blouse, dark brown bodice, red skirt, white apron, white socks, dark Mary Janes. White bird: a small snow-white songbird with natural proportions, not a magical creature.
       EXACTLY 2 people in the picture (Hansel, Gretel); each appears ONCE - no duplicates, no extra people.
-      SCENE - follow exactly, it overrides any default staging: Gretel calls up to the white bird with a hand at her mouth; the bird, on a branch in the upper middle, chirps and flutters toward the path ahead. Hansel looks where it is going.
+      SCENE - follow exactly, it overrides any default staging: Gretel calls up to the white bird with a hand at her mouth; the bird, on a low branch in the center at eye level, chirps and flutters toward the path ahead. Hansel looks where it is going.
       PROPS AND STATE: Exactly one white bird. Neither child carries any bag, backpack, satchel or strap.
-      COMPOSITION: Medium-wide shot; the white bird is large and clearly visible in the upper middle. Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.
+      COMPOSITION: Medium-wide shot; the white bird is large and clearly visible in the center, at the children eye level (30-50% of the height). Keep faces, animals and the key action in the MIDDLE band of the frame (20-60% of the height). The app covers the bottom 40% with subtitles and the top 20% and corners with buttons or crops them, so keep those areas calm (sky, foliage, walls, ground). Characters visible from head to at least the knees.
       BACKGROUND: A deep European fairy-tale forest of tall ancient trees with thick trunks, dirt paths, mossy roots, ferns and rocks; distant trees fade into soft mist. Keep the same tree shapes and world across all forest scenes.
       LIGHTING / MOOD: pale, hopeful morning light filtering through the trees
       Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.
     model: higgsfield:marketing-studio/image/flare (GPT Image 2.5 Flare)
-    inputHash: sha256:62d2f5daee31ed19ba832c1970b1ddc0b05aad895a371f2df68a43f556550dc0
+    inputHash: sha256:d2f7ae9ae91dbac6c83192ce463eeca33aded2f9bc73881c97b318587766baa8
     generatedAt: 2026-10-24T07:20:02.679Z
     approvedBy: null
-    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 6bc9b8bd-6c0e-4dcd-bf93-58e083c23724, 2k/high. 원본 PNG sha256:7eea4ca630398d30… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
+    note: "style-01 다시 그리기(후보 1). 참고 그림: hansel-sheet, gretel-sheet. 요청 6bc9b8bd-6c0e-4dcd-bf93-58e083c23724, 2k/high. 원본 PNG sha256:fae6ec29af938f4f… 를 1920x1080 WebP로 맞춤. inputHash는 프롬프트 + 참고 그림 이름의 sha256."
   - assetSlug: candy-house-sleep
     status: RECOVERED
     prompt: |-

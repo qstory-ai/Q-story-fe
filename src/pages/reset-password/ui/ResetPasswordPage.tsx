@@ -1,8 +1,8 @@
-import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState, type ReactNode } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
-import { ActionButton, SafeAreaView, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
+import { ActionButton, AuthScreen, authText, enterFadeUp, StatusBanner, TextField, useAuthFormCardStyle } from '@/shared/ui';
 import {
   confirmPasswordReset,
   homePathFor,
@@ -25,18 +25,15 @@ export function ResetPasswordPage() {
   return token ? <ConfirmStep token={token} /> : <RequestStep />;
 }
 
-function BackToLogin() {
+/** 인증 셸 + 왼쪽 위 "← 로그인으로". */
+function ResetScreen({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
+  const formCard = useAuthFormCardStyle();
   return (
-    <Pressable
-      accessibilityRole="link"
-      hitSlop={8}
-      style={styles.backLink}
-      // replace가 아니라 push - 메일로 받은 ?token= 링크 화면을 히스토리에서 지우면 뒤로가기로 못 돌아온다.
-      onPress={() => navigate('/login')}
-    >
-      <Text style={styles.backLinkText}>← 로그인으로</Text>
-    </Pressable>
+    // replace가 아니라 push - 메일로 받은 ?token= 링크 화면을 히스토리에서 지우면 뒤로가기로 못 돌아온다.
+    <AuthScreen onBack={() => navigate('/login')} backLabel="← 로그인으로">
+      <View style={[styles.form, formCard]}>{children}</View>
+    </AuthScreen>
   );
 }
 
@@ -63,43 +60,38 @@ function RequestStep() {
 
   if (sent) {
     return (
-      <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-        <BackToLogin />
-        <View style={styles.content}>
-          <Text style={styles.title} accessibilityRole="header">안내를 보냈어요</Text>
-          <Text style={styles.body}>
-            입력하신 아이디로 등록된 계정이 있다면, 가입 때 적은 이메일로 재설정 방법을 안내해 드려요.
-            메일이 보이지 않으면 스팸함도 확인해 주세요.
-          </Text>
-          <ActionButton label="로그인으로 돌아가기" onPress={() => navigate('/login')} />
-        </View>
-      </SafeAreaView>
+      <ResetScreen>
+        <Text style={authText.title} accessibilityRole="header">안내를 보냈어요</Text>
+        <Text style={authText.lead}>
+          입력하신 아이디로 등록된 계정이 있다면, 가입 때 적은 이메일로 재설정 방법을 안내해 드려요.
+          메일이 보이지 않으면 스팸함도 확인해 주세요.
+        </Text>
+        <ActionButton variant="gold" label="로그인으로 돌아가기" onPress={() => navigate('/login')} />
+      </ResetScreen>
     );
   }
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      <BackToLogin />
-      <View style={styles.content}>
-        <Text style={styles.title} accessibilityRole="header">비밀번호 재설정</Text>
-        <Text style={styles.body}>가입할 때 쓴 아이디를 입력해 주세요.</Text>
-        <TextField
-          label="아이디"
-          value={loginId}
-          onChangeText={setLoginId}
-          placeholder="아이디"
-          autoComplete="username"
-          returnKeyType="go"
-          onSubmitEditing={() => { void onSubmit(); }}
-        />
-        <ActionButton
-          label="재설정 방법 받기"
-          loading={submitting}
-          onPress={onSubmit}
-          disabled={!loginId.trim()}
-        />
-      </View>
-    </SafeAreaView>
+    <ResetScreen>
+      <Text style={authText.title} accessibilityRole="header">비밀번호 재설정</Text>
+      <Text style={authText.lead}>가입할 때 쓴 아이디를 입력해 주세요.</Text>
+      <TextField
+        label="아이디"
+        value={loginId}
+        onChangeText={setLoginId}
+        placeholder="아이디"
+        autoComplete="username"
+        returnKeyType="go"
+        onSubmitEditing={() => { void onSubmit(); }}
+      />
+      <ActionButton
+        variant="gold"
+        label="재설정 방법 받기"
+        loading={submitting}
+        onPress={onSubmit}
+        disabled={!loginId.trim()}
+      />
+    </ResetScreen>
   );
 }
 
@@ -132,78 +124,39 @@ function ConfirmStep({ token }: { token: string }) {
   }, [canSubmit, token, newPassword, navigate, setSession]);
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      <BackToLogin />
-      <View style={styles.content}>
-        <Text style={styles.title} accessibilityRole="header">새 비밀번호 설정</Text>
-        <TextField
-          label="새 비밀번호"
-          value={newPassword}
-          onChangeText={setNewPassword}
-          secureTextEntry
-          autoComplete="new-password"
-          description={PASSWORD_RULE_HINT}
-          errorText={tooShort ? PASSWORD_TOO_SHORT_MESSAGE : undefined}
-        />
-        <TextField
-          label="새 비밀번호 확인"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-          autoComplete="new-password"
-          returnKeyType="go"
-          onSubmitEditing={() => { void onSubmit(); }}
-          errorText={mismatch ? '비밀번호가 서로 달라요.' : undefined}
-        />
-        {error ? <StatusBanner variant="warning" label={error} /> : null}
-        <ActionButton
-          label="비밀번호 바꾸기"
-          loading={submitting}
-          onPress={onSubmit}
-          disabled={!canSubmit}
-        />
-      </View>
-    </SafeAreaView>
+    <ResetScreen>
+      <Text style={authText.title} accessibilityRole="header">새 비밀번호 설정</Text>
+      <TextField
+        label="새 비밀번호"
+        value={newPassword}
+        onChangeText={setNewPassword}
+        secureTextEntry
+        autoComplete="new-password"
+        description={PASSWORD_RULE_HINT}
+        errorText={tooShort ? PASSWORD_TOO_SHORT_MESSAGE : undefined}
+      />
+      <TextField
+        label="새 비밀번호 확인"
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+        secureTextEntry
+        autoComplete="new-password"
+        returnKeyType="go"
+        onSubmitEditing={() => { void onSubmit(); }}
+        errorText={mismatch ? '비밀번호가 서로 달라요.' : undefined}
+      />
+      {error ? <StatusBanner variant="warning" label={error} /> : null}
+      <ActionButton
+        variant="gold"
+        label="비밀번호 바꾸기"
+        loading={submitting}
+        onPress={onSubmit}
+        disabled={!canSubmit}
+      />
+    </ResetScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: storybookTheme.color.background,
-  },
-  backLink: {
-    minHeight: 44,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 12,
-  },
-  backLinkText: {
-    color: storybookTheme.color.onContentMuted,
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.semibold,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    gap: 16,
-    paddingHorizontal: 32,
-    paddingBottom: 48,
-    maxWidth: storybookTheme.layout.contentMaxWidth,
-    width: '100%',
-    alignSelf: 'center',
-  },
-  title: {
-    fontSize: storybookTheme.type.lg,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onContent,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  body: {
-    fontSize: storybookTheme.type.sm,
-    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
-    color: storybookTheme.color.onContentMuted,
-    textAlign: 'center',
-  },
+  form: { gap: 14, ...enterFadeUp },
 });

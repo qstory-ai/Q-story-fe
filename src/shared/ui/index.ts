@@ -6,6 +6,7 @@ export * from './theme';
 export * from './icon';
 export * from './hexagon-stat-chart';
 export * from './brand-lockup';
+export * from './auth-screen';
 export * from './card';
 export * from './filter-chip';
 export * from './pill';

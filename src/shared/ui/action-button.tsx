@@ -8,8 +8,9 @@ const D = semanticColors.dark;
 
 /**
  * 버튼 variant 카탈로그:
- *  - `primary`: 브랜드 Purple 500 채움. 로그인/회원가입 등 인증 흐름의 주된 CTA.
- *  - `gold`: 강조 채움(color.accentFill, 이름은 예전 골드 버튼에서 왔다). 이야기 시작·구독 등 가장 강조하고 싶은 액션.
+ *  - `primary`: 브랜드 Purple 500 채움. 대시보드·관리 화면의 주된 CTA.
+ *  - `gold`: 강조 채움(color.accentFill, 이름은 예전 골드 버튼에서 왔다). 로그인·가입·재설정·온보딩 등 인증 흐름의 주
+ *    CTA와 이야기 시작·구독처럼 가장 강조하고 싶은 액션.
  *  - `secondary` / `secondaryFull`: 낮은 채도의 배경만. secondary는 자연 폭, secondaryFull은 full width.
  *  - `outline`: 다크 배경 위에서 취소·해제 같은 낮은 위계 액션에 쓴다.
  *  - `ghost`: 배경·테두리 없이 글자만(밝은 바탕). 카드 안 "더 보기" 같은 가장 낮은 위계.

@@ -1,10 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
 import { afterSignUpPath } from '../model/after-sign-up';
+import { ROLE_CARDS, type OnboardingRole } from '../model/role-cards';
+import { RoleCard } from './role-card';
 
-import { ActionButton, BrandLockup, Checkbox, enterFadeUp, radius, responsive, semanticColors, shadow, space, StatusBanner, storybookTheme, TextField } from '@/shared/ui';
+import {
+  ActionButton,
+  AuthLink,
+  AuthScreen,
+  authText,
+  Checkbox,
+  enterFadeUp,
+  StatusBanner,
+  TextField,
+  useAuthFormCardStyle,
+} from '@/shared/ui';
 import {
   CONSENT_VERSION,
   createOrganization,
@@ -38,7 +50,6 @@ import type { PublicInstitution } from '@/entities/public-institution';
 /** next: 가입 직후 온보딩을 마친 뒤 이어서 갈 앱 내부 경로(반 코드로 가입하면 그 반의 연결 화면). */
 type OnAuthed = (token: string, user: UserSummary, next?: string) => void;
 
-type OnboardingRole = 'PARENT' | 'DIRECTOR' | 'TUTOR';
 type OnboardingStep = 'role' | 'sign-up' | 'sign-in';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -65,12 +76,6 @@ const DISPLAY_NAME_PLACEHOLDER: Record<OnboardingRole, string> = {
   TUTOR: '아이와 보호자께 보일 이름 (예: 김하늘)',
   DIRECTOR: '담당자 이름',
 };
-
-const ROLE_CARDS: Array<{ role: OnboardingRole; title: string; description: string }> = [
-  { role: 'PARENT', title: '보호자', description: '아이와 함께 이야기 서재를 쓰고, 리포트를 받아요.' },
-  { role: 'DIRECTOR', title: '기관', description: '유치원·학원에서 반을 만들고 여러 아이가 함께 듣는 수업을 준비해요.' },
-  { role: 'TUTOR', title: '선생님', description: '반을 만들어 수업을 준비하고 보호자께 리포트를 전달해요. 1:1 과외도 아이 한 명짜리 반으로 시작해요. 기관 소속·독립 활동 모두 가능해요.' },
-];
 
 /**
  * 역할선택→가입 / 로그인 온보딩(로컬 step 상태머신). 서비스 소개는 첫 방문 튜토리얼(/tutorial) 한 곳에서만
@@ -121,77 +126,50 @@ export function OnboardingFlow({
   );
 
   return (
-    <View style={styles.screen}>
-      {step === 'sign-up' ? (
-        <Pressable accessibilityRole="link" hitSlop={8} style={styles.backLink} onPress={() => go('role')}>
-          <Text style={styles.backLinkText}>← 이전</Text>
-        </Pressable>
-      ) : (
-        <Pressable accessibilityRole="link" hitSlop={8} style={styles.backLink} onPress={onExit}>
-          <Text style={styles.backLinkText}>← 서재로</Text>
-        </Pressable>
+    <AuthScreen
+      onBack={step === 'sign-up' ? () => go('role') : onExit}
+      backLabel={step === 'sign-up' ? '← 이전' : '← 서재로'}
+    >
+      {step === 'role' && (
+        <RoleStep
+          onSelect={(next) => {
+            setRole(next);
+            go('sign-up');
+          }}
+          onGoSignIn={() => go('sign-in')}
+        />
       )}
-
-      {/* 가입 폼은 폰 세로 화면보다 길어 스크롤한다. keyboardShouldPersistTaps로 입력 중 버튼 탭이
-          키보드 닫기에 먹히지 않게 한다. */}
-      <ScrollView
-        style={styles.bodyScroll}
-        contentContainerStyle={styles.body}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        {step === 'role' && (
-          <RoleStep
-            onSelect={(next) => {
-              setRole(next);
-              go('sign-up');
-            }}
-            onGoSignIn={() => go('sign-in')}
-          />
-        )}
-        {step === 'sign-up' && role && (
-          <SignUpStep
-            role={role}
-            initialClassCode={initialClassCode}
-            showStepCount={initialStep !== 'sign-up'}
-            onAuthed={onSignedUp}
-          />
-        )}
-        {step === 'sign-in' && (
-          <SignInStep
-            onAuthed={onSignedIn}
-            onGoSignUp={() => go('role')}
-            onGoResetPassword={(loginId) => navigate('/reset-password', { state: { loginId } })}
-          />
-        )}
-      </ScrollView>
-    </View>
+      {step === 'sign-up' && role && (
+        <SignUpStep
+          role={role}
+          initialClassCode={initialClassCode}
+          showStepCount={initialStep !== 'sign-up'}
+          onAuthed={onSignedUp}
+        />
+      )}
+      {step === 'sign-in' && (
+        <SignInStep
+          onAuthed={onSignedIn}
+          onGoSignUp={() => go('role')}
+          onGoResetPassword={(loginId) => navigate('/reset-password', { state: { loginId } })}
+        />
+      )}
+    </AuthScreen>
   );
 }
 
 function RoleStep({ onSelect, onGoSignIn }: { onSelect: (role: OnboardingRole) => void; onGoSignIn: () => void }) {
   return (
     <View style={styles.roleStep}>
-      <Text style={styles.eyebrow}>회원가입 · 1 / 2</Text>
-      <Text style={styles.carouselTitle}>Q-Story를 주로 어디에서{'\n'}사용하실 예정인가요?</Text>
-      <Text style={styles.welcomeLead}>선택한 역할에 맞춰 첫 화면과 안내를 준비해요.</Text>
+      <Text style={authText.eyebrow}>회원가입 · 1 / 2</Text>
+      <Text style={authText.title}>Q-Story를 주로 어디에서{'\n'}사용하실 예정인가요?</Text>
+      <Text style={authText.lead}>선택한 역할에 맞춰 첫 화면과 안내를 준비해요.</Text>
       <View style={styles.roleGrid}>
         {ROLE_CARDS.map((card) => (
-          <Pressable
-            key={card.role}
-            accessibilityRole="button"
-            onPress={() => onSelect(card.role)}
-            style={({ pressed }) => [styles.roleCard, pressed && styles.pressed]}
-          >
-            <Text style={styles.roleCardTitle}>{card.title}</Text>
-            <Text style={styles.roleCardBody}>{card.description}</Text>
-          </Pressable>
+          <RoleCard key={card.role} title={card.title} description={card.description} onPress={() => onSelect(card.role)} />
         ))}
       </View>
-      <Pressable accessibilityRole="link" hitSlop={4} onPress={onGoSignIn} style={styles.signInSignUpRow}>
-        <Text style={styles.formNote}>이미 계정이 있으신가요? </Text>
-        <Text style={styles.signInInlineLinkText}>로그인</Text>
-      </Pressable>
+      <AuthLink prefix="이미 계정이 있으신가요? " label="로그인" onPress={onGoSignIn} />
     </View>
   );
 }
@@ -208,7 +186,7 @@ function SignUpStep({
   showStepCount?: boolean;
   onAuthed: OnAuthed;
 }) {
-  const formCard = useFormCardStyle();
+  const formCard = useAuthFormCardStyle();
   // 반 코드는 반 초대 링크로 들어왔을 때만 기본으로 켠다 - 대부분의 보호자는 반 없이 가입해, 기본으로 켜
   // 두면 끄는 클릭이 한 번 더 든다(Q-36).
   const [hasClass, setHasClass] = useState(Boolean(initialClassCode));
@@ -317,7 +295,7 @@ function SignUpStep({
     } catch (failure) {
       const fallback =
         role === 'DIRECTOR'
-          ? '관리자 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
+          ? '기관 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
           : role === 'TUTOR'
             ? '선생님 계정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.'
             : useJoinFlow
@@ -347,9 +325,9 @@ function SignUpStep({
 
   return (
     <View style={[styles.form, formCard]}>
-      <Text style={styles.eyebrow}>{showStepCount ? '회원가입 · 2 / 2' : '회원가입'}</Text>
-      <Text style={styles.carouselTitle}>계정을 만들어볼까요?</Text>
-      <Text style={[styles.welcomeLead, styles.formLead]}>
+      <Text style={authText.eyebrow}>{showStepCount ? '회원가입 · 2 / 2' : '회원가입'}</Text>
+      <Text style={authText.title}>계정을 만들어볼까요?</Text>
+      <Text style={authText.lead}>
         {role === 'PARENT' ? '보호자' : role === 'DIRECTOR' ? '기관' : '선생님'} 홈을 준비할게요.
       </Text>
 
@@ -365,10 +343,10 @@ function SignUpStep({
                 autoCapitalize="characters"
                 placeholder="선생님께 받은 코드"
               />
-              <Text style={styles.formNote}>가입하고 아이 프로필을 만들면 이 반에 연결할 아이를 고를 수 있어요.</Text>
+              <Text style={authText.note}>가입하고 아이 프로필을 만들면 이 반에 연결할 아이를 고를 수 있어요.</Text>
             </>
           ) : (
-            <Text style={styles.formNote}>반 코드 없이 보호자 계정만 만들어요.</Text>
+            <Text style={authText.note}>반 코드 없이 보호자 계정만 만들어요.</Text>
           )}
         </>
       )}
@@ -386,7 +364,7 @@ function SignUpStep({
           />
           <OrgGuardianAck checked={orgGuardianAck} onChange={setOrgGuardianAck} />
           {orgInstitution ? (
-            <Text style={styles.formNote}>
+            <Text style={authText.note}>
               유치원·어린이집 목록에서 고른 기관이에요{orgInstitution.address ? ` (${orgInstitution.address})` : ''}.
             </Text>
           ) : null}
@@ -401,9 +379,7 @@ function SignUpStep({
               }}
             />
           ) : (
-            <Pressable accessibilityRole="button" hitSlop={4} onPress={() => setOrgSearchOpen(true)} style={styles.signInInlineLink}>
-              <Text style={styles.signInInlineLinkText}>유치원·어린이집 목록에서 찾기</Text>
-            </Pressable>
+            <AuthLink accessibilityRole="button" label="유치원·어린이집 목록에서 찾기" onPress={() => setOrgSearchOpen(true)} />
           )}
         </>
       )}
@@ -455,9 +431,10 @@ function SignUpStep({
       {error ? <StatusBanner variant="warning" label={error} /> : null}
       <ActionButton
         variant="gold"
-        label={submitting ? '가입 중…' : '가입하기'}
+        label="가입하기"
         onPress={onSubmit}
-        disabled={submitting || !canSubmit}
+        loading={submitting}
+        disabled={!canSubmit}
       />
       {/* 소셜 가입은 반 코드를 싣지 못해 아이가 반에 연결되지 않는다 - 그 경로에서는 숨긴다. */}
       {!initialClassCode && (
@@ -487,7 +464,7 @@ function SignInStep({
   /** 입력 중이던 아이디를 넘겨 재설정 화면에서 다시 타이핑하지 않게 한다. */
   onGoResetPassword: (loginId: string) => void;
 }) {
-  const formCard = useFormCardStyle();
+  const formCard = useAuthFormCardStyle();
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   // 끄면 짧은 토큰을 sessionStorage에 둔다 - 탭(네이티브 앱은 앱 프로세스)이 닫히면 로그아웃된다(entities/auth session.ts).
@@ -512,11 +489,8 @@ function SignInStep({
 
   return (
     <View style={[styles.form, formCard]}>
-      <View style={styles.formBrand}>
-        <BrandLockup size="compact" />
-      </View>
-      <Text style={styles.carouselTitle}>로그인</Text>
-      <Text style={[styles.welcomeLead, styles.formLead]}>
+      <Text style={authText.title}>로그인</Text>
+      <Text style={authText.lead}>
         가입할 때 만든 아이디와 비밀번호로 들어와요.
       </Text>
       <TextField
@@ -543,136 +517,24 @@ function SignInStep({
         label="로그인 유지"
         description="공용 기기에서는 체크를 해제해 주세요."
       />
-      <Pressable accessibilityRole="link" hitSlop={4} onPress={() => onGoResetPassword(loginId.trim())} style={styles.signInInlineLink}>
-        <Text style={styles.signInInlineLinkText}>비밀번호를 잊으셨나요?</Text>
-      </Pressable>
+      <AuthLink align="end" label="비밀번호를 잊으셨나요?" onPress={() => onGoResetPassword(loginId.trim())} />
       {/* 필드 errorText가 아니라 배너 - 실패 원인이 비밀번호만은 아니라서. */}
       {error ? <StatusBanner variant="warning" label={error} /> : null}
       <ActionButton
         variant="gold"
-        label={submitting ? '로그인 중…' : '로그인'}
+        label="로그인"
         onPress={onSubmit}
+        loading={submitting}
         disabled={!canSubmit}
       />
       <SocialLoginButtons onAuthed={onAuthed} rememberMe={rememberMe} />
-      <Pressable accessibilityRole="link" hitSlop={4} onPress={onGoSignUp} style={styles.signInSignUpRow}>
-        <Text style={styles.formNote}>아직 계정이 없으신가요? </Text>
-        <Text style={styles.signInInlineLinkText}>회원가입</Text>
-      </Pressable>
+      <AuthLink prefix="아직 계정이 없으신가요? " label="회원가입" onPress={onGoSignUp} />
     </View>
   );
 }
 
-const L = semanticColors.light;
-
-/** 폼 카드는 태블릿(744) 이상에서만. */
-function useFormCardStyle() {
-  const { width } = useWindowDimensions();
-  return width >= responsive.frame.tablet ? styles.formCard : null;
-}
-
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    width: '100%',
-    // 랜딩처럼 따뜻한 아이보리 바탕 위에 흰 카드.
-    backgroundColor: L.bg.warm,
-    paddingTop: 12,
-  },
-  backLink: {
-    minHeight: 44,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  backLinkText: {
-    color: storybookTheme.color.onContentMuted,
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.semibold,
-  },
-  bodyScroll: { flex: 1, width: '100%' },
-  body: {
-    flexGrow: 1,
-    width: '100%',
-    maxWidth: storybookTheme.layout.contentMaxWidth,
-    alignSelf: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 32,
-  },
-  pressed: { opacity: 0.9 },
-  eyebrow: {
-    color: storybookTheme.color.primary,
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.semibold,
-    letterSpacing: 0.4,
-    marginTop: 8,
-  },
-
-  welcomeLead: {
-    color: storybookTheme.color.onContentMuted,
-    fontSize: storybookTheme.type.sm,
-    lineHeight: 21,
-    fontWeight: storybookTheme.type.weight.light,
-    textAlign: 'center',
-  },
-
-  // role / form shared title
-  carouselTitle: {
-    color: storybookTheme.color.onContent,
-    fontSize: storybookTheme.type.lg,
-    lineHeight: storybookTheme.type.lg * storybookTheme.lineHeight.tight,
-    letterSpacing: storybookTheme.type.lg * storybookTheme.tracking.heading,
-    fontWeight: storybookTheme.type.weight.bold,
-    marginTop: 4,
-  },
-
-  // Role
-  roleStep: { gap: 10, paddingTop: 8, ...enterFadeUp },
-  roleGrid: { gap: 12, marginTop: 12 },
-  roleCard: {
-    backgroundColor: L.bg.primary,
-    borderWidth: 1,
-    borderColor: L.border.secondary,
-    borderRadius: radius[24],
-    padding: space[20],
-    gap: space[4],
-    ...shadow(1),
-  },
-  roleCardTitle: {
-    color: storybookTheme.color.onContent,
-    fontSize: storybookTheme.type.md,
-    lineHeight: storybookTheme.type.md * storybookTheme.lineHeight.normal,
-    fontWeight: storybookTheme.type.weight.bold,
-  },
-  roleCardBody: { color: storybookTheme.color.onContentMuted, fontSize: storybookTheme.type.sm, lineHeight: 20, fontWeight: storybookTheme.type.weight.light },
-
-  // Forms (sign-up / sign-in)
-  form: { gap: 14, paddingTop: 8, ...enterFadeUp },
-  // 태블릿 이상에서만 폼을 흰 카드(radius 24, elevation 2)로 - 폰에서는 카드 padding이 화면 여백과 겹쳐 입력 폭이 줄어서 예전처럼 둔다.
-  formCard: {
-    marginTop: space[8],
-    padding: space[24],
-    borderRadius: radius[24],
-    backgroundColor: L.bg.primary,
-    borderWidth: 1,
-    borderColor: L.border.secondary,
-    ...shadow(2),
-  },
-  formNote: { color: storybookTheme.color.onContentMuted, fontSize: storybookTheme.type.sm },
-  signInInlineLink: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center' },
-  formBrand: { alignItems: 'center', marginBottom: storybookTheme.spacing.xs },
-  // 폼 제목(왼쪽 정렬)에 맞춰 lead도 왼쪽 정렬.
-  formLead: { textAlign: 'left' },
-  signInInlineLinkText: {
-    color: storybookTheme.color.linkOnLight,
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    textDecorationLine: 'underline',
-  },
-  signInSignUpRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    minHeight: 44,
-    alignItems: 'center',
-    marginTop: 8,
-  },
+  roleStep: { gap: 10, ...enterFadeUp },
+  roleGrid: { gap: 12, marginTop: 12, marginBottom: 8 },
+  form: { gap: 14, ...enterFadeUp },
 });

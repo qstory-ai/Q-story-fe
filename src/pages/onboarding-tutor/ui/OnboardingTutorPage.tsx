@@ -2,7 +2,18 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate } from 'react-router-dom';
 
-import { ActionButton, enterFadeUp, SafeAreaView, SELECTABLE_MARK, selectableCardStyle, semanticColors, StatusBanner, storybookTheme, TextField } from '@/shared/ui';
+import {
+  ActionButton,
+  AuthLink,
+  AuthScreen,
+  authText,
+  enterFadeUp,
+  Radio,
+  selectableCardStyle,
+  StatusBanner,
+  storybookTheme,
+  TextField,
+} from '@/shared/ui';
 import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
 import { hasCompletedOnboarding, homePathFor, markOnboardingDone, useAuth } from '@/entities/auth';
 import { previewHomeroomInviteByCode, tutorInviteCodeDestination } from '@/entities/homeroom-invite';
@@ -61,32 +72,18 @@ export function OnboardingTutorPage() {
   if (state.status !== 'authenticated') return null;
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
-      <View style={styles.header}>
-        {/* 소속 설정 한 단계뿐이라 진행 표시(예전 2칸)는 두지 않는다(Q-35). */}
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="온보딩 나중에 하기"
-          onPress={() => {
-            markDone();
-            navigate(homePathFor(state.user), { replace: true });
-          }}
-          hitSlop={8}
-        >
-          <Text style={styles.skipLabel}>나중에</Text>
-        </Pressable>
-      </View>
-
+    // 작은 화면에서 코드 입력·안내까지 잘리지 않게 AuthScreen이 스크롤한다.
+    <AuthScreen>
       <View style={styles.content}>
-        <Text style={styles.eyebrow}>소속 설정</Text>
-        <Text style={styles.title} accessibilityRole="header">
+        <Text style={authText.eyebrow}>소속 설정</Text>
+        <Text style={authText.title} accessibilityRole="header">
           어떻게 활동하시나요?
         </Text>
-        <Text style={styles.body}>
+        <Text style={authText.lead}>
           지금 결정하지 않아도 돼요. 기관 소속은 나중에 마이페이지 &gt; 소속에서 추가할 수 있어요.
         </Text>
 
-        <View style={styles.choiceList}>
+        <View style={styles.choiceList} accessibilityRole="radiogroup" accessibilityLabel="활동 방식">
           <ChoiceCard
             selected={choice === 'independent'}
             title="개인으로 활동해요"
@@ -115,22 +112,33 @@ export function OnboardingTutorPage() {
           />
         ) : null}
 
-        <ActionButton
-          variant="gold"
-          label={choice === 'independent' ? '개인으로 시작' : checking ? '코드 확인 중…' : '코드로 소속 완성'}
-          onPress={() => { void finish(); }}
-          loading={checking}
-          disabled={checking || (choice === 'organization' && code.trim().length === 0)}
-        />
-
         {choice === 'independent' ? (
           <StatusBanner
             label="개인 선생님으로 시작해요"
             body="나중에 기관 초대를 받으면 마이페이지의 '기관 참여'에서 코드를 입력할 수 있어요."
           />
         ) : null}
+
+        <ActionButton
+          variant="gold"
+          label={choice === 'independent' ? '개인으로 시작하기' : '코드로 소속 완성하기'}
+          onPress={() => { void finish(); }}
+          loading={checking}
+          disabled={choice === 'organization' && code.trim().length === 0}
+        />
+
+        {/* 소속 설정 한 단계뿐이라 진행 표시(예전 2칸)는 두지 않는다(Q-35). */}
+        <AuthLink
+          accessibilityRole="button"
+          accessibilityLabel="온보딩 나중에 하기"
+          label="나중에 할게요"
+          onPress={() => {
+            markDone();
+            navigate(homePathFor(state.user), { replace: true });
+          }}
+        />
       </View>
-    </SafeAreaView>
+    </AuthScreen>
   );
 }
 
@@ -147,100 +155,23 @@ function ChoiceCard({
   body: string;
   onPress: () => void;
 }) {
+  // 카드 전체를 눌러도 고른다 - 표시·라벨은 공용 Radio, 설명은 그 아래(라디오 폭만큼 들여서).
   return (
-    <Pressable
-      accessibilityRole="radio"
-      aria-checked={selected}
-      onPress={onPress}
-      style={({ pressed }) => selectableCardStyle(selected, pressed)}
-    >
-      <View style={styles.choiceHeader}>
-        <View style={[styles.radioBox, selected && styles.radioBoxSelected]}>
-          {selected ? <View style={styles.radioDot} /> : null}
-        </View>
-        <Text style={styles.choiceTitle}>{title}</Text>
-      </View>
+    <Pressable accessible={false} onPress={onPress} style={({ pressed }) => selectableCardStyle(selected, pressed)}>
+      <Radio selected={selected} onSelect={onPress} label={title} />
       <Text style={styles.choiceBody}>{body}</Text>
     </Pressable>
   );
 }
 
-const L = semanticColors.light;
-
 const styles = StyleSheet.create({
-  // 랜딩처럼 아이보리 바탕.
-  container: { flex: 1, backgroundColor: L.bg.warm },
-  header: {
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: 12,
-  },
-  skipLabel: {
-    color: storybookTheme.color.onContentMuted,
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.semibold,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: storybookTheme.spacing.lg,
-    paddingTop: storybookTheme.spacing.ms,
-    gap: storybookTheme.spacing.ms,
-    // OnboardingParentPage와 같은 중간 폭 - 두 곳뿐이라 별도 layout 토큰은 아직 만들지 않는다.
-    maxWidth: 480,
-    width: '100%',
-    alignSelf: 'center',
-    ...enterFadeUp,
-  },
-  eyebrow: {
-    color: storybookTheme.color.goldText,
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    letterSpacing: 0.4,
-  },
-  title: {
-    color: storybookTheme.color.onContent,
-    fontSize: storybookTheme.type.xl,
-    lineHeight: storybookTheme.type.xl * storybookTheme.lineHeight.tight,
-    fontWeight: storybookTheme.type.weight.black,
-    letterSpacing: storybookTheme.type.xl * storybookTheme.tracking.heading,
-  },
-  body: {
-    color: storybookTheme.color.onContentMuted,
-    fontSize: storybookTheme.type.sm,
-    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
-    marginTop: 4,
-  },
+  content: { gap: storybookTheme.spacing.ms, ...enterFadeUp },
   choiceList: { marginTop: 12, gap: 10 },
-  choiceHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  choiceTitle: {
-    flex: 1,
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onContent,
-  },
   choiceBody: {
     fontSize: storybookTheme.type.xs,
     lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onContentMuted,
-    marginLeft: 30,
-  },
-  radioBox: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: SELECTABLE_MARK.idle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  radioBoxSelected: { borderColor: SELECTABLE_MARK.selected },
-  radioDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: SELECTABLE_MARK.selected,
+    // Radio 원(22) + 간격(10)만큼 들여 라벨과 줄을 맞춘다.
+    marginLeft: 32,
   },
 });

@@ -1,8 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { ActionButton, Checkbox, enterFadeUp, SafeAreaView, SELECTABLE_MARK, selectableCardStyle, semanticColors, storybookTheme, TextField } from '@/shared/ui';
+import {
+  ActionButton,
+  AuthLink,
+  AuthScreen,
+  authText,
+  Checkbox,
+  enterFadeUp,
+  SELECTABLE_MARK,
+  selectableCardStyle,
+  StatusBanner,
+  storybookTheme,
+  TextField,
+} from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import {
   CONSENT_VERSION,
@@ -124,13 +136,13 @@ export function OnboardingParentPage() {
   const finishLabel = next ? '반에 아이 연결하기' : '시작하기';
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+    <AuthScreen>
+      <View style={styles.content}>
         {!childExists && (
           <>
-            <Text style={styles.eyebrow}>아이 등록</Text>
-            <Text style={styles.title} accessibilityRole="header">아이 프로필을 만들어 주세요</Text>
-            <Text style={styles.body}>
+            <Text style={authText.eyebrow}>아이 등록</Text>
+            <Text style={authText.title} accessibilityRole="header">아이 프로필을 만들어 주세요</Text>
+            <Text style={authText.lead}>
               아이 이름과 출생연도, 아바타를 골라 주세요. 나이는 자동으로 계산돼요. 언제든 마이페이지에서 바꿀 수 있어요.
             </Text>
 
@@ -172,11 +184,11 @@ export function OnboardingParentPage() {
           </>
         )}
 
-        <Text style={[styles.eyebrow, !childExists && styles.sectionGap]}>아이 관련 필수 동의</Text>
+        <Text style={[authText.eyebrow, !childExists && styles.sectionGap]}>아이 관련 필수 동의</Text>
         {childExists ? (
-          <Text style={styles.title} accessibilityRole="header">아이 데이터를 안전하게 다뤄요</Text>
+          <Text style={authText.title} accessibilityRole="header">아이 데이터를 안전하게 다뤄요</Text>
         ) : null}
-        <Text style={styles.body}>
+        <Text style={authText.lead}>
           아이의 음성과 리포트에 대한 처리 방식을 확인하고 동의해 주세요.
         </Text>
 
@@ -201,34 +213,30 @@ export function OnboardingParentPage() {
           onChange={setConsentAudio}
         />
 
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        {error ? <StatusBanner variant="warning" label={error} /> : null}
         {childExists ? (
-          <ActionButton variant="gold" label={`동의하고 ${finishLabel}`} onPress={finish} disabled={!consented || submitting} loading={submitting} />
+          <ActionButton variant="gold" label={`동의하고 ${finishLabel}`} onPress={finish} disabled={!consented} loading={submitting} />
         ) : (
           <>
             <ActionButton
               variant="gold"
-              label={submitting ? '만드는 중…' : `등록하고 ${finishLabel}`}
+              label={`등록하고 ${finishLabel}`}
               onPress={submitChild}
               disabled={!canCreateChild}
               loading={submitting}
             />
             {/* 아이 등록만 미룬다 - 동의는 그때도 필요하다(아이를 나중에 등록해도 같은 처리 방식이 적용된다). */}
-            <Pressable
+            <AuthLink
               accessibilityRole="button"
               accessibilityLabel="아이 등록 나중에 하기"
-              onPress={finish}
+              label="아이 등록은 나중에 할게요"
+              onPress={() => { void finish(); }}
               disabled={!consented || submitting}
-              style={styles.skipButton}
-            >
-              <Text style={[styles.skipLabel, (!consented || submitting) && styles.skipLabelDisabled]}>
-                아이 등록은 나중에 할게요
-              </Text>
-            </Pressable>
+            />
           </>
         )}
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </AuthScreen>
   );
 }
 
@@ -245,69 +253,18 @@ function ConsentBlock({
   checked: boolean;
   onChange: (next: boolean) => void;
 }) {
+  // 카드 전체를 눌러도 체크된다 - 체크 표시·라벨은 공용 Checkbox, 설명은 그 아래(체크박스 폭만큼 들여서).
   return (
-    <Pressable
-      accessibilityRole="checkbox"
-      aria-checked={checked}
-      onPress={() => onChange(!checked)}
-      style={({ pressed }) => selectableCardStyle(checked, pressed)}
-    >
-      <View style={styles.consentHeader}>
-        <View style={[styles.checkboxBox, checked && styles.checkboxBoxChecked]}>
-          {checked ? <Text style={styles.checkboxMark}>✓</Text> : null}
-        </View>
-        <Text style={styles.consentTitle}>{title}</Text>
-      </View>
+    <Pressable accessible={false} onPress={() => onChange(!checked)} style={({ pressed }) => selectableCardStyle(checked, pressed)}>
+      <Checkbox checked={checked} onChange={onChange} label={title} />
       {body ? <Text style={styles.consentBody}>{body}</Text> : null}
     </Pressable>
   );
 }
 
-const L = semanticColors.light;
-
 const styles = StyleSheet.create({
-  // 랜딩처럼 아이보리 바탕 + 흰 카드.
-  container: { flex: 1, backgroundColor: L.bg.warm },
-  skipButton: { minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' },
-  skipLabelDisabled: { opacity: 0.5 },
   sectionGap: { marginTop: storybookTheme.spacing.lg },
-  skipLabel: {
-    color: storybookTheme.color.onContentMuted,
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.semibold,
-  },
-  content: {
-    paddingHorizontal: storybookTheme.spacing.lg,
-    paddingTop: storybookTheme.spacing.lg,
-    paddingBottom: storybookTheme.spacing.xxl,
-    gap: storybookTheme.spacing.ms,
-    // 온보딩은 폼(420)보다는 조금 넓고 리스트(560)보다는 좁은 중간 폭이 편해서, 두 페이지가
-    // 공통으로 480을 쓴다. 두 곳뿐이라 별도 layout 토큰은 아직 만들지 않는다.
-    maxWidth: 480,
-    width: '100%',
-    alignSelf: 'center',
-    ...enterFadeUp,
-  },
-  eyebrow: {
-    color: storybookTheme.color.primary,
-    fontSize: storybookTheme.type.xs,
-    fontWeight: storybookTheme.type.weight.bold,
-    letterSpacing: 0.4,
-    marginTop: 12,
-  },
-  title: {
-    color: storybookTheme.color.onContent,
-    fontSize: storybookTheme.type.xl,
-    lineHeight: storybookTheme.type.xl * storybookTheme.lineHeight.tight,
-    fontWeight: storybookTheme.type.weight.black,
-    letterSpacing: storybookTheme.type.xl * storybookTheme.tracking.heading,
-  },
-  body: {
-    color: storybookTheme.color.onContentMuted,
-    fontSize: storybookTheme.type.sm,
-    lineHeight: storybookTheme.type.sm * storybookTheme.lineHeight.normal,
-    marginTop: 4,
-  },
+  content: { gap: storybookTheme.spacing.ms, ...enterFadeUp },
   group: { gap: 8, marginTop: 12 },
   groupLabel: {
     fontSize: storybookTheme.type.xs,
@@ -325,42 +282,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   avatarEmoji: { fontSize: storybookTheme.type.xxl },
-  errorText: {
-    fontSize: storybookTheme.type.xs,
-    color: storybookTheme.color.error,
-    textAlign: 'center',
-  },
-  consentHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  consentTitle: {
-    flex: 1,
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.bold,
-    color: storybookTheme.color.onContent,
-  },
   consentBody: {
     fontSize: storybookTheme.type.xs,
     lineHeight: storybookTheme.type.xs * storybookTheme.lineHeight.normal,
     color: storybookTheme.color.onContentMuted,
-    marginLeft: 30,
-  },
-  checkboxBox: {
-    width: 20,
-    height: 20,
-    borderRadius: storybookTheme.radius.control,
-    borderWidth: 2,
-    borderColor: SELECTABLE_MARK.idle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxBoxChecked: {
-    borderColor: SELECTABLE_MARK.selected,
-    backgroundColor: SELECTABLE_MARK.selected,
-  },
-  checkboxMark: {
-    color: SELECTABLE_MARK.onSelected,
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.black,
-    // 체크 마크는 박스 안에 정확히 눈금선이 맞아야 해서 lineHeight를 fontSize와 동일하게 잠근다.
-    lineHeight: storybookTheme.type.sm,
+    // Checkbox 상자(22) + 간격(10)만큼 들여 라벨과 줄을 맞춘다.
+    marginLeft: 32,
   },
 });

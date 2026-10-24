@@ -8,6 +8,15 @@ import {
 /** 장면 끝에서 다음 장면으로 넘어가기 전에 쉬는 시간(3초, PM 요청 "3초 뒤 다음 챕터") - 아이가 그레텔에게 물어볼 틈. */
 export const SCENE_END_PAUSE_MS = 3_000;
 
+/** 장면 끝 쉼에서 그레텔이 건네는 말 - 장면마다 돌아가며 바꿔 같은 말이 매번 반복되지 않게 한다(PM 요청). */
+export const SCENE_END_PROMPTS = ['여기까지 궁금한 거 있어?', '나한테 물어볼 거 있어?', '말할 거 있어?'] as const;
+
+export function sceneEndPrompt(sceneIndex: number): string {
+  const count = SCENE_END_PROMPTS.length;
+  const index = Number.isFinite(sceneIndex) ? ((Math.trunc(sceneIndex) % count) + count) % count : 0;
+  return SCENE_END_PROMPTS[index];
+}
+
 /**
  * 이 대사가 끝나면 다음 장면의 고정 낭독으로 바로 넘어가는지(= 장면 끝 쉼을 둘 자리인지).
  * 같은 장면 안의 다음 대사, 질문 초대, 완주로 가는 경우는 쉬지 않는다.

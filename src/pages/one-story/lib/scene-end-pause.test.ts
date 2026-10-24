@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { hanselGretelManifest } from '@/test-fixtures/hansel-gretel/manifest';
 
-import { dialogueResumePlan, isSceneEndClip } from './scene-end-pause';
+import { SCENE_END_PROMPTS, dialogueResumePlan, isSceneEndClip, sceneEndPrompt } from './scene-end-pause';
 
 const manifest = hanselGretelManifest;
 const groupOf = (id) => manifest.audioGroups.find((group) => group.id === id);
@@ -57,4 +57,15 @@ test('대화를 닫으면: 장면 끝 쉼이면 다음 장면, 낭독 중이었�
   assert.equal(dialogueResumePlan({ sceneEndPending: false, status: 'playing-response' }), 'replay');
   assert.equal(dialogueResumePlan({ sceneEndPending: false, status: 'awaiting-question' }), 'none');
   assert.equal(dialogueResumePlan({ sceneEndPending: true, status: 'awaiting-choice' }), 'none');
+});
+
+test('장면 끝 그레텔 말은 장면마다 돌아가며 바뀐다', () => {
+  assert.deepEqual([0, 1, 2, 3].map(sceneEndPrompt), [
+    '여기까지 궁금한 거 있어?',
+    '나한테 물어볼 거 있어?',
+    '말할 거 있어?',
+    '여기까지 궁금한 거 있어?',
+  ]);
+  assert.equal(sceneEndPrompt(-1), SCENE_END_PROMPTS[2]);
+  assert.equal(sceneEndPrompt(Number.NaN), SCENE_END_PROMPTS[0]);
 });

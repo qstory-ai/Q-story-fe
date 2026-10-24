@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { OneStoryRuntime } from '../../model';
 import type { UseDialogue } from '../../model/use-dialogue';
 import { scaledText, useReaderTextScale } from '../../lib/reader-text-scale';
+import { sceneEndPrompt } from '../../lib/scene-end-pause';
 import { styles } from '../styles';
 
 export function PlaybackCaption({ runtime, dialogue }: { runtime: OneStoryRuntime; dialogue: UseDialogue }) {
@@ -21,6 +22,7 @@ export function PlaybackCaption({ runtime, dialogue }: { runtime: OneStoryRuntim
     sceneEndAutoAdvancing,
     holdSceneEnd,
     advanceFromSceneEnd,
+    sceneIndex,
   } = runtime;
 
   if (!isPlaybackDockState || !(currentClip || isBranchPlaybackState)) {
@@ -30,12 +32,15 @@ export function PlaybackCaption({ runtime, dialogue }: { runtime: OneStoryRuntim
   if (sceneEndActive) {
     const name = dialogue.character.displayName;
     // 장면 끝 쉼(lib/scene-end-pause) - 다음 장면으로 넘어가기 전, 물어볼 틈을 준다. 안내를 누르면 자동 넘김을
-    // 멈추고, "말하기"는 그레텔 대화를 연다(닫으면 다음 장면으로 간다).
+    // 멈추고, "말하기"는 그레텔 대화를 연다(닫으면 다음 장면으로 간다). 그레텔이 묻는 말이라 말한 사람 이름을 함께 둔다.
     return (
       <View style={styles.playbackContent}>
+        <View style={styles.captionHeader}>
+          <Text style={[styles.playbackSpeaker, scaledText(flat(styles.playbackSpeaker), textScale)]}>{name}</Text>
+        </View>
         <Pressable accessibilityRole="button" accessibilityLabel="다음 장면으로 넘어가지 않고 기다리기" onPress={holdSceneEnd}>
           <Text accessibilityLiveRegion="polite" style={[styles.sceneEndPrompt, scaledText(flat(styles.sceneEndPrompt), textScale)]}>
-            궁금한 게 있으면 {name}에게 말해 봐
+            {sceneEndPrompt(sceneIndex)}
           </Text>
         </Pressable>
         <View style={styles.sceneEndActions}>

@@ -227,30 +227,28 @@ export function TutorStudentDetailPage() {
             {effective.student.classGroupId ? <ClassHistoryCard token={state.token} studentId={effective.student.id} /> : null}
 
             <HomeSection title="리포트" layout="list">
-              <Card variant="surface" elevation={1} style={styles.formCard}>
-                {reports.requestKey !== requestKey || reports.status === 'loading' ? (
-                  <Text style={styles.body}>리포트를 불러오는 중이에요…</Text>
-                ) : reports.status === 'error' ? (
-                  <Text style={styles.body}>{reports.message}</Text>
-                ) : (
-                  <StudentReportList
-                    rows={reports.reports.map((report) => ({
-                      id: report.id,
-                      title: reports.titleByStoryId[report.storyId] ?? report.storyId,
-                      meta: [
-                        REPORT_DATE_FORMAT.format(new Date(report.completedAt)),
-                        // 그때 반 이름 - 반을 옮겼거나 이름을 바꿨어도 기록 당시 반.
-                        ...(report.className ? [report.className] : []),
-                        formatReportDuration(report.durationSeconds),
-                        sessionKindLabel(report.sessionKind),
-                        ...(isExitedSession(report) ? [EXITED_BADGE_LABEL] : []),
-                      ].join(' · '),
-                    }))}
-                    emptyMessage="아직 이 학생과 진행한 수업 리포트가 없어요."
-                    onOpen={(completionId) => navigate(reportDetailPath(completionId))}
-                  />
-                )}
-              </Card>
+              {reports.requestKey !== requestKey || reports.status === 'loading' ? (
+                <Text style={styles.body}>리포트를 불러오는 중이에요…</Text>
+              ) : reports.status === 'error' ? (
+                <Text style={styles.body}>{reports.message}</Text>
+              ) : (
+                <StudentReportList
+                  rows={reports.reports.map((report) => ({
+                    id: report.id,
+                    title: reports.titleByStoryId[report.storyId] ?? report.storyId,
+                    meta: [
+                      REPORT_DATE_FORMAT.format(new Date(report.completedAt)),
+                      // 그때 반 이름 - 반을 옮겼거나 이름을 바꿨어도 기록 당시 반.
+                      ...(report.className ? [report.className] : []),
+                      formatReportDuration(report.durationSeconds),
+                      sessionKindLabel(report.sessionKind),
+                      ...(isExitedSession(report) ? [EXITED_BADGE_LABEL] : []),
+                    ].join(' · '),
+                  }))}
+                  emptyMessage="아직 이 학생과 진행한 수업 리포트가 없어요."
+                  onOpen={(completionId) => navigate(reportDetailPath(completionId))}
+                />
+              )}
             </HomeSection>
 
             {/* 학생 삭제 - 마이너 액션이라 카드 밖 얇은 링크로 둔다. 확인 모달이 방어막. */}

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { ActionButton, storybookTheme } from '@/shared/ui';
+import { ActionButton, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 
 /**
  * IA "코드 발급 → 연결" 흐름에서 발급 결과(짧은 코드 + URL)를 한 카드에 노출한다. 선생님이
@@ -159,12 +159,14 @@ function CopyButton({
 }
 
 const styles = StyleSheet.create({
+  // 보호자 화면과 같은 흰 카드(radius 24). 초대는 눈에 띄어야 해서 테두리만 primary로 둔다.
   card: {
-    borderRadius: storybookTheme.radius.card,
-    backgroundColor: storybookTheme.color.surfaceCard,
+    borderRadius: radius[24],
+    backgroundColor: semanticColors.light.bg.primary,
     borderWidth: 1,
     borderColor: storybookTheme.color.primary,
-    padding: 18,
+    ...shadow(1),
+    padding: storybookTheme.spacing.ml,
     gap: storybookTheme.spacing.sm,
   },
   cardTitle: {

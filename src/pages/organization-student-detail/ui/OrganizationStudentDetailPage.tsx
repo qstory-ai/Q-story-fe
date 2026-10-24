@@ -124,25 +124,22 @@ export function OrganizationStudentDetailPage() {
             <ClassHistoryCard token={director.token} studentId={effective.student.id} />
 
             <HomeSection title="리포트" layout="list">
-              {/* StudentReportList는 줄 사이 구분선이 있는 목록이라 흰 카드 한 장에 담는다(선생님 학생 상세와 공유). */}
-              <Card variant="surface" style={styles.listCard}>
-                <StudentReportList
-                  rows={effective.reports.map((report) => ({
-                    id: report.id,
-                    title: effective.titleByStoryId[report.storyId] ?? report.storyId,
-                    meta: [
-                      formatCompletedAt(report.completedAt),
-                      // 그때 반 이름 - 반을 옮겼거나 이름을 바꿨어도 기록 당시 반.
-                      ...(report.className ? [report.className] : []),
-                      formatReportDuration(report.durationSeconds),
-                      sessionKindLabel(report.sessionKind),
-                      `${report.tutorDisplayName} 선생님`,
-                    ].join(' · '),
-                  }))}
-                  emptyMessage="아직 이 학생이 참여한 수업 리포트가 없어요."
-                  onOpen={(completionId) => navigate(reportDetailPath(completionId))}
-                />
-              </Card>
+              <StudentReportList
+                rows={effective.reports.map((report) => ({
+                  id: report.id,
+                  title: effective.titleByStoryId[report.storyId] ?? report.storyId,
+                  meta: [
+                    formatCompletedAt(report.completedAt),
+                    // 그때 반 이름 - 반을 옮겼거나 이름을 바꿨어도 기록 당시 반.
+                    ...(report.className ? [report.className] : []),
+                    formatReportDuration(report.durationSeconds),
+                    sessionKindLabel(report.sessionKind),
+                    `${report.tutorDisplayName} 선생님`,
+                  ].join(' · '),
+                }))}
+                emptyMessage="아직 이 학생이 참여한 수업 리포트가 없어요."
+                onOpen={(completionId) => navigate(reportDetailPath(completionId))}
+              />
             </HomeSection>
           </>
         )}
@@ -170,7 +167,6 @@ const styles = StyleSheet.create({
   },
   // 학생 요약 - 보호자 홈 인사 카드와 같은 옅은 보라 카드(radius 24).
   headerCard: { borderRadius: radius[24], gap: storybookTheme.spacing.sm },
-  listCard: { borderRadius: radius[24], paddingVertical: storybookTheme.spacing.sm },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: storybookTheme.spacing.sm },
   flex: { flex: 1, gap: 2 },
   eyebrow: {

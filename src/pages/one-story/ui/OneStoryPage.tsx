@@ -51,6 +51,7 @@ export function OneStoryPage({
     isWide,
     isShort,
     isNarrow,
+    isCompact,
     isPlaybackDockState,
     showPlaybackDock,
     isParentReport,
@@ -121,6 +122,7 @@ export function OneStoryPage({
               showPlaybackDock && styles.scrollContentNarrowPlayback,
               !isPlaybackDockState && styles.scrollContentCentered,
               isShort && !isPlaybackDockState && styles.scrollContentShortCentered,
+              isCompact && !isPlaybackDockState && !isParentReport && styles.scrollContentCompact,
               isParentReport && styles.reportScrollContent,
               isParentReport && isWide && styles.reportScrollContentWide,
             ]}

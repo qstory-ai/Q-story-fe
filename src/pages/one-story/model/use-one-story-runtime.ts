@@ -167,6 +167,8 @@ export function useOneStoryRuntime(
   // 바꾸고, 재생 컨트롤은 상단이 아니라 엄지가 닿는 하단 도크(PlaybackDock)로 옮기는 기준.
   // isWide(900)와 사이의 태블릿 폭은 기존 데스크톱형 배치를 그대로 쓴다.
   const isNarrow = width < 600;
+  // 휴대폰 가로처럼 아주 낮은 화면(390px 안팎) - 카드가 그림을 다 덮고 버튼이 잘렸다(10/24). 카드를 줄여 버튼까지 한 화면에.
+  const isCompact = height < 480;
   const recorder = useAudioRecorderAdapter();
   const { state: authState } = useAuth();
   const { selectedChild } = useChildren();
@@ -2655,6 +2657,7 @@ export function useOneStoryRuntime(
     isWide,
     isShort,
     isNarrow,
+    isCompact,
     isPlaybackDockState,
     // 재생 컨트롤(일시정지/다시/다음/자막)을 보일지 - TopBar(넓은 화면)와 PlaybackDock(폰)이 같은
     // 조건을 써야 도크 자리를 비워 둔 여백(scrollContentNarrowPlayback)과 실제 도크가 어긋나지 않는다.

@@ -29,6 +29,7 @@ export function ReaderCard({ runtime, dialogue }: { runtime: OneStoryRuntime; di
     isParentReport,
     isQuestionInvitePlayback,
     speaker,
+    isCompact,
   } = runtime;
 
   return (
@@ -43,9 +44,10 @@ export function ReaderCard({ runtime, dialogue }: { runtime: OneStoryRuntime; di
         isPlaybackDockState && styles.playbackCard,
         isPlaybackDockState && !captionVisible && styles.playbackCardCollapsed,
         isParentReport && styles.reportReaderCard,
+        isCompact && !isParentReport && styles.readerCardCompact,
       ]}
     >
-      {!isPlaybackDockState && !isParentReport && (
+      {!isPlaybackDockState && !isParentReport && !isCompact && (
         <View style={styles.cardMetaRow}>
           <View style={styles.statusPill}>
             <View style={styles.statusDot} />

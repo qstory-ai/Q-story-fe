@@ -78,9 +78,12 @@ export const LIGHTING = {
   night: 'blue moonlit night, muted sapphire and teal shadows, pale moonlight on hair and sleeves for legibility',
 };
 
-/** 플레이어 화면에 맞춘 구도 - 아래 약 40%는 자막·대화 패널이 덮는다(10/19 UI 리뷰). */
+/**
+ * 플레이어 화면에 맞춘 구도 - 아래 약 40%는 자막·대화 패널이 덮는다(10/19 UI 리뷰). 위 20%와 귀퉁이는 상단 버튼 줄이
+ * 덮고, 2:1에 가까운 태블릿에서는 위아래가 잘린다(10/24: 하얀 새가 잘림).
+ */
 export const COMPOSITION_RULE =
-  'Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props.';
+  'Keep faces, animals and the key action in the MIDDLE band of the frame (20-60% of the height). The app covers the bottom 40% with subtitles and the top 20% and corners with buttons or crops them, so keep those areas calm (sky, foliage, walls, ground).';
 // 숨거나 엿듣는 장면(hidden)에는 넣지 않는다 - "모두 무릎까지 보이게"가 아이들을 부모 옆에 세웠다(10/24 QA).
 export const FULL_BODY_RULE = 'Characters visible from head to at least the knees.';
 

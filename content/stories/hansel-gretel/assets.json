@@ -8,16 +8,16 @@
       "category": "BRANCH_ART",
       "familyId": "A_OBSERVE_BIRD",
       "panel": 1,
-      "file": "illustrations/fb-a-observe-bird-s2.webp",
-      "integrity": "sha256-d/DffTAnYxxzCfRWCw928ghpCc1Ce1BQZBR0Az3EEYg="
+      "file": "illustrations/fb-a-observe-bird-s3.webp",
+      "integrity": "sha256-01J0i+7h0OcxgyfRqjhS9Spuy0HJNodPcZxWVsg2MZI="
     },
     {
       "slug": "a-speak-to-bird-01",
       "category": "BRANCH_ART",
       "familyId": "A_SPEAK_TO_BIRD",
       "panel": 1,
-      "file": "illustrations/fb-a-speak-to-bird-s2.webp",
-      "integrity": "sha256-mipB0CGcUfPpBw1EMdrOiz6Zve0tzp/dtJJn59Ze80I="
+      "file": "illustrations/fb-a-speak-to-bird-s3.webp",
+      "integrity": "sha256-D7kTFKfpYWweUyYj1vYCo6ketF+C9WNvpw1aiNcrA5w="
     },
     {
       "slug": "c-wait-for-witch-turn-01",
@@ -134,20 +134,20 @@
     {
       "slug": "white-bird",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-07-white-bird-s2.webp",
-      "integrity": "sha256-H8wO5BVrhLJVBasHs7mrTCTqp5z3duk2tiOb0vAqw1E="
+      "file": "illustrations/hg-art-07-white-bird-s3.webp",
+      "integrity": "sha256-+mO71//cpDeNeeGVL7KV1imgEbDlWc9/CAkg4ZW5V6c="
     },
     {
       "slug": "white-bird-leads",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-29-white-bird-leads-s2.webp",
-      "integrity": "sha256-IgBWUg4ljLtcUP9X183xsW7zedCNyB40tKqkaj02D+s="
+      "file": "illustrations/hg-art-29-white-bird-leads-s3.webp",
+      "integrity": "sha256-jEq1Ni81emkgTbvtaD7wboXAdNvMH3kf5tRNTsgwQoc="
     },
     {
       "slug": "candy-house-reveal",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-08-candy-house-reveal-s2.webp",
-      "integrity": "sha256-WfaX8IWkmBOp47XDEbMXMFeWNYOicxDpLGDAL+Wk72M="
+      "file": "illustrations/hg-art-08-candy-house-reveal-s3.webp",
+      "integrity": "sha256-DS4b9W3+Wb0e1qdrKFOee+vHTz4jk9XfNNihHmKnOJo="
     },
     {
       "slug": "candy-house-close",
@@ -254,8 +254,8 @@
     {
       "slug": "waterway-obstacle",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-38-waterway-obstacle-s2.webp",
-      "integrity": "sha256-rj+AkxZaOzW1d4QrCKt+4jQ6YdcdjjeMpynKI3mMbqk="
+      "file": "illustrations/hg-art-38-waterway-obstacle-s3.webp",
+      "integrity": "sha256-/U0QDxwvPjLlf6NkUOW0HQhgZ3UZ4IVdh+gFCMqwlR4="
     },
     {
       "slug": "water-return",
@@ -290,20 +290,20 @@
     {
       "slug": "a-try-thick-bushes",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-attempt-a-try-thick-bushes-s2.webp",
-      "integrity": "sha256-gT1qC3CJqkNCb26VDkyEglKF7nuJTb4ruIWK+uf13q8="
+      "file": "illustrations/hg-attempt-a-try-thick-bushes-s3.webp",
+      "integrity": "sha256-ti5RWLs5VdhmWs2x+HFPtmOWWtL1RbwHobOBOXXJZAg="
     },
     {
       "slug": "a-try-thorn-brambles",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-attempt-a-try-thorn-brambles-s2.webp",
-      "integrity": "sha256-OI+OXSVNChz1QBx6pkhrr42k6re6nOQPK9COCsJh+SY="
+      "file": "illustrations/hg-attempt-a-try-thorn-brambles-s3.webp",
+      "integrity": "sha256-rxw8TGEuqgPoYv+u8E8eRqmQ628vC3CWBUrmBVsOQg4="
     },
     {
       "slug": "a-try-back-to-start",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-attempt-a-try-back-to-start-s2.webp",
-      "integrity": "sha256-sXBdRejKtJm1BZ1PZY1mtfi6VMuL+yTwfZ5orNIsoNE="
+      "file": "illustrations/hg-attempt-a-try-back-to-start-s3.webp",
+      "integrity": "sha256-16jWfuxu64Fo7ILT0XL/n8KW/ra+IIqHRCAUUgfpoRw="
     },
     {
       "slug": "c-try-high-window",

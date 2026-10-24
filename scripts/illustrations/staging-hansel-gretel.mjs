@@ -118,21 +118,21 @@ export const STAGING = {
     props: 'No bags. No white bird visible yet.',
   },
   'white-bird': {
-    shot: 'Medium-wide shot; the white bird is LARGE and clearly visible in the upper middle of the frame, not hidden by leaves.',
+    shot: 'Medium-wide shot; the white bird is LARGE and clearly visible in the CENTER of the frame at the children eye level (about 30-50% of the height), not hidden by leaves, never near the top edge.',
     stage:
-      'A snow-white bird sits on a low bare branch at the upper middle of the picture, in an open patch of light, looking back at the children. Hansel and Gretel stand below at the left, looking up at it with curiosity; Gretel points to the bird.',
+      'A snow-white bird sits on a low bare branch in the center of the picture, at the height of the children faces, in an open patch of light, looking back at the children. Hansel and Gretel stand below at the left, looking up at it with curiosity; Gretel points to the bird.',
     props: 'Exactly one white bird, clearly separated from leaves and branches; no other birds.',
   },
   'white-bird-leads': {
     shot: 'Wide shot of a sunny forest path.',
     stage:
-      'The white bird flies ahead along the path at the upper middle of the frame; Hansel and Gretel follow it hand in hand, Hansel sniffing the air (a sweet smell). Far down the path, only a hint of a colorful roof between the trees.',
+      'The white bird flies ahead along the path in the CENTER of the frame at eye level (not near the top edge or corners); Hansel and Gretel follow it hand in hand, Hansel sniffing the air (a sweet smell). Far down the path, only a hint of a colorful roof between the trees.',
     props: 'Exactly one white bird. No bags.',
   },
   'candy-house-reveal': {
     shot: 'Wide establishing shot of a forest clearing.',
     stage:
-      'Between the trees appears a cottage made of bread and cookies with sparkling sugar windows. Hansel and Gretel stand at the edge of the clearing, amazed; Gretel holds up both hands in delight. The white bird sits on the roof.',
+      'Between the trees appears a cottage made of bread and cookies with sparkling sugar windows. Hansel and Gretel stand at the edge of the clearing, amazed; Gretel holds up both hands in delight. The white bird sits on a candy fence post beside the house at the children eye level in the middle of the frame (30-50% of the height), never near the top edge.',
     props: 'The door is closed. No people other than the two children.',
   },
   'candy-house-close': {
@@ -174,7 +174,7 @@ export const STAGING = {
   'gretel-watches-keys': {
     shot: 'Medium shot of the kitchen from beside the worktable.',
     stage:
-      'The witch stands at the COOKING AREA (brick oven, back center), stirring the big pot, and hangs a key ring with exactly two keys on her waist belt. Gretel stands at the worktable (front right) with both hands busy washing vegetables in a bowl; she only GLANCES at the keys on the witch belt out of the corner of her eye - she is NOT touching or holding any keys. Hansel is inside the cage at the left, behind the bars.',
+      'The witch stands at the COOKING AREA (brick oven, back center), stirring the big pot, and hangs a key ring with exactly two keys on her waist belt. Gretel stands at the worktable (front right) washing vegetables in a bowl, only GLANCING at the keys on the witch belt - she is NOT touching or holding any keys. Hansel is inside the cage at the left, behind the bars.',
     props: 'Exactly two keys on the ring: one small silver, one big black.',
   },
   'gretel-whispers-keys': {
@@ -238,7 +238,7 @@ export const STAGING = {
   'waterway-obstacle': {
     shot: 'Wide shot of the wide waterway.',
     stage:
-      'Hansel and Gretel stand on the grassy bank of a wide waterway with no bridge and no boat. The white bird sings from a branch above; a large white duck swims toward them.',
+      'Hansel and Gretel stand on the grassy bank of a wide waterway with no bridge and no boat. The white bird sings from a low reed-covered branch by the bank at the children eye level in the middle of the frame (30-50% of the height), never near the top edge; a large white duck swims toward them.',
     props: 'Their two small cloth bags. Exactly one white bird and one white duck.',
   },
   'water-return': {
@@ -272,15 +272,15 @@ export const STAGING = {
     props: 'A modest meal: one loaf and a pot of soup. Stepmother is NOT here.',
   },
   'a-observe-bird-01': {
-    shot: 'Medium-wide shot; the white bird is large and clearly visible in the upper middle.',
+    shot: 'Medium-wide shot; the white bird is large and clearly visible in the center, at the children eye level (30-50% of the height).',
     stage:
-      'Hansel and Gretel stand still on the path, watching quietly. The white bird sits on a branch a little ahead in the upper middle of the picture and looks back at them over its shoulder.',
+      'Hansel and Gretel stand still on the path, watching quietly. The white bird sits on a low branch a little ahead in the center of the picture and looks back at them over its shoulder.',
     props: 'Exactly one white bird, clearly separated from the leaves.',
   },
   'a-speak-to-bird-01': {
-    shot: 'Medium-wide shot; the white bird is large and clearly visible in the upper middle.',
+    shot: 'Medium-wide shot; the white bird is large and clearly visible in the center, at the children eye level (30-50% of the height).',
     stage:
-      'Gretel calls up to the white bird with a hand at her mouth; the bird, on a branch in the upper middle, chirps and flutters toward the path ahead. Hansel looks where it is going.',
+      'Gretel calls up to the white bird with a hand at her mouth; the bird, on a low branch in the center at eye level, chirps and flutters toward the path ahead. Hansel looks where it is going.',
     props: 'Exactly one white bird.',
   },
   'c-wait-for-witch-turn-01': {
@@ -297,17 +297,17 @@ export const STAGING = {
   },
   'a-try-thick-bushes': {
     shot: 'Medium shot of a wall of thick bushes on the path.',
-    stage: 'Gretel pushes into a wall of thick bushes with both hands but cannot get through; Hansel watches. The white bird waits on a branch above.',
+    stage: 'Gretel pushes into a wall of thick bushes with both hands but cannot get through; Hansel watches. The white bird waits on a low branch at the children eye level in the middle of the frame (30-50% of the height), never near the top edge.',
     props: 'No bags.',
   },
   'a-try-thorn-brambles': {
     shot: 'Medium shot of a thorny bramble wall.',
-    stage: 'A wall of thorny brambles blocks the path; Gretel reaches out and carefully pulls her hand back. Hansel holds her other hand. The white bird waits above.',
+    stage: 'A wall of thorny brambles blocks the path; Gretel reaches out and carefully pulls her hand back. Hansel holds her other hand. The white bird waits on a low branch at the children eye level in the middle of the frame (30-50% of the height), never near the top edge.',
     props: 'Nobody is hurt. No bags.',
   },
   'a-try-back-to-start': {
     shot: 'Wide shot of a forest crossing with tangled paths.',
-    stage: 'Hansel and Gretel stand at a crossing of tangled paths, realizing they are back where they started - the same split tree stump beside them. The white bird waits on a branch above.',
+    stage: 'Hansel and Gretel stand at a crossing of tangled paths, realizing they are back where they started - the same split tree stump beside them. The white bird waits on a low branch at the children eye level in the middle of the frame (30-50% of the height), never near the top edge.',
     props: 'No bags.',
   },
   'c-try-high-window': {

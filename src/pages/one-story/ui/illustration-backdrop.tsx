@@ -15,15 +15,18 @@ import {
  * 그림이 없으면 지금 그림을 천천히 살짝 확대하고 어둡게 한다. 시도 장면이 끝나면 같은 빠르기로 원래 그림으로 돌아온다.
  * RN Animated(JS 구동)라 웹·iOS·Android 앱(같은 웹 화면) 모두 같은 모양이고, 동작 줄이기 설정이면 바로 바꾸고 확대하지 않는다.
  *
- * 그레텔 대화 패널이 화면 아래(최대 40%)를 덮는 동안(fitted)에는 그림을 밀어 올리지 않는다 - 그러면 위가 잘리고 아래에
- * 빈자리가 생겼다(10/21 QA). 대신 패널 위에 남는 영역에 그림 전체를 `contain`으로 맞추고, 양옆·아래 여백은 같은 그림을
- * 크게 늘려 흐리고 어둡게 깐 것으로 채운다. 꽉 찬 그림과 맞춘 그림은 400ms 크로스페이드로 오간다.
+ * 그레텔 대화 패널이 화면 아래를 덮는 동안(fitted)에는 그림을 밀어 올리지 않는다 - 그러면 위가 잘리고 아래에 빈자리가
+ * 생겼다(10/21 QA). 대신 패널 위에 남는 영역(패널 실제 높이 fitBottomInset, 모르면 40%)에 그림을 화면 너비에 맞춰 위에서부터
+ * 깔고, 넘치는 아래만 잘라 낸다 - 삽화는 아래 40%를 비워 두고 그린다. 영역이 그림보다 길면(세로 화면) 남는 아래는 같은 그림을
+ * 흐리고 어둡게 깐 것이 채운다. 10/24 QA: 높이 60%에 `contain`으로 맞추니 PC에서 그림이 작게 떠 양옆이 흐린 채로 보였다.
+ * 꽉 찬 그림과 맞춘 그림은 400ms 크로스페이드로 오간다.
  */
 export function IllustrationBackdrop({
   illustration,
   attempt,
   hidden = false,
   fitted = false,
+  fitBottomInset = null,
   accessibilityLabel,
 }: {
   illustration: ImageSource;
@@ -32,6 +35,8 @@ export function IllustrationBackdrop({
   hidden?: boolean;
   /** 대화 패널이 아래를 덮는 중 - 그림을 패널 위 영역에 맞추고 여백은 흐린 그림으로 채운다. */
   fitted?: boolean;
+  /** 대화 패널 높이(px). 모르면 화면의 40%로 본다. */
+  fitBottomInset?: number | null;
   accessibilityLabel: string;
 }) {
   const reduceMotion = useReducedMotion();
@@ -89,13 +94,13 @@ export function IllustrationBackdrop({
     [emphasis],
   );
 
-  // 지금 그림 + 시도 장면 그림 + 어둡게 - 꽉 찬 층(cover)과 맞춘 층(contain)이 같은 애니메이션 값을 나눠 쓴다.
-  const layers = (resizeMode: 'cover' | 'contain', labelled: boolean) => (
+  // 지금 그림 + 시도 장면 그림 + 어둡게 - 꽉 찬 층과 너비에 맞춘 층(위에서부터)이 같은 애니메이션 값을 나눠 쓴다.
+  const layers = (imageStyle: typeof StyleSheet.absoluteFill | typeof styles.widthFit, labelled: boolean) => (
     <>
       <Animated.Image
         source={illustration}
-        resizeMode={resizeMode}
-        style={[StyleSheet.absoluteFill, { transform: [{ scale }] }]}
+        resizeMode="cover"
+        style={[imageStyle, { transform: [{ scale }] }]}
         accessibilityLabel={labelled ? accessibilityLabel : undefined}
         accessibilityElementsHidden={!labelled}
         importantForAccessibility={labelled ? 'auto' : 'no-hide-descendants'}
@@ -103,8 +108,8 @@ export function IllustrationBackdrop({
       {overlayImage && (
         <Animated.Image
           source={overlayImage}
-          resizeMode={resizeMode}
-          style={[StyleSheet.absoluteFill, { opacity: overlay }]}
+          resizeMode="cover"
+          style={[imageStyle, { opacity: overlay }]}
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
         />
@@ -128,16 +133,21 @@ export function IllustrationBackdrop({
         <View style={[StyleSheet.absoluteFill, styles.blurShade]} />
       </Animated.View>
       {/* 꽉 찬 그림 - 패널이 닫혀 있을 때. */}
-      <Animated.View style={[StyleSheet.absoluteFill, { opacity: fullOpacity }]}>{layers('cover', true)}</Animated.View>
+      <Animated.View style={[StyleSheet.absoluteFill, { opacity: fullOpacity }]}>{layers(StyleSheet.absoluteFill, true)}</Animated.View>
       {/* 패널 위 영역에 맞춘 그림 - 패널이 열려 있을 때. */}
-      <Animated.View style={[styles.fitArea, { opacity: fit }]}>{layers('contain', false)}</Animated.View>
+      <Animated.View
+        style={[styles.fitArea, fitBottomInset ? { bottom: fitBottomInset } : styles.fitAreaDefault, { opacity: fit }]}
+      >
+        {layers(styles.widthFit, false)}
+      </Animated.View>
     </View>
   );
 }
 
-// 대화 패널이 화면 아래 최대 40%를 덮는다(dialogue-panel.tsx panel.root maxHeight) - 그 위 60%에 그림을 맞춘다. 패널이
-// 그보다 낮을 때 드러나는 자리는 흐린 바탕이 채운다.
+// 대화 패널 높이를 아직 모를 때 - 패널은 화면 아래 최대 40%를 덮는다(dialogue-panel.tsx panel.root maxHeight).
 const PANEL_RATIO = 0.4;
+// 삽화 비율(1920x1080).
+const ILLUSTRATION_ASPECT = 16 / 9;
 const FIT_MS = 400;
 // 흐린 바탕은 "무슨 그림인지"만 비치면 된다 - 흐림을 크게, 살짝 키워 흐림 가장자리의 비침을 가린다.
 const BLUR_RADIUS = 28;
@@ -146,7 +156,9 @@ const styles = StyleSheet.create({
   frame: { overflow: 'hidden' },
   hidden: { opacity: 0 },
   dim: { backgroundColor: '#000000' },
-  fitArea: { position: 'absolute', top: 0, left: 0, right: 0, height: `${Math.round((1 - PANEL_RATIO) * 100)}%` },
+  fitArea: { position: 'absolute', top: 0, left: 0, right: 0, overflow: 'hidden' },
+  fitAreaDefault: { height: `${Math.round((1 - PANEL_RATIO) * 100)}%` },
+  widthFit: { position: 'absolute', top: 0, left: 0, width: '100%', aspectRatio: ILLUSTRATION_ASPECT },
   blurred: { transform: [{ scale: 1.08 }] },
   blurShade: { backgroundColor: 'rgba(0, 0, 0, 0.45)' },
 });

@@ -243,10 +243,14 @@ B는 대화와 정보 탐색만 한다. 대화가 끝나면 기본 이야기(05-
 
 [SYSTEM | ANCHOR | id=HG-F05-ENTER-HOUSE]
 
-[VISUAL | HG-VIS-F05-03 | asset=candy-house-interior | mode=siblings-eat-bread-and-drink-water-beds-ready | time=evening | location=candy-house-dining-bedroom | characters=HANSEL,GRETEL,OLD_WOMAN | entry=siblings-ask-for-way-home | action=siblings-enter-eat-drink-and-sleep-side-by-side | exit=siblings-asleep-inside | exception=enter-eat-sleep-transition]
+[VISUAL | HG-VIS-F05-03 | asset=candy-house-interior | mode=siblings-eat-bread-and-drink-water-beds-ready | time=evening | location=candy-house-dining-bedroom | characters=HANSEL,GRETEL,OLD_WOMAN | entry=siblings-ask-for-way-home | action=siblings-enter-eat-and-drink | exit=siblings-fed-beds-ready]
 
 [NARRATOR | FIXED]
 지치고 배고팠던 남매는 손을 잡고 집 안으로 들어갔어요.
+
+[VISUAL | HG-VIS-F05-04 | asset=candy-house-sleep | mode=siblings-asleep-side-by-side | time=night | location=candy-house-dining-bedroom | characters=HANSEL,GRETEL | entry=siblings-fed-beds-ready | action=siblings-sleep-side-by-side | exit=siblings-asleep-inside]
+
+[NARRATOR | FIXED]
 식탁에서 빵을 먹고 물을 마신 뒤, 할머니가 마련해 준 침대에 나란히 누워 잠들었어요.
 
 [SYSTEM | CHECKPOINT | HG-F05-END]

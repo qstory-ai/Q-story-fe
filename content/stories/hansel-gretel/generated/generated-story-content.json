@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": {
     "package": "content/stories/hansel-gretel",
-    "digest": "af7f797cbdff5afa524bc74de4eec22fe0b8b6f6a33c3172919d5776531a35ed"
+    "digest": "ae7db8f5af0f37a077f7bfb31fbb7a72f682f4c0306873b5aa0f4b2f6dcbd8fa"
   },
   "story": {
     "id": "HG",
@@ -1191,9 +1191,24 @@
             "OLD_WOMAN"
           ],
           "entryState": "siblings-ask-for-way-home",
-          "requiredAction": "siblings-enter-eat-drink-and-sleep-side-by-side",
+          "requiredAction": "siblings-enter-eat-and-drink",
+          "exitState": "siblings-fed-beds-ready",
+          "exception": null
+        },
+        {
+          "id": "HG-VIS-F05-04",
+          "assetId": "candy-house-sleep",
+          "mode": "siblings-asleep-side-by-side",
+          "time": "night",
+          "location": "candy-house-dining-bedroom",
+          "characters": [
+            "HANSEL",
+            "GRETEL"
+          ],
+          "entryState": "siblings-fed-beds-ready",
+          "requiredAction": "siblings-sleep-side-by-side",
           "exitState": "siblings-asleep-inside",
-          "exception": "enter-eat-sleep-transition"
+          "exception": null
         }
       ],
       "segments": [
@@ -1343,9 +1358,9 @@
             "OLD_WOMAN"
           ],
           "entryState": "siblings-ask-for-way-home",
-          "requiredAction": "siblings-enter-eat-drink-and-sleep-side-by-side",
-          "exitState": "siblings-asleep-inside",
-          "exception": "enter-eat-sleep-transition"
+          "requiredAction": "siblings-enter-eat-and-drink",
+          "exitState": "siblings-fed-beds-ready",
+          "exception": null
         },
         {
           "kind": "utterance",
@@ -1355,8 +1370,24 @@
           "text": "지치고 배고팠던 남매는 손을 잡고 집 안으로 들어갔어요."
         },
         {
+          "kind": "visual",
+          "id": "HG-VIS-F05-04",
+          "assetId": "candy-house-sleep",
+          "mode": "siblings-asleep-side-by-side",
+          "time": "night",
+          "location": "candy-house-dining-bedroom",
+          "characters": [
+            "HANSEL",
+            "GRETEL"
+          ],
+          "entryState": "siblings-fed-beds-ready",
+          "requiredAction": "siblings-sleep-side-by-side",
+          "exitState": "siblings-asleep-inside",
+          "exception": null
+        },
+        {
           "kind": "utterance",
-          "visualId": "HG-VIS-F05-03",
+          "visualId": "HG-VIS-F05-04",
           "speaker": "NARRATOR",
           "role": "FIXED",
           "text": "식탁에서 빵을 먹고 물을 마신 뒤, 할머니가 마련해 준 침대에 나란히 누워 잠들었어요."

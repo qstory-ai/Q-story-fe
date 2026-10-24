@@ -49,6 +49,7 @@ const SCENE_ASSETS = [
   'candy-house-close',
   'old-woman-door',
   'candy-house-interior',
+  'candy-house-sleep',
   'kitchen-door-locked',
   'witch-reveal',
   'gretel-watches-keys',

@@ -23,7 +23,16 @@ import type { UseDialogue } from '../model/use-dialogue';
  * 행동 확인이 모두 이 패널 하나에서 이어진다. 버튼 묶음은 dialogue.phase 하나로 정해지고,
  * 어느 단계에서든 "이야기 계속 듣기"로 이야기에 돌아갈 수 있다(패널이 막혀 못 돌아가는 일이 없게).
  */
-export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialogue; hidden?: boolean }) {
+export function DialoguePanel({
+  dialogue,
+  hidden = false,
+  onHeightChange,
+}: {
+  dialogue: UseDialogue;
+  hidden?: boolean;
+  /** 패널 높이가 바뀔 때 - 리더가 그림을 패널 위 영역에 맞추는 데 쓴다. */
+  onHeightChange?: (height: number) => void;
+}) {
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
   const { open, turns, phase, character } = dialogue;
   const textScale = useReaderTextScale();
@@ -37,18 +46,17 @@ export function DialoguePanel({ dialogue, hidden = false }: { dialogue: UseDialo
   const continueStory = () => void dialogue.close('CONTINUE');
 
   return (
-    <View style={panel.root} accessibilityLabel={`${character.displayName}와 이야기하기`}>
+    <View
+      style={panel.root}
+      accessibilityLabel={`${character.displayName}와 이야기하기`}
+      onLayout={(event) => onHeightChange?.(event.nativeEvent.layout.height)}
+    >
       <View style={panel.header}>
         <View style={panel.avatarFrame}>
           <Image
             source={{ uri: character.avatarImageUri }}
-            style={{
-              position: 'absolute',
-              width: character.avatarRenderSize.width * AVATAR_SCALE,
-              height: character.avatarRenderSize.height * AVATAR_SCALE,
-              left: character.avatarOffset.left * AVATAR_SCALE,
-              top: character.avatarOffset.top * AVATAR_SCALE,
-            }}
+            style={panel.avatarImage}
+            resizeMode="cover"
             accessibilityLabel={`${character.displayName} 얼굴`}
           />
         </View>
@@ -377,8 +385,6 @@ function Chip({
   );
 }
 
-const AVATAR_SCALE = 36 / 64;
-
 const PHASES_WITHOUT_CONTINUE_CHIP = new Set<UseDialogue['phase']>([
   'recording',
   'confirm',
@@ -413,6 +419,7 @@ const panel = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: storybookTheme.color.storybookCard,
   },
+  avatarImage: { width: '100%', height: '100%' },
   name: { color: storybookTheme.color.onDark, fontSize: 15, fontWeight: '700' },
   headerSpacer: { flex: 1 },
   continueLink: { color: storybookTheme.color.onDarkMuted, fontSize: 14, fontWeight: '600' },

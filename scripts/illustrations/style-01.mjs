@@ -16,7 +16,7 @@ export const COMMON_TEMPLATE = [
   'Create one final illustration for a cohesive Hansel and Gretel storybook for children aged 5-9.',
   'ART STYLE AND COLORING: a hand-drawn 2D fairy-tale storybook illustration with delicate organic linework, clean contours, natural proportions, soft dimensional shading and smooth controlled color transitions - warm, expressive, traditional-storybook charm with a polished finish. ONE consistent visual identity across the book: a harmonious palette balancing warm and cool colors, soft believable shadows; lighting reinforces mood and time of day without breaking continuity. Avoid oversaturated colors, excessive contrast, glossy digital finishes, photorealism and 3D-rendered looks.',
   "CHARACTER CONSISTENCY: the attached character sheets are the authoritative references. Preserve each character's identity, facial proportions, eye shape, nose, mouth, hairstyle, hair color, body proportions, outfit and clothing colors, and the sheets' distinctive linework, shapes and coloring. Do not redesign, beautify, modernize or reinterpret them; only pose, expression, viewing angle and scene lighting change. Never let the designs drift toward another illustration style. Characters stay clearly readable and distinct from their surroundings: faces, hair and clothing in clean linework, smooth color and subtle shading, not heavy surface texture.",
-  'SCENE-SPECIFIC BACKGROUND TEXTURE (overall style stays the same): character-focused scenes - clean, softly shaded, smooth backgrounds with minimal texture; walls, floors and furniture understated, no visible paper grain, canvas, rough brush marks or watercolor blooms; the background quieter and less detailed than the characters. Object close-ups - clear contours, believable proportions and observed material detail on the main object, subtle shading, simple surroundings. Environment-focused scenes - richer detail, layered foreground and background, atmospheric gradients, expressive lighting and subtle painterly brushwork; trees, foliage, forest floors and cottages may show natural texture, without noise or a different style. Texture intensity varies by scene, always serving the story and subordinate to the main subject.',
+  'BACKGROUND TEXTURE (same overall style): character-focused scenes keep backgrounds smooth, softly shaded and quieter than the characters (no paper grain, canvas, rough brush marks or watercolor blooms); environment scenes may show richer layered detail, atmospheric depth and subtle painterly brushwork on trees, foliage and cottages, never noisy or in a different style.',
   "COMPOSITION AND PHYSICAL ACCURACY: follow the scene instructions for content, composition, camera, placement, actions, emotions and lighting. Believable anatomy, hands, expressions, perspective, spatial relationships and object scale; characters interact naturally with plausible surroundings. Keep established locations, recurring props and layouts consistent across pictures; no extra objects, clutter or details that change the scene's meaning. Prioritize clear storytelling, readable silhouettes, natural poses and balanced composition.",
   'FINAL REQUIREMENTS: one complete landscape 16:9 storybook illustration. No text, subtitles, speech bubbles, borders, watermarks, extra characters, duplicate limbs, distorted hands, malformed anatomy or inconsistent costume details. No collage, character sheet, storyboard or multiple panels. The picture must read as part of the same cohesive book.',
 ].join('\n');
@@ -53,7 +53,12 @@ export const BACKGROUNDS = {
   CANDY_EXTERIOR:
     'A charming gingerbread-and-candy cottage in a sunny forest clearing: biscuit walls, icing trim, candy windows, a lollipop garden, inviting rather than scary. Keep the same door and window positions. Before the children enter, the door is closed and there are no scratches, sugar swirls or magic glows.',
   CANDY_INTERIOR:
-    'Inside the candy cottage kitchen: candy-studded walls, shelves of candy jars; tall black iron cage LEFT, wooden worktable FRONT RIGHT, CLOSED brick oven back right, heavy wooden door to the corridor. Key ring: EXACTLY TWO keys (small silver = cage, big black = door), never three.',
+    'Inside the candy cottage kitchen: candy-studded walls, shelves of candy jars; a TALL RECTANGULAR floor-standing black iron cage LEFT (taller than an adult, straight vertical bars, never a round birdcage), wooden worktable FRONT RIGHT, CLOSED brick oven back right, heavy wooden door to the corridor. Key ring: EXACTLY TWO keys (small silver = cage, big black = door), never three.',
+  // 10/24: 식당 겸 침실·창고 장면에 부엌 배경(창살·오븐)이 들어가 창살이 나왔다 - 방마다 따로.
+  CANDY_DINING:
+    'A cozy dining-and-sleeping room inside the candy cottage: candy-studded walls, a small wooden table, two small beds side by side against the wall, a lamp. NO cage, NO oven, NO kitchen worktable in this room.',
+  CANDY_STOREROOM:
+    'A small storeroom off the candy cottage corridor: plain wooden shelves with a few loaves of bread and water bottles, sacks, the corridor door. NO cage, NO oven, NO kitchen worktable here.',
   CANDY_CORRIDOR:
     'A hallway inside the candy cottage: candy-studded walls, the heavy wooden kitchen door (closed), a storeroom door and the outside door at the far end. NO cage and NO oven here - those are in the kitchen.',
   WATERWAY:
@@ -73,30 +78,39 @@ export const LIGHTING = {
 
 /** 플레이어 화면에 맞춘 구도 - 아래 약 40%는 자막·대화 패널이 덮는다(10/19 UI 리뷰). */
 export const COMPOSITION_RULE =
-  'Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props. Characters visible from head to at least the knees.';
+  'Keep characters and the key action in the UPPER and MIDDLE of the frame (faces at 20-55% of the height); the app covers the bottom 40% with subtitles, so leave it calm (ground, floor, foliage) with no faces, hands or key props.';
+// 숨거나 엿듣는 장면(hidden)에는 넣지 않는다 - "모두 무릎까지 보이게"가 아이들을 부모 옆에 세웠다(10/24 QA).
+export const FULL_BODY_RULE = 'Characters visible from head to at least the knees.';
 
 /** 공통 프롬프트의 FINAL REQUIREMENTS가 금지 항목을 이미 담으므로 여기는 아이 대상 수위만. */
 export const NEGATIVE =
   'Gentle for children ages 5-9: tense moments are never gory or horrifying. No UI, lettering or watermark.';
 
-/** 한 장면의 최종 프롬프트(Flare 상한 5000자). */
-export function buildPrompt({ characters, story, composition, background, lighting, continuity, rules = '' }) {
+/** 사람 수를 못 박는다 - 동물은 세지 않는다(10/24: 헨젤 두 명). */
+const PEOPLE = { GRETEL: 'Gretel', HANSEL: 'Hansel', FATHER: 'Father', STEPMOTHER: 'Stepmother', OLD_WOMAN: 'the old woman', WITCH: 'the witch' };
+function castCount(characters) {
+  const people = [...new Set(characters.map((key) => PEOPLE[key]).filter(Boolean))];
+  if (!people.length) return '';
+  return `EXACTLY ${people.length} ${people.length === 1 ? 'person' : 'people'} in the picture (${people.join(', ')}); each appears ONCE - no duplicates, no extra people.`;
+}
+
+/**
+ * 한 장면의 최종 프롬프트(Flare 상한 5000자). staging(장면 연출 메모, staging-<story>.mjs)이 장면 내용을 정한다 -
+ * 동화 문장은 넣지 않는다(10/24: 문장이 잘리고, 모델이 해석 없이 인물을 한 줄로 세웠다).
+ */
+export function buildPrompt({ characters, staging, background, lighting, continuityRule, rules = '' }) {
   const cast = characters.map((key) => CHARACTER_SPECS[key]).filter(Boolean);
-  // 장면 글(대사 포함)은 340자까지 - 상한 5,000자 안에서 공통 글·인물·구도 칸을 지키기 위해. 규칙 칸이 있는
-  // 장면(부엌·인물 3명)은 그만큼 글을 더 줄인다(220자) - 대사보다 "누가 창살 안인지"가 더 중요하다.
-  const cap = rules ? 110 : 340;
-  const storyText = story.length > cap ? `${story.slice(0, cap)}…` : story;
   return [
     COMMON_TEMPLATE,
     '',
     cast.length ? `CHARACTERS IN THIS SCENE (match the attached sheets; no one else): ${cast.join(' ')}` : 'No people in this scene.',
-    `STORY: ${storyText}`,
-    // 창살 안에 누가 있는지 같은 "틀리면 안 되는" 규칙 - 글 요약(340자 컷) 뒤에 따로 두어 잘리지 않게 한다.
+    castCount(characters),
+    `SCENE - follow exactly, it overrides any default staging: ${staging.stage}`,
+    `PROPS AND STATE: ${staging.props} ${continuityRule}`,
     rules,
-    `COMPOSITION: ${composition} ${COMPOSITION_RULE}`,
+    `COMPOSITION: ${staging.shot} ${COMPOSITION_RULE}${staging.hidden ? '' : ` ${FULL_BODY_RULE}`}`,
     `BACKGROUND: ${background}`,
     `LIGHTING / MOOD: ${lighting}`,
-    continuity ? `CONTINUITY: ${continuity}` : '',
     NEGATIVE,
   ]
     .filter((line) => line !== '')

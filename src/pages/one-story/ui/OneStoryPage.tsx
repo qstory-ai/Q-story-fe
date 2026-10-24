@@ -69,6 +69,8 @@ export function OneStoryPage({
   // 글씨 크기(lib/reader-text-scale) - 반 수업은 "크게"로 시작한다. 상단 [글씨] 버튼이 돌아가며 바꾼다.
   const isClassLesson = runtime.isClassLesson;
   const [textScaleKey, setTextScaleKey] = useState(() => loadTextScale(isClassLesson));
+  // 대화 패널 실제 높이 - 그림을 그 위 영역에 맞춘다(PC처럼 패널이 낮으면 그림도 크게).
+  const [panelHeight, setPanelHeight] = useState<number | null>(null);
   const cycleTextScale = useCallback(() => {
     setTextScaleKey((key) => {
       const next = nextTextScale(key);
@@ -87,6 +89,7 @@ export function OneStoryPage({
             attempt={runtime.attemptBackdrop}
             // 대화 패널이 아래를 덮는 동안 그림을 패널 위 영역에 맞추고 여백은 흐린 그림으로 채운다.
             fitted={dialogue.open && !runtime.homeMenuVisible && !chaptersOpen}
+            fitBottomInset={panelHeight}
             hidden={isParentReport}
             accessibilityLabel={`${scene?.title ?? runtime.storyPackage.manifest.title} 삽화`}
           />
@@ -137,7 +140,11 @@ export function OneStoryPage({
           </ScrollView>
 
           {!dialogue.open && <PlaybackDock runtime={runtime} />}
-          <DialoguePanel dialogue={dialogue} hidden={runtime.homeMenuVisible || chaptersOpen} />
+          <DialoguePanel
+            dialogue={dialogue}
+            hidden={runtime.homeMenuVisible || chaptersOpen}
+            onHeightChange={setPanelHeight}
+          />
 
           <ChapterSidebar
             runtime={runtime}

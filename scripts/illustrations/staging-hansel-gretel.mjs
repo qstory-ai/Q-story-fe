@@ -14,7 +14,7 @@ export const CONTINUITY_RULES = {
 };
 
 /** 가방을 멘 그림(과자집을 나온 뒤 집에 닿기 전). 나머지는 noBag. */
-export const BAG_SCENES = new Set(['candy-house-exit', 'waterway-obstacle', 'water-return', 'marked-return-path']);
+export const BAG_SCENES = new Set(['candy-house-exit', 'waterway-obstacle', 'water-return', 'marked-return-path', 'father-runs-home']);
 
 export const STAGING = {
   'home-table': {
@@ -162,49 +162,49 @@ export const STAGING = {
   'kitchen-door-locked': {
     shot: 'Medium-wide shot of the candy house kitchen in the morning.',
     stage:
-      'The old woman stands at the heavy wooden kitchen door, turning a big black key in its lock with her back half to the children, her smile gone. Hansel and Gretel stand in the middle of the kitchen near the worktable, turning toward the door in surprise. The tall iron cage at the left is EMPTY and its door is open.',
+      'The old woman stands at the heavy corridor door on the back wall (left of center), turning a big black key in its lock, her smile gone. Hansel and Gretel stand in the middle of the kitchen near the worktable, turning toward her in surprise. The tall iron cage at the left is EMPTY with its door open.',
     props: 'Breakfast bowls on the worktable. The key ring holds exactly two keys.',
   },
   'witch-reveal': {
     shot: 'Medium-wide shot of the kitchen; the cage at the left, characters in the middle.',
     stage:
-      'The witch (the same old woman, now stern) has just shut the cage door and turns the small silver key in its lock. Hansel stands INSIDE the tall iron cage, both hands holding the bars, his face BEHIND the bars (bars in front of his face, nothing passing through them). Gretel stands outside in the middle of the kitchen, frightened.',
+      'The witch stands at the tall iron cage on the LEFT; she has just shut the cage door and turns the small silver key in its lock. Hansel stands INSIDE the cage, both hands on the bars, his face BEHIND the bars. Gretel stands outside in the middle of the kitchen, frightened.',
     props: 'The key ring with exactly two keys (small silver, big black) in the witch\'s hand.',
   },
   'gretel-watches-keys': {
     shot: 'Medium shot of the kitchen from beside the worktable.',
     stage:
-      'The witch hangs a key ring with exactly two keys on her waist belt while stirring a bowl. Gretel, at the worktable with a bowl of ingredients, secretly watches the keys out of the corner of her eye. Hansel is inside the cage at the left, behind the bars.',
+      'The witch stands at the COOKING AREA (brick oven, back center), stirring the big pot, and hangs a key ring with exactly two keys on her waist belt. Gretel stands at the worktable (front right) with both hands busy washing vegetables in a bowl; she only GLANCES at the keys on the witch belt out of the corner of her eye - she is NOT touching or holding any keys. Hansel is inside the cage at the left, behind the bars.',
     props: 'Exactly two keys on the ring: one small silver, one big black.',
   },
   'gretel-whispers-keys': {
     shot: 'Medium close shot at the cage; the witch small in the background with her back turned.',
     stage:
-      'Gretel stands OUTSIDE the cage, leaning close to the bars and whispering. Hansel is INSIDE the cage, leaning toward her, his face clearly BEHIND the iron bars - the bars pass in front of his face and his head never pokes through them. In the background the witch faces the stove, not looking.',
+      'Gretel stands OUTSIDE the cage on the left, leaning close to the bars and whispering. Hansel is INSIDE the cage, leaning toward her, his face clearly BEHIND the iron bars - his head never pokes through them. In the background the witch stands at the COOKING AREA (brick oven, back center) with her back turned, stirring the pot.',
     props: 'Solid, evenly spaced vertical bars too narrow for a head. One Hansel, one Gretel, one witch.',
   },
   'witch-cooking-keys': {
     shot: 'Medium-wide shot of the kitchen.',
     stage:
-      'The witch lifts a big pot at the stove; she has put the key ring down at the far end of the worktable. Gretel stands near the worktable looking at the keys; the witch glances back over her shoulder toward the children. Hansel is inside the cage at the left, behind the bars.',
+      'The witch stands at the COOKING AREA (brick oven, back center) lifting the big black pot with both hands; she has put the key ring down at the far end of the worktable. Gretel stands near the worktable looking at the keys; the witch glances back over her shoulder toward the children. Hansel is inside the cage at the left, behind the bars.',
     props: 'The key ring (exactly two keys) lies alone at the end of the worktable.',
   },
   'wait-and-take-keys': {
     shot: 'Medium-wide shot of the kitchen.',
     stage:
-      'The witch faces AWAY at the back shelf, searching for a pot lid with both hands. Behind her back, Gretel tiptoes to the worktable and picks up the key ring. Hansel watches from inside the cage at the left, behind the bars.',
+      'The witch has walked from the oven to the SHELF AREA on the RIGHT wall and searches the shelves for a pot lid with both hands, her back to the room. Gretel quietly picks up the key ring from the worktable. Hansel watches from inside the cage at the left, behind the bars.',
     props: 'Exactly two keys on the ring in Gretel\'s hand.',
   },
   'cage-unlock-oven-secured': {
     shot: 'Medium shot at the cage.',
     stage:
-      'Gretel turns the small silver key in the cage lock; the cage door swings open and Hansel steps OUT quietly. The witch is still at the back shelf with her back turned, not noticing.',
+      'Gretel turns the small silver key in the lock of the tall iron cage on the LEFT; the cage door swings open and Hansel steps OUT quietly. The witch is still at the SHELF AREA on the RIGHT wall with her back turned, searching for the pot lid.',
     props: 'Gretel holds the ring with exactly two keys.',
   },
   'black-key-side-door': {
     shot: 'Medium-wide shot from inside the kitchen toward the kitchen door.',
     stage:
-      'Gretel has opened the heavy kitchen door with the big black key; Hansel is already slipping through into the corridor. At the back of the kitchen, the witch - the SAME small old woman with grey hair, cream kerchief and plum shawl - turns around and shouts.',
+      'Gretel has opened the heavy corridor door (back wall, left of center) with the big black key; Hansel is already slipping through into the corridor. The witch, at the SHELF AREA on the RIGHT wall holding a pot lid, turns around and shouts. The tall iron cage at the left stands open and empty.',
     props: 'The open, now-empty cage at the far left. Exactly two keys on the ring.',
   },
   'corridor-lock-door': {
@@ -253,6 +253,12 @@ export const STAGING = {
       'Hansel and Gretel walk toward a tree with a white cloth tied to a branch; through the trees beyond, the familiar roof of their own cottage is visible.',
     props: 'One white cloth tied on the branch. Their small cloth bags.',
   },
+  'father-runs-home': {
+    shot: 'Wide shot in front of the family cottage in the evening.',
+    stage:
+      'Father runs out from the front door of the cottage with open arms, overjoyed and teary, toward Hansel and Gretel who have just come out of the forest path holding hands. A few white cloths are tied on trees along the path behind the children.',
+    props: 'The children still carry their two small cloth bags. Stepmother is NOT here.',
+  },
   'home-promise': {
     shot: 'Medium shot in front of the cottage.',
     stage:
@@ -280,13 +286,13 @@ export const STAGING = {
   'c-wait-for-witch-turn-01': {
     shot: 'Medium-wide shot of the kitchen.',
     stage:
-      'The old woman stands at the back shelf, busy looking for a pot lid. Gretel quietly picks up the key ring from the worktable. Hansel waits in the tall iron cage at the left, hopeful.',
+      'The old woman stands at the SHELF AREA on the RIGHT wall, busy looking for a pot lid. Gretel quietly picks up the key ring from the worktable. Hansel waits in the tall iron cage at the left, hopeful.',
     props: 'Exactly two keys on the ring.',
   },
   'c-distract-and-take-keys-01': {
     shot: 'Medium-wide shot of the kitchen.',
     stage:
-      'Hansel, inside the cage at the left, calls out to the witch; the witch turns toward HIM, away from the worktable. At the same moment, Gretel quietly takes the key ring from the worktable with her own hand. The witch does NOT hand anything to Gretel and does not look at her.',
+      'Hansel, inside the cage at the left, calls out to the witch; the witch, standing between the oven and the worktable, turns toward HIM. At the same moment Gretel quietly takes the key ring from the worktable with her own hand. The witch does NOT hand anything to Gretel and does not look at her.',
     props: 'The key ring (exactly two keys) is in Gretel\'s hand, never in the witch\'s hand.',
   },
   'a-try-thick-bushes': {
@@ -306,17 +312,20 @@ export const STAGING = {
   },
   'c-try-high-window': {
     shot: 'Medium-wide shot of the kitchen.',
-    stage: 'Gretel stretches on tiptoe toward a small high window but cannot reach it. The witch stirs a pot at the stove with her back turned. Hansel watches from inside the cage at the left.',
+    stage:
+      'GRETEL (the blonde girl in the red skirt) stands under a small window set high in the LEFT-CENTER wall and reaches up toward it with one hand; it is too high for her. The old woman is far from the window, at the COOKING AREA (brick oven, back center), stirring the pot with both hands, her back turned. Hansel watches from inside the cage at the left.',
     props: 'The key ring (two keys) still on the worktable.',
   },
   'c-try-locked-door': {
     shot: 'Medium-wide shot of the kitchen.',
-    stage: 'Gretel pulls the handle of the locked kitchen door with both hands but it does not open. The witch stirs a pot at the stove with her back turned. Hansel watches from inside the cage at the left.',
+    stage:
+      'Gretel pulls the handle of the locked corridor door with both hands but it does not open. The witch stands at the COOKING AREA (brick oven, back center) stirring the pot with her back turned. Hansel watches from inside the cage at the left.',
     props: 'The key ring (two keys) still on the worktable.',
   },
   'c-try-narrow-chimney': {
     shot: 'Medium-wide shot of the kitchen.',
-    stage: 'Gretel looks into the narrow opening of a small chimney flue in the wall; it is clearly far too small for her shoulders. The witch stirs a pot with her back turned. Hansel watches from inside the cage at the left.',
+    stage:
+      'Gretel looks into the narrow opening of a small chimney flue in the wall; it is clearly far too small for her shoulders. The witch stands at the COOKING AREA (brick oven, back center) stirring the pot with her back turned. Hansel watches from inside the cage at the left.',
     props: 'The key ring (two keys) still on the worktable.',
   },
 };

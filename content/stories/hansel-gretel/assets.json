@@ -24,16 +24,16 @@
       "category": "BRANCH_ART",
       "familyId": "C_WAIT_FOR_WITCH_TURN",
       "panel": 1,
-      "file": "illustrations/fb-c-wait-for-witch-turn-s2.webp",
-      "integrity": "sha256-ImH5xSgrgfhAKoxjVIYkjVeR17EZfx3h2urictzPo2g="
+      "file": "illustrations/fb-c-wait-for-witch-turn-s3.webp",
+      "integrity": "sha256-shZ+cgQJOKmM9ZtIryd918ogGpPIZm7fsjmG5h360Ds="
     },
     {
       "slug": "c-distract-and-take-keys-01",
       "category": "BRANCH_ART",
       "familyId": "C_DISTRACT_AND_TAKE_KEYS",
       "panel": 1,
-      "file": "illustrations/fb-c-distract-and-take-keys-s3.webp",
-      "integrity": "sha256-VKUYqaCAjL1BSmF+AtQn2lRbf+lfGdgMs4sg8f9KHe8="
+      "file": "illustrations/fb-c-distract-and-take-keys-s4.webp",
+      "integrity": "sha256-LQBhAWsUxYMPjTp3kW9nZZ2kgTT+SWcw/aZVd8TYcJQ="
     },
     {
       "slug": "home-table",
@@ -176,50 +176,50 @@
     {
       "slug": "kitchen-door-locked",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-49-kitchen-door-locked-s2.webp",
-      "integrity": "sha256-PhaxQkmDaIVYNgm1xbdccJdZyFhgWmciS22T8Onzm0g="
+      "file": "illustrations/hg-art-49-kitchen-door-locked-s3.webp",
+      "integrity": "sha256-aCp1igTh5+RmrckSyWtmLEGKB5jar69DPBN/7fqIKSE="
     },
     {
       "slug": "witch-reveal",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-11-witch-reveal-s2.webp",
-      "integrity": "sha256-A+LEUahFATJCcD1iVE4X1YH0Lz9YMb1IFK886G/UK5Q="
+      "file": "illustrations/hg-art-11-witch-reveal-s3.webp",
+      "integrity": "sha256-bjVMhbMVztQoVnUY+G3a0Ztk2fw3qsRlsTR1oYd0K+4="
     },
     {
       "slug": "gretel-watches-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-31-gretel-watches-keys-s3.webp",
-      "integrity": "sha256-VZRrFL7cPmw268xAceBfmAlFLbCbkCL2tCXpDPXkO98="
+      "file": "illustrations/hg-art-31-gretel-watches-keys-s4.webp",
+      "integrity": "sha256-2D06U3ijwKtzfxbkjlUCao6dZxvO9v0ODI8AZEOUvvQ="
     },
     {
       "slug": "gretel-whispers-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-50-gretel-whispers-keys-s3.webp",
-      "integrity": "sha256-y1606Tim0rHDNBoqpIPq2c5eFzLzpgdE9ULYVS4w9tU="
+      "file": "illustrations/hg-art-50-gretel-whispers-keys-s4.webp",
+      "integrity": "sha256-R2PThJlfbTRa+O8aamysLoc95JBzD2vjUT8d/BujFKA="
     },
     {
       "slug": "witch-cooking-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-51-witch-cooking-keys-s3.webp",
-      "integrity": "sha256-R/olDlydb37dEup/xchcHIbW3bPbfPsdiEwjoLY2IKo="
+      "file": "illustrations/hg-art-51-witch-cooking-keys-s4.webp",
+      "integrity": "sha256-bywfEaJZYgOwUAvjEBLlP6SQeeymbWAoR0fMUEdQDTo="
     },
     {
       "slug": "wait-and-take-keys",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-52-wait-and-take-keys-s3.webp",
-      "integrity": "sha256-CRxDjkuScF8nYgyg/23s9OPYImcL2+H+Tans+pRKCSU="
+      "file": "illustrations/hg-art-52-wait-and-take-keys-s4.webp",
+      "integrity": "sha256-PEBM79agxdTq/6Vvksunvo9mFKgfcOvpBAuoOGrwBFA="
     },
     {
       "slug": "cage-unlock-oven-secured",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-45-cage-unlock-oven-secured-s3.webp",
-      "integrity": "sha256-bGN/dLmXWaEEh1iyOUxjtoJis+ArwSa2MyGVYC9tq0U="
+      "file": "illustrations/hg-art-45-cage-unlock-oven-secured-s4.webp",
+      "integrity": "sha256-DDMgHHkHMjPkav6unu9C74ZNGRi14PUYscsSR2hpIWs="
     },
     {
       "slug": "black-key-side-door",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-art-46-black-key-side-door-s2.webp",
-      "integrity": "sha256-uhPOP9FTnY2gCUHK8lYXBH/qX3AhEPW08MqTEBkfnjU="
+      "file": "illustrations/hg-art-46-black-key-side-door-s3.webp",
+      "integrity": "sha256-Ghc5742NP3TdoMLGT6BRkpWlE7DR8tV6ySgDbmtbH1c="
     },
     {
       "slug": "corridor-lock-door",
@@ -270,6 +270,12 @@
       "integrity": "sha256-QrfpY3/9IEtHVx354/SDJ2bBTglIl+dyzM7QA0RC0BA="
     },
     {
+      "slug": "father-runs-home",
+      "category": "SCENE_ART",
+      "file": "illustrations/hg-art-24b-father-runs-home-s1.webp",
+      "integrity": "sha256-csBV4kJeg+AFRdK9uvN4w3+dDLgj0A4ZLQg/G+Qqdq0="
+    },
+    {
       "slug": "home-promise",
       "category": "SCENE_ART",
       "file": "illustrations/hg-art-18-home-apology-s2.webp",
@@ -302,20 +308,20 @@
     {
       "slug": "c-try-high-window",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-attempt-c-try-high-window-s2.webp",
-      "integrity": "sha256-5mov/nWLXf9m5pB4TfmQeuwnTw341CZZNZ44ChVd0Ls="
+      "file": "illustrations/hg-attempt-c-try-high-window-s3.webp",
+      "integrity": "sha256-c+XaPnjaylff1DGBWWdkcaT4MURvVLQrw9P1xxI0N0Q="
     },
     {
       "slug": "c-try-locked-door",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-attempt-c-try-locked-door-s3.webp",
-      "integrity": "sha256-vbALo6PDhRgj7DArixUS6Trd3dhrvYcdptLwzrSq5lU="
+      "file": "illustrations/hg-attempt-c-try-locked-door-s4.webp",
+      "integrity": "sha256-eEgu6P0ERZidEAn+EnQstzFGVGyjaGKCfTBjRRvJV1o="
     },
     {
       "slug": "c-try-narrow-chimney",
       "category": "SCENE_ART",
-      "file": "illustrations/hg-attempt-c-try-narrow-chimney-s2.webp",
-      "integrity": "sha256-ymoeKaw1FzrBLQu6aK40FBOAQNQRWjjLrzJeyvafYxY="
+      "file": "illustrations/hg-attempt-c-try-narrow-chimney-s3.webp",
+      "integrity": "sha256-9tvluhm0UkTInevU4XlTRYC8iuXV5QHfEpHARTOwxI4="
     },
     {
       "slug": "f01-002",
@@ -1092,79 +1098,79 @@
       "integrity": "sha256-MqaiyeqhS5H8k/wH2hs0E7LuIc+rVtN69lsZsDtM/Fs="
     },
     {
-      "slug": "f10-004",
+      "slug": "f10-005",
       "category": "NARRATION",
       "file": "audio/q33-narrator-3b7c53aa9057.mp3",
       "integrity": "sha256-M+ZNoimcBuaGDKJw7McTOcui/6huUMjwOIBhcHb2XIc="
     },
     {
-      "slug": "f10-005",
+      "slug": "f10-006",
       "category": "NARRATION",
       "file": "audio/q33-father-cba442cbd5ba.mp3",
       "integrity": "sha256-Djng7t82Bk24UsXJeuKDluW/1H8gpzW2g3kta9QdFMo="
     },
     {
-      "slug": "f10-006",
+      "slug": "f10-007",
       "category": "NARRATION",
       "file": "audio/q33-father-9b9153d1abc0.mp3",
       "integrity": "sha256-AzNGYDj1xcMIO+FBzcsw3BKuKWpI0ZSI4wqGbkvkbws="
     },
     {
-      "slug": "f10-007",
+      "slug": "f10-008",
       "category": "NARRATION",
       "file": "audio/q32-gretel-5bf02fa84e2a.mp3",
       "integrity": "sha256-8H69QSFG1b8+3zx81PJn/vt4wLprLwePMa0zD/ALsWg="
     },
     {
-      "slug": "f10-008",
+      "slug": "f10-009",
       "category": "NARRATION",
       "file": "audio/q33-father-388686157993.mp3",
       "integrity": "sha256-VRedxPrhBCpN9UV/1UAx1rx4qcGd8/Ew2uvyXML3bsM="
     },
     {
-      "slug": "f10-009",
+      "slug": "f10-010",
       "category": "NARRATION",
       "file": "audio/q33-father-978b4f20f946.mp3",
       "integrity": "sha256-EmgdpbnPg6Q0nG896ILELYdeiE2F+k4bNBfIUQOUv7A="
     },
     {
-      "slug": "f10-010",
+      "slug": "f10-011",
       "category": "NARRATION",
       "file": "audio/q33-father-ed7339681550.mp3",
       "integrity": "sha256-hFitK6V9vAp9UzmjZbzdEtkS3KHEAqA2blQvrkLAnek="
     },
     {
-      "slug": "f10-011",
+      "slug": "f10-012",
       "category": "NARRATION",
       "file": "audio/q33-narrator-1a5f7dbc489d.mp3",
       "integrity": "sha256-3qaOautGOTH2awuNYe9UkEu5/OrUgwI6zPAbh6UIbBc="
     },
     {
-      "slug": "f10-012",
+      "slug": "f10-013",
       "category": "NARRATION",
       "file": "audio/q33-narrator-3753f8e2c7b9.mp3",
       "integrity": "sha256-VZx/IW8qsvnUuLDaMhP6giM7ciPlKbJD/0lXDiwfB1o="
     },
     {
-      "slug": "f10-013",
+      "slug": "f10-014",
       "category": "NARRATION",
       "file": "audio/q33-narrator-c30e17663d57.mp3",
       "integrity": "sha256-8DGCFmZhX/XD7q4dBxSck1lYXOinUa8awaGoBxWYHFQ="
     },
     {
-      "slug": "f10-015",
+      "slug": "f10-016",
       "category": "NARRATION",
       "file": "audio/q33-narrator-091776d4a071.mp3",
       "integrity": "sha256-YYOL3rASGF1ejev5oPMVRUhEtiJu8HtoFXOW6f/EicI="
     },
     {
-      "slug": "f10-016",
+      "slug": "f10-017",
       "category": "NARRATION",
       "file": "audio/q33-narrator-c5ebe952d553.mp3",
       "integrity": "sha256-2VLlXJhzZyBikPKM79O6DP+ECnS7fB4aqAe3DAOfdZw="
     },
     {
-      "slug": "f10-017",
+      "slug": "f10-018",
       "category": "NARRATION",
       "file": "audio/hg-f10-clip-022.mp3",
       "integrity": "sha256-kUnu/K0XLbC1kXiibwcK1Ivg/wpE3cEO8pHj510fU/8="

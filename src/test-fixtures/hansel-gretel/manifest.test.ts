@@ -66,6 +66,7 @@ const SCENE_ASSETS = [
   'waterway-obstacle',
   'water-return',
   'marked-return-path',
+  'father-runs-home',
   'home-promise',
   'window-epilogue',
 ];

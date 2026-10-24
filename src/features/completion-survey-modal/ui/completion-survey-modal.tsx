@@ -94,14 +94,14 @@ export function CompletionSurveyModal({
       </ModalBody>
 
       <SingleChoiceQuestion
-        label="함께 체험한 아이는 몇 살인가요?"
+        label="Q1. 함께 체험한 아이는 몇 살인가요?"
         options={CHILD_AGE_BAND_OPTIONS}
         value={form.childAgeBand}
         onChange={form.setChildAgeBand}
         errorText={fieldError(form.childAgeBand.length > 0, '아이 나이를 선택해 주세요.')}
       />
       <ScaleQuestion
-        label="아이의 몰입도는 어땠나요?"
+        label="Q2. 아이의 몰입도는 어땠나요?"
         minLabel="금방 다른 곳으로 관심이 갔어요"
         maxLabel="끝까지 집중했어요"
         value={form.childEngagement}
@@ -109,21 +109,21 @@ export function CompletionSurveyModal({
         errorText={fieldError(form.childEngagement !== null, '몰입도를 선택해 주세요.')}
       />
       <SingleChoiceQuestion
-        label="아이는 자신의 말이 이야기에 반영됐다는 것을 어떻게 받아들였나요?"
+        label="Q3. 아이는 자신의 말이 이야기에 반영됐다는 것을 어떻게 받아들였나요?"
         options={INPUT_UNDERSTANDING_OPTIONS}
         value={form.inputUnderstanding}
         onChange={form.setInputUnderstanding}
         errorText={fieldError(form.inputUnderstanding.length > 0, '아이의 반응을 선택해 주세요.')}
       />
       <SingleChoiceQuestion
-        label="아이가 답할 때 어느 정도 도움이 필요했나요?"
+        label="Q4. 아이가 답할 때 어느 정도 도움이 필요했나요?"
         options={HELP_NEEDED_OPTIONS}
         value={form.helpNeeded}
         onChange={form.setHelpNeeded}
         errorText={fieldError(form.helpNeeded.length > 0, '도움 정도를 선택해 주세요.')}
       />
       <MultiChoiceQuestion
-        label="체험 중 아이가 보인 반응을 모두 골라주세요."
+        label="Q5. 체험 중 아이가 보인 반응을 모두 골라주세요."
         options={CHILD_REACTION_OPTIONS}
         values={form.childReactions}
         onToggle={(option) => form.setChildReactions(toggle(form.childReactions, option))}
@@ -133,14 +133,14 @@ export function CompletionSurveyModal({
         errorText={fieldError(form.childReactionsValid, '아이가 보인 반응을 선택해 주세요.')}
       />
       <MultiChoiceQuestion
-        label="체험 중 불편하거나 흐름이 끊긴 순간이 있었나요? 모두 골라주세요."
+        label="Q6. 체험 중 불편하거나 흐름이 끊긴 순간이 있었나요? 모두 골라주세요."
         options={DISRUPTION_OPTIONS}
         values={form.disruptions}
         onToggle={(option) => form.setDisruptions(toggle(form.disruptions, option))}
         errorText={fieldError(form.disruptions.length > 0, '불편했던 점을 선택해 주세요.')}
       />
       <ScaleQuestion
-        label="보호자 리포트가 아이와 대화를 이어가는 데 얼마나 도움이 되었나요?"
+        label="Q7. 보호자 리포트가 아이와 대화를 이어가는 데 얼마나 도움이 되었나요?"
         minLabel="전혀 도움이 되지 않았어요"
         maxLabel="매우 도움이 되었어요"
         value={form.reportHelpfulness}
@@ -148,7 +148,7 @@ export function CompletionSurveyModal({
         errorText={fieldError(form.reportHelpfulness !== null, '도움 정도를 선택해 주세요.')}
       />
       <SingleChoiceQuestion
-        label="부모님께서 같이 플레이하면서 가장 좋았던 점은 무엇인가요?"
+        label="Q8. 부모님께서 같이 플레이하면서 가장 좋았던 점은 무엇인가요?"
         options={BEST_ASPECT_OPTIONS}
         value={form.bestAspect}
         onChange={form.setBestAspect}
@@ -158,13 +158,13 @@ export function CompletionSurveyModal({
         errorText={fieldError(form.bestAspectValid, '가장 좋았던 점을 선택해 주세요.')}
       />
       <TextField
-        label="가장 먼저 고쳤으면 하는 점이 있다면 한 가지만 적어주세요. (선택)"
+        label="Q9. 가장 먼저 고쳤으면 하는 점이 있다면 한 가지만 적어주세요. (선택)"
         value={form.topPriority}
         onChangeText={form.setTopPriority}
         placeholder="예: 질문 응답 대기 시간이 길었어요"
       />
       <SingleChoiceQuestion
-        label="다음 동화가 나오면 아이와 다시 체험하고 싶으신가요?"
+        label="Q10. 다음 동화가 나오면 아이와 다시 체험하고 싶으신가요?"
         options={RETRY_INTEREST_OPTIONS}
         value={form.retryInterest}
         onChange={form.setRetryInterest}
@@ -179,13 +179,13 @@ export function CompletionSurveyModal({
         </Text>
       </View>
       <TextField
-        label="다른 부모님께 Q-Story를 한 문장으로 소개한다면 어떻게 말하고 싶으세요? (선택)"
+        label="Q11. 다른 부모님께 Q-Story를 한 문장으로 소개한다면 어떻게 말하고 싶으세요? (선택)"
         value={form.oneLineReview}
         onChangeText={form.setOneLineReview}
         placeholder="예: 아이가 직접 질문하며 참여하는 동화예요"
       />
       <SingleChoiceQuestion
-        label="작성한 한 줄 후기를 어떻게 사용해도 될까요?"
+        label="Q12. 작성한 한 줄 후기를 어떻게 사용해도 될까요?"
         options={REVIEW_USAGE_CONSENT_OPTIONS}
         value={form.reviewUsageConsent}
         onChange={form.setReviewUsageConsent}
@@ -204,7 +204,7 @@ export function CompletionSurveyModal({
         </Text>
       </View>
       <SingleChoiceQuestion
-        label="다음 두 동화를 먼저 체험해보고 싶으신가요?"
+        label="Q13. 다음 두 동화를 먼저 체험해보고 싶으신가요?"
         options={WANTS_NEXT_STORIES_OPTIONS}
         value={form.wantsNextStories}
         onChange={form.setWantsNextStories}
@@ -214,13 +214,13 @@ export function CompletionSurveyModal({
         )}
       />
       <TextField
-        label="체험단 안내를 받을 이메일 또는 휴대전화 번호를 남겨주세요. (선택)"
+        label="Q14. 체험단 안내를 받을 이메일 또는 휴대전화 번호를 남겨주세요. (선택)"
         value={form.contact}
         onChangeText={form.setContact}
         placeholder="parent@example.com 또는 010-0000-0000"
       />
       <SingleChoiceQuestion
-        label="연락처를 남긴 경우, 다음 이야기 체험 안내를 위해 연락처를 수집·이용하는 데 동의하시나요? (안내 종료 후 파기)"
+        label="Q15. 연락처를 남긴 경우, 다음 이야기 체험 안내를 위해 연락처를 수집·이용하는 데 동의하시나요? (안내 종료 후 파기)"
         options={CONTACT_CONSENT_OPTIONS}
         value={form.contactConsent}
         onChange={form.setContactConsent}

@@ -175,15 +175,20 @@ export function ScaleQuestion({
 }
 
 const styles = StyleSheet.create({
+  // 10/24 QA: 문항이 붙어 보여 안 읽혔다 - 문항마다 위에 선을 두고 간격을 넓힌다.
   field: {
     gap: storybookTheme.spacing.sm,
+    paddingTop: storybookTheme.spacing.md,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: storybookTheme.color.disabledBackground,
   },
   labelRow: {
     gap: storybookTheme.spacing.xs,
   },
   label: {
-    fontSize: storybookTheme.type.sm,
-    fontWeight: storybookTheme.type.weight.medium,
+    fontSize: storybookTheme.type.md,
+    lineHeight: 24,
+    fontWeight: storybookTheme.type.weight.bold,
     color: storybookTheme.color.onLightHeading,
   },
   errorText: {

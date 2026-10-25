@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { storybookTheme } from '@/shared/ui';
 import { birthYearOptions, formatBirthYear } from '../model/age-band';
@@ -17,14 +17,15 @@ type Props = {
 /**
  * "~년생" 선택 칩. 나이를 직접 고르게 하지 않고 출생연도를 받아 나이는 계산한다(연 나이 = 올해 -
  * 출생연도, 서버 ChildAge와 같은 규칙). 부모 아이 프로필(AddChildModal·온보딩)과 반 연결 화면이
- * 같은 컴포넌트를 쓴다.
+ * 같은 컴포넌트를 쓴다. 칩은 줄을 바꿔 모두 보여 준다 - 가로로 넘기게 두었더니 넘길 수 있는 줄 몰라 "7세까지만 있다"고
+ * 느꼈다(10/25 보호자 피드백).
  */
 export function BirthYearChips({ value, onChange, label = '출생연도', minAge = 4, maxAge = 12, tone = 'card' }: Props) {
   const options = birthYearOptions(minAge, maxAge);
   return (
     <View style={styles.group}>
       <Text style={[styles.groupLabel, tone === 'content' && styles.groupLabelContent]}>{label}</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+      <View accessibilityRole="radiogroup" style={styles.chipRow}>
         {options.map((year) => {
           const selected = year === value;
           return (
@@ -47,7 +48,7 @@ export function BirthYearChips({ value, onChange, label = '출생연도', minAge
             </Pressable>
           );
         })}
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -60,7 +61,7 @@ const styles = StyleSheet.create({
     color: storybookTheme.color.onCardBody,
   },
   groupLabelContent: { color: storybookTheme.color.onLightHeading },
-  chipRow: { gap: 8, paddingVertical: 2 },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingVertical: 2 },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,

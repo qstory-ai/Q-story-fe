@@ -1,7 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/entities/auth';
-import { ActionButton } from '@/shared/ui';
+import { ActionButton, storybookTheme } from '@/shared/ui';
 import { SessionCodeNote } from '@/entities/play-session';
 import {
   ReportContent,
@@ -31,6 +32,7 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
     sessionCode,
   } = runtime;
   const { state: authState } = useAuth();
+  const navigate = useNavigate();
   const token = authState.status === 'authenticated' ? authState.token : null;
   // 방금 저장한 기록을 받아 와 서버 분석(관심·대화 카드)과 이어 읽기 전 대화까지 채운다(Q-39).
   const { detail, retry } = useCompletionDetail(token, completedRecordId);
@@ -94,6 +96,40 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
           onRetryAnalysis={() => void retry()}
           onAction={trackReportAction}
           readAgainSlot={readAgain}
+          lockedAnalysisSlot={
+            !token && !isClassLesson ? (
+              <View style={panel.locked}>
+                <Text style={panel.lockedTitle}>로그인하면 더 자세히 볼 수 있어요</Text>
+                <Text style={panel.lockedBody}>
+                  아이가 한 말을 바탕으로 관심과 생각을 정리하고, 집에서 이어 갈 대화 카드를 만들어 드려요. 방금 읽은 기록도
+                  그대로 옮겨져요.
+                </Text>
+                <View style={[panel.actions, isWide && panel.actionsWide]}>
+                  <View style={panel.action}>
+                    <ActionButton
+                      variant="primary"
+                      label="회원가입하고 분석 보기"
+                      onPress={() => {
+                        trackReportAction('signup_click');
+                        navigate('/signup?role=parent&next=/reports');
+                      }}
+                    />
+                  </View>
+                  <View style={panel.action}>
+                    <ActionButton
+                      variant="secondaryFull"
+                      size="lg"
+                      label="로그인"
+                      onPress={() => {
+                        trackReportAction('login_click');
+                        navigate('/login');
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+            ) : undefined
+          }
           teacherNoteSlot={
             isClassLesson && isTutor && token && completedRecordId ? (
               <TeacherNoteEditor
@@ -143,4 +179,20 @@ const panel = StyleSheet.create({
   actions: { gap: 8 },
   actionsWide: { flexDirection: 'row' },
   action: { flex: 1 },
+  // 데모 리포트 ④ 자리 - 로그인하면 볼 수 있는 분석 안내.
+  locked: {
+    gap: 10,
+    padding: 16,
+    borderRadius: storybookTheme.radius.card,
+    borderWidth: 1,
+    borderColor: storybookTheme.color.surfaceCardBorder,
+    backgroundColor: storybookTheme.color.background,
+  },
+  lockedTitle: {
+    color: storybookTheme.color.onCardTitle,
+    fontSize: storybookTheme.type.md,
+    lineHeight: 24,
+    fontWeight: storybookTheme.type.weight.bold,
+  },
+  lockedBody: { color: storybookTheme.color.onCardBody, fontSize: storybookTheme.type.sm, lineHeight: 22 },
 });

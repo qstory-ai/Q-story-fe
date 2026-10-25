@@ -9,7 +9,9 @@ export type SessionReportAction =
   | 'expand_reason'
   | 'retry_analysis'
   | 'reread_click'
-  | 'teacher_note_saved';
+  | 'teacher_note_saved'
+  | 'signup_click'
+  | 'login_click';
 
 export type ReportKind = 'HOME' | 'CLASS' | 'TUTOR';
 

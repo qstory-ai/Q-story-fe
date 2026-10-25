@@ -79,6 +79,7 @@ export function SessionReport({
   onRetryAnalysis,
   teacherNoteSlot,
   readAgainSlot,
+  lockedAnalysisSlot,
   onAction,
 }: {
   data: SessionReportData;
@@ -90,6 +91,8 @@ export function SessionReport({
   teacherNoteSlot?: ReactNode;
   /** "아이랑 다시 읽기" 버튼 묶음. */
   readAgainSlot?: ReactNode;
+  /** 로그인하지 않은 데모 - ④·⑤ 자리에 "로그인하면 볼 수 있어요" 안내를 넣는다(서버 분석은 계정 기록에만 만든다). */
+  lockedAnalysisSlot?: ReactNode;
   /** 리포트에서 누른 것(Q-40 UT 통계) - 펼치기는 열 때만 알린다. */
   onAction?: (action: SessionReportAction) => void;
 }) {
@@ -246,7 +249,9 @@ export function SessionReport({
       )}
 
       <Section title="④ 이번에 드러난 관심과 생각">
-        {!spoke ? (
+        {lockedAnalysisSlot && spoke ? (
+          lockedAnalysisSlot
+        ) : !spoke ? (
           <Text style={sr.empty}>아이가 남긴 말이 없어 이번에는 관심을 추측하지 않았어요.</Text>
         ) : (
           <>
@@ -269,10 +274,16 @@ export function SessionReport({
       </Section>
 
       <Section title="⑤ 함께 이야기할 카드" description="질문을 순서대로 다 묻기보다, 아이 반응에 맞춰 골라 써 보세요.">
-        {!data.analysis || data.analysis.status === 'PENDING' ? (
-          <AnalysisState analysis={data.analysis} onRetry={retryAnalysis} personal={false} />
-        ) : null}
-        <TalkCards analysis={data.analysis} storyPackage={storyPackage} isWide={isWide} />
+        {lockedAnalysisSlot ? (
+          <Text style={sr.empty}>아이 반응에 맞춘 대화 카드도 로그인하면 함께 만들어져요.</Text>
+        ) : (
+          <>
+            {!data.analysis || data.analysis.status === 'PENDING' ? (
+              <AnalysisState analysis={data.analysis} onRetry={retryAnalysis} personal={false} />
+            ) : null}
+            <TalkCards analysis={data.analysis} storyPackage={storyPackage} isWide={isWide} />
+          </>
+        )}
       </Section>
       {readAgainSlot}
     </View>

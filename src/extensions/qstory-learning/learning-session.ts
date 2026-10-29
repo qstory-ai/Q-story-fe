@@ -51,7 +51,7 @@ export function learningRequest(input: Context): { learning?: LearningState } {
   const key = keyOf(input);
   let state = sessions.get(key);
   if (!state) {
-    state = initial(options().ageBand);
+    state = initial(options().ageBand !== 'UNKNOWN' ? options().ageBand : demoAgeBand());
     if (sessions.size >= MAX_SESSIONS) sessions.delete(sessions.keys().next().value!);
     sessions.set(key, state);
   }
@@ -74,3 +74,36 @@ export function setLearningAge(input: Context, age: 'UNKNOWN' | '5-6' | '7-9') {
   sessions.set(key, old ? { ...old, ageBand: age } : initial(age));
 }
 export function clearLearningSessions() { sessions.clear(); }
+
+/*
+ * 데모(로그인 없음)의 나이대. 데모 앞 입력란에 보호자가 적은 아이 나이("5세, 3개월")의 첫 숫자만 이 브라우저에 남긴다 -
+ * 입력란 통과도 브라우저 기준이라 다시 묻지 않기 때문. 로그인한 아이·학생은 서버가 프로필 출생연도로 채운다.
+ * 나이대 구분은 서버(LearningAgeResolver)와 같다: 6세 이하 5-6, 7세 이상 7-9.
+ */
+const DEMO_AGE_KEY = 'qstory-learning-demo-age';
+
+export function ageBandFromAge(age: number | null): LearningState['ageBand'] {
+  if (age === null || !Number.isInteger(age) || age < 1 || age > 14) return 'UNKNOWN';
+  return age <= 6 ? '5-6' : '7-9';
+}
+
+export function rememberDemoChildAge(text: string) {
+  if (!options().storyPal) return;
+  const match = text.match(/\d+/);
+  const age = match ? Number(match[0]) : null;
+  try {
+    if (ageBandFromAge(age) === 'UNKNOWN') window.localStorage.removeItem(DEMO_AGE_KEY);
+    else window.localStorage.setItem(DEMO_AGE_KEY, String(age));
+  } catch {
+    // 저장소를 못 쓰면 나이대 없이(UNKNOWN) 쉬운 질문부터 시작한다.
+  }
+}
+
+function demoAgeBand(): LearningState['ageBand'] {
+  try {
+    const stored = window.localStorage.getItem(DEMO_AGE_KEY);
+    return ageBandFromAge(stored === null ? null : Number(stored));
+  } catch {
+    return 'UNKNOWN';
+  }
+}

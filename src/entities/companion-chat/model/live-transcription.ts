@@ -1,3 +1,4 @@
+import { options as qstoryLearningOptions } from '@/extensions/qstory-learning/config';
 import { speechApiUrl } from '@/entities/speech-pipeline';
 import { authorizationHeader } from '@/shared/api';
 import { sttStreamUrl } from '@/shared/config';
@@ -67,6 +68,10 @@ export function startLiveTranscription(
   input: LiveTranscriptionInput,
   overrides: Partial<Deps> = {},
 ): LiveTranscription {
+  // Intentional batch experiment: caller already falls back to its full recording Blob.
+  if (qstoryLearningOptions().forceBatch) {
+    return { push: () => {}, finish: async () => null, abort: () => {}, failed: true };
+  }
   const deps = { ...defaultDeps(), ...overrides };
   const controller = new AbortController();
   const queue: Int16Array[] = [];

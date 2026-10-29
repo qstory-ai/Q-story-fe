@@ -1,3 +1,4 @@
+import { learningRequest, rememberLearning, parseLearning, type LearningState } from '@/extensions/qstory-learning/learning-session';
 import { speechApiUrl } from '@/entities/speech-pipeline';
 import { authorizationHeader } from '@/shared/api';
 import type { BufferedResponseAudio } from '@/shared/lib';
@@ -52,6 +53,7 @@ export type CompanionDialogueSignal = {
 };
 
 export type CompanionChatReply = {
+  learning?: LearningState;
   responseText: string;
   safetyMode: CompanionChatSafetyMode;
   audio: BufferedResponseAudio | null;
@@ -226,6 +228,7 @@ export async function transcribeCompanionChatAudio(
 }
 
 type CompanionChatBody = FailureEnvelope & {
+  learning?: LearningState;
   responseText: string;
   safety: { mode: CompanionChatSafetyMode };
   audio?: { mimeType: string; dataBase64: string };
@@ -314,9 +317,11 @@ export async function sendCompanionChatMessage(
     method: 'POST',
     signal,
     headers: { 'content-type': 'application/json', ...authorizationHeader() },
-    body: JSON.stringify(input),
+    body: JSON.stringify({ ...input, ...learningRequest(input) }),
   });
-  return readCompanionReply(response, onText);
+  const reply = await readCompanionReply(response, onText);
+  if (!signal?.aborted) rememberLearning(input, reply.learning);
+  return reply;
 }
 
 /** 답 응답 읽기 - 스트리밍(NDJSON)이면 답 문장 줄을 onText로 먼저 넘기고, 아니면 평소 JSON 하나. */
@@ -329,6 +334,7 @@ export async function readCompanionReply(
     ? await readStreamedBody(response, onText)
     : await readBody<CompanionChatBody>(response, REPLY_FAILED_COPY);
   return {
+    ...(parseLearning(body.learning) ? { learning: parseLearning(body.learning) } : {}),
     responseText: body.responseText,
     safetyMode: body.safety.mode,
     audio: body.audio ? { mimeType: body.audio.mimeType, dataBase64: body.audio.dataBase64 } : null,

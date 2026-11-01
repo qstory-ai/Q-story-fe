@@ -704,7 +704,9 @@ function transitionFromGeneratingBranch(
         // 쓴다 - CHOICE_SELECTED 처리 참고) - 서버가 내려주는 일반 THREE_PATHS plan과
         // 동일한 규칙.
         rejoinAt: anchor.allowedRejoinAnchorIds[0] ?? null,
-        fallbackFamilyId: anchor.defaultFallbackFamilyId,
+        // 기본 분기가 없는 질문 지점(HG-Q-C 열쇠 장면 등)은 defaultFallbackFamilyId가 null이다.
+        // 그대로 두면 THREE_PATHS 검증에서 막혀 '만드는 중' 화면에 갇힌다(10/31). 첫 옵션으로 채운다.
+        fallbackFamilyId: anchor.defaultFallbackFamilyId ?? event.options[0].familyId,
         text: '어떤 방법으로 더 알아볼지 골라볼까?',
         options: event.options.map((option, index) => ({
           id: optionIds[index],

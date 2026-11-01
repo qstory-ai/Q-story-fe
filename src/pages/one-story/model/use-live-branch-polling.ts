@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 
 import {
   fallbackFamilyId,
+  type StoryManifest,
   type StoryRuntimeEvent,
   type StoryRuntimeState,
 } from '@/entities/story-runtime';
@@ -21,7 +22,8 @@ import {
 interface UseLiveBranchPollingParams {
   runtimeState: StoryRuntimeState;
   storyId: string;
-  commitEvent: (event: StoryRuntimeEvent) => boolean;
+  /** manifest를 넘기면 그 패키지로 전환을 검증한다(재조회 직후 옛 manifest로 검증하지 않게). */
+  commitEvent: (event: StoryRuntimeEvent, manifest?: StoryManifest) => boolean;
   trackStoryEvent: (
     eventName: BetaEventName,
     metadata?: Record<string, string | number | boolean>,
@@ -50,11 +52,26 @@ export function useLiveBranchPolling({
   trackStoryEvent,
   setStoryPackage,
 }: UseLiveBranchPollingParams) {
+  // 콜백은 ref로 읽는다. 패키지 교체나 다른 상태 변화로 콜백 identity가 바뀔 때마다 effect가 다시 돌면
+  // 90초 안전 타이머가 매번 처음부터 다시 시작돼 영영 끝나지 않는다(10/31 무한 로딩).
+  const callbacksRef = useRef({ commitEvent, trackStoryEvent, setStoryPackage });
   useEffect(() => {
-    if (runtimeState.status !== 'generating-branch') {
+    callbacksRef.current = { commitEvent, trackStoryEvent, setStoryPackage };
+  }, [commitEvent, trackStoryEvent, setStoryPackage]);
+
+  const generating = runtimeState.status === 'generating-branch' ? runtimeState : null;
+  const jobId = generating?.jobId ?? null;
+  const anchorId = generating?.anchorId ?? null;
+  const sceneId = generating?.sceneId ?? null;
+
+  useEffect(() => {
+    if (!jobId || !anchorId || !sceneId) {
       return;
     }
-    const { jobId, anchorId, sceneId } = runtimeState;
+    const commitEvent: UseLiveBranchPollingParams['commitEvent'] = (event, manifest) =>
+      callbacksRef.current.commitEvent(event, manifest);
+    const trackStoryEvent: UseLiveBranchPollingParams['trackStoryEvent'] = (eventName, metadata) =>
+      callbacksRef.current.trackStoryEvent(eventName, metadata);
     // settled: 최종 상태(성공/실패)에 도달했다는 표시. pollInFlight: poll() 하나가 상태 조회나
     // succeedWith의 refetch를 기다리는 동안 setInterval의 다음 tick이 같은 요청을 겹쳐 보내지
     // 않게 막는다(settled는 refetch가 끝난 뒤에야 서므로 그것만으로는 부족하다).
@@ -67,7 +84,8 @@ export function useLiveBranchPolling({
       | 'timeout'
       | 'backend_failed'
       | 'options_shape_mismatch'
-      | 'refetch_failed';
+      | 'refetch_failed'
+      | 'transition_rejected';
     const failGently = (reason: FailReason) => {
       if (settled) return;
       settled = true;
@@ -88,16 +106,24 @@ export function useLiveBranchPolling({
         if (settled || controller.signal.aborted) {
           return;
         }
-        setStoryPackage(refreshedPackage);
+        callbacksRef.current.setStoryPackage(refreshedPackage);
+        const committed = commitEvent(
+          {
+            type: 'LIVE_BRANCH_READY',
+            options: options.map((option) => ({
+              familyId: fallbackFamilyId(option.familyId),
+              label: option.label,
+              meaning: option.meaning,
+            })),
+          },
+          refreshedPackage.manifest,
+        );
+        if (!committed) {
+          // 런타임이 선택지를 거부하면 '만드는 중' 화면에 그대로 남는다 - 이야기로 돌아가게 한다.
+          failGently('transition_rejected');
+          return;
+        }
         settled = true;
-        commitEvent({
-          type: 'LIVE_BRANCH_READY',
-          options: options.map((option) => ({
-            familyId: fallbackFamilyId(option.familyId),
-            label: option.label,
-            meaning: option.meaning,
-          })),
-        });
         // 아직 아이가 고른 게 아니다 - 실제 선택은 selectRouteOption이 처리하며 그때
         // rememberQuestionOutcome/choice_selected가 정상 경로로 기록된다. 여기서는 선택지가
         // 새로 준비되었다는 사실만 남긴다.
@@ -167,5 +193,5 @@ export function useLiveBranchPolling({
       clearInterval(intervalId);
       clearTimeout(timeoutId);
     };
-  }, [commitEvent, runtimeState, storyId, trackStoryEvent, setStoryPackage]);
+  }, [jobId, anchorId, sceneId, storyId]);
 }

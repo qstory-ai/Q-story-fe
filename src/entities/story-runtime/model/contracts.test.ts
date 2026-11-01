@@ -1039,6 +1039,21 @@ test('live branch ready presents exactly three options as a THREE_PATHS choice i
   assert.equal(rejoined.ok, true);
   assert.equal(rejoined.state.status, 'playing-fixed');
   assert.equal(rejoined.state.audioGroupId, IDS.groupEnding);
+
+  // 기본 분기가 없는 질문 지점(HG-Q-C 열쇠 장면처럼 defaultFallbackFamilyId가 null)에서도 선택지로 넘어가야 한다.
+  // 예전엔 THREE_PATHS 검증에 막혀 '만드는 중' 화면에 갇혔다(10/31).
+  manifest.questionAnchors[0].defaultFallbackFamilyId = null;
+  const readyWithoutDefault = transitionStoryRuntime(manifest, generating, {
+    type: 'LIVE_BRANCH_READY',
+    options: [
+      { familyId: liveFamilyId, label: '새로 만든 방법', meaning: '새 방법' },
+      { familyId: IDS.fallback2, label: '기존 방법 1', meaning: '기존 선택지 1' },
+      { familyId: IDS.fallback3, label: '기존 방법 2', meaning: '기존 선택지 2' },
+    ],
+  });
+  assert.equal(readyWithoutDefault.ok, true);
+  assert.equal(readyWithoutDefault.state.status, 'awaiting-choice');
+  assert.equal(readyWithoutDefault.state.plan.fallbackFamilyId, liveFamilyId);
 });
 
 test('a gentle-redirect safety failure re-asks via awaiting-safety-retry while under three consecutive failures', () => {

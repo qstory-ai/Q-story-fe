@@ -15,6 +15,7 @@ import {
   type RouteOption,
   type RoutePlan,
   type SceneId,
+  type StoryManifest,
   type StoryRuntimeEvent,
   type StoryRuntimeState,
 } from '@/entities/story-runtime';
@@ -586,10 +587,12 @@ export function useOneStoryRuntime(
     [],
   );
 
-  const commitEvent = useCallback((event: StoryRuntimeEvent) => {
+  // manifest: 방금 재조회한 패키지로 바로 검증해야 할 때(실시간 분기 READY) 넘긴다. setStoryPackage 직후에는
+  // 이 콜백이 아직 옛 storyManifest를 잡고 있어 새 family를 못 찾기 때문이다.
+  const commitEvent = useCallback((event: StoryRuntimeEvent, manifest: StoryManifest = storyManifest) => {
     const previousState = runtimeRef.current;
     const transition = transitionStoryRuntime(
-      storyManifest,
+      manifest,
       previousState,
       event,
     );

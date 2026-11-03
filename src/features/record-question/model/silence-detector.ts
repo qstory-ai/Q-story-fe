@@ -1,3 +1,5 @@
+import { options as qstoryLearningOptions } from '@/extensions/qstory-learning/config';
+import { createChildSilenceDetector } from '@/extensions/qstory-learning/child-silence';
 /**
  * 말이 끝났는지 판정하는 순수 모듈(Q-34). 마이크 소리 크기(RMS, 0..1)를 시각과 함께 한 프레임씩 넣으면
  * 'continue' 또는 'stop'을 돌려준다. 타이머·Web Audio에 기대지 않아 테스트에서 프레임만으로 검증한다.
@@ -41,6 +43,7 @@ export const DEFAULT_SILENCE_PARAMS: SilenceDetectorParams = {
 const FLOOR_DECAY = 0.05;
 
 export function createSilenceDetector(overrides: Partial<SilenceDetectorParams> = {}) {
+  if (qstoryLearningOptions().childSpeech) return createChildSilenceDetector(overrides);
   const params = { ...DEFAULT_SILENCE_PARAMS, ...overrides };
 
   let firstAt: number | null = null;

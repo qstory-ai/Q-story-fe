@@ -5,7 +5,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { ActionButton, AppNavShell, Card, ErrorState, LoadingState, Modal, radius, StatusBanner, TextField, TextareaField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { formatStudentAge } from '@/entities/child';
-import { TUTOR_PATHS, dashboardNavItems, reportDetailPath, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, reportDetailPath, useAuth, useRoleGuard } from '@/entities/auth';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { EXITED_BADGE_LABEL, isExitedSession, type StoryCompletionSummary } from '@/entities/story-completion';
 import {
@@ -19,7 +19,7 @@ import { formatReportDuration } from '@/widgets/session-report';
 import { StudentReportList, sessionKindLabel } from '@/features/student-reports';
 import { ClassHistoryCard } from '@/features/class-lifecycle';
 import { HomeSection } from '@/features/home-section';
-import { useBackOr } from '@/shared/lib';
+import { formatLongDate, formatMonthDayTime, useBackOr } from '@/shared/lib';
 
 type ReportsLoad =
   | { requestKey: string; status: 'loading' }
@@ -60,12 +60,7 @@ export function TutorStudentDetailPage() {
   const [reports, setReports] = useState<ReportsLoad>({ requestKey, status: 'loading' });
   const goBack = useBackOr(TUTOR_PATHS.classes);
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'TUTOR') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['TUTOR']);
 
   const token = state.status === 'authenticated' ? state.token : null;
 
@@ -186,7 +181,7 @@ export function TutorStudentDetailPage() {
               </View>
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>등록일</Text>
-                <Text style={styles.metaValue}>{formatDate(effective.student.createdAt)}</Text>
+                <Text style={styles.metaValue}>{formatLongDate(effective.student.createdAt)}</Text>
               </View>
             </Card>
 
@@ -237,7 +232,7 @@ export function TutorStudentDetailPage() {
                     id: report.id,
                     title: reports.titleByStoryId[report.storyId] ?? report.storyId,
                     meta: [
-                      REPORT_DATE_FORMAT.format(new Date(report.completedAt)),
+                      formatMonthDayTime((report.completedAt)),
                       // 그때 반 이름 - 반을 옮겼거나 이름을 바꿨어도 기록 당시 반.
                       ...(report.className ? [report.className] : []),
                       formatReportDuration(report.durationSeconds),
@@ -304,14 +299,6 @@ function ParentConnectionBadge({ status }: { status: TutorStudent['status'] }) {
       </Text>
     </View>
   );
-}
-
-const REPORT_DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-
-const DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
-
-function formatDate(iso: string) {
-  return DATE_FORMAT.format(new Date(iso));
 }
 
 const styles = StyleSheet.create({

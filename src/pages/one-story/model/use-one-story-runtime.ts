@@ -353,6 +353,28 @@ export function useOneStoryRuntime(
     );
   }, [storyDurationSeconds]);
 
+  /**
+   * 완주·중단 기록(recordStoryCompletion)에 보낼 내용 - 완주 effect와 도중 나가기(saveExitedSession)가 같은 규칙을 쓴다.
+   * 아이(childId)는 대화 원장 귀속과 같은 규칙(conversationAttribution): 선생님 세션은 없고 보호자 세션은 홈에서 고른 아이.
+   */
+  const completionInput = useCallback(
+    (endStatus: 'COMPLETED' | 'EXITED', durationSeconds: number) => ({
+      storyId: storyPackage.storyId,
+      durationSeconds,
+      outcomes: questionOutcomes,
+      tutorStudentId,
+      childId: conversationAttribution.childId,
+      companionConversationId: sessionId,
+      lessonId,
+      ...lessonPlaySetting,
+      endStatus,
+      contentVersion: storyManifest.contentVersion,
+      readFromSceneId: readFromSceneRef.current ?? undefined,
+      readThroughSceneId: readThroughSceneRef.current ?? undefined,
+    }),
+    [conversationAttribution.childId, lessonId, lessonPlaySetting, questionOutcomes, sessionId, storyManifest.contentVersion, storyPackage.storyId, tutorStudentId],
+  );
+
   const persistCurrentProgress = useCallback(() => {
     return saveLocalStoryProgress({
       state: runtimeRef.current,
@@ -726,56 +748,26 @@ export function useOneStoryRuntime(
       // 로그인한 경우에만 저장 - 익명 데모(/demo)는 계정이 없어 남길 곳이 없다. 저장이 실패하면 몇 번 더 시도하고,
       // 그래도 안 되면 완주 화면에 알린다 - 리포트·수업 완료·보호자 알림이 모두 이 기록에서 나온다.
       if (authState.status === 'authenticated') {
-        // 선생님 세션(tutorStudentId 있음)은 childId를 붙이지 않는다 - 그 세션의 아이별
-        // 필터는 부모 계정 리포트와 별개로 tutor_student_id 축에서 관리된다.
-        const childIdForRecord = !tutorStudentId
-          && authState.user.role === 'PARENT'
-          && selectedChild?.id
-          ? selectedChild.id
-          : undefined;
         const token = authState.token;
         readThroughSceneRef.current = storyManifest.endingSceneId;
-        const readRange = {
-          readFromSceneId: readFromSceneRef.current ?? undefined,
-          readThroughSceneId: readThroughSceneRef.current ?? undefined,
-        };
+        const input = completionInput('COMPLETED', durationSeconds);
         // 대화 줄을 먼저 다 보낸 뒤 완주를 저장한다 - 서버 분석이 이 회차 대화를 빠짐없이 보게.
         completionSaveRef.current = () =>
           getTurnRecorder()
             .flush()
-            .then(() =>
-              recordStoryCompletion(token, {
-                storyId: storyPackage.storyId,
-                durationSeconds,
-                outcomes: questionOutcomes,
-                tutorStudentId,
-                childId: childIdForRecord,
-                companionConversationId: sessionId,
-                lessonId,
-                ...lessonPlaySetting,
-                endStatus: 'COMPLETED',
-                contentVersion: storyManifest.contentVersion,
-                ...readRange,
-              }),
-            );
+            .then(() => recordStoryCompletion(token, input));
         runCompletionSave();
       }
     }
   }, [
     authState,
-    selectedChild,
-    tutorStudentId,
-    sessionId,
-    lessonId,
-    lessonPlaySetting,
+    completionInput,
     getTurnRecorder,
-    storyManifest.contentVersion,
     storyManifest.endingSceneId,
     parentReport.changedSceneCount,
-    questionOutcomes,
+    questionOutcomes.length,
     runtimeState.status,
     storyDurationSeconds,
-    storyPackage.storyId,
     trackStoryEvent,
     runCompletionSave,
   ]);
@@ -793,6 +785,24 @@ export function useOneStoryRuntime(
     void recorder.requestPermission();
   }, [lessonId, recorder]);
 
+  /** 화면에 남은 재생 흔적(안내 문구·분기 그림·분기 자막·재생 중 대사 id)을 비운다 - 장면을 옮기거나 이야기를 이어 갈 때. */
+  const clearPlaybackView = useCallback(() => {
+    activeNarrationIdRef.current = null;
+    setParentMessage(null);
+    setActiveBranchVisualId(null);
+    setBranchCaption(null);
+  }, []);
+
+  /** 질문·분기·리포트 추적을 비운다 - 처음부터 다시 읽거나 지난 장면으로 되감을 때. */
+  const clearSessionTracking = useCallback(() => {
+    trackedPlaybackResultsRef.current.clear();
+    trackedQuestionInvitesRef.current.clear();
+    setStoryDurationSeconds(null);
+    setParentReportVisible(false);
+    setHomeMenuVisible(false);
+    setResumeCandidate(null);
+  }, []);
+
   const startStory = useCallback(() => {
     primeResponseAudio();
     prepareMicrophoneForAutoListen();
@@ -806,15 +816,12 @@ export function useOneStoryRuntime(
     storyStartedAtRef.current = Date.now();
     setStoryDurationSeconds(null);
     setChildName(normalizedName);
-    setParentMessage(null);
-    setActiveBranchVisualId(null);
-    setBranchCaption(null);
+    clearPlaybackView();
     trackedScenesRef.current.clear();
     trackedPlaybackResultsRef.current.clear();
     completionTrackedRef.current = false;
     completionSaveRef.current = null;
     setCompletionSaveStatus('idle');
-    activeNarrationIdRef.current = null;
     storyManifest.questionAnchors.forEach((anchor) => {
       if (!inviteNeedsLiveNarration(storyPackage, anchor)) return;
       void preloadQuestionNarration({
@@ -837,6 +844,7 @@ export function useOneStoryRuntime(
   }, [
     beginNewSession,
     childNameInput,
+    clearPlaybackView,
     entrySource,
     playSetting,
     commitEvent,
@@ -851,14 +859,11 @@ export function useOneStoryRuntime(
   const continueStoryWithReason = useCallback(async (skipReason?: QuestionSkipReason) => {
     const skippedQuestion = questionSkipMetadata(runtimeRef.current, skipReason);
     await stopNarration();
-    setParentMessage(null);
-    setActiveBranchVisualId(null);
-    setBranchCaption(null);
-    activeNarrationIdRef.current = null;
+    clearPlaybackView();
     if (commitEvent({ type: 'CONTINUE_SELECTED' }) && skippedQuestion) {
       void trackStoryEvent('question_skipped', skippedQuestion);
     }
-  }, [commitEvent, stopNarration, trackStoryEvent]);
+  }, [clearPlaybackView, commitEvent, stopNarration, trackStoryEvent]);
 
   // 버튼 onPress에 바로 넘기므로 인자를 받지 않는다(이벤트 객체가 사유로 들어가지 않게).
   const continueStory = useCallback(() => continueStoryWithReason(), [continueStoryWithReason]);
@@ -1460,21 +1465,13 @@ export function useOneStoryRuntime(
     const reset = createInitialRuntimeState(storyManifest);
     runtimeRef.current = reset;
     setRuntimeState(reset);
-    activeNarrationIdRef.current = null;
-    setParentMessage(null);
-    setActiveBranchVisualId(null);
-    setBranchCaption(null);
+    clearPlaybackView();
     setQuestionOutcomes([]);
-    trackedPlaybackResultsRef.current.clear();
-    trackedQuestionInvitesRef.current.clear();
+    clearSessionTracking();
     storyStartedAtRef.current = null;
-    setStoryDurationSeconds(null);
-    setParentReportVisible(false);
-    setHomeMenuVisible(false);
-    setResumeCandidate(null);
     clearLocalStoryProgress();
     beginNewSession();
-  }, [beginNewSession, stopNarration, storyManifest]);
+  }, [beginNewSession, clearPlaybackView, clearSessionTracking, stopNarration, storyManifest]);
 
   /**
    * 챕터 사이드바에서 지난 장면(또는 현재 장면의 처음)을 눌렀을 때 - restartStory()와 달리
@@ -1496,21 +1493,13 @@ export function useOneStoryRuntime(
       }
       runtimeRef.current = transition.state;
       setRuntimeState(transition.state);
-      activeNarrationIdRef.current = null;
-      setParentMessage(null);
-      setActiveBranchVisualId(null);
-      setBranchCaption(null);
+      clearPlaybackView();
       setQuestionOutcomes(
         (current) => splitQuestionOutcomesAtScene(current, storyManifest, sceneId).kept,
       );
-      trackedPlaybackResultsRef.current.clear();
-      trackedQuestionInvitesRef.current.clear();
-      setStoryDurationSeconds(null);
-      setParentReportVisible(false);
-      setHomeMenuVisible(false);
-      setResumeCandidate(null);
+      clearSessionTracking();
     },
-    [stopNarration, storyManifest, trackPlaybackControl],
+    [clearPlaybackView, clearSessionTracking, stopNarration, storyManifest, trackPlaybackControl],
   );
 
   const resumeStory = useCallback(async () => {
@@ -1604,45 +1593,12 @@ export function useOneStoryRuntime(
     if (authState.status !== 'authenticated' || state.status === 'idle' || state.status === 'complete') return;
     if (getTurnRecorder().nextSeq <= 1 && !readThroughSceneRef.current) return;
     const token = authState.token;
-    const childIdForRecord =
-      !tutorStudentId && authState.user.role === 'PARENT' && selectedChild?.id ? selectedChild.id : undefined;
-    const durationSeconds = elapsedStorySeconds();
-    const outcomes = questionOutcomes;
-    const readRange = {
-      readFromSceneId: readFromSceneRef.current ?? undefined,
-      readThroughSceneId: readThroughSceneRef.current ?? undefined,
-    };
+    const input = completionInput('EXITED', elapsedStorySeconds());
     void getTurnRecorder()
       .flush()
-      .then(() =>
-        recordStoryCompletion(token, {
-          storyId: storyPackage.storyId,
-          durationSeconds,
-          outcomes,
-          tutorStudentId,
-          childId: childIdForRecord,
-          companionConversationId: sessionId,
-          lessonId,
-          ...lessonPlaySetting,
-          endStatus: 'EXITED',
-          contentVersion: storyManifest.contentVersion,
-          ...readRange,
-        }),
-      )
+      .then(() => recordStoryCompletion(token, input))
       .catch(() => {});
-  }, [
-    authState,
-    elapsedStorySeconds,
-    lessonId,
-    lessonPlaySetting,
-    questionOutcomes,
-    selectedChild,
-    sessionId,
-    storyManifest.contentVersion,
-    storyPackage.storyId,
-    getTurnRecorder,
-    tutorStudentId,
-  ]);
+  }, [authState, completionInput, elapsedStorySeconds, getTurnRecorder]);
 
   // Q-34: 나가기는 한 길 - 도중이면 진행을 저장하고(돌아오면 이어 듣기), 완주 후 로그인 상태면
   // 기록을 정리한 뒤 홈(homePathForAuth)으로 간다. 비로그인 체험은 어디서 나가든 메인 홈페이지(qstory.ai.kr)로 간다.
@@ -1838,7 +1794,7 @@ export function useOneStoryRuntime(
     pauseForDialogue,
     resumeAfterDialogue,
     speakDialogueLine,
-    stopDialogueSpeech: stopNarration,
+    stopNarration,
     skipCurrentScene,
     restartStory,
     jumpToScene,
@@ -1846,11 +1802,8 @@ export function useOneStoryRuntime(
     dismissResumeAndRestart,
     openHomeMenu,
     continueFromHomeMenu,
-    // onPress가 넘기는 이벤트 객체가 옵션으로 들어가지 않게 감싼다.
+    // onPress가 넘기는 이벤트 객체가 옵션으로 들어가지 않게 감싼다. 완주 화면·리포트의 "홈으로"도 같은 길이다.
     leaveStory: () => leaveStory(),
-    finishExperience: () => leaveStory(),
-    /** 리포트 끝 보라색 안내 상자의 "홈으로" - 비로그인이면 메인 홈페이지로. */
-    finishFromReport: () => leaveStory(),
     openParentReport,
     closeParentReport,
     openCompletionSurvey,

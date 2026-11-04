@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, EmptyState, ErrorState, Icon, LoadingState, Modal, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { dashboardNavItems, useAuth, useRoleGuard } from '@/entities/auth';
 import { ChildAvatar, formatChildAge, useChildren, type Child } from '@/entities/child';
 import { AddChildModal } from '@/features/child-selector';
 
@@ -28,12 +28,7 @@ export function MyPageChildrenPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deletingInFlight, setDeletingInFlight] = useState(false);
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'PARENT') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['PARENT']);
 
   if (state.status !== 'authenticated') return null;
 

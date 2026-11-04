@@ -16,6 +16,7 @@ import {
   type OrganizationProfile,
   type PublicInstitution,
 } from '@/entities/public-institution';
+import { formatMonthDay } from '@/shared/lib';
 
 type Load =
   | { status: 'loading' }
@@ -127,7 +128,7 @@ export function JoinRequestsSection({
             <View style={styles.requestInfo}>
               <Text style={styles.requestName}>{request.tutorDisplayName}</Text>
               {request.tutorEmail ? <Text style={styles.meta}>{request.tutorEmail}</Text> : null}
-              <Text style={styles.meta}>신청: {formatDate(request.createdAt)}</Text>
+              <Text style={styles.meta}>신청: {formatMonthDay(request.createdAt)}</Text>
             </View>
             <View style={styles.requestActions}>
               <ActionButton
@@ -178,12 +179,6 @@ export function JoinRequestsSection({
       )}
     </HomeSection>
   );
-}
-
-const DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric' });
-
-function formatDate(iso: string) {
-  return DATE_FORMAT.format(new Date(iso));
 }
 
 const L = semanticColors.light;

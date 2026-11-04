@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ActionButton, AppNavShell, Card, RadioGroup, radius, StatusBanner, TextField, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { useBackOr } from '@/shared/lib';
-import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, useAuth, useRoleGuard } from '@/entities/auth';
 import { createTutorClass } from '@/entities/tutor';
 import { listMyOrganizations, type TutorOrganizationLink } from '@/entities/organization-tutor';
 
@@ -26,12 +26,7 @@ export function TutorClassGroupNewPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'TUTOR') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['TUTOR']);
 
   const token = state.status === 'authenticated' ? state.token : null;
 

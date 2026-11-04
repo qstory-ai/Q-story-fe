@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 
-import { submitCompletionSurvey } from '@/entities/completion-survey';
 import { messageForError } from '@/shared/api';
+import { submitCompletionSurvey } from '../api/completion-survey-api';
 
 export const CHILD_AGE_BAND_OPTIONS = ['5세 이하', '6세', '7세', '8세', '9세', '10세 이상'];
 

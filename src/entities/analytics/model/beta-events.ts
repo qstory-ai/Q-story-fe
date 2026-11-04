@@ -1,6 +1,7 @@
 import { readEnv } from '@/shared/config';
 
 import { currentClientDiagnostics } from './client-diagnostics';
+import { currentRequestAuthToken } from '@/shared/api';
 import { forwardBetaEventToGa } from './google-analytics';
 import { UUID_PATTERN, createUuid, isHttpUrl } from './endpoint-utils';
 
@@ -64,16 +65,6 @@ export type BetaMetadataInput = Record<string, string | number | boolean | null 
 /** 서버가 짧은 값은 80자까지 받는다. 질문 원문 키만 서버에서 따로 길이를 다룬다. */
 const MAX_VALUE_LENGTH = 80;
 const LONG_TEXT_KEYS = new Set(['question_text', 'question_intent']);
-
-/**
- * 로그인한 상태면 통계 요청에 토큰을 실어 서버가 이 통계 세션을 계정에 연결하게 한다(Q-40 UT, 참여자별로 이어 보기).
- * AuthProvider가 로그인 상태가 바뀔 때마다 넣어 준다 - 통계는 인증 모듈을 직접 읽지 않는다.
- */
-let betaAuthToken: string | null = null;
-
-export function setBetaEventAuthToken(token: string | null) {
-  betaAuthToken = token;
-}
 
 /** 빈 값(null·undefined·빈 문자열·NaN)은 빼고, 짧은 값은 80자로 자른다. */
 export function shapeBetaMetadata(metadata: BetaMetadataInput): BetaMetadata {
@@ -199,7 +190,8 @@ export async function trackBetaEvent(eventName: BetaEventName, metadata: BetaMet
     metadata: shapeBetaMetadata({ ...commonMetadata(), ...metadata }),
     schema_version: 1,
   });
-  const headers = betaEventHeaders(betaAuthToken);
+  // 로그인한 상태면 토큰을 실어 서버가 이 통계 세션을 계정에 연결하게 한다(Q-40 UT) - 이야기 요청과 같은 토큰(shared/api).
+  const headers = betaEventHeaders(currentRequestAuthToken());
 
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {

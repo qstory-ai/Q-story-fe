@@ -3,8 +3,8 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, radius, TextField, storybookTheme } from '@/shared/ui';
-import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { formatLongDate, isValidInviteCode, normalizeInviteCode } from '@/shared/lib';
+import { dashboardNavItems, useAuth, useRoleGuard } from '@/entities/auth';
 import { previewHomeroomInviteByCode, tutorInviteCodeDestination } from '@/entities/homeroom-invite';
 import {
   listMyOrganizations,
@@ -32,12 +32,7 @@ export function TutorJoinOrganizationPage() {
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [orgs, setOrgs] = useState<OrgsLoad>({ status: 'loading' });
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'TUTOR') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['TUTOR']);
 
   const token = state.status === 'authenticated' ? state.token : null;
 
@@ -154,7 +149,7 @@ export function TutorJoinOrganizationPage() {
                 key={organization.id}
                 icon="graduationCap"
                 label={organization.organizationName}
-                meta={`합류: ${formatDate(organization.joinedAt)}`}
+                meta={`합류: ${formatLongDate(organization.joinedAt)}`}
               />
             ))
           )}
@@ -179,12 +174,6 @@ function extractOrgInviteToken(raw: string): string | null {
   if (pathMatch) return decodeURIComponent(pathMatch[1]);
   if (!/\s/.test(trimmed)) return trimmed;
   return null;
-}
-
-const JOINED_DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
-
-function formatDate(iso: string) {
-  return JOINED_DATE_FORMAT.format(new Date(iso));
 }
 
 const styles = StyleSheet.create({

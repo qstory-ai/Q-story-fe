@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { LEGACY_REDIRECTS } from '@/shared/config';
+import { LEGACY_ROUTE_PATHS } from '@/shared/config';
 
 import {
   gaEventForBetaEvent,
@@ -42,7 +42,7 @@ test('모르는 경로는 /(other)', () => {
 test('App.tsx의 모든 경로가 GA 경로 목록에 있다', () => {
   const source = readFileSync(appPath, 'utf8');
   const paths = [...source.matchAll(/<Route\s+path="([^"]+)"/g)].map((match) => match[1]).filter((path) => path !== '*');
-  paths.push(...LEGACY_REDIRECTS.map(([from]) => from));
+  paths.push(...LEGACY_ROUTE_PATHS);
   assert.ok(paths.length > 30);
   const missing = paths.filter((path) => gaPagePath(path.replace(/:[A-Za-z]+/g, 'x1')) === '/(other)');
   assert.deepEqual(missing, []);

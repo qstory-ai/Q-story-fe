@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, EmptyState, ErrorState, LoadingState, Pill, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, useAuth, useRoleGuard } from '@/entities/auth';
 import { listTutorClasses, listTutorStudents, type TutorClass, type TutorStudent } from '@/entities/tutor';
 import { archivedOnLabel, formatLifecycleDate, listPastTutorClasses, type PastTutorClass } from '@/entities/class-lifecycle';
 import { HomeListRow, HomeSection } from '@/features/home-section';
@@ -42,12 +42,7 @@ export function TutorStudentsPage() {
   // 예전에 맡았던 반 - 부가 정보라 실패하면 칸을 숨긴다.
   const [pastClasses, setPastClasses] = useState<PastTutorClass[]>([]);
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'TUTOR') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['TUTOR']);
 
   const tutorToken = state.status === 'authenticated' && state.user.role === 'TUTOR' ? state.token : null;
   const tutorId = state.status === 'authenticated' ? state.user.id : null;

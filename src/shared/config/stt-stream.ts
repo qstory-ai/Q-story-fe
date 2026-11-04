@@ -1,10 +1,10 @@
-import { apiBaseUrl, readEnv } from './env';
+import { apiBaseUrl, envSwitch, readEnv } from './env';
 
 /**
- * 실시간 받아 적기(말하는 동안 받아 적어 멈추자마자 문장이 준비됨) 스위치. 문제가 생기면 false로 바꿔 배포하면
- * 녹음을 다 올려 받아 적는 기존 방식(배치)만 쓴다. 백엔드 STT_STREAM_ENABLED=false로도 끌 수 있다(표 발급 거절 → 배치).
+ * 실시간 받아 적기(말하는 동안 받아 적어 멈추자마자 문장이 준비됨) 스위치. 문제가 생기면 VITE_QSTORY_STT_STREAMING=false로
+ * 배포하면 녹음을 다 올려 받아 적는 기존 방식(배치)만 쓴다. 백엔드 STT_STREAM_ENABLED=false로도 끌 수 있다(표 발급 거절 → 배치).
  */
-export const STT_STREAMING_ENABLED = true;
+export const STT_STREAMING_ENABLED = envSwitch('VITE_QSTORY_STT_STREAMING');
 
 /** 웹 배포의 백엔드 직접 주소 - Vercel 프록시(/api/qstory)는 WebSocket을 들고 있지 못해 소켓만 백엔드에 직접 붙는다. */
 const DEFAULT_WEB_STREAM_URL = 'wss://demo.api.qstory.ai.kr/v1/stt/stream';

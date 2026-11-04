@@ -17,13 +17,10 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 import { DEVICES, deviceFrame } from './device-frames.mjs';
+import { flag } from './_cli.mjs';
 
 const appDirectory = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const args = process.argv.slice(2);
-const flag = (name, fallback) => {
-  const index = args.indexOf(name);
-  return index === -1 ? fallback : args[index + 1];
-};
 const story = flag('--story', 'hansel-gretel');
 const workDir = join(appDirectory, 'build-output', 'illustrations', story);
 const outDir = join(workDir, 'device-preview');
@@ -43,7 +40,6 @@ const sourceFor = (asset) => {
   if (useCandidates && existsSync(candidate)) return candidate;
   return join(appDirectory, 'assets', 'story', story, asset.file);
 };
-
 
 const frame = (file, device) => deviceFrame(file, device, FRAME_H);
 

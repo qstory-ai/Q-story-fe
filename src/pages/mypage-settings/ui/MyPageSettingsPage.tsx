@@ -5,15 +5,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { AppNavShell, ErrorState, Icon, LoadingState, openSupportMail, radius, semanticColors, shadow, StatusBanner, storybookTheme, SwitchField, type IconName } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { dashboardNavItems, useAuth, type UserSummary } from '@/entities/auth';
-import {
-  getNotificationSettings,
-  updateNotificationSettings,
-  type NotificationSettings,
-} from '@/entities/notification-settings';
 import { HomeSection } from '@/features/home-section';
 
 import { RecordingConsentSection } from './RecordingConsentSection';
 import { VoiceResearchConsentSection } from './VoiceResearchConsentSection';
+import { getNotificationSettings, updateNotificationSettings, type NotificationSettings, } from '../api/notification-settings-api';
 
 /**
  * 설정(UX 정리 4번) - 예전 "알림 설정"(/mypage/notifications)과 "개인정보 및 데이터"(/mypage/privacy)를

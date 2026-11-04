@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, FILTER_CHIP_ROW_GAP, FilterChip, Icon, Pill, LoadingState, EmptyState, ErrorState, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, useAuth, useRoleGuard } from '@/entities/auth';
 import { listLessons, type Lesson, type LessonStatus } from '@/entities/lesson';
 import { LessonFormModal } from '@/features/lesson-form';
 
@@ -36,12 +36,7 @@ export function TutorLessonsPage() {
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'TUTOR') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['TUTOR']);
 
   const token = state.status === 'authenticated' ? state.token : null;
 

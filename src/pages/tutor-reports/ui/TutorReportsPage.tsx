@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, EmptyState, ErrorState, Icon, LoadingState, Pill, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { TUTOR_PATHS, dashboardNavItems, reportDetailPath, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, reportDetailPath, useAuth, useRoleGuard } from '@/entities/auth';
 import { listStories } from '@/entities/story';
 import { formatReportDuration } from '@/widgets/session-report';
 import { HomeSection } from '@/features/home-section';
@@ -46,12 +46,7 @@ export function TutorReportsPage() {
   const [titleByStoryId, setTitleByStoryId] = useState<Record<string, string>>({});
   const [reloadKey, setReloadKey] = useState(0);
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'TUTOR') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['TUTOR']);
 
   const token = state.status === 'authenticated' ? state.token : null;
 

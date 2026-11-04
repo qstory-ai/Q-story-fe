@@ -9,7 +9,7 @@ import {
   useAudioRecorderAdapter,
   useSpeechAutoStop,
 } from '@/features/record-question';
-import { fetchLineNarration, fetchReplyNarration } from '@/features/narrate-story';
+import { fetchReplyNarration } from '@/features/narrate-story';
 import { reportClientError } from '@/entities/analytics';
 import {
   CompanionChatError,
@@ -25,7 +25,6 @@ import {
   STT_UNAVAILABLE_CHILD_COPY,
   isSttUnavailableCode,
 } from '@/entities/companion-chat';
-import { waitForRealtimeImage } from '@/entities/realtime-image';
 import type { PlayTurnInput } from '@/entities/play-session';
 import { STT_STREAMING_ENABLED } from '@/shared/config';
 
@@ -45,7 +44,6 @@ import { blockedLineIndex } from '../lib/attempt-backdrop';
 import { preloadImages } from '../lib/preload-images';
 import {
   DIALOGUE_THINKING_FILLER,
-  DIALOGUE_VOICE_STREAMING,
   FILLER_DELAY_MS,
   pickThinkingFiller,
   planFillerCut,
@@ -62,6 +60,7 @@ import {
   isTimeoutCode,
 } from '../lib/reply-deadline';
 import type { OneStoryRuntime } from './use-one-story-runtime';
+import { waitForRealtimeImage } from '../api/realtime-image-api';
 
 /** CHAT = 아이가 스스로 연 그레텔 대화, INVITE = 이야기 속 질문 초대에서 이어지는 대화. */
 export type DialogueMode = 'CHAT' | 'INVITE';
@@ -149,15 +148,9 @@ function discardVoice(voice: Promise<ResponseAudio | null>) {
 
 export function useDialogue({
   runtime,
-  conversationId,
-  tutorStudentId,
-  lessonId,
   paused = false,
 }: {
   runtime: OneStoryRuntime;
-  conversationId: string;
-  tutorStudentId?: string;
-  lessonId?: string;
   /** 챕터·홈 메뉴가 패널을 가리는 중 - 듣기를 멈춘다(보이지 않는 패널이 녹음·자동 종료하지 않게). */
   paused?: boolean;
 }) {
@@ -173,6 +166,8 @@ export function useDialogue({
     recordTurn,
     visualAssetId,
   } = runtime;
+  // 회차 id·선생님 세션·수업은 대화 원장 귀속(conversationAttribution)과 같은 값이다.
+  const { sessionId: conversationId, tutorStudentId, lessonId } = conversationAttribution;
   const character = GRETEL_COMPANION;
   // 자동 전송 안내에 쓰는 이름 - 이야기 데이터의 화자 이름을 우선 쓰고, 없으면 '친구'.
   const characterName =
@@ -304,7 +299,7 @@ export function useDialogue({
   const stopSpeaking = useCallback(() => {
     audioAbortRef.current?.abort();
     audioAbortRef.current = null;
-    void runtime.stopDialogueSpeech();
+    void runtime.stopNarration();
   }, [runtime]);
 
   /** 진행 중인 실시간 받아 적기를 버린다(닫기·다시 말하기·글로 쓰기·포기). 받아 적기를 시작한 transcribe()는 먼저 꺼내 간다. */
@@ -573,24 +568,10 @@ export function useDialogue({
   );
 
   /** 답 문장의 음성 - 스트리밍이면 첫 조각부터 재생할 수 있는 PCM, 아니면 전체 음성. 실패는 null(글만 남는다). */
-  const fetchReplyVoice = useCallback(
-    (text: string, signal: AbortSignal): Promise<ResponseAudio | null> => {
-      const input = { storyId: storyPackage.manifest.storyId, speakerId: character.speakerId, text };
-      return (DIALOGUE_VOICE_STREAMING ? fetchReplyNarration(input, signal) : fetchLineNarration(input)).catch(
-        () => null,
-      );
-    },
-    [character.speakerId, storyPackage.manifest.storyId],
-  );
-
-  /** 시도 장면 한 줄의 음성 - 그 줄 화자(내레이터·그레텔)의 목소리로 실시간 TTS 한 번. 실패하면 null(글만 남는다). */
-  const fetchSceneLineVoice = useCallback(
-    (speakerId: string, text: string, signal: AbortSignal): Promise<ResponseAudio | null> => {
-      const input = { storyId: storyPackage.manifest.storyId, speakerId, text };
-      return (DIALOGUE_VOICE_STREAMING ? fetchReplyNarration(input, signal) : fetchLineNarration(input)).catch(
-        () => null,
-      );
-    },
+  /** 한 줄의 음성 - 그 줄 화자(그레텔·내레이터)의 목소리로 실시간 TTS 한 번, 첫 조각부터 재생한다. 실패하면 null(글만 남는다). */
+  const fetchVoice = useCallback(
+    (speakerId: string, text: string, signal: AbortSignal): Promise<ResponseAudio | null> =>
+      fetchReplyNarration({ storyId: storyPackage.manifest.storyId, speakerId, text }, signal).catch(() => null),
     [storyPackage.manifest.storyId],
   );
 
@@ -679,12 +660,12 @@ export function useDialogue({
       try {
         reply = await Promise.race([
           sendCompanionChatMessage(
-            { ...input, deferAudio: true, stream: DIALOGUE_VOICE_STREAMING },
+            { ...input, deferAudio: true, stream: true },
             fetchController.signal,
             (text) => {
               deadline.textArrived();
               if (shown.current || seq !== requestSeqRef.current) return;
-              show(text, fetchReplyVoice(text, audioController.signal));
+              show(text, fetchVoice(character.speakerId, text, audioController.signal));
             },
           ),
           deadline.expired,
@@ -710,9 +691,9 @@ export function useDialogue({
       // 장면 상황에서 묻는다 - 라이브 분기 대사처럼 줄마다 그 화자 목소리(실시간 TTS)다. 음성은 모두 한꺼번에 미리 받는다.
       const sceneLines = reply.dialogue.attempt?.scene ?? [];
       if (!shown.current && sceneLines.length > 0) {
-        const replyVoice = reply.audioDeferred ? fetchReplyVoice(reply.responseText, audioController.signal) : null;
+        const replyVoice = reply.audioDeferred ? fetchVoice(character.speakerId, reply.responseText, audioController.signal) : null;
         const lineVoices = sceneLines.map((line) =>
-          fetchSceneLineVoice(line.speakerId, line.text, audioController.signal),
+          fetchVoice(line.speakerId, line.text, audioController.signal),
         );
         // 막힌 줄(마지막 내레이터 줄)에서 배경을 막힌 모습의 그림으로 바꾼다 - 그림은 장면 음성과 함께 지금 미리 받아 둔다.
         // 서버가 그림을 고르지 않았거나 이 이야기 자산에 없는 그림이면 지금 그림을 강조한다(null).
@@ -780,13 +761,13 @@ export function useDialogue({
           ready
             ? Promise.resolve(ready)
             : reply.audioDeferred
-              ? fetchReplyVoice(reply.responseText, audioController.signal)
+              ? fetchVoice(character.speakerId, reply.responseText, audioController.signal)
               : Promise.resolve(null),
         );
       return { reply, shownAt: current.at, voicePlayed: current.voicePlayed };
     },
     [
-      addTurn, anchorId, fetchReplyVoice, fetchSceneLineVoice, logStep, runtime, startThinkingFiller, stopAttemptImage,
+      addTurn, anchorId, character.speakerId, fetchVoice, logStep, runtime, startThinkingFiller, stopAttemptImage,
       storyPackage.imageAssets, storyPackage.narratorSpeakerId,
     ],
   );

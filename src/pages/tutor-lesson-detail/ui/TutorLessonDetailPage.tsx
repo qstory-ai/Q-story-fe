@@ -4,7 +4,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, ErrorState, LoadingState, Modal, Pill, Radio, radius, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, useAuth, useRoleGuard } from '@/entities/auth';
 import {
   completeLesson,
   deleteLesson,
@@ -20,6 +20,7 @@ import { LessonFormModal } from '@/features/lesson-form';
 import { HomeListRow, HomeSection } from '@/features/home-section';
 
 import { initialPlaySetting } from '../lib/initial-play-setting';
+import { formatLongDateTime } from '@/shared/lib';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -55,12 +56,7 @@ export function TutorLessonDetailPage() {
   // 이야기가 여럿인 수업에서 "수업 시작"으로 들어갈 이야기(null이면 첫 이야기).
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'TUTOR') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['TUTOR']);
 
   const token = state.status === 'authenticated' ? state.token : null;
 
@@ -180,19 +176,19 @@ export function TutorLessonDetailPage() {
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>수업 일정</Text>
                 <Text style={styles.metaValue}>
-                  {effective.lesson.scheduledAt ? formatDateTime(effective.lesson.scheduledAt) : '미정'}
+                  {effective.lesson.scheduledAt ? formatLongDateTime(effective.lesson.scheduledAt) : '미정'}
                 </Text>
               </View>
               {effective.lesson.startedAt ? (
                 <View style={styles.metaRow}>
                   <Text style={styles.metaLabel}>시작</Text>
-                  <Text style={styles.metaValue}>{formatDateTime(effective.lesson.startedAt)}</Text>
+                  <Text style={styles.metaValue}>{formatLongDateTime(effective.lesson.startedAt)}</Text>
                 </View>
               ) : null}
               {effective.lesson.completedAt ? (
                 <View style={styles.metaRow}>
                   <Text style={styles.metaLabel}>완료</Text>
-                  <Text style={styles.metaValue}>{formatDateTime(effective.lesson.completedAt)}</Text>
+                  <Text style={styles.metaValue}>{formatLongDateTime(effective.lesson.completedAt)}</Text>
                 </View>
               ) : null}
             </Card>
@@ -275,7 +271,7 @@ export function TutorLessonDetailPage() {
                       key={completion.id}
                       icon="report"
                       label={who}
-                      meta={`${story?.title ?? completion.storyId} · ${formatDateTime(completion.completedAt)}`}
+                      meta={`${story?.title ?? completion.storyId} · ${formatLongDateTime(completion.completedAt)}`}
                       trailing={<Pill label={isExitedSession(completion) ? EXITED_BADGE_LABEL : '완주'} tone={isExitedSession(completion) ? 'onLight' : 'onCard'} />}
                       onPress={() => navigate(`/reports/${completion.id}`)}
                     />
@@ -396,14 +392,6 @@ const STATUS_LABEL: Record<Lesson['status'], string> = {
   IN_PROGRESS: '진행 중',
   COMPLETED: '완료',
 };
-
-const DATE_TIME_FORMAT = new Intl.DateTimeFormat('ko-KR', {
-  year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
-});
-
-function formatDateTime(iso: string) {
-  return DATE_TIME_FORMAT.format(new Date(iso));
-}
 
 const styles = StyleSheet.create({
   content: {

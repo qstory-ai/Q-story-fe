@@ -4,9 +4,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, BrandLockup, Card, EmptyState, Icon, LoadingState, Pill, storybookTheme, StoryCard } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { relativeDayLabel, withParticle, primeResponseAudio } from '@/shared/lib';
+import { formatMonthDay, primeResponseAudio, relativeDayLabel, withParticle } from '@/shared/lib';
 import { NotificationBell } from '@/features/notification-center';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { dashboardNavItems, useAuth, useRoleGuard } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
 import { resumeStart, startStoryFromHome, storyDestination, storyPlayPath, type StartDecision } from '@/features/story-library';
 import { HomeGreetingCard, HomeHeroCard, HomeListRow, HomeSection, timeOfDayGreeting } from '@/features/home-section';
@@ -60,12 +60,7 @@ export function ParentHomePage() {
   const completionsDone = completionsResponseKey === completionsRequestKey;
   const activityLoading = !completionsDone || !reportsDone;
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'PARENT') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['PARENT']);
 
   useEffect(() => {
     let cancelled = false;
@@ -404,7 +399,7 @@ function mergeRecentActivity(
       id: completion.id,
       kind: 'completion' as const,
       label: story?.title ?? completion.storyId,
-      meta: `${formatDate(completion.completedAt)} · ${formatReportDuration(completion.durationSeconds)}`,
+      meta: `${formatMonthDay(completion.completedAt)} · ${formatReportDuration(completion.durationSeconds)}`,
       iso: completion.completedAt,
       exited: isExitedSession(completion),
     };
@@ -413,16 +408,10 @@ function mergeRecentActivity(
     id: report.id,
     kind: 'tutor-report' as const,
     label: `${stories.find((s) => s.storyId === report.storyId)?.title ?? report.storyId} · ${tutorReportSource(report)}`,
-    meta: `${formatDate(report.completedAt)} · ${formatReportDuration(report.durationSeconds)}`,
+    meta: `${formatMonthDay(report.completedAt)} · ${formatReportDuration(report.durationSeconds)}`,
     iso: report.completedAt,
   }));
   return [...completionEntries, ...tutorEntries].sort((a, b) => (b.iso > a.iso ? 1 : -1));
-}
-
-const MONTH_DAY_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric' });
-
-function formatDate(iso: string) {
-  return MONTH_DAY_FORMAT.format(new Date(iso));
 }
 
 const styles = StyleSheet.create({

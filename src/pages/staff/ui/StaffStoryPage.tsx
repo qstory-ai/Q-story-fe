@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { ActionButton, SafeAreaView, TextField, storybookTheme } from '@/shared/ui';
-import { useAuth } from '@/entities/auth';
+import { useAuth, useRoleGuard } from '@/entities/auth';
 import {
   editScene,
   listRevisions,
@@ -39,12 +39,7 @@ export function StaffStoryPage() {
   const [editSequence, setEditSequence] = useState('');
   const [actionError, setActionError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'STAFF') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['STAFF']);
 
   const staffToken = state.status === 'authenticated' && state.user.role === 'STAFF' ? state.token : null;
 

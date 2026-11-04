@@ -1,9 +1,5 @@
 import { useCallback, useState } from 'react';
 
-import {
-  submitLaunchNotification,
-  type ChildGender,
-} from '@/entities/launch-notification';
 import { trackGaEvent } from '@/entities/analytics';
 import { messageForError } from '@/shared/api';
 
@@ -11,6 +7,7 @@ import {
   canSubmitLaunchNotification,
   launchNotificationPhone,
 } from './launch-notification-form';
+import { submitLaunchNotification, type ChildGender, } from '../api/launch-notification-api';
 
 /**
  * 데모 앞 연락처를 이미 남긴 브라우저인지. 계정이 아니라 브라우저 기준이다 - 같은 브라우저에서 로그인·로그아웃하거나

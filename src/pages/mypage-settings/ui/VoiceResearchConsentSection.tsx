@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { ActionButton, ErrorState, LoadingState, Modal, radius, semanticColors, shadow, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { VOICE_RESEARCH_CONSENT_TERMS, VOICE_RESEARCH_CONSENT_VERSION, getVoiceResearchAccountConsent, grantVoiceResearchAccountConsent, withdrawStoredVoiceResearchConsents, withdrawVoiceResearchAccountConsent, type VoiceResearchAccountConsent } from '@/entities/analytics';
+import { formatLongDate } from '@/shared/lib';
 
 type LoadState =
   | { status: 'loading' }
@@ -12,19 +13,15 @@ type LoadState =
 
 type Notice = { variant: 'success' | 'warning'; label: string };
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(value));
-}
-
 function statusDetail(consent: VoiceResearchAccountConsent) {
   if (consent.enabled) {
-    return consent.consentedAt ? `${formatDate(consent.consentedAt)}에 동의했어요.` : '동의한 상태예요.';
+    return consent.consentedAt ? `${formatLongDate(consent.consentedAt)}에 동의했어요.` : '동의한 상태예요.';
   }
   // 예전 약관 버전에 동의한 계정은 서버가 enabled=false로 내려 준다 - 새 약관으로 다시 물어본다.
   if (!consent.withdrawnAt && consent.consentVersion && consent.consentVersion !== VOICE_RESEARCH_CONSENT_VERSION) {
     return '약관이 바뀌어 다시 동의가 필요해요. 동의하기 전까지는 녹음을 저장하지 않아요.';
   }
-  return consent.withdrawnAt ? `${formatDate(consent.withdrawnAt)}에 동의를 철회했어요.` : '동의하지 않은 상태예요.';
+  return consent.withdrawnAt ? `${formatLongDate(consent.withdrawnAt)}에 동의를 철회했어요.` : '동의하지 않은 상태예요.';
 }
 
 /**

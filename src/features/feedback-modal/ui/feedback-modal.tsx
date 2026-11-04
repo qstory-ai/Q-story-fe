@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 
 import { Modal, StatusBanner, TextareaField } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { submitFeedback } from '@/entities/feedback';
+import { submitFeedback } from '../api/feedback-api';
 
 export type FeedbackKind = 'suggestion' | 'bug';
 

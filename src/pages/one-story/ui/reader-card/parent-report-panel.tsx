@@ -21,7 +21,7 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
     isWide,
     parentReport,
     openCompletionSurvey,
-    finishFromReport,
+    leaveStory,
     restartStory,
     storyPackage,
     liveTurns,
@@ -164,7 +164,7 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
           </View>
           <View style={panel.action}>
             {/* 로그인 안 한 데모는 데모 첫 화면이 아니라 메인 홈페이지(qstory.ai.kr)로 간다. */}
-            <ActionButton variant="secondaryFull" size="lg" label="홈으로" onPress={finishFromReport} />
+            <ActionButton variant="secondaryFull" size="lg" label="홈으로" onPress={leaveStory} />
           </View>
         </View>
       </ReportHeader>

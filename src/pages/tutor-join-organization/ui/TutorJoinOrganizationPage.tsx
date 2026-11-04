@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, radius, TextField, storybookTheme } from '@/shared/ui';
-import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
+import { formatLongDate, isValidInviteCode, normalizeInviteCode } from '@/shared/lib';
 import { dashboardNavItems, useAuth, useRoleGuard } from '@/entities/auth';
 import { previewHomeroomInviteByCode, tutorInviteCodeDestination } from '@/entities/homeroom-invite';
 import {
@@ -149,7 +149,7 @@ export function TutorJoinOrganizationPage() {
                 key={organization.id}
                 icon="graduationCap"
                 label={organization.organizationName}
-                meta={`합류: ${formatDate(organization.joinedAt)}`}
+                meta={`합류: ${formatLongDate(organization.joinedAt)}`}
               />
             ))
           )}
@@ -174,12 +174,6 @@ function extractOrgInviteToken(raw: string): string | null {
   if (pathMatch) return decodeURIComponent(pathMatch[1]);
   if (!/\s/.test(trimmed)) return trimmed;
   return null;
-}
-
-const JOINED_DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
-
-function formatDate(iso: string) {
-  return JOINED_DATE_FORMAT.format(new Date(iso));
 }
 
 const styles = StyleSheet.create({

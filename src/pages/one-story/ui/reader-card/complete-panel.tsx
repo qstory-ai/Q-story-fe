@@ -12,7 +12,7 @@ export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
     runtimeState,
     isParentReport,
     openParentReport,
-    finishExperience,
+    leaveStory,
     restartStory,
     parentReport,
     isClassLesson,
@@ -78,7 +78,7 @@ export function CompletePanel({ runtime }: { runtime: OneStoryRuntime }) {
             <ActionButton
               variant="secondary"
               label="홈으로 돌아가기"
-              onPress={finishExperience}
+              onPress={leaveStory}
             />
             <ActionButton
               variant="secondary"

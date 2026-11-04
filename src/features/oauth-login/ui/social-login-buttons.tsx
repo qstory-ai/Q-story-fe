@@ -3,16 +3,10 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { storybookTheme } from '@/shared/ui';
 import { messageForError, type ApiErrorLike } from '@/shared/api';
-import {
-  googleOAuthConfigured,
-  kakaoOAuthConfigured,
-  oauthLogin,
-  renderGoogleButton,
-  requestKakaoAccessToken,
-  type ConsentPayload,
-  type Role,
-  type UserSummary,
-} from '@/entities/auth';
+import { oauthLogin, type ConsentPayload, type Role, type UserSummary } from '@/entities/auth';
+
+import { googleOAuthConfigured, renderGoogleButton } from '../model/google-identity';
+import { kakaoOAuthConfigured, requestKakaoAccessToken } from '../model/kakao-sdk';
 
 type SocialLoginButtonsProps = {
   /** 처음 가입하는 경우에만 쓰인다 - 로그인 화면(SignInStep)에서는 생략한다. */

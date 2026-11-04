@@ -16,13 +16,10 @@ import sharp from 'sharp';
 import { parseDocument } from 'yaml';
 
 import { STYLE_ID } from './style-01.mjs';
+import { flag } from './_cli.mjs';
 
 const appDirectory = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const args = process.argv.slice(2);
-const flag = (name, fallback) => {
-  const index = args.indexOf(name);
-  return index === -1 ? fallback : args[index + 1];
-};
 const story = flag('--story', 'hansel-gretel');
 const workDir = flag('--out', join(appDirectory, 'build-output', 'illustrations', story));
 const dryRun = args.includes('--dry-run');

@@ -1,4 +1,4 @@
-import type { ChildGender } from '@/entities/launch-notification';
+import type { ChildGender } from '../api/launch-notification-api';
 
 export type LaunchNotificationFormValues = {
   parentName: string;

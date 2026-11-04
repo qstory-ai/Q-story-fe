@@ -14,13 +14,10 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { flag } from './_cli.mjs';
 
 const appDirectory = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const args = process.argv.slice(2);
-const flag = (name, fallback) => {
-  const index = args.indexOf(name);
-  return index === -1 ? fallback : args[index + 1];
-};
 const story = flag('--story', 'hansel-gretel');
 const workDir = flag('--out', join(appDirectory, 'build-output', 'illustrations', story));
 const refsDir = flag('--refs', null);

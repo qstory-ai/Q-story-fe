@@ -20,6 +20,7 @@ import { LessonFormModal } from '@/features/lesson-form';
 import { HomeListRow, HomeSection } from '@/features/home-section';
 
 import { initialPlaySetting } from '../lib/initial-play-setting';
+import { formatLongDateTime } from '@/shared/lib';
 
 type LoadState =
   | { requestKey: string; status: 'loading' }
@@ -175,19 +176,19 @@ export function TutorLessonDetailPage() {
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>수업 일정</Text>
                 <Text style={styles.metaValue}>
-                  {effective.lesson.scheduledAt ? formatDateTime(effective.lesson.scheduledAt) : '미정'}
+                  {effective.lesson.scheduledAt ? formatLongDateTime(effective.lesson.scheduledAt) : '미정'}
                 </Text>
               </View>
               {effective.lesson.startedAt ? (
                 <View style={styles.metaRow}>
                   <Text style={styles.metaLabel}>시작</Text>
-                  <Text style={styles.metaValue}>{formatDateTime(effective.lesson.startedAt)}</Text>
+                  <Text style={styles.metaValue}>{formatLongDateTime(effective.lesson.startedAt)}</Text>
                 </View>
               ) : null}
               {effective.lesson.completedAt ? (
                 <View style={styles.metaRow}>
                   <Text style={styles.metaLabel}>완료</Text>
-                  <Text style={styles.metaValue}>{formatDateTime(effective.lesson.completedAt)}</Text>
+                  <Text style={styles.metaValue}>{formatLongDateTime(effective.lesson.completedAt)}</Text>
                 </View>
               ) : null}
             </Card>
@@ -270,7 +271,7 @@ export function TutorLessonDetailPage() {
                       key={completion.id}
                       icon="report"
                       label={who}
-                      meta={`${story?.title ?? completion.storyId} · ${formatDateTime(completion.completedAt)}`}
+                      meta={`${story?.title ?? completion.storyId} · ${formatLongDateTime(completion.completedAt)}`}
                       trailing={<Pill label={isExitedSession(completion) ? EXITED_BADGE_LABEL : '완주'} tone={isExitedSession(completion) ? 'onLight' : 'onCard'} />}
                       onPress={() => navigate(`/reports/${completion.id}`)}
                     />
@@ -391,14 +392,6 @@ const STATUS_LABEL: Record<Lesson['status'], string> = {
   IN_PROGRESS: '진행 중',
   COMPLETED: '완료',
 };
-
-const DATE_TIME_FORMAT = new Intl.DateTimeFormat('ko-KR', {
-  year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
-});
-
-function formatDateTime(iso: string) {
-  return DATE_TIME_FORMAT.format(new Date(iso));
-}
 
 const styles = StyleSheet.create({
   content: {

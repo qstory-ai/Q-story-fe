@@ -1,4 +1,5 @@
 import type { PaymentHistoryItem } from '@/entities/payment';
+import { formatLongDate as formatSharedLongDate } from '@/shared/lib';
 
 /**
  * 이용권 화면 공용 문구·포맷. 결제 모델(BE PaymentService.confirm): 한 번 결제하면 정해진 일수만큼
@@ -35,5 +36,5 @@ export function receiptLink(item: Pick<PaymentHistoryItem, 'receiptUrl'>): strin
 }
 
 export function formatLongDate(value: string): string {
-  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(value));
+  return formatSharedLongDate(value);
 }

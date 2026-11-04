@@ -5,13 +5,10 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { flag } from './_cli.mjs';
 
 const appDirectory = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const args = process.argv.slice(2);
-const flag = (name, fallback) => {
-  const index = args.indexOf(name);
-  return index === -1 ? fallback : args[index + 1];
-};
 const story = flag('--story', 'hansel-gretel');
 const workDir = flag('--out', join(appDirectory, 'build-output', 'illustrations', story));
 const assetsRoot = join(appDirectory, 'assets', 'story', story);

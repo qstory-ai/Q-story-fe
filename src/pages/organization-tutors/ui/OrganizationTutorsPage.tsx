@@ -16,7 +16,7 @@ import {
 } from '@/entities/organization-tutor';
 import { InviteCodeCard, formatInviteExpiry, organizationTutorInviteLink } from '@/features/invite-issue';
 import { HomeListRow, HomeSection } from '@/features/home-section';
-import { teacherTitle } from '@/shared/lib';
+import { formatLongDate, teacherTitle } from '@/shared/lib';
 import { JoinRequestsSection } from './JoinRequestsSection';
 
 type TutorsLoad = { status: 'loading' } | { status: 'ready'; tutors: OrganizationTutorLink[] } | { status: 'error'; message: string };
@@ -188,7 +188,7 @@ export function OrganizationTutorsPage() {
                   <View style={styles.tutorText}>
                     <Text style={styles.tutorName}>{tutor.tutorDisplayName}</Text>
                     {tutor.tutorEmail ? <Text style={styles.tutorMeta}>{tutor.tutorEmail}</Text> : null}
-                    <Text style={styles.tutorMeta}>합류: {formatShortDate(tutor.joinedAt)} · 학생·수업 보기 ›</Text>
+                    <Text style={styles.tutorMeta}>합류: {formatLongDate(tutor.joinedAt)} · 학생·수업 보기 ›</Text>
                   </View>
                 </Pressable>
                 <Pressable
@@ -230,11 +230,6 @@ export function OrganizationTutorsPage() {
 }
 
 /* -------------------------------------------------------------- helpers */
-
-function formatShortDate(iso: string) {
-  const date = new Date(iso);
-  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
-}
 
 const L = semanticColors.light;
 

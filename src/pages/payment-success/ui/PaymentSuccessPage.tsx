@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, ErrorState, LoadingState, StatusBanner, radius, semanticColors, shadow, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { useBackOr } from '@/shared/lib';
+import { formatLongDate, useBackOr } from '@/shared/lib';
 import { dashboardNavItems, fetchCurrentUser, subscriptionPathFor, useAuth } from '@/entities/auth';
 import { confirmPayment, type PaymentOrder } from '@/entities/payment';
 
@@ -73,7 +73,7 @@ export function PaymentSuccessPage() {
 
 function formatDate(value: string | null) {
   if (!value) return '지금';
-  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(value));
+  return formatLongDate(value);
 }
 
 const styles = StyleSheet.create({

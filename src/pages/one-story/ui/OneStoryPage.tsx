@@ -59,13 +59,7 @@ export function OneStoryPage({
     illustration,
   } = runtime;
   const { chaptersOpen, setChaptersOpen } = runtime;
-  const dialogue = useDialogue({
-    runtime,
-    conversationId: runtime.sessionId,
-    tutorStudentId,
-    lessonId,
-    paused: runtime.homeMenuVisible || chaptersOpen,
-  });
+  const dialogue = useDialogue({ runtime, paused: runtime.homeMenuVisible || chaptersOpen });
   const closeChapters = useCallback(() => setChaptersOpen(false), [setChaptersOpen]);
   // 글씨 크기(lib/reader-text-scale) - 반 수업은 "크게"로 시작한다. 상단 [글씨] 버튼이 돌아가며 바꾼다.
   const isClassLesson = runtime.isClassLesson;

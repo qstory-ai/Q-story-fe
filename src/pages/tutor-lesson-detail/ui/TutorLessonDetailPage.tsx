@@ -4,7 +4,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, ErrorState, LoadingState, Modal, Pill, Radio, radius, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, useAuth, useRoleGuard } from '@/entities/auth';
 import {
   completeLesson,
   deleteLesson,
@@ -55,12 +55,7 @@ export function TutorLessonDetailPage() {
   // 이야기가 여럿인 수업에서 "수업 시작"으로 들어갈 이야기(null이면 첫 이야기).
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'TUTOR') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['TUTOR']);
 
   const token = state.status === 'authenticated' ? state.token : null;
 

@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ActionButton, AppNavShell, BrandLockup, Card, EmptyState, ErrorState, Icon, LoadingState, Pill, radius, semanticColors, storybookTheme, StoryCard } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { NotificationBell } from '@/features/notification-center';
-import { TUTOR_PATHS, dashboardNavItems, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, dashboardNavItems, useAuth, useRoleGuard } from '@/entities/auth';
 import { listTutorStudents, type TutorStudent } from '@/entities/tutor';
 import { listLessons, type Lesson } from '@/entities/lesson';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
@@ -39,12 +39,7 @@ export function TutorHomePage() {
   const [reloadKey, setReloadKey] = useState(0);
   const [stories, setStories] = useState<StoryCatalogEntry[]>([]);
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'TUTOR') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['TUTOR']);
 
   const token = state.status === 'authenticated' ? state.token : null;
 

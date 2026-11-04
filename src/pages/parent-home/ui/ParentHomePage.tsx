@@ -6,7 +6,7 @@ import { AppNavShell, BrandLockup, Card, EmptyState, Icon, LoadingState, Pill, s
 import { messageForError } from '@/shared/api';
 import { relativeDayLabel, withParticle, primeResponseAudio } from '@/shared/lib';
 import { NotificationBell } from '@/features/notification-center';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { dashboardNavItems, useAuth, useRoleGuard } from '@/entities/auth';
 import { listStories, unlockStateFor, type StoryCatalogEntry } from '@/entities/story';
 import { resumeStart, startStoryFromHome, storyDestination, storyPlayPath, type StartDecision } from '@/features/story-library';
 import { HomeGreetingCard, HomeHeroCard, HomeListRow, HomeSection, timeOfDayGreeting } from '@/features/home-section';
@@ -60,12 +60,7 @@ export function ParentHomePage() {
   const completionsDone = completionsResponseKey === completionsRequestKey;
   const activityLoading = !completionsDone || !reportsDone;
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'PARENT') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['PARENT']);
 
   useEffect(() => {
     let cancelled = false;

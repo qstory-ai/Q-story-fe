@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppNavShell, storybookTheme } from '@/shared/ui';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { dashboardNavItems, useAuth, useRoleGuard } from '@/entities/auth';
 import { listStories, StoryApiError, type StoryCatalogEntry } from '@/entities/story';
 
 type LoadState =
@@ -20,12 +20,7 @@ export function StaffHomePage() {
   const { state } = useAuth();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'STAFF') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['STAFF']);
 
   const isStaff = state.status === 'authenticated' && state.user.role === 'STAFF';
 

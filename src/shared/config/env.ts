@@ -12,7 +12,9 @@ type EnvKey =
   | 'VITE_GOOGLE_OAUTH_CLIENT_ID'
   | 'VITE_KAKAO_JS_KEY'
   | 'VITE_TOSS_CLIENT_KEY'
-  | 'VITE_GA_MEASUREMENT_ID';
+  | 'VITE_GA_MEASUREMENT_ID'
+  | 'VITE_QSTORY_STT_STREAMING'
+  | 'VITE_QSTORY_DIALOGUE_THINKING_FILLER';
 
 const readers: Record<EnvKey, () => string | undefined> = {
   VITE_QSTORY_API_URL: () => import.meta.env.VITE_QSTORY_API_URL,
@@ -25,6 +27,8 @@ const readers: Record<EnvKey, () => string | undefined> = {
   VITE_KAKAO_JS_KEY: () => import.meta.env.VITE_KAKAO_JS_KEY,
   VITE_TOSS_CLIENT_KEY: () => import.meta.env.VITE_TOSS_CLIENT_KEY,
   VITE_GA_MEASUREMENT_ID: () => import.meta.env.VITE_GA_MEASUREMENT_ID,
+  VITE_QSTORY_STT_STREAMING: () => import.meta.env.VITE_QSTORY_STT_STREAMING,
+  VITE_QSTORY_DIALOGUE_THINKING_FILLER: () => import.meta.env.VITE_QSTORY_DIALOGUE_THINKING_FILLER,
 };
 
 export function readEnv(key: EnvKey): string {
@@ -33,6 +37,11 @@ export function readEnv(key: EnvKey): string {
   } catch {
     return '';
   }
+}
+
+/** 기본 켜짐인 스위치 - 'false'라고 적어야만 꺼진다(비어 있으면 켜짐). 문제가 생기면 배포 변수로 바로 끄는 용도. */
+export function envSwitch(key: EnvKey): boolean {
+  return readEnv(key).toLowerCase() !== 'false';
 }
 
 /** 개발 서버(vite dev)인지 - 빌드·Node 테스트에서는 false. */

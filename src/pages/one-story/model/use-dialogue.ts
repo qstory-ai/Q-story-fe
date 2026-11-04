@@ -25,7 +25,6 @@ import {
   STT_UNAVAILABLE_CHILD_COPY,
   isSttUnavailableCode,
 } from '@/entities/companion-chat';
-import { waitForRealtimeImage } from '@/entities/realtime-image';
 import type { PlayTurnInput } from '@/entities/play-session';
 import { STT_STREAMING_ENABLED } from '@/shared/config';
 
@@ -61,6 +60,7 @@ import {
   isTimeoutCode,
 } from '../lib/reply-deadline';
 import type { OneStoryRuntime } from './use-one-story-runtime';
+import { waitForRealtimeImage } from '../api/realtime-image-api';
 
 /** CHAT = 아이가 스스로 연 그레텔 대화, INVITE = 이야기 속 질문 초대에서 이어지는 대화. */
 export type DialogueMode = 'CHAT' | 'INVITE';
@@ -148,15 +148,9 @@ function discardVoice(voice: Promise<ResponseAudio | null>) {
 
 export function useDialogue({
   runtime,
-  conversationId,
-  tutorStudentId,
-  lessonId,
   paused = false,
 }: {
   runtime: OneStoryRuntime;
-  conversationId: string;
-  tutorStudentId?: string;
-  lessonId?: string;
   /** 챕터·홈 메뉴가 패널을 가리는 중 - 듣기를 멈춘다(보이지 않는 패널이 녹음·자동 종료하지 않게). */
   paused?: boolean;
 }) {
@@ -172,6 +166,8 @@ export function useDialogue({
     recordTurn,
     visualAssetId,
   } = runtime;
+  // 회차 id·선생님 세션·수업은 대화 원장 귀속(conversationAttribution)과 같은 값이다.
+  const { sessionId: conversationId, tutorStudentId, lessonId } = conversationAttribution;
   const character = GRETEL_COMPANION;
   // 자동 전송 안내에 쓰는 이름 - 이야기 데이터의 화자 이름을 우선 쓰고, 없으면 '친구'.
   const characterName =
@@ -303,7 +299,7 @@ export function useDialogue({
   const stopSpeaking = useCallback(() => {
     audioAbortRef.current?.abort();
     audioAbortRef.current = null;
-    void runtime.stopDialogueSpeech();
+    void runtime.stopNarration();
   }, [runtime]);
 
   /** 진행 중인 실시간 받아 적기를 버린다(닫기·다시 말하기·글로 쓰기·포기). 받아 적기를 시작한 transcribe()는 먼저 꺼내 간다. */

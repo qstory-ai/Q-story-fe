@@ -5,10 +5,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { AppNavShell, Card, ErrorState, LoadingState, Pill, radius, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
 import { ORGANIZATION_PATHS, dashboardNavItems, reportDetailPath, useDirectorSession } from '@/entities/auth';
-import { getOrganizationReport, type OrganizationReport } from '@/entities/organization-report';
-import { getOrganizationUsage, type OrganizationUsage, type OrganizationUsageRecentActivity } from '@/entities/organization-usage';
 import { listStories, type StoryCatalogEntry } from '@/entities/story';
 import { HomeListRow, HomeSection } from '@/features/home-section';
+import { getOrganizationReport, type OrganizationReport } from '../api/organization-report-api';
+import { getOrganizationUsage, type OrganizationUsage, type OrganizationUsageRecentActivity } from '../api/organization-usage-api';
+import { formatLongDate, formatMonthDayTime } from '@/shared/lib';
 
 type LoadState =
   | { status: 'loading' }
@@ -83,7 +84,7 @@ export function OrganizationReportPage() {
                   key={classGroup.classId}
                   icon="graduationCap"
                   label={classGroup.className}
-                  meta={`학생 ${classGroup.studentCount}명 · 최근 활동 ${classGroup.lastActivityAt ? formatDate(classGroup.lastActivityAt) : '없음'}`}
+                  meta={`학생 ${classGroup.studentCount}명 · 최근 활동 ${classGroup.lastActivityAt ? formatLongDate(classGroup.lastActivityAt) : '없음'}`}
                   trailing={
                     <View style={styles.trailing}>
                       {classGroup.archived ? <Pill label="지난 반" tone="onLight" /> : null}
@@ -134,7 +135,7 @@ function RecentActivityRow({ activity, title, onOpen }: { activity: Organization
     <HomeListRow
       icon="report"
       label={title}
-      meta={`${activity.className ? `${activity.className} · ` : ''}${activity.actorDisplayName} · ${formatDateTime(activity.completedAt)}`}
+      meta={`${activity.className ? `${activity.className} · ` : ''}${activity.actorDisplayName} · ${formatMonthDayTime(activity.completedAt)}`}
       accessibilityLabel={openable ? `${title} 리포트 열기` : undefined}
       onPress={openable ? onOpen : undefined}
     />
@@ -143,15 +144,6 @@ function RecentActivityRow({ activity, title, onOpen }: { activity: Organization
 
 function Metric({ label, value }: { label: string; value: number }) {
   return <View style={styles.metric}><Text style={styles.metricLabel}>{label}</Text><Text style={styles.metricValue}>{value.toLocaleString('ko-KR')}</Text></View>;
-}
-
-function formatDate(value: string) {
-  // "최근 활동"은 작년 날짜일 수도 있어 연도까지 보여 준다.
-  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(value));
-}
-
-function formatDateTime(iso: string) {
-  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
 }
 
 const styles = StyleSheet.create({

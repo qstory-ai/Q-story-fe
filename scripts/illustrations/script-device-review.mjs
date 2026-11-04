@@ -9,13 +9,10 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { DEVICES, deviceFrame } from './device-frames.mjs';
+import { flag } from './_cli.mjs';
 
 const appDirectory = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const args = process.argv.slice(2);
-const flag = (name, fallback) => {
-  const index = args.indexOf(name);
-  return index === -1 ? fallback : args[index + 1];
-};
 const story = flag('--story', 'hansel-gretel');
 const workDir = join(appDirectory, 'build-output', 'illustrations', story);
 const outFile = flag('--out', join(workDir, '대본-기기별-삽화.html'));
@@ -32,7 +29,6 @@ const fileFor = (job) => {
   const asset = assets.find((entry) => entry.slug === job.id);
   return asset ? join(appDirectory, 'assets', 'story', story, asset.file) : null;
 };
-
 
 async function frame(file, device) {
   const jpeg = await deviceFrame(file, device, FRAME_H, 'jpeg');

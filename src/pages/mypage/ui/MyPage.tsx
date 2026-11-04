@@ -7,6 +7,7 @@ import { dashboardNavItems, homePathFor, roleLabel, subscriptionPathFor, useAuth
 import { BETA_OPEN_ACCESS_NOTICE, subscriptionStatusLabel } from '@/shared/config';
 import { useChildren } from '@/entities/child';
 import { HomeListRow, HomeSection } from '@/features/home-section';
+import { formatNumericDate } from '@/shared/lib';
 
 /**
  * IA [4] 마이페이지 허브. 보호자는 그룹 메뉴, 그 외 역할(원장/선생님/스태프)은 간단한 리스트를 본다.
@@ -114,7 +115,7 @@ function ProfileCard({ user }: { user: UserSummary }) {
 /* -------------------------------------------------------------- menus */
 
 function ParentMenu({ user, navigate }: { user: UserSummary; navigate: (path: string) => void }) {
-  const expiry = user.subscriptionExpiresAt ? ` · ${formatShortDate(user.subscriptionExpiresAt)} 만료` : '';
+  const expiry = user.subscriptionExpiresAt ? ` · ${formatNumericDate(user.subscriptionExpiresAt)} 만료` : '';
   return (
     <View style={styles.menuGroups}>
       <HomeSection title="아이와 수업" layout="list">
@@ -138,10 +139,6 @@ function ParentMenu({ user, navigate }: { user: UserSummary; navigate: (path: st
       </HomeSection>
     </View>
   );
-}
-
-function formatShortDate(value: string) {
-  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' }).format(new Date(value));
 }
 
 function GenericMenu({ user, navigate }: { user: UserSummary; navigate: (path: string) => void }) {

@@ -4,7 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Modal, Pill, RadioGroup, radius, semanticColors, shadow, StatusBanner, storybookTheme } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { useBackOr, withParticle } from '@/shared/lib';
+import { formatLongDate, formatMonthDayTime, useBackOr, withParticle } from '@/shared/lib';
 import {
   ORGANIZATION_PATHS,
   TUTOR_PATHS,
@@ -377,7 +377,7 @@ export function ClassDetailPage() {
                     <Text style={styles.historyTitle}>담임 이력</Text>
                     {[...effective.history].reverse().map((entry) => (
                       <Text key={`${entry.tutorId}:${entry.startedAt}`} style={styles.rowMeta}>
-                        {entry.tutorDisplayName} · {formatDate(entry.startedAt)} ~ {entry.endedAt ? formatDate(entry.endedAt) : '지금'}
+                        {entry.tutorDisplayName} · {formatLongDate(entry.startedAt)} ~ {entry.endedAt ? formatLongDate(entry.endedAt) : '지금'}
                       </Text>
                     ))}
                   </View>
@@ -544,7 +544,7 @@ function ClassLessonsSection({
               key={lesson.id}
               icon="calendarDays"
               label={lesson.name}
-              meta={lesson.scheduledAt ? formatDateTime(lesson.scheduledAt) : '일정 미정'}
+              meta={lesson.scheduledAt ? formatMonthDayTime(lesson.scheduledAt) : '일정 미정'}
               trailing={<Pill label={LESSON_STATUS_LABEL[lesson.status]} tone="onCard" />}
               accessibilityLabel={`${lesson.name} 수업 열기`}
               onPress={() => onOpen(lesson.id)}
@@ -617,7 +617,7 @@ function ClassReportsSection({
         ? value.data.items.map((report) => {
             const title = value.data.titles[report.storyId] ?? report.storyId;
             const students = summarizeStudentNames(report.studentNames);
-            const when = `${formatDateTime(report.completedAt)}${
+            const when = `${formatMonthDayTime(report.completedAt)}${
               report.className && report.className !== className ? ` · ${report.className}` : ''
             }${report.tutorName ? ` · ${report.tutorName}` : ''}`;
             return (
@@ -644,20 +644,12 @@ const LESSON_STATUS_LABEL: Record<Lesson['status'], string> = {
   COMPLETED: '완료',
 };
 
-function formatDateTime(iso: string) {
-  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
-}
-
 function tutorName(tutorId: string, tutors: OrganizationTutorLink[], history: HomeroomHistoryEntry[]) {
   return (
     tutors.find((link) => link.tutorId === tutorId)?.tutorDisplayName
     ?? history.find((entry) => entry.tutorId === tutorId)?.tutorDisplayName
     ?? '배정된 선생님'
   );
-}
-
-function formatDate(iso: string) {
-  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(iso));
 }
 
 const L = semanticColors.light;

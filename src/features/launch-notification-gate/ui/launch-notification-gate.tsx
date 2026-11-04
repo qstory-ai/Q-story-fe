@@ -2,9 +2,9 @@ import { useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Modal, ModalBody, TextField, storybookTheme } from '@/shared/ui';
-import type { ChildGender } from '@/entities/launch-notification';
 
 import { useLaunchNotificationGate } from '../model/use-launch-notification-gate';
+import type { ChildGender } from '../api/launch-notification-api';
 
 const GENDER_OPTIONS: { value: ChildGender; label: string }[] = [
   { value: 'GIRL', label: '여자아이' },

@@ -5,13 +5,13 @@ import test from 'node:test';
 import { sttStreamUrl } from './stt-stream';
 
 test('web (same-origin proxy) connects straight to the production backend', () => {
-  assert.equal(sttStreamUrl('', '/api/qstory'), 'wss://demo.api.qstory.ai.kr/v1/stt/stream');
+  assert.equal(sttStreamUrl('', '/api/qstory'), 'wss://api.qstory.ai.kr/v1/stt/stream');
 });
 
 test('app and local builds derive the socket from the absolute API URL', () => {
   assert.equal(
-    sttStreamUrl('', 'https://q-story-be-production.up.railway.app/'),
-    'wss://q-story-be-production.up.railway.app/v1/stt/stream',
+    sttStreamUrl('', 'https://api.qstory.ai.kr/'),
+    'wss://api.qstory.ai.kr/v1/stt/stream',
   );
   assert.equal(sttStreamUrl('', 'http://localhost:8080'), 'ws://localhost:8080/v1/stt/stream');
 });

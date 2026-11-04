@@ -14,8 +14,9 @@ test('종료 진단은 현재 분기와 음성 clip을 비식별 메타데이터
     anchorId: 'HG-Q-C',
     questionRound: 1,
     plan: {
-      kind: 'fallback',
-      familyId: 'C_USE_SIGNAL',
+      kind: 'route',
+      route: 'DIRECT_ACTION',
+      actionFamilyId: 'C_USE_SIGNAL',
     },
   } as unknown as StoryRuntimeState;
 

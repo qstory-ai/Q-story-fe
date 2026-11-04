@@ -68,7 +68,6 @@ function isRuntimeState(value: unknown): value is StoryRuntimeState {
       'playing-fixed',
       'awaiting-question',
       'awaiting-choice',
-      'awaiting-clarification',
       'playing-response',
       'complete',
     ].includes(status)
@@ -81,24 +80,13 @@ export function resumableRuntimeState(
   if (state.status === 'idle') {
     return null;
   }
-  if (
-    state.status === 'recording-question' ||
-    state.status === 'processing-question' ||
-    state.status === 'generating-branch' ||
-    state.status === 'failed-recoverable' ||
-    state.status === 'awaiting-safety-retry'
-  ) {
-    if (!state.anchorId || !state.questionRound) {
-      return null;
-    }
+  if (state.status === 'generating-branch') {
+    // 만드는 중에 나갔으면 그 질문 지점의 초대부터 다시 시작한다(작업 id는 이어 갈 수 없다).
     return {
       status: 'awaiting-question',
       sceneId: state.sceneId,
       anchorId: state.anchorId,
       questionRound: state.questionRound,
-      // 재개는 항상 이 앵커에 대한 새 질문 시도로 취급한다 - 재질문/실패 도중의 안전게이트
-      // 카운터를 그대로 들고 재개할 안전한 방법이 없으므로 0으로 리셋한다.
-      consecutiveSafetyFailures: 0,
     };
   }
   return state;

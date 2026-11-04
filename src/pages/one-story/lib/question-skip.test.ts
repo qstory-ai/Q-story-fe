@@ -9,7 +9,6 @@ const awaiting = (anchorId) => ({
   sceneId: 'S1',
   anchorId,
   questionRound: 1,
-  consecutiveSafetyFailures: 0,
 });
 
 test('같은 앵커의 질문 초대를 기다리는 중일 때만 참', () => {
@@ -17,10 +16,7 @@ test('같은 앵커의 질문 초대를 기다리는 중일 때만 참', () => {
   assert.equal(isAwaitingInviteFor(awaiting('A2'), 'A1'), false);
   assert.equal(isAwaitingInviteFor(awaiting('A1'), null), false);
   assert.equal(isAwaitingInviteFor({ status: 'playing-fixed', sceneId: 'S1' }, 'A1'), false);
-  assert.equal(
-    isAwaitingInviteFor({ ...awaiting('A1'), status: 'awaiting-clarification', prompt: 'p' }, 'A1'),
-    false,
-  );
+  assert.equal(isAwaitingInviteFor({ ...awaiting('A1'), status: 'generating-branch', jobId: 'j' }, 'A1'), false);
 });
 
 test('건너뛴 질문 기록 - 상태별 기본 사유', () => {
@@ -29,27 +25,10 @@ test('건너뛴 질문 기록 - 상태별 기본 사유', () => {
     scene_id: 'S1',
     skip_reason: 'continue_listening',
   });
-  assert.equal(
-    questionSkipMetadata({ ...awaiting('A1'), status: 'awaiting-clarification', prompt: 'p' }).skip_reason,
-    'clarification_continue',
-  );
-  assert.equal(
-    questionSkipMetadata({ ...awaiting('A1'), status: 'awaiting-safety-retry', prompt: 'p' }).skip_reason,
-    'safety_retry_continue',
-  );
   assert.equal(questionSkipMetadata({ status: 'playing-fixed', sceneId: 'S1' }), null);
+  assert.equal(questionSkipMetadata({ ...awaiting('A1'), status: 'generating-branch', jobId: 'j' }), null);
 });
 
 test('무응답으로 건너뛰면 사유를 no_speech_timeout으로 남긴다', () => {
   assert.equal(questionSkipMetadata(awaiting('A1'), 'no_speech_timeout').skip_reason, 'no_speech_timeout');
-});
-
-test('녹음 중 무응답 포기만 recording-question에서 기록한다', () => {
-  const recording = { ...awaiting('A1'), status: 'recording-question', inputMode: 'voice' };
-  assert.deepEqual(questionSkipMetadata(recording, 'no_speech_timeout'), {
-    anchor_id: 'A1',
-    scene_id: 'S1',
-    skip_reason: 'no_speech_timeout',
-  });
-  assert.equal(questionSkipMetadata(recording), null);
 });

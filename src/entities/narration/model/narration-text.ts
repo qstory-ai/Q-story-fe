@@ -5,7 +5,7 @@
  * compare against pre-recorded audio transcripts). Flatten at the network boundary, right before
  * building a /v1/narrations(/stream) request body, so on-screen captions can keep their line
  * breaks while only the wire payload is squashed to what the backend actually accepts. Every
- * caller of that endpoint (narrate-story and route-question's narration clients) must run its
+ * caller of that endpoint (narrate-story's narration clients) must run its
  * `text` through this first.
  */
 export function sanitizeNarrationText(text: string): string {

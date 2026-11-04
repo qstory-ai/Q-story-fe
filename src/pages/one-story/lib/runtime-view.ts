@@ -1,10 +1,8 @@
 import type {
-  FailureReason,
   SceneId,
   StoryManifest,
   StoryRuntimeState,
 } from '@/entities/story-runtime';
-import { personalizeStoryText } from '@/entities/narration';
 import type { StoryRuntimePackage } from '@/entities/story';
 import type { QuestionOutcome } from '@/entities/report';
 
@@ -56,48 +54,6 @@ export function runtimeTransitionFailureCopy(_code: string) {
   return '이야기 흐름을 이어가지 못했어요. 잠시 뒤 다시 시도해 주세요.';
 }
 
-export function questionFailureCopy(failure: FailureReason) {
-  const detail = failure.safeDetail?.trim();
-  if (
-    failure.stage === 'recording' ||
-    failure.stage === 'normalization' ||
-    failure.stage === 'stt'
-  ) {
-    return {
-      eyebrow: '목소리를 다시 들려줘도 괜찮아요',
-      title: '목소리를 문장으로 바꾸지 못했어요',
-      help:
-        detail ??
-        '주변 소음을 줄이고 1초 이상 또렷하게 말하거나, 글로 질문해 주세요.',
-    };
-  }
-  if (failure.stage === 'upload') {
-    return {
-      eyebrow: '연결을 다시 시도할 수 있어요',
-      title: '질문 서버에 연결하지 못했어요',
-      help:
-        detail ??
-        '인터넷 연결을 확인한 뒤 다시 보내거나, 잠시 후 글로 질문해 주세요.',
-    };
-  }
-  if (failure.stage === 'routing' || failure.stage === 'response') {
-    return {
-      eyebrow: '질문의 뜻을 다시 확인할 수 있어요',
-      title: 'AI가 질문의 뜻을 처리하지 못했어요',
-      help:
-        detail ??
-        '같은 내용을 조금 다르게 말하거나 글로 적어 다시 보내 주세요.',
-    };
-  }
-  return {
-    eyebrow: '질문 방법을 다시 골라도 괜찮아요',
-    title: '이번 질문을 처리하지 못했어요',
-    help:
-      detail ??
-      '같은 장면에서 다시 말하거나 글로 적을 수 있어요. 질문 기회는 사용되지 않았어요.',
-  };
-}
-
 export function getRuntimeClip(state: StoryRuntimeState, storyPackage: StoryRuntimePackage) {
   if (state.status !== 'playing-fixed') {
     return null;
@@ -138,25 +94,10 @@ function getAnchorVisualId(state: StoryRuntimeState, storyPackage: StoryRuntimeP
 }
 
 export function getBranchFamily(state: StoryRuntimeState, storyPackage: StoryRuntimePackage) {
-  if (state.status !== 'playing-response') {
+  if (state.status !== 'playing-response' || !state.plan.actionFamilyId) {
     return null;
   }
-  if (state.plan.kind === 'fallback') {
-    return state.plan.familyId
-      ? storyPackage.presentation.fallbackByFamilyId[state.plan.familyId]
-      : null;
-  }
-  if (state.plan.kind === 'story-change') {
-    return storyPackage.presentation.fallbackByFamilyId[
-      state.plan.fallbackFamilyId
-    ];
-  }
-  if (state.plan.kind === 'route' && state.plan.actionFamilyId) {
-    return storyPackage.presentation.fallbackByFamilyId[
-      state.plan.actionFamilyId
-    ];
-  }
-  return null;
+  return storyPackage.presentation.fallbackByFamilyId[state.plan.actionFamilyId] ?? null;
 }
 
 export function getVisualAssetId({
@@ -195,46 +136,13 @@ export function statusCopy(state: StoryRuntimeState, context: ReadingContext = '
       return '이야기 듣는 중';
     case 'awaiting-question':
       return '아이의 생각을 기다리는 중';
-    case 'recording-question':
-      return '목소리 담는 중';
-    case 'processing-question':
-      return '이야기 속 답을 찾는 중';
     case 'generating-branch':
       return '새로운 이야기를 만드는 중';
     case 'awaiting-choice':
       return '세 가지 방법을 살펴보는 중';
-    case 'awaiting-clarification':
-      return '아이의 뜻을 한 번 더 확인하는 중';
-    case 'awaiting-safety-retry':
-      return '안전하게 다시 한 번 물어보는 중';
     case 'playing-response':
       return '아이의 생각으로 달라진 순간';
-    case 'failed-recoverable':
-      return '안전한 이야기 길을 찾는 중';
     case 'complete':
       return '오늘의 이야기 완주';
   }
-}
-
-export function questionPrompt(
-  state: StoryRuntimeState,
-  childName: string,
-  storyPackage: StoryRuntimePackage,
-) {
-  if (
-    state.status === 'awaiting-clarification' ||
-    state.status === 'awaiting-safety-retry'
-  ) {
-    return personalizeStoryText(state.prompt, childName);
-  }
-  if (!('anchorId' in state) || !state.anchorId) {
-    return '';
-  }
-  const anchor = storyPackage.manifest.questionAnchors.find(
-    (candidate) => candidate.id === state.anchorId,
-  );
-  return personalizeStoryText(
-    anchor?.prompt ?? '무엇이 궁금해?',
-    childName,
-  );
 }

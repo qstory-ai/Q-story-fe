@@ -53,20 +53,18 @@ test('local resume saves progress without recordings or transcripts', () => {
 test('an interrupted question resumes from its invitation', () => {
   assert.deepEqual(
     resumableRuntimeState({
-      status: 'processing-question',
+      status: 'generating-branch',
       sceneId: 'HG-F04',
       anchorId: 'HG-Q-A',
       questionRound: 1,
-      consecutiveSafetyFailures: 2,
-      inputMode: 'voice',
+      jobId: 'job-1',
+      plan: { kind: 'route', route: 'ANSWER_RESUME', text: '잠깐만', options: [] },
     }),
     {
       status: 'awaiting-question',
       sceneId: 'HG-F04',
       anchorId: 'HG-Q-A',
       questionRound: 1,
-      // 재개는 항상 새 질문 시도로 취급되어 안전게이트 카운터가 리셋된다.
-      consecutiveSafetyFailures: 0,
     },
   );
 });

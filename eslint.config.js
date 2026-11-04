@@ -29,14 +29,11 @@ const SAME_LAYER_ALLOWED = {
   'entities/bookmark': ['entities/auth'], // 로그인 사용자별 저장
   'entities/child': ['entities/analytics', 'entities/auth'], // 아이 목록은 로그인 사용자 기준, 옛 진행 기록 이전
   'entities/class-lifecycle': ['entities/auth'],
-  'entities/companion-chat': ['entities/speech-pipeline'], // 동반자 대화가 음성 파이프라인 주소를 쓴다
   'entities/homeroom-invite': ['entities/auth'],
   'entities/lesson': ['entities/story-completion'],
-  'entities/live-branch': ['entities/speech-pipeline'],
   'entities/organization-tutor': ['entities/lesson', 'entities/tutor'],
   'entities/report': ['entities/story', 'entities/story-runtime'], // 리포트는 이야기 패키지·런타임 상태로 계산한다
   'entities/session-recording': ['entities/analytics'], // 통계 세션 id·상호작용 추적을 함께 쓴다
-  'entities/speech-pipeline': ['entities/story', 'entities/story-runtime'],
   'entities/story': ['entities/auth', 'entities/story-runtime'],
   'entities/story-completion': ['entities/play-session', 'entities/report'],
   'entities/tutor': ['entities/story-completion'],

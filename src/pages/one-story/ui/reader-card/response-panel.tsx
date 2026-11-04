@@ -10,7 +10,6 @@ export function ResponsePanel({ runtime }: { runtime: OneStoryRuntime }) {
     isBranchPlaybackState,
     isSafetyRedirect,
     isStoryChange,
-    lastTranscript,
   } = runtime;
 
   if (
@@ -35,12 +34,6 @@ export function ResponsePanel({ runtime }: { runtime: OneStoryRuntime }) {
         </Text>
       </View>
       <Text style={styles.responseText}>{plan.text}</Text>
-      {!lastTranscript ? (
-        <Text style={styles.fallbackText}>
-          이번에는 말을 정확히 확인하지 못해도 이야기가 멈추지 않도록
-          준비된 길로 이어가요.
-        </Text>
-      ) : null}
     </View>
   );
 }

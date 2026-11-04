@@ -228,110 +228,6 @@ test('valid story manifest passes reference validation', () => {
   assert.equal(result.ok, true);
 });
 
-test('a rejected transcript returns to recording at the same question anchor', () => {
-  const manifest = createManifest();
-  const transition = transitionStoryRuntime(
-    manifest,
-    {
-      status: 'processing-question',
-      sceneId: IDS.scene1,
-      anchorId: IDS.question,
-      questionRound: 1,
-      consecutiveSafetyFailures: 0,
-      inputMode: 'voice',
-    },
-    { type: 'RETRY_QUESTION_SELECTED' },
-  );
-
-  assert.equal(transition.ok, true);
-  if (!transition.ok) {
-    return;
-  }
-  assert.deepEqual(transition.state, {
-    status: 'recording-question',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-    consecutiveSafetyFailures: 0,
-    inputMode: 'voice',
-  });
-  assert.deepEqual(transition.commands, [{ type: 'REQUEST_RECORDING' }]);
-});
-
-test('voice and text input can switch at the same question anchor', () => {
-  const manifest = createManifest();
-  const switchedToText = transitionStoryRuntime(
-    manifest,
-    {
-      status: 'recording-question',
-      sceneId: IDS.scene1,
-      anchorId: IDS.question,
-      questionRound: 1,
-      consecutiveSafetyFailures: 0,
-      inputMode: 'voice',
-    },
-    { type: 'TYPE_SELECTED' },
-  );
-
-  assert.equal(switchedToText.ok, true);
-  if (!switchedToText.ok) {
-    return;
-  }
-  assert.deepEqual(switchedToText.state, {
-    status: 'recording-question',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-    consecutiveSafetyFailures: 0,
-    inputMode: 'text',
-  });
-  assert.deepEqual(switchedToText.commands, []);
-
-  const switchedBackToVoice = transitionStoryRuntime(
-    manifest,
-    switchedToText.state,
-    { type: 'ASK_SELECTED' },
-  );
-  assert.equal(switchedBackToVoice.ok, true);
-  if (!switchedBackToVoice.ok) {
-    return;
-  }
-  assert.equal(switchedBackToVoice.state.inputMode, 'voice');
-  assert.deepEqual(switchedBackToVoice.commands, [
-    { type: 'REQUEST_RECORDING' },
-  ]);
-});
-
-test('a failed voice attempt can switch to text or skip without consuming the anchor', () => {
-  const manifest = createManifest();
-  const failed = {
-    status: 'failed-recoverable',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-    inputMode: 'voice',
-    failure: {
-      code: 'STT_TIMEOUT',
-      stage: 'stt',
-      retryable: true,
-    },
-  };
-
-  const switched = transitionStoryRuntime(manifest, failed, {
-    type: 'TYPE_SELECTED',
-  });
-  assert.equal(switched.ok, true);
-  assert.equal(switched.state.status, 'recording-question');
-  assert.equal(switched.state.inputMode, 'text');
-
-  const skipped = transitionStoryRuntime(manifest, failed, {
-    type: 'CONTINUE_SELECTED',
-  });
-  assert.equal(skipped.ok, true);
-  assert.equal(skipped.state.status, 'playing-fixed');
-  assert.equal(skipped.state.audioGroupId, IDS.groupResume);
-});
-
 test('duplicate ids and orphan references are rejected', () => {
   const manifest = createManifest();
   manifest.scenes[1].id = manifest.scenes[0].id;
@@ -484,168 +380,17 @@ test('skip scene starts the next scene and completes from the ending', () => {
   assert.equal(completed.state.status, 'complete');
 });
 
-test('ask moves recording into processing', () => {
-  const manifest = createManifest();
-  const waiting = {
-    status: 'awaiting-question',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-  };
-  const recording = transitionStoryRuntime(manifest, waiting, {
-    type: 'ASK_SELECTED',
-  });
-  assert.equal(recording.ok, true);
-  assert.equal(recording.state.status, 'recording-question');
-
-  const processing = transitionStoryRuntime(manifest, recording.state, {
-    type: 'RECORDING_STOPPED',
-    recording: {
-      uri: 'file://question.m4a',
-      durationMillis: 1200,
-      mimeType: 'audio/mp4',
-      byteSize: 4200,
-    },
-  });
-  assert.equal(processing.ok, true);
-  assert.equal(processing.state.status, 'processing-question');
-  assert.equal(processing.commands[0].type, 'PROCESS_RECORDING');
+const waitingAtQuestion = () => ({
+  status: 'awaiting-question',
+  sceneId: IDS.scene1,
+  anchorId: IDS.question,
+  questionRound: 1,
 });
 
-test('no-speech exits processing through a recoverable failure', () => {
+test('a confirmed action from the dialogue starts the selected family without choices', () => {
   const manifest = createManifest();
-  const processing = {
-    status: 'processing-question',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 2,
-    inputMode: 'voice',
-  };
-  const result = transitionStoryRuntime(manifest, processing, {
-    type: 'SPEECH_RESOLVED',
-    result: { status: 'no-speech', reason: 'unintelligible' },
-  });
-
-  assert.equal(result.ok, true);
-  assert.equal(result.state.status, 'failed-recoverable');
-  assert.equal(result.state.anchorId, IDS.question);
-  assert.equal(result.state.failure.code, 'NO_SPEECH_UNINTELLIGIBLE');
-});
-
-test('approved fallback recovers a failed question into response playback', () => {
-  const manifest = createManifest();
-  const failed = {
-    status: 'failed-recoverable',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 2,
-    inputMode: 'voice',
-    failure: {
-      code: 'STT_TIMEOUT',
-      stage: 'stt',
-      retryable: false,
-    },
-  };
-  const result = transitionStoryRuntime(manifest, failed, {
-    type: 'FALLBACK_READY',
-    plan: {
-      kind: 'fallback',
-      familyId: IDS.fallback,
-      text: '주변을 살피며 계속 가 보자.',
-      rejoinAt: IDS.rejoin,
-    },
-  });
-
-  assert.equal(result.ok, true);
-  assert.equal(result.state.status, 'playing-response');
-  assert.equal(result.state.questionRound, 2);
-});
-
-test('response cannot rejoin through an unapproved anchor', () => {
-  const manifest = createManifest();
-  const processing = {
-    status: 'processing-question',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-    inputMode: 'voice',
-  };
-  const result = transitionStoryRuntime(manifest, processing, {
-    type: 'RESPONSE_READY',
-    plan: {
-      kind: 'story-change',
-      childRelevantMeaning: '다른 길을 확인한다',
-      text: '다른 길을 살펴보자.',
-      requiredStateChange: {},
-      rejoinAt: rejoinAnchorId('UNAPPROVED-REJOIN'),
-      fallbackFamilyId: IDS.fallback,
-      trace: null,
-    },
-  });
-
-  assert.equal(result.ok, false);
-  assert.equal(result.state, processing);
-});
-
-test('short response resumes the fixed story after playback ends', () => {
-  const manifest = createManifest();
-  const playingResponse = {
-    status: 'playing-response',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-    plan: {
-      kind: 'short-answer',
-      text: '좋은 질문이야. 이제 이야기를 계속 들어보자.',
-      resumeAt: IDS.question,
-    },
-  };
-  const result = transitionStoryRuntime(manifest, playingResponse, {
-    type: 'RESPONSE_AUDIO_ENDED',
-  });
-
-  assert.equal(result.ok, true);
-  assert.equal(result.state.status, 'playing-fixed');
-  assert.equal(result.state.audioGroupId, IDS.groupResume);
-});
-
-test('approved story change rejoins at the fixed destination', () => {
-  const manifest = createManifest();
-  const playingResponse = {
-    status: 'playing-response',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-    plan: {
-      kind: 'story-change',
-      childRelevantMeaning: '주변을 먼저 살핀다',
-      text: '남매는 주변을 꼼꼼히 살폈어.',
-      requiredStateChange: { reachedQuestion: true },
-      rejoinAt: IDS.rejoin,
-      fallbackFamilyId: IDS.fallback,
-      trace: null,
-    },
-  };
-  const result = transitionStoryRuntime(manifest, playingResponse, {
-    type: 'RESPONSE_AUDIO_ENDED',
-  });
-
-  assert.equal(result.ok, true);
-  assert.equal(result.state.status, 'playing-fixed');
-  assert.equal(result.state.audioGroupId, IDS.groupEnding);
-});
-
-test('direct action starts the selected canonical family without choices', () => {
-  const manifest = createManifest();
-  const processing = {
-    status: 'processing-question',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-    inputMode: 'voice',
-  };
-  const result = transitionStoryRuntime(manifest, processing, {
-    type: 'RESPONSE_READY',
+  const result = transitionStoryRuntime(manifest, waitingAtQuestion(), {
+    type: 'ACTION_CONFIRMED',
     plan: routePlan({
       route: 'DIRECT_ACTION',
       actionFamilyId: IDS.fallback,
@@ -665,7 +410,7 @@ test('direct action starts the selected canonical family without choices', () =>
   assert.equal(rejoined.state.audioGroupId, IDS.groupEnding);
 });
 
-test('direct action uses the selected family rejoin even when the server sends another allowed anchor', () => {
+test('a confirmed action uses the selected family rejoin even when another allowed anchor is sent', () => {
   const manifest = createManifest();
   const wrongRejoin = rejoinAnchorId('HG-F01-OTHER-ALLOWED-REJOIN');
   manifest.questionAnchors[0].allowedRejoinAnchorIds.push(wrongRejoin);
@@ -676,15 +421,8 @@ test('direct action uses the selected family rejoin even when the server sends a
     resumeAudioGroupId: IDS.groupResume,
     requiredState: { reachedQuestion: true },
   });
-  const processing = {
-    status: 'processing-question',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-    inputMode: 'voice',
-  };
-  const result = transitionStoryRuntime(manifest, processing, {
-    type: 'RESPONSE_READY',
+  const result = transitionStoryRuntime(manifest, waitingAtQuestion(), {
+    type: 'ACTION_CONFIRMED',
     plan: routePlan({
       route: 'DIRECT_ACTION',
       actionFamilyId: IDS.fallback,
@@ -701,84 +439,10 @@ test('direct action uses the selected family rejoin even when the server sends a
   assert.equal(result.commands[0].plan.rejoinAt, IDS.rejoin);
 });
 
-test('three paths waits for a choice and plays only the selected family', () => {
+test('a confirmed action with an unknown family or a non-action route is rejected', () => {
   const manifest = createManifest();
-  manifest.questionAnchors[0].fallbackFamilyIds.push(
-    IDS.fallback2,
-    IDS.fallback3,
-  );
-  manifest.fallbackFamilies.push({
-    id: IDS.fallback2,
-    meaning: '선택한 가족만의 독립 합류',
-    audioGroupId: IDS.groupResume,
-    rejoinAnchorId: null,
-  });
-  const processing = {
-    status: 'processing-question',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-    inputMode: 'voice',
-  };
-  const choicePlan = routePlan({
-    route: 'THREE_PATHS',
-    text: '어떤 방법으로 확인해 볼까?',
-    rejoinAt: IDS.rejoin,
-    fallbackFamilyId: IDS.fallback,
-    options: [
-      {
-        id: 'OPTION_1',
-        label: '주변 보기',
-        meaning: '주변 단서를 살핀다.',
-        actionFamilyId: IDS.fallback,
-      },
-      {
-        id: 'OPTION_2',
-        label: '친구에게 묻기',
-        meaning: '친구에게 안전하게 묻는다.',
-        actionFamilyId: IDS.fallback2,
-      },
-      {
-        id: 'OPTION_3',
-        label: '다른 길 보기',
-        meaning: '표시를 남기고 다른 길을 본다.',
-        actionFamilyId: IDS.fallback3,
-      },
-    ],
-  });
-  const awaiting = transitionStoryRuntime(manifest, processing, {
-    type: 'RESPONSE_READY',
-    plan: choicePlan,
-  });
-
-  assert.equal(awaiting.ok, true);
-  assert.equal(awaiting.state.status, 'awaiting-choice');
-  assert.equal(awaiting.commands.length, 0);
-
-  const selected = transitionStoryRuntime(manifest, awaiting.state, {
-    type: 'CHOICE_SELECTED',
-    optionId: 'OPTION_2',
-  });
-  assert.equal(selected.ok, true);
-  assert.equal(selected.state.status, 'playing-response');
-  assert.equal(selected.state.plan.actionFamilyId, IDS.fallback2);
-  assert.equal(selected.state.plan.originRoute, 'THREE_PATHS');
-  assert.equal(selected.state.plan.selectedOptionId, 'OPTION_2');
-  assert.equal(selected.state.plan.rejoinAt, null);
-  assert.equal(selected.state.plan.options.length, 0);
-});
-
-test('route runtime rejects unknown families and duplicate choices', () => {
-  const manifest = createManifest();
-  const processing = {
-    status: 'processing-question',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-    inputMode: 'voice',
-  };
-  const unknownFamily = transitionStoryRuntime(manifest, processing, {
-    type: 'RESPONSE_READY',
+  const unknownFamily = transitionStoryRuntime(manifest, waitingAtQuestion(), {
+    type: 'ACTION_CONFIRMED',
     plan: routePlan({
       route: 'DIRECT_ACTION',
       actionFamilyId: fallbackFamilyId('UNKNOWN'),
@@ -788,61 +452,11 @@ test('route runtime rejects unknown families and duplicate choices', () => {
   });
   assert.equal(unknownFamily.ok, false);
 
-  manifest.questionAnchors[0].fallbackFamilyIds.push(
-    IDS.fallback2,
-    IDS.fallback3,
-  );
-  const duplicated = transitionStoryRuntime(manifest, processing, {
-    type: 'RESPONSE_READY',
-    plan: routePlan({
-      route: 'THREE_PATHS',
-      rejoinAt: IDS.rejoin,
-      fallbackFamilyId: IDS.fallback,
-      options: [
-        {
-          id: 'OPTION_1',
-          label: '같은 방법',
-          meaning: '첫 방법',
-          actionFamilyId: IDS.fallback,
-        },
-        {
-          id: 'OPTION_2',
-          label: '같은 방법',
-          meaning: '둘째 방법',
-          actionFamilyId: IDS.fallback2,
-        },
-        {
-          id: 'OPTION_3',
-          label: '다른 방법',
-          meaning: '셋째 방법',
-          actionFamilyId: IDS.fallback3,
-        },
-      ],
-    }),
+  const notAnAction = transitionStoryRuntime(manifest, waitingAtQuestion(), {
+    type: 'ACTION_CONFIRMED',
+    plan: routePlan({ route: 'ANSWER_RESUME' }),
   });
-  assert.equal(duplicated.ok, false);
-});
-
-test('clarify once returns to the same anchor for one more input', () => {
-  const manifest = createManifest();
-  const playing = {
-    status: 'playing-response',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-    plan: routePlan({
-      route: 'CLARIFY_ONCE',
-      text: '주변을 살펴보자는 뜻이니?',
-    }),
-  };
-  const result = transitionStoryRuntime(manifest, playing, {
-    type: 'RESPONSE_AUDIO_ENDED',
-  });
-
-  assert.equal(result.ok, true);
-  assert.equal(result.state.status, 'awaiting-clarification');
-  assert.equal(result.state.questionRound, 2);
-  assert.equal(result.state.prompt, '주변을 살펴보자는 뜻이니?');
+  assert.equal(notAnAction.ok, false);
 });
 
 test('cross-scene content references are rejected', () => {
@@ -870,34 +484,6 @@ test('an unexpected audio completion does not corrupt state', () => {
 
   assert.equal(result.ok, false);
   assert.equal(result.state, started.state);
-});
-
-test('a live-branch job id short-circuits THREE_PATHS normalization into generating-branch', () => {
-  const manifest = createManifest();
-  const processing = {
-    status: 'processing-question',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-    inputMode: 'voice',
-  };
-  // 이 plan은 옵션이 비어 있지 않으면서도(THREE_PATHS 모양이 아님) actionFamilyId/rejoinAt도
-  // 없는, routePlanIssue라면 거부했을 형태다 - liveBranchJobId가 있으면 그 검증보다 먼저
-  // generating-branch로 빠져야 한다는 것을 확인한다.
-  const waitingPlan = routePlan({
-    route: 'ANSWER_RESUME',
-    text: '그것도 한번 알아볼게, 잠깐만 기다려줘!',
-    liveBranchJobId: 'job-123',
-  });
-  const result = transitionStoryRuntime(manifest, processing, {
-    type: 'RESPONSE_READY',
-    plan: waitingPlan,
-  });
-
-  assert.equal(result.ok, true);
-  assert.equal(result.state.status, 'generating-branch');
-  assert.equal(result.state.jobId, 'job-123');
-  assert.equal(result.commands.length, 0);
 });
 
 test('live branch failure or timeout falls back to the existing gentle-redirect flow', () => {
@@ -974,7 +560,6 @@ test('live branch ready presents exactly three options as a THREE_PATHS choice i
     sceneId: IDS.scene1,
     anchorId: IDS.question,
     questionRound: 1,
-    consecutiveSafetyFailures: 0,
     jobId: 'job-123',
     plan: routePlan({
       route: 'ANSWER_RESUME',
@@ -1056,89 +641,6 @@ test('live branch ready presents exactly three options as a THREE_PATHS choice i
   assert.equal(readyWithoutDefault.state.plan.fallbackFamilyId, liveFamilyId);
 });
 
-test('a gentle-redirect safety failure re-asks via awaiting-safety-retry while under three consecutive failures', () => {
-  const manifest = createManifest();
-  const playing = {
-    status: 'playing-response',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 1,
-    consecutiveSafetyFailures: 0,
-    plan: routePlan({
-      route: 'GENTLE_REDIRECT',
-      text: '그건 이야기랑 조금 다른 이야기인 것 같아.',
-    }),
-  };
-  const result = transitionStoryRuntime(manifest, playing, {
-    type: 'RESPONSE_AUDIO_ENDED',
-  });
-
-  assert.equal(result.ok, true);
-  assert.equal(result.state.status, 'awaiting-safety-retry');
-  assert.equal(result.state.questionRound, 2);
-  assert.equal(result.state.consecutiveSafetyFailures, 1);
-  assert.equal(result.state.prompt, '그건 이야기랑 조금 다른 이야기인 것 같아.');
-
-  // 재질문 UI에서 다시 말하기를 고르면(ASK_SELECTED) 안전게이트 카운터를 그대로 들고
-  // recording-question으로 넘어간다(questionRound와 완전히 같은 방식).
-  const asked = transitionStoryRuntime(manifest, result.state, {
-    type: 'ASK_SELECTED',
-  });
-  assert.equal(asked.ok, true);
-  assert.equal(asked.state.status, 'recording-question');
-  assert.equal(asked.state.questionRound, 2);
-  assert.equal(asked.state.consecutiveSafetyFailures, 1);
-});
-
-test('a third consecutive safety-gate redirect stops re-asking and continues the story instead', () => {
-  const manifest = createManifest();
-  const playing = {
-    status: 'playing-response',
-    sceneId: IDS.scene1,
-    anchorId: IDS.question,
-    questionRound: 3,
-    consecutiveSafetyFailures: 2,
-    plan: routePlan({
-      route: 'GENTLE_REDIRECT',
-      text: '이번에도 이야기와는 조금 다른 것 같아.',
-    }),
-  };
-  const result = transitionStoryRuntime(manifest, playing, {
-    type: 'RESPONSE_AUDIO_ENDED',
-  });
-
-  // 3번째 연속 실패이므로 4번째 재질문(awaiting-safety-retry)으로 가지 않는다 - 기존
-  // GENTLE_REDIRECT의 fallthrough(continueFromAnchor)를 그대로 타 이야기를 이어간다.
-  assert.equal(result.ok, true);
-  assert.notEqual(result.state.status, 'awaiting-safety-retry');
-  assert.equal(result.state.status, 'playing-fixed');
-  assert.equal(result.state.audioGroupId, IDS.groupResume);
-});
-
-test('typed question goes straight to processing and text routing without a confirm step', () => {
-  const manifest = createManifest();
-  const result = transitionStoryRuntime(
-    manifest,
-    {
-      status: 'recording-question',
-      sceneId: IDS.scene1,
-      anchorId: IDS.question,
-      questionRound: 1,
-      consecutiveSafetyFailures: 0,
-      inputMode: 'text',
-    },
-    { type: 'TEXT_SUBMITTED', transcript: '  저 새는 어디로 가?  ' },
-  );
-  assert.equal(result.ok, true);
-  if (!result.ok) {
-    return;
-  }
-  assert.equal(result.state.status, 'processing-question');
-  assert.deepEqual(result.commands, [
-    { type: 'PROCESS_TEXT', transcript: '저 새는 어디로 가?' },
-  ]);
-});
-
 test('a live branch requested from the dialogue goes straight to generating-branch', () => {
   const manifest = createManifest();
   const plan = {
@@ -1161,7 +663,6 @@ test('a live branch requested from the dialogue goes straight to generating-bran
     sceneId: IDS.scene1,
     anchorId: IDS.question,
     questionRound: 1,
-    consecutiveSafetyFailures: 0,
   };
   const transition = transitionStoryRuntime(manifest, waiting, { type: 'LIVE_BRANCH_REQUESTED', plan });
   assert.equal(transition.ok, true);

@@ -14,8 +14,6 @@ const srcRoot = join(here, '..', '..');
 const corePath = join(srcRoot, '..', 'api', '_qstory-proxy-core.mjs');
 const SAMPLE_ID = '0a1b2c3d-1111-4222-8333-444455556666';
 const SAMPLE_CODE = 'ABCD1234';
-/** 프록시를 거치지 않는 경로 - 원시 오디오 업로드는 백엔드에 직접 붙을 때만 쓰고, 프록시 주소(`/api/...`)면 base64 경로로 바꾼다. */
-const DIRECT_ONLY = new Set(['/v1/transcriptions']);
 
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -42,7 +40,6 @@ test('앱이 부르는 API 경로는 모두 프록시 허용 목록에 있다', 
         // `/v1/x${query}`처럼 경로 조각이 아닌 자리에 붙는 쿼리 문자열은 떼고, 경로 조각 자리의 `${...}`는 예시 id로 바꾼다.
         const raw = match[1].split('?')[0].replace(/(?<=[^/])\$\{[^}]*\}$/, '');
         const path = raw.replace(/\$\{[^}]*\}/g, SAMPLE_ID).replace(/^\//, '');
-        if (DIRECT_ONLY.has(raw)) continue;
         const allowed = methods.some(
           (method) => isAllowedRoute(method, path) || isAllowedRoute(method, path.replaceAll(SAMPLE_ID, SAMPLE_CODE)),
         );

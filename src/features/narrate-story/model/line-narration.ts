@@ -1,5 +1,5 @@
 import type { StoryId } from '@/entities/story-runtime';
-import { speechApiUrl } from '@/entities/speech-pipeline';
+import { apiBaseUrl } from '@/shared/config';
 import { fetchBufferedNarration, fetchPcmNarrationStream } from '@/entities/narration';
 import type {
   BufferedResponseAudio,
@@ -8,7 +8,7 @@ import type {
 import { supportsStreamingPcm } from '@/shared/lib';
 
 /**
- * 질문 낭독(route-question/model/question-narration.ts)과 같지만 anchor가 없다 - 질문 지점에
+ * 질문 낭독(question-narration.ts)과 같지만 anchor가 없다 - 질문 지점에
  * 묶이지 않은 일반 대사(특히 고정 오디오가 없는, 아이 이름이 들어간 문장)를 실시간 TTS로 만들 때
  * 쓴다. 백엔드는 anchorId가 비어 있으면 스토리에 등록된 캐스트인지만 확인한다
  * (StoryRegistryService.resolveNarrationContext).
@@ -44,7 +44,7 @@ function cacheKey(input: LineNarrationInput) {
 export async function fetchLineNarration(
   input: LineNarrationInput,
   fetchImpl: typeof fetch = fetch,
-  baseUrl = speechApiUrl,
+  baseUrl = apiBaseUrl,
   timeoutMs = DEFAULT_LINE_NARRATION_TIMEOUT_MS,
 ): Promise<GeneratedLineNarrationAudio | null> {
   if (!baseUrl) {
@@ -67,7 +67,7 @@ export async function fetchLineNarration(
 export async function fetchLineNarrationStream(
   input: LineNarrationInput,
   fetchImpl: typeof fetch = fetch,
-  baseUrl = speechApiUrl,
+  baseUrl = apiBaseUrl,
 ): Promise<ResponseAudio | null> {
   if (!baseUrl) {
     return null;
@@ -98,7 +98,7 @@ export async function fetchReplyNarration(
   input: LineNarrationInput,
   signal: AbortSignal,
   fetchImpl: typeof fetch = fetch,
-  baseUrl = speechApiUrl,
+  baseUrl = apiBaseUrl,
 ): Promise<ResponseAudio | null> {
   if (!baseUrl) {
     return null;
@@ -124,7 +124,7 @@ export async function fetchReplyNarration(
 export function getLineNarration(
   input: LineNarrationInput,
   fetchImpl: typeof fetch = fetch,
-  baseUrl = speechApiUrl,
+  baseUrl = apiBaseUrl,
 ): Promise<ResponseAudio | null> {
   const key = cacheKey(input);
   const existing = narrationCache.get(key);

@@ -37,7 +37,6 @@ export const GA_ROUTE_TEMPLATES: readonly string[] = [
   '/tutorial',
   '/onboarding/parent',
   '/onboarding/tutor',
-  '/landing',
   '/demo',
   '/login',
   '/join',

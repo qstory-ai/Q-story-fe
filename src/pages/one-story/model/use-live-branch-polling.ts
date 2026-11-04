@@ -33,7 +33,7 @@ interface UseLiveBranchPollingParams {
 
 /**
  * 실시간 새 분기 생성(LiveBranchGenerationService) 폴링 - runtime이 'generating-branch'로
- * 들어가면(RESPONSE_READY 처리부에서 plan.liveBranchJobId를 봤을 때) 시작한다.
+ * 들어가면(그레텔 대화가 LIVE_BRANCH_REQUESTED를 보냈을 때) 시작한다.
  * GET /v1/live-branch/{jobId}를 주기적으로 확인하다가:
  *  - READY: GET /v1/stories/{storyId}/content를 재조회해 새 family/segment/asset이 포함된
  *    패키지로 storyPackage를 교체한 뒤, LIVE_BRANCH_READY를 보내 정확히 3개의 옵션으로

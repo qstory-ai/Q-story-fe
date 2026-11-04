@@ -52,6 +52,14 @@ import {
 } from '../lib/dialogue-voice';
 import { punctuateChildQuestion } from '../lib/question-punctuation';
 import type { QuestionSkipReason } from '../lib/question-skip';
+import {
+  STT_BATCH_TIMEOUT_MS,
+  STT_TIMEOUT_CHILD_COPY,
+  STT_TIMEOUT_CODE,
+  createReplyDeadline,
+  isReplyTimeout,
+  isTimeoutCode,
+} from '../lib/reply-deadline';
 import type { OneStoryRuntime } from './use-one-story-runtime';
 
 /** CHAT = 아이가 스스로 연 그레텔 대화, INVITE = 이야기 속 질문 초대에서 이어지는 대화. */
@@ -658,23 +666,40 @@ export function useDialogue({
         filler.skip();
         if (shown.current) audioController.abort();
       };
+      // 요청 자체의 취소 신호는 따로 둔다 - 시간 제한으로 끊을 때 바깥 controller(아이가 끊음)와 구분하기 위해서다.
+      // 바깥이 끊기면 이쪽도 같이 끊는다.
+      const fetchController = new AbortController();
+      const abortFetch = () => fetchController.abort();
+      if (controller.signal.aborted) abortFetch();
+      else controller.signal.addEventListener('abort', abortFetch, { once: true });
+      // 답이 정해진 시간 안에 안 오면 기다리지 않는다(서버 마감 40초보다 짧게) - 아이는 오류 안내와 다시 말하기 버튼을 본다.
+      const deadline = createReplyDeadline();
       let reply: CompanionChatReply;
       try {
-        reply = await sendCompanionChatMessage(
-          { ...input, deferAudio: true, stream: DIALOGUE_VOICE_STREAMING },
-          controller.signal,
-          (text) => {
-            if (shown.current || seq !== requestSeqRef.current) return;
-            show(text, fetchReplyVoice(text, audioController.signal));
-          },
-        );
+        reply = await Promise.race([
+          sendCompanionChatMessage(
+            { ...input, deferAudio: true, stream: DIALOGUE_VOICE_STREAMING },
+            fetchController.signal,
+            (text) => {
+              deadline.textArrived();
+              if (shown.current || seq !== requestSeqRef.current) return;
+              show(text, fetchReplyVoice(text, audioController.signal));
+            },
+          ),
+          deadline.expired,
+        ]);
       } catch (error) {
+        // 시간 제한이면 멈춘 요청은 버린다. 답 문장이 이미 보였으면 그 문장으로 마무리하고, 아니면 오류로 올린다.
+        if (isReplyTimeout(error)) abortFetch();
         const early = shown.current;
         if (!early || controller.signal.aborted || seq !== requestSeqRef.current) {
           drop();
           throw error;
         }
         reply = textOnlyCompanionReply(early.text);
+      } finally {
+        deadline.clear();
+        controller.signal.removeEventListener('abort', abortFetch);
       }
       if (seq !== requestSeqRef.current) {
         drop();
@@ -857,7 +882,13 @@ export function useDialogue({
         if (signal.childMeaning) lastChildMeaningRef.current = signal.childMeaning;
         // 말풍선은 requestReply가 띄웠다(스트리밍이면 답 문장이 온 순간).
         const latencyMs = prepared.shownAt - sentAt;
-        logStep('REPLY', { reply_kind: signal.replyKind, turn_number: turnNumber, latency_ms: latencyMs });
+        logStep('REPLY', {
+          reply_kind: signal.replyKind,
+          turn_number: turnNumber,
+          latency_ms: latencyMs,
+          // 서버가 LLM 실패를 준비된 한 줄로 대신했으면 그 실패 코드 - 아이는 보통 답처럼 봤지만 운영에선 실패로 센다.
+          ...(reply.fallbackCode ? { fallback_code: reply.fallbackCode } : {}),
+        });
         const replyTurn = {
           role: 'CHARACTER' as const,
           latencyMs,
@@ -939,7 +970,7 @@ export function useDialogue({
         );
         setPhase('error');
         const errorCode = error instanceof CompanionChatError ? (error.code ?? 'FAILED') : 'FAILED';
-        logStep('ERROR', { turn_number: turnNumber, error_code: errorCode, latency_ms: Date.now() - sentAt });
+        logStep('ERROR', { stage: 'REPLY', turn_number: turnNumber, error_code: errorCode, latency_ms: Date.now() - sentAt });
         logTurn({ role: 'SYSTEM', event: 'REPLY_FAILED', errorCode });
         reportClientError({
           kind: 'NETWORK',
@@ -965,6 +996,23 @@ export function useDialogue({
   const listenSeqRef = useRef(0);
   // 받아 적은 문장 하나는 한 번만 보낸다(자동 전송과 확인 버튼이 겹쳐도).
   const confirmSentRef = useRef(false);
+  /**
+   * 받아 적기 실패를 운영 지표에 남긴다 - 회차 기록(STT_FAILED)만으로는 대시보드에서 안 보여서, 답 실패와 같은 자리
+   * (dialogue_step ERROR, client-errors)에 stage=STT로 구분해 올린다. 체험 중 "못 들은 경우"와 "답 안 한 경우"를 나눠 세는 재료다.
+   */
+  const reportSttFailure = useCallback(
+    (errorCode: string, sttMs: number) => {
+      logStep('ERROR', { stage: 'STT', error_code: errorCode, stt_ms: sttMs, stream_tried: STT_STREAMING_ENABLED });
+      reportClientError({
+        kind: 'NETWORK',
+        message: `stt ${errorCode}`,
+        storyId: storyPackage.storyId,
+        sceneId: sceneId ?? undefined,
+      });
+    },
+    [logStep, sceneId, storyPackage.storyId],
+  );
+
   const transcribe = useCallback(async () => {
     if (stoppingRef.current) return;
     stoppingRef.current = true;
@@ -987,6 +1035,7 @@ export function useDialogue({
       setErrorMessage('잘 안 들렸어. 다시 말해 줄래?');
       setPhase('error');
       logTurn({ role: 'SYSTEM', event: 'STT_FAILED', errorCode: 'NO_RECORDING' });
+      reportSttFailure('NO_RECORDING', Date.now() - stoppedAt);
       return;
     }
     cancelPending();
@@ -1002,19 +1051,41 @@ export function useDialogue({
       if (!transcript) {
         // 실시간 받아 적기가 없거나 실패했다 - 같이 녹음해 둔 파일로 받아 적는다(배치).
         if (!recording?.uploadBlob) throw new CompanionChatError('이번에는 말소리를 알아듣지 못했어.');
-        transcript = await transcribeCompanionChatAudio(
-          {
-            storyId: storyPackage.storyId,
-            sceneId,
-            audioBlob: recording.uploadBlob,
-            mimeType: recording.mimeType,
-            sessionId: conversationId,
-            childId: conversationAttribution.childId,
-            tutorStudentId,
-            lessonId,
-          },
-          controller.signal,
-        );
+        // 이 요청도 시간 제한을 둔다(서버 마감 40초보다 짧게) - 멈추면 "받아 적는 중"에 아이를 세워 두지 않는다. 취소 신호는
+        // 아이가 끊는 신호와 분리하고(같은 신호면 조용히 return해 화면이 그대로 남는다), 바깥이 끊기면 같이 끊는다.
+        const sttController = new AbortController();
+        const abortStt = () => sttController.abort();
+        if (controller.signal.aborted) abortStt();
+        else controller.signal.addEventListener('abort', abortStt, { once: true });
+        const sttDeadline = createReplyDeadline({
+          firstMs: STT_BATCH_TIMEOUT_MS,
+          code: STT_TIMEOUT_CODE,
+          message: STT_TIMEOUT_CHILD_COPY,
+        });
+        try {
+          transcript = await Promise.race([
+            transcribeCompanionChatAudio(
+              {
+                storyId: storyPackage.storyId,
+                sceneId,
+                audioBlob: recording.uploadBlob,
+                mimeType: recording.mimeType,
+                sessionId: conversationId,
+                childId: conversationAttribution.childId,
+                tutorStudentId,
+                lessonId,
+              },
+              sttController.signal,
+            ),
+            sttDeadline.expired,
+          ]);
+        } catch (error) {
+          if (isTimeoutCode(error, STT_TIMEOUT_CODE)) abortStt();
+          throw error;
+        } finally {
+          sttDeadline.clear();
+          controller.signal.removeEventListener('abort', abortStt);
+        }
       }
       if (seq !== requestSeqRef.current) return;
       // 말이 끝난 뒤 받아 적은 문장이 나오기까지 - 실시간(STREAM)과 배치(BATCH)를 운영에서 비교한다.
@@ -1026,11 +1097,9 @@ export function useDialogue({
       setPhase('confirm');
     } catch (error) {
       if (controller.signal.aborted || seq !== requestSeqRef.current) return;
-      logTurn({
-        role: 'SYSTEM',
-        event: 'STT_FAILED',
-        errorCode: error instanceof CompanionChatError ? (error.code ?? 'FAILED') : 'FAILED',
-      });
+      const errorCode = error instanceof CompanionChatError ? (error.code ?? 'FAILED') : 'FAILED';
+      logTurn({ role: 'SYSTEM', event: 'STT_FAILED', errorCode });
+      reportSttFailure(errorCode, Date.now() - stoppedAt);
       if (error instanceof CompanionChatError && isSttUnavailableCode(error.code)) {
         // 음성 인식이 막혔다 - 안내 문구와 함께 글로 쓰는 입력으로 바로 넘긴다.
         setDraft('');
@@ -1048,7 +1117,10 @@ export function useDialogue({
       );
       setPhase('error');
     }
-  }, [cancelPending, conversationAttribution.childId, conversationId, lessonId, logStep, logTurn, recorder, sceneId, storyPackage.storyId, tutorStudentId]);
+  }, [
+    cancelPending, conversationAttribution.childId, conversationId, lessonId, logStep, logTurn, recorder, reportSttFailure,
+    sceneId, storyPackage.storyId, tutorStudentId,
+  ]);
 
   /** 말하기 - 그레텔이 말하는 중이면 끊고 바로 듣는다. 말이 끝나면(조용해지면) 저절로 멈춘다. */
   const startTalking = useCallback(async () => {
@@ -1329,9 +1401,20 @@ export function useDialogue({
       });
       inviteChildSpokeRef.current = true;
       setOpen(false);
-      await runtime.confirmDialogueAction(familyId, childMeaning, { viaSuggestion, suggestionLabel });
+      const confirmed = await runtime.confirmDialogueAction(familyId, childMeaning, { viaSuggestion, suggestionLabel });
+      if (confirmed) return;
+      // 런타임이 행동을 받지 않았다(이야기가 이미 다른 상태로 넘어갔거나, 이 지점에 없는 행동). 패널은 이미 닫혔으니
+      // 그냥 두면 이야기가 질문 카드에 멈춘 채 남는다 - 실시간 분기를 못 만들 때처럼 이야기로 돌아간다.
+      logStep('ERROR', { stage: 'ACTION', error_code: 'ACTION_REJECTED', family_id: familyId });
+      reportClientError({
+        kind: 'RUNTIME_FAILURE',
+        message: `dialogue action rejected ${familyId}`,
+        storyId: storyPackage.storyId,
+        sceneId: sceneId ?? undefined,
+      });
+      await close('CONTINUE');
     },
-    [cancelPending, helpStep, logStep, logTurn, recorder, runtime, stopSpeaking, storyPackage],
+    [cancelPending, close, helpStep, logStep, logTurn, recorder, runtime, sceneId, stopSpeaking, storyPackage],
   );
 
   /** 새 선택지 제안을 수락 - 대화를 닫고 런타임이 실시간 분기를 만들게 한다. 못 만들면 그냥 이야기로 돌아간다. */

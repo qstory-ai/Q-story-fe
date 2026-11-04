@@ -58,6 +58,11 @@ export type CompanionChatReply = {
   /** deferAudio로 보냈더니 서버가 음성 없이 글만 먼저 돌려줬다 - 음성은 따로 받는다(fetchLineNarration). */
   audioDeferred: boolean;
   dialogue: CompanionDialogueSignal;
+  /**
+   * 서버가 LLM 실패 대신 돌려준 준비된 한 줄이면 그 실패 코드(예: SPEECH_PIPELINE_FAILED). 보통 답처럼 보여 주되
+   * 운영 지표(dialogue_step REPLY fallback_code)에 남긴다. 평소엔 null.
+   */
+  fallbackCode: string | null;
 };
 
 /**
@@ -71,6 +76,7 @@ export function textOnlyCompanionReply(responseText: string): CompanionChatReply
     audio: null,
     audioDeferred: true,
     dialogue: { replyKind: 'ANSWER', childWantsToEnd: false, childMeaning: '', asksForHelp: false, proposedActionFamilyId: null },
+    fallbackCode: null,
   };
 }
 
@@ -231,6 +237,8 @@ type CompanionChatBody = FailureEnvelope & {
   audio?: { mimeType: string; dataBase64: string };
   audioDeferred?: boolean;
   dialogue?: Partial<CompanionDialogueSignal>;
+  /** LLM 실패를 준비된 한 줄로 대신했을 때 - 어떤 실패였는지. */
+  fallback?: { code?: string; stage?: string };
 };
 
 const REPLY_FAILED_COPY = '지금은 대답을 준비하지 못했어요.';
@@ -343,6 +351,7 @@ export async function readCompanionReply(
       ...attemptOf(body.dialogue?.attempt),
       ...newBranchOf(body.dialogue?.newBranch),
     },
+    fallbackCode: typeof body.fallback?.code === 'string' && body.fallback.code ? body.fallback.code : null,
   };
 }
 

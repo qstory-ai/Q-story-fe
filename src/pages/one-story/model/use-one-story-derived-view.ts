@@ -137,15 +137,7 @@ export function useOneStoryDerivedView({
     branchCaption?.progress ?? narrationState.progress,
   );
   const plannedBranchFamilyId =
-    runtimeState.status !== 'playing-response'
-      ? null
-      : runtimeState.plan.kind === 'route'
-        ? runtimeState.plan.actionFamilyId
-        : runtimeState.plan.kind === 'story-change'
-          ? runtimeState.plan.fallbackFamilyId
-          : runtimeState.plan.kind === 'fallback'
-            ? runtimeState.plan.familyId
-            : null;
+    runtimeState.status === 'playing-response' ? runtimeState.plan.actionFamilyId : null;
   const plannedBranchAssetId = storyPackage.branchIllustrationAssetId(
     plannedBranchFamilyId,
   );

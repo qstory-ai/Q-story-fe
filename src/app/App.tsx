@@ -75,7 +75,6 @@ const ReportHistoryDetailPage = lazy(() =>
 const StaffHomePage = lazy(() => import('@/pages/staff').then((m) => ({ default: m.StaffHomePage })));
 const StaffStoryPage = lazy(() => import('@/pages/staff').then((m) => ({ default: m.StaffStoryPage })));
 const StaffScenePage = lazy(() => import('@/pages/staff').then((m) => ({ default: m.StaffScenePage })));
-const LandingPage = lazy(() => import('@/pages/landing').then((m) => ({ default: m.LandingPage })));
 const TutorHomePage = lazy(() => import('@/pages/tutor-home').then((m) => ({ default: m.TutorHomePage })));
 const TutorStudentsPage = lazy(() =>
   import('@/pages/tutor-student').then((m) => ({ default: m.TutorStudentsPage })),
@@ -259,7 +258,6 @@ export function App() {
             <Route path="/tutorial" element={<TutorialPage />} />
             <Route path="/onboarding/parent" element={<OnboardingParentPage />} />
             <Route path="/onboarding/tutor" element={<OnboardingTutorPage />} />
-            <Route path="/landing" element={<LandingPage />} />
             <Route path="/demo" element={<DemoStoryRoute />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/join" element={<JoinClassPage />} />

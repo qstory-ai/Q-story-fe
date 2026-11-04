@@ -1,6 +1,5 @@
-import { speechApiUrl } from '@/entities/speech-pipeline';
 import { authorizationHeader } from '@/shared/api';
-import { sttStreamUrl } from '@/shared/config';
+import { apiBaseUrl, sttStreamUrl } from '@/shared/config';
 
 import type { CompanionChatAttribution } from './companion-chat-client';
 
@@ -49,7 +48,7 @@ function defaultDeps(): Deps {
   return {
     fetch: (...args) => fetch(...args),
     createSocket: (url) => new WebSocket(url),
-    ticketUrl: `${speechApiUrl}/v1/stt/stream-tickets`,
+    ticketUrl: `${apiBaseUrl}/v1/stt/stream-tickets`,
     streamUrl: sttStreamUrl(),
     finalTimeoutMs: 5_000,
     connectTimeoutMs: 4_000,

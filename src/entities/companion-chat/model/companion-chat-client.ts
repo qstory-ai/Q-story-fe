@@ -1,4 +1,4 @@
-import { speechApiUrl } from '@/entities/speech-pipeline';
+import { apiBaseUrl } from '@/shared/config';
 import { authorizationHeader } from '@/shared/api';
 import type { BufferedResponseAudio } from '@/shared/lib';
 
@@ -194,7 +194,7 @@ export type CompanionChatAttribution = {
 };
 
 /**
- * 질문 흐름의 http-speech-pipeline.ts와 같은 base64 업로드 방식이다 - speechApiUrl은 항상
+ * base64 업로드 방식이다 - apiBaseUrl은 항상
  * same-origin 프록시 경로라 raw binary 업로드가 필요 없다. 컴패니언 챗에는 anchor/questionRound가
  * 없어 전용 엔드포인트를 쓰고, 텍스트만 돌려받는다.
  */
@@ -202,10 +202,10 @@ export async function transcribeCompanionChatAudio(
   input: { storyId: string; sceneId: string; audioBlob: Blob; mimeType: string; sessionId?: string } & CompanionChatAttribution,
   signal?: AbortSignal,
 ): Promise<string> {
-  if (!speechApiUrl) {
+  if (!apiBaseUrl) {
     throw new CompanionChatError('VITE_QSTORY_API_URL is not configured.');
   }
-  const response = await fetch(`${speechApiUrl}/v1/companion-chat/transcriptions/base64`, {
+  const response = await fetch(`${apiBaseUrl}/v1/companion-chat/transcriptions/base64`, {
     method: 'POST',
     signal,
     headers: { 'content-type': 'application/json', ...authorizationHeader() },
@@ -315,10 +315,10 @@ export async function sendCompanionChatMessage(
   signal?: AbortSignal,
   onText?: (responseText: string) => void,
 ): Promise<CompanionChatReply> {
-  if (!speechApiUrl) {
+  if (!apiBaseUrl) {
     throw new CompanionChatError('VITE_QSTORY_API_URL is not configured.');
   }
-  const response = await fetch(`${speechApiUrl}/v1/companion-chat/messages`, {
+  const response = await fetch(`${apiBaseUrl}/v1/companion-chat/messages`, {
     method: 'POST',
     signal,
     headers: { 'content-type': 'application/json', ...authorizationHeader() },

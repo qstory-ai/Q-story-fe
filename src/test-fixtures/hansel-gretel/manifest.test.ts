@@ -690,7 +690,6 @@ test('a dialogue-confirmed action plays its prepared branch and rejoins (Q-31)',
     sceneId: anchor.sceneId,
     anchorId: anchor.id,
     questionRound: 1,
-    consecutiveSafetyFailures: 0,
   };
   const plan = {
     kind: 'route',

@@ -1,4 +1,4 @@
-import { speechApiUrl } from '@/entities/speech-pipeline';
+import { apiBaseUrl } from '@/shared/config';
 
 export type LiveBranchJobStatus = 'QUEUED' | 'GENERATING' | 'READY' | 'FAILED';
 
@@ -88,7 +88,7 @@ export type EnqueueLiveBranchInput = {
  */
 export async function enqueueLiveBranch(
   input: EnqueueLiveBranchInput,
-  { baseUrl = speechApiUrl, fetchImpl = fetch }: RequestOptions = {},
+  { baseUrl = apiBaseUrl, fetchImpl = fetch }: RequestOptions = {},
 ): Promise<{ jobId: string | null }> {
   if (!baseUrl) {
     throw new LiveBranchApiError('이야기 서버 주소가 설정되지 않았어요. (VITE_QSTORY_API_URL)');
@@ -114,7 +114,7 @@ export async function enqueueLiveBranch(
 export async function getLiveBranchJobStatus(
   jobId: string,
   signal: AbortSignal,
-  { baseUrl = speechApiUrl, fetchImpl = fetch }: RequestOptions = {},
+  { baseUrl = apiBaseUrl, fetchImpl = fetch }: RequestOptions = {},
 ): Promise<LiveBranchJobStatusResponse> {
   if (!baseUrl) {
     throw new LiveBranchApiError(

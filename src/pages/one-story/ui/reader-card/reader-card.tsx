@@ -8,16 +8,11 @@ import { statusCopy } from '../../lib/runtime-view';
 import { styles } from '../styles';
 import { AwaitingChoicePanel } from './awaiting-choice-panel';
 import { CompletePanel } from './complete-panel';
-import { ConfirmTranscriptPanel } from './confirm-transcript-panel';
-import { FailedRecoverablePanel } from './failed-recoverable-panel';
 import { GeneratingBranchPanel } from './generating-branch-panel';
 import { IdlePanel } from './idle-panel';
 import { ParentMessageBanner } from './parent-message-banner';
 import { PlaybackCaption } from './playback-caption';
-import { ProcessingPanel } from './processing-panel';
 import { QuestionInvitePanel } from './question-invite-panel';
-import { RecordingTextPanel } from './recording-text-panel';
-import { RecordingVoicePanel } from './recording-voice-panel';
 import { ResponsePanel } from './response-panel';
 
 export function ReaderCard({ runtime, dialogue }: { runtime: OneStoryRuntime; dialogue: UseDialogue }) {
@@ -63,12 +58,7 @@ export function ReaderCard({ runtime, dialogue }: { runtime: OneStoryRuntime; di
       <IdlePanel runtime={runtime} />
       <PlaybackCaption runtime={runtime} dialogue={dialogue} />
       <QuestionInvitePanel runtime={runtime} dialogue={dialogue} />
-      <RecordingVoicePanel runtime={runtime} />
-      <RecordingTextPanel runtime={runtime} />
-      <ConfirmTranscriptPanel runtime={runtime} />
-      <ProcessingPanel runtime={runtime} />
       <GeneratingBranchPanel runtime={runtime} />
-      <FailedRecoverablePanel runtime={runtime} />
       <AwaitingChoicePanel runtime={runtime} />
       <ResponsePanel runtime={runtime} />
       <CompletePanel runtime={runtime} />

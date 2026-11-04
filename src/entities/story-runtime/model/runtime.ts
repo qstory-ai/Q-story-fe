@@ -15,14 +15,8 @@ import type {
 } from './content';
 import type {
   FailureReason,
-  FallbackPlan,
-  LocalRecordingArtifact,
-  ResponsePlan,
   RoutePlan,
-  SpeechResult,
 } from './speech';
-
-export type QuestionInputMode = 'voice' | 'text';
 
 export type StoryRuntimeState =
   | { status: 'idle'; storyId: StoryId }
@@ -33,72 +27,30 @@ export type StoryRuntimeState =
       clipIndex: number;
     }
   | {
+      /** 질문 초대 - 아이가 그레텔 대화를 열거나(dialogue.openInvite) 건너뛰기를 고를 때까지 기다린다. */
       status: 'awaiting-question';
       sceneId: SceneId;
       anchorId: QuestionAnchorId;
       questionRound: number;
-      /** questionRound과 같은 방식으로 클라이언트가 무상태로 들고 다니는, 안전게이트가
-       * 연속으로 GENTLE_REDIRECT를 반환한 횟수 (§2 안전게이트 3회 연속 실패 참고). */
-      consecutiveSafetyFailures: number;
     }
   | {
-      status: 'recording-question';
-      sceneId: SceneId;
-      anchorId: QuestionAnchorId;
-      questionRound: number;
-      consecutiveSafetyFailures: number;
-      inputMode: QuestionInputMode;
-    }
-  | {
+      /** 실시간 분기가 준비돼 세 갈래 선택지를 보여 주는 중(LIVE_BRANCH_READY 뒤). */
       status: 'awaiting-choice';
       sceneId: SceneId;
       anchorId: QuestionAnchorId;
       questionRound: number;
-      consecutiveSafetyFailures: number;
       plan: RoutePlan;
     }
   | {
-      status: 'awaiting-clarification';
-      sceneId: SceneId;
-      anchorId: QuestionAnchorId;
-      questionRound: number;
-      consecutiveSafetyFailures: number;
-      prompt: string;
-    }
-  | {
       /**
-       * 안전게이트가 REDIRECT를 반환했지만 아직 3회 연속(consecutiveSafetyFailures+1 < 3)에
-       * 못 미쳤을 때 진입하는 상태 - awaiting-clarification과 같은 모양이라 재질문 UI
-       * (question-invite-panel.tsx)를 재사용한다. ASK_SELECTED/TYPE_SELECTED로 재질문을 받거나
-       * CONTINUE_SELECTED로 건너뛸 수 있다.
-       */
-      status: 'awaiting-safety-retry';
-      sceneId: SceneId;
-      anchorId: QuestionAnchorId;
-      questionRound: number;
-      consecutiveSafetyFailures: number;
-      prompt: string;
-    }
-  | {
-      status: 'processing-question';
-      sceneId: SceneId;
-      anchorId: QuestionAnchorId;
-      questionRound: number;
-      consecutiveSafetyFailures: number;
-      inputMode: QuestionInputMode;
-    }
-  | {
-      /**
-       * 백엔드가 이 질문에 실시간 새 분기 생성을 큐에 넣었을 때(plan.liveBranchJobId)
-       * 진입하는 상태. jobId는 GET /v1/live-branch/{jobId} 폴링에, plan은 "잠깐만
-       * 기다려줘" 안내 문구/화자 등 원본 컨텍스트 보관용으로 쓰인다(사용법: use-one-story
-       * -runtime.ts의 폴링 effect). LIVE_BRANCH_READY/LIVE_BRANCH_FAILED로만 빠져나간다.
+       * 그레텔 대화에서 새 선택지 생성을 요청했을 때(plan.liveBranchJobId) 진입하는 상태. jobId는
+       * GET /v1/live-branch/{jobId} 폴링에, plan은 "잠깐만 기다려줘" 안내 문구/화자 등 원본 컨텍스트
+       * 보관용으로 쓰인다(use-live-branch-polling.ts). LIVE_BRANCH_READY/LIVE_BRANCH_FAILED로만 빠져나간다.
        */
       status: 'generating-branch';
       sceneId: SceneId;
       anchorId: QuestionAnchorId;
       questionRound: number;
-      consecutiveSafetyFailures: number;
       jobId: string;
       plan: RoutePlan;
     }
@@ -107,18 +59,7 @@ export type StoryRuntimeState =
       sceneId: SceneId;
       anchorId: QuestionAnchorId;
       questionRound: number;
-      consecutiveSafetyFailures: number;
-      plan: ResponsePlan;
-    }
-  | {
-      status: 'failed-recoverable';
-      sceneId: SceneId;
-      anchorId?: QuestionAnchorId;
-      questionRound?: number;
-      consecutiveSafetyFailures?: number;
-      inputMode?: QuestionInputMode;
-      failure: FailureReason;
-      fallbackFamilyId?: FallbackFamilyId;
+      plan: RoutePlan;
     }
   | {
       status: 'complete';
@@ -130,26 +71,16 @@ export type StoryRuntimeEvent =
   | { type: 'START' }
   | { type: 'AUDIO_ENDED'; clipId: AudioClipId }
   | { type: 'SKIP_SCENE_SELECTED' }
-  | { type: 'ASK_SELECTED' }
-  | { type: 'TYPE_SELECTED' }
   | { type: 'CONTINUE_SELECTED' }
   /** 질문 초대 대화에서 아이가 뜻을 확인한 행동을 실행한다(Q-31) - plan은 DIRECT_ACTION route여야 한다. */
   | { type: 'ACTION_CONFIRMED'; plan: RoutePlan }
   /** 그레텔 대화에서 아이의 새 계획으로 실시간 분기를 요청했다(plan.liveBranchJobId) - 바로 generating-branch로. */
   | { type: 'LIVE_BRANCH_REQUESTED'; plan: RoutePlan }
-  | { type: 'RECORDING_STARTED' }
-  | { type: 'RECORDING_STOPPED'; recording: LocalRecordingArtifact }
-  | { type: 'TEXT_SUBMITTED'; transcript: string }
-  | { type: 'RETRY_QUESTION_SELECTED' }
-  | { type: 'SPEECH_RESOLVED'; result: SpeechResult }
-  | { type: 'RESPONSE_READY'; plan: ResponsePlan }
   | {
       type: 'CHOICE_SELECTED';
       optionId: 'OPTION_1' | 'OPTION_2' | 'OPTION_3';
     }
   | { type: 'RESPONSE_AUDIO_ENDED' }
-  | { type: 'FAILURE'; failure: FailureReason }
-  | { type: 'FALLBACK_READY'; plan: FallbackPlan }
   /** GET /v1/live-branch/{jobId} 폴링이 READY를 봤고, 콘텐츠 재조회까지 끝난 뒤에 보낸다.
    *  항상 정확히 3개(새로 생성된 것 + 모자란 자리를 채운 기존 family)이며, 각 familyId는
    *  재조회된 manifest.fallbackFamilies 안에 반드시 존재해야 한다. */
@@ -172,15 +103,8 @@ export type PlaybackCommand =
       startClipIndex: number;
     }
   | { type: 'WAIT_FOR_QUESTION'; anchorId: QuestionAnchorId }
-  | { type: 'REQUEST_RECORDING' }
-  | {
-      type: 'PROCESS_RECORDING';
-      recording: LocalRecordingArtifact;
-    }
-  | { type: 'PROCESS_TEXT'; transcript: string }
-  | { type: 'PLAY_RESPONSE'; plan: ResponsePlan }
+  | { type: 'PLAY_RESPONSE'; plan: RoutePlan }
   | { type: 'SAVE_CHECKPOINT'; checkpoint: StoryCheckpoint }
-  | { type: 'SHOW_PARENT_RECOVERY'; failure: FailureReason }
   | { type: 'STORY_COMPLETED' };
 
 export type RuntimeTransition =
@@ -363,10 +287,6 @@ function nextAfterAudioGroup(
         sceneId: scene.id,
         anchorId: anchor.id,
         questionRound,
-        // 새로운 앵커에 처음 도달한 것이므로 항상 0으로 리셋한다 - 이전 앵커에서의 안전게이트
-        // 연속 실패는 여기까지 이어지지 않는다 (§2, continueFromAnchor/nextAfterAudioGroup이
-        // 새 awaiting-question을 만드는 지점에서는 항상 리셋).
-        consecutiveSafetyFailures: 0,
       },
       commands: [{ type: 'WAIT_FOR_QUESTION', anchorId: anchor.id }],
     };
@@ -604,7 +524,6 @@ function transitionFromAwaitingChoice(
           sceneId: state.sceneId,
           anchorId: state.anchorId,
           questionRound: state.questionRound,
-          consecutiveSafetyFailures: state.consecutiveSafetyFailures,
         },
         anchor,
       );
@@ -650,7 +569,6 @@ function transitionFromAwaitingChoice(
           sceneId: state.sceneId,
           anchorId: state.anchorId,
           questionRound: state.questionRound,
-          consecutiveSafetyFailures: state.consecutiveSafetyFailures,
           plan: selectedPlan,
         },
         commands: [{ type: 'PLAY_RESPONSE', plan: selectedPlan }],
@@ -729,7 +647,6 @@ function transitionFromGeneratingBranch(
           sceneId: state.sceneId,
           anchorId: state.anchorId,
           questionRound: state.questionRound,
-          consecutiveSafetyFailures: state.consecutiveSafetyFailures,
           plan: threePathsPlan,
         },
         commands: [],
@@ -737,10 +654,8 @@ function transitionFromGeneratingBranch(
     }
 
     if (event.type === 'LIVE_BRANCH_FAILED') {
-      // 생성 실패/타임아웃 - 사람 승인 없이 노출할 콘텐츠가 없으므로, 이미 있는
-      // GENTLE_REDIRECT 처리(간단한 안내 후 continueFromAnchor로 이어짐, RESPONSE_AUDIO_ENDED
-      // 처리부의 "rejoinAnchorId가 없으면 계속 진행" 분기 참고)를 그대로 재사용해 이야기를
-      // 안전하게 이어간다.
+      // 생성 실패/타임아웃 - 사람 승인 없이 노출할 콘텐츠가 없으므로 짧은 안내(GENTLE_REDIRECT)를 들려준 뒤
+      // RESPONSE_AUDIO_ENDED의 "rejoinAt이 없으면 continueFromAnchor" 분기로 이야기를 안전하게 이어간다.
       const gentlePlan: RoutePlan = {
         ...state.plan,
         route: 'GENTLE_REDIRECT',
@@ -758,11 +673,6 @@ function transitionFromGeneratingBranch(
           sceneId: state.sceneId,
           anchorId: state.anchorId,
           questionRound: state.questionRound,
-          // 안전게이트가 실제로 거부한 게 아니라 실시간 생성 자체가 실패한 것이므로 §2의
-          // 3회 연속 카운트에는 포함되지 않아야 한다 - 아래 RESPONSE_AUDIO_ENDED의
-          // GENTLE_REDIRECT 분기가 재질문 없이 곧장 continueFromAnchor로 넘어가도록 카운터를
-          // 일부러 임계값(3)에 못박아 둔다.
-          consecutiveSafetyFailures: 3,
           plan: gentlePlan,
         },
         commands: [{ type: 'PLAY_RESPONSE', plan: gentlePlan }],
@@ -772,317 +682,63 @@ function transitionFromGeneratingBranch(
   return undefined;
 }
 
-function transitionSharedQuestionAnchorActions(
+/** 질문 초대(awaiting-question)에서 아이가 고를 수 있는 것 - 건너뛰기, 대화에서 확인한 행동 실행, 새 선택지 생성 요청. */
+function transitionFromAwaitingQuestion(
   manifest: StoryManifest,
   state: StoryRuntimeState,
   event: StoryRuntimeEvent,
 ): RuntimeTransition | undefined {
-  if (
-    state.status === 'awaiting-question' ||
-    state.status === 'awaiting-clarification' ||
-    state.status === 'awaiting-safety-retry' ||
-    state.status === 'recording-question' ||
-    state.status === 'processing-question' ||
-    (state.status === 'failed-recoverable' && state.anchorId)
-  ) {
-    const anchor = state.anchorId
-      ? findAnchor(manifest, state.anchorId)
-      : undefined;
-    if (!anchor) {
-      return invalidTransition(state, event, 'Question anchor is missing.');
-    }
+  if (state.status !== 'awaiting-question') return undefined;
+  const anchor = findAnchor(manifest, state.anchorId);
+  if (!anchor) {
+    return invalidTransition(state, event, 'Question anchor is missing.');
+  }
 
-    if (event.type === 'CONTINUE_SELECTED') {
-      const waitingState: Extract<
-        StoryRuntimeState,
-        { status: 'awaiting-question' }
-      > = {
-        status: 'awaiting-question',
+  if (event.type === 'CONTINUE_SELECTED') {
+    return anchor.allowedActions.includes('continue-story')
+      ? continueFromAnchor(manifest, state, anchor)
+      : invalidTransition(state, event, 'Continue is not allowed.');
+  }
+
+  if (event.type === 'LIVE_BRANCH_REQUESTED') {
+    if (!event.plan.liveBranchJobId) {
+      return invalidTransition(state, event, 'A live branch needs a job id.');
+    }
+    return {
+      ok: true,
+      state: {
+        status: 'generating-branch',
         sceneId: state.sceneId,
         anchorId: anchor.id,
-        questionRound: state.questionRound ?? 1,
-        consecutiveSafetyFailures: state.consecutiveSafetyFailures ?? 0,
-      };
-      return anchor.allowedActions.includes('continue-story')
-        ? continueFromAnchor(manifest, waitingState, anchor)
-        : invalidTransition(state, event, 'Continue is not allowed.');
-    }
-
-    if (event.type === 'LIVE_BRANCH_REQUESTED') {
-      if (state.status !== 'awaiting-question' || !event.plan.liveBranchJobId) {
-        return invalidTransition(state, event, 'A live branch can only be requested from the dialogue at a question anchor.');
-      }
-      return {
-        ok: true,
-        state: {
-          status: 'generating-branch',
-          sceneId: state.sceneId,
-          anchorId: anchor.id,
-          questionRound: state.questionRound ?? 1,
-          consecutiveSafetyFailures: state.consecutiveSafetyFailures ?? 0,
-          jobId: event.plan.liveBranchJobId,
-          plan: event.plan,
-        },
-        commands: [],
-      };
-    }
-
-    if (event.type === 'ACTION_CONFIRMED') {
-      if (event.plan.route !== 'DIRECT_ACTION') {
-        return invalidTransition(state, event, 'Only a confirmed action can run from the dialogue.');
-      }
-      const issue = routePlanIssue(manifest, anchor, event.plan);
-      if (issue) {
-        return invalidTransition(state, event, issue);
-      }
-      const plan = normalizeActionRoutePlan(manifest, event.plan);
-      return {
-        ok: true,
-        state: {
-          status: 'playing-response',
-          sceneId: state.sceneId,
-          anchorId: anchor.id,
-          questionRound: state.questionRound ?? 1,
-          consecutiveSafetyFailures: state.consecutiveSafetyFailures ?? 0,
-          plan,
-        },
-        commands: [{ type: 'PLAY_RESPONSE', plan }],
-      };
-    }
-
-    if (event.type === 'ASK_SELECTED' || event.type === 'TYPE_SELECTED') {
-      const action = event.type === 'ASK_SELECTED' ? 'ask' : 'type';
-      if (!anchor.allowedActions.includes(action)) {
-        return invalidTransition(state, event, `${action} is not allowed.`);
-      }
-
-      return {
-        ok: true,
-        state: {
-          status: 'recording-question',
-          sceneId: state.sceneId,
-          anchorId: anchor.id,
-          questionRound: state.questionRound ?? 1,
-          consecutiveSafetyFailures: state.consecutiveSafetyFailures ?? 0,
-          inputMode: event.type === 'ASK_SELECTED' ? 'voice' : 'text',
-        },
-        commands:
-          event.type === 'ASK_SELECTED'
-            ? [{ type: 'REQUEST_RECORDING' }]
-            : [],
-      };
-    }
-  }
-  return undefined;
-}
-
-function transitionFromRecordingQuestion(
-  manifest: StoryManifest,
-  state: StoryRuntimeState,
-  event: StoryRuntimeEvent,
-): RuntimeTransition | undefined {
-  if (state.status !== 'recording-question') return undefined;
-
-  if (event.type === 'RECORDING_STARTED') {
-    return state.inputMode === 'voice'
-      ? { ok: true, state, commands: [] }
-      : invalidTransition(state, event, 'Text input cannot start recording.');
-  }
-
-  if (event.type === 'RECORDING_STOPPED') {
-    if (state.inputMode !== 'voice') {
-      return invalidTransition(state, event, 'Text input has no recording.');
-    }
-    return {
-      ok: true,
-      state: {
-        status: 'processing-question',
-        sceneId: state.sceneId,
-        anchorId: state.anchorId,
         questionRound: state.questionRound,
-        consecutiveSafetyFailures: state.consecutiveSafetyFailures,
-        inputMode: state.inputMode,
-      },
-      commands: [
-        { type: 'PROCESS_RECORDING', recording: event.recording },
-      ],
-    };
-  }
-
-  if (event.type === 'TEXT_SUBMITTED') {
-    if (state.inputMode !== 'text') {
-      return invalidTransition(state, event, 'Voice input cannot submit text.');
-    }
-    const transcript = event.transcript.trim();
-    if (!transcript) {
-      return invalidTransition(state, event, 'Text question is empty.');
-    }
-    return {
-      ok: true,
-      state: {
-        status: 'processing-question',
-        sceneId: state.sceneId,
-        anchorId: state.anchorId,
-        questionRound: state.questionRound,
-        consecutiveSafetyFailures: state.consecutiveSafetyFailures,
-        inputMode: state.inputMode,
-      },
-      commands: [{ type: 'PROCESS_TEXT', transcript }],
-    };
-  }
-
-  return undefined;
-}
-
-function transitionFromProcessingQuestion(
-  manifest: StoryManifest,
-  state: StoryRuntimeState,
-  event: StoryRuntimeEvent,
-): RuntimeTransition | undefined {
-  if (state.status !== 'processing-question') return undefined;
-
-  if (event.type === 'RETRY_QUESTION_SELECTED') {
-    return {
-      ok: true,
-      state: {
-        status: 'recording-question',
-        sceneId: state.sceneId,
-        anchorId: state.anchorId,
-        questionRound: state.questionRound,
-        consecutiveSafetyFailures: state.consecutiveSafetyFailures,
-        inputMode: state.inputMode,
-      },
-      commands:
-        state.inputMode === 'voice'
-          ? [{ type: 'REQUEST_RECORDING' }]
-          : [],
-    };
-  }
-
-  if (event.type === 'SPEECH_RESOLVED') {
-    if (event.result.status === 'speech') {
-      return { ok: true, state, commands: [] };
-    }
-
-    const failure =
-      event.result.status === 'failed'
-        ? event.result.failure
-        : {
-            code: `NO_SPEECH_${event.result.reason.toUpperCase().replaceAll('-', '_')}`,
-            stage: 'stt' as const,
-            retryable: true,
-          };
-    return {
-      ok: true,
-      state: {
-        status: 'failed-recoverable',
-        sceneId: state.sceneId,
-        anchorId: state.anchorId,
-        questionRound: state.questionRound,
-        consecutiveSafetyFailures: state.consecutiveSafetyFailures,
-        inputMode: state.inputMode,
-        failure,
+        jobId: event.plan.liveBranchJobId,
+        plan: event.plan,
       },
       commands: [],
     };
   }
 
-  if (event.type === 'RESPONSE_READY') {
-    const anchor = findAnchor(manifest, state.anchorId);
-    if (!anchor) {
-      return invalidTransition(state, event, 'Question anchor is missing.');
+  if (event.type === 'ACTION_CONFIRMED') {
+    if (event.plan.route !== 'DIRECT_ACTION') {
+      return invalidTransition(state, event, 'Only a confirmed action can run from the dialogue.');
     }
-
-    if (event.plan.kind === 'route') {
-      // 실시간 새 분기 생성이 백그라운드로 큐에 들어간 응답이다 - 아직 실제 콘텐츠를 가리키지
-      // 않으므로 THREE_PATHS 정규화나 routePlanIssue 검증(예: SIMPLE_ROUTE_KINDS는 옵션이
-      // 비어 있어야 한다는 등)보다 먼저 분기해, 이 임시 plan이 그 검증들을 통과하는지 여부와
-      // 무관하게 항상 generating-branch로 들어간다.
-      if (event.plan.liveBranchJobId) {
-        return {
-          ok: true,
-          state: {
-            status: 'generating-branch',
-            sceneId: state.sceneId,
-            anchorId: state.anchorId,
-            questionRound: state.questionRound,
-            consecutiveSafetyFailures: state.consecutiveSafetyFailures,
-            jobId: event.plan.liveBranchJobId,
-            plan: event.plan,
-          },
-          commands: [],
-        };
-      }
-      const issue = routePlanIssue(manifest, anchor, event.plan);
-      if (issue) {
-        return invalidTransition(state, event, issue);
-      }
-      if (event.plan.route === 'THREE_PATHS') {
-        return {
-          ok: true,
-          state: {
-            status: 'awaiting-choice',
-            sceneId: state.sceneId,
-            anchorId: state.anchorId,
-            questionRound: state.questionRound,
-            consecutiveSafetyFailures: state.consecutiveSafetyFailures,
-            plan: event.plan,
-          },
-          commands: [],
-        };
-      }
-      const normalizedPlan = normalizeActionRoutePlan(manifest, event.plan);
-      return {
-        ok: true,
-        state: {
-          status: 'playing-response',
-          sceneId: state.sceneId,
-          anchorId: state.anchorId,
-          questionRound: state.questionRound,
-          consecutiveSafetyFailures: state.consecutiveSafetyFailures,
-          plan: normalizedPlan,
-        },
-        commands: [{ type: 'PLAY_RESPONSE', plan: normalizedPlan }],
-      };
+    const issue = routePlanIssue(manifest, anchor, event.plan);
+    if (issue) {
+      return invalidTransition(state, event, issue);
     }
-
-    if (
-      event.plan.kind === 'story-change' &&
-      !anchor.allowedRejoinAnchorIds.includes(event.plan.rejoinAt)
-    ) {
-      return invalidTransition(
-        state,
-        event,
-        'Response rejoin anchor is not allowed.',
-      );
-    }
-
-    if (
-      event.plan.kind === 'fallback' &&
-      event.plan.familyId !== null &&
-      !anchor.fallbackFamilyIds.includes(event.plan.familyId)
-    ) {
-      return invalidTransition(
-        state,
-        event,
-        'Fallback family is not allowed.',
-      );
-    }
-
+    const plan = normalizeActionRoutePlan(manifest, event.plan);
     return {
       ok: true,
       state: {
         status: 'playing-response',
         sceneId: state.sceneId,
-        anchorId: state.anchorId,
+        anchorId: anchor.id,
         questionRound: state.questionRound,
-        consecutiveSafetyFailures: state.consecutiveSafetyFailures,
-        plan: event.plan,
+        plan,
       },
-      commands: [{ type: 'PLAY_RESPONSE', plan: event.plan }],
+      commands: [{ type: 'PLAY_RESPONSE', plan }],
     };
   }
-
   return undefined;
 }
 
@@ -1100,75 +756,7 @@ function transitionFromPlayingResponse(
       return invalidTransition(state, event, 'Question anchor is missing.');
     }
 
-    if (state.plan.kind === 'short-answer' && state.plan.resumeAt !== anchor.id) {
-      return invalidTransition(
-        state,
-        event,
-        'Short answer resume anchor does not match the active question.',
-      );
-    }
-
-    if (
-      state.plan.kind === 'route' &&
-      state.plan.route === 'CLARIFY_ONCE'
-    ) {
-      return {
-        ok: true,
-        state: {
-          status: 'awaiting-clarification',
-          sceneId: state.sceneId,
-          anchorId: state.anchorId,
-          questionRound: state.questionRound + 1,
-          // CLARIFY_ONCE는 안전게이트와 무관한 별개의 재질문 경로이므로 카운터를 그대로
-          // 이어간다(늘리지도, 리셋하지도 않는다).
-          consecutiveSafetyFailures: state.consecutiveSafetyFailures,
-          prompt: state.plan.text,
-        },
-        commands: [],
-      };
-    }
-
-    if (
-      state.plan.kind === 'route' &&
-      state.plan.route === 'GENTLE_REDIRECT'
-    ) {
-      // §2 안전게이트 3회 연속 실패: questionRound와 완전히 같은 방식으로 클라이언트가
-      // 무상태로 들고 다니는 카운터다. 3회 미만이면 재질문 UI(awaiting-safety-retry)를 다시
-      // 띄우고, 3회째에 도달하면 더 묻지 않고 기존 GENTLE_REDIRECT의 fallthrough를 그대로
-      // 호출해 이야기를 이어간다(카운터는 새 사이클이므로 리셋).
-      if (state.consecutiveSafetyFailures + 1 < 3) {
-        return {
-          ok: true,
-          state: {
-            status: 'awaiting-safety-retry',
-            sceneId: state.sceneId,
-            anchorId: state.anchorId,
-            questionRound: state.questionRound + 1,
-            consecutiveSafetyFailures: state.consecutiveSafetyFailures + 1,
-            prompt: state.plan.text,
-          },
-          commands: [],
-        };
-      }
-      return continueFromAnchor(
-        manifest,
-        {
-          status: 'awaiting-question',
-          sceneId: state.sceneId,
-          anchorId: state.anchorId,
-          questionRound: state.questionRound + 1,
-          consecutiveSafetyFailures: 0,
-        },
-        anchor,
-      );
-    }
-
-    const rejoinAnchorId =
-      state.plan.kind === 'story-change' ||
-      state.plan.kind === 'fallback' ||
-      state.plan.kind === 'route'
-        ? state.plan.rejoinAt
-        : null;
+    const rejoinAnchorId = state.plan.rejoinAt;
     if (rejoinAnchorId) {
       if (!anchor.allowedRejoinAnchorIds.includes(rejoinAnchorId)) {
         return invalidTransition(
@@ -1222,6 +810,7 @@ function transitionFromPlayingResponse(
         : invalidTransition(state, event, 'Rejoin destination is missing.');
     }
 
+    // 합류 지점이 없는 답(실시간 분기 실패 안내 등)은 질문 지점 다음 대사부터 이어 간다.
     return continueFromAnchor(
       manifest,
       {
@@ -1229,103 +818,9 @@ function transitionFromPlayingResponse(
         sceneId: state.sceneId,
         anchorId: state.anchorId,
         questionRound: state.questionRound + 1,
-        consecutiveSafetyFailures: 0,
       },
       anchor,
     );
-  }
-
-  return undefined;
-}
-
-function transitionFromFailedRecoverable(
-  manifest: StoryManifest,
-  state: StoryRuntimeState,
-  event: StoryRuntimeEvent,
-): RuntimeTransition | undefined {
-  if (
-    state.status === 'failed-recoverable' &&
-    event.type === 'FALLBACK_READY'
-  ) {
-    if (!state.anchorId) {
-      return invalidTransition(
-        state,
-        event,
-        'Failure has no question anchor for a story fallback.',
-      );
-    }
-
-    const anchor = findAnchor(manifest, state.anchorId);
-    if (!anchor) {
-      return invalidTransition(state, event, 'Question anchor is missing.');
-    }
-    if (event.plan.familyId === null) {
-      // 기본 분기가 없는 질문 지점 - 준비된 장면 없이 기본 이야기로 이어 간다.
-      return continueFromAnchor(
-        manifest,
-        {
-          status: 'awaiting-question',
-          sceneId: state.sceneId,
-          anchorId: state.anchorId,
-          questionRound: state.questionRound ?? 1,
-          consecutiveSafetyFailures: state.consecutiveSafetyFailures ?? 0,
-        },
-        anchor,
-      );
-    }
-    if (!anchor.fallbackFamilyIds.includes(event.plan.familyId)) {
-      return invalidTransition(
-        state,
-        event,
-        'Fallback family is not allowed for the active question.',
-      );
-    }
-
-    return {
-      ok: true,
-      state: {
-        status: 'playing-response',
-        sceneId: state.sceneId,
-        anchorId: state.anchorId,
-        questionRound: state.questionRound ?? 1,
-        consecutiveSafetyFailures: state.consecutiveSafetyFailures ?? 0,
-        plan: event.plan,
-      },
-      commands: [{ type: 'PLAY_RESPONSE', plan: event.plan }],
-    };
-  }
-
-  return undefined;
-}
-
-function transitionOnFailureEvent(
-  manifest: StoryManifest,
-  state: StoryRuntimeState,
-  event: StoryRuntimeEvent,
-): RuntimeTransition | undefined {
-  if (event.type === 'FAILURE' && 'sceneId' in state) {
-    const anchorId = 'anchorId' in state ? state.anchorId : undefined;
-    const questionRound =
-      'questionRound' in state ? state.questionRound : undefined;
-    const consecutiveSafetyFailures =
-      'consecutiveSafetyFailures' in state
-        ? state.consecutiveSafetyFailures
-        : undefined;
-    const inputMode =
-      'inputMode' in state ? state.inputMode : undefined;
-    return {
-      ok: true,
-      state: {
-        status: 'failed-recoverable',
-        sceneId: state.sceneId,
-        anchorId,
-        questionRound,
-        consecutiveSafetyFailures,
-        inputMode,
-        failure: event.failure,
-      },
-      commands: [],
-    };
   }
 
   return undefined;
@@ -1341,12 +836,8 @@ export function transitionStoryRuntime(
     transitionFromPlayingFixed(manifest, state, event) ??
     transitionFromAwaitingChoice(manifest, state, event) ??
     transitionFromGeneratingBranch(manifest, state, event) ??
-    transitionSharedQuestionAnchorActions(manifest, state, event) ??
-    transitionFromRecordingQuestion(manifest, state, event) ??
-    transitionFromProcessingQuestion(manifest, state, event) ??
+    transitionFromAwaitingQuestion(manifest, state, event) ??
     transitionFromPlayingResponse(manifest, state, event) ??
-    transitionFromFailedRecoverable(manifest, state, event) ??
-    transitionOnFailureEvent(manifest, state, event) ??
     invalidTransition(state, event)
   );
 }

@@ -1,7 +1,5 @@
 const ALLOWED_ROUTES = new Map([
   ['GET health', true],
-  ['POST v1/transcriptions/base64', true],
-  ['POST v1/questions/route', true],
   ['POST v1/narrations', true],
   ['POST v1/narrations/stream', true],
   ['POST v1/beta-events', true],

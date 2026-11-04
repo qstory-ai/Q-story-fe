@@ -22,8 +22,9 @@ import {
   type CompanionChatReply,
   type CompanionReplyKind,
   type LiveTranscription,
+  STT_UNAVAILABLE_CHILD_COPY,
+  isSttUnavailableCode,
 } from '@/entities/companion-chat';
-import { STT_UNAVAILABLE_CHILD_COPY, isSttUnavailableCode } from '@/entities/speech-pipeline';
 import { waitForRealtimeImage } from '@/entities/realtime-image';
 import type { PlayTurnInput } from '@/entities/play-session';
 import { STT_STREAMING_ENABLED } from '@/shared/config';

@@ -8,11 +8,7 @@ type NarrationSnapshot = {
 };
 
 function currentFamilyId(state: StoryRuntimeState): string | null {
-  if (state.status !== 'playing-response') return null;
-  if (state.plan.kind === 'fallback') return state.plan.familyId;
-  if (state.plan.kind === 'story-change') return state.plan.fallbackFamilyId;
-  if (state.plan.kind === 'route') return state.plan.actionFamilyId;
-  return null;
+  return state.status === 'playing-response' ? state.plan.actionFamilyId : null;
 }
 
 function lastSelectedFamilyId(outcomes: readonly QuestionOutcome[]) {
@@ -31,9 +27,7 @@ function audioState(
 ) {
   if (narration.isPaused) return 'paused';
   if (narration.isSpeaking) return 'playing';
-  if (state.status === 'recording-question') return 'recording';
-  if (state.status === 'processing-question') return 'processing';
-  if (state.status === 'failed-recoverable') return 'failed';
+  if (state.status === 'generating-branch') return 'processing';
   return 'idle';
 }
 
@@ -66,8 +60,5 @@ export function buildExitDiagnostics({
     ...(anchorId ? { anchor_id: anchorId } : {}),
     ...(familyId ? { family_id: familyId } : {}),
     ...(clipId ? { clip_id: clipId } : {}),
-    ...(state.status === 'failed-recoverable'
-      ? { failure_code: state.failure.code }
-      : {}),
   };
 }

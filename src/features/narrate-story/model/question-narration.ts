@@ -1,5 +1,5 @@
 import type { QuestionAnchor, StoryId } from '@/entities/story-runtime';
-import { speechApiUrl } from '@/entities/speech-pipeline';
+import { apiBaseUrl } from '@/shared/config';
 
 import { fetchBufferedNarration } from '@/entities/narration';
 import type { BufferedResponseAudio } from '@/shared/lib';
@@ -44,7 +44,7 @@ function cacheKey(input: QuestionNarrationInput) {
 export async function fetchQuestionNarration(
   input: QuestionNarrationInput,
   fetchImpl: typeof fetch = fetch,
-  baseUrl = speechApiUrl,
+  baseUrl = apiBaseUrl,
   timeoutMs = DEFAULT_NARRATION_REQUEST_TIMEOUT_MS,
 ): Promise<GeneratedNarrationAudio | null> {
   if (!baseUrl) {

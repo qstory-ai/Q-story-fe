@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, ErrorState, FILTER_CHIP_ROW_GAP, FilterChip, LoadingState, PillTabs, SearchField, type PillTabOption, storybookTheme, StoryCard } from '@/shared/ui';
 import { messageForError } from '@/shared/api';
-import { dashboardNavItems, useAuth, type AuthState } from '@/entities/auth';
+import { dashboardNavItems, useAuth, useRoleGuard, type AuthState } from '@/entities/auth';
 import {
   listStories,
   unlockStateFor,
@@ -61,12 +61,7 @@ export function LibraryPage() {
   const [category, setCategory] = useState<string | null>(null);
   const [catalogReload, setCatalogReload] = useState(0);
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'PARENT') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['PARENT']);
 
   useEffect(() => {
     let cancelled = false;

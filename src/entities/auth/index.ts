@@ -8,5 +8,6 @@ export * from './model/google-identity';
 export * from './model/home-path';
 export * from './model/kakao-sdk';
 export * from './model/password-rules';
+export * from './model/role-guard';
 export * from './model/role-label';
 export * from './model/onboarding-done';

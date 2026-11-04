@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { ActionButton, AppNavShell, Card, radius, TextField, storybookTheme } from '@/shared/ui';
 import { normalizeInviteCode, isValidInviteCode } from '@/shared/lib';
-import { dashboardNavItems, useAuth } from '@/entities/auth';
+import { dashboardNavItems, useAuth, useRoleGuard } from '@/entities/auth';
 import { previewHomeroomInviteByCode, tutorInviteCodeDestination } from '@/entities/homeroom-invite';
 import {
   listMyOrganizations,
@@ -32,12 +32,7 @@ export function TutorJoinOrganizationPage() {
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [orgs, setOrgs] = useState<OrgsLoad>({ status: 'loading' });
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'TUTOR') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['TUTOR']);
 
   const token = state.status === 'authenticated' ? state.token : null;
 

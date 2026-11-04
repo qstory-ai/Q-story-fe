@@ -9,7 +9,7 @@ import {
   useAudioRecorderAdapter,
   useSpeechAutoStop,
 } from '@/features/record-question';
-import { fetchLineNarration, fetchReplyNarration } from '@/features/narrate-story';
+import { fetchReplyNarration } from '@/features/narrate-story';
 import { reportClientError } from '@/entities/analytics';
 import {
   CompanionChatError,
@@ -45,7 +45,6 @@ import { blockedLineIndex } from '../lib/attempt-backdrop';
 import { preloadImages } from '../lib/preload-images';
 import {
   DIALOGUE_THINKING_FILLER,
-  DIALOGUE_VOICE_STREAMING,
   FILLER_DELAY_MS,
   pickThinkingFiller,
   planFillerCut,
@@ -573,24 +572,10 @@ export function useDialogue({
   );
 
   /** 답 문장의 음성 - 스트리밍이면 첫 조각부터 재생할 수 있는 PCM, 아니면 전체 음성. 실패는 null(글만 남는다). */
-  const fetchReplyVoice = useCallback(
-    (text: string, signal: AbortSignal): Promise<ResponseAudio | null> => {
-      const input = { storyId: storyPackage.manifest.storyId, speakerId: character.speakerId, text };
-      return (DIALOGUE_VOICE_STREAMING ? fetchReplyNarration(input, signal) : fetchLineNarration(input)).catch(
-        () => null,
-      );
-    },
-    [character.speakerId, storyPackage.manifest.storyId],
-  );
-
-  /** 시도 장면 한 줄의 음성 - 그 줄 화자(내레이터·그레텔)의 목소리로 실시간 TTS 한 번. 실패하면 null(글만 남는다). */
-  const fetchSceneLineVoice = useCallback(
-    (speakerId: string, text: string, signal: AbortSignal): Promise<ResponseAudio | null> => {
-      const input = { storyId: storyPackage.manifest.storyId, speakerId, text };
-      return (DIALOGUE_VOICE_STREAMING ? fetchReplyNarration(input, signal) : fetchLineNarration(input)).catch(
-        () => null,
-      );
-    },
+  /** 한 줄의 음성 - 그 줄 화자(그레텔·내레이터)의 목소리로 실시간 TTS 한 번, 첫 조각부터 재생한다. 실패하면 null(글만 남는다). */
+  const fetchVoice = useCallback(
+    (speakerId: string, text: string, signal: AbortSignal): Promise<ResponseAudio | null> =>
+      fetchReplyNarration({ storyId: storyPackage.manifest.storyId, speakerId, text }, signal).catch(() => null),
     [storyPackage.manifest.storyId],
   );
 
@@ -679,12 +664,12 @@ export function useDialogue({
       try {
         reply = await Promise.race([
           sendCompanionChatMessage(
-            { ...input, deferAudio: true, stream: DIALOGUE_VOICE_STREAMING },
+            { ...input, deferAudio: true, stream: true },
             fetchController.signal,
             (text) => {
               deadline.textArrived();
               if (shown.current || seq !== requestSeqRef.current) return;
-              show(text, fetchReplyVoice(text, audioController.signal));
+              show(text, fetchVoice(character.speakerId, text, audioController.signal));
             },
           ),
           deadline.expired,
@@ -710,9 +695,9 @@ export function useDialogue({
       // 장면 상황에서 묻는다 - 라이브 분기 대사처럼 줄마다 그 화자 목소리(실시간 TTS)다. 음성은 모두 한꺼번에 미리 받는다.
       const sceneLines = reply.dialogue.attempt?.scene ?? [];
       if (!shown.current && sceneLines.length > 0) {
-        const replyVoice = reply.audioDeferred ? fetchReplyVoice(reply.responseText, audioController.signal) : null;
+        const replyVoice = reply.audioDeferred ? fetchVoice(character.speakerId, reply.responseText, audioController.signal) : null;
         const lineVoices = sceneLines.map((line) =>
-          fetchSceneLineVoice(line.speakerId, line.text, audioController.signal),
+          fetchVoice(line.speakerId, line.text, audioController.signal),
         );
         // 막힌 줄(마지막 내레이터 줄)에서 배경을 막힌 모습의 그림으로 바꾼다 - 그림은 장면 음성과 함께 지금 미리 받아 둔다.
         // 서버가 그림을 고르지 않았거나 이 이야기 자산에 없는 그림이면 지금 그림을 강조한다(null).
@@ -780,13 +765,13 @@ export function useDialogue({
           ready
             ? Promise.resolve(ready)
             : reply.audioDeferred
-              ? fetchReplyVoice(reply.responseText, audioController.signal)
+              ? fetchVoice(character.speakerId, reply.responseText, audioController.signal)
               : Promise.resolve(null),
         );
       return { reply, shownAt: current.at, voicePlayed: current.voicePlayed };
     },
     [
-      addTurn, anchorId, fetchReplyVoice, fetchSceneLineVoice, logStep, runtime, startThinkingFiller, stopAttemptImage,
+      addTurn, anchorId, character.speakerId, fetchVoice, logStep, runtime, startThinkingFiller, stopAttemptImage,
       storyPackage.imageAssets, storyPackage.narratorSpeakerId,
     ],
   );

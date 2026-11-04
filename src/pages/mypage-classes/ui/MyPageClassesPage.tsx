@@ -6,14 +6,7 @@ import { ActionButton, AppNavShell, Card, ErrorState, Icon, LoadingState, Modal,
 import { messageForError } from '@/shared/api';
 import { normalizeInviteCode, isValidInviteCode, withParticle, teacherTitle } from '@/shared/lib';
 import { betaErrorCode, trackBetaEvent } from '@/entities/analytics';
-import {
-  dashboardNavItems,
-  joinExistingClass,
-  leaveClass,
-  listClassMemberships,
-  useAuth,
-  type ClassMembershipResponse,
-} from '@/entities/auth';
+import { dashboardNavItems, joinExistingClass, leaveClass, listClassMemberships, useAuth, useRoleGuard, type ClassMembershipResponse } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { HomeSection } from '@/features/home-section';
 import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
@@ -47,12 +40,7 @@ export function MyPageClassesPage() {
   const [leaveError, setLeaveError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
-  useEffect(() => {
-    if (state.status === 'loading') return;
-    if (state.status !== 'authenticated' || state.user.role !== 'PARENT') {
-      navigate('/', { replace: true });
-    }
-  }, [state, navigate]);
+  useRoleGuard(navigate, ['PARENT']);
 
   // 토큰 문자열로 좁혀서 실제로 인증이 바뀔 때만 다시 불러온다(state 객체 identity가 바뀌어도 재조회하지 않는다).
   const authToken = state.status === 'authenticated' ? state.token : null;

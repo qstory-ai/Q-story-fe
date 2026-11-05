@@ -258,6 +258,48 @@ export function hasChildLines(turns: readonly PlayTurn[] | null | undefined) {
   return (turns ?? []).some(isChildLine);
 }
 
+/**
+ * Q-58 "아이가 말한 횟수와 시간" - 스크린 시간과 구분되는 수치. 점수가 아니라 개수와 길이만 센다.
+ * - count: 글이 있는 아이 줄 수(말로 한 것과 글로 쓴 것 모두).
+ * - spokenSeconds: 녹음 길이(speechMs)가 있는 아이 줄의 합(초). 하나도 없으면(글로만 썼거나 옛 기록) null.
+ */
+export type ChildTalkStats = { count: number; spokenSeconds: number | null };
+
+export function childTalkStats(turns: readonly PlayTurn[] | null | undefined): ChildTalkStats {
+  const lines = (turns ?? []).filter(isChildLine);
+  const spokenMs = lines.filter((turn) => typeof turn.speechMs === 'number' && turn.speechMs > 0);
+  return {
+    count: lines.length,
+    spokenSeconds: spokenMs.length === 0 ? null : Math.round(spokenMs.reduce((sum, turn) => sum + (turn.speechMs ?? 0), 0) / 1000),
+  };
+}
+
+/** "40초" / "약 3분" - 1분 미만은 초로, 그 위는 분으로 둥글린다(0초는 "잠깐"). */
+export function formatSpokenSeconds(seconds: number) {
+  if (seconds < 1) return '잠깐';
+  if (seconds < 60) return `${seconds}초`;
+  return `약 ${Math.max(1, Math.round(seconds / 60))}분`;
+}
+
+/**
+ * ① 오늘 읽은 이야기에 붙는 한 줄 - "아이가 7번 말했어요 · 말한 시간 약 1분 · 이야기 진행 12분".
+ * 말한 기록이 없으면 null(②의 빈 문구가 대신 말한다). 반 수업은 누가 말했는지 모르니 "반에서 전달한 말"로 쓴다.
+ */
+export function childTalkLine(
+  turns: readonly PlayTurn[] | null | undefined,
+  durationSeconds: number | null | undefined,
+  audience: 'child' | 'class' = 'child',
+) {
+  const stats = childTalkStats(turns);
+  if (stats.count === 0) return null;
+  const parts = [audience === 'class' ? `반에서 전달한 말 ${stats.count}번` : `아이가 ${stats.count}번 말했어요`];
+  if (stats.spokenSeconds !== null) parts.push(`말한 시간 ${formatSpokenSeconds(stats.spokenSeconds)}`);
+  if (typeof durationSeconds === 'number' && durationSeconds > 0) {
+    parts.push(`이야기 진행 ${Math.max(1, Math.round(durationSeconds / 60))}분`);
+  }
+  return parts.join(' · ');
+}
+
 export type ReadAgainChoice =
   | { kind: 'none' }
   | { kind: 'one'; childId: string }

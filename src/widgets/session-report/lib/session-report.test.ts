@@ -7,8 +7,11 @@ import { hanselGretelStoryPackage as storyPackage } from '@/test-fixtures/hansel
 import {
   CLASS_RESULT_DEFAULT,
   childReplyPairs,
+  childTalkLine,
+  childTalkStats,
   classSceneRows,
   evidenceTurns,
+  formatSpokenSeconds,
   groupExchanges,
   inputTags,
   readAgainChoice,
@@ -103,6 +106,28 @@ test('class rows mark try-scene narration and read talk-only scenes in plain wor
   assert.equal(rows[0].result, '해 본 것: 새 잡기 - 잘 안 돼서 다른 방법을 찾아보기로 했어요');
   assert.equal(rows[1].result, '대화만 나누고 원래 이야기로 이어졌어요');
   assert.equal(rows[2].result, CLASS_RESULT_DEFAULT, 'no recorded outcome means the story went on as written');
+});
+
+test('child talk stats count child lines and add up recorded speech only', () => {
+  // 글이 있는 아이 줄만 센다 - 빈 줄·시스템 줄·그레텔 줄은 빠진다.
+  assert.deepEqual(childTalkStats(turns), { count: 2, spokenSeconds: null });
+  const spoken = [
+    ...turns,
+    { seq: 9, occurredAt: '', sceneId: 'HG-F07', role: 'CHILD', text: '기다리자', inputMode: 'VOICE', speechMs: 2600 },
+    { seq: 10, occurredAt: '', sceneId: 'HG-F07', role: 'CHILD', text: '글로 씀', inputMode: 'TEXT' },
+    { seq: 11, occurredAt: '', sceneId: 'HG-F07', role: 'CHILD', text: '   ', inputMode: 'VOICE', speechMs: 9000 },
+    { seq: 12, occurredAt: '', sceneId: 'HG-F07', role: 'CHILD', text: '응', inputMode: 'VOICE', speechMs: 1800 },
+  ];
+  assert.deepEqual(childTalkStats(spoken), { count: 5, spokenSeconds: 4 });
+  assert.equal(childTalkStats([]).count, 0);
+  assert.equal(childTalkLine([], 300), null, '말한 기록이 없으면 줄을 만들지 않는다');
+  assert.equal(childTalkLine(turns, 305), '아이가 2번 말했어요 · 이야기 진행 5분');
+  assert.equal(childTalkLine(spoken, null), '아이가 5번 말했어요 · 말한 시간 4초');
+  assert.equal(childTalkLine(spoken, 720, 'class'), '반에서 전달한 말 5번 · 말한 시간 4초 · 이야기 진행 12분');
+  assert.equal(formatSpokenSeconds(0), '잠깐');
+  assert.equal(formatSpokenSeconds(59), '59초');
+  assert.equal(formatSpokenSeconds(60), '약 1분');
+  assert.equal(formatSpokenSeconds(150), '약 3분');
 });
 
 test('evidence resolves only to child lines', () => {

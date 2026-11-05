@@ -207,6 +207,8 @@ export function useDialogue({
   const inputModeRef = useRef<'VOICE' | 'TEXT'>('TEXT');
   // 받아 적은 문장 그대로(고쳐 썼는지 비교용).
   const sttDraftRef = useRef<string | null>(null);
+  // 방금 받아 적은 녹음의 길이(ms) - 아이 줄과 함께 남겨 리포트가 "말한 시간"을 더한다(Q-58). 글로 쓰면 null.
+  const lastSpeechMsRef = useRef<number | null>(null);
   // 이번 질문 초대에서 아이가 한 번이라도 말했는지 - 닫을 때 건너뜀/대화 후 닫음을 가른다.
   const inviteChildSpokeRef = useRef(false);
   // 요청마다 번호를 붙여, 닫았거나 새 말을 시작한 뒤에 도착한 답·전사는 버린다.
@@ -814,8 +816,11 @@ export function useDialogue({
         speaker: lessonId ? 'TEACHER_RELAY' : guardianProxy ? 'GUARDIAN_PROXY' : 'UNVERIFIED',
         transcriptEdited: inputMode === 'VOICE' && sttDraftRef.current !== null ? text !== sttDraftRef.current.trim() : null,
         ...(helpStep > 0 ? { helpStep } : {}),
+        // 말로 한 줄에만 녹음 길이를 붙인다(고쳐 썼어도 녹음은 그 녹음이다).
+        ...(inputMode === 'VOICE' && lastSpeechMsRef.current !== null ? { speechMs: lastSpeechMsRef.current } : {}),
       });
       sttDraftRef.current = null;
+      lastSpeechMsRef.current = null;
       setDraft('');
       setProposal(null);
       setErrorMessage(null);
@@ -1073,6 +1078,7 @@ export function useDialogue({
       // 말이 끝난 뒤 받아 적은 문장이 나오기까지 - 실시간(STREAM)과 배치(BATCH)를 운영에서 비교한다.
       logStep('TRANSCRIBED', { stt_mode: streamed ? 'STREAM' : 'BATCH', stt_ms: Date.now() - stoppedAt, stream_tried: Boolean(live) });
       inputModeRef.current = 'VOICE';
+      lastSpeechMsRef.current = recording?.durationMillis ?? null;
       confirmSentRef.current = false;
       sttDraftRef.current = transcript.slice(0, MAX_TEXT);
       setDraft(transcript.slice(0, MAX_TEXT));
@@ -1086,6 +1092,7 @@ export function useDialogue({
         // 음성 인식이 막혔다 - 안내 문구와 함께 글로 쓰는 입력으로 바로 넘긴다.
         setDraft('');
         inputModeRef.current = 'TEXT';
+        lastSpeechMsRef.current = null;
         setErrorMessage(STT_UNAVAILABLE_CHILD_COPY);
         setPhase('typing');
         return;
@@ -1264,6 +1271,7 @@ export function useDialogue({
     if (phase !== 'confirm') {
       setDraft('');
       sttDraftRef.current = null;
+      lastSpeechMsRef.current = null;
       inputModeRef.current = 'TEXT';
     }
     setPhase('typing');

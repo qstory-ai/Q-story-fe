@@ -136,6 +136,7 @@ export function CompletionReport({
             outcomes: detail.outcomes,
             analysis: detail.analysis,
             teacherNote: detail.teacherNote,
+            durationSeconds: detail.durationSeconds,
           }}
           onRetryAnalysis={() => void polled.retry()}
           onAction={trackReportAction}

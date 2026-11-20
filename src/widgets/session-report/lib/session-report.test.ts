@@ -6,6 +6,8 @@ import { hanselGretelStoryPackage as storyPackage } from '@/test-fixtures/hansel
 
 import {
   CLASS_RESULT_DEFAULT,
+  askedQuestionGroups,
+  depthLabelOf,
   childReplyPairs,
   childTalkLine,
   childTalkStats,
@@ -173,4 +175,32 @@ test('a tried-and-failed scene shows as its own result until an action is taken'
     { seq: 4, occurredAt: '', sceneId: 'HG-F07', role: 'SYSTEM', event: 'ACTION_CONFIRMED', familyId: 'C_WAIT_FOR_WITCH_TURN' },
   ];
   assert.match(classSceneRows(storyPackage, thenActed)[0].result, /기다렸다가/);
+});
+
+test('askedQuestionGroups groups child questions by category and hides level numbers', () => {
+  const lines = [
+    { seq: 1, occurredAt: '', sceneId: 'S1', role: 'CHARACTER', text: '저 집 좀 봐!' },
+    { seq: 2, occurredAt: '', sceneId: 'S1', role: 'CHILD', text: ' 왜 과자로 만들었어? ' },
+    { seq: 3, occurredAt: '', sceneId: 'S1', role: 'CHILD', text: '문 열어 볼까?' },
+    { seq: 4, occurredAt: '', sceneId: 'S2', role: 'CHILD', text: '그레텔은 무서웠어?' },
+    { seq: 5, occurredAt: '', sceneId: 'S2', role: 'CHILD', text: '' },
+  ];
+  const questions = [
+    { seq: 2, kind: 'QUESTION', level: 3, category: 'FACT_CAUSE', followUp: false, topic: '과자집' },
+    { seq: 3, kind: 'PROPOSAL', level: 0, category: null, followUp: false, topic: '' },
+    { seq: 4, kind: 'QUESTION', level: 1, category: 'MIND_RELATION', followUp: true, topic: '그레텔' },
+    { seq: 5, kind: 'QUESTION', level: 4, category: 'NARRATIVE', followUp: false, topic: '' },
+  ];
+  const groups = askedQuestionGroups(lines, questions);
+  assert.deepEqual(groups.map((group) => group.category), ['MIND_RELATION', 'FACT_CAUSE']);
+  assert.equal(groups[1].items[0].text, '왜 과자로 만들었어?');
+  assert.equal(groups[1].items[0].depthLabel, '왜·어떻게');
+  assert.equal(groups[0].items[0].depthLabel, null);
+  assert.equal(groups[0].items[0].followUp, true);
+  // 옛 분석(필드 없음)이면 빈 목록.
+  assert.deepEqual(askedQuestionGroups(lines, undefined), []);
+});
+
+test('depthLabelOf only names reason and prediction questions', () => {
+  assert.deepEqual([0, 1, 2, 3, 4].map(depthLabelOf), [null, null, null, '왜·어떻게', '만약·앞으로']);
 });

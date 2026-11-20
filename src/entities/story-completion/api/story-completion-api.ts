@@ -77,6 +77,45 @@ export type ReportAnalysis = {
   observations: ReportObservation[];
   cards: ReportTalkCard[];
   commonScenes: ReportSceneTalk[];
+  /** 보고서 개편 v1(report-v4) - 아이 말마다 LLM 분류. 옛 분석·옛 서버에는 없다. */
+  questions?: ReportQuestion[] | null;
+  questionSummary?: ReportQuestionSummary | null;
+  personal?: ReportPersonal | null;
+};
+
+/** 질문 종류 - 서사 / 사실·원인 / 인물 마음·관계. */
+export type ReportQuestionCategory = 'NARRATIVE' | 'FACT_CAUSE' | 'MIND_RELATION';
+
+/**
+ * 아이 말 하나의 분류. level은 Glaubman 4단계(1 예/아니오, 2 사실, 3 이유·방법, 4 가설·예측)이고 질문이 아니면 0.
+ * 화면에는 숫자를 보이지 않고 "왜·어떻게", "만약·앞으로" 같은 말로만 푼다.
+ */
+export type ReportQuestion = {
+  seq: number;
+  kind: 'QUESTION' | 'PROPOSAL' | 'OTHER';
+  level: number;
+  category: ReportQuestionCategory | null;
+  followUp: boolean;
+  topic: string;
+  /** 왜 그 종류·수준으로 나눴는지 LLM이 적은 한 줄. 검수·연구용이고 부모 화면에는 아직 띄우지 않는다. */
+  reason?: string | null;
+};
+
+export type ReportQuestionSummary = {
+  questions: number;
+  whyHow: number;
+  followUps: number;
+  proposals: number;
+  byCategory: Record<ReportQuestionCategory, number>;
+  topics: string[];
+};
+
+/** 같은 아이의 지난 회차와 함께 본 개인화 문장. changeLine·interestLine은 첫 회차면 null. */
+export type ReportPersonal = {
+  todayLine: string | null;
+  changeLine: string | null;
+  interestLine: string | null;
+  tonightQuestion: { seq: number; childQuestion: string; text: string } | null;
 };
 
 export type TeacherNote = {

@@ -1,4 +1,5 @@
 import type { QuestionOutcome } from '@/entities/report';
+import type { ReportQuestion, ReportQuestionCategory } from '@/entities/story-completion';
 import type { PlayTurn } from '@/entities/play-session';
 import type { StoryRuntimePackage } from '@/entities/story';
 
@@ -310,4 +311,60 @@ export function readAgainChoice(linkedChildren: readonly { id: string; name: str
   if (!linkedChildren || linkedChildren.length === 0) return { kind: 'none' };
   if (linkedChildren.length === 1) return { kind: 'one', childId: linkedChildren[0].id };
   return { kind: 'pick', children: [...linkedChildren] };
+}
+
+/** 보고서 개편 v1 - "오늘 아이가 물은 것". 질문 종류별로 묶고, 수준 숫자 대신 말로 푼 표시를 붙인다. */
+export type AskedQuestion = {
+  seq: number;
+  text: string;
+  sceneId: string;
+  /** "왜·어떻게"(3단계) / "만약·앞으로"(4단계). 1·2단계는 표시하지 않는다. */
+  depthLabel: string | null;
+  followUp: boolean;
+};
+
+export type AskedGroup = { category: ReportQuestionCategory | 'OTHER'; label: string; items: AskedQuestion[] };
+
+const CATEGORY_ORDER: (ReportQuestionCategory | 'OTHER')[] = ['MIND_RELATION', 'FACT_CAUSE', 'NARRATIVE', 'OTHER'];
+
+export const QUESTION_CATEGORY_LABEL: Record<ReportQuestionCategory | 'OTHER', string> = {
+  MIND_RELATION: '인물의 마음과 관계',
+  FACT_CAUSE: '세상일과 그 까닭',
+  NARRATIVE: '이야기가 어떻게 될지',
+  OTHER: '그 밖의 질문',
+};
+
+export function depthLabelOf(level: number) {
+  if (level >= 4) return '만약·앞으로';
+  if (level === 3) return '왜·어떻게';
+  return null;
+}
+
+/** 분류에서 질문만 골라 원문(turns)과 잇는다. 원문이 지워진 줄은 뺀다. 빈 묶음은 돌려주지 않는다. */
+export function askedQuestionGroups(
+  turns: readonly PlayTurn[] | null | undefined,
+  questions: readonly ReportQuestion[] | null | undefined,
+): AskedGroup[] {
+  const bySeq = new Map((turns ?? []).filter(isChildLine).map((turn) => [turn.seq, turn]));
+  const groups = new Map<ReportQuestionCategory | 'OTHER', AskedQuestion[]>();
+  for (const question of questions ?? []) {
+    if (question.kind !== 'QUESTION') continue;
+    const turn = bySeq.get(question.seq);
+    if (!turn?.text) continue;
+    const category = question.category ?? 'OTHER';
+    const items = groups.get(category) ?? [];
+    items.push({
+      seq: question.seq,
+      text: turn.text.trim(),
+      sceneId: turn.sceneId,
+      depthLabel: depthLabelOf(question.level),
+      followUp: question.followUp,
+    });
+    groups.set(category, items);
+  }
+  return CATEGORY_ORDER.filter((category) => groups.has(category)).map((category) => ({
+    category,
+    label: QUESTION_CATEGORY_LABEL[category],
+    items: groups.get(category) ?? [],
+  }));
 }

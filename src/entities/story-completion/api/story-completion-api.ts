@@ -97,6 +97,8 @@ export type ReportQuestion = {
   category: ReportQuestionCategory | null;
   followUp: boolean;
   topic: string;
+  /** 왜 그 종류·수준으로 나눴는지 LLM이 적은 한 줄. 검수·연구용이고 부모 화면에는 아직 띄우지 않는다. */
+  reason?: string | null;
 };
 
 export type ReportQuestionSummary = {

@@ -92,6 +92,7 @@ export function ParentReportPanel({ runtime }: { runtime: OneStoryRuntime }) {
             outcomes: questionOutcomes,
             analysis,
             teacherNote: detail?.teacherNote,
+            durationSeconds: detail?.durationSeconds ?? parentReport.durationSeconds,
           }}
           onRetryAnalysis={() => void retry()}
           onAction={trackReportAction}

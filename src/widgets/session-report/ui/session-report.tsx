@@ -10,6 +10,7 @@ import type { ReportAnalysis, ReportFollowUp, StoryEndStatus, TeacherNote } from
 
 import {
   childReplyPairs,
+  childTalkLine,
   classSceneRows,
   evidenceTurns,
   groupExchanges,
@@ -44,6 +45,8 @@ export type SessionReportData = {
   outcomes: QuestionOutcome[];
   analysis?: ReportAnalysis | null;
   teacherNote?: TeacherNote | null;
+  /** 이야기 진행 시간(초) - "아이가 말한 횟수와 시간" 줄에서 스크린 시간과 나란히 보여 준다(Q-58). 없으면 그 부분만 뺀다. */
+  durationSeconds?: number | null;
 };
 
 /**
@@ -118,6 +121,10 @@ export function SessionReport({
           <Text style={sr.body}>
             {[formatDate(data.completedAt), data.className, title, range].filter(Boolean).join(' · ')}
           </Text>
+          {(() => {
+            const line = childTalkLine(data.turns, data.durationSeconds, data.sessionKind === 'CLASS' ? 'class' : 'child');
+            return line ? <Text style={sr.muted}>{line}</Text> : null;
+          })()}
         </Section>
         <Section
           title="수업 내용"
@@ -187,12 +194,15 @@ export function SessionReport({
   const exchanges = groupExchanges(storyPackage, data.turns);
   const openExchange = exchanges.find((exchange) => exchange.sceneId === openSceneId) ?? null;
   const spoke = hasChildLines(data.turns);
+  const talkLine = childTalkLine(data.turns, data.durationSeconds);
   return (
     <View style={sr.stack}>
       <Section title="① 오늘 읽은 이야기">
         <Text style={sr.body}>
           {[data.childName, title, formatDate(data.completedAt), range].filter(Boolean).join(' · ')}
         </Text>
+        {/* 스크린 시간이 아니라 "말한 시간"이 보이게 - 점수·등급은 쓰지 않는다(Q-58). */}
+        {talkLine ? <Text style={sr.muted}>{talkLine}</Text> : null}
       </Section>
 
       <Section title="② 아이가 남긴 말" description="아이가 한 말과 그레텔의 답을 그대로 담았어요. 장면을 누르면 그 장면에서 나눈 대화 전체를 크게 볼 수 있어요. 말로 한 것은 앱이 받아 적은 문장이에요.">

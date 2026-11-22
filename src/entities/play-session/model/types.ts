@@ -53,6 +53,11 @@ export type PlayTurn = {
   errorCode?: string | null;
   /** TRY_ENDED - 시도 장면 안에서 아이가 말한 횟수. */
   attemptTurns?: number | null;
+  /**
+   * 아이 말(CHILD, VOICE): 마이크를 켠 뒤 멈출 때까지의 녹음 길이(ms) - 부모 리포트 "아이가 말한 시간"의 재료(Q-58).
+   * 앞뒤 침묵이 들어가는 근사치다. 글로 쓴 말은 없다.
+   */
+  speechMs?: number | null;
 };
 
 /** 기록할 한 줄 - seq·시각은 기록기가 붙인다. */

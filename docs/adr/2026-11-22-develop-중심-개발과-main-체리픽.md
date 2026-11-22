@@ -33,6 +33,8 @@
   - Environment Variables: Preview 중 develop 브랜치 전용으로 `QSTORY_API_UPSTREAM_URL`(dev.api), `VITE_QSTORY_STT_STREAM_URL`(wss://dev.api…)을 넣었다.
   - Deployment Protection: Vercel Authentication을 껐다. 팀원이 로그인 없이 dev.qstory.ai.kr을 보게 하려고.
 
+- GitHub 저장소 기본 브랜치를 main에서 develop으로 바꿨다(`gh repo edit --default-branch develop`). 서버는 `.env`의 `GIT_REF`로, Vercel은 프로젝트의 Production Branch(main)로 배포 브랜치를 정한다. 그래서 배포 대상은 바뀌지 않는다.
+
 ## 확인 방법
 
 - `git check-ignore`로 docs/adr 파일과 PR 템플릿이 더 이상 무시되지 않는 것을 확인했다. 루트 README.md는 계속 무시된다.
@@ -46,4 +48,4 @@
 - 백엔드 API가 바뀌는 기능은 백엔드 커밋이 main에 먼저 가거나 같이 가야 한다. 웹만 먼저 가면 운영 웹이 없는 API를 부른다.
 - Deployment Protection을 끄면서 PR마다 생기는 Preview 주소도 로그인 없이 열린다.
 - 태블릿 앱은 `.env.native`로 demo.api를 직접 부른다. develop 확인은 웹(dev.qstory.ai.kr)으로 한다.
-- GitHub 기본 브랜치는 아직 main이다. PR을 열 때 base를 develop으로 골라야 한다.
+- GitHub 기본 브랜치가 develop이라서 새 PR의 base는 develop으로 잡힌다. main으로 가는 체리픽 PR만 base를 main으로 바꾼다.

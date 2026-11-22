@@ -1,0 +1,7 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="btn/menu">
+<rect x="1" y="1" width="62" height="62" rx="31" fill="white"/>
+<rect x="1" y="1" width="62" height="62" rx="31" stroke="#E8E2EE" stroke-width="2"/>
+<path id="Vector" d="M41.5697 41.5697L32 32M32 32L22.4302 22.4302M32 32L41.5698 22.4302M32 32L22.4302 41.5698" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="#27222D"/>
+</g>
+</svg>

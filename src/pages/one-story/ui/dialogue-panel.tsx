@@ -1,14 +1,5 @@
-import { useEffect, useRef, useState, type ComponentRef } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Icon, storybookTheme } from '@/shared/ui';
 
@@ -17,6 +8,7 @@ import { AUTO_CONFIRM_MS } from '../lib/constants';
 import { punctuateChildQuestion } from '../lib/question-punctuation';
 import { scaledText, useReaderTextScale } from '../lib/reader-text-scale';
 import type { UseDialogue } from '../model/use-dialogue';
+import { QuestionSpace, type QuestionMenuAction, type QuestionMicState } from './question-space';
 
 /**
  * Q-31 그레텔 대화 패널. 삽화를 가리지 않도록 화면 아래에만 붙는다 - 아이 말하기·그레텔 답·도움·
@@ -30,115 +22,82 @@ export function DialoguePanel({
 }: {
   dialogue: UseDialogue;
   hidden?: boolean;
-  /** 패널 높이가 바뀔 때 - 리더가 그림을 패널 위 영역에 맞추는 데 쓴다. */
+  /** 예전 아래 패널이 그림 높이를 맞추던 값. 이제 화면 전체를 쓰므로 열릴 때 0을 알린다. */
   onHeightChange?: (height: number) => void;
 }) {
-  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
   const { open, turns, phase, character } = dialogue;
-  const textScale = useReaderTextScale();
 
   useEffect(() => {
-    scrollRef.current?.scrollToEnd({ animated: true });
-  }, [turns.length, phase]);
+    if (open && !hidden) onHeightChange?.(0);
+  }, [hidden, onHeightChange, open]);
 
   if (!open || hidden) return null;
 
   const continueStory = () => void dialogue.close('CONTINUE');
 
+  // 화면에는 마지막 그레텔 말과, 그 뒤에 아이가 한 말만 말풍선으로 보인다(피그마 질문 화면).
+  const lastCharacterIndex = turns.map((turn) => turn.role).lastIndexOf('CHARACTER');
+  const lastCharacter = lastCharacterIndex >= 0 ? turns[lastCharacterIndex] : null;
+  const lastTurn = turns[turns.length - 1];
+  const childAfter = lastTurn?.role === 'CHILD' && turns.length - 1 > lastCharacterIndex ? lastTurn.text : '';
+
+  const recording = phase === 'recording';
+  const busy = phase === 'thinking' || phase === 'transcribing';
+  const childTurn = phase === 'ready' || phase === 'error' || phase === 'speaking';
+  const mic: QuestionMicState = recording
+    ? 'recording'
+    : busy
+      ? 'disabled'
+      : childTurn && !(phase === 'speaking' && dialogue.proposalLabel)
+        ? 'idle'
+        : 'hidden';
+
+  const childText = recording
+    ? ''
+    : phase === 'confirm'
+      ? punctuateChildQuestion(dialogue.draft)
+      : childAfter;
+  const childPending = recording ? dialogue.livePartial || dialogue.listenPrompt : phase === 'transcribing' && !childText ? '…' : '';
+
+  const menuActions: QuestionMenuAction[] = [
+    { key: 'continue', label: '이야기 계속 듣기', onPress: continueStory },
+    ...(childTurn || phase === 'offer-help' ? [{ key: 'type', label: '글로 쓰기', onPress: dialogue.startTyping }] : []),
+    ...(dialogue.canAskHelp && childTurn ? [{ key: 'help', label: '도와줘', onPress: () => void dialogue.askHelp() }] : []),
+  ];
+
   return (
-    <View
-      style={panel.root}
-      accessibilityLabel={`${character.displayName}와 이야기하기`}
-      onLayout={(event) => onHeightChange?.(event.nativeEvent.layout.height)}
+    <QuestionSpace
+      characterName={character.displayName}
+      avatarUri={character.avatarImageUri}
+      bubbleText={lastCharacter?.text ?? dialogue.listenPrompt}
+      bubbleDim={phase === 'thinking'}
+      onReplay={lastCharacter && (phase === 'ready' || phase === 'error') ? () => void dialogue.replayLastLine() : undefined}
+      replayAccent={phase === 'ready'}
+      childText={childText}
+      childPending={childPending}
+      childListening={recording}
+      meterPercent={dialogue.meterPercent}
+      thinking={phase === 'thinking'}
+      mic={mic}
+      onMicPress={() => void dialogue.startTalking()}
+      onCancel={dialogue.cancelInput}
+      onDone={dialogue.stopTalking}
+      menuActions={menuActions}
     >
-      <View style={panel.header}>
-        <View style={panel.avatarFrame}>
-          <Image
-            source={{ uri: character.avatarImageUri }}
-            style={panel.avatarImage}
-            resizeMode="cover"
-            accessibilityLabel={`${character.displayName} 얼굴`}
-          />
-        </View>
-        <Text style={panel.name}>{character.displayName}</Text>
-        <View style={panel.headerSpacer} />
-        {/* '이야기 계속 듣기'는 모든 단계에서 머리의 이 링크 하나로 - 단계마다 칩·링크로 모양이 바뀌었다(10/24 QA).
-            이야기로 돌아가기를 권하는 단계는 그 버튼이 주 버튼이라 링크를 두지 않는다. */}
-        {phase !== 'suggest-return' && (
-          <Pressable accessibilityRole="button" onPress={continueStory} hitSlop={10}>
-            <Text style={panel.continueLink}>이야기 계속 듣기 ›</Text>
-          </Pressable>
-        )}
-      </View>
-
-      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} style={panel.history} contentContainerStyle={panel.historyContent}>
-        {turns.map((turn) => (
-          // 시도 장면 줄 - 아이 생각대로 이야기 속에서 해 보는 장면. 내레이터 줄은 그림책 문장처럼, 그레텔 줄은 장면 표시를 단
-          // 말풍선으로 보인다. 이야기는 같은 질문 지점에 그대로 있다.
-          turn.sceneSpeakerId && turn.sceneSpeakerId !== character.speakerId ? (
-            <View key={turn.id} style={panel.sceneNarration}>
-              <Text style={[panel.sceneNarrationText, scaledText(panel.sceneNarrationText, textScale)]}>{turn.text}</Text>
-            </View>
-          ) : (
-            <View
-              key={turn.id}
-              style={[
-                panel.bubble,
-                turn.role === 'CHILD' ? panel.childBubble : panel.characterBubble,
-                turn.sceneSpeakerId && panel.sceneBubble,
-              ]}
-            >
-              <Text style={[panel.bubbleText, scaledText(panel.bubbleText, textScale)]}>{turn.text}</Text>
-            </View>
-          )
-        ))}
-        {(phase === 'thinking' || phase === 'transcribing') && (
-          <View style={[panel.bubble, phase === 'thinking' ? panel.characterBubble : panel.childBubble]}>
-            <ActivityIndicator size="small" color={storybookTheme.color.onCardMuted} />
-          </View>
-        )}
-      </ScrollView>
-
       {dialogue.errorMessage && (phase === 'error' || phase === 'typing') && (
         <View style={panel.errorRow} accessibilityRole="alert">
-          <Icon name="alert" size={16} color={storybookTheme.color.errorOnDark} />
+          <Icon name="alert" size={18} color={storybookTheme.color.error} />
           <Text style={panel.error}>{dialogue.errorMessage}</Text>
         </View>
       )}
-
-      <PhaseControls dialogue={dialogue} onContinue={continueStory} />
-    </View>
+      {!recording && !busy && <PhaseControls dialogue={dialogue} onContinue={continueStory} />}
+    </QuestionSpace>
   );
 }
 
 function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onContinue: () => void }) {
   const { phase } = dialogue;
   const textScale = useReaderTextScale();
-
-  if (phase === 'recording') {
-    return (
-      <View style={panel.column}>
-        {/* Q-34: 탭 없이 듣기 시작했을 수 있으니 지금 말하면 된다고 알려 준다. 15초 말이 없으면 다시 묻는다. */}
-        <Text style={[panel.listenPrompt, scaledText(panel.listenPrompt, textScale)]} accessibilityLiveRegion="polite">
-          {dialogue.listenPrompt}
-        </Text>
-        {/* 실시간 받아 적기 - 말하는 동안 알아들은 말을 보여 준다(멈추면 이 문장이 확인 단계로 바로 넘어간다). */}
-        {dialogue.livePartial ? (
-          <Text style={[panel.confirmText, scaledText(panel.confirmText, textScale)]} numberOfLines={3}>
-            듣고 있어요: {dialogue.livePartial}
-          </Text>
-        ) : null}
-        <View style={panel.meterTrack}>
-          <View style={[panel.meterFill, { width: `${dialogue.meterPercent}%` }]} />
-        </View>
-        {/* 버튼은 다른 단계처럼 왼쪽부터 주 버튼 - 소리 막대 옆 오른쪽에 붙어 단계마다 위치가 바뀌었다(10/24 QA). */}
-        <View style={panel.controls}>
-          <Chip primary label="다 말했어" onPress={dialogue.stopTalking} />
-          <Chip label="그만할래" onPress={dialogue.cancelInput} />
-        </View>
-      </View>
-    );
-  }
 
   if (phase === 'confirm') {
     return <ConfirmControls dialogue={dialogue} />;
@@ -183,16 +142,6 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
     );
   }
 
-  if (phase === 'transcribing' || phase === 'thinking') {
-    return (
-      <View style={panel.controls}>
-        <Text style={[panel.status, scaledText(panel.status, textScale)]}>
-          {phase === 'transcribing' ? '무슨 말인지 듣는 중…' : '그레텔이 생각하는 중…'}
-        </Text>
-      </View>
-    );
-  }
-
   // 행동 확인 - 그레텔이 제안 답을 말하는 동안에도 카드를 먼저 보인다(답이 끝날 때까지 말하기 버튼이 먼저 떠서
   // 아이가 다른 말을 하던 문제, 10/19 QA).
   if (phase === 'proposal' || (phase === 'speaking' && dialogue.proposalLabel)) {
@@ -229,29 +178,22 @@ function PhaseControls({ dialogue, onContinue }: { dialogue: UseDialogue; onCont
     );
   }
 
-  // ready · speaking · error - 아이 차례. 그레텔이 말하는 중에 말하기를 누르면 음성을 끊고 듣는다.
-  return (
-    <View style={panel.column}>
-      {/* 마지막 도움 대사를 듣는 중에도 예시를 고를 수 있게 한다 - 아이는 다 듣기 전에 누르기도 한다. */}
-      {(phase === 'ready' || phase === 'speaking') && dialogue.suggestions.length > 0 && (
-        <View style={panel.controls}>
-          {dialogue.suggestions.map((suggestion) => (
-            <Chip
-              key={suggestion.familyId}
-              label={suggestion.label}
-              onPress={() => dialogue.chooseSuggestion(suggestion.familyId, suggestion.label)}
-            />
-          ))}
-        </View>
-      )}
+  // ready · speaking · error - 아이 차례. 말하기는 아래 큰 마이크가, 글로 쓰기·도와줘는 왼쪽 위 메뉴가 맡는다.
+  // 예시는 마지막 도움 대사를 듣는 중에도 고를 수 있게 한다(아이는 다 듣기 전에 누르기도 한다).
+  if ((phase === 'ready' || phase === 'speaking') && dialogue.suggestions.length > 0) {
+    return (
       <View style={panel.controls}>
-        {/* 아이 차례의 주 버튼 - 색으로 강조해 무엇을 누르면 되는지 바로 보인다. */}
-        <Chip primary label={phase === 'error' ? '● 다시 말하기' : '● 말하기'} onPress={() => void dialogue.startTalking()} />
-        <Chip label="글로 쓰기" onPress={dialogue.startTyping} />
-        {dialogue.canAskHelp && <Chip label="도와줘" onPress={() => void dialogue.askHelp()} />}
+        {dialogue.suggestions.map((suggestion) => (
+          <Chip
+            key={suggestion.familyId}
+            label={suggestion.label}
+            onPress={() => dialogue.chooseSuggestion(suggestion.familyId, suggestion.label)}
+          />
+        ))}
       </View>
-    </View>
-  );
+    );
+  }
+  return null;
 }
 
 /**
@@ -300,26 +242,26 @@ function ConfirmControls({ dialogue }: { dialogue: UseDialogue }) {
 
   return (
     <View style={panel.column}>
+      {/* 받아 적은 문장은 위 아이 말풍선에 보인다. 이 줄을 누르면 자동 전송을 멈춘다. */}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="보내지 말고 기다리기"
         accessibilityHint="누르면 자동으로 보내지 않아요"
         onPress={hold}
       >
-        <Text style={[panel.confirmText, scaledText(panel.confirmText, textScale)]}>“{punctuateChildQuestion(draft)}”</Text>
-      </Pressable>
-      {counting ? (
-        <View style={panel.countdownRow}>
-          <Text style={[panel.status, scaledText(panel.status, textScale)]} accessibilityLiveRegion="polite">
-            {secondsLeft}초 뒤에 {dialogue.characterName}에게 보낼게
-          </Text>
-          <View style={panel.countdownTrack}>
-            <View style={[panel.countdownFill, { width: `${(remainingMs / AUTO_CONFIRM_MS) * 100}%` }]} />
+        {counting ? (
+          <View style={panel.countdownRow}>
+            <Text style={[panel.status, scaledText(panel.status, textScale)]} accessibilityLiveRegion="polite">
+              {secondsLeft}초 뒤에 {dialogue.characterName}에게 보낼게
+            </Text>
+            <View style={panel.countdownTrack}>
+              <View style={[panel.countdownFill, { width: `${(remainingMs / AUTO_CONFIRM_MS) * 100}%` }]} />
+            </View>
           </View>
-        </View>
-      ) : (
-        <Text style={[panel.status, scaledText(panel.status, textScale)]}>맞으면 "응, 이렇게 말했어"를 눌러 줘</Text>
-      )}
+        ) : (
+          <Text style={[panel.status, scaledText(panel.status, textScale)]}>맞으면 "응, 이렇게 말했어"를 눌러 줘</Text>
+        )}
+      </Pressable>
       <View style={panel.controls}>
         <Chip primary label="응, 이렇게 말했어" onPress={dialogue.confirmTranscript} />
         <Chip
@@ -381,112 +323,77 @@ function Chip({
 }
 
 
-/** 숲 그림 위에 얹는 어두운 패널 - 말풍선만 밝게 둬서 글이 그림과 섞이지 않게 한다. */
-const PANEL_BACKGROUND = storybookTheme.color.readerPanelBackground;
-const CHILD_BUBBLE = storybookTheme.semantic.brand.secondary;
+/** 하늘색 「그레텔의 공간」 위 단계 버튼 - 흰 알약 버튼, 주 버튼은 보라. */
+const INK = '#2a1f45';
+const MUTED = '#6b6178';
 
 const panel = StyleSheet.create({
-  root: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    maxHeight: '40%',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 16,
-    gap: 10,
-    backgroundColor: PANEL_BACKGROUND,
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-  },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  avatarFrame: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    overflow: 'hidden',
-    backgroundColor: storybookTheme.color.storybookCard,
-  },
-  avatarImage: { width: '100%', height: '100%' },
-  name: { color: storybookTheme.color.onDark, fontSize: 15, fontWeight: '700' },
-  headerSpacer: { flex: 1 },
-  continueLink: { color: storybookTheme.color.onDarkMuted, fontSize: 14, fontWeight: '600' },
-  history: { flexGrow: 0, flexShrink: 1 },
-  historyContent: { gap: 8, paddingBottom: 2 },
-  bubble: { maxWidth: '86%', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14 },
-  characterBubble: {
+  errorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     alignSelf: 'flex-start',
-    backgroundColor: storybookTheme.color.storybookCard,
-    borderBottomLeftRadius: 4,
-  },
-  childBubble: { alignSelf: 'flex-end', backgroundColor: CHILD_BUBBLE, borderBottomRightRadius: 4 },
-  sceneBubble: { borderLeftWidth: 3, borderLeftColor: storybookTheme.color.gold },
-  sceneNarration: {
-    alignSelf: 'stretch',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderLeftWidth: 3,
-    borderLeftColor: storybookTheme.color.gold,
-  },
-  sceneNarrationText: { color: storybookTheme.color.onDark, fontSize: 15, lineHeight: 22, fontStyle: 'italic' },
-  bubbleText: { color: storybookTheme.color.onCardTitle, fontSize: 16, lineHeight: 23 },
-  errorRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  error: { flexShrink: 1, color: storybookTheme.color.errorOnDark, fontSize: 14 },
-  column: { gap: 8 },
-  controls: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 },
-  status: { color: storybookTheme.color.onDarkMuted, fontSize: 14, flexGrow: 1 },
-  listenPrompt: { color: storybookTheme.color.onDark, fontSize: 18, fontWeight: '700' },
-  confirmText: { color: storybookTheme.color.onDark, fontSize: 16, lineHeight: 23 },
-  proposalText: { color: storybookTheme.color.onDark, fontSize: 16, lineHeight: 23, fontWeight: '600' },
-  countdownRow: { gap: 6 },
-  countdownTrack: {
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: storybookTheme.color.onDarkOverlay,
-    overflow: 'hidden',
-  },
-  countdownFill: { height: 4, backgroundColor: storybookTheme.color.gold },
-  input: {
-    minHeight: 44,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 12,
-    backgroundColor: storybookTheme.color.storybookCard,
-    color: storybookTheme.color.onCardTitle,
-    fontSize: 16,
+    borderRadius: 16,
+    backgroundColor: '#fff2f5',
   },
-  meterTrack: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: storybookTheme.color.onDarkOverlay,
-    overflow: 'hidden',
-  },
-  meterFill: { height: 8, backgroundColor: storybookTheme.color.gold },
-  // 한 줄에 놓이는 버튼은 높이·글자 크기를 모두 같게(48·16px) - 주 버튼은 색으로만 구분한다(10/25 PM: 말하기만 높아 보였다).
-  chip: {
-    minHeight: 48,
-    justifyContent: 'center',
+  error: { flexShrink: 1, color: storybookTheme.color.error, fontSize: 17, fontWeight: '600' },
+  column: { gap: 12 },
+  controls: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 },
+  status: { color: MUTED, fontSize: 18, fontWeight: '600', flexGrow: 1 },
+  proposalText: {
+    alignSelf: 'flex-start',
+    color: INK,
+    fontSize: 22,
+    lineHeight: 32,
+    fontWeight: '700',
     paddingHorizontal: 20,
-    borderRadius: 999,
-    backgroundColor: storybookTheme.color.onDarkOverlay,
+    paddingVertical: 14,
+    borderRadius: 24,
+    backgroundColor: '#ffffff',
   },
-  chipPrimary: { backgroundColor: storybookTheme.color.accentFill },
+  countdownRow: { gap: 8 },
+  countdownTrack: { height: 6, borderRadius: 3, backgroundColor: '#ffffff', overflow: 'hidden' },
+  countdownFill: { height: 6, backgroundColor: '#7550d3' },
+  input: {
+    minHeight: 56,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: '#e8e2ee',
+    backgroundColor: '#ffffff',
+    color: INK,
+    fontSize: 20,
+  },
+  // 한 줄 버튼은 높이·글자 크기를 모두 같게 - 주 버튼은 색으로만 구분한다(10/25 PM).
+  chip: {
+    minHeight: 56,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    borderRadius: 999,
+    borderWidth: 1.5,
+    borderColor: '#e8e2ee',
+    backgroundColor: '#ffffff',
+  },
+  chipPrimary: { backgroundColor: '#7550d3', borderColor: '#7550d3' },
   chipDisabled: { opacity: 0.5 },
   chipPressed: { opacity: 0.8 },
-  chipText: { color: storybookTheme.color.onDark, fontSize: storybookTheme.type.md, fontWeight: '700' },
-  chipTextPrimary: { color: storybookTheme.color.onAccentFill, fontSize: storybookTheme.type.md, fontWeight: '700' },
+  chipText: { color: INK, fontSize: 18, fontWeight: '700' },
+  chipTextPrimary: { color: '#ffffff', fontSize: 18, fontWeight: '700' },
   proxyRow: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   proxyBox: {
-    width: 18,
-    height: 18,
-    borderRadius: 4,
+    width: 20,
+    height: 20,
+    borderRadius: 5,
     borderWidth: 1.5,
-    borderColor: storybookTheme.color.onDarkMuted,
+    borderColor: MUTED,
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  proxyBoxChecked: { backgroundColor: storybookTheme.color.accentFill, borderColor: storybookTheme.color.accentFill },
-  proxyCheck: { color: storybookTheme.color.onAccentFill, fontSize: 12, fontWeight: '700' },
-  proxyLabel: { color: storybookTheme.color.onDarkMuted, fontSize: 13 },
+  proxyBoxChecked: { backgroundColor: '#7550d3', borderColor: '#7550d3' },
+  proxyCheck: { color: '#ffffff', fontSize: 12, fontWeight: '700' },
+  proxyLabel: { color: MUTED, fontSize: 15 },
 });

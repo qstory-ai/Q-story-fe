@@ -191,3 +191,24 @@ export function captionCueAtProgress(track: CaptionTrack, progress: number) {
     ) ?? cues.at(-1)!
   ).text;
 }
+
+/**
+ * 지금 자막 줄과 그 줄 안에서 어디까지 읽었는지(0~1), 다음 줄. 플레이어 자막 카드가 읽은 낱말을 진하게,
+ * 지금 낱말을 보라색으로, 다음 줄을 흐리게 보여 줄 때 쓴다. 낱말 위치는 줄 길이로 나눈 어림값이다.
+ */
+export function captionCueWindowAtProgress(track: CaptionTrack, progress: number) {
+  const { cues } = track;
+  if (cues.length === 0) {
+    return { text: '', next: '', cueProgress: 0 };
+  }
+  const normalized = Number.isFinite(progress) ? Math.max(0, Math.min(1, progress)) : 0;
+  const foundIndex = cues.findIndex(
+    (cue, index) =>
+      normalized >= cue.startRatio && (normalized < cue.endRatio || index === cues.length - 1),
+  );
+  const index = foundIndex === -1 ? cues.length - 1 : foundIndex;
+  const cue = cues[index];
+  const span = cue.endRatio - cue.startRatio;
+  const cueProgress = span > 0 ? Math.max(0, Math.min(1, (normalized - cue.startRatio) / span)) : 1;
+  return { text: cue.text, next: cues[index + 1]?.text ?? '', cueProgress };
+}

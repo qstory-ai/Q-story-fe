@@ -20,6 +20,8 @@ import { HomeMenuModal } from './modals/home-menu-modal';
 import { IllustrationBackdrop } from './illustration-backdrop';
 import { ResumeModal } from './modals/resume-modal';
 import { PlaybackDock } from './playback-dock';
+import { PlayerCaption, PlayerChrome } from './player-chrome';
+import { QuestionInviteSpace } from './question-invite-space';
 import { ReaderCard } from './reader-card/reader-card';
 import { SceneProgressBar } from './scene-progress-bar';
 import { styles } from './styles';
@@ -59,7 +61,11 @@ export function OneStoryPage({
     illustration,
   } = runtime;
   const { chaptersOpen, setChaptersOpen } = runtime;
-  const dialogue = useDialogue({ runtime, paused: runtime.homeMenuVisible || chaptersOpen });
+  // 왼쪽 위 메뉴(player-chrome) - 여는 동안은 대화 음성도 멈춘다.
+  const [playerMenuOpen, setPlayerMenuOpen] = useState(false);
+  const dialogue = useDialogue({ runtime, paused: runtime.homeMenuVisible || chaptersOpen || playerMenuOpen });
+  // 이야기 중(시작 전·리포트 제외)에는 피그마 플레이어 틀을 쓴다. 시작 화면과 리포트는 예전 상단 바를 그대로 둔다.
+  const inStory = runtime.runtimeState.status !== 'idle' && !isParentReport;
   const closeChapters = useCallback(() => setChaptersOpen(false), [setChaptersOpen]);
   // 글씨 크기(lib/reader-text-scale) - 반 수업은 "크게"로 시작한다. 상단 [글씨] 버튼이 돌아가며 바꾼다.
   const isClassLesson = runtime.isClassLesson;
@@ -91,20 +97,26 @@ export function OneStoryPage({
           <View
             style={[
               styles.imageShade,
+              // 읽는 동안은 그림을 어둡게 덮지 않는다(흰 자막 카드가 글씨를 받친다).
+              inStory && isPlaybackDockState && styles.imageShadeNone,
               isParentReport && styles.reportPageBackground,
             ]}
           />
 
           {/* onOpenChapters를 항상 넘겨도 된다 - TopBar 자신이 이미 같은 조건(idle 아님 && 리포트
               아님)으로 다른 버튼들과 함께 보임/숨김을 판단한다. */}
-          <TopBar
-            runtime={runtime}
-            dialogue={dialogue}
-            onOpenChapters={() => setChaptersOpen(true)}
-            textScaleKey={textScaleKey}
-            onCycleTextScale={cycleTextScale}
-          />
-          <SceneProgressBar runtime={runtime} />
+          {!inStory && (
+            <>
+              <TopBar
+                runtime={runtime}
+                dialogue={dialogue}
+                onOpenChapters={() => setChaptersOpen(true)}
+                textScaleKey={textScaleKey}
+                onCycleTextScale={cycleTextScale}
+              />
+              <SceneProgressBar runtime={runtime} />
+            </>
+          )}
 
           <ScrollView
             contentContainerStyle={[
@@ -135,7 +147,19 @@ export function OneStoryPage({
             {!dialogue.open && <ReaderCard runtime={runtime} dialogue={dialogue} />}
           </ScrollView>
 
-          {!dialogue.open && <PlaybackDock runtime={runtime} />}
+          {!inStory && !dialogue.open && <PlaybackDock runtime={runtime} />}
+          {inStory && !dialogue.open && <PlayerCaption runtime={runtime} dialogue={dialogue} />}
+          {inStory && <QuestionInviteSpace runtime={runtime} dialogue={dialogue} />}
+          {inStory && !dialogue.open && (
+            <PlayerChrome
+              runtime={runtime}
+              menuOpen={playerMenuOpen}
+              onMenuOpenChange={setPlayerMenuOpen}
+              textScaleKey={textScaleKey}
+              onCycleTextScale={cycleTextScale}
+              onOpenChapters={() => setChaptersOpen(true)}
+            />
+          )}
           <DialoguePanel
             dialogue={dialogue}
             hidden={runtime.homeMenuVisible || chaptersOpen}

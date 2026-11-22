@@ -9,6 +9,7 @@ import type { StoryRuntimePackage } from '@/entities/story';
 import type { ReportAnalysis, ReportFollowUp, StoryEndStatus, TeacherNote } from '@/entities/story-completion';
 
 import {
+  askedQuestionGroups,
   childReplyPairs,
   childTalkLine,
   classSceneRows,
@@ -50,7 +51,7 @@ export type SessionReportData = {
 };
 
 /**
- * home: 아이 한 명의 기록(가정·개별 수업) - ①~⑤.
+ * home: 아이 한 명의 기록(가정·개별 수업) - 오늘 한 줄·물은 것·달라진 점부터 대화 전체까지(보고서 개편 v1).
  * teacher: 반·개별 수업을 선생님(기관 관리자)이 볼 때 - 장면별 수업 기록·교사 메모·다음 행동.
  * class-parent: 반 수업을 부모가 볼 때 - 어느 아이 말인지 모르니 아이 말 없이 진행된 이야기와 대화 거리만.
  */
@@ -71,7 +72,7 @@ function formatDate(value: string | null | undefined) {
 }
 
 /**
- * Q-39 리포트 - 당시 장면 → 실제로 주고받은 말 → 관심과 생각 → 이어갈 대화. 그림·아이 말·그레텔 답·실행
+ * Q-39 리포트(보고서 개편 v1 순서) - 오늘 한 줄 → 아이가 물은 것 → 지난번과 달라진 점 → 관심과 생각 → 이어갈 대화 → 대화 전체. 그림·아이 말·그레텔 답·실행
  * 결과는 저장값을 그대로 쓰고, 분석이 아직이거나 실패해도 기본 기록은 먼저 보여 준다.
  */
 export function SessionReport({
@@ -195,42 +196,100 @@ export function SessionReport({
   const openExchange = exchanges.find((exchange) => exchange.sceneId === openSceneId) ?? null;
   const spoke = hasChildLines(data.turns);
   const talkLine = childTalkLine(data.turns, data.durationSeconds);
+  // 보고서 개편 v1 - 분석이 끝났고 새 필드가 있을 때만. 옛 분석·데모 잠금이면 아래 칸들은 그리지 않는다.
+  const ready = data.analysis?.status === 'READY' && !lockedAnalysisSlot;
+  const personal = ready ? (data.analysis?.personal ?? null) : null;
+  const asked = ready ? askedQuestionGroups(data.turns, data.analysis?.questions) : [];
   return (
     <View style={sr.stack}>
-      <Section title="① 오늘 읽은 이야기">
+      <Section title="오늘 읽은 이야기">
         <Text style={sr.body}>
           {[data.childName, title, formatDate(data.completedAt), range].filter(Boolean).join(' · ')}
         </Text>
         {/* 스크린 시간이 아니라 "말한 시간"이 보이게 - 점수·등급은 쓰지 않는다(Q-58). */}
         {talkLine ? <Text style={sr.muted}>{talkLine}</Text> : null}
+        {personal?.todayLine ? <Text style={sr.lead}>{personal.todayLine}</Text> : null}
       </Section>
 
-      <Section title="② 아이가 남긴 말" description="아이가 한 말과 그레텔의 답을 그대로 담았어요. 장면을 누르면 그 장면에서 나눈 대화 전체를 크게 볼 수 있어요. 말로 한 것은 앱이 받아 적은 문장이에요.">
-        {exchanges.length === 0 ? (
-          <Text style={sr.empty}>이번 회차에는 아이가 남긴 말이 없어요.</Text>
+      {asked.length > 0 ? (
+        <Section title="오늘 아이가 물은 것" description="아이가 던진 질문을 종류별로 모았어요. 이유나 앞일을 물은 질문에는 표시를 달았어요.">
+          {asked.map((group) => (
+            <View key={group.category} style={sr.askedGroup}>
+              <Text style={sr.askedLabel}>{group.label}</Text>
+              {group.items.map((item) => (
+                <View key={item.seq} style={[sr.line, sr.childLine]}>
+                  <Text style={sr.lineText}>{item.text}</Text>
+                  {item.depthLabel || item.followUp ? (
+                    <View style={sr.tagRow}>
+                      {item.depthLabel ? <Tag label={item.depthLabel} /> : null}
+                      {item.followUp ? <Tag label="이어서 물음" /> : null}
+                    </View>
+                  ) : null}
+                </View>
+              ))}
+            </View>
+          ))}
+        </Section>
+      ) : null}
+
+      {personal?.changeLine ? (
+        <Section title="지난번과 달라진 점">
+          <Text style={sr.body}>{personal.changeLine}</Text>
+        </Section>
+      ) : null}
+
+      {personal?.interestLine ? (
+        <Section title="관심이 머문 곳">
+          <Text style={sr.body}>{personal.interestLine}</Text>
+        </Section>
+      ) : null}
+
+      <Section title="이번에 드러난 관심과 생각">
+        {lockedAnalysisSlot && spoke ? (
+          lockedAnalysisSlot
+        ) : !spoke ? (
+          <Text style={sr.empty}>아이가 남긴 말이 없어 이번에는 관심을 추측하지 않았어요.</Text>
         ) : (
-          <View style={[sr.sceneGrid, isWide && sr.sceneGridWide]}>
-            {exchanges.map((exchange) => (
-              <SceneTalkCard
-                key={exchange.sceneId}
-                storyPackage={storyPackage}
-                exchange={exchange}
-                isWide={isWide}
-                onOpen={() => {
-                  onAction?.('expand_dialogue');
-                  setOpenSceneId(exchange.sceneId);
-                }}
-              />
-            ))}
-          </View>
+          <>
+            <AnalysisState analysis={data.analysis} onRetry={retryAnalysis} personal />
+            {data.analysis?.status === 'READY' && data.analysis.observations.length === 0 && (
+              <Text style={sr.empty}>관심이나 생각을 판단할 만한 말이 없어 이번에는 개인 분석을 하지 않았어요.</Text>
+            )}
+            {data.analysis?.status === 'READY' &&
+              data.analysis.observations.map((observation) => (
+                <ObservationItem
+                  key={observation.key}
+                  observation={observation.observation}
+                  evidence={evidenceTurns(data.turns, observation.evidenceSeqs)}
+                  explanation={data.analysis?.cards.find((card) => card.key === observation.key)?.explanation ?? null}
+                  onExpand={() => onAction?.('expand_reason')}
+                />
+              ))}
+          </>
         )}
-        {openExchange ? (
-          <SceneDialogueSheet storyPackage={storyPackage} exchange={openExchange} onClose={closeSheet} />
-        ) : null}
       </Section>
 
+      {personal?.tonightQuestion && !lockedAnalysisSlot ? (
+        <Section title="오늘 밤 이어갈 질문" description="아이가 오늘 직접 물은 것에서 골랐어요.">
+          <Text style={sr.muted}>아이가 물은 말 “{personal.tonightQuestion.childQuestion}”</Text>
+          <SayLine label="이렇게 다시 물어봐 주세요" text={personal.tonightQuestion.text} tone="lead" />
+        </Section>
+      ) : null}
+
+      <Section title="함께 이야기할 카드" description="질문을 순서대로 다 묻기보다, 아이 반응에 맞춰 골라 써 보세요.">
+        {lockedAnalysisSlot ? (
+          <Text style={sr.empty}>아이 반응에 맞춘 대화 카드도 로그인하면 함께 만들어져요.</Text>
+        ) : (
+          <>
+            {!data.analysis || data.analysis.status === 'PENDING' ? (
+              <AnalysisState analysis={data.analysis} onRetry={retryAnalysis} personal={false} />
+            ) : null}
+            <TalkCards analysis={data.analysis} storyPackage={storyPackage} isWide={isWide} />
+          </>
+        )}
+      </Section>
       {changes.length > 0 && (
-        <Section title="③ 아이가 바꾼 이야기">
+        <Section title="아이가 바꾼 이야기">
           {changes.map((change) => (
             <View key={change.familyId} style={[sr.change, isWide && sr.changeWide]}>
               {change.resultVisualId ? (
@@ -258,43 +317,30 @@ export function SessionReport({
         </Section>
       )}
 
-      <Section title="④ 이번에 드러난 관심과 생각">
-        {lockedAnalysisSlot && spoke ? (
-          lockedAnalysisSlot
-        ) : !spoke ? (
-          <Text style={sr.empty}>아이가 남긴 말이 없어 이번에는 관심을 추측하지 않았어요.</Text>
+      <Section title="대화 전체" description="아이가 한 말과 그레텔의 답을 그대로 담았어요. 장면을 누르면 그 장면에서 나눈 대화 전체를 크게 볼 수 있어요. 말로 한 것은 앱이 받아 적은 문장이에요.">
+        {exchanges.length === 0 ? (
+          <Text style={sr.empty}>이번 회차에는 아이가 남긴 말이 없어요.</Text>
         ) : (
-          <>
-            <AnalysisState analysis={data.analysis} onRetry={retryAnalysis} personal />
-            {data.analysis?.status === 'READY' && data.analysis.observations.length === 0 && (
-              <Text style={sr.empty}>관심이나 생각을 판단할 만한 말이 없어 이번에는 개인 분석을 하지 않았어요.</Text>
-            )}
-            {data.analysis?.status === 'READY' &&
-              data.analysis.observations.map((observation) => (
-                <ObservationItem
-                  key={observation.key}
-                  observation={observation.observation}
-                  evidence={evidenceTurns(data.turns, observation.evidenceSeqs)}
-                  explanation={data.analysis?.cards.find((card) => card.key === observation.key)?.explanation ?? null}
-                  onExpand={() => onAction?.('expand_reason')}
-                />
-              ))}
-          </>
+          <View style={[sr.sceneGrid, isWide && sr.sceneGridWide]}>
+            {exchanges.map((exchange) => (
+              <SceneTalkCard
+                key={exchange.sceneId}
+                storyPackage={storyPackage}
+                exchange={exchange}
+                isWide={isWide}
+                onOpen={() => {
+                  onAction?.('expand_dialogue');
+                  setOpenSceneId(exchange.sceneId);
+                }}
+              />
+            ))}
+          </View>
         )}
+        {openExchange ? (
+          <SceneDialogueSheet storyPackage={storyPackage} exchange={openExchange} onClose={closeSheet} />
+        ) : null}
       </Section>
 
-      <Section title="⑤ 함께 이야기할 카드" description="질문을 순서대로 다 묻기보다, 아이 반응에 맞춰 골라 써 보세요.">
-        {lockedAnalysisSlot ? (
-          <Text style={sr.empty}>아이 반응에 맞춘 대화 카드도 로그인하면 함께 만들어져요.</Text>
-        ) : (
-          <>
-            {!data.analysis || data.analysis.status === 'PENDING' ? (
-              <AnalysisState analysis={data.analysis} onRetry={retryAnalysis} personal={false} />
-            ) : null}
-            <TalkCards analysis={data.analysis} storyPackage={storyPackage} isWide={isWide} />
-          </>
-        )}
-      </Section>
       {readAgainSlot}
     </View>
   );
@@ -819,6 +865,9 @@ const LEAD_BORDER = storybookTheme.color.accentSoftBorder;
 // 보호자가 태블릿으로 읽는 화면 - 본문 16px·줄간격 26px을 기준으로 두고, 보조 글도 14px 밑으로 내리지 않는다.
 const sr = StyleSheet.create({
   stack: { gap: 18 },
+  lead: { color: storybookTheme.color.onCardTitle, fontSize: 17, lineHeight: 26, fontWeight: storybookTheme.type.weight.semibold },
+  askedGroup: { gap: 8 },
+  askedLabel: { color: storybookTheme.color.onCardMuted, fontSize: storybookTheme.type.sm, lineHeight: 20, fontWeight: storybookTheme.type.weight.bold },
   panelNarrow: { padding: 20, borderRadius: 22 },
   sectionBody: { gap: 16, marginTop: 6 },
   body: { color: storybookTheme.color.onCardBody, fontSize: storybookTheme.type.md, lineHeight: 26 },

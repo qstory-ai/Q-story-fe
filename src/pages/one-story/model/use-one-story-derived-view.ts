@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import {
   buildCaptionTrack,
   captionCueAtProgress,
+  captionCueWindowAtProgress,
   personalizeStoryText,
 } from '@/entities/narration';
 import type { StoryRuntimeState } from '@/entities/story-runtime';
@@ -136,6 +137,10 @@ export function useOneStoryDerivedView({
     activeBranchCaptionTrack,
     branchCaption?.progress ?? narrationState.progress,
   );
+  // 플레이어 자막 카드(player-caption)용 - 지금 줄 안 진행률과 다음 줄.
+  const subtitleWindow = isBranchPlaybackState
+    ? captionCueWindowAtProgress(activeBranchCaptionTrack, branchCaption?.progress ?? narrationState.progress)
+    : captionCueWindowAtProgress(activeCaptionTrack, narrationState.progress);
   const plannedBranchFamilyId =
     runtimeState.status === 'playing-response' ? runtimeState.plan.actionFamilyId : null;
   const plannedBranchAssetId = storyPackage.branchIllustrationAssetId(
@@ -177,6 +182,7 @@ export function useOneStoryDerivedView({
     displayedSubtitle,
     branchCaptionSpeaker,
     displayedBranchSubtitle,
+    subtitleWindow,
     illustration,
     visualAssetId,
     attemptBackdropAt,

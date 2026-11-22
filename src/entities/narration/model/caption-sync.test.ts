@@ -5,6 +5,7 @@ import test from 'node:test';
 import {
   buildCaptionTrack,
   captionCueAtProgress,
+  captionCueWindowAtProgress,
   estimateNarrationDurationSeconds,
 } from './caption-sync';
 
@@ -74,4 +75,22 @@ test('실제 재생 진행률 1에서도 마지막 cue를 유지한다', () => {
 
   assert.equal(captionCueAtProgress(track, 0), track.cues[0].text);
   assert.equal(captionCueAtProgress(track, 1), track.cues.at(-1).text);
+});
+
+test('자막 창은 지금 줄과 다음 줄, 지금 줄 안 진행률을 함께 준다', () => {
+  const track = buildCaptionTrack('그레텔은 조용히 일어났어요. 달빛이 창문으로 들어왔어요. 헨젤은 아직 자고 있었어요.');
+  const [first, second] = track.cues;
+
+  const start = captionCueWindowAtProgress(track, 0);
+  assert.equal(start.text, first.text);
+  assert.equal(start.next, second.text);
+  assert.equal(start.cueProgress, 0);
+
+  const middle = captionCueWindowAtProgress(track, (first.startRatio + first.endRatio) / 2);
+  assert.ok(middle.cueProgress > 0.4 && middle.cueProgress < 0.6);
+
+  const end = captionCueWindowAtProgress(track, 1);
+  assert.equal(end.text, track.cues[track.cues.length - 1].text);
+  assert.equal(end.next, '');
+  assert.equal(captionCueWindowAtProgress(buildCaptionTrack(''), 0.5).text, '');
 });

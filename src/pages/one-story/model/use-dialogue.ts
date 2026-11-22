@@ -365,6 +365,24 @@ export function useDialogue({
     [addTurn, character.speakerId, logTurn, runtime],
   );
 
+  /**
+   * 그레텔 말풍선의 [다시 듣기] - 마지막 그레텔 말을 한 번 더 들려준다. 기록에는 새 줄을 남기지 않는다.
+   * 미리 녹음한 음성이 없는 말(실시간 답)은 음성 합성을 한 번 더 부른다.
+   */
+  const replayLastLine = useCallback(async () => {
+    if (phase !== 'ready' && phase !== 'error') return;
+    const last = [...turns].reverse().find((turn) => turn.role === 'CHARACTER');
+    if (!last) return;
+    const seq = requestSeqRef.current;
+    setPhase('speaking');
+    try {
+      await runtime.speakDialogueLine(`replay-${last.id}`, last.text, last.sceneSpeakerId ?? character.speakerId);
+    } catch {
+      // 다시 듣기가 실패해도 글은 말풍선에 그대로 있다.
+    }
+    if (seq === requestSeqRef.current) setPhase('ready');
+  }, [character.speakerId, phase, runtime, turns]);
+
   // ── 열고 닫기 ─────────────────────────────────────────────
 
   const resetSessionState = () => {
@@ -1499,6 +1517,7 @@ export function useDialogue({
     chooseSuggestion,
     keepTalking,
     stopSpeaking,
+    replayLastLine,
     // 반 수업이 아닐 때만 보여 준다(반 수업은 늘 선생님 입력).
     canMarkGuardianProxy: !lessonId,
     guardianProxy,

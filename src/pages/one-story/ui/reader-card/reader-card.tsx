@@ -25,7 +25,13 @@ export function ReaderCard({ runtime, dialogue }: { runtime: OneStoryRuntime; di
     isQuestionInvitePlayback,
     speaker,
     isCompact,
+    sceneEndActive,
   } = runtime;
+
+  // 읽는 동안 자막은 아래 PlayerCaption 카드가 맡는다. 장면 끝 쉼만 이 카드에 남는다.
+  if (isPlaybackDockState && !sceneEndActive) return null;
+  // 질문 초대는 「그레텔의 공간」 화면(QuestionInviteSpace)이 맡는다.
+  if (!isParentReport && (isQuestionInvitePlayback || runtimeState.status === 'awaiting-question')) return null;
 
   return (
     <View

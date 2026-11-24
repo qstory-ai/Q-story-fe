@@ -1,12 +1,9 @@
 import { useState, type ReactNode } from 'react';
-import { Image, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
 
 import {
   Checkbox,
-  FILTER_CHIP_ROW_GAP,
   FieldError,
-  FieldLabel,
-  FilterChip,
   Modal,
   ModalBody,
   TextField,
@@ -82,20 +79,22 @@ export function LaunchNotificationGate({ children, backdrop }: Props) {
         <View style={styles.body}>
           <ModalBody>아이에게 맞는 이야기를 만드는 데 써요. 30초면 끝나요.</ModalBody>
 
-          <TextField
-            label="보호자 이름"
-            value={form.parentName}
-            onChangeText={form.setParentName}
-            placeholder="홍길동"
-            returnKeyType="done"
-            errorText={errorFor(form.parentName.trim().length > 0, '보호자 이름을 적어 주세요.')}
-          />
+          <Question label="보호자 이름">
+            <TextField
+              label=""
+              accessibilityLabel="보호자 이름"
+              value={form.parentName}
+              onChangeText={form.setParentName}
+              placeholder="홍길동"
+              returnKeyType="done"
+              errorText={errorFor(form.parentName.trim().length > 0, '보호자 이름을 적어 주세요.')}
+            />
+          </Question>
 
           <ChipQuestion label="아이 나이" error={ageError}>
             {CHILD_AGE_OPTIONS.map((age) => (
-              <FilterChip
+              <Chip
                 key={age}
-                tone="filled"
                 label={age}
                 selected={form.childAge === age}
                 onPress={() => form.setChildAge(age)}
@@ -105,9 +104,8 @@ export function LaunchNotificationGate({ children, backdrop }: Props) {
 
           <ChipQuestion label="아이 성별" error={genderError}>
             {GENDER_OPTIONS.map((option) => (
-              <FilterChip
+              <Chip
                 key={option.value}
-                tone="filled"
                 label={option.label}
                 selected={form.childGender === option.value}
                 onPress={() => form.setChildGender(option.value)}
@@ -117,9 +115,8 @@ export function LaunchNotificationGate({ children, backdrop }: Props) {
 
           <ChipQuestion label="큐스토리를 어떻게 알게 되셨나요?" error={discoveryError}>
             {DISCOVERY_OPTIONS.map((source) => (
-              <FilterChip
+              <Chip
                 key={source}
-                tone="filled"
                 label={source}
                 selected={form.discoveryChoice === source}
                 onPress={() => form.setDiscoveryChoice(source)}
@@ -138,7 +135,7 @@ export function LaunchNotificationGate({ children, backdrop }: Props) {
             />
           ) : null}
 
-          <View style={styles.contactBox}>
+          <View style={[styles.contactBox, form.wantsContact && styles.contactBoxOn]}>
             <Checkbox
               checked={form.wantsContact}
               onChange={form.setWantsContact}
@@ -147,22 +144,26 @@ export function LaunchNotificationGate({ children, backdrop }: Props) {
             />
             {form.wantsContact ? (
               <View style={styles.contactFields}>
-                <TextField
-                  label="휴대폰 번호"
-                  value={form.phone}
-                  onChangeText={form.setPhone}
-                  keyboardType="phone-pad"
-                  placeholder="010-0000-0000"
-                  autoFocus
-                  errorText={errorFor(form.phone.trim().length > 0, '소식을 받으시려면 번호를 적어 주세요.')}
-                />
-                <TextField
-                  label="이메일 (선택)"
-                  value={form.email}
-                  onChangeText={form.setEmail}
-                  keyboardType="email-address"
-                  placeholder="parent@example.com"
-                />
+                <View style={styles.contactField}>
+                  <TextField
+                    label="휴대폰 번호"
+                    value={form.phone}
+                    onChangeText={form.setPhone}
+                    keyboardType="phone-pad"
+                    placeholder="010-0000-0000"
+                    autoFocus
+                    errorText={errorFor(form.phone.trim().length > 0, '소식을 받으시려면 번호를 적어 주세요.')}
+                  />
+                </View>
+                <View style={styles.contactField}>
+                  <TextField
+                    label="이메일 (선택)"
+                    value={form.email}
+                    onChangeText={form.setEmail}
+                    keyboardType="email-address"
+                    placeholder="parent@example.com"
+                  />
+                </View>
               </View>
             ) : null}
           </View>
@@ -172,13 +173,40 @@ export function LaunchNotificationGate({ children, backdrop }: Props) {
   );
 }
 
+/** 질문 제목 + 내용. 제목은 칩·입력칸보다 진하게 써서 어디까지가 한 질문인지 보이게 한다. */
+function Question({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <View style={styles.question}>
+      <Text style={styles.questionLabel}>{label}</Text>
+      {children}
+    </View>
+  );
+}
+
 function ChipQuestion({ label, error, children }: { label: string; error?: string; children: ReactNode }) {
   return (
     <View style={styles.question} accessibilityRole="radiogroup" accessibilityLabel={label}>
-      <FieldLabel>{label}</FieldLabel>
+      <Text style={styles.questionLabel}>{label}</Text>
       <View style={styles.chips}>{children}</View>
       {error ? <FieldError>{error}</FieldError> : null}
     </View>
+  );
+}
+
+/**
+ * 하나만 고르는 칩. 공용 FilterChip은 목록 필터용이라 보이는 높이가 30px대로 작다. 태블릿에서 아이 옆에 앉아
+ * 손가락으로 누르는 화면이라 보이는 크기 자체를 44px로 키웠다.
+ */
+function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      aria-checked={selected}
+      onPress={onPress}
+      style={({ pressed }) => [styles.chip, selected && styles.chipOn, pressed && styles.chipPressed]}
+    >
+      <Text style={[styles.chipLabel, selected && styles.chipLabelOn]}>{label}</Text>
+    </Pressable>
   );
 }
 
@@ -197,25 +225,69 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   body: {
-    gap: 18,
+    gap: 20,
   },
   question: {
-    gap: 10,
+    gap: 8,
+  },
+  questionLabel: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
+    color: storybookTheme.color.onLightHeading,
   },
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    columnGap: 8,
-    rowGap: FILTER_CHIP_ROW_GAP,
+    gap: 8,
+  },
+  chip: {
+    minHeight: 44,
+    minWidth: 64,
+    paddingHorizontal: 16,
+    borderRadius: storybookTheme.radius.pill,
+    borderWidth: 1.5,
+    borderColor: storybookTheme.color.accentBorderLight,
+    backgroundColor: storybookTheme.color.surfaceWhite,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chipOn: {
+    borderColor: storybookTheme.color.primary,
+    backgroundColor: storybookTheme.color.primary,
+  },
+  chipPressed: {
+    opacity: 0.8,
+  },
+  chipLabel: {
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.semibold,
+    color: storybookTheme.color.onLightHeading,
+  },
+  chipLabelOn: {
+    color: storybookTheme.color.surfaceWhite,
   },
   contactBox: {
     gap: 12,
-    padding: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     borderRadius: storybookTheme.radius.input,
-    backgroundColor: storybookTheme.color.disabledBackground,
+    borderWidth: 1.5,
+    borderColor: storybookTheme.color.accentBorderLight,
+    backgroundColor: storybookTheme.color.surfaceWhite,
   },
+  contactBoxOn: {
+    borderColor: storybookTheme.color.primary,
+    backgroundColor: storybookTheme.semantic.brand.secondary,
+  },
+  // 넓은 카드에서는 번호와 이메일을 한 줄에 둬서 체크해도 카드가 길어지지 않게 한다. 좁으면 위아래로 쌓인다.
   contactFields: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
+  },
+  contactField: {
+    flexGrow: 1,
+    flexBasis: 200,
   },
   submitError: {
     fontSize: storybookTheme.type.xs,

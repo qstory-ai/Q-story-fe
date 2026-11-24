@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ILLUSTRATION_ASPECT, MAX_SIDE_CROP, illustrationFrame } from './illustration-frame';
+import { ILLUSTRATION_ASPECT, MAX_SIDE_CROP, PORTRAIT_CENTER, PORTRAIT_SIDE_CROP, illustrationFrame } from './illustration-frame';
 
 test('wider screens fit the width and crop only the bottom', () => {
   // 휴대폰 가로 844x390 - 위는 붙이고 아래만 넘친다.
@@ -33,4 +33,13 @@ test('slightly narrow screens still fill the height (cover) when the side crop i
 
 test('no frame before the screen is measured', () => {
   assert.equal(illustrationFrame(0, 0), null);
+});
+
+test('portrait screens enlarge the picture and center it above the caption', () => {
+  // 휴대폰 세로 390x844 - 위에 붙이지 않고 화면 가운데쯤에 크게 놓는다.
+  const phone = illustrationFrame(390, 844);
+  assert.ok(Math.abs(-phone.left / phone.width - PORTRAIT_SIDE_CROP) < 1e-9);
+  assert.ok(phone.top > 0);
+  assert.ok(Math.abs(phone.top + phone.height / 2 - 844 * PORTRAIT_CENTER) < 1e-9);
+  assert.ok(Math.abs(phone.width / phone.height - ILLUSTRATION_ASPECT) < 1e-9);
 });

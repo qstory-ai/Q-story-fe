@@ -5,6 +5,7 @@ import { messageForError } from '@/shared/api';
 
 import {
   canSubmitLaunchNotification,
+  discoverySourceFrom,
   launchNotificationPhone,
 } from './launch-notification-form';
 import { submitLaunchNotification, type ChildGender, } from '../api/launch-notification-api';
@@ -40,12 +41,16 @@ export function useLaunchNotificationGate() {
   const [phone, setPhone] = useState('');
   const [childGender, setChildGender] = useState<ChildGender | null>(null);
   const [childAge, setChildAge] = useState('');
-  const [discoverySource, setDiscoverySource] = useState('');
+  const [discoveryChoice, setDiscoveryChoice] = useState<string | null>(null);
+  const [discoveryOther, setDiscoveryOther] = useState('');
+  // 출시 소식(문자) 받기. 마케팅 수신이라 기본은 꺼 둔다.
+  const [wantsContact, setWantsContact] = useState(false);
+  const discoverySource = discoverySourceFrom(discoveryChoice, discoveryOther);
   const [error, setError] = useState<string | null>(null);
   // 어느 버튼을 눌렀는지 구분해야 그 버튼에만 로딩 스피너가 뜬다.
   const [submittingIntent, setSubmittingIntent] = useState<'contact' | 'decline' | null>(null);
 
-  // 이메일은 항상 선택, 전화번호는 "소식 받고 데모 시작"일 때만 필수다.
+  // 이메일은 항상 선택, 전화번호는 소식 받기를 켰을 때만 필수다.
   const values = { parentName, phone, childGender, childAge, discoverySource };
   const canSubmitFor = useCallback(
     (wantsContact: boolean) => canSubmitLaunchNotification(values, wantsContact),
@@ -93,8 +98,13 @@ export function useLaunchNotificationGate() {
     setChildGender,
     childAge,
     setChildAge,
+    discoveryChoice,
+    setDiscoveryChoice,
+    discoveryOther,
+    setDiscoveryOther,
     discoverySource,
-    setDiscoverySource,
+    wantsContact,
+    setWantsContact,
     error,
     submittingIntent,
     canSubmitFor,

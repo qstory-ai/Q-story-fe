@@ -5,6 +5,7 @@ import { LaunchNotificationGate } from '@/features/launch-notification-gate';
 import {
   describeStoryLoadFailure,
   getDefaultBetaStory,
+  STORY_IMAGE_ASSETS_BY_ID,
   type StoryLoadFailure,
   type StoryRuntimePackage,
 } from '@/entities/story';
@@ -49,7 +50,7 @@ export function DemoStoryRoute() {
 
   if (state.status === 'ready') {
     return (
-      <LaunchNotificationGate>
+      <LaunchNotificationGate backdrop={STORY_IMAGE_ASSETS_BY_ID.HG?.['home-table']}>
         <Suspense
           fallback={
             <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container} accessibilityLiveRegion="polite">

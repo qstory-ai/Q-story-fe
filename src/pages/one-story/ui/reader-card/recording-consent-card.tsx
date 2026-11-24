@@ -22,10 +22,13 @@ export function RecordingConsentCard() {
 
   return (
     <View style={styles.card} accessibilityRole="summary" accessibilityLabel="화면 녹화 허용 묻기">
-      <Text style={styles.body}>
-        더 좋은 이야기를 만들기 위해 화면을 녹화해도 될까요? 1년 보관하고, 입력한 글자는 가려요. 허용하지 않아도
-        똑같이 이용할 수 있어요.
-      </Text>
+      {/* 11/24: 한 문단으로 길게 쓰던 걸 질문 한 줄과 설명으로 나눴다. 보호자가 무엇을 고르는지 먼저 보이게. */}
+      <View style={styles.text}>
+        <Text style={styles.title}>화면 녹화를 허용할까요? (선택)</Text>
+        <Text style={styles.body}>
+          더 좋은 이야기를 만드는 데 써요. 1년 보관하고 입력한 글자는 가려요. 허용하지 않아도 똑같이 이용할 수 있어요.
+        </Text>
+      </View>
       <View style={styles.actions}>
         <Pressable
           accessibilityRole="button"
@@ -52,20 +55,32 @@ export function RecordingConsentCard() {
 
 const styles = StyleSheet.create({
   card: {
-    gap: 10,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    columnGap: 12,
+    rowGap: 10,
     backgroundColor: storybookTheme.semantic.brand.secondary,
     borderRadius: 18,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
+  // 넓은 카드에서는 글과 버튼이 한 줄, 좁으면 버튼이 아래 줄로 내려간다(flexWrap).
+  text: { flexGrow: 1, flexShrink: 1, flexBasis: 260, gap: 2 },
+  title: {
+    color: storybookTheme.color.goldText,
+    fontSize: storybookTheme.type.sm,
+    fontWeight: storybookTheme.type.weight.bold,
+  },
   body: {
     color: storybookTheme.color.goldText,
     fontSize: storybookTheme.type.xs,
-    lineHeight: 19,
+    lineHeight: 18,
+    opacity: 0.85,
   },
-  actions: { flexDirection: 'row', gap: 8, justifyContent: 'flex-end' },
+  actions: { flexDirection: 'row', gap: 8, justifyContent: 'flex-end', marginLeft: 'auto' },
   button: {
-    minHeight: 36,
+    minHeight: 40,
     minWidth: 76,
     paddingHorizontal: 14,
     borderRadius: storybookTheme.radius.pill,

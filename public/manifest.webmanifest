@@ -1,0 +1,19 @@
+{
+  "name": "큐스토리",
+  "short_name": "큐스토리",
+  "description": "우리 아이의 궁금증을 자극하고 질문과 생각을 이끄는 상호작용형 동화",
+  "lang": "ko",
+  "dir": "ltr",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FAF8FC",
+  "theme_color": "#FAF8FC",
+  "icons": [
+    { "src": "/brand/qstory-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/brand/qstory-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/brand/qstory-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

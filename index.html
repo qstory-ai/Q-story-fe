@@ -12,6 +12,12 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/brand/qstory-icon-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png" />
+    <!-- 홈 화면 설치(PWA). 서비스 워커는 src/app/register-service-worker.ts가 웹 배포본에서만 등록한다. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="큐스토리" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="theme-color" content="#FAF8FC" />
     <title>큐스토리</title>
     <!-- 초대·반 링크를 카카오톡 등에 붙였을 때의 미리보기. 경로와 상관없이 한 벌이다 - 리포트 링크도 이 공통 카드만

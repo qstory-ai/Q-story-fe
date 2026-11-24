@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { canSubmitLaunchNotification, launchNotificationPhone } from './launch-notification-form';
+import { canSubmitLaunchNotification, discoverySourceFrom, launchNotificationPhone } from './launch-notification-form';
 
 const base = { parentName: '홍길동', phone: '', childGender: 'GIRL', childAge: '5세', discoverySource: '지인' };
 
@@ -29,4 +29,11 @@ test('other required fields are needed for both choices', () => {
 test('phone is only sent when the guardian wants contact', () => {
   assert.equal(launchNotificationPhone(' 010-1 ', true), '010-1');
   assert.equal(launchNotificationPhone('010-1', false), undefined);
+});
+
+test('discovery source uses the chip label, or the typed text for 기타', () => {
+  assert.equal(discoverySourceFrom(null, ''), '');
+  assert.equal(discoverySourceFrom('인스타그램', '무시'), '인스타그램');
+  assert.equal(discoverySourceFrom('기타', '  블로그 '), '블로그');
+  assert.equal(discoverySourceFrom('기타', ' '), '');
 });

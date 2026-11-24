@@ -7,6 +7,7 @@ import { AuthProvider } from '@/entities/auth';
 import { BookmarksProvider } from '@/entities/bookmark';
 import { ChildrenProvider } from '@/entities/child';
 import { PushNotificationsBridge } from '@/features/push-notifications';
+import { PwaInstallPrompt } from '@/features/pwa-install';
 import { ReconsentGate } from '@/features/reconsent';
 import { SyncDemoCompletionOnAuth } from '@/features/sync-demo-completion';
 import { LEGACY_ROUTE_PATHS, legacyRedirectPath } from '@/shared/config';
@@ -113,6 +114,7 @@ export function App() {
           <BrowserRouter>
           <UsageTracking />
           <PushNotificationsBridge />
+          <PwaInstallPrompt />
         <Suspense fallback={<RouteLoadingFallback />}>
           {/* 새 필수 동의(약관 2026-10-v2)를 받지 않은 계정은 화면 대신 다시 동의 화면을 먼저 본다. */}
           <ReconsentGate>

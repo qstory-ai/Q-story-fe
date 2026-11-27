@@ -74,6 +74,8 @@ export type ClassStudentResponse = {
   /** 지난 학생(includePast)만 - 이 반을 떠난 시각과 이유. 지금 학생은 null. */
   endedAt?: string | null;
   endReason?: ClassMembershipEndReason | null;
+  /** 체험 모드에서 현장에 올린, 아직 보호자가 없는 학생의 보호자 연결 코드(be#131). 다 읽은 태블릿에 QR로 보여 준다. */
+  parentClaimCode?: string | null;
 };
 
 /** 학부모가 "내 아이가 들어가 있는 반" 목록에서 보는 한 줄. */
@@ -316,6 +318,23 @@ export function listClassStudents(
 }
 
 /**
+ * 체험 모드에서 미리 가입하지 않은 아이를 그 자리에서 반 명단에 올린다(be#131) - 이름만 받는다. 응답의 parentClaimCode가
+ * 보호자 연결 코드다.
+ */
+export function addClassStudent(
+  token: string,
+  classId: string,
+  name: string,
+  options?: RequestOptions,
+): Promise<ClassStudentResponse> {
+  return request(
+    `/v1/classes/${classId}/students`,
+    { method: 'POST', body: JSON.stringify({ name }) },
+    { ...options, token },
+  );
+}
+
+/**
  * 담임을 배정하거나 바꾼다(관리자만). 명단 학생과 아직 시작하지 않은 수업은 새 담임에게 넘어가고, 지난 수업과
  * 리포트는 그때 진행한 선생님 것으로 남는다.
  */
@@ -387,6 +406,8 @@ export function joinClass(
     consents: ConsentPayload;
     /** 이름이 명단과 달라도 명단의 이 학생과 잇는다(listClassRosterByCode의 id). */
     rosterStudentId?: string;
+    /** 체험 모드 QR의 보호자 연결 코드 - 현장에서 올린 그 학생에 잇고 그날 기록도 보인다. */
+    studentClaimCode?: string;
   },
   options?: RequestOptions,
 ): Promise<AuthResponse> {
@@ -423,6 +444,8 @@ export function joinExistingClass(
   input: ({ classCode: string; childId: string } | { classCode: string; childName: string; childBirthYear: number }) & {
     /** 이름이 명단과 달라도 명단의 이 학생과 잇는다(listClassRosterByCode의 id). */
     rosterStudentId?: string;
+    /** 체험 모드 QR의 보호자 연결 코드. */
+    studentClaimCode?: string;
   },
   options?: RequestOptions,
 ): Promise<AuthResponse> {

@@ -89,6 +89,11 @@ export function useOneStoryRuntime(
   entry?: 'resume' | 'start',
   /** Q-40 UT - 회차를 시작한 곳과 진행 형태(가정 HOME, 반 수업은 선생님이 고른 형태). */
   utContext?: { entrySource?: PlayEntrySource; playSetting?: PlaySetting },
+  /**
+   * 체험 모드(도서관 행사 등)에서 아이가 자기 이름을 눌러 시작한 재생. 같은 태블릿을 여러 아이가 차례로 쓰므로 앞 아이의
+   * 이어 읽기를 묻지 않고 남기지도 않는다. 이름은 미리 채우고, 나가면 "다음 친구" 화면(exitPath)으로 간다.
+   */
+  kiosk?: { childName: string; exitPath: string },
 ) {
   const entrySource = utContext?.entrySource ?? (lessonId ? 'lesson' : 'detail');
   const playSetting: PlaySetting = utContext?.playSetting ?? (lessonId ? 'WHOLE_CLASS' : 'HOME');
@@ -272,7 +277,7 @@ export function useOneStoryRuntime(
   const playbackAbortRef = useRef<AbortController | null>(null);
   // 홈에서 아이를 선택하고 들어왔으면 그 이름으로 미리 채운다. 데모(/demo)처럼 선택된 아이가
   // 없으면 빈 입력으로 남는다(IdlePanel이 이 경우에만 입력 UI를 보여준다).
-  const [childNameInput, setChildNameInput] = useState(() => selectedChild?.name ?? '');
+  const [childNameInput, setChildNameInput] = useState(() => kiosk?.childName ?? selectedChild?.name ?? '');
   const [childName, setChildName] = useState('');
   const [parentMessage, setParentMessage] = useState<string | null>(null);
   const [activeBranchVisualId, setActiveBranchVisualId] =
@@ -328,7 +333,7 @@ export function useOneStoryRuntime(
   }, [completionSaveStatus, runCompletionSave]);
   const [resumeCandidate, setResumeCandidate] =
     useState<LocalStoryProgress | null>(() =>
-      resumableProgressFor(loadLocalStoryProgress(), storyPackage.storyId, selectedChild?.id),
+      kiosk ? null : resumableProgressFor(loadLocalStoryProgress(), storyPackage.storyId, selectedChild?.id),
     );
   const [homeMenuVisible, setHomeMenuVisible] = useState(false);
   const [chaptersOpen, setChaptersOpen] = useState(false);
@@ -1605,7 +1610,7 @@ export function useOneStoryRuntime(
   // 기록을 정리한 뒤 홈(homePathForAuth)으로 간다. 비로그인 체험은 어디서 나가든 메인 홈페이지(qstory.ai.kr)로 간다.
   const leaveStory = useCallback(async () => {
     trackPlaybackControl('exit');
-    const plan = resolveExit(authState, runtimeRef.current.status);
+    const plan = resolveExit(authState, runtimeRef.current.status, kiosk?.exitPath);
     if (plan.saveProgress) persistCurrentProgress();
     // Q-39: 도중에 나가면 "멈춘 회차"(EXITED)로 저장해 리포트에 남긴다(로그인·도중일 때만, 안에서 거른다).
     saveExitedSession();
@@ -1635,6 +1640,7 @@ export function useOneStoryRuntime(
     navigate(plan.path);
   }, [
     authState,
+    kiosk?.exitPath,
     navigate,
     narrationState.captionRequestId,
     narrationState.isPaused,

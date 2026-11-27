@@ -33,6 +33,7 @@ export function OneStoryPage({
   lessonId,
   entry,
   utContext,
+  kiosk,
 }: {
   storyPackage: StoryRuntimePackage;
   /** 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 넘긴다(StoryPlayerRoute 참고). */
@@ -43,12 +44,14 @@ export function OneStoryPage({
   entry?: 'resume' | 'start';
   /** Q-40 UT - 회차를 시작한 곳과 진행 형태(StoryPlayerRoute가 주소에서 정한다). */
   utContext?: { entrySource?: PlayEntrySource; playSetting?: PlaySetting };
+  /** 체험 모드에서 아이가 이름을 눌러 시작한 재생 - use-one-story-runtime의 kiosk 참고. */
+  kiosk?: { childName: string; exitPath: string };
 }) {
   // conversationId는 회차 하나 = 하나. runtime의 완주 저장·대화 기록과 chat의 대화 요청이 같은 id를
   // 공유해야 서버가 companion_chat_turn 태그와 대화 줄을 story_completion에 붙일 수 있다. 처음 값만 여기서
   // 만들고, 처음부터 다시 읽기·이어서 읽기로 바뀌는 지금 회차 id는 runtime.sessionId가 갖는다(Q-39).
   const [companionConversationId] = useState(() => crypto.randomUUID());
-  const runtime = useOneStoryRuntime(storyPackage, tutorStudentId, companionConversationId, lessonId, entry, utContext);
+  const runtime = useOneStoryRuntime(storyPackage, tutorStudentId, companionConversationId, lessonId, entry, utContext, kiosk);
   const {
     isWide,
     isShort,

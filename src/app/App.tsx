@@ -27,6 +27,8 @@ const OnboardingParentPage = page(() => import('@/pages/onboarding-parent'), 'On
 const OnboardingTutorPage = page(() => import('@/pages/onboarding-tutor'), 'OnboardingTutorPage');
 const LoginPage = page(() => import('@/pages/login'), 'LoginPage');
 const ClassDetailPage = page(() => import('@/pages/class-detail'), 'ClassDetailPage');
+const ClassKioskPage = page(() => import('@/pages/class-kiosk'), 'ClassKioskPage');
+const ClassKioskDonePage = page(() => import('@/pages/class-kiosk'), 'ClassKioskDonePage');
 const TutorClassGroupNewPage = page(() => import('@/pages/tutor-class-group'), 'TutorClassGroupNewPage');
 const JoinClassPage = page(() => import('@/pages/join-class'), 'JoinClassPage');
 const SignupPage = page(() => import('@/pages/signup'), 'SignupPage');
@@ -136,6 +138,8 @@ export function App() {
             <Route path="/tutor/classes" element={<TutorStudentsPage />} />
             <Route path="/tutor/classes/new" element={<TutorClassGroupNewPage />} />
             <Route path="/tutor/classes/:classId" element={<ClassDetailPage />} />
+            <Route path="/tutor/classes/:classId/kiosk" element={<ClassKioskPage />} />
+            <Route path="/tutor/classes/:classId/kiosk/done/:studentId" element={<ClassKioskDonePage />} />
             <Route path="/tutor/lessons" element={<TutorLessonsPage />} />
             <Route path="/tutor/reports" element={<TutorReportsPage />} />
             <Route path="/tutor/join-organization" element={<TutorJoinOrganizationPage />} />

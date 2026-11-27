@@ -7,6 +7,11 @@ export const TUTOR_PATHS = {
   classes: '/tutor/classes',
   newClass: '/tutor/classes/new',
   classDetail: (classId: string) => `/tutor/classes/${classId}`,
+  /** 체험 모드 - 태블릿마다 띄워 두고 아이가 자기 이름을 눌러 시작한다(도서관 행사 등). */
+  classKiosk: (classId: string) => `/tutor/classes/${classId}/kiosk`,
+  /** 체험 모드에서 아이가 다 읽은 뒤 - 보호자 QR과 "다음 친구". */
+  classKioskDone: (classId: string, studentId: string) => `/tutor/classes/${classId}/kiosk/done/${studentId}`,
+
   student: (studentId: string) => `/tutor/students/${studentId}`,
   /** 수업 탭 - 예정/진행/완료 수업. */
   lessons: '/tutor/lessons',

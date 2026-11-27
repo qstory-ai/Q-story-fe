@@ -33,3 +33,9 @@ test('완주 후 나가기: 로그인은 기록을 정리하고 역할 홈, 익�
     clearProgress: false,
   });
 });
+
+test('체험 모드는 도중이든 완주든 이어 읽기를 남기지 않고 다음 친구 화면으로 간다', () => {
+  const done = '/tutor/classes/c1/kiosk/done/s1';
+  assert.deepEqual(resolveExit(tutor, 'playing-fixed', done), { path: done, saveProgress: false, clearProgress: true });
+  assert.deepEqual(resolveExit(tutor, 'complete', done), { path: done, saveProgress: false, clearProgress: true });
+});

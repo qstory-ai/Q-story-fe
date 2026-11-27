@@ -122,6 +122,8 @@ const DYNAMIC_ROUTES = [
   { method: 'GET', pattern: new RegExp(`^v1/classes/by-code/${SHORT_CODE_SEGMENT}$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/by-code/${SHORT_CODE_SEGMENT}/roster$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/students$`) },
+  // 체험 모드 - 미리 가입하지 않은 아이를 그 자리에서 반 명단에 올린다(be#131).
+  { method: 'POST', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/students$`) },
   // 원장 반 상세의 최근 리포트·학생별 리포트·담임 변경 이력.
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/reports$`) },
   { method: 'GET', pattern: new RegExp(`^v1/classes/${UUID_SEGMENT}/students/${UUID_SEGMENT}/reports$`) },

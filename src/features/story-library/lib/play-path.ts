@@ -21,12 +21,18 @@ export function storyPlayPath(
     lessonId?: string;
     setting?: string;
     recordLesson?: boolean;
+    /** 선생님이 이 학생 한 명의 기록으로 남기는 재생(수업 없이) - 완주가 그 학생 개별 기록이 된다. */
+    tutorStudentId?: string;
+    /** 체험 모드(반 id) - 같은 태블릿을 여러 아이가 쓰므로 이어 읽기를 남기지 않고 끝나면 "다음 친구"로 간다. */
+    kioskClassId?: string;
   } = {},
 ): string {
   const params = new URLSearchParams();
   if (options.lessonId) params.set('lessonId', options.lessonId);
   if (options.setting) params.set('setting', options.setting);
   if (options.lessonId && options.recordLesson) params.set('rec', '1');
+  if (options.tutorStudentId) params.set('tutorStudentId', options.tutorStudentId);
+  if (options.kioskClassId) params.set('kiosk', options.kioskClassId);
   if (options.childId) params.set('childId', options.childId);
   if (options.resume) params.set('resume', '1');
   if (options.from) params.set('from', options.from);

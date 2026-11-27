@@ -4,7 +4,7 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 
 import { OneStoryPage } from './OneStoryPage';
 import { describeStoryLoadFailure, loadStoryPackage, type StoryLoadFailure, type StoryRuntimePackage } from '@/entities/story';
-import { homePathForAuth, useAuth } from '@/entities/auth';
+import { TUTOR_PATHS, homePathForAuth, useAuth } from '@/entities/auth';
 import { useChildren } from '@/entities/child';
 import { parsePlaySetting, playEntrySource } from '@/entities/play-session';
 import { recordingConsentStore } from '@/entities/session-recording';
@@ -31,6 +31,19 @@ export function StoryPlayerRoute() {
   const [searchParams] = useSearchParams();
   // 선생님이 자신이 등록한 학생과 진행하는 세션일 때만 붙는다 - 완주 시 그대로 기록된다.
   const tutorStudentId = searchParams.get('tutorStudentId') ?? undefined;
+  // 체험 모드(kiosk=반 id)에서 아이가 이름을 눌러 시작했으면 - 이름은 주소가 아니라 화면 이동 state로 받는다.
+  const kioskClassId = searchParams.get('kiosk');
+  const kioskChildName = (location.state as { kioskChildName?: unknown } | null)?.kioskChildName;
+  const kiosk = useMemo(
+    () =>
+      kioskClassId && tutorStudentId
+        ? {
+            childName: typeof kioskChildName === 'string' ? kioskChildName : '',
+            exitPath: TUTOR_PATHS.classKioskDone(kioskClassId, tutorStudentId),
+          }
+        : undefined,
+    [kioskChildName, kioskClassId, tutorStudentId],
+  );
   // 수업 상세의 "시작"에서 왔으면 수업 id도 함께 - 완주 시 참여 학생 전원의 기록이 이 수업에 연결된다.
   const lessonId = searchParams.get('lessonId') ?? undefined;
   // 반 수업 화면 녹화는 선생님이 수업을 시작할 때 고른 값(rec=1)만 따른다 - 이 수업에만, 기기 결정으로 남기지 않는다.
@@ -96,7 +109,7 @@ export function StoryPlayerRoute() {
   const effectiveState: LoadState = state.requestKey === requestKey ? state : { requestKey, status: 'loading' };
 
   if (effectiveState.status === 'ready' && childSync.kind === 'ready') {
-    return <OneStoryPage storyPackage={effectiveState.storyPackage} tutorStudentId={tutorStudentId} lessonId={lessonId} entry={entry} utContext={utContext} />;
+    return <OneStoryPage storyPackage={effectiveState.storyPackage} tutorStudentId={tutorStudentId} lessonId={lessonId} entry={entry} utContext={utContext} kiosk={kiosk} />;
   }
 
   return (

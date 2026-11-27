@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -19,6 +19,8 @@ import { homePathFor, joinExistingClass, previewClassByCode, useAuth, type Class
 import { BirthYearChips, listChildren, useChildren, type Child } from '@/entities/child';
 import { RosterStudentPicker, rosterSelectionBlocksSubmit, type RosterSelection } from '@/features/class-roster-pick';
 
+import { clearJoinClaim, resolveJoinClaim, sessionStore } from '../model/join-claim';
+
 const NEW_CHILD = 'new';
 
 type PreviewState =
@@ -34,11 +36,14 @@ type PreviewState =
 export function JoinClassPage() {
   const [searchParams] = useSearchParams();
   const code = (searchParams.get('code') ?? '').trim().toUpperCase();
+  const claimParam = searchParams.get('claim');
+  // 체험 모드 QR의 연결 코드 - 가입을 거쳐 claim 없이 돌아와도 이 탭에 둔 값을 쓴다.
+  const claim = useMemo(() => (code ? resolveJoinClaim(code, claimParam, sessionStore()) : null), [code, claimParam]);
   if (!code) return <Navigate to="/?flow=sign-up&role=parent" replace />;
-  return <ClassInvite code={code} />;
+  return <ClassInvite code={code} claim={claim} />;
 }
 
-function ClassInvite({ code }: { code: string }) {
+function ClassInvite({ code, claim }: { code: string; claim: string | null }) {
   const navigate = useNavigate();
   const { state, logout } = useAuth();
   const [attempt, setAttempt] = useState(0);
@@ -118,6 +123,7 @@ function ClassInvite({ code }: { code: string }) {
           <ChildPicker
             token={state.token}
             preview={preview}
+            claim={claim}
             onJoined={(homePath) => navigate(homePath, { replace: true })}
           />
         )}
@@ -138,10 +144,13 @@ function ClassInvite({ code }: { code: string }) {
 function ChildPicker({
   token,
   preview,
+  claim,
   onJoined,
 }: {
   token: string;
   preview: ClassPreview;
+  /** 체험 모드 QR로 왔으면 그 연결 코드 - 명단에서 고르지 않고 그날 읽은 학생에 곧장 잇는다. */
+  claim: string | null;
   onJoined: (homePath: string) => void;
 }) {
   const { setSession } = useAuth();
@@ -201,7 +210,7 @@ function ChildPicker({
   // 명단과 비교할 이름 - 새 아이면 적은 이름, 이미 등록한 아이면 그 아이 이름.
   const nameForRoster = isNew ? childName : (children.find((child) => child.id === selected)?.name ?? '');
   const canSubmit =
-    !submitting && (!isNew || childName.trim().length > 0) && !rosterSelectionBlocksSubmit(rosterSelection);
+    !submitting && (!isNew || childName.trim().length > 0) && (Boolean(claim) || !rosterSelectionBlocksSubmit(rosterSelection));
 
   async function submit() {
     setError(null);
@@ -214,9 +223,12 @@ function ChildPicker({
           ...(isNew
             ? { classCode: preview.classCode, childName: childName.trim(), childBirthYear }
             : { classCode: preview.classCode, childId: selected }),
-          rosterStudentId: rosterSelection.kind === 'student' ? rosterSelection.id : undefined,
+          ...(claim
+            ? { studentClaimCode: claim }
+            : { rosterStudentId: rosterSelection.kind === 'student' ? rosterSelection.id : undefined }),
         },
       );
+      if (claim) clearJoinClaim(sessionStore());
       // 반 소속으로 기관 이용권이 생길 수 있어 응답의 사용자 정보로 세션을 갱신한다.
       setSession(response.token, response.user);
       void trackBetaEvent('class_join', { step: 'success', via: 'invite_link' });
@@ -258,7 +270,11 @@ function ChildPicker({
           <BirthYearChips value={childBirthYear} onChange={setChildBirthYear} minAge={3} maxAge={12} />
         </>
       ) : null}
-      <RosterStudentPicker classCode={preview.classCode} childName={nameForRoster} onChange={setRosterSelection} />
+      {claim ? (
+        <Text style={styles.note}>체험 때 읽은 기록과 이어져요. 연결하면 그날 리포트를 바로 볼 수 있어요.</Text>
+      ) : (
+        <RosterStudentPicker classCode={preview.classCode} childName={nameForRoster} onChange={setRosterSelection} />
+      )}
       {error ? <StatusBanner variant="warning" label={error} /> : null}
       <ActionButton
         variant="gold"

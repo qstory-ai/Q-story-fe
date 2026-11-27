@@ -88,7 +88,8 @@ export function ReportHistoryPage() {
   const { load: childrenLoad, children, selectedChild } = useChildren();
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [tab, setTab] = useState<Tab>('by-story');
-  const [section, setSection] = useState<Section>('child');
+  // 고르기 전에는(null) 집에서 읽은 기록이 없고 수업·체험 리포트만 있으면 그쪽을 먼저 연다 - 빈 탭부터 보이지 않게.
+  const [sectionChoice, setSection] = useState<Section | null>(null);
   // "전체 아이" 보기 - 끄면 전역 선택 아이 기준. 아이가 없으면(selectedChild null) 자연히 전체.
   const [showAllChildren, setShowAllChildren] = useState(false);
   const childFilterId = showAllChildren ? null : selectedChild?.id ?? null;
@@ -158,6 +159,9 @@ export function ReportHistoryPage() {
   if (!canView) return null;
   // 반에 연결된 아이가 있거나 수업 리포트가 하나라도 있으면 "반·수업 리포트"를 따로 보여 준다.
   const showClassSection = load.status === 'ready' && (load.hasClassMembership || load.tutorReports.length > 0);
+  const section: Section =
+    sectionChoice ??
+    (showClassSection && load.status === 'ready' && load.completions.length === 0 && load.tutorReports.length > 0 ? 'class' : 'child');
   const hasComprehensive = load.status === 'ready' && showComprehensiveTab(load.comprehensiveSessionCount);
   const activeTab: Tab = hasComprehensive ? tab : 'by-story';
 

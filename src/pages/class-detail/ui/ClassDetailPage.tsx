@@ -241,6 +241,23 @@ export function ClassDetailPage() {
               />
             ) : null}
 
+            {viewer === 'TUTOR' && !readOnly ? (
+              <Card style={styles.formCard}>
+                <Text style={styles.sectionTitle}>체험 모드</Text>
+                <Text style={styles.body}>
+                  태블릿마다 띄워 두면 아이가 자기 이름을 눌러 혼자 읽어요. 기록은 아이마다 따로 남고, 처음 온 아이는 그 자리에서
+                  이름을 올린 뒤 보호자가 QR로 이어 받을 수 있어요.
+                </Text>
+                <View style={styles.actions}>
+                  <ActionButton
+                    variant="secondary"
+                    label="체험 모드 열기"
+                    onPress={() => navigate(TUTOR_PATHS.classKiosk(effective.classGroup.id))}
+                  />
+                </View>
+              </Card>
+            ) : null}
+
             {viewer === 'DIRECTOR' ? (
               <ClassManageCard
                 key={`${effective.classGroup.id}:${effective.classGroup.name}:${effective.classGroup.archivedAt ?? ''}`}

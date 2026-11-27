@@ -50,6 +50,8 @@ export const GA_ROUTE_TEMPLATES: readonly string[] = [
   '/tutor/classes',
   '/tutor/classes/new',
   '/tutor/classes/:classId',
+  '/tutor/classes/:classId/kiosk',
+  '/tutor/classes/:classId/kiosk/done/:studentId',
   '/tutor/lessons',
   '/tutor/class-groups',
   '/tutor/class-groups/new',
